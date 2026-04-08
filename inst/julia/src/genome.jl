@@ -262,7 +262,8 @@ end
 # ── Phenotype expression ───────────────────────────────────────────────────────
 
 """
-    express_weights(g::DiploidGenome, dominance_model::String) -> Vector{Float32}
+    express_weights(g::DiploidGenome, dominance_model::String,
+                   rng = default_rng()) -> Vector{Float32}
 
 Compute the expressed weight phenotype from the diploid genome.
 
@@ -272,24 +273,25 @@ Dominance models:
 - `"dominant"` — for each weight, randomly select the maternal or paternal
   allele (50% each). Equivalent to full dominance under random allele
   expression. Note: this is stochastic at birth (fixed once expressed).
+  Pass `env.rng` so that seeded runs are fully reproducible.
 - `"codominant"` — identical to additive for the expressed weight; the
   distinction matters only in get_genome_data() reporting.
 
 Reference: Charlesworth & Charlesworth (2010), Section 5.1.
 """
-function express_weights(g::DiploidGenome, dominance_model::String)::Vector{Float32}
+function express_weights(g::DiploidGenome, dominance_model::String,
+                         rng = default_rng())::Vector{Float32}
     if is_haploid(g) || dominance_model == "dominant"
         if is_haploid(g)
             return copy(g.maternal_weights)
         else
-            # Random allele per locus (Bernoulli 0.5 per locus)
-            # We use a fast bit-level selection trick: for each group of 64
-            # weights, draw one UInt64 and use each bit to select allele.
+            # Random allele per locus (Bernoulli 0.5 per locus).
+            # Use the caller-supplied RNG so seeded runs are reproducible.
             n = length(g.maternal_weights)
             out = Vector{Float32}(undef, n)
             for i in 1:n
-                # Independent Bernoulli per locus — simple but correct.
-                out[i] = rand() < 0.5 ? g.maternal_weights[i] : g.paternal_weights[i]
+                out[i] = rand(rng) < 0.5 ?
+                         g.maternal_weights[i] : g.paternal_weights[i]
             end
             return out
         end
@@ -301,20 +303,23 @@ end
 
 """
     express_trait(g::DiploidGenome, trait_idx::Int,
-                  dominance_model::String, lo, hi) -> Float32
+                  dominance_model::String, lo, hi,
+                  rng = default_rng()) -> Float32
 
-Express one scalar trait, clamped to [lo, hi].
+Express one scalar trait, clamped to [lo, hi]. Pass `env.rng` to ensure
+seeded reproducibility under the `"dominant"` dominance model.
 """
 function express_trait(g::DiploidGenome, trait_idx::Int,
                         dominance_model::String,
-                        lo::Float32, hi::Float32)::Float32
+                        lo::Float32, hi::Float32,
+                        rng = default_rng())::Float32
     mat = g.maternal_traits[trait_idx]
     if is_haploid(g)
         return clamp(mat, lo, hi)
     end
     pat = g.paternal_traits[trait_idx]
     expressed = dominance_model == "dominant" ?
-                (rand() < 0.5 ? mat : pat) :
+                (rand(rng) < 0.5 ? mat : pat) :
                 (mat + pat) * 0.5f0          # additive / codominant
     clamp(expressed, lo, hi)
 end

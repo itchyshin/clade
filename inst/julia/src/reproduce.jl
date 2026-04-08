@@ -175,33 +175,33 @@ function _make_offspring(id::Int64, g::DiploidGenome, brain::AbstractBrain,
     dm   = get(specs, "dominance_model", "additive")
 
     # Place at an empty adjacent cell if possible
-    x, y = _place_offspring(parent, rows, cols)
+    x, y = _place_offspring(parent, rows, cols, rng)
 
     mate_id = mate !== nothing ? mate.id : Int64(0)
     sig_dims = Int(get(specs, "signal_dims", 0))
 
-    # Express scalar traits
+    # Express scalar traits (pass rng for reproducibility under dominant model)
     body_size  = express_trait(g, TRAIT_BODY_SIZE, dm,
                                Float32(get(specs,"body_size_min",0.1)),
-                               Float32(get(specs,"body_size_max",5.0)))
-    immune_str = express_trait(g, TRAIT_IMMUNE_STRENGTH, dm, 0.0f0, 1.0f0)
-    coop       = express_trait(g, TRAIT_COOPERATION_LEVEL, dm, 0.0f0, 1.0f0)
+                               Float32(get(specs,"body_size_max",5.0)), rng)
+    immune_str = express_trait(g, TRAIT_IMMUNE_STRENGTH, dm, 0.0f0, 1.0f0, rng)
+    coop       = express_trait(g, TRAIT_COOPERATION_LEVEL, dm, 0.0f0, 1.0f0, rng)
     disp       = express_trait(g, TRAIT_DISPERSAL_TENDENCY, dm,
                                Float32(get(specs,"dispersal_min",0.0)),
-                               Float32(get(specs,"dispersal_max",1.0)))
+                               Float32(get(specs,"dispersal_max",1.0)), rng)
     metab      = express_trait(g, TRAIT_METABOLIC_RATE, dm,
                                Float32(get(specs,"metabolic_rate_min",0.1)),
-                               Float32(get(specs,"metabolic_rate_max",5.0)))
+                               Float32(get(specs,"metabolic_rate_max",5.0)), rng)
     aging      = express_trait(g, TRAIT_AGING_RATE, dm,
                                Float32(get(specs,"aging_rate_min",0.01)),
-                               Float32(get(specs,"aging_rate_max",10.0)))
-    repro_th   = express_trait(g, TRAIT_REPRO_THRESHOLD, dm, 0.0f0, 1000.0f0)
+                               Float32(get(specs,"aging_rate_max",10.0)), rng)
+    repro_th   = express_trait(g, TRAIT_REPRO_THRESHOLD, dm, 0.0f0, 1000.0f0, rng)
     mut_sd     = express_trait(g, TRAIT_MUTATION_SD, dm,
                                Float32(get(specs,"mutation_sd_min",0.001)),
-                               Float32(get(specs,"mutation_sd_max",1.0)))
+                               Float32(get(specs,"mutation_sd_max",1.0)), rng)
     lr         = express_trait(g, TRAIT_LEARNING_RATE, dm,
                                Float32(get(specs,"learning_rate_min",0.0)),
-                               Float32(get(specs,"learning_rate_max",0.5)))
+                               Float32(get(specs,"learning_rate_max",0.5)), rng)
 
     Agent(
         id, parent.id, mate_id,
@@ -220,15 +220,14 @@ function _make_offspring(id::Int64, g::DiploidGenome, brain::AbstractBrain,
 end
 
 """
-    _place_offspring(parent, rows, cols) -> Tuple{Int, Int}
+    _place_offspring(parent, rows, cols, rng) -> Tuple{Int, Int}
 
-Return (x, y) for the offspring. Tries the parent's adjacent cells; if all
-are off-grid (impossible on toroidal grid) or occupied, returns parent's cell.
+Return (x, y) for the offspring. Chooses a random adjacent cell (toroidal
+wrap). The caller passes `env.rng` so that seeded runs are reproducible.
 """
-function _place_offspring(parent::Agent, rows::Int, cols::Int)::Tuple{Int, Int}
+function _place_offspring(parent::Agent, rows::Int, cols::Int, rng)::Tuple{Int, Int}
     x, y = Int(parent.x), Int(parent.y)
-    # Random adjacent cell (toroidal)
-    dx = rand(-1:1)
-    dy = rand(-1:1)
+    dx = rand(rng, -1:1)
+    dy = rand(rng, -1:1)
     (mod1(x + dx, rows), mod1(y + dy, cols))
 end

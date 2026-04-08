@@ -33,7 +33,7 @@ of each tick in `remove_dead!()`. This is the same pattern used in alifeR
 """
 module Clade
 
-using Random: Xoshiro, seed!
+using Random: Xoshiro, seed!, default_rng
 using Statistics: mean, std
 using LinearAlgebra: norm
 
@@ -469,27 +469,27 @@ function _make_founder_agent(id::Int64, g::DiploidGenome, brain::AbstractBrain,
 
     body_size = express_trait(g, TRAIT_BODY_SIZE, dm,
                               Float32(get(specs, "body_size_min",  0.1)),
-                              Float32(get(specs, "body_size_max",  5.0)))
+                              Float32(get(specs, "body_size_max",  5.0)), rng)
     immune_str = express_trait(g, TRAIT_IMMUNE_STRENGTH, dm,
                                Float32(get(specs, "immune_strength_min", 0.0)),
-                               Float32(get(specs, "immune_strength_max", 1.0)))
-    coop = express_trait(g, TRAIT_COOPERATION_LEVEL, dm, 0.0f0, 1.0f0)
+                               Float32(get(specs, "immune_strength_max", 1.0)), rng)
+    coop = express_trait(g, TRAIT_COOPERATION_LEVEL, dm, 0.0f0, 1.0f0, rng)
     disp = express_trait(g, TRAIT_DISPERSAL_TENDENCY, dm,
                          Float32(get(specs, "dispersal_min", 0.0)),
-                         Float32(get(specs, "dispersal_max", 1.0)))
+                         Float32(get(specs, "dispersal_max", 1.0)), rng)
     metab = express_trait(g, TRAIT_METABOLIC_RATE, dm,
                           Float32(get(specs, "metabolic_rate_min", 0.1)),
-                          Float32(get(specs, "metabolic_rate_max", 5.0)))
+                          Float32(get(specs, "metabolic_rate_max", 5.0)), rng)
     aging = express_trait(g, TRAIT_AGING_RATE, dm,
                           Float32(get(specs, "aging_rate_min", 0.01)),
-                          Float32(get(specs, "aging_rate_max", 10.0)))
-    repro_th = express_trait(g, TRAIT_REPRO_THRESHOLD, dm, 0.0f0, 1000.0f0)
+                          Float32(get(specs, "aging_rate_max", 10.0)), rng)
+    repro_th = express_trait(g, TRAIT_REPRO_THRESHOLD, dm, 0.0f0, 1000.0f0, rng)
     mut_sd   = express_trait(g, TRAIT_MUTATION_SD, dm,
                              Float32(get(specs, "mutation_sd_min",  0.001)),
-                             Float32(get(specs, "mutation_sd_max",  1.0)))
+                             Float32(get(specs, "mutation_sd_max",  1.0)), rng)
     lr       = express_trait(g, TRAIT_LEARNING_RATE, dm,
                              Float32(get(specs, "learning_rate_min", 0.0)),
-                             Float32(get(specs, "learning_rate_max", 0.5)))
+                             Float32(get(specs, "learning_rate_max", 0.5)), rng)
 
     sig_dims = Int(get(specs, "signal_dims", 0))
 
