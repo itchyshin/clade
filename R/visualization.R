@@ -11,10 +11,14 @@
 #'   1.1.0. https://patchwork.data-imaginist.com
 #'
 #' @importFrom ggplot2 ggplot aes geom_line geom_tile geom_point geom_ribbon
+#' @importFrom ggplot2 geom_histogram geom_bar geom_col geom_hline
 #' @importFrom ggplot2 theme_minimal theme theme_void labs
-#' @importFrom ggplot2 scale_fill_viridis_c scale_colour_gradient
-#' @importFrom ggplot2 scale_colour_manual scale_linetype_manual
-#' @importFrom ggplot2 annotate coord_fixed element_text element_blank element_rect margin
+#' @importFrom ggplot2 scale_fill_viridis_c scale_fill_gradient scale_fill_gradient2
+#' @importFrom ggplot2 scale_fill_manual scale_colour_gradient scale_colour_viridis_c
+#' @importFrom ggplot2 scale_colour_manual scale_linetype_manual scale_linewidth_manual
+#' @importFrom ggplot2 scale_size_continuous
+#' @importFrom ggplot2 annotate coord_fixed coord_flip element_text element_blank
+#' @importFrom ggplot2 element_rect margin
 #' @importFrom ggplot2 .data
 #' @importFrom patchwork wrap_plots
 #' @importFrom stats sd
@@ -150,8 +154,8 @@ plot_run <- function(run_data, ...) {
     .clade_theme()
 
   # 6. Brain-type panel: BNN sigma decay (Baldwin Effect) or body size
-  sigma_vec <- if ("mean_prior_sigma" %in% names(d)) d$mean_prior_sigma
-               else rep(0, nrow(d))
+  sigma_col <- if ("mean_prior_sigma" %in% names(d)) "mean_prior_sigma" else NULL
+  sigma_vec <- if (!is.null(sigma_col)) d[[sigma_col]] else rep(0, nrow(d))
   if (any(sigma_vec > 0) && stats::sd(sigma_vec) > 1e-8) {
     p_sixth <- ggplot2::ggplot(
       d, ggplot2::aes(x = .data$t, y = .data$mean_prior_sigma)
@@ -226,63 +230,80 @@ plot_environment <- function(env) {
     grass = as.vector(grass_mat)
   )
 
-  grass_max <- if (!is.null(specs$grass_max)) specs$grass_max else 5
+  grass_max <- if (!is.null(specs$grass_max)) as.numeric(specs$grass_max) else 5
 
-  # Agents
+  # Agents — JuliaConnectoR proxies require index-based iteration
   agents <- env$agents
-  if (is.null(agents) || length(agents) == 0L) {
+  n_agents <- if (!is.null(agents)) as.integer(length(agents)) else 0L
+  if (n_agents > 0L) {
+    agents_df <- data.frame(
+      row    = vapply(seq_len(n_agents),
+                      function(i) as.numeric(agents[[i]]$x), numeric(1L)),
+      col    = vapply(seq_len(n_agents),
+                      function(i) as.numeric(agents[[i]]$y), numeric(1L)),
+      energy = vapply(seq_len(n_agents),
+                      function(i) as.numeric(agents[[i]]$energy), numeric(1L))
+    )
+  } else {
     agents_df <- data.frame(row = integer(0), col = integer(0),
                             energy = numeric(0))
-  } else {
-    agents_df <- data.frame(
-      row    = vapply(agents, function(a) as.numeric(a$x), numeric(1)),
-      col    = vapply(agents, function(a) as.numeric(a$y), numeric(1)),
-      energy = vapply(agents, function(a) as.numeric(a$energy), numeric(1))
-    )
   }
 
   # Predators (optional)
   preds <- env$predators
-  pred_df <- if (is.null(preds) || length(preds) == 0L) {
-    data.frame(row = integer(0), col = integer(0))
-  } else {
+  n_preds <- if (!is.null(preds)) as.integer(length(preds)) else 0L
+  pred_df <- if (n_preds > 0L) {
+    .safe_num <- function(x) {
+      v <- suppressWarnings(as.numeric(x))
+      if (length(v) == 1L && is.finite(v)) v else 2.0
+    }
     data.frame(
-      row = vapply(preds, function(a) as.numeric(a$x), numeric(1)),
-      col = vapply(preds, function(a) as.numeric(a$y), numeric(1))
+      row    = vapply(seq_len(n_preds),
+                      function(i) .safe_num(preds[[i]]$x), numeric(1L)),
+      col    = vapply(seq_len(n_preds),
+                      function(i) .safe_num(preds[[i]]$y), numeric(1L)),
+      energy = vapply(seq_len(n_preds),
+                      function(i) .safe_num(preds[[i]]$energy), numeric(1L))
     )
+  } else {
+    data.frame(row = integer(0), col = integer(0), energy = numeric(0))
   }
 
-  tick <- if (!is.null(env$t)) env$t else 0L
-  title_str <- sprintf("Tick %d  |  Agents: %d", tick, nrow(agents_df))
+  tick <- if (!is.null(env$t)) as.integer(env$t) else 0L
+  title_str <- if (n_preds > 0L) {
+    sprintf("Tick %d  |  Prey: %d  |  Predators: %d", tick, n_agents, n_preds)
+  } else {
+    sprintf("Tick %d  |  Agents: %d", tick, n_agents)
+  }
 
   p <- ggplot2::ggplot(
     grass_df,
     ggplot2::aes(x = .data$col, y = .data$row, fill = .data$grass)
   ) +
-    ggplot2::geom_tile() +
-    ggplot2::scale_fill_viridis_c(
-      option = "D", direction = 1, limits = c(0, grass_max),
-      name = "Grass"
+    ggplot2::geom_tile(show.legend = TRUE) +
+    ggplot2::scale_fill_gradient(
+      low = "#1a3d0a", high = "#7cfc00",
+      limits = c(0, grass_max), name = "Grass"
     )
 
   if (nrow(agents_df) > 0L) {
     p <- p +
       ggplot2::geom_point(
         data = agents_df,
-        ggplot2::aes(x = .data$col, y = .data$row, colour = .data$energy),
-        size = 2, inherit.aes = FALSE
+        ggplot2::aes(x = .data$col, y = .data$row,
+                     size = .data$energy),
+        colour = "white", alpha = 0.85, inherit.aes = FALSE
       ) +
-      ggplot2::scale_colour_gradient(
-        low = "#fde0dd", high = "#fdbb84", name = "Energy"
-      )
+      ggplot2::scale_size_continuous(range = c(1.5, 5), name = "Energy")
   }
 
   if (nrow(pred_df) > 0L) {
     p <- p +
       ggplot2::geom_point(
         data = pred_df,
-        ggplot2::aes(x = .data$col, y = .data$row),
-        shape = 17, colour = "#d62728", size = 2.5, inherit.aes = FALSE
+        ggplot2::aes(x = .data$col, y = .data$row,
+                     size = .data$energy),
+        shape = 17, colour = "#d62728", alpha = 0.9, inherit.aes = FALSE
       )
   }
 
@@ -290,11 +311,15 @@ plot_environment <- function(env) {
     ggplot2::coord_fixed(xlim = c(0.5, nc + 0.5),
                          ylim = c(0.5, nr + 0.5), expand = FALSE) +
     ggplot2::labs(title = title_str, x = NULL, y = NULL) +
-    .clade_theme() +
+    ggplot2::theme_void(base_size = 12) +
     ggplot2::theme(
-      axis.text  = ggplot2::element_blank(),
-      axis.ticks = ggplot2::element_blank(),
-      panel.grid = ggplot2::element_blank()
+      plot.background  = ggplot2::element_rect(fill = "#0d1117", colour = NA),
+      panel.background = ggplot2::element_rect(fill = "#0d1117", colour = NA),
+      plot.title       = ggplot2::element_text(colour = "grey90", hjust = 0.5,
+                                               margin = ggplot2::margin(b = 6)),
+      legend.text      = ggplot2::element_text(colour = "grey80"),
+      legend.title     = ggplot2::element_text(colour = "grey80"),
+      plot.margin      = ggplot2::margin(8, 8, 8, 8)
     )
 }
 
@@ -490,4 +515,555 @@ plot_kin_network <- function(run_data) {
       label = "Kin network: requires igraph (Phase 2)"
     ) +
     ggplot2::theme_void()
+}
+
+# ── plot_dead_agents() ────────────────────────────────────────────────────────
+
+#' Plot lifetime statistics of dead agents
+#'
+#' @title Plot lifetime statistics of dead agents
+#' @description
+#' Produces two panels summarising agents that died during a run. The
+#' **left panel** plots age at death against energy at death, coloured by
+#' body size (when body-size evolution is active) or number of offspring,
+#' and sized by offspring count. The **right panel** shows a bar chart of
+#' cause-of-death counts (starvation, predation, disease, old age). Together
+#' these reveal which life-history strategies were rewarded by selection.
+#'
+#' @param run_data A list returned by [get_run_data()]. Must contain a
+#'   `$deaths` data frame with columns `age`, `energy`, `cause`,
+#'   `num_offspring`, and optionally `body_size`.
+#'
+#' @return A two-panel [patchwork::wrap_plots()] object, or `NULL` invisibly
+#'   if no agents died.
+#'
+#' @examples
+#' \dontrun{
+#' env  <- run_clade(default_specs())
+#' data <- get_run_data(env)
+#' plot_dead_agents(data)
+#' }
+#'
+#' @seealso [get_run_data()], [visualize_progress()]
+#' @export
+plot_dead_agents <- function(run_data) {
+  .check_run_data(run_data)
+  d <- run_data$deaths
+  if (is.null(d) || nrow(d) == 0L) {
+    message("No dead agents to plot.")
+    return(invisible(NULL))
+  }
+
+  # Use body_size if available and varied; otherwise colour by offspring count
+  has_bs <- "body_size" %in% names(d) && stats::sd(d$body_size, na.rm = TRUE) > 1e-6
+  colour_var  <- if (has_bs) d$body_size else d$num_offspring
+  colour_name <- if (has_bs) "Body size" else "Offspring"
+
+  p_scatter <- ggplot2::ggplot(
+    d,
+    ggplot2::aes(x = .data$age, y = .data$energy,
+                 size   = .data$num_offspring,
+                 colour = colour_var)
+  ) +
+    ggplot2::geom_point(alpha = 0.65) +
+    ggplot2::scale_colour_viridis_c(option = if (has_bs) "plasma" else "viridis",
+                                    name = colour_name) +
+    ggplot2::scale_size_continuous(range = c(0.8, 5), name = "Offspring") +
+    ggplot2::labs(
+      title = "Lifespan vs energy at death",
+      x     = "Age at death (ticks)",
+      y     = "Energy at death"
+    ) +
+    .clade_theme() +
+    ggplot2::theme(legend.position = "right")
+
+  # Cause-of-death breakdown
+  if ("cause" %in% names(d)) {
+    cause_tbl <- as.data.frame(table(cause = d$cause), stringsAsFactors = FALSE)
+    cause_tbl <- cause_tbl[order(-cause_tbl$Freq), ]
+    cause_tbl$cause <- factor(cause_tbl$cause,
+                              levels = rev(cause_tbl$cause))
+
+    p_cause <- ggplot2::ggplot(
+      cause_tbl,
+      ggplot2::aes(x = .data$cause, y = .data$Freq, fill = .data$cause)
+    ) +
+      ggplot2::geom_col(show.legend = FALSE, width = 0.7) +
+      ggplot2::scale_fill_viridis_c(begin = 0.2, end = 0.8) +
+      ggplot2::coord_flip() +
+      ggplot2::labs(
+        title = "Cause of death",
+        x     = NULL,
+        y     = "Count"
+      ) +
+      .clade_theme()
+  } else {
+    # Lifespan histogram as fallback
+    p_cause <- ggplot2::ggplot(d, ggplot2::aes(x = .data$age)) +
+      ggplot2::geom_histogram(bins = 25, fill = "#92c5de", colour = "white") +
+      ggplot2::labs(title = "Lifespan distribution",
+                    x = "Age at death", y = "Count") +
+      .clade_theme()
+  }
+
+  patchwork::wrap_plots(p_scatter, p_cause, ncol = 2L)
+}
+
+# ── plot_diversity() ──────────────────────────────────────────────────────────
+
+#' Plot genetic diversity over the run
+#'
+#' @title Plot genetic diversity over the run
+#' @description
+#' Draws the trajectory of mean pairwise genome distance (genetic diversity)
+#' and, when body-size evolution is active, the coefficient of variation of
+#' body size as a proxy for phenotypic diversity. All series are scaled to the
+#' same 0–1 range for visual comparison.
+#'
+#' A common pattern is high diversity in the founders, a selective sweep that
+#' reduces diversity as the best foraging strategy spreads, then a partial
+#' recovery as the population niches. Permanent low diversity indicates
+#' genetic drift or clonal selection; permanently high diversity indicates
+#' balancing selection or frequency-dependent dynamics.
+#'
+#' @param run_data A list returned by [get_run_data()]. Must contain a
+#'   `$ticks` data frame with at minimum `t`, `n_agents`, and
+#'   `genetic_diversity`.
+#'
+#' @return A [ggplot2::ggplot()] object.
+#'
+#' @examples
+#' \dontrun{
+#' env  <- run_clade(default_specs())
+#' data <- get_run_data(env)
+#' plot_diversity(data)
+#' }
+#'
+#' @seealso [plot_genome_diversity()], [visualize_progress()]
+#' @export
+plot_diversity <- function(run_data) {
+  .check_run_data(run_data)
+  tk <- run_data$ticks
+  tk <- tk[!is.na(tk$n_agents) & tk$n_agents >= 2L & tk$t > 0L, , drop = FALSE]
+
+  if (nrow(tk) == 0L) {
+    message("Not enough data to plot diversity (need >= 2 agents per tick).")
+    return(invisible(NULL))
+  }
+
+  .scale01 <- function(x) {
+    mx <- max(x, na.rm = TRUE)
+    if (is.finite(mx) && mx > 0) x / mx else x
+  }
+
+  plot_df <- data.frame(
+    t      = tk$t,
+    value  = .scale01(tk$genetic_diversity),
+    metric = "Genetic diversity"
+  )
+
+  # Add body-size CV if available and varied
+  has_bs <- "sd_body_size" %in% names(tk) && "mean_body_size" %in% names(tk)
+  if (has_bs) {
+    bs_cv <- tk$sd_body_size / pmax(tk$mean_body_size, 1e-6)
+    if (any(is.finite(bs_cv) & bs_cv > 0, na.rm = TRUE)) {
+      plot_df <- rbind(
+        plot_df,
+        data.frame(t = tk$t, value = .scale01(bs_cv),
+                   metric = "Body-size CV")
+      )
+    }
+  }
+
+  col_vals <- c("Genetic diversity" = "#6a51a3",
+                "Body-size CV"      = "#d95f02")
+
+  ggplot2::ggplot(
+    plot_df,
+    ggplot2::aes(x = .data$t, y = .data$value,
+                 colour = .data$metric, linetype = .data$metric)
+  ) +
+    ggplot2::geom_line(linewidth = 0.8) +
+    ggplot2::scale_colour_manual(
+      values = col_vals[names(col_vals) %in% unique(plot_df$metric)],
+      name = NULL
+    ) +
+    ggplot2::scale_linetype_manual(
+      values = c("Genetic diversity" = "solid", "Body-size CV" = "dashed")[
+        names(c("Genetic diversity" = "solid", "Body-size CV" = "dashed")) %in%
+          unique(plot_df$metric)],
+      name = NULL
+    ) +
+    ggplot2::labs(
+      title = "Population diversity over time (scaled 0\u20131)",
+      x     = "Tick",
+      y     = "Diversity (scaled)"
+    ) +
+    .clade_theme() +
+    ggplot2::theme(legend.position = "bottom",
+                   legend.key.width = ggplot2::unit(1.2, "cm"))
+}
+
+# ── plot_body_size_evolution() ────────────────────────────────────────────────
+
+#' Plot body-size evolution over time
+#'
+#' @title Plot body-size evolution over time
+#' @description
+#' Draws the trajectory of mean body size with a ± 1 SD ribbon. When
+#' `body_size_evolution = FALSE` this produces a flat line at 1.0. When
+#' evolution is active the population mean drifts toward a size that balances
+#' metabolic cost against foraging gain (the metabolic optimum; Kleiber 1947).
+#'
+#' @param run_data A list returned by [get_run_data()]. Must contain a
+#'   `$ticks` data frame with columns `t`, `mean_body_size`, and
+#'   `sd_body_size`.
+#'
+#' @return A [ggplot2::ggplot()] object, or `NULL` invisibly when body-size
+#'   data are absent.
+#'
+#' @references
+#' Kleiber, M. (1947) Body size and metabolic rate. *Physiological Reviews*
+#'   27(4):511--541.
+#'
+#' @examples
+#' \dontrun{
+#' specs <- default_specs(); specs$body_size_evolution <- TRUE
+#' env   <- run_clade(specs)
+#' data  <- get_run_data(env)
+#' plot_body_size_evolution(data)
+#' }
+#'
+#' @seealso [plot_run()], [get_run_data()]
+#' @export
+plot_body_size_evolution <- function(run_data) {
+  .check_run_data(run_data)
+  d <- run_data$ticks
+  d <- d[d$t > 0L, , drop = FALSE]
+
+  if (!all(c("mean_body_size", "sd_body_size") %in% names(d))) {
+    message("Body-size columns not found in run_data$ticks.")
+    return(invisible(NULL))
+  }
+
+  d$bs_lo <- d$mean_body_size - d$sd_body_size
+  d$bs_hi <- d$mean_body_size + d$sd_body_size
+
+  ggplot2::ggplot(d, ggplot2::aes(x = .data$t)) +
+    ggplot2::geom_ribbon(
+      ggplot2::aes(ymin = .data$bs_lo, ymax = .data$bs_hi),
+      fill = "#d9d9d9", alpha = 0.6
+    ) +
+    ggplot2::geom_line(
+      ggplot2::aes(y = .data$mean_body_size),
+      colour = "#525252", linewidth = 0.7
+    ) +
+    ggplot2::geom_hline(yintercept = 1.0, linetype = "dashed",
+                        colour = "grey60", linewidth = 0.4) +
+    ggplot2::labs(
+      title = "Body-size evolution (mean \u00b1 1 SD)",
+      x     = "Tick",
+      y     = "Body size (reference = 1.0)"
+    ) +
+    .clade_theme()
+}
+
+# ── plot_dispersal_events() ───────────────────────────────────────────────────
+
+#' Plot natal dispersal events over time
+#'
+#' @title Plot natal dispersal events over time
+#' @description
+#' Draws the count of natal dispersal moves per tick as a bar chart overlaid
+#' with a smoothed trend line. Each bar represents the number of agents that
+#' moved away from their birthplace during that tick. When
+#' `dispersal_evolution = FALSE` all bars are zero.
+#'
+#' @param run_data A list returned by [get_run_data()]. Must contain a
+#'   `$ticks` data frame with columns `t` and `n_dispersal_events`.
+#'
+#' @return A [ggplot2::ggplot()] object, or `NULL` invisibly when the
+#'   dispersal column is absent.
+#'
+#' @examples
+#' \dontrun{
+#' specs <- default_specs(); specs$dispersal_evolution <- TRUE
+#' env   <- run_clade(specs)
+#' data  <- get_run_data(env)
+#' plot_dispersal_events(data)
+#' }
+#'
+#' @seealso [plot_run()], [get_run_data()]
+#' @export
+plot_dispersal_events <- function(run_data) {
+  .check_run_data(run_data)
+  d <- run_data$ticks
+  d <- d[d$t > 0L, , drop = FALSE]
+
+  if (!"n_dispersal_events" %in% names(d)) {
+    message("n_dispersal_events column not found in run_data$ticks.")
+    return(invisible(NULL))
+  }
+
+  ggplot2::ggplot(d, ggplot2::aes(x = .data$t, y = .data$n_dispersal_events)) +
+    ggplot2::geom_col(fill = "#74c476", alpha = 0.7, width = 1) +
+    ggplot2::geom_line(colour = "#238b45", linewidth = 0.5) +
+    ggplot2::labs(
+      title = "Natal dispersal events per tick",
+      x     = "Tick",
+      y     = "N dispersal moves"
+    ) +
+    .clade_theme()
+}
+
+# ── plot_weight_heatmap() ─────────────────────────────────────────────────────
+
+#' Visualise a neural genome as a weight heatmap
+#'
+#' @title Visualise a neural genome as a weight heatmap
+#' @description
+#' Renders each weight matrix in an ANN-format brain (a list with a `layers`
+#' element, each layer having `$W` and `$b`) as a diverging blue-white-red
+#' tile heatmap. Blue = strong inhibitory connections, red = strong excitatory
+#' connections, white = near-zero weights. One panel per layer.
+#'
+#' Agents under strong selection often show structured weight matrices (certain
+#' input-to-hidden connections consistently strong) compared to the near-random
+#' patterns of newly initialised founders.
+#'
+#' @param ann A brain list with a `$layers` element, as returned by
+#'   `env$agents[[i]]$brain` for ANN brain types. Must be an R list (not a
+#'   JuliaConnectoR proxy).
+#' @param title Character scalar prepended to each panel title.
+#'   Default: `"Neural genome"`.
+#'
+#' @return A [patchwork::wrap_plots()] object with one panel per layer.
+#'
+#' @examples
+#' \dontrun{
+#' env <- run_clade(default_specs())
+#' # Access brain data (requires converting from Julia proxy first)
+#' # plot_weight_heatmap(brain_list)
+#' }
+#'
+#' @seealso [visualize_progress()]
+#' @export
+plot_weight_heatmap <- function(ann, title = "Neural genome") {
+  if (is.null(ann$layers)) {
+    stop("`ann` must be a list with a `$layers` element.", call. = FALSE)
+  }
+  layers <- ann$layers
+  L      <- length(layers)
+
+  .mat_to_long <- function(mat, label) {
+    nr <- nrow(mat); nc <- ncol(mat)
+    data.frame(
+      row   = rep(seq_len(nr), times = nc),
+      col   = rep(seq_len(nc), each  = nr),
+      value = as.vector(mat),
+      layer = label,
+      stringsAsFactors = FALSE
+    )
+  }
+
+  all_weights <- unlist(lapply(layers, function(l) as.vector(l$W)))
+  w_lim       <- max(abs(all_weights))
+
+  make_panel <- function(mat, layer_label) {
+    df <- .mat_to_long(mat, layer_label)
+    ggplot2::ggplot(df, ggplot2::aes(x = .data$col, y = .data$row,
+                                     fill = .data$value)) +
+      ggplot2::geom_tile() +
+      ggplot2::scale_fill_gradient2(
+        low      = "#2166ac", mid  = "white", high = "#d6604d",
+        midpoint = 0, limits = c(-w_lim, w_lim), name = "Weight"
+      ) +
+      ggplot2::labs(
+        title = paste(title, ":", layer_label),
+        x     = "Input neuron",
+        y     = "Output neuron"
+      ) +
+      .clade_theme() +
+      ggplot2::coord_fixed()
+  }
+
+  panels <- lapply(seq_len(L), function(k) {
+    lbl <- if (k < L) sprintf("W%d (hidden %d)", k, k) else
+                      sprintf("W%d (\u2192 output)", k)
+    make_panel(layers[[k]]$W, lbl)
+  })
+
+  patchwork::wrap_plots(panels, ncol = min(L, 3L))
+}
+
+# ── visualize_progress() ─────────────────────────────────────────────────────
+
+#' Render the full simulation dashboard
+#'
+#' @title Render the full simulation dashboard
+#' @description
+#' Assembles a 2 × 3 panel dashboard from a completed clade run:
+#'
+#' \describe{
+#'   \item{Top-left}{Grid snapshot — landscape and agent positions at the
+#'     final tick ([plot_environment()]).}
+#'   \item{Top-centre}{Population dynamics — agent count, mean and best
+#'     energy over time.}
+#'   \item{Top-right}{Diversity trajectory ([plot_diversity()]).}
+#'   \item{Bottom-left}{Lifespan vs energy scatter by cause of death.}
+#'   \item{Bottom-centre}{Lifespan histogram.}
+#'   \item{Bottom-right}{Body-size evolution ribbon (or genetic diversity
+#'     when body-size evolution is off).}
+#' }
+#'
+#' @param env An environment list returned by [run_clade()].
+#' @param run_data A list returned by [get_run_data()]. If `NULL`, computed
+#'   from `env` automatically.
+#' @param title Character scalar super-title. If `NULL`, auto-generated from
+#'   tick count and final population size.
+#'
+#' @return A [patchwork::wrap_plots()] composite ggplot object.
+#'
+#' @examples
+#' \dontrun{
+#' env  <- run_clade(default_specs())
+#' data <- get_run_data(env)
+#' visualize_progress(env, data)
+#' }
+#'
+#' @seealso [plot_environment()], [plot_dead_agents()], [plot_diversity()],
+#'   [plot_body_size_evolution()], [get_run_data()]
+#' @export
+visualize_progress <- function(env, run_data = NULL, title = NULL) {
+  if (is.null(run_data)) run_data <- get_run_data(env)
+  tk <- run_data$ticks
+  d  <- run_data$deaths
+
+  # ── Top-left: grid snapshot ────────────────────────────────────────────────
+  p_grid <- plot_environment(env)
+
+  # ── Top-centre: population + energy ───────────────────────────────────────
+  tk_live <- tk[tk$t > 0L, , drop = FALSE]
+  has_best <- "best_energy" %in% names(tk_live)
+
+  pop_lines <- rbind(
+    data.frame(t = tk_live$t, y = tk_live$n_agents,
+               series = "Pop. size",    lty = "solid",  lwd = 1),
+    data.frame(t = tk_live$t, y = tk_live$mean_energy,
+               series = "Mean energy",  lty = "dashed", lwd = 0.7)
+  )
+  if (has_best) {
+    pop_lines <- rbind(
+      pop_lines,
+      data.frame(t = tk_live$t, y = tk_live$best_energy,
+                 series = "Best energy", lty = "dashed", lwd = 0.7)
+    )
+  }
+  col_map <- c("Pop. size" = "#2166ac", "Mean energy" = "#4dac26",
+               "Best energy" = "#d01c8b")
+
+  p_pop <- ggplot2::ggplot(
+    pop_lines,
+    ggplot2::aes(x = .data$t, y = .data$y,
+                 colour   = .data$series,
+                 linetype = .data$series)
+  ) +
+    ggplot2::geom_line(linewidth = 0.7) +
+    ggplot2::scale_colour_manual(
+      values = col_map[names(col_map) %in% unique(pop_lines$series)],
+      name = NULL
+    ) +
+    ggplot2::scale_linetype_manual(
+      values = c("Pop. size" = "solid", "Mean energy" = "dashed",
+                 "Best energy" = "dashed")[
+        names(c("Pop. size" = "solid", "Mean energy" = "dashed",
+                "Best energy" = "dashed")) %in% unique(pop_lines$series)],
+      name = NULL
+    ) +
+    ggplot2::labs(title = "Population & energy", x = "Tick",
+                  y = "N / Energy") +
+    .clade_theme() +
+    ggplot2::theme(legend.position = "bottom",
+                   legend.text = ggplot2::element_text(size = 8))
+
+  # ── Top-right: diversity ───────────────────────────────────────────────────
+  p_div_obj <- plot_diversity(run_data)
+  p_div <- if (is.null(p_div_obj)) {
+    ggplot2::ggplot() +
+      ggplot2::annotate("text", x = 0.5, y = 0.5, label = "No diversity data") +
+      ggplot2::theme_void()
+  } else {
+    p_div_obj
+  }
+
+  # ── Bottom-left: deaths scatter ────────────────────────────────────────────
+  if (!is.null(d) && nrow(d) > 0L) {
+    has_cause <- "cause" %in% names(d)
+    if (has_cause) {
+      p_scatter <- ggplot2::ggplot(
+        d,
+        ggplot2::aes(x = .data$age, y = .data$energy,
+                     colour = .data$cause,
+                     size   = .data$num_offspring)
+      ) +
+        ggplot2::geom_point(alpha = 0.55) +
+        ggplot2::scale_size_continuous(range = c(0.6, 4), guide = "none") +
+        ggplot2::labs(title = "Lifespan vs energy (by cause)",
+                      x = "Age at death", y = "Energy at death") +
+        .clade_theme() +
+        ggplot2::theme(legend.position  = "bottom",
+                       legend.text      = ggplot2::element_text(size = 7))
+    } else {
+      p_scatter <- ggplot2::ggplot(
+        d,
+        ggplot2::aes(x = .data$age, y = .data$energy,
+                     size   = .data$num_offspring)
+      ) +
+        ggplot2::geom_point(colour = "#6a51a3", alpha = 0.55) +
+        ggplot2::scale_size_continuous(range = c(0.6, 4), guide = "none") +
+        ggplot2::labs(title = "Lifespan vs energy at death",
+                      x = "Age at death", y = "Energy at death") +
+        .clade_theme()
+    }
+
+    # ── Bottom-centre: lifespan histogram ─────────────────────────────────
+    p_hist <- ggplot2::ggplot(d, ggplot2::aes(x = .data$age)) +
+      ggplot2::geom_histogram(bins = 25, fill = "#92c5de", colour = "white") +
+      ggplot2::labs(title = "Lifespan distribution",
+                    x = "Age at death", y = "Count") +
+      .clade_theme()
+  } else {
+    blank <- ggplot2::ggplot() +
+      ggplot2::annotate("text", x = 0.5, y = 0.5, label = "No deaths yet") +
+      ggplot2::theme_void()
+    p_scatter <- blank
+    p_hist    <- blank
+  }
+
+  # ── Bottom-right: body size or genetic diversity ───────────────────────────
+  has_bs_var <- "sd_body_size" %in% names(tk_live) &&
+    any(tk_live$sd_body_size > 0, na.rm = TRUE)
+  has_bs_col <- "mean_body_size" %in% names(tk_live)
+
+  if (has_bs_col && has_bs_var) {
+    p_sixth <- plot_body_size_evolution(run_data)
+  } else {
+    p_sixth <- plot_genome_diversity(run_data)
+  }
+
+  # ── Assemble title ─────────────────────────────────────────────────────────
+  n_final <- as.integer(length(env$agents))
+  t_final <- if (!is.null(env$t)) as.integer(env$t) else max(tk$t)
+  n_dead  <- if (!is.null(d)) nrow(d) else 0L
+  if (is.null(title)) {
+    title <- sprintf(
+      "clade dashboard  |  tick %d  |  %d surviving  |  %d total deaths",
+      t_final, n_final, n_dead
+    )
+  }
+
+  patchwork::wrap_plots(p_grid, p_pop, p_div,
+                        p_scatter, p_hist, p_sixth,
+                        ncol = 3L) +
+    patchwork::plot_annotation(title = title)
 }

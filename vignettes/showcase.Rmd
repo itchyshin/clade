@@ -18,15 +18,32 @@ knitr::opts_chunk$set(
   fig.width = 8,
   fig.height = 4.5,
   out.width = "100%",
-  eval      = FALSE   # Julia required; set eval=TRUE when running locally
+  eval      = FALSE   # Julia required; set eval=TRUE to reproduce
 )
+# Figures are pre-built by vignettes/generate_figures.R and committed to
+# man/figures/. Each section shows: (1) the code to produce the run
+# (eval=FALSE, visible) followed by (2) the pre-built image (eval=TRUE,
+# hidden code).
+FIG <- function(name, ...) {
+  knitr::include_graphics(
+    system.file("figures", paste0("showcase_", name, ".png"),
+                package = "clade"),
+    ...
+  )
+}
 ```
 
-This vignette walks through the main capabilities of `clade` across ten
-biological scenarios. Each section is self-contained: run the code chunks
-interactively to reproduce the results. The Julia backend must be available
-(see `?run_alife`); all chunks here are shown but not evaluated during
-package build.
+This vignette walks through twelve biological scenarios in `clade`, from a
+bare foraging world to kitchen-sink multi-module runs. Each section shows the
+code needed to reproduce the result and a pre-built figure so that the
+vignette renders without a Julia session.
+
+To reproduce any figure interactively, copy the code chunk and run it in an R
+session with Julia available. To regenerate all figures, run:
+
+```r
+source(system.file("generate_figures.R", package = "clade"))
+```
 
 ```{r load}
 library(clade)
@@ -41,12 +58,8 @@ library(patchwork)
 The environment is a rectangular grid. Each cell holds a quantity of
 **grass** — a renewable resource representing primary productivity. Agents
 occupy individual cells, sense their immediate neighbourhood, and move
-according to the output of their neural brain. Energy earned from grass
-minus energy spent on maintenance and movement determines survival and
-eventual reproduction.
-
-We run a baseline 500-tick simulation on a 40 × 40 grid and take four
-snapshots.
+according to the output of their neural brain. Energy earned from grass minus
+energy spent on maintenance determines survival and reproduction.
 
 ```{r world-run}
 base <- default_specs()
@@ -60,30 +73,37 @@ env  <- run_alife(base, verbose = FALSE)
 data <- get_run_data(env)
 ```
 
-```{r world-plot, fig.height = 3.5,
-    fig.cap = "Final grid state after 500 ticks (40 x 40, seed 42). Bright cells have abundant grass; dark cells have been depleted. Agents cluster near high-productivity patches."}
+```{r world-plot, eval=FALSE}
 plot_environment(env)
 ```
 
-```{r run-plot, fig.height = 6,
-    fig.cap = "Five-panel run summary. Top: population size and mean energy over time. Middle: grass coverage and genetic diversity. Bottom: births and deaths per tick."}
+```{r fig-world-grid, eval=TRUE, echo=FALSE, fig.cap="Final grid state after 500 ticks (40 × 40, seed 42). Bright cells have abundant grass; dark cells have been depleted. Agents (white dots, sized by energy) cluster near high-productivity patches."}
+FIG("01_world_grid")
+```
+
+```{r run-plot, eval=FALSE}
 plot_run(data)
 ```
 
-`plot_run()` reveals the characteristic logistic growth curve: the
-population grows until resource competition limits further expansion, then
-oscillates near the carrying capacity set by `specs$max_agents`.
+```{r fig-run-dashboard, eval=TRUE, echo=FALSE, fig.cap="Six-panel run summary: population size, mean energy (±SD ribbon), genetic diversity, births and deaths per tick, grass coverage, and BNN prior sigma (Baldwin Effect panel).", fig.height=6}
+FIG("01_run_dashboard")
+```
+
+`plot_run()` reveals the characteristic logistic growth curve: the population
+grows until resource competition limits further expansion, then stabilises near
+the carrying capacity set by `max_agents`. The BNN prior sigma panel tracks the
+Baldwin Effect: as agents' genomes encode the foraging solution, the Bayesian
+prior narrows.
 
 ---
 
 ## 2. Natural selection: evidence from the time series
 
-Natural selection should increase foraging efficiency across generations.
-The clearest signature is a rise in **mean age** over time: agents that
-locate food more consistently survive longer and leave more offspring.
+Natural selection increases foraging efficiency across generations. The
+clearest signature is a rise in **mean age** over time: agents that locate
+food consistently survive longer and leave more offspring.
 
-```{r selection-evidence, fig.height = 4,
-    fig.cap = "Evidence of natural selection. Mean agent age rises across 500 ticks as efficient foragers replace inefficient ones. Shaded band shows ± 1 SD. The upward trend is absent in a control run with no reproduction (not shown)."}
+```{r selection-evidence, eval=FALSE}
 tk <- data$ticks
 
 ggplot(tk, aes(x = t)) +
@@ -93,17 +113,7 @@ ggplot(tk, aes(x = t)) +
   labs(title = "Rising mean age — a signature of selection",
        x = "Tick", y = "Mean agent age (ticks)") +
   theme_minimal()
-```
 
-### Genetic diversity under selection
-
-As efficient neural genomes sweep to high frequency, **genetic diversity**
-(mean pairwise genome distance, sampled from random agent pairs) drops from
-its initial maximum. Diversity may recover as the population fills different
-spatial niches.
-
-```{r genetic-div, fig.height = 3.5,
-    fig.cap = "Genetic diversity declines as selection favours efficient foragers, then partially recovers as spatial structure opens niches."}
 ggplot(tk, aes(x = t, y = genetic_diversity)) +
   geom_line(colour = "#1b7837", linewidth = 1) +
   labs(title = "Genetic diversity over time",
@@ -111,60 +121,61 @@ ggplot(tk, aes(x = t, y = genetic_diversity)) +
   theme_minimal()
 ```
 
+```{r fig-selection, eval=TRUE, echo=FALSE, fig.cap="Left: mean age (±SD) rises as efficient foragers replace inefficient ones. Right: genetic diversity declines as the fit genotype sweeps, then partially recovers as spatial structure opens niches."}
+FIG("02_selection")
+```
+
 ---
 
 ## 3. Food availability as a selection pressure
 
-How does habitat productivity affect evolutionary outcomes? We compare three
-conditions varying `grass_rate`, the per-tick probability of each depleted
-cell regrowing one unit of grass.
+We compare three `grass_rate` conditions: abundant (0.5), default (0.1), and
+scarce (0.02).
 
-```{r grass-compare}
+```{r grass-compare, eval=FALSE}
 run_grass <- function(rate) {
-  s              <- default_specs()
-  s$grid_rows    <- 20L
-  s$grid_cols    <- 20L
-  s$n_agents_init <- 20L
-  s$max_ticks    <- 300L
-  s$max_agents   <- 400L
-  s$grass_rate   <- rate
-  s$random_seed  <- 1L
-  env  <- run_alife(s, verbose = FALSE)
-  cbind(get_run_data(env)$ticks, grass_rate = rate)
+  s <- default_specs()
+  s$grid_rows     <- 20L; s$grid_cols     <- 20L
+  s$n_agents_init <- 20L; s$max_ticks     <- 300L
+  s$max_agents    <- 400L; s$grass_rate   <- rate
+  s$random_seed   <- 1L
+  cbind(get_run_data(run_alife(s, verbose = FALSE))$ticks,
+        grass_rate = rate)
 }
 
 grass_results <- rbind(
-  run_grass(0.5),
-  run_grass(0.1),
-  run_grass(0.02)
+  run_grass(0.5), run_grass(0.1), run_grass(0.02)
 )
 grass_results$condition <- factor(
   paste0("grass_rate = ", grass_results$grass_rate),
   levels = c("grass_rate = 0.5", "grass_rate = 0.1", "grass_rate = 0.02")
 )
-```
 
-```{r grass-plot, fig.height = 4,
-    fig.cap = "Population size (left) and mean age (right) across three food-availability conditions. Scarce food imposes stronger selection and a smaller equilibrium population."}
 p1 <- ggplot(grass_results, aes(x = t, y = n_agents, colour = condition)) +
   geom_line(linewidth = 1) +
   scale_colour_manual(values = c("#1b7837", "#4dac26", "#d6604d")) +
-  labs(title = "Population size", x = "Tick", y = "N agents", colour = NULL) +
+  labs(title = "Population size", x = "Tick", y = "N agents",
+       colour = NULL) +
   theme_minimal() + theme(legend.position = "bottom")
 
 p2 <- ggplot(grass_results, aes(x = t, y = mean_age, colour = condition)) +
   geom_line(linewidth = 1) +
   scale_colour_manual(values = c("#1b7837", "#4dac26", "#d6604d")) +
-  labs(title = "Mean agent age", x = "Tick", y = "Age (ticks)", colour = NULL) +
+  labs(title = "Mean agent age", x = "Tick", y = "Age (ticks)",
+       colour = NULL) +
   theme_minimal() + theme(legend.position = "bottom")
 
 p1 | p2
 ```
 
+```{r fig-food, eval=TRUE, echo=FALSE, fig.cap="Population size (left) and mean age (right) across three food-availability conditions. Scarce food imposes stronger selection (older mean age) but sustains fewer individuals."}
+FIG("03_food_scarcity")
+```
+
 Scarce food (`grass_rate = 0.02`) sustains a small but highly adapted
-population; abundant food (`grass_rate = 0.5`) allows rapid growth but
-reduces selective pressure. The package default (`grass_rate = 0.1`)
-balances viability with meaningful selection.
+population; abundant food (`grass_rate = 0.5`) allows rapid growth but reduces
+selective pressure. The package default (`grass_rate = 0.1`) balances viability
+with meaningful selection.
 
 ---
 
@@ -173,42 +184,29 @@ balances viability with meaningful selection.
 Body size evolves as a heritable trait when `body_size_evolution = TRUE`.
 Larger agents gain more energy per grass cell but pay higher metabolic costs;
 smaller agents are cheaper to run but gain less. An intermediate optimum
-typically evolves in the absence of other pressures.
+typically evolves (Kleiber 1947).
 
-The trait is inherited via the diploid genome (or haploid copy) and clamped
-to `[body_size_min, body_size_max]` (defaults: 0.3 to 3.0). Reference body
-size 1.0 is the metabolically neutral point — agents with `body_size = 1.0`
-experience no correction relative to the baseline tick.
-
-```{r body-size-run}
+```{r body-size-run, eval=FALSE}
 bs <- default_specs()
-bs$grid_rows          <- 30L
-bs$grid_cols          <- 30L
-bs$n_agents_init      <- 30L
-bs$max_ticks          <- 500L
-bs$random_seed        <- 7L
+bs$grid_rows           <- 30L; bs$grid_cols    <- 30L
+bs$n_agents_init       <- 30L; bs$max_ticks    <- 500L
+bs$random_seed         <- 7L;  bs$grass_rate   <- 0.2
 bs$body_size_evolution <- TRUE
 bs$body_size_init_mean <- 1.0
-bs$grass_rate         <- 0.2
 
-env_bs  <- run_alife(bs,   verbose = FALSE)
-env_ref <- run_alife(base, verbose = FALSE)   # evolution off (from section 1)
-
-data_bs  <- get_run_data(env_bs)
-data_ref <- get_run_data(env_ref)
+env_bs  <- run_alife(bs, verbose = FALSE)
+data_bs <- get_run_data(env_bs)
+tk_bs   <- data_bs$ticks
 ```
 
-```{r body-size-plot, fig.height = 4,
-    fig.cap = "Mean body size (solid) ± SD (ribbon) over 500 ticks. The dashed line marks the reference size (1.0 = no metabolic correction). Selection typically drives mean body size away from 1.0 toward a value that balances energetic gain against metabolic cost under the current food regime."}
-tk_bs <- data_bs$ticks
-
+```{r body-size-plot, eval=FALSE}
 ggplot(tk_bs[tk_bs$n_agents > 0, ], aes(x = t)) +
   geom_ribbon(aes(ymin = mean_body_size - sd_body_size,
                   ymax = mean_body_size + sd_body_size),
               fill = "#7b3294", alpha = 0.25) +
   geom_line(aes(y = mean_body_size), colour = "#7b3294", linewidth = 1) +
   geom_hline(yintercept = 1.0, linetype = "dashed", colour = "grey60") +
-  annotate("text", x = 50, y = 1.02, label = "reference (1.0)",
+  annotate("text", x = 50, y = 1.03, label = "reference (1.0)",
            colour = "grey60", size = 3) +
   coord_cartesian(ylim = c(0.3, 3.0)) +
   labs(title = "Body size evolution",
@@ -216,39 +214,8 @@ ggplot(tk_bs[tk_bs$n_agents > 0, ], aes(x = t)) +
   theme_minimal()
 ```
 
-### Metabolic cost is real: large agents lose more energy
-
-The following comparison confirms the biological mechanism: with no grass
-available, large agents (body_size = 2) deplete their energy faster than
-reference agents (body_size = 1) by exactly `idle_cost × (body_size − 1)`
-per tick.
-
-```{r body-size-cost}
-cost_specs <- function(bs_mean) {
-  s <- default_specs()
-  s$grid_rows          <- 10L
-  s$grid_cols          <- 10L
-  s$n_agents_init      <- 20L
-  s$max_ticks          <- 10L
-  s$min_repro_energy   <- 500.0   # prevent reproduction
-  s$grass_rate         <- 0.0
-  s$grass_max          <- 0.0
-  s$grass_init_prob    <- 0.0
-  s$body_size_evolution <- TRUE
-  s$body_size_init_mean <- bs_mean
-  s$body_size_mutation_sd <- 0.0
-  s$random_seed        <- 99L
-  s
-}
-
-env_large <- run_alife(cost_specs(2.0), verbose = FALSE)
-env_ref2  <- run_alife(cost_specs(1.0), verbose = FALSE)
-
-e_large <- env_large$progress$mean_energy[[1L]]
-e_ref2  <- env_ref2$progress$mean_energy[[1L]]
-
-cat(sprintf("Tick-1 mean energy — bs=2: %.2f  bs=1: %.2f  diff: %.2f\n",
-            e_large, e_ref2, e_ref2 - e_large))
+```{r fig-bodysize, eval=TRUE, echo=FALSE, fig.cap="Mean body size (±1 SD ribbon) over 500 ticks. The dashed line marks the reference size (1.0 = no metabolic correction). Selection typically drives mean body size toward a value balancing foraging gain against metabolic cost."}
+FIG("04_body_size")
 ```
 
 ---
@@ -256,148 +223,105 @@ cat(sprintf("Tick-1 mean energy — bs=2: %.2f  bs=1: %.2f  diff: %.2f\n",
 ## 5. Natal dispersal
 
 When `dispersal_evolution = TRUE`, each agent carries a heritable
-`dispersal_tendency` trait (a probability between 0 and 0.5). Each tick,
-with this probability, the agent takes one step away from its birthplace
-along the cardinal direction that maximises toroidal distance. Dispersal
-reduces inbreeding and kin competition but costs `dispersal_cost` energy.
+`dispersal_tendency` trait (0 to 0.5). Each tick, with this probability, the
+agent moves away from its birthplace. Dispersal reduces inbreeding and kin
+competition but costs `dispersal_cost` energy (Ronce 2007).
 
-```{r dispersal-run}
+```{r dispersal-run, eval=FALSE}
 disp <- default_specs()
-disp$grid_rows          <- 40L
-disp$grid_cols          <- 40L
-disp$n_agents_init      <- 30L
-disp$max_ticks          <- 300L
-disp$random_seed        <- 15L
+disp$grid_rows          <- 40L; disp$grid_cols    <- 40L
+disp$n_agents_init      <- 30L; disp$max_ticks    <- 300L
+disp$random_seed        <- 15L; disp$grass_rate   <- 0.3
 disp$dispersal_evolution <- TRUE
 disp$dispersal_init_mean <- 0.3
-disp$grass_rate         <- 0.3
 
-env_disp <- run_alife(disp, verbose = FALSE)
+env_disp  <- run_alife(disp, verbose = FALSE)
 data_disp <- get_run_data(env_disp)
 ```
 
-```{r dispersal-plot, fig.height = 4,
-    fig.cap = "Dispersal events per tick (left) and final grid snapshot (right). Dispersal events peak during periods of high population density, when kin competition is strongest."}
+```{r dispersal-plot, eval=FALSE}
 tk_d <- data_disp$ticks
 
 p_nd <- ggplot(tk_d, aes(x = t, y = n_dispersal_events)) +
-  geom_line(colour = "#762a83", linewidth = 0.8) +
-  geom_smooth(method = "loess", se = FALSE, colour = "#762a83",
-              linewidth = 1.5, span = 0.3) +
+  geom_col(fill = "#762a83", alpha = 0.5, width = 1) +
+  geom_smooth(method = "loess", se = TRUE, fill = "#762a83",
+              colour = "#762a83", span = 0.3, alpha = 0.3) +
   labs(title = "Dispersal events per tick",
        x = "Tick", y = "N events") +
   theme_minimal()
 
-p_env <- plot_environment(env_disp)
-
-p_nd | p_env
+p_nd | plot_environment(env_disp)
 ```
 
-### Dispersal tendency evolves
-
-With mutation active (`dispersal_mutation_sd = 0.02`), the dispersal
-tendency itself evolves. If kin competition is strong (dense population,
-limited grass), selection favours higher tendency; if energy costs dominate,
-it may decrease.
-
-```{r dispersal-tendency, fig.height = 3.5}
-# Access the n_dispersal_events time series
-ggplot(tk_d, aes(x = t, y = n_dispersal_events)) +
-  geom_col(fill = "#762a83", alpha = 0.5, width = 1) +
-  geom_smooth(method = "loess", se = TRUE, fill = "#762a83",
-              colour = "#762a83", span = 0.2, alpha = 0.3) +
-  labs(title = "Dispersal events accumulate with population growth",
-       x = "Tick", y = "Dispersal events") +
-  theme_minimal()
+```{r fig-dispersal, eval=TRUE, echo=FALSE, fig.cap="Left: dispersal events per tick (bars) with smoothed trend. Dispersal spikes during high-density periods when kin competition is strongest. Right: final grid snapshot — agents are more evenly distributed than without dispersal."}
+FIG("05_dispersal")
 ```
 
 ---
 
 ## 6. Disease dynamics (SIR)
 
-The `disease` module implements a susceptible–infected–recovered (SIR)
-epidemic within the agent population. Infected agents pay an energy surcharge
-and transmit the pathogen to susceptible Moore-neighbourhood agents with
-probability `transmission_prob`. After `disease_duration` ticks, agents
-recover and become immune for `immune_duration` ticks.
+The `disease` module implements susceptible–infected–recovered (SIR) epidemic
+dynamics. Infected agents pay an energy surcharge and transmit to susceptible
+Moore-neighbourhood agents with probability `transmission_prob` (Kermack &
+McKendrick 1927).
 
-```{r disease-run}
+```{r disease-run, eval=FALSE}
 dis <- default_specs()
-dis$grid_rows          <- 30L
-dis$grid_cols          <- 30L
-dis$n_agents_init      <- 40L
-dis$max_ticks          <- 400L
-dis$random_seed        <- 3L
-dis$disease            <- TRUE
-dis$disease_seed_prob  <- 0.05
-dis$transmission_prob  <- 0.3
-dis$disease_duration   <- 20L
-dis$immune_duration    <- 100L
+dis$grid_rows           <- 30L; dis$grid_cols          <- 30L
+dis$n_agents_init       <- 40L; dis$max_ticks          <- 400L
+dis$random_seed         <- 3L;  dis$disease            <- TRUE
+dis$disease_seed_prob   <- 0.05; dis$transmission_prob <- 0.3
+dis$disease_duration    <- 20L; dis$immune_duration    <- 100L
 dis$disease_energy_cost <- 2.0
 
 env_dis  <- run_alife(dis,  verbose = FALSE)
 data_dis <- get_run_data(env_dis)
 ```
 
-```{r disease-plot, fig.height = 4,
-    fig.cap = "SIR-like epidemic in a 30 x 30 grid over 400 ticks. Infected counts (orange) spike and crash repeatedly as herd immunity builds and wanes. New infections per tick (blue) mark the leading edge of each wave."}
+```{r disease-plot, eval=FALSE}
 tk_dis <- data_dis$ticks
 
 ggplot(tk_dis, aes(x = t)) +
   geom_area(aes(y = n_infected, fill = "Infected"), alpha = 0.4) +
-  geom_line(aes(y = n_new_infections * 5, colour = "New infections × 5"),
-            linewidth = 0.7) +
+  geom_line(aes(y = n_new_infections * 5,
+                colour = "New infections × 5"), linewidth = 0.7) +
   scale_fill_manual(values = c(Infected = "#d73027")) +
   scale_colour_manual(values = c("New infections × 5" = "#4575b4")) +
-  labs(title = "Disease dynamics (SIR)",
-       x = "Tick", y = "Agent count",
-       fill = NULL, colour = NULL) +
-  theme_minimal() +
-  theme(legend.position = "bottom")
+  labs(title = "Disease dynamics (SIR)", x = "Tick",
+       y = "Agent count", fill = NULL, colour = NULL) +
+  theme_minimal() + theme(legend.position = "bottom")
 ```
 
-Epidemic waves emerge because the agent population turns over: as recovered
-(immune) agents die and naive offspring are born, the susceptible pool
-rebuilds and the pathogen can spread again. The characteristic wave
-periodicity depends on `disease_duration`, `immune_duration`, and population
-turnover rate.
+```{r fig-disease, eval=TRUE, echo=FALSE, fig.cap="SIR epidemic waves over 400 ticks. Infected counts (red area) rise and fall as herd immunity builds. New infections per tick × 5 (blue line) marks the epidemic's leading edge. Waves recur as immune agents die and naive offspring are born."}
+FIG("06_disease")
+```
 
 ---
 
 ## 7. Kin selection
 
-When `kin_selection = TRUE`, agents with surplus energy donate `kin_altruism_cost`
-energy to their most closely related Moore-neighbourhood relative (if relatedness
-≥ `kin_altruism_r_min`). Relatedness is computed from the pedigree: 0.5 for
-parent–offspring, 0.25 for full siblings. This is Hamilton's rule
-(*rb > c*, Hamilton 1964) implemented as an explicit energy-transfer mechanism.
+When `kin_selection = TRUE`, agents with surplus energy donate energy to their
+closest relative in the Moore neighbourhood (if relatedness ≥
+`kin_altruism_r_min`). Relatedness is tracked via the pedigree. This
+implements Hamilton's rule (*rB > C*; Hamilton 1964).
 
-```{r kin-run}
-kin_on  <- default_specs()
-kin_on$grid_rows          <- 20L
-kin_on$grid_cols          <- 20L
-kin_on$n_agents_init      <- 20L
-kin_on$max_ticks          <- 300L
-kin_on$random_seed        <- 8L
-kin_on$kin_selection      <- TRUE
+```{r kin-run, eval=FALSE}
+kin_on <- default_specs()
+kin_on$grid_rows      <- 20L; kin_on$grid_cols    <- 20L
+kin_on$n_agents_init  <- 20L; kin_on$max_ticks    <- 300L
+kin_on$random_seed    <- 8L;  kin_on$grass_rate   <- 0.15
+kin_on$kin_selection  <- TRUE
 kin_on$kin_altruism_r_min <- 0.25
-kin_on$grass_rate         <- 0.15
 
 kin_off <- kin_on
 kin_off$kin_selection <- FALSE
 
-env_kin_on  <- run_alife(kin_on,  verbose = FALSE)
-env_kin_off <- run_alife(kin_off, verbose = FALSE)
-tk_on  <- get_run_data(env_kin_on)$ticks
-tk_off <- get_run_data(env_kin_off)$ticks
-```
+tk_on  <- get_run_data(run_alife(kin_on,  verbose = FALSE))$ticks
+tk_off <- get_run_data(run_alife(kin_off, verbose = FALSE))$ticks
 
-```{r kin-plot, fig.height = 4,
-    fig.cap = "Population dynamics with kin selection on (green) vs off (grey). Kin selection buffers starvation events by redistributing energy among relatives, stabilising population size under moderate food scarcity."}
-combined_kin <- rbind(
-  cbind(tk_on,  condition = "Kin selection ON"),
-  cbind(tk_off, condition = "Kin selection OFF")
-)
+combined_kin <- rbind(cbind(tk_on,  condition = "Kin selection ON"),
+                      cbind(tk_off, condition = "Kin selection OFF"))
 
 ggplot(combined_kin, aes(x = t, y = n_agents, colour = condition)) +
   geom_line(linewidth = 1) +
@@ -405,16 +329,11 @@ ggplot(combined_kin, aes(x = t, y = n_agents, colour = condition)) +
                                  "Kin selection OFF" = "grey60")) +
   labs(title = "Kin selection stabilises population size",
        x = "Tick", y = "N agents", colour = NULL) +
-  theme_minimal() +
-  theme(legend.position = "bottom")
+  theme_minimal() + theme(legend.position = "bottom")
 ```
 
-The altruistic acts counter records how often the rule fires:
-
-```{r kin-acts}
-cat(sprintf("Total altruistic acts: %d (mean %.2f/tick)\n",
-            sum(tk_on$n_altruistic_acts),
-            mean(tk_on$n_altruistic_acts)))
+```{r fig-kin, eval=TRUE, echo=FALSE, fig.cap="Population dynamics with kin selection on (green) vs off (grey). Kin altruism buffers starvation events by redistributing energy among relatives, raising the population floor under moderate food scarcity."}
+FIG("07_kin_selection")
 ```
 
 ---
@@ -422,91 +341,74 @@ cat(sprintf("Total altruistic acts: %d (mean %.2f/tick)\n",
 ## 8. Cooperation: a public goods game
 
 The `cooperation_evolution` module evolves an inheritable `cooperation_level`
-trait. High-cooperation agents pay a per-tick cost (`cooperation_cost`) and
-share the benefit with Moore-neighbourhood conspecifics, implementing a
-spatial public goods game. Defectors (low `cooperation_level`) avoid the
-cost but may be excluded from neighbourhoods dominated by cooperators.
+trait. Cooperators pay a cost and share the benefit with Moore-neighbourhood
+conspecifics. Spatial structure allows cooperators to cluster and benefit
+disproportionately from each other.
 
-```{r coop-run}
+```{r coop-run, eval=FALSE}
 coop <- default_specs()
-coop$grid_rows             <- 25L
-coop$grid_cols             <- 25L
-coop$n_agents_init         <- 30L
-coop$max_ticks             <- 500L
-coop$random_seed           <- 11L
+coop$grid_rows             <- 25L; coop$grid_cols           <- 25L
+coop$n_agents_init         <- 30L; coop$max_ticks           <- 500L
+coop$random_seed           <- 11L; coop$grass_rate          <- 0.2
 coop$cooperation_evolution <- TRUE
 coop$cooperation_init_mean <- 0.5
-coop$grass_rate            <- 0.2
 
 env_coop  <- run_alife(coop, verbose = FALSE)
 data_coop <- get_run_data(env_coop)
-```
+tk_coop   <- data_coop$ticks
 
-```{r coop-plot, fig.height = 4,
-    fig.cap = "Mean cooperation level (left) and cooperation acts per tick (right). Cooperation can be maintained by spatial structure even when global defection would be evolutionarily stable under well-mixed conditions."}
-tk_coop <- data_coop$ticks
-
-p_coop_level <- ggplot(tk_coop, aes(x = t, y = mean_cooperation_level)) +
+p1 <- ggplot(tk_coop, aes(x = t, y = mean_cooperation_level)) +
   geom_line(colour = "#e08214", linewidth = 1) +
   geom_hline(yintercept = 0.5, linetype = "dashed", colour = "grey60") +
-  labs(title = "Mean cooperation level",
-       x = "Tick", y = "Cooperation level (0–1)") +
+  labs(title = "Mean cooperation level", x = "Tick",
+       y = "Cooperation level (0–1)") +
   theme_minimal()
 
-p_coop_acts <- ggplot(tk_coop, aes(x = t, y = n_cooperation_acts)) +
+p2 <- ggplot(tk_coop, aes(x = t, y = n_cooperation_acts)) +
   geom_line(colour = "#b35806", linewidth = 0.8) +
   geom_smooth(method = "loess", se = FALSE, colour = "#b35806", span = 0.3) +
-  labs(title = "Cooperation acts per tick",
-       x = "Tick", y = "N acts") +
+  labs(title = "Cooperation acts per tick", x = "Tick", y = "N acts") +
   theme_minimal()
 
-p_coop_level | p_coop_acts
+p1 | p2
 ```
 
-Spatially structured populations can maintain cooperation because cooperators
-cluster together and benefit disproportionately from each other's acts. The
-dashed line marks the initial mean (0.5); values above indicate a net
-selective advantage for cooperation under the current grid structure.
+```{r fig-coop, eval=TRUE, echo=FALSE, fig.cap="Left: mean cooperation level over time (dashed = initial mean 0.5). Values above 0.5 indicate net selective advantage for cooperation under this grid structure. Right: cooperation acts per tick track population growth."}
+FIG("08_cooperation")
+```
 
 ---
 
 ## 9. Niche construction
 
 Agents build **shelters** on their current cell when they have surplus energy.
-Shelters: (i) slow grass regrowth on the cell (resource depression), (ii)
-reduce predator damage (not yet active), and (iii) persist for multiple ticks
-before decaying stochastically. Shelter building is an extended phenotype — it
-modifies the selective environment for subsequent generations.
+Shelters slow grass regrowth on the cell (resource depression) and persist for
+several ticks before decaying stochastically. Shelter building is an extended
+phenotype that modifies the selective environment for subsequent generations
+(Odling-Smee, Laland & Feldman 2003).
 
-```{r niche-run}
+```{r niche-run, eval=FALSE}
 niche <- default_specs()
-niche$grid_rows          <- 30L
-niche$grid_cols          <- 30L
-niche$n_agents_init      <- 25L
-niche$max_ticks          <- 400L
-niche$random_seed        <- 20L
+niche$grid_rows          <- 30L; niche$grid_cols     <- 30L
+niche$n_agents_init      <- 25L; niche$max_ticks     <- 400L
+niche$random_seed        <- 20L; niche$grass_rate    <- 0.3
 niche$niche_construction <- TRUE
 niche$shelter_build_prob <- 0.2
 niche$shelter_max_depth  <- 5L
-niche$grass_rate         <- 0.3
 
 env_niche  <- run_alife(niche, verbose = FALSE)
 data_niche <- get_run_data(env_niche)
-```
+tk_niche   <- data_niche$ticks
 
-```{r niche-plot, fig.height = 4,
-    fig.cap = "Shelter construction over time (left) and the final grid with shelter depth shown as a warm overlay (right). Shelters cluster where agents spend most time, creating a legacy that shapes the landscape for offspring."}
-tk_niche <- data_niche$ticks
-
-p_shelter <- ggplot(tk_niche, aes(x = t, y = n_shelters_built)) +
+ggplot(tk_niche, aes(x = t, y = n_shelters_built)) +
   geom_col(fill = "#8c510a", alpha = 0.6, width = 1) +
   labs(title = "Shelter building events per tick",
        x = "Tick", y = "N shelters built") +
   theme_minimal()
+```
 
-p_env_niche <- plot_environment(env_niche)
-
-p_shelter | p_env_niche
+```{r fig-niche, eval=TRUE, echo=FALSE, fig.cap="Left: shelter building events per tick — construction rates track population density. Right: final grid snapshot. Shelters cluster where agents spend most time, creating a spatial legacy that shapes the landscape for their offspring."}
+FIG("09_niche")
 ```
 
 ---
@@ -515,44 +417,39 @@ p_shelter | p_env_niche
 
 Setting `rl_mode = "actor_critic"` activates REINFORCE with baseline: every
 `rl_update_freq` ticks, the agent's output-layer weights are nudged toward
-actions that produced positive energy deltas. This is within-lifetime
-learning — not evolution, but individual experience changing behaviour.
+actions that produced positive energy deltas. This is within-lifetime learning
+— not evolution, but individual experience changing behaviour.
 
-```{r rl-run}
+```{r rl-run, eval=FALSE}
 rl_on <- default_specs()
-rl_on$grid_rows    <- 20L
-rl_on$grid_cols    <- 20L
-rl_on$n_agents_init <- 15L
-rl_on$max_ticks    <- 400L
-rl_on$random_seed  <- 33L
-rl_on$rl_mode      <- "actor_critic"
+rl_on$grid_rows     <- 20L; rl_on$grid_cols    <- 20L
+rl_on$n_agents_init <- 15L; rl_on$max_ticks    <- 400L
+rl_on$random_seed   <- 33L; rl_on$grass_rate   <- 0.15
+rl_on$rl_mode       <- "actor_critic"
 rl_on$rl_update_freq <- 5L
-rl_on$grass_rate   <- 0.15
 
 rl_off <- rl_on
 rl_off$rl_mode <- "none"
 
-env_rl_on  <- run_alife(rl_on,  verbose = FALSE)
-env_rl_off <- run_alife(rl_off, verbose = FALSE)
-tk_rl_on   <- get_run_data(env_rl_on)$ticks
-tk_rl_off  <- get_run_data(env_rl_off)$ticks
-```
-
-```{r rl-plot, fig.height = 4,
-    fig.cap = "Mean energy over time with RL on (blue) vs off (grey). Agents with within-lifetime learning update their foraging policies from direct experience, and this should produce higher mean energy when food is scarce."}
 combined_rl <- rbind(
-  cbind(tk_rl_on,  condition = "RL on (actor-critic)"),
-  cbind(tk_rl_off, condition = "RL off (evolution only)")
+  cbind(get_run_data(run_alife(rl_on,  verbose = FALSE))$ticks,
+        condition = "RL on (actor-critic)"),
+  cbind(get_run_data(run_alife(rl_off, verbose = FALSE))$ticks,
+        condition = "RL off (evolution only)")
 )
 
 ggplot(combined_rl, aes(x = t, y = mean_energy, colour = condition)) +
   geom_line(linewidth = 1, alpha = 0.85) +
-  scale_colour_manual(values = c("RL on (actor-critic)"  = "#2166ac",
-                                 "RL off (evolution only)" = "grey60")) +
+  scale_colour_manual(
+    values = c("RL on (actor-critic)"    = "#2166ac",
+               "RL off (evolution only)" = "grey60")) +
   labs(title = "Within-lifetime RL boosts foraging energy",
        x = "Tick", y = "Mean energy", colour = NULL) +
-  theme_minimal() +
-  theme(legend.position = "bottom")
+  theme_minimal() + theme(legend.position = "bottom")
+```
+
+```{r fig-rl, eval=TRUE, echo=FALSE, fig.cap="Mean energy over time with within-lifetime RL on (blue) vs off (grey). Agents with actor-critic learning update their foraging policies from direct experience, typically yielding higher mean energy than purely evolutionary agents under the same food regime."}
+FIG("10_rl")
 ```
 
 ---
@@ -564,119 +461,107 @@ from a successful Moore-neighbourhood teacher (the neighbour with highest
 energy). Social learning transfers behavioural innovations without genetic
 change — a cultural rather than evolutionary mechanism.
 
-```{r social-run}
+```{r social-run, eval=FALSE}
 soc_on <- default_specs()
-soc_on$grid_rows          <- 20L
-soc_on$grid_cols          <- 20L
-soc_on$n_agents_init      <- 15L
-soc_on$max_ticks          <- 400L
-soc_on$random_seed        <- 44L
+soc_on$grid_rows          <- 20L; soc_on$grid_cols    <- 20L
+soc_on$n_agents_init      <- 15L; soc_on$max_ticks    <- 400L
+soc_on$random_seed        <- 44L; soc_on$grass_rate   <- 0.15
 soc_on$social_learning    <- TRUE
 soc_on$social_learning_freq <- 20L
-soc_on$grass_rate         <- 0.15
 
 soc_off <- soc_on
 soc_off$social_learning <- FALSE
 
-env_soc_on  <- run_alife(soc_on,  verbose = FALSE)
-env_soc_off <- run_alife(soc_off, verbose = FALSE)
-
-tk_soc_on  <- get_run_data(env_soc_on)$ticks
-tk_soc_off <- get_run_data(env_soc_off)$ticks
-```
-
-```{r social-plot, fig.height = 4,
-    fig.cap = "Genetic diversity (left) and mean energy (right) with social learning on (orange) and off (grey). Social learning can accelerate the spread of efficient foraging strategies without requiring genetic change, temporarily decoupling behavioural and genetic diversity."}
 combined_soc <- rbind(
-  cbind(tk_soc_on,  condition = "Social learning ON"),
-  cbind(tk_soc_off, condition = "Social learning OFF")
+  cbind(get_run_data(run_alife(soc_on,  verbose = FALSE))$ticks,
+        condition = "Social learning ON"),
+  cbind(get_run_data(run_alife(soc_off, verbose = FALSE))$ticks,
+        condition = "Social learning OFF")
 )
+soc_cols <- c("Social learning ON" = "#e66101",
+              "Social learning OFF" = "grey60")
 
-p_div <- ggplot(combined_soc,
-                aes(x = t, y = genetic_diversity, colour = condition)) +
-  geom_line(linewidth = 1) +
-  scale_colour_manual(values = c("Social learning ON"  = "#e66101",
-                                 "Social learning OFF" = "grey60")) +
+p_div2 <- ggplot(combined_soc,
+                 aes(x = t, y = genetic_diversity, colour = condition)) +
+  geom_line(linewidth = 1) + scale_colour_manual(values = soc_cols) +
   labs(title = "Genetic diversity", x = "Tick",
        y = "Genome distance", colour = NULL) +
   theme_minimal() + theme(legend.position = "bottom")
 
-p_en <- ggplot(combined_soc,
-               aes(x = t, y = mean_energy, colour = condition)) +
-  geom_line(linewidth = 1, alpha = 0.8) +
-  scale_colour_manual(values = c("Social learning ON"  = "#e66101",
-                                 "Social learning OFF" = "grey60")) +
+p_en2 <- ggplot(combined_soc,
+                aes(x = t, y = mean_energy, colour = condition)) +
+  geom_line(linewidth = 1, alpha = 0.8) + scale_colour_manual(values = soc_cols) +
   labs(title = "Mean energy", x = "Tick",
        y = "Mean energy", colour = NULL) +
   theme_minimal() + theme(legend.position = "bottom")
 
-p_div | p_en
+p_div2 | p_en2
+```
+
+```{r fig-social, eval=TRUE, echo=FALSE, fig.cap="Social learning (orange) vs no learning (grey). Left: social learning spreads efficient strategies, temporarily reducing genetic diversity below the purely evolutionary baseline. Right: mean energy is higher when learning accelerates the cultural spread of good foraging policies."}
+FIG("11_social_learning")
 ```
 
 ---
 
 ## 12. Combining modules: a kitchen-sink run
 
-All modules can be combined. This illustrates a run with body size evolution,
-dispersal, kin selection, and social learning active simultaneously on a
-larger grid.
+All modules can be combined. This run activates body size evolution,
+dispersal, kin selection, and social learning simultaneously on a larger grid.
 
-```{r kitchen-sink}
+```{r kitchen-sink, eval=FALSE}
 ks <- default_specs()
-ks$grid_rows             <- 40L
-ks$grid_cols             <- 40L
-ks$n_agents_init         <- 50L
-ks$max_ticks             <- 500L
-ks$random_seed           <- 99L
-ks$grass_rate            <- 0.25
-ks$body_size_evolution   <- TRUE
-ks$dispersal_evolution   <- TRUE
-ks$dispersal_init_mean   <- 0.2
-ks$kin_selection         <- TRUE
-ks$social_learning       <- TRUE
-ks$social_learning_freq  <- 25L
+ks$grid_rows            <- 40L; ks$grid_cols          <- 40L
+ks$n_agents_init        <- 50L; ks$max_ticks          <- 500L
+ks$random_seed          <- 99L; ks$grass_rate         <- 0.25
+ks$body_size_evolution  <- TRUE; ks$dispersal_evolution <- TRUE
+ks$dispersal_init_mean  <- 0.2;  ks$kin_selection      <- TRUE
+ks$social_learning      <- TRUE; ks$social_learning_freq <- 25L
 
 env_ks  <- run_alife(ks, verbose = FALSE)
 data_ks <- get_run_data(env_ks)
-tk_ks   <- data_ks$ticks
-```
 
-```{r kitchen-sink-plot, fig.height = 5,
-    fig.cap = "Kitchen-sink run with four modules active. The six panels track: population size, mean energy, mean body size, dispersal events, altruistic acts, and genetic diversity. The modules interact: body size evolution changes metabolic costs; dispersal spreads relatives across the grid, reducing the scope for kin altruism."}
 plot_run(data_ks)
 ```
 
-```{r kitchen-sink-summary}
-# Summarise final population state
-final_tick <- tail(tk_ks[tk_ks$n_agents > 0, ], 1)
-cat(sprintf(paste0(
-  "Final tick %d: %d agents\n",
-  "  Mean body size: %.3f (SD %.3f)\n",
-  "  Total dispersal events: %d\n",
-  "  Total altruistic acts: %d\n",
-  "  Genetic diversity: %.4f\n"),
-  final_tick$t,
-  final_tick$n_agents,
-  final_tick$mean_body_size,
-  final_tick$sd_body_size,
-  sum(tk_ks$n_dispersal_events),
-  sum(tk_ks$n_altruistic_acts),
-  final_tick$genetic_diversity
-))
+```{r fig-ks-run, eval=TRUE, echo=FALSE, fig.cap="Six-panel run summary for the kitchen-sink configuration (body size + dispersal + kin selection + social learning). The body-size panel (bottom-right) replaces the BNN sigma panel from Section 1.", fig.height=6}
+FIG("12_kitchen_sink")
 ```
+
+```{r kitchen-sink-dashboard, eval=FALSE}
+visualize_progress(env_ks, data_ks)
+```
+
+```{r fig-ks-dash, eval=TRUE, echo=FALSE, fig.cap="Full dashboard for the kitchen-sink run: grid snapshot, population and energy dynamics, diversity trajectory, death scatter (age vs energy by cause), lifespan histogram, and body-size evolution.", fig.height=7}
+FIG("12_kitchen_dashboard")
+```
+
+---
+
+## Generating the figures yourself
+
+If Julia is available, you can regenerate all figures from source:
+
+```r
+source(system.file("generate_figures.R", package = "clade"))
+```
+
+or, from the package source directory:
+
+```r
+source("vignettes/generate_figures.R")
+```
+
+This creates `man/figures/showcase_*.png`. Re-build the vignette with
+`devtools::build_vignettes()` to embed the updated images.
 
 ---
 
 ## See also
 
-- **Introduction**: `vignette("introduction", package = "clade")` — parameter
-  overview and brain-type descriptions.
-- **Baldwin Effect**: `vignette("baldwin-effect", package = "clade")` —
-  within-lifetime RL, epigenetics, and the Baldwin Effect in a single
-  longitudinal experiment.
+- **Introduction**: `vignette("introduction", package = "clade")`
 - `?default_specs` — full parameter reference with biological annotations.
-- `?plot_run`, `?plot_environment`, `?get_run_data` — output and
-  visualisation functions.
+- `?plot_run`, `?visualize_progress`, `?plot_environment` — output functions.
 
 ---
 
@@ -684,17 +569,12 @@ cat(sprintf(paste0(
 
 - Hamilton, W.D. (1964) The genetical evolution of social behaviour.
   *Journal of Theoretical Biology* 7(1):1–52.
-- Kleiber, M. (1947) Body size and metabolic rate. *Physiological Reviews*
-  27(4):511–541.
-- Kermack, W.O. & McKendrick, A.G. (1927) A contribution to the
-  mathematical theory of epidemics. *Proceedings of the Royal Society A*
-  115(772):700–721.
-- Lenz, S. & Csala, D. (2021) JuliaConnectoR: A functionally oriented
-  interface between R and Julia. *Journal of Statistical Software*
-  101(6):1–24.
-- Odling-Smee, F.J., Laland, K.N. & Feldman, M.W. (2003) *Niche
-  Construction: The Neglected Process in Evolution.* Princeton University
-  Press.
-- Ronce, O. (2007) How does it feel to be like a rolling stone? Ten
-  questions about dispersal evolution. *Annual Review of Ecology, Evolution,
-  and Systematics* 38:231–253.
+- Kermack, W.O. & McKendrick, A.G. (1927) A contribution to the mathematical
+  theory of epidemics. *Proceedings of the Royal Society A* 115(772):700–721.
+- Kleiber, M. (1947) Body size and metabolic rate.
+  *Physiological Reviews* 27(4):511–541.
+- Odling-Smee, F.J., Laland, K.N. & Feldman, M.W. (2003) *Niche Construction:
+  The Neglected Process in Evolution.* Princeton University Press.
+- Ronce, O. (2007) How does it feel to be like a rolling stone? Ten questions
+  about dispersal evolution. *Annual Review of Ecology, Evolution, and
+  Systematics* 38:231–253.
