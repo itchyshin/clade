@@ -45,11 +45,11 @@ include("genome.jl")
 # Brains (load all; make_brain() selects at runtime)
 include("brains/ann.jl")
 include("brains/bnn.jl")
+include("brains/ctrnn.jl")
+include("brains/grn.jl")
 
-# Defer heavier brain types for Phase 2; stubs emit clear error messages.
+# Defer heavier brain types for later phases; stubs emit clear error messages.
 # Replace each stub with the real include() as that phase is implemented.
-# include("brains/ctrnn.jl")
-# include("brains/grn.jl")
 # include("brains/transformer.jl")
 # include("brains/synthesis.jl")
 
@@ -93,12 +93,16 @@ function make_brain(g::DiploidGenome, specs::Dict{String,Any})::AbstractBrain
         return make_ann_brain_from_genome(g, specs)
     elseif bt == "bnn"
         return make_bnn_brain(g, specs)
+    elseif bt == "ctrnn"
+        return make_ctrnn_brain_from_genome(g, specs)
+    elseif bt == "grn"
+        return make_grn_brain_from_genome(g, specs)
     elseif bt == "random"
         return make_random_brain(g.architecture)
     else
-        error("Brain type '$bt' is not yet implemented in Phase 0. " *
-              "Supported: \"ann\", \"bnn\", \"random\". " *
-              "CTRNN, GRN, Transformer, and Synthesis are planned for Phase 2.")
+        error("Brain type '$bt' is not yet implemented. " *
+              "Supported: \"ann\", \"bnn\", \"ctrnn\", \"grn\", \"random\". " *
+              "Transformer and Synthesis are planned for later phases.")
     end
 end
 
@@ -360,8 +364,26 @@ function _build_arch(specs::Dict{String,Any})::Vector{Int32}
         n_out = Int32(5)   # N, E, S, W, idle
         hidden = Int32.(specs["hidden_layers"])
         return Int32[n_in; hidden; n_out]
+    elseif bt == "ctrnn"
+        # arch = [n_inputs, n_neurons, n_outputs]. n_neurons is taken from
+        # the first element of hidden_layers (CTRNN uses a single pool).
+        n_in      = _compute_n_inputs(specs)
+        hidden    = Int32.(specs["hidden_layers"])
+        n_neurons = isempty(hidden) ? Int32(8) : hidden[1]
+        n_out     = Int32(5)
+        # Ensure n_neurons is large enough to accommodate the input and
+        # output slots without overlap.
+        n_neurons = max(n_neurons, n_in + n_out)
+        return Int32[n_in, n_neurons, n_out]
     elseif bt == "grn"
-        return Int32[specs["n_genes"]]
+        # arch = [n_inputs, n_genes, n_outputs].
+        n_in      = _compute_n_inputs(specs)
+        n_genes_v = Int32(get(specs, "n_genes", 20))
+        n_out     = min(Int32(5), n_genes_v)
+        # Ensure n_genes is at least n_in + n_out so that the sensory and
+        # action genes don't overlap.
+        n_genes_v = max(n_genes_v, n_in + n_out)
+        return Int32[n_in, n_genes_v, n_out]
     elseif bt == "transformer"
         n_in = _compute_n_inputs(specs)
         return Int32[n_in,
@@ -369,7 +391,7 @@ function _build_arch(specs::Dict{String,Any})::Vector{Int32}
                      specs["transformer_history"],
                      Int32(5)]
     else
-        # CTRNN, synthesis: return placeholder; replaced in Phase 2
+        # Synthesis: return placeholder; replaced in a later phase.
         n_in = _compute_n_inputs(specs)
         hidden = Int32.(specs["hidden_layers"])
         return Int32[n_in; hidden; Int32(5)]

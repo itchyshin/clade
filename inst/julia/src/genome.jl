@@ -71,7 +71,8 @@ Parameters are read from `specs`:
 """
 function make_genome(specs::Dict{String,Any}, arch::Vector{Int32},
                      rng::AbstractRNG)::DiploidGenome
-    n_weights  = arch_to_n_weights(arch)
+    bt          = get(specs, "brain_type", "bnn")
+    n_weights   = brain_n_params(arch, bt)
     mutation_sd = Float32(get(specs, "mutation_sd", 0.1))
 
     mat_w = Float32.(randn(rng, n_weights) .* mutation_sd)
@@ -367,6 +368,31 @@ function arch_to_n_weights(arch::Vector{Int32})::Int
         n += arch[i] * arch[i+1] + arch[i+1]   # weights + biases
     end
     n
+end
+
+"""
+    brain_n_params(arch::Vector{Int32}, brain_type::String) -> Int
+
+Dispatcher for genome weight-vector size across brain types. The default MLP
+formula in `arch_to_n_weights()` is not valid for every brain type: CTRNN
+encodes [τ; W; θ] and GRN encodes only the n_genes × n_genes regulatory
+matrix. This helper lets `make_genome()` allocate the correct number of
+alleles without the genome layer having to know the internals of each brain.
+
+- `"ann"`, `"bnn"`, `"random"`, `"transformer"`, `"synthesis"`: MLP formula.
+- `"ctrnn"`: n + n² + n where n = arch[2] (time constants, W, biases).
+- `"grn"`  : n² where n = arch[2] (regulatory matrix only).
+"""
+function brain_n_params(arch::Vector{Int32}, brain_type::String)::Int
+    if brain_type == "ctrnn"
+        n = Int(arch[2])
+        return n + n * n + n
+    elseif brain_type == "grn"
+        n = Int(arch[2])
+        return n * n
+    else
+        return arch_to_n_weights(arch)
+    end
 end
 
 """
