@@ -67,6 +67,8 @@
 #' }
 #'
 #' @seealso [search_cmaes()], [search_gradient()], [run_alife()]
+#' @importFrom stats rnorm
+#' @importFrom utils head tail
 #' @export
 search_map_elites <- function(specs_base,
                                archive_dims,
@@ -355,6 +357,7 @@ search_cmaes <- function(specs_base,
 #' }
 #'
 #' @seealso [search_map_elites()], [search_cmaes()]
+#' @importFrom stats setNames
 #' @export
 search_gradient <- function(specs_base,
                              params        = c("grass_rate", "mutation_sd"),

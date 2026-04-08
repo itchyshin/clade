@@ -66,9 +66,9 @@ include("modules/cooperation.jl")
 include("modules/scavenging.jl")
 include("modules/niche.jl")
 include("modules/epigenetics.jl")
+include("modules/social_learning.jl")
+include("modules/rl.jl")
 # include("modules/mimicry.jl")
-# include("modules/social_learning.jl")
-# include("modules/rl.jl")
 # include("modules/signals.jl")
 # include("modules/speciation.jl")
 # include("modules/predators.jl")
@@ -301,9 +301,17 @@ function run_clade(specs::Dict{String,Any})
         decay_carrion!(env)
         apply_cooperation!(env)
         apply_epigenetics!(env)
-        # apply_social_learning!(env)
+        # Social learning: every social_learning_freq ticks
+        if Bool(get(specs, "social_learning", false))
+            sl_freq = Int(get(specs, "social_learning_freq", 10))
+            sl_freq > 0 && t % sl_freq == 0 && apply_social_learning!(env)
+        end
+        # Within-lifetime RL: every rl_update_freq ticks
+        if String(get(specs, "rl_mode", "none")) != "none"
+            rl_freq = Int(get(specs, "rl_update_freq", 1))
+            rl_freq > 0 && t % rl_freq == 0 && apply_rl!(env)
+        end
         # apply_parental_care!(env)
-        # apply_rl!(env)
         # apply_world_evolution!(env)
 
         # ── Death and reproduction ───────────────────────────────────────

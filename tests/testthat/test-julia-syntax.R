@@ -83,21 +83,25 @@ test_that("Clade.jl includes all core source files", {
   }
 })
 
-# ── 4b. Clade.jl includes all brain and module files ──────────────────────────
-test_that("Clade.jl includes ctrnn.jl, grn.jl, and all active module files", {
+# ── 4b. Clade.jl includes all brain and module files (active, not commented) ──
+test_that("Clade.jl has active includes for all brain and module files", {
   skip_no_julia_src()
-  clade_jl <- paste(readLines(file.path(JULIA_SRC, "Clade.jl")), collapse = "\n")
+  clade_lines <- readLines(file.path(JULIA_SRC, "Clade.jl"))
+  # Only lines that are NOT commented out (strip leading whitespace then check
+  # that the first non-space character is not '#').
+  active_lines <- clade_lines[!grepl("^\\s*#", clade_lines)]
+  active_text  <- paste(active_lines, collapse = "\n")
   for (required_include in c(
     "brains/ctrnn.jl", "brains/grn.jl",
     "modules/disease.jl", "modules/kin.jl",
     "modules/cooperation.jl", "modules/scavenging.jl",
-    "modules/niche.jl", "modules/social_learning.jl",
-    "modules/rl.jl"
+    "modules/niche.jl", "modules/epigenetics.jl",
+    "modules/social_learning.jl", "modules/rl.jl"
   )) {
     pattern <- sprintf('include("%s")', required_include)
     expect_true(
-      grepl(pattern, clade_jl, fixed = TRUE),
-      info = sprintf("Clade.jl does not include %s", required_include)
+      grepl(pattern, active_text, fixed = TRUE),
+      info = sprintf("Clade.jl missing active include for %s", required_include)
     )
   }
 })

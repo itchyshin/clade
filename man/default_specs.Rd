@@ -51,9 +51,9 @@ this value (default 0).}
 \subsection{Grass dynamics}{
 
 \describe{
-\item{\code{grass_init_prob}}{Numeric in \link{0, 1}. Probability each cell starts
+\item{\code{grass_init_prob}}{Numeric in [0, 1]. Probability each cell starts
 with grass (default 0.5).}
-\item{\code{grass_rate}}{Numeric in \link{0, 1}. Per-tick probability that an empty
+\item{\code{grass_rate}}{Numeric in [0, 1]. Per-tick probability that an empty
 cell grows grass (default 0.05).}
 \item{\code{grass_max}}{Numeric. Maximum grass units per cell (default 5).}
 }
@@ -304,10 +304,10 @@ described by Jablonka & Lamb (2005).
 (default \code{FALSE}).
 Reference: Jablonka & Lamb (2005) \emph{Evolution in Four Dimensions},
 MIT Press.}
-\item{\code{epigenetic_learning_coupling}}{Numeric in \link{0, 1}. Probability that
+\item{\code{epigenetic_learning_coupling}}{Numeric in [0, 1]. Probability that
 a within-lifetime learning event methylates the corresponding locus
 (default 0.10).}
-\item{\code{epigenetic_inheritance}}{Numeric in \link{0, 1}. Fraction of the
+\item{\code{epigenetic_inheritance}}{Numeric in [0, 1]. Fraction of the
 parent's methylation marks inherited by each offspring (default 0.50).
 The remaining marks are reset (demethylated) in the offspring.}
 \item{\code{epigenetic_effect_size}}{Numeric. Factor by which methylation
@@ -347,13 +347,13 @@ weights (default 0.1).}
 Reference: Stearns (1992) \emph{The Evolution of Life Histories}, Oxford UP.}
 \item{\code{max_age}}{Integer. Maximum lifespan in ticks; agents die at this
 age regardless of energy (default 200L). Set to \code{Inf} to disable.}
-\item{\code{senescence_rate}}{Numeric in \link{0, 1}. Gompertz mortality rate;
+\item{\code{senescence_rate}}{Numeric in [0, 1]. Gompertz mortality rate;
 per-tick death probability scales as exp(senescence_rate * age)
 (default 0 = no senescence).
 Reference: Gompertz (1825) On the nature of the function expressive of
 the law of human mortality, \emph{Philosophical Transactions of the Royal
 Society} 115:513--583.}
-\item{\code{repro_senescence}}{Numeric in \link{0, 1}. Per-tick decline in
+\item{\code{repro_senescence}}{Numeric in [0, 1]. Per-tick decline in
 reproduction probability with age (default 0 = no reproductive
 senescence).}
 \item{\code{life_history_evolution}}{Logical. If \code{TRUE}, \code{max_age} and
@@ -428,9 +428,9 @@ Reference: Kleiber (1947) Body size and metabolic rate,
 Reference: Kermack & McKendrick (1927) Contributions to the mathematical
 theory of epidemics, \emph{Proceedings of the Royal Society A}
 115(772):700--721.}
-\item{\code{disease_seed_prob}}{Numeric in \link{0, 1}. Probability each agent is
+\item{\code{disease_seed_prob}}{Numeric in [0, 1]. Probability each agent is
 initially infected at tick 1 (default 0.01).}
-\item{\code{transmission_prob}}{Numeric in \link{0, 1}. Probability of transmission
+\item{\code{transmission_prob}}{Numeric in [0, 1]. Probability of transmission
 to a susceptible neighbour per infected-susceptible adjacent pair per
 tick (default 0.1). Effective transmission = transmission_prob *
 (1 - receiver's immune_strength).}
@@ -440,7 +440,7 @@ tick (default 0.1). Effective transmission = transmission_prob *
 (default 20L). After this, agent returns to Susceptible.}
 \item{\code{disease_energy_cost}}{Numeric. Energy deducted per tick while
 infected (default 5).}
-\item{\code{disease_death_prob}}{Numeric in \link{0, 1}. Per-tick probability of
+\item{\code{disease_death_prob}}{Numeric in [0, 1]. Per-tick probability of
 death while infected (default 0.02). Scaled by (1 - immune_strength)
 if \code{immune_evolution = TRUE}.}
 }
@@ -541,13 +541,13 @@ in \emph{Classical Conditioning II}, Appleton-Century-Crofts, pp 64--99.}
 \code{FALSE}). Shelters reduce predation and slow grass regrowth.
 Reference: Odling-Smee, Laland & Feldman (2003) \emph{Niche Construction:
 The Neglected Process in Evolution}, Princeton UP.}
-\item{\code{shelter_build_prob}}{Numeric in \link{0, 1}. Probability of building a
+\item{\code{shelter_build_prob}}{Numeric in [0, 1]. Probability of building a
 shelter unit per tick when eligible (default 0.1).}
 \item{\code{shelter_max_depth}}{Integer. Maximum shelter depth per cell
 (default 5L).}
 \item{\code{shelter_min_energy}}{Numeric. Minimum energy required to build
 (default 80).}
-\item{\code{shelter_decay_prob}}{Numeric in \link{0, 1}. Per-tick probability that
+\item{\code{shelter_decay_prob}}{Numeric in [0, 1]. Per-tick probability that
 each shelter unit decays (default 0.05).}
 }
 }
@@ -557,11 +557,11 @@ each shelter unit decays (default 0.05).}
 \describe{
 \item{\code{scavenging}}{Logical. Enable carrion dynamics (default \code{FALSE}).
 Dead agents deposit body mass as carrion; scavengers consume it.}
-\item{\code{carrion_fraction}}{Numeric in \link{0, 1}. Fraction of energy_init
+\item{\code{carrion_fraction}}{Numeric in [0, 1]. Fraction of energy_init
 deposited as carrion upon agent death (default 0.5). Uses energy_init
 not agent$energy at death, because body mass does not change with
 starvation.}
-\item{\code{carrion_decay_rate}}{Numeric in \link{0, 1}. Per-tick fraction of
+\item{\code{carrion_decay_rate}}{Numeric in [0, 1]. Per-tick fraction of
 carrion that decomposes (default 0.1).}
 \item{\code{carrion_eat_gain}}{Numeric. Energy gained per unit of carrion
 consumed (default 3).}
