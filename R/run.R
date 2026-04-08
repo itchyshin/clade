@@ -182,16 +182,28 @@ batch_alife <- function(specs_list, n_cores = 1L, verbose = FALSE) {
   invisible(TRUE)
 }
 
-#' Convert an R specs list to a Julia-compatible named Dict
+#' Convert an R specs list to a Julia `Dict{String,Any}`
 #'
-#' Julia receives the specs as a `Dict{String, Any}`. Integers, doubles,
-#' logicals, strings, and integer vectors are all supported by JuliaConnectoR.
+#' Sends the specs list to Julia through [JuliaConnectoR::juliaCall()] and
+#' lets the Julia helper `Clade.r_specs_to_dict()` unpack it into a
+#' `Dict{String,Any}`. This replaces the earlier string-interpolation approach
+#' which required manual escaping for every scalar type. JuliaConnectoR
+#' serialises an R named list as an `RConnector.ElementList` whose scalars
+#' retain their R types (integer, double, logical, character), and the Julia
+#' helper rebuilds the Dict keyed by string.
 #'
-#' @param specs A validated specs list.
-#' @return The result of `JuliaConnectoR::juliaCall("Dict", ...)`.
+#' Values that JuliaConnectoR cannot serialise — single `NA`s and zero-length
+#' character vectors — are dropped before sending. Julia reads optional
+#' fields via `get(specs, key, default)`, so an absent key is equivalent to
+#' `nothing` or the coded default.
+#'
+#' @param specs A validated specs list from [default_specs()].
+#' @return A Julia proxy for the resulting `Dict{String,Any}`, suitable for
+#'   passing to `Clade.run_clade()`.
 #' @keywords internal
 .specs_to_julia <- function(specs) {
-  # Ensure integer fields are sent as Int64 (not Float64)
+  # Ensure integer fields are sent as Int64 (not Float64). JuliaConnectoR
+  # preserves R's integer type across the boundary.
   int_fields <- c(
     "grid_rows", "grid_cols", "n_agents_init", "max_agents", "max_ticks",
     "n_chromosomes", "ploidy", "max_age", "disease_duration",
@@ -204,20 +216,25 @@ batch_alife <- function(specs_list, n_cores = 1L, verbose = FALSE) {
     if (!is.null(specs[[nm]])) specs[[nm]] <- as.integer(specs[[nm]])
   }
 
-  # JuliaConnectoR::juliaCall() converts named R lists to Julia NamedTuples;
-  # we pass each field as a keyword so the order does not matter.
-  do.call(
-    JuliaConnectoR::juliaEval,
-    list(paste0(
-      'Dict{String,Any}(',
-      paste(
-        sprintf('"%s" => %s', names(specs),
-                vapply(specs, .r_val_to_julia_str, character(1L))),
-        collapse = ", "
-      ),
-      ')'
-    ))
-  )
+  # JuliaConnectoR cannot serialise NA scalars or length-0 character vectors.
+  # Drop them; Julia reads optional fields via `get(specs, k, default)`, so
+  # an absent key is equivalent to `nothing`.
+  keep  <- vapply(specs, .is_sendable_to_julia, logical(1L))
+  specs <- specs[keep]
+
+  JuliaConnectoR::juliaCall("Clade.r_specs_to_dict", specs)
+}
+
+#' Test whether an R value can round-trip through JuliaConnectoR
+#'
+#' JuliaConnectoR fails to serialise `NULL`, `NA` scalars, and zero-length
+#' character vectors. This helper returns `FALSE` for these, `TRUE` otherwise.
+#' @keywords internal
+.is_sendable_to_julia <- function(v) {
+  if (is.null(v))                            return(FALSE)
+  if (length(v) == 0L)                       return(FALSE)
+  if (length(v) == 1L && is.na(v))           return(FALSE)
+  TRUE
 }
 
 #' Render a scalar R value as a Julia literal string

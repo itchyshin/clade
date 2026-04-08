@@ -80,6 +80,39 @@ include("modules/niche.jl")
 # include("modules/epigenetics.jl")
 # include("modules/world_evolution.jl")
 
+# ── R-to-Julia specs bridge ───────────────────────────────────────────────────
+
+"""
+    r_specs_to_dict(nt) -> Dict{String,Any}
+
+Convert the object received from R (via JuliaConnectoR) into the
+`Dict{String,Any}` expected by `run_clade`. JuliaConnectoR wraps a named R
+list as an `RConnector.ElementList` whose fields include `names` (a vector
+of symbols) and `namedelements` (a `Dict{Symbol,Any}`), so we iterate over
+the symbols to preserve R-side ordering.
+
+If a caller already holds a `Dict`, pass it through unchanged. This lets
+internal tests call `run_clade(Dict(...))` directly.
+"""
+r_specs_to_dict(d::Dict{String,Any}) = d
+
+function r_specs_to_dict(nt)
+    d = Dict{String,Any}()
+    # Prefer iterating over `names` for a deterministic order when the input
+    # is an RConnector.ElementList, falling back to `pairs` for NamedTuples
+    # or other Associative types.
+    if hasproperty(nt, :names) && hasproperty(nt, :namedelements)
+        for k in getfield(nt, :names)
+            d[string(k)] = getfield(nt, :namedelements)[k]
+        end
+    else
+        for (k, v) in pairs(nt)
+            d[string(k)] = v
+        end
+    end
+    d
+end
+
 # ── Brain dispatcher ──────────────────────────────────────────────────────────
 
 """
@@ -233,6 +266,11 @@ Returns a NamedTuple with fields:
 - `deaths`     — Dict of per-death records
 - `genome_log` — Vector of genome matrices (empty unless log_genomes=true)
 """
+# Fallback: convert a NamedTuple / RConnector.ElementList / named-like input
+# to Dict{String,Any} and dispatch. This lets R callers pass a native list
+# without building the Dict explicitly on the Julia side.
+run_clade(specs) = run_clade(r_specs_to_dict(specs))
+
 function run_clade(specs::Dict{String,Any})
     env = create_environment(specs)
     max_t = Int(specs["max_ticks"])
