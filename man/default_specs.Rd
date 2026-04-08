@@ -370,16 +370,16 @@ Press.}
 
 \describe{
 \item{\code{body_size_evolution}}{Logical. Enable heritable body size trait
-(default \code{FALSE}). Body size scales metabolic costs via Kleiber's law:
-metabolic_cost proportional to body_size^0.75.
-Reference: Kleiber (1947) Body size and metabolic rate,
+(default \code{FALSE}). Body size scales metabolic costs (larger = more
+expensive), foraging capacity (larger = more grass per tick), and energy
+storage (larger = higher cap). Reference size is 1.0 (no effect).
+Reference: Kleiber, M. (1947) Body size and metabolic rate,
 \emph{Physiological Reviews} 27(4):511--541.}
-\item{\code{body_size_init_mean}}{Numeric. Initial mean body size
-(default 1.0).}
+\item{\code{body_size_init_mean}}{Numeric. Initial mean body size (default 1.0).}
 \item{\code{body_size_mutation_sd}}{Numeric. Mutation SD for body size
-(default 0.05).}
-\item{\code{body_size_min}}{Numeric. Minimum body size (default 0.1).}
-\item{\code{body_size_max}}{Numeric. Maximum body size (default 5.0).}
+(default 0.08).}
+\item{\code{body_size_min}}{Numeric. Minimum body size (default 0.3).}
+\item{\code{body_size_max}}{Numeric. Maximum body size (default 3.0).}
 }
 }
 
@@ -485,14 +485,20 @@ selectively favoured, M must exceed group size.}
 \subsection{Dispersal evolution}{
 
 \describe{
-\item{\code{dispersal_evolution}}{Logical. Enable heritable dispersal tendency
-(default \code{FALSE}). Dispersal tendency scales the probability of moving
-to a random cell rather than a locally optimal cell.}
+\item{\code{dispersal_evolution}}{Logical. Enable heritable natal dispersal
+(default \code{FALSE}). Each agent carries a \code{dispersal_tendency} trait
+(per-tick probability of moving away from birthplace). Reduces inbreeding
+and kin competition. Reference: Ronce, O. (2007) How does it feel to be
+like a rolling stone? \emph{Annual Review of Ecology, Evolution, and
+Systematics} 38:231--253.}
+\item{\code{dispersal_cost}}{Numeric. Energy cost per dispersal step
+(default 2.0). Agents with energy <= 2 x dispersal_cost do not disperse.}
 \item{\code{dispersal_init_mean}}{Numeric. Initial mean dispersal tendency
 (default 0.1).}
-\item{\code{dispersal_mutation_sd}}{Numeric. Mutation SD (default 0.02).}
+\item{\code{dispersal_mutation_sd}}{Numeric. Mutation SD for dispersal tendency
+(default 0.02).}
 \item{\code{dispersal_min}}{Numeric. Minimum dispersal tendency (default 0.0).}
-\item{\code{dispersal_max}}{Numeric. Maximum dispersal tendency (default 1.0).}
+\item{\code{dispersal_max}}{Numeric. Maximum dispersal tendency (default 0.5).}
 }
 }
 
