@@ -62,9 +62,9 @@ include("logging.jl")
 # Optional module includes — each is a no-op when its flag is false
 include("modules/disease.jl")
 include("modules/kin.jl")
-# include("modules/cooperation.jl")
-# include("modules/scavenging.jl")
-# include("modules/niche.jl")
+include("modules/cooperation.jl")
+include("modules/scavenging.jl")
+include("modules/niche.jl")
 # include("modules/mimicry.jl")
 # include("modules/social_learning.jl")
 # include("modules/rl.jl")
@@ -240,6 +240,10 @@ function run_clade(specs::Dict{String,Any})
 
         # ── Core tick sequence ───────────────────────────────────────────
         grow_grass!(env)
+        # Niche construction runs before tick_agents! so shelters built or
+        # decayed this tick affect grass growth (already applied) and are
+        # seen by predators / sensing during movement.
+        apply_niche_construction!(env)
         tick_agents!(env)
 
         # ── Optional modules ─────────────────────────────────────────────
@@ -249,11 +253,13 @@ function run_clade(specs::Dict{String,Any})
         end
         apply_disease!(env)
         apply_kin_altruism!(env)
-        # apply_cooperation!(env)
+        # Scavenging: agents consume carrion deposited on previous ticks,
+        # then carrion decays exponentially.
+        apply_scavenging!(env)
+        decay_carrion!(env)
+        apply_cooperation!(env)
         # apply_social_learning!(env)
         # apply_parental_care!(env)
-        # apply_niche_construction!(env)
-        # apply_scavenging!(env)
         # apply_rl!(env)
         # apply_world_evolution!(env)
 
@@ -295,9 +301,23 @@ function grow_grass!(env::Environment)
         rate  = clamp(rate, 0.0f0, 1.0f0)
     end
 
-    @inbounds for i in eachindex(env.grass)
-        if env.grass[i] < gmax && rand(env.rng) < rate
-            env.grass[i] = min(env.grass[i] + 1.0f0, gmax)
+    niche_on = Bool(get(env.specs, "niche_construction", false))
+
+    if niche_on
+        rows = size(env.grass, 1)
+        cols = size(env.grass, 2)
+        @inbounds for y in 1:cols, x in 1:rows
+            env.grass[x, y] < gmax || continue
+            mult = niche_grass_rate_multiplier(env.shelter_map, x, y)
+            if rand(env.rng) < rate * mult
+                env.grass[x, y] = min(env.grass[x, y] + 1.0f0, gmax)
+            end
+        end
+    else
+        @inbounds for i in eachindex(env.grass)
+            if env.grass[i] < gmax && rand(env.rng) < rate
+                env.grass[i] = min(env.grass[i] + 1.0f0, gmax)
+            end
         end
     end
 end
@@ -449,11 +469,13 @@ JuliaConnectoR. R will receive this as a named list.
 """
 function _env_to_result(env::Environment)
     (
-        agents     = _agents_to_records(env.agents),
-        t          = Int(env.t),
-        progress   = env.progress,
-        deaths     = env.deaths,
-        genome_log = env.genome_log
+        agents        = _agents_to_records(env.agents),
+        t             = Int(env.t),
+        progress      = env.progress,
+        deaths        = env.deaths,
+        genome_log    = env.genome_log,
+        total_carrion = Float64(sum(env.carrion_map)),
+        total_shelter = Int(sum(env.shelter_map)),
     )
 end
 

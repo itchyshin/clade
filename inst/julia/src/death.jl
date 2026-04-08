@@ -36,6 +36,7 @@ function kill_dead!(env::Environment)
     max_age   = Int(get(specs, "max_age", 200))
     senes_r   = Float32(get(specs, "senescence_rate", 0.0))
     semel     = get(specs, "life_history", "iteroparous") == "semelparous"
+    scav_on   = Bool(get(specs, "scavenging", false))
 
     for ag in env.agents
         ag.alive || continue
@@ -46,6 +47,10 @@ function kill_dead!(env::Environment)
             cause == :starvation && (env.n_starvations += Int32(1))
             cause == :age        && (env.n_age_deaths  += Int32(1))
             _log_death!(env, ag, cause)
+            # Deposit carrion at the dying agent's cell. The helper is
+            # a no-op when scavenging is off, but we gate on the spec flag
+            # here to avoid function-call overhead in the common case.
+            scav_on && deposit_carrion!(env, ag)
         end
     end
 end
