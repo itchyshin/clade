@@ -2,18 +2,30 @@
 % Please edit documentation in R/run.R
 \name{.specs_to_julia}
 \alias{.specs_to_julia}
-\title{Convert an R specs list to a Julia-compatible named Dict}
+\title{Convert an R specs list to a Julia \verb{Dict\{String,Any\}}}
 \usage{
 .specs_to_julia(specs)
 }
 \arguments{
-\item{specs}{A validated specs list.}
+\item{specs}{A validated specs list from \code{\link[=default_specs]{default_specs()}}.}
 }
 \value{
-The result of \code{JuliaConnectoR::juliaCall("Dict", ...)}.
+A Julia proxy for the resulting \verb{Dict\{String,Any\}}, suitable for
+passing to \code{Clade.run_clade()}.
 }
 \description{
-Julia receives the specs as a \verb{Dict\{String, Any\}}. Integers, doubles,
-logicals, strings, and integer vectors are all supported by JuliaConnectoR.
+Sends the specs list to Julia through \code{\link[JuliaConnectoR:juliaCall]{JuliaConnectoR::juliaCall()}} and
+lets the Julia helper \code{Clade.r_specs_to_dict()} unpack it into a
+\verb{Dict\{String,Any\}}. This replaces the earlier string-interpolation approach
+which required manual escaping for every scalar type. JuliaConnectoR
+serialises an R named list as an \code{RConnector.ElementList} whose scalars
+retain their R types (integer, double, logical, character), and the Julia
+helper rebuilds the Dict keyed by string.
+}
+\details{
+Values that JuliaConnectoR cannot serialise — single \code{NA}s and zero-length
+character vectors — are dropped before sending. Julia reads optional
+fields via \code{get(specs, key, default)}, so an absent key is equivalent to
+\code{nothing} or the coded default.
 }
 \keyword{internal}
