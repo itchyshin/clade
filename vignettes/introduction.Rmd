@@ -126,20 +126,61 @@ Mouret & Clune 2015) cleanly.
 Modules are toggled through `specs`. They are all off by default, so the
 core simulation is a clean baseline of foraging, reproduction, and death.
 
-| Module               | Spec field             | One-line description                                                                       |
-|----------------------|------------------------|--------------------------------------------------------------------------------------------|
-| Disease (SIR)        | `disease`              | Susceptible–infected–recovered transmission with energy costs and recovered immunity.       |
-| Kin selection        | `kin_selection`        | Pedigree-based altruistic energy transfer to related neighbours (Hamilton 1964).            |
-| Cooperation          | `cooperation_evolution`| An inheritable cooperation trait that scales the propensity to share with conspecifics.     |
-| Scavenging           | `scavenging`           | Agents may consume carrion left behind by recently dead conspecifics.                       |
-| Niche construction   | `niche_construction`   | Agents build shelters that protect against predators and slow grass regrowth on the cell.  |
-| Social learning      | `social_learning`      | Periodic copying of output-layer weights from successful Moore-neighbourhood teachers.      |
-| Within-lifetime RL   | `rl_mode`              | REINFORCE-with-baseline updates to the output layer at runtime (epigenetic plasticity).     |
-| Phenotypic plasticity| `epigenetics`          | Lamarckian-style transmission of within-lifetime weight changes (Jablonka & Lamb 2005).     |
+| Module               | Spec field              | One-line description                                                                       |
+|----------------------|-------------------------|--------------------------------------------------------------------------------------------|
+| Disease (SIR)        | `disease`               | Susceptible–infected–recovered transmission with energy costs and recovered immunity.       |
+| Kin selection        | `kin_selection`         | Pedigree-based altruistic energy transfer to related neighbours (Hamilton 1964).            |
+| Cooperation          | `cooperation_evolution` | An inheritable cooperation trait that scales the propensity to share with conspecifics.     |
+| Scavenging           | `scavenging`            | Agents may consume carrion left behind by recently dead conspecifics.                       |
+| Niche construction   | `niche_construction`    | Agents build shelters that protect against predators and slow grass regrowth on the cell.   |
+| Body size evolution  | `body_size_evolution`   | Heritable body size scales metabolic cost, foraging gain, and energy storage (Kleiber 1947).|
+| Natal dispersal      | `dispersal_evolution`   | Heritable tendency to move away from birthplace each tick, reducing kin competition.        |
+| Social learning      | `social_learning`       | Periodic copying of output-layer weights from successful Moore-neighbourhood teachers.      |
+| Within-lifetime RL   | `rl_mode`               | REINFORCE-with-baseline updates to the output layer at runtime.                            |
+| Epigenetic inheritance | `epigenetics`         | Lamarckian-style transmission of within-lifetime weight changes (Jablonka & Lamb 2005).    |
 
 A typical experimental design fixes the brain type and toggles one module
 at a time, comparing the resulting `get_run_data()` outputs across
 conditions.
+
+## Example: body size evolution
+
+When `body_size_evolution = TRUE`, agents evolve a heritable body size trait.
+Larger agents eat more per grass cell but pay a higher metabolic surcharge;
+smaller agents eat less but are cheaper to run. Reference size 1.0 has no
+metabolic correction. The trait is inherited via the genome and bounded by
+`body_size_min` (default 0.3) and `body_size_max` (default 3.0).
+
+```{r body-size}
+specs                       <- default_specs()
+specs$body_size_evolution   <- TRUE
+specs$body_size_init_mean   <- 1.0
+specs$body_size_mutation_sd <- 0.08
+
+env  <- run_alife(specs)
+data <- get_run_data(env)
+
+# Time series of mean and SD of body size
+head(data$ticks[, c("t", "n_agents", "mean_body_size", "sd_body_size")])
+```
+
+## Example: natal dispersal
+
+When `dispersal_evolution = TRUE`, agents evolve a heritable probability of
+taking one step away from their birthplace each tick. Dispersal reduces
+inbreeding and kin competition at the cost of `dispersal_cost` energy.
+
+```{r dispersal}
+specs                    <- default_specs()
+specs$dispersal_evolution <- TRUE
+specs$dispersal_init_mean <- 0.2
+
+env  <- run_alife(specs)
+data <- get_run_data(env)
+
+# Total dispersal events
+sum(data$ticks$n_dispersal_events)
+```
 
 ## Example: disease dynamics
 
