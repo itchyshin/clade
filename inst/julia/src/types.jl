@@ -211,6 +211,12 @@ in hot-path code when the corresponding module is disabled.
 - `species_id::Int32` — cluster ID assigned at each logging tick by
   hierarchical clustering of genome distances. Updated externally; 0 when
   speciation = false.
+
+## Natal dispersal
+- `x_birth::Int32`, `y_birth::Int32` — grid position where this agent was
+  born (or graduated from parental care). Used by the dispersal module to
+  compute direction-away-from-birthplace. Set at construction and never
+  updated within a lifetime.
 """
 mutable struct Agent
     # Identity
@@ -271,6 +277,10 @@ mutable struct Agent
 
     # Speciation
     species_id         ::Int32
+
+    # Natal dispersal (birth location, never updated within lifetime)
+    x_birth            ::Int32
+    y_birth            ::Int32
 end
 
 # ── Environment ────────────────────────────────────────────────────────────────
@@ -307,6 +317,7 @@ All counters are `Int32` unless noted.
 - `n_altruistic_acts`, `n_cooperation_acts`
 - `n_shelters_built`, `n_graduations`, `n_juv_deaths`
 - `n_toxic_attacks`, `n_avoided_attacks`
+- `n_dispersal_events` — agents that dispersed away from birthplace this tick
 
 ## Logging (pre-allocated for max_ticks rows)
 - `progress::Dict{String, Vector}` — named vectors, one entry per log tick.
@@ -345,6 +356,7 @@ mutable struct Environment
     n_juv_deaths        ::Int32
     n_toxic_attacks     ::Int32
     n_avoided_attacks   ::Int32
+    n_dispersal_events  ::Int32
 
     # Logging
     progress     ::Dict{String, Vector}

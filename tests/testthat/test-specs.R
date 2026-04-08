@@ -27,8 +27,11 @@ test_that("default_specs() contains all required parameters", {
     "epigenetic_effect_size", "methylation_rate", "demethylation_rate",
     "disease", "transmission_prob", "disease_seed_prob",
     "kin_selection", "cooperation_evolution",
-    "body_size_evolution", "metabolic_rate_evolution", "aging_rate_evolution",
-    "immune_evolution",
+    "body_size_evolution", "body_size_min", "body_size_max",
+    "body_size_mutation_sd",
+    "dispersal_evolution", "dispersal_cost", "dispersal_min", "dispersal_max",
+    "dispersal_mutation_sd",
+    "metabolic_rate_evolution", "aging_rate_evolution", "immune_evolution",
     "speciation", "isolation_threshold",
     "world_evolution", "world_mutation_sd", "world_params_to_evolve",
     "log_freq", "log_genomes", "random_seed"

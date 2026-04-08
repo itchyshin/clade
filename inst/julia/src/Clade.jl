@@ -73,11 +73,11 @@ include("modules/rl.jl")
 # include("modules/speciation.jl")
 # include("modules/predators.jl")
 # include("modules/group_defense.jl")
-# include("modules/dispersal.jl")
+include("modules/dispersal.jl")
 # include("modules/habitat_preference.jl")
 # include("modules/seasonal.jl")
 # include("modules/parental_care.jl")
-# include("modules/body_size.jl")
+include("modules/body_size.jl")
 # include("modules/world_evolution.jl")
 
 # ── R-to-Julia specs bridge ───────────────────────────────────────────────────
@@ -240,10 +240,11 @@ function create_environment(specs::Dict{String,Any})::Environment
         Int32(0),                       # t = 0 (incremented at start of tick)
         rng,
         specs,
-        # per-tick counters (all zero)
+        # per-tick counters (all zero): 13 original + n_dispersal_events
         Int32(0), Int32(0), Int32(0), Int32(0),
         Int32(0), Int32(0), Int32(0), Int32(0),
         Int32(0), Int32(0), Int32(0), Int32(0), Int32(0),
+        Int32(0),                       # n_dispersal_events
         progress,
         deaths,
         Any[]                           # genome_log
@@ -287,6 +288,8 @@ function run_clade(specs::Dict{String,Any})
         # seen by predators / sensing during movement.
         apply_niche_construction!(env)
         tick_agents!(env)
+        apply_body_size!(env)    # metabolic + foraging correction for body size
+        apply_dispersal!(env)    # natal dispersal away from birthplace
 
         # ── Optional modules ─────────────────────────────────────────────
         # (each is a no-op when its flag is false)
@@ -392,6 +395,7 @@ function _reset_counters!(env::Environment)
     env.n_juv_deaths      = Int32(0)
     env.n_toxic_attacks   = Int32(0)
     env.n_avoided_attacks = Int32(0)
+    env.n_dispersal_events = Int32(0)
 end
 
 # ── Internal constructors ─────────────────────────────────────────────────────
@@ -502,10 +506,13 @@ function _make_founder_agent(id::Int64, g::DiploidGenome, brain::AbstractBrain,
 
     sig_dims = Int(get(specs, "signal_dims", 0))
 
+    px = Int32(rand(rng, 1:rows))
+    py = Int32(rand(rng, 1:cols))
+
     Agent(
         # Identity
         id, Int64(0), Int64(0),
-        Int32(rand(rng, 1:rows)), Int32(rand(rng, 1:cols)),
+        px, py,
         # Energy
         Float32(get(specs, "energy_init", 100.0)),
         Int32(0), Int32(0), true,
@@ -526,7 +533,9 @@ function _make_founder_agent(id::Int64, g::DiploidGenome, brain::AbstractBrain,
         # Reproductive tracking
         false, Int32(0), Int32(0), Int32(0),
         # Speciation
-        Int32(0)
+        Int32(0),
+        # Natal dispersal (birth location = spawn location for founders)
+        px, py
     )
 end
 

@@ -51,6 +51,7 @@ function _init_progress(specs::Dict{String,Any}, n_ticks::Int)::Dict{String,Vect
         "n_altruistic_acts"      => copy(iz),
         "n_shelters_built"       => copy(iz),
         "n_cooperation_acts"     => copy(iz),
+        "n_dispersal_events"     => copy(iz),
     )
 
     # Module-specific vectors (only added when enabled; always present for
@@ -139,6 +140,7 @@ function log_tick!(env::Environment)
     p["n_altruistic_acts"][t]      = Int(env.n_altruistic_acts)
     p["n_shelters_built"][t]       = Int(env.n_shelters_built)
     p["n_cooperation_acts"][t]     = Int(env.n_cooperation_acts)
+    p["n_dispersal_events"][t]     = Int(env.n_dispersal_events)
 end
 
 """

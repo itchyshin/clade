@@ -37,7 +37,9 @@ library(testthat)
     n_infected             = rep(0L, n),
     n_new_infections       = rep(0L, n),
     n_altruistic_acts      = rep(0L, n),
-    n_shelters_built       = rep(0L, n)
+    n_shelters_built       = rep(0L, n),
+    n_cooperation_acts     = rep(0L, n),
+    n_dispersal_events     = rep(0L, n)
   )
 }
 

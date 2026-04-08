@@ -215,7 +215,8 @@ function _make_offspring(id::Int64, g::DiploidGenome, brain::AbstractBrain,
         Any[], Int32(0),                    # parental care
         0.0f0, energy,                      # RL
         false, Int32(0), Int32(0), Int32(0), # reproductive tracking
-        Int32(0)        # species_id
+        Int32(0),       # species_id
+        Int32(x), Int32(y)  # x_birth, y_birth = spawn location
     )
     apply_epigenetic_inheritance!(off, parent, specs, rng)
     off

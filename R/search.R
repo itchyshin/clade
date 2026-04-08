@@ -483,7 +483,8 @@ search_gradient <- function(specs_base,
     "mean_cooperation_level", "mean_immune_strength", "sd_immune_strength",
     "mean_metabolic_rate", "mean_learning_rate", "mean_prior_sigma",
     "grass_coverage", "n_infected", "n_new_infections",
-    "n_altruistic_acts", "n_shelters_built", "n_cooperation_acts")
+    "n_altruistic_acts", "n_shelters_built", "n_cooperation_acts",
+    "n_dispersal_events")
 }
 
 # ── Internal: MAP-Elites plot ─────────────────────────────────────────────────
