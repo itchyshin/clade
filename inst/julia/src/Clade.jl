@@ -1,0 +1,482 @@
+"""
+    Clade.jl — Entry point for the Clade simulation engine.
+
+This module is loaded by clade's R package via JuliaConnectoR:
+    JuliaConnectoR::juliaEval('include("<path>/Clade.jl")')
+
+The public API (called from R) is:
+    Clade.run_clade(specs::Dict) -> NamedTuple (env)
+    Clade.create_environment(specs::Dict) -> Environment
+
+All other functions are internal.
+
+Architecture
+------------
+1. types.jl     — AbstractBrain, DiploidGenome, Agent, Environment
+2. genome.jl    — meiosis, phenotype expression, genome distance
+3. brains/*.jl  — six brain implementations + make_brain() dispatcher
+4. sense.jl     — sensory input vector construction
+5. tick.jl      — per-tick agent update (movement, eating, energy)
+6. reproduce.jl — offspring creation (meiosis → brain → agent)
+7. death.jl     — mortality: starvation, senescence, disease, age
+8. modules/*.jl — optional biological modules (disease, kin, cooperation, ...)
+9. logging.jl   — init_progress!, log_tick!, get_run_data
+10. search.jl   — MAP-Elites, CMA-ES, gradient search
+
+Calling convention
+------------------
+All stateful objects are passed explicitly (no globals). The Environment is
+modified in place by tick!, die!, reproduce! etc. Agents that die within a
+tick have `alive` set to false; they are removed from `env.agents` at the end
+of each tick in `remove_dead!()`. This is the same pattern used in alifeR
+(agents removed after `remove_dead_agents()` in run_alife.R).
+"""
+module Clade
+
+using Random: Xoshiro, seed!
+using Statistics: mean, std
+using LinearAlgebra: norm
+
+# ── Load sub-modules in dependency order ──────────────────────────────────────
+
+include("types.jl")
+include("genome.jl")
+
+# Brains (load all; make_brain() selects at runtime)
+include("brains/ann.jl")
+include("brains/bnn.jl")
+
+# Defer heavier brain types for Phase 2; stubs emit clear error messages.
+# Replace each stub with the real include() as that phase is implemented.
+# include("brains/ctrnn.jl")
+# include("brains/grn.jl")
+# include("brains/transformer.jl")
+# include("brains/synthesis.jl")
+
+include("sense.jl")
+include("tick.jl")
+include("reproduce.jl")
+include("death.jl")
+include("logging.jl")
+
+# Optional module includes — each is a no-op when its flag is false
+# include("modules/disease.jl")
+# include("modules/kin.jl")
+# include("modules/cooperation.jl")
+# include("modules/scavenging.jl")
+# include("modules/niche.jl")
+# include("modules/mimicry.jl")
+# include("modules/social_learning.jl")
+# include("modules/rl.jl")
+# include("modules/signals.jl")
+# include("modules/speciation.jl")
+# include("modules/predators.jl")
+# include("modules/group_defense.jl")
+# include("modules/dispersal.jl")
+# include("modules/habitat_preference.jl")
+# include("modules/seasonal.jl")
+# include("modules/parental_care.jl")
+# include("modules/body_size.jl")
+# include("modules/epigenetics.jl")
+# include("modules/world_evolution.jl")
+
+# ── Brain dispatcher ──────────────────────────────────────────────────────────
+
+"""
+    make_brain(g::DiploidGenome, specs) -> AbstractBrain
+
+Construct the appropriate brain type from the genome and specs.
+"""
+function make_brain(g::DiploidGenome, specs::Dict{String,Any})::AbstractBrain
+    bt = get(specs, "brain_type", "bnn")
+    if bt == "ann"
+        return make_ann_brain_from_genome(g, specs)
+    elseif bt == "bnn"
+        return make_bnn_brain(g, specs)
+    elseif bt == "random"
+        return make_random_brain(g.architecture)
+    else
+        error("Brain type '$bt' is not yet implemented in Phase 0. " *
+              "Supported: \"ann\", \"bnn\", \"random\". " *
+              "CTRNN, GRN, Transformer, and Synthesis are planned for Phase 2.")
+    end
+end
+
+# ── Random brain (null model) ─────────────────────────────────────────────────
+
+"""
+    RandomBrain <: AbstractBrain
+
+Chooses actions uniformly at random. Used as a null model baseline.
+"""
+struct RandomBrain <: AbstractBrain
+    arch ::Vector{Int32}
+end
+
+n_inputs(b::RandomBrain)  = Int(b.arch[1])
+n_actions(b::RandomBrain) = Int(b.arch[end])
+
+function forward(b::RandomBrain, input::Vector{Float32})::Vector{Float32}
+    n = n_actions(b)
+    fill(Float32(1.0 / n), n)
+end
+
+mutate(b::RandomBrain, ::Float32, ::Any) = b
+crossover(b1::RandomBrain, ::RandomBrain, ::Vector{Int}, ::Any) = b1
+flatten(b::RandomBrain) = zeros(Float32, arch_to_n_weights(b.arch))
+brain_size(b::RandomBrain) = arch_to_n_weights(b.arch)
+
+make_random_brain(arch) = RandomBrain(arch)
+
+# ── Environment construction ──────────────────────────────────────────────────
+
+"""
+    create_environment(specs::Dict{String,Any}) -> Environment
+
+Initialise a new simulation environment. Called once before the tick loop.
+
+Steps:
+1. Seed the RNG (or use a random seed).
+2. Allocate and populate the grass grid.
+3. Determine brain architecture from `specs["brain_type"]` and
+   `specs["hidden_layers"]`.
+4. Create `n_agents_init` founder agents with random positions.
+5. Build the agent_map from agent positions.
+6. Pre-allocate the progress logging vectors.
+"""
+function create_environment(specs::Dict{String,Any})::Environment
+    # 1. RNG
+    seed_val = get(specs, "random_seed", nothing)
+    rng = if seed_val === nothing || seed_val isa Nothing
+        Xoshiro()   # random seed
+    else
+        Xoshiro(Int(seed_val))
+    end
+
+    rows = Int(specs["grid_rows"])
+    cols = Int(specs["grid_cols"])
+
+    # 2. Grass grid
+    grass = Matrix{Float32}(undef, rows, cols)
+    gmax  = Float32(get(specs, "grass_max", 5.0))
+    gprob = Float32(get(specs, "grass_init_prob", 0.5))
+    for i in eachindex(grass)
+        grass[i] = rand(rng) < gprob ? gmax : 0.0f0
+    end
+
+    # 3. Brain architecture
+    arch = _build_arch(specs)
+
+    # 4. Founder agents
+    n_init  = Int(specs["n_agents_init"])
+    agents  = Vector{Agent}(undef, n_init)
+    next_id = Int64(1)
+
+    for i in 1:n_init
+        g  = make_genome(specs, arch, rng)
+        br = make_brain(g, specs)
+        ag = _make_founder_agent(next_id, g, br, specs, rng)
+        agents[i] = ag
+        next_id += 1
+    end
+
+    # 5. Agent map
+    agent_map = zeros(Int64, rows, cols)
+    for (idx, ag) in enumerate(agents)
+        agent_map[ag.x, ag.y] = idx
+    end
+
+    # 6. Logging
+    n_log_ticks = Int(specs["max_ticks"])
+    progress    = _init_progress(specs, n_log_ticks)
+    deaths      = _init_deaths()
+
+    Environment(
+        grass,
+        agent_map,
+        zeros(Int64,    rows, cols),   # predator_map
+        zeros(Int32,    rows, cols),   # shelter_map
+        zeros(Float32,  rows, cols),   # carrion_map
+        agents,
+        Agent[],                        # predators (empty)
+        next_id,
+        Int32(0),                       # t = 0 (incremented at start of tick)
+        rng,
+        specs,
+        # per-tick counters (all zero)
+        Int32(0), Int32(0), Int32(0), Int32(0),
+        Int32(0), Int32(0), Int32(0), Int32(0),
+        Int32(0), Int32(0), Int32(0), Int32(0), Int32(0),
+        progress,
+        deaths,
+        Any[]                           # genome_log
+    )
+end
+
+# ── Main simulation loop ──────────────────────────────────────────────────────
+
+"""
+    run_clade(specs::Dict{String,Any}) -> NamedTuple
+
+Run a complete simulation and return the final environment state plus all
+logged data. Called from R via:
+    JuliaConnectoR::juliaCall("Clade.run_clade", specs_dict)
+
+Returns a NamedTuple with fields:
+- `agents`     — Vector of agent NamedTuples (id, x, y, energy, age, ...)
+- `t`          — final tick
+- `progress`   — Dict of logged per-tick statistics
+- `deaths`     — Dict of per-death records
+- `genome_log` — Vector of genome matrices (empty unless log_genomes=true)
+"""
+function run_clade(specs::Dict{String,Any})
+    env = create_environment(specs)
+    max_t = Int(specs["max_ticks"])
+    verbose = Bool(get(specs, "verbose", false))
+
+    for t in 1:max_t
+        env.t = Int32(t)
+        _reset_counters!(env)
+
+        # ── Core tick sequence ───────────────────────────────────────────
+        grow_grass!(env)
+        tick_agents!(env)
+
+        # ── Optional modules ─────────────────────────────────────────────
+        # (stubs; each is a no-op when its flag is false)
+        # apply_disease!(env)
+        # apply_kin_altruism!(env)
+        # apply_cooperation!(env)
+        # apply_social_learning!(env)
+        # apply_parental_care!(env)
+        # apply_niche_construction!(env)
+        # apply_scavenging!(env)
+        # apply_rl!(env)
+        # apply_world_evolution!(env)
+
+        # ── Death and reproduction ───────────────────────────────────────
+        kill_dead!(env)
+        remove_dead!(env)
+        create_offspring!(env)
+
+        # ── Logging ──────────────────────────────────────────────────────
+        log_freq = Int(get(specs, "log_freq", 1))
+        if t % log_freq == 0
+            log_tick!(env)
+        end
+
+        if verbose && t % 100 == 0
+            @info "tick $t: $(length(env.agents)) agents alive"
+        end
+    end
+
+    _env_to_result(env)
+end
+
+# ── Tick helpers ──────────────────────────────────────────────────────────────
+
+"""
+    grow_grass!(env::Environment)
+
+Grow grass according to logistic regrowth: each empty cell has probability
+`grass_rate` of gaining one unit per tick, up to `grass_max`.
+"""
+function grow_grass!(env::Environment)
+    rate = Float32(env.specs["grass_rate"])
+    gmax = Float32(get(env.specs, "grass_max", 5.0))
+    # Seasonal modulation
+    amp  = Float32(get(env.specs, "seasonal_amplitude", 0.0))
+    if amp > 0.0f0
+        period = Float64(get(env.specs, "seasonal_period", 100))
+        rate *= Float32(1.0 + amp * sin(2π * Float64(env.t) / period))
+        rate  = clamp(rate, 0.0f0, 1.0f0)
+    end
+
+    @inbounds for i in eachindex(env.grass)
+        if env.grass[i] < gmax && rand(env.rng) < rate
+            env.grass[i] = min(env.grass[i] + 1.0f0, gmax)
+        end
+    end
+end
+
+"""
+    _reset_counters!(env::Environment)
+
+Reset all per-tick module counters to zero at the start of each tick.
+"""
+function _reset_counters!(env::Environment)
+    env.n_births          = Int32(0)
+    env.n_deaths          = Int32(0)
+    env.n_starvations     = Int32(0)
+    env.n_age_deaths      = Int32(0)
+    env.n_new_infections  = Int32(0)
+    env.n_recoveries      = Int32(0)
+    env.n_altruistic_acts = Int32(0)
+    env.n_cooperation_acts= Int32(0)
+    env.n_shelters_built  = Int32(0)
+    env.n_graduations     = Int32(0)
+    env.n_juv_deaths      = Int32(0)
+    env.n_toxic_attacks   = Int32(0)
+    env.n_avoided_attacks = Int32(0)
+end
+
+# ── Internal constructors ─────────────────────────────────────────────────────
+
+"""
+    _build_arch(specs) -> Vector{Int32}
+
+Compute the brain architecture vector from specs.
+
+For ANN and BNN: arch = [n_inputs, hidden..., n_outputs]
+where n_inputs depends on active sensory modules and n_outputs = 5 (actions).
+"""
+function _build_arch(specs::Dict{String,Any})::Vector{Int32}
+    bt = get(specs, "brain_type", "bnn")
+    if bt in ("ann", "bnn", "random")
+        n_in  = _compute_n_inputs(specs)
+        n_out = Int32(5)   # N, E, S, W, idle
+        hidden = Int32.(specs["hidden_layers"])
+        return Int32[n_in; hidden; n_out]
+    elseif bt == "grn"
+        return Int32[specs["n_genes"]]
+    elseif bt == "transformer"
+        n_in = _compute_n_inputs(specs)
+        return Int32[n_in,
+                     specs["transformer_heads"],
+                     specs["transformer_history"],
+                     Int32(5)]
+    else
+        # CTRNN, synthesis: return placeholder; replaced in Phase 2
+        n_in = _compute_n_inputs(specs)
+        hidden = Int32.(specs["hidden_layers"])
+        return Int32[n_in; hidden; Int32(5)]
+    end
+end
+
+"""
+    _compute_n_inputs(specs) -> Int32
+
+Sensory input vector length depends on active modules:
+- Base: 11 inputs (same as alifeR baseline)
+- + predators:     +4 (predator N/E/S/W distance)
+- + parental care: +2 (care_load, offspring_energy)
+- + signal_dims:   +signal_dims (own signal)
+"""
+function _compute_n_inputs(specs::Dict{String,Any})::Int32
+    n = Int32(11)
+    Int(get(specs, "n_predators_init", 0)) > 0 && (n += Int32(4))
+    Bool(get(specs, "parental_care",   false)) && (n += Int32(2))
+    sig = Int(get(specs, "signal_dims", 0))
+    n += Int32(sig)
+    n
+end
+
+"""
+    _make_founder_agent(id, g, brain, specs, rng) -> Agent
+
+Construct a founder agent (no parents). Position is assigned uniformly at
+random on the grid. All non-core fields take biologically neutral defaults.
+"""
+function _make_founder_agent(id::Int64, g::DiploidGenome, brain::AbstractBrain,
+                              specs::Dict{String,Any}, rng)::Agent
+    rows = Int(specs["grid_rows"])
+    cols = Int(specs["grid_cols"])
+
+    dm = get(specs, "dominance_model", "additive")
+
+    body_size = express_trait(g, TRAIT_BODY_SIZE, dm,
+                              Float32(get(specs, "body_size_min",  0.1)),
+                              Float32(get(specs, "body_size_max",  5.0)))
+    immune_str = express_trait(g, TRAIT_IMMUNE_STRENGTH, dm,
+                               Float32(get(specs, "immune_strength_min", 0.0)),
+                               Float32(get(specs, "immune_strength_max", 1.0)))
+    coop = express_trait(g, TRAIT_COOPERATION_LEVEL, dm, 0.0f0, 1.0f0)
+    disp = express_trait(g, TRAIT_DISPERSAL_TENDENCY, dm,
+                         Float32(get(specs, "dispersal_min", 0.0)),
+                         Float32(get(specs, "dispersal_max", 1.0)))
+    metab = express_trait(g, TRAIT_METABOLIC_RATE, dm,
+                          Float32(get(specs, "metabolic_rate_min", 0.1)),
+                          Float32(get(specs, "metabolic_rate_max", 5.0)))
+    aging = express_trait(g, TRAIT_AGING_RATE, dm,
+                          Float32(get(specs, "aging_rate_min", 0.01)),
+                          Float32(get(specs, "aging_rate_max", 10.0)))
+    repro_th = express_trait(g, TRAIT_REPRO_THRESHOLD, dm, 0.0f0, 1000.0f0)
+    mut_sd   = express_trait(g, TRAIT_MUTATION_SD, dm,
+                             Float32(get(specs, "mutation_sd_min",  0.001)),
+                             Float32(get(specs, "mutation_sd_max",  1.0)))
+    lr       = express_trait(g, TRAIT_LEARNING_RATE, dm,
+                             Float32(get(specs, "learning_rate_min", 0.0)),
+                             Float32(get(specs, "learning_rate_max", 0.5)))
+
+    sig_dims = Int(get(specs, "signal_dims", 0))
+
+    Agent(
+        # Identity
+        id, Int64(0), Int64(0),
+        Int32(rand(rng, 1:rows)), Int32(rand(rng, 1:cols)),
+        # Energy
+        Float32(get(specs, "energy_init", 100.0)),
+        Int32(0), Int32(0), true,
+        # Brain and genome
+        brain, g, Bool[],   # methylome initialised empty; filled by epigenetics module
+        # Scalar traits
+        body_size, immune_str, coop, disp, metab, aging, repro_th, mut_sd, lr,
+        # Signal
+        zeros(Float32, sig_dims), zeros(Float32, sig_dims),
+        # Mimicry
+        0.0f0,
+        # Disease
+        false, false, Int32(0), Int32(0),
+        # Parental care
+        Any[], Int32(0),
+        # RL
+        0.0f0, Float32(get(specs, "energy_init", 100.0)),
+        # Reproductive tracking
+        false, Int32(0), Int32(0), Int32(0),
+        # Speciation
+        Int32(0)
+    )
+end
+
+"""
+    _env_to_result(env::Environment) -> NamedTuple
+
+Convert the environment to a NamedTuple suitable for return to R via
+JuliaConnectoR. R will receive this as a named list.
+"""
+function _env_to_result(env::Environment)
+    (
+        agents     = _agents_to_records(env.agents),
+        t          = Int(env.t),
+        progress   = env.progress,
+        deaths     = env.deaths,
+        genome_log = env.genome_log
+    )
+end
+
+"""
+    _agents_to_records(agents) -> Vector{NamedTuple}
+
+Convert agent structs to a vector of NamedTuples for R consumption.
+"""
+function _agents_to_records(agents::Vector{Agent})
+    map(agents) do ag
+        (
+            id             = Int(ag.id),
+            parent_id      = Int(ag.parent_id),
+            x              = Int(ag.x),
+            y              = Int(ag.y),
+            energy         = Float64(ag.energy),
+            age            = Int(ag.age),
+            alive          = ag.alive,
+            body_size      = Float64(ag.body_size),
+            immune_strength= Float64(ag.immune_strength),
+            cooperation_level = Float64(ag.cooperation_level),
+            metabolic_rate = Float64(ag.metabolic_rate),
+            num_offspring  = Int(ag.num_offspring),
+            species_id     = Int(ag.species_id)
+        )
+    end
+end
+
+end # module Clade

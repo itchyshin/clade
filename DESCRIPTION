@@ -1,0 +1,35 @@
+Package: clade
+Title: Agent-Based Evolutionary Simulation with Julia Backend
+Version: 0.1.0
+Authors@R:
+    person("Shinichi", "Nakagawa", role = c("aut", "cre"),
+           email = "s.nakagawa@unsw.edu.au")
+Description: Agent-based simulation of evolution and foraging ecology.
+    Digital organisms carry heritable neural-network genomes (diploid or
+    haploid) and one of six brain types: Bayesian neural network (default),
+    multilayer perceptron, continuous-time RNN, gene regulatory network,
+    transformer, or symbolic rule synthesis. Agents evolve over generations
+    via natural selection on behaviour, life history, and cognition. The
+    simulation runs entirely in Julia (via JuliaConnectoR), eliminating the
+    per-tick R-backend boundary overhead and enabling runs of 100,000 agents.
+    Provides MAP-Elites and gradient-through-simulation parameter search
+    (using Zygote.jl), which are impossible with Rcpp-based backends.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Depends:
+    R (>= 4.1.0)
+Imports:
+    ggplot2,
+    patchwork,
+    stats,
+    utils
+Suggests:
+    GA,
+    JuliaConnectoR (>= 0.9.0),
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+VignetteBuilder: knitr
