@@ -35,15 +35,16 @@ function create_offspring!(env::Environment)
     off_energy= Float32(get(specs, "offspring_energy", 60.0))
     max_ag    = Int(get(specs, "max_agents",           500))
     care      = Bool(get(specs, "parental_care",       false))
-    allee_th  = Int(get(specs, "allee_threshold",      0))
-    clutch    = Int(get(specs, "max_clutch_size",      1))
+    allee_th      = Int(get(specs, "allee_threshold",  0))
+    min_repro_age = Int32(get(specs, "min_repro_age",  0))
 
     # Collect reproducers before iterating (avoid modifying during loop)
     new_agents = Agent[]
 
     for ag in env.agents
-        ag.alive      || continue
-        ag.reproduced && continue
+        ag.alive              || continue
+        ag.reproduced         && continue
+        ag.age < min_repro_age && continue
         # Per-agent threshold: evolved repro_threshold, plasticity-adjusted
         ag.energy < effective_repro_threshold(ag, env) && continue
         length(env.agents) + length(new_agents) >= max_ag && break
@@ -52,6 +53,17 @@ function create_offspring!(env::Environment)
         if allee_th > 0
             n_nbrs = _count_neighbours(ag, env)
             n_nbrs < allee_th && continue
+        end
+
+        # Clutch size: per-agent sample when clutch_size_evolution is on
+        clutch = if Bool(get(specs, "clutch_size_evolution", false))
+            lo = Int(get(specs, "clutch_size_min", 1))
+            hi = Int(get(specs, "clutch_size_max", 5))
+            mu = Float64(get(specs, "clutch_size_init_mean", 1.0))
+            sd = Float64(get(specs, "clutch_size_mutation_sd", 0.3))
+            clamp(round(Int, mu + randn(env.rng) * sd), lo, hi)
+        else
+            Int(get(specs, "max_clutch_size", 1))
         end
 
         for _ in 1:clutch
@@ -64,15 +76,34 @@ function create_offspring!(env::Environment)
             ag.energy -= repro_cost
             mate !== nothing && (mate.energy -= repro_cost * 0.5f0)
 
+            # Parental investment: mate pays additional male_repro_cost per offspring
+            if Bool(get(specs, "parental_investment_evolution", false)) && mate !== nothing
+                male_cost = Float32(get(specs, "male_repro_cost", 0.3)) * off_energy
+                mate.energy -= male_cost
+            end
+            off_energy_actual = off_energy
+
+            # Stress hypermutation: scale mutation_sd when parent energy is low
+            base_mut_sd = Float32(get(specs, "mutation_sd", 0.1))
+            eff_mut_sd = if Bool(get(specs, "stress_hypermutation", false)) &&
+                            ag.energy < Float32(get(specs, "stress_threshold", 20.0))
+                base_mut_sd * Float32(get(specs, "stress_mutation_multiplier", 3.0))
+            else
+                base_mut_sd
+            end
+            specs["mutation_sd"] = eff_mut_sd
+
             # Create offspring
             off_genome = make_offspring_genome(
                 ag.genome,
                 mate !== nothing ? mate.genome : nothing,
                 specs, env.rng
             )
+            specs["mutation_sd"] = base_mut_sd   # restore after meiosis
+
             off_brain = make_brain(off_genome, specs)
             off = _make_offspring(env.next_id, off_genome, off_brain,
-                                   ag, mate, off_energy, specs, env.rng)
+                                   ag, mate, off_energy_actual, specs, env.rng)
             env.next_id += Int64(1)
 
             ag.num_offspring += Int32(1)
@@ -119,6 +150,7 @@ function _find_mate(ag::Agent, env::Environment)::Union{Agent, Nothing}
 
     best_score = -Inf32
     best_mate  = nothing
+    candidates = Agent[]
 
     for dx in -1:1, dy in -1:1
         (dx == 0 && dy == 0) && continue
@@ -129,6 +161,14 @@ function _find_mate(ag::Agent, env::Environment)::Union{Agent, Nothing}
         candidate = env.agents[idx]
         candidate.alive      || continue
         candidate.id == ag.id && continue
+        push!(candidates, candidate)
+    end
+
+    # Speciation filter: restrict to same species when speciation is active
+    candidates = speciation_filter_mates(ag, candidates, specs)
+    isempty(candidates) && return nothing
+
+    for candidate in candidates
         # Score = negative Euclidean distance between ag.preference and
         # candidate.signal (Zahavi 1975 — preference for signal)
         score = -sum(abs2, ag.preference .- candidate.signal)
