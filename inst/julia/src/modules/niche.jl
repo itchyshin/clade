@@ -146,3 +146,41 @@ multiplier once the predator module is activated.
     d == 0 && return 1.0f0
     max(1.0f0 - 0.2f0 * Float32(d), 0.2f0)
 end
+
+# === CLADE.JL ADDITIONS NEEDED ===
+# include: include("modules/niche.jl")
+# tick loop: apply_niche_construction!(env)   [BEFORE tick_agents!, so that
+#                                              shelters built or decayed
+#                                              this tick are visible to
+#                                              predators and sensing code]
+# grow_grass! modification: when niche_construction == true, iterate over
+#   (x, y) explicitly and multiply the per-cell rate by
+#   niche_grass_rate_multiplier(env.shelter_map, x, y). Minimal patch:
+#
+#     niche_on = Bool(get(env.specs, "niche_construction", false))
+#     if niche_on
+#         rows = size(env.grass, 1)
+#         cols = size(env.grass, 2)
+#         @inbounds for y in 1:cols, x in 1:rows
+#             env.grass[x, y] < gmax || continue
+#             mult = niche_grass_rate_multiplier(env.shelter_map, x, y)
+#             if rand(env.rng) < rate * mult
+#                 env.grass[x, y] = min(env.grass[x, y] + 1.0f0, gmax)
+#             end
+#         end
+#     else
+#         # (existing grow_grass! body)
+#     end
+#
+# _env_to_result (optional, tests only): add
+#     total_shelter = Int(sum(env.shelter_map))
+# so R tests can assert shelter accumulation without reading the full
+# shelter_map matrix. R/run.R's .julia_env_to_r must forward
+# env_julia$total_shelter.
+#
+# env.shelter_map is already initialised in create_environment() as
+#   zeros(Int32, rows, cols) — no struct change required.
+#
+# niche_attack_multiplier() is a stub: when the Phase 2 predators module is
+# wired in, its attack roll should be multiplied by this helper.
+# === END CLADE.JL ADDITIONS ===

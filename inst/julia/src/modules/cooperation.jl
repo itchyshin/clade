@@ -142,3 +142,14 @@ function express_cooperation_level(agent::Agent, specs::Dict{String,Any})::Float
     Bool(get(specs, "cooperation_evolution", false)) || return 0.0f0
     agent.cooperation_level
 end
+
+# === CLADE.JL ADDITIONS NEEDED ===
+# include: include("modules/cooperation.jl")
+# tick loop: apply_cooperation!(env)    [after tick_agents!, any position
+#                                        before kill_dead!; safe to run
+#                                        alongside other post-tick modules]
+# logging.jl: add "n_cooperation_acts" key to _init_progress() Dict, and
+#             p["n_cooperation_acts"][t] = Int(env.n_cooperation_acts) in
+#             log_tick!() (the Environment struct already has the counter).
+# No dependencies on other modules; no Environment struct changes needed.
+# === END CLADE.JL ADDITIONS ===

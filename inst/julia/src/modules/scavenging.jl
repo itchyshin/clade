@@ -114,3 +114,20 @@ function decay_carrion!(env::Environment)
     end
     nothing
 end
+
+# === CLADE.JL ADDITIONS NEEDED ===
+# include: include("modules/scavenging.jl")
+# tick loop: apply_scavenging!(env)     [after tick_agents!, before kill_dead!]
+# tick loop: decay_carrion!(env)        [immediately after apply_scavenging!]
+# death.jl: inside kill_dead!(), after `ag.alive = false; _log_death!(...)`,
+#           add `scav_on && deposit_carrion!(env, ag)` where
+#           `scav_on = Bool(get(specs, "scavenging", false))` is cached at
+#           the top of kill_dead!. This is the ONLY cross-file hook required.
+# _env_to_result (optional, tests only): add
+#           `total_carrion = Float64(sum(env.carrion_map))`
+#           to the returned NamedTuple so R tests can verify accumulation
+#           without reading the full carrion_map matrix. R/run.R's
+#           .julia_env_to_r must forward env_julia$total_carrion.
+# env.carrion_map is already initialised in create_environment() as
+#   zeros(Float32, rows, cols) — no struct change required.
+# === END CLADE.JL ADDITIONS ===
