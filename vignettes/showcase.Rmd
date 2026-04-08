@@ -538,6 +538,414 @@ FIG("12_kitchen_dashboard")
 
 ---
 
+## 13. Disease and Immunity Dynamics {#section-13}
+
+Pathogens impose powerful selection on host populations. When `disease = TRUE`
+the simulation runs a susceptible–infected–recovered (SIR) model; when
+`immune_evolution = TRUE` each agent carries a heritable `immune_strength`
+trait that scales recovery speed and transmission resistance. Over time,
+selection should drive immune investment upward in populations under sustained
+pathogen pressure (Boots & Bowers 2004).
+
+```{r sec-13-code, eval=FALSE}
+library(clade)
+specs <- default_specs()
+specs$disease           <- TRUE
+specs$immune_evolution  <- TRUE
+specs$n_agents_init     <- 100L
+specs$max_ticks         <- 300L
+specs$disease_seed_prob <- 0.05
+specs$transmission_prob <- 0.3
+specs$disease_duration  <- 20L
+specs$immune_duration   <- 80L
+specs$random_seed       <- 13L
+
+env <- run_alife(specs, verbose = FALSE)
+rd  <- get_run_data(env)
+plot_run(rd)
+```
+
+```{r sec-13-fig, eval=TRUE, echo=FALSE, fig.cap="Population and immune dynamics under evolving immunity. The n_infected panel shows SIR epidemic waves declining in amplitude as mean immune_strength rises across generations under continued pathogen pressure."}
+FIG("13_disease")
+```
+
+---
+
+## 14. Predator-Prey Dynamics {#section-14}
+
+Predators are mobile heterotrophs that consume agents. The classic
+Lotka-Volterra expectation — asynchronous oscillations in prey and predator
+density — emerges from spatial agent interactions without any deliberately
+engineered cycle (Lotka 1925). Predator populations collapse when prey density
+falls below the level needed to sustain maintenance costs.
+
+```{r sec-14-code, eval=FALSE}
+library(clade)
+specs <- default_specs()
+specs$n_predators_init  <- 5L
+specs$n_agents_init     <- 100L
+specs$max_ticks         <- 300L
+specs$grid_rows         <- 30L
+specs$grid_cols         <- 30L
+specs$grass_rate        <- 0.3
+specs$random_seed       <- 14L
+
+env <- run_alife(specs, verbose = FALSE)
+rd  <- get_run_data(env)
+plot_run(rd)
+```
+
+```{r sec-14-fig, eval=TRUE, echo=FALSE, fig.cap="Dual time series of prey (n_agents) and predator (n_predators) population size over 300 ticks. Asynchronous boom-bust cycles emerge from local predator-prey interactions on the spatial grid."}
+FIG("14_predators")
+```
+
+---
+
+## 15. Group Defense (Dilution of Risk) {#section-15}
+
+When `group_defense = TRUE`, the per-agent attack probability from a predator
+scales inversely with local group size — the dilution-of-risk effect (Hamilton
+1971). Agents in dense clusters are individually safer, creating positive
+fitness feedback for aggregation even when aggregation competes for grass.
+
+```{r sec-15-code, eval=FALSE}
+library(clade)
+
+run_defense <- function(defense) {
+  s <- default_specs()
+  s$n_predators_init <- 5L
+  s$group_defense    <- defense
+  s$n_agents_init    <- 100L
+  s$max_ticks        <- 300L
+  s$grid_rows        <- 30L
+  s$grid_cols        <- 30L
+  s$grass_rate       <- 0.3
+  s$random_seed      <- 15L
+  cbind(get_run_data(run_alife(s, verbose = FALSE))$ticks,
+        group_defense = defense)
+}
+
+results <- rbind(run_defense(TRUE), run_defense(FALSE))
+results$condition <- ifelse(results$group_defense,
+                            "Group defense ON", "Group defense OFF")
+
+ggplot(results, aes(x = t, y = n_agents, colour = condition)) +
+  geom_line(linewidth = 1) +
+  scale_colour_manual(
+    values = c("Group defense ON" = "#2166ac", "Group defense OFF" = "#d73027")
+  ) +
+  labs(title = "Dilution of risk: group defense vs no defense",
+       x = "Tick", y = "N agents", colour = NULL) +
+  theme_minimal() + theme(legend.position = "bottom")
+```
+
+```{r sec-15-fig, eval=TRUE, echo=FALSE, fig.cap="Prey population size over time with group defense on (blue) and off (red) under identical predator pressure. Dilution of risk reduces per-capita predation and typically sustains higher population densities."}
+FIG("15_group_defense")
+```
+
+---
+
+## 16. Habitat Preference and Ideal Free Distribution {#section-16}
+
+When `habitat_preference_evolution = TRUE`, agents carry a heritable
+`habitat_preference` trait that biases movement toward high-quality cells. The
+ideal free distribution (IFD) predicts that, at evolutionary equilibrium, all
+habitat patches yield equal fitness (Fretwell & Lucas 1970). Deviations from
+IFD appear in early generations before selection has had time to tune preference.
+
+```{r sec-16-code, eval=FALSE}
+library(clade)
+specs <- default_specs()
+specs$habitat_preference_evolution <- TRUE
+specs$n_agents_init                <- 80L
+specs$max_ticks                    <- 300L
+specs$grid_rows                    <- 30L
+specs$grid_cols                    <- 30L
+specs$grass_rate                   <- 0.2
+specs$random_seed                  <- 16L
+
+env <- run_alife(specs, verbose = FALSE)
+rd  <- get_run_data(env)
+
+plot_dispersal_events(rd)
+```
+
+```{r sec-16-fig, eval=TRUE, echo=FALSE, fig.cap="Habitat preference evolution and dispersal events over 300 ticks. As habitat preference traits evolve, agents increasingly concentrate on productive patches, and dispersal event rates reflect the changing spatial distribution of resources and competitors."}
+FIG("16_habitat_preference")
+```
+
+---
+
+## 17. Seasonal Dynamics {#section-17}
+
+Many real environments oscillate between productive and lean seasons.
+`seasonal_amplitude` scales the within-year grass growth variation; agents
+that survive winter (`winter_death_prob`) must persist on stored energy until
+spring. Population size therefore tracks the seasonal calendar, and life-history
+traits are expected to align with the seasonal cycle (Dingle 1996).
+
+```{r sec-17-code, eval=FALSE}
+library(clade)
+specs <- default_specs()
+specs$seasonal_amplitude <- 0.6
+specs$season_length      <- 100L
+specs$winter_death_prob  <- 0.02
+specs$n_agents_init      <- 80L
+specs$max_ticks          <- 400L
+specs$grid_rows          <- 30L
+specs$grid_cols          <- 30L
+specs$random_seed        <- 17L
+
+env <- run_alife(specs, verbose = FALSE)
+rd  <- get_run_data(env)
+plot_run(rd)
+```
+
+```{r sec-17-fig, eval=TRUE, echo=FALSE, fig.cap="Population and resource dynamics under seasonal forcing (amplitude = 0.6, season_length = 100). Population size oscillates in phase with the seasonal grass cycle, with winter mortality troughs visible every 100 ticks."}
+FIG("17_seasons")
+```
+
+---
+
+## 18. Speciation and Genetic Divergence {#section-18}
+
+When `speciation = TRUE`, agents that share fewer than `isolation_threshold`
+neural-weight similarity with the general population form a reproductively
+isolated lineage. Over time, spatially segregated clusters may diverge
+sufficiently to constitute distinct species, increasing `n_species` (Gavrilets
+2004).
+
+```{r sec-18-code, eval=FALSE}
+library(clade)
+specs <- default_specs()
+specs$speciation         <- TRUE
+specs$isolation_threshold <- 0.4
+specs$n_agents_init      <- 100L
+specs$max_ticks          <- 500L
+specs$grid_rows          <- 40L
+specs$grid_cols          <- 40L
+specs$grass_rate         <- 0.25
+specs$random_seed        <- 18L
+
+env <- run_alife(specs, verbose = FALSE)
+rd  <- get_run_data(env)
+
+tk <- rd$ticks
+
+p1 <- ggplot(tk, aes(x = t, y = n_species)) +
+  geom_step(colour = "#5e3c99", linewidth = 1) +
+  labs(title = "Number of species over time",
+       x = "Tick", y = "N species") +
+  theme_minimal()
+
+p2 <- ggplot(tk, aes(x = t, y = genetic_diversity)) +
+  geom_line(colour = "#e66101", linewidth = 1) +
+  labs(title = "Genetic diversity",
+       x = "Tick", y = "Mean pairwise genome distance") +
+  theme_minimal()
+
+p1 | p2
+```
+
+```{r sec-18-fig, eval=TRUE, echo=FALSE, fig.cap="Left: cumulative number of species over 500 ticks — each step marks a new lineage passing the isolation threshold. Right: genetic diversity rises as diverging lineages accumulate sequence differences."}
+FIG("18_speciation")
+```
+
+---
+
+## 19. Parental Care and Life History {#section-19}
+
+Parental care (`parental_care = TRUE`) allows parents to shelter and feed
+juveniles. This imposes a direct energetic cost on the parent (`care_cost_per_tick`)
+while increasing juvenile survival. The result is a shift toward slower life
+histories — longer gestation, higher offspring quality, lower turnover — a
+trade-off well documented across vertebrates (Clutton-Brock 1991).
+
+```{r sec-19-code, eval=FALSE}
+library(clade)
+specs <- default_specs()
+specs$parental_care      <- TRUE
+specs$care_cost_per_tick <- 1.5
+specs$feeding_rate       <- 8.0
+specs$n_agents_init      <- 60L
+specs$max_ticks          <- 300L
+specs$grid_rows          <- 30L
+specs$grid_cols          <- 30L
+specs$grass_rate         <- 0.3
+specs$random_seed        <- 19L
+
+env <- run_alife(specs, verbose = FALSE)
+rd  <- get_run_data(env)
+
+tk <- rd$ticks
+
+p1 <- ggplot(tk, aes(x = t)) +
+  geom_line(aes(y = n_agents,    colour = "Adults"),   linewidth = 1) +
+  geom_line(aes(y = n_juveniles, colour = "Juveniles"), linewidth = 1) +
+  scale_colour_manual(
+    values = c(Adults = "#1b7837", Juveniles = "#d95f02")) +
+  labs(title = "Adults and juveniles over time",
+       x = "Tick", y = "Count", colour = NULL) +
+  theme_minimal() + theme(legend.position = "bottom")
+
+p2 <- plot_dead_agents(rd)
+
+p1 | p2
+```
+
+```{r sec-19-fig, eval=TRUE, echo=FALSE, fig.cap="Left: adult and juvenile population counts over time — juveniles track adult breeding pulses. Right: lifespan distribution from plot_dead_agents(), showing that care-reared offspring reach later ages compared to no-care baselines."}
+FIG("19_parental_care")
+```
+
+---
+
+## 20. Cooperative Breeding {#section-20}
+
+Cooperative breeding (`cooperative_breeding = TRUE`) allows non-breeding helpers
+to assist at the nest of kin. Helpers pay an energetic cost but increase the
+breeding success of relatives, gaining inclusive fitness when relatedness
+exceeds `helper_kin_threshold`. The evolution of helping is therefore an
+extension of Hamilton's rule operating at the family group level (Cockburn 1998).
+
+```{r sec-20-code, eval=FALSE}
+library(clade)
+specs <- default_specs()
+specs$cooperative_breeding <- TRUE
+specs$parental_care        <- TRUE
+specs$helper_kin_threshold <- 0.25
+specs$n_agents_init        <- 60L
+specs$max_ticks            <- 300L
+specs$grid_rows            <- 30L
+specs$grid_cols            <- 30L
+specs$grass_rate           <- 0.3
+specs$random_seed          <- 20L
+
+env <- run_alife(specs, verbose = FALSE)
+rd  <- get_run_data(env)
+tk  <- rd$ticks
+
+p1 <- ggplot(tk, aes(x = t, y = mean_helper_tendency)) +
+  geom_line(colour = "#762a83", linewidth = 1) +
+  labs(title = "Evolution of helping tendency",
+       x = "Tick", y = "Mean helper tendency (0-1)") +
+  theme_minimal()
+
+p2 <- ggplot(tk, aes(x = t, y = n_helpers)) +
+  geom_col(fill = "#9970ab", alpha = 0.6, width = 1) +
+  labs(title = "Active helpers per tick",
+       x = "Tick", y = "N helpers") +
+  theme_minimal()
+
+p1 | p2
+```
+
+```{r sec-20-fig, eval=TRUE, echo=FALSE, fig.cap="Left: mean helper tendency (0-1) rises over time as alleles favouring kin-directed helping spread. Right: active helpers per tick track the rise of the helping trait and population density."}
+FIG("20_cooperative_breeding")
+```
+
+---
+
+## 21. Mimicry and Toxicity {#section-21}
+
+The `mimicry` module evolves a heritable `toxicity` trait (0–1). Toxic prey
+damage predators that attack them; predators learn to associate warning signals
+with toxicity via Rescorla-Wagner updating of `signal_memory`. Over time,
+selection drives toxicity upward while predator avoidance co-evolves, producing
+the classic Mullerian dynamics between defended and undefended forms (Mallet &
+Joron 1999).
+
+```{r sec-21-code, eval=FALSE}
+library(clade)
+specs <- default_specs()
+specs$mimicry              <- TRUE
+specs$n_predators_init     <- 5L
+specs$toxicity_init_mean   <- 0.2
+specs$n_agents_init        <- 100L
+specs$max_ticks            <- 300L
+specs$grid_rows            <- 30L
+specs$grid_cols            <- 30L
+specs$grass_rate           <- 0.3
+specs$random_seed          <- 21L
+
+env <- run_alife(specs, verbose = FALSE)
+rd  <- get_run_data(env)
+tk  <- rd$ticks
+
+p1 <- ggplot(tk, aes(x = t, y = mean_toxicity)) +
+  geom_line(colour = "#d73027", linewidth = 1) +
+  geom_hline(yintercept = 0.2, linetype = "dashed", colour = "grey60") +
+  labs(title = "Evolution of toxicity",
+       x = "Tick", y = "Mean toxicity (0-1)") +
+  theme_minimal()
+
+p2 <- ggplot(tk, aes(x = t)) +
+  geom_line(aes(y = n_toxic_attacks,   colour = "Attacks on toxic prey"),
+            linewidth = 0.9) +
+  geom_line(aes(y = n_avoided_attacks, colour = "Avoided attacks"),
+            linewidth = 0.9, linetype = "dashed") +
+  scale_colour_manual(
+    values = c("Attacks on toxic prey" = "#d73027",
+               "Avoided attacks"       = "#4575b4")) +
+  labs(title = "Predator attack behaviour",
+       x = "Tick", y = "N events per tick", colour = NULL) +
+  theme_minimal() + theme(legend.position = "bottom")
+
+p1 | p2
+```
+
+```{r sec-21-fig, eval=TRUE, echo=FALSE, fig.cap="Left: mean toxicity rises from its initial value (0.2, dashed) as costly undefended genotypes are purged. Right: attacks on toxic prey decline and avoided attacks rise as predator signal memory accumulates, illustrating the coevolution of defence and avoidance."}
+FIG("21_mimicry")
+```
+
+---
+
+## 22. Phenotypic Plasticity {#section-22}
+
+Phenotypic plasticity (`phenotypic_plasticity = TRUE`) allows agents to adjust
+expressed phenotype in response to local environmental conditions without genetic
+change. A heritable `plasticity` trait (0–1) scales the sensitivity of the
+expressed phenotype to sensory input. High plasticity is advantageous in
+variable environments but may be costly when the environment is stable enough
+for a fixed genotype to suffice (DeWitt, Scheiner & Wolpert 1998).
+
+```{r sec-22-code, eval=FALSE}
+library(clade)
+specs <- default_specs()
+specs$phenotypic_plasticity <- TRUE
+specs$plasticity_init_mean  <- 0.3
+specs$n_agents_init         <- 80L
+specs$max_ticks             <- 300L
+specs$grid_rows             <- 30L
+specs$grid_cols             <- 30L
+specs$grass_rate            <- 0.2
+specs$seasonal_amplitude    <- 0.4
+specs$season_length         <- 60L
+specs$random_seed           <- 22L
+
+env <- run_alife(specs, verbose = FALSE)
+rd  <- get_run_data(env)
+tk  <- rd$ticks
+
+ggplot(tk, aes(x = t)) +
+  geom_ribbon(aes(ymin = mean_plasticity - sd_plasticity,
+                  ymax = mean_plasticity + sd_plasticity),
+              fill = "#4dac26", alpha = 0.25) +
+  geom_line(aes(y = mean_plasticity), colour = "#4dac26", linewidth = 1) +
+  geom_hline(yintercept = 0.3, linetype = "dashed", colour = "grey60") +
+  annotate("text", x = 20, y = 0.32,
+           label = "initial mean (0.3)", colour = "grey50", size = 3) +
+  labs(title = "Evolution of phenotypic plasticity",
+       subtitle = "Seasonal environment (amplitude = 0.4, period = 60 ticks)",
+       x = "Tick", y = "Mean plasticity (0-1)") +
+  theme_minimal()
+```
+
+```{r sec-22-fig, eval=TRUE, echo=FALSE, fig.cap="Mean plasticity (±1 SD ribbon) over 300 ticks under moderate seasonal forcing. The dashed line marks the initial mean (0.3). Selection in a variable environment is expected to drive plasticity upward until the cost of maintaining plastic machinery equals the benefit of phenotypic adjustment."}
+FIG("22_plasticity")
+```
+
+---
+
 ## Generating the figures yourself
 
 If Julia is available, you can regenerate all figures from source:
@@ -578,3 +986,23 @@ This creates `man/figures/showcase_*.png`. Re-build the vignette with
 - Ronce, O. (2007) How does it feel to be like a rolling stone? Ten questions
   about dispersal evolution. *Annual Review of Ecology, Evolution, and
   Systematics* 38:231–253.
+- Boots, M. & Bowers, R.G. (2004) The evolution of resistance through costly
+  acquired immunity. *Proceedings of the Royal Society B* 271:715–723.
+- Clutton-Brock, T.H. (1991) *The Evolution of Parental Care.* Princeton
+  University Press.
+- Cockburn, A. (1998) Evolution of helping behavior in cooperatively breeding
+  birds. *Annual Review of Ecology and Systematics* 29:141–177.
+- DeWitt, T.J., Scheiner, S.M. & Wolpert, D. (1998) Costs and limits of
+  phenotypic plasticity. *Trends in Ecology and Evolution* 13(2):77–81.
+- Dingle, H. (1996) *Migration: The Biology of Life on the Move.* Oxford
+  University Press.
+- Fretwell, S.D. & Lucas, H.L. (1970) On territorial behavior and other factors
+  influencing habitat distribution in birds. *Acta Biotheoretica* 19:16–36.
+- Gavrilets, S. (2004) *Fitness Landscapes and the Origin of Species.* Princeton
+  University Press.
+- Hamilton, W.D. (1971) Geometry for the selfish herd.
+  *Journal of Theoretical Biology* 31(2):295–311.
+- Lotka, A.J. (1925) *Elements of Physical Biology.* Williams & Wilkins.
+- Mallet, J. & Joron, M. (1999) Evolution of diversity in warning color and
+  mimicry: polymorphisms, shifting balance, and speciation.
+  *Annual Review of Ecology and Systematics* 30:201–233.

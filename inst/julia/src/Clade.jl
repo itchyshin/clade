@@ -301,6 +301,7 @@ function run_clade(specs::Dict{String,Any})
         apply_seasonal_mortality!(env)    # winter death probability
         apply_toxicity_costs!(env)        # mimicry: per-tick toxicity energy cost
         apply_signal_costs!(env)          # signal evolution: per-tick signal cost
+        apply_signal_evolution!(env)      # signal drift mutation (when enabled)
 
         # ── Optional modules ─────────────────────────────────────────────
         # (each is a no-op when its flag is false)

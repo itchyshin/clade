@@ -191,15 +191,3 @@ function speciation_filter_mates(focal::Agent,
     same = filter(c -> c.species_id == focal.species_id, candidates)
     isempty(same) ? candidates : same
 end
-
-# === CLADE.JL ADDITIONS NEEDED ===
-# include: include("modules/speciation.jl")
-# tick loop: assign_species!(env)
-#   [location: at or near the end of the tick, after reproduction and death,
-#    before log_tick!; gated internally by speciation == true and the
-#    cluster interval check]
-# reproduce.jl: call speciation_filter_mates(focal, candidates, specs)
-#   to filter the candidate pool before mate-choice dot-product scoring.
-# Note: assign_species! and speciation_filter_mates are no-ops when
-#   specs["speciation"] == false.
-# === END CLADE.JL ADDITIONS ===

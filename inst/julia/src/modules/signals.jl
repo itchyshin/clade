@@ -41,8 +41,6 @@ Lande, R. (1981) Models of speciation by sexual selection on polygenic traits.
 Fisher, R.A. (1930) The Genetical Theory of Natural Selection. Clarendon Press.
 """
 
-using Statistics
-
 """
     apply_signal_costs!(env::Environment)
 
@@ -113,14 +111,3 @@ function apply_signal_evolution!(env::Environment)
     end
     nothing
 end
-
-# === CLADE.JL ADDITIONS NEEDED ===
-# include: include("modules/signals.jl")
-# tick loop: apply_signal_costs!(env)
-#   [location: after tick_agents!, before apply_body_size!; gated internally
-#    by signal_dims > 0]
-# tick loop: apply_signal_evolution!(env)
-#   [location: after apply_signal_costs!; gated internally by
-#    signal_evolution_drift == true]
-# Note: both functions are no-ops when their guards are not met.
-# === END CLADE.JL ADDITIONS ===
