@@ -202,6 +202,9 @@ function _make_offspring(id::Int64, g::DiploidGenome, brain::AbstractBrain,
     lr         = express_trait(g, TRAIT_LEARNING_RATE, dm,
                                Float32(get(specs,"learning_rate_min",0.0)),
                                Float32(get(specs,"learning_rate_max",0.5)), rng)
+    hp         = express_trait(g, TRAIT_HABITAT_PREFERENCE, dm,
+                               Float32(get(specs,"habitat_preference_min",-1.0)),
+                               Float32(get(specs,"habitat_preference_max", 1.0)), rng)
 
     off = Agent(
         id, parent.id, mate_id,
@@ -216,7 +219,8 @@ function _make_offspring(id::Int64, g::DiploidGenome, brain::AbstractBrain,
         0.0f0, energy,                      # RL
         false, Int32(0), Int32(0), Int32(0), # reproductive tracking
         Int32(0),       # species_id
-        Int32(x), Int32(y)  # x_birth, y_birth = spawn location
+        Int32(x), Int32(y),  # x_birth, y_birth = spawn location
+        hp               # habitat_preference
     )
     apply_epigenetic_inheritance!(off, parent, specs, rng)
     off

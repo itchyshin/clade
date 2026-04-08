@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Shinichi Nakagawa" />
+
+
+<title>Getting started with clade: agent-based evolution in R</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Getting started with clade: agent-based
+evolution in R</h1>
+<h4 class="author">Shinichi Nakagawa</h4>
+
+
+
+<div id="what-clade-is" class="section level2">
+<h2>What clade is</h2>
+<p><code>clade</code> is an R package for agent-based simulation of
+evolution and foraging ecology. Digital organisms carry heritable
+neural-network genomes (haploid or diploid) and one of several brain
+types, and they evolve over generations through natural selection on
+behaviour, life history, and cognition. The package is designed for
+evolutionary biologists who want to run controlled <em>in silico</em>
+experiments without writing low-level simulation code.</p>
+<p><code>clade</code> is the successor to the experimental
+<code>alifeR</code> package. Where <code>alifeR</code> embedded the
+simulation hot path in Rcpp, <code>clade</code> runs the entire
+simulation in Julia (via <a href="https://CRAN.R-project.org/package=JuliaConnectoR">JuliaConnectoR</a>).
+The R–Julia boundary is crossed <em>once</em> per
+<code>run_alife()</code> call, not once per tick. For 200 agents and
+1,000 ticks this is roughly 25× faster than the Rcpp-based alifeR
+backend, and it makes runs of 100,000 agents practical. The Julia
+backend also enables MAP-Elites quality-diversity search and
+gradient-through-simulation parameter tuning (using
+<code>Zygote.jl</code>), neither of which is feasible from an Rcpp
+simulator.</p>
+<p>This vignette is an orientation, not a reference. It introduces the
+workflow, the parameter list, the brain types, and the biological
+modules that can be toggled on or off. All code chunks below are shown
+but not evaluated, because the Julia backend is not available during
+package check or vignette build.</p>
+</div>
+<div id="installation" class="section level2">
+<h2>Installation</h2>
+<p><code>clade</code> is currently distributed from GitHub:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># install.packages(&quot;devtools&quot;)</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&quot;shinichi-nakagawa/clade&quot;</span>)</span></code></pre></div>
+<p>You will also need a working Julia installation (≥ 1.9). On the first
+call to <code>run_alife()</code>, <code>clade</code> starts a Julia
+session, installs its own Julia dependencies into a private environment,
+and precompiles the simulation package. This first start-up takes a
+minute or two; subsequent runs in the same R session are immediate.</p>
+</div>
+<div id="a-minimal-run" class="section level2">
+<h2>A minimal run</h2>
+<p>The default configuration is a small grid world with a single brain
+type and the core ecological loop. Three calls are enough to produce a
+tidy result and a diagnostic plot:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">library</span>(clade)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>specs <span class="ot">&lt;-</span> <span class="fu">default_specs</span>()</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>env   <span class="ot">&lt;-</span> <span class="fu">run_alife</span>(specs)</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>data  <span class="ot">&lt;-</span> <span class="fu">get_run_data</span>(env)</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="fu">plot_run</span>(data)</span></code></pre></div>
+<p><code>get_run_data()</code> returns a list with two tidy data
+frames:</p>
+<ul>
+<li><code>data$ticks</code> — one row per logged tick, with
+population-level summaries (mean energy, mean body size, genetic
+diversity, grass cover, and so on).</li>
+<li><code>data$deaths</code> — one row per agent death, with cause, age,
+energy, and parental output.</li>
+</ul>
+<p>These are the canonical inputs to every analysis function in the
+package.</p>
+</div>
+<div id="parameter-overview" class="section level2">
+<h2>Parameter overview</h2>
+<p><code>default_specs()</code> returns a long named list. The
+parameters that most strongly shape the run are summarised below. All
+others are documented in <code>?default_specs</code>.</p>
+<table>
+<colgroup>
+<col width="21%" />
+<col width="8%" />
+<col width="70%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Default</th>
+<th>What it controls</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>brain_type</code></td>
+<td><code>&quot;bnn&quot;</code></td>
+<td>The cognitive architecture used by every agent (see next
+section).</td>
+</tr>
+<tr class="even">
+<td><code>ploidy</code></td>
+<td><code>1L</code></td>
+<td>Haploid (<code>1L</code>) or diploid (<code>2L</code>) genomes.</td>
+</tr>
+<tr class="odd">
+<td><code>max_ticks</code></td>
+<td><code>500L</code></td>
+<td>Length of the simulation in time steps.</td>
+</tr>
+<tr class="even">
+<td><code>n_agents_init</code></td>
+<td><code>50L</code></td>
+<td>Number of founders.</td>
+</tr>
+<tr class="odd">
+<td><code>disease</code></td>
+<td><code>FALSE</code></td>
+<td>Toggles the SIR disease module.</td>
+</tr>
+<tr class="even">
+<td><code>kin_selection</code></td>
+<td><code>FALSE</code></td>
+<td>Toggles pedigree-based altruism toward Moore-neighbourhood
+relatives.</td>
+</tr>
+<tr class="odd">
+<td><code>cooperation_evolution</code></td>
+<td><code>FALSE</code></td>
+<td>Toggles the evolution of an inheritable cooperation propensity.</td>
+</tr>
+<tr class="even">
+<td><code>niche_construction</code></td>
+<td><code>FALSE</code></td>
+<td>Toggles shelter-building and its protective and grass-suppressing
+effects.</td>
+</tr>
+<tr class="odd">
+<td><code>social_learning</code></td>
+<td><code>FALSE</code></td>
+<td>Toggles output-layer copying from successful neighbours.</td>
+</tr>
+<tr class="even">
+<td><code>rl_mode</code></td>
+<td><code>&quot;none&quot;</code></td>
+<td>Within-lifetime reinforcement learning (<code>&quot;actor_critic&quot;</code>
+or <code>&quot;none&quot;</code>).</td>
+</tr>
+</tbody>
+</table>
+<p>Each module can be toggled independently, and the simulation will
+warn if two modules with conflicting assumptions are active.</p>
+</div>
+<div id="brain-types" class="section level2">
+<h2>Brain types</h2>
+<p>Every agent runs the same architecture, set by
+<code>specs$brain_type</code>. The choice changes both how agents make
+decisions and what kind of plasticity is available.</p>
+<table>
+<colgroup>
+<col width="12%" />
+<col width="87%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Brain type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>&quot;bnn&quot;</code></td>
+<td>A Bayesian neural network with a Gaussian prior over weights;
+<code>prior_sigma</code> evolves under selection (Neal 1996).</td>
+</tr>
+<tr class="even">
+<td><code>&quot;ann&quot;</code></td>
+<td>A standard multilayer perceptron with feed-forward computation and
+weight inheritance.</td>
+</tr>
+<tr class="odd">
+<td><code>&quot;ctrnn&quot;</code></td>
+<td>A continuous-time recurrent network with leaky integrator neurons;
+supports dynamical behaviour (Beer 1995).</td>
+</tr>
+<tr class="even">
+<td><code>&quot;grn&quot;</code></td>
+<td>A gene regulatory network whose nodes are genes and whose
+interactions evolve via mutation of the regulatory matrix.</td>
+</tr>
+<tr class="odd">
+<td><code>&quot;transformer&quot;</code></td>
+<td>A small attention-based architecture with a fixed history window,
+useful for sequence-dependent foraging.</td>
+</tr>
+<tr class="even">
+<td><code>&quot;synthesis&quot;</code></td>
+<td>Symbolic rule synthesis: agents carry an evolved program of if-then
+rules rather than weights.</td>
+</tr>
+</tbody>
+</table>
+<p><code>&quot;bnn&quot;</code> is the default because it admits an evolvable
+prior width and so captures Baldwin-style learning–evolution
+interactions (Baldwin 1896, Mouret &amp; Clune 2015) cleanly.</p>
+</div>
+<div id="biological-modules" class="section level2">
+<h2>Biological modules</h2>
+<p>Modules are toggled through <code>specs</code>. They are all off by
+default, so the core simulation is a clean baseline of foraging,
+reproduction, and death.</p>
+<table>
+<colgroup>
+<col width="15%" />
+<col width="17%" />
+<col width="66%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Module</th>
+<th>Spec field</th>
+<th>One-line description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Disease (SIR)</td>
+<td><code>disease</code></td>
+<td>Susceptible–infected–recovered transmission with energy costs and
+recovered immunity.</td>
+</tr>
+<tr class="even">
+<td>Kin selection</td>
+<td><code>kin_selection</code></td>
+<td>Pedigree-based altruistic energy transfer to related neighbours
+(Hamilton 1964).</td>
+</tr>
+<tr class="odd">
+<td>Cooperation</td>
+<td><code>cooperation_evolution</code></td>
+<td>An inheritable cooperation trait that scales the propensity to share
+with conspecifics.</td>
+</tr>
+<tr class="even">
+<td>Scavenging</td>
+<td><code>scavenging</code></td>
+<td>Agents may consume carrion left behind by recently dead
+conspecifics.</td>
+</tr>
+<tr class="odd">
+<td>Niche construction</td>
+<td><code>niche_construction</code></td>
+<td>Agents build shelters that protect against predators and slow grass
+regrowth on the cell.</td>
+</tr>
+<tr class="even">
+<td>Body size evolution</td>
+<td><code>body_size_evolution</code></td>
+<td>Heritable body size scales metabolic cost, foraging gain, and energy
+storage (Kleiber 1947).</td>
+</tr>
+<tr class="odd">
+<td>Natal dispersal</td>
+<td><code>dispersal_evolution</code></td>
+<td>Heritable tendency to move away from birthplace each tick, reducing
+kin competition.</td>
+</tr>
+<tr class="even">
+<td>Social learning</td>
+<td><code>social_learning</code></td>
+<td>Periodic copying of output-layer weights from successful
+Moore-neighbourhood teachers.</td>
+</tr>
+<tr class="odd">
+<td>Within-lifetime RL</td>
+<td><code>rl_mode</code></td>
+<td>REINFORCE-with-baseline updates to the output layer at runtime.</td>
+</tr>
+<tr class="even">
+<td>Epigenetic inheritance</td>
+<td><code>epigenetics</code></td>
+<td>Lamarckian-style transmission of within-lifetime weight changes
+(Jablonka &amp; Lamb 2005).</td>
+</tr>
+</tbody>
+</table>
+<p>A typical experimental design fixes the brain type and toggles one
+module at a time, comparing the resulting <code>get_run_data()</code>
+outputs across conditions.</p>
+</div>
+<div id="example-body-size-evolution" class="section level2">
+<h2>Example: body size evolution</h2>
+<p>When <code>body_size_evolution = TRUE</code>, agents evolve a
+heritable body size trait. Larger agents eat more per grass cell but pay
+a higher metabolic surcharge; smaller agents eat less but are cheaper to
+run. Reference size 1.0 has no metabolic correction. The trait is
+inherited via the genome and bounded by <code>body_size_min</code>
+(default 0.3) and <code>body_size_max</code> (default 3.0).</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>specs                       <span class="ot">&lt;-</span> <span class="fu">default_specs</span>()</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>specs<span class="sc">$</span>body_size_evolution   <span class="ot">&lt;-</span> <span class="cn">TRUE</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>specs<span class="sc">$</span>body_size_init_mean   <span class="ot">&lt;-</span> <span class="fl">1.0</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>specs<span class="sc">$</span>body_size_mutation_sd <span class="ot">&lt;-</span> <span class="fl">0.08</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>env  <span class="ot">&lt;-</span> <span class="fu">run_alife</span>(specs)</span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">get_run_data</span>(env)</span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="co"># Time series of mean and SD of body size</span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="fu">head</span>(data<span class="sc">$</span>ticks[, <span class="fu">c</span>(<span class="st">&quot;t&quot;</span>, <span class="st">&quot;n_agents&quot;</span>, <span class="st">&quot;mean_body_size&quot;</span>, <span class="st">&quot;sd_body_size&quot;</span>)])</span></code></pre></div>
+</div>
+<div id="example-natal-dispersal" class="section level2">
+<h2>Example: natal dispersal</h2>
+<p>When <code>dispersal_evolution = TRUE</code>, agents evolve a
+heritable probability of taking one step away from their birthplace each
+tick. Dispersal reduces inbreeding and kin competition at the cost of
+<code>dispersal_cost</code> energy.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>specs                    <span class="ot">&lt;-</span> <span class="fu">default_specs</span>()</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>specs<span class="sc">$</span>dispersal_evolution <span class="ot">&lt;-</span> <span class="cn">TRUE</span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>specs<span class="sc">$</span>dispersal_init_mean <span class="ot">&lt;-</span> <span class="fl">0.2</span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>env  <span class="ot">&lt;-</span> <span class="fu">run_alife</span>(specs)</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">get_run_data</span>(env)</span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="co"># Total dispersal events</span></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="fu">sum</span>(data<span class="sc">$</span>ticks<span class="sc">$</span>n_dispersal_events)</span></code></pre></div>
+</div>
+<div id="example-disease-dynamics" class="section level2">
+<h2>Example: disease dynamics</h2>
+<p>To produce an SIR-style epidemic in the population, set the
+<code>disease</code> flag and use the dedicated plotting helper:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>specs          <span class="ot">&lt;-</span> <span class="fu">default_specs</span>()</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>specs<span class="sc">$</span>disease  <span class="ot">&lt;-</span> <span class="cn">TRUE</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>env            <span class="ot">&lt;-</span> <span class="fu">run_alife</span>(specs)</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>data           <span class="ot">&lt;-</span> <span class="fu">get_run_data</span>(env)</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="fu">plot_disease_dynamics</span>(data)</span></code></pre></div>
+<p><code>plot_disease_dynamics()</code> reads the
+<code>n_infected</code> and <code>n_new_infections</code> columns from
+<code>data$ticks</code> and overlays the susceptible, infected, and
+recovered classes through time. The transmission probability, infectious
+period, and immune duration are all controlled through
+<code>default_specs()</code>.</p>
+</div>
+<div id="performance-note" class="section level2">
+<h2>Performance note</h2>
+<p><code>clade</code> crosses the R–Julia boundary exactly <strong>once
+per <code>run_alife()</code> call</strong>, regardless of the number of
+ticks or the number of agents. The entire tick loop, sensing, neural
+network forward pass, action selection, movement, eating, reproduction,
+and death runs inside a single Julia process. For 200 agents and 1,000
+ticks this is roughly 25× faster than the Rcpp-based <code>alifeR</code>
+backend, and it scales smoothly to populations of ~100,000 agents on a
+workstation.</p>
+<p>The first call in an R session pays a one-off start-up cost (~30–60
+s) for Julia compilation. Subsequent calls reuse the warm Julia session
+and return results immediately.</p>
+</div>
+<div id="references" class="section level2">
+<h2>References</h2>
+<ul>
+<li>Baldwin, J.M. (1896) A new factor in evolution. <em>American
+Naturalist</em> 30(354): 441–451.</li>
+<li>Beer, R.D. (1995) On the dynamics of small continuous-time recurrent
+neural networks. <em>Adaptive Behavior</em> 3(4): 469–509.</li>
+<li>Falconer, D.S. &amp; Mackay, T.F.C. (1996) <em>Introduction to
+Quantitative Genetics</em>, 4th ed. Longman, Harlow.</li>
+<li>Hamilton, W.D. (1964) The genetical evolution of social behaviour.
+<em>Journal of Theoretical Biology</em> 7(1): 1–52.</li>
+<li>Jablonka, E. &amp; Lamb, M.J. (2005) <em>Evolution in Four
+Dimensions</em>. MIT Press, Cambridge, MA.</li>
+<li>Kermack, W.O. &amp; McKendrick, A.G. (1927) A contribution to the
+mathematical theory of epidemics. <em>Proceedings of the Royal Society
+A</em> 115(772): 700–721.</li>
+<li>Mouret, J.-B. &amp; Clune, J. (2015) Illuminating search spaces by
+mapping elites. <em>arXiv:1504.04909</em>.</li>
+<li>Neal, R.M. (1996) <em>Bayesian Learning for Neural Networks</em>.
+Springer, New York.</li>
+</ul>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

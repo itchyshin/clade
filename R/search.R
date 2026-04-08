@@ -484,7 +484,7 @@ search_gradient <- function(specs_base,
     "mean_metabolic_rate", "mean_learning_rate", "mean_prior_sigma",
     "grass_coverage", "n_infected", "n_new_infections",
     "n_altruistic_acts", "n_shelters_built", "n_cooperation_acts",
-    "n_dispersal_events")
+    "n_dispersal_events", "n_habitat_moves")
 }
 
 # ── Internal: MAP-Elites plot ─────────────────────────────────────────────────

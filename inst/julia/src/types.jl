@@ -110,18 +110,19 @@ struct DiploidGenome
 end
 
 """Number of scalar traits stored per haplotype in `DiploidGenome`."""
-const N_SCALAR_TRAITS = 9
+const N_SCALAR_TRAITS = 10
 
 # Scalar trait indices (into maternal_traits / paternal_traits)
-const TRAIT_BODY_SIZE          = 1
-const TRAIT_IMMUNE_STRENGTH    = 2
-const TRAIT_COOPERATION_LEVEL  = 3
-const TRAIT_DISPERSAL_TENDENCY = 4
-const TRAIT_METABOLIC_RATE     = 5
-const TRAIT_AGING_RATE         = 6
-const TRAIT_REPRO_THRESHOLD    = 7
-const TRAIT_MUTATION_SD        = 8
-const TRAIT_LEARNING_RATE      = 9
+const TRAIT_BODY_SIZE             = 1
+const TRAIT_IMMUNE_STRENGTH       = 2
+const TRAIT_COOPERATION_LEVEL     = 3
+const TRAIT_DISPERSAL_TENDENCY    = 4
+const TRAIT_METABOLIC_RATE        = 5
+const TRAIT_AGING_RATE            = 6
+const TRAIT_REPRO_THRESHOLD       = 7
+const TRAIT_MUTATION_SD           = 8
+const TRAIT_LEARNING_RATE         = 9
+const TRAIT_HABITAT_PREFERENCE    = 10
 
 """
     is_haploid(g::DiploidGenome) -> Bool
@@ -281,6 +282,9 @@ mutable struct Agent
     # Natal dispersal (birth location, never updated within lifetime)
     x_birth            ::Int32
     y_birth            ::Int32
+
+    # Habitat preference (expressed trait; 0 = none, + = prefer rich, - = avoid rich)
+    habitat_preference ::Float32
 end
 
 # ── Environment ────────────────────────────────────────────────────────────────
@@ -357,6 +361,7 @@ mutable struct Environment
     n_toxic_attacks     ::Int32
     n_avoided_attacks   ::Int32
     n_dispersal_events  ::Int32
+    n_habitat_moves     ::Int32
 
     # Logging
     progress     ::Dict{String, Vector}

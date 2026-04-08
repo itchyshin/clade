@@ -749,6 +749,25 @@ default_specs <- function() {
     dispersal_min              = 0.0,
     dispersal_max              = 0.5,
 
+    # ── Habitat preference evolution ───────────────────────────────────────
+    habitat_preference_evolution = FALSE,
+    habitat_preference_init_mean = 0.0,
+    habitat_preference_mutation_sd = 0.03,
+    habitat_preference_min      = -1.0,
+    habitat_preference_max      =  1.0,
+    habitat_preference_strength = 0.5,
+    habitat_move_cost           = 0.0,
+
+    # ── Group defense (dilution of risk) ──────────────────────────────────
+    group_defense               = FALSE,
+    group_defense_radius        = 2L,
+    group_defense_strength      = 0.3,
+
+    # ── Seasonal dynamics ─────────────────────────────────────────────────
+    seasonal_amplitude          = 0.0,
+    season_length               = 100L,
+    winter_death_prob           = 0.0,
+
     # ── Parental care ──────────────────────────────────────────────────────
     parental_care              = FALSE,
     care_duration              = 5L,

@@ -39,7 +39,8 @@ library(testthat)
     n_altruistic_acts      = rep(0L, n),
     n_shelters_built       = rep(0L, n),
     n_cooperation_acts     = rep(0L, n),
-    n_dispersal_events     = rep(0L, n)
+    n_dispersal_events     = rep(0L, n),
+    n_habitat_moves        = rep(0L, n)
   )
 }
 

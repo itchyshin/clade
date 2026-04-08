@@ -72,10 +72,10 @@ include("modules/rl.jl")
 # include("modules/signals.jl")
 # include("modules/speciation.jl")
 # include("modules/predators.jl")
-# include("modules/group_defense.jl")
+include("modules/group_defense.jl")
 include("modules/dispersal.jl")
-# include("modules/habitat_preference.jl")
-# include("modules/seasonal.jl")
+include("modules/habitat_preference.jl")
+include("modules/seasonal.jl")
 # include("modules/parental_care.jl")
 include("modules/body_size.jl")
 # include("modules/world_evolution.jl")
@@ -240,11 +240,12 @@ function create_environment(specs::Dict{String,Any})::Environment
         Int32(0),                       # t = 0 (incremented at start of tick)
         rng,
         specs,
-        # per-tick counters (all zero): 13 original + n_dispersal_events
+        # per-tick counters (all zero): 13 original + n_dispersal_events + n_habitat_moves
         Int32(0), Int32(0), Int32(0), Int32(0),
         Int32(0), Int32(0), Int32(0), Int32(0),
         Int32(0), Int32(0), Int32(0), Int32(0), Int32(0),
         Int32(0),                       # n_dispersal_events
+        Int32(0),                       # n_habitat_moves
         progress,
         deaths,
         Any[]                           # genome_log
@@ -288,8 +289,10 @@ function run_clade(specs::Dict{String,Any})
         # seen by predators / sensing during movement.
         apply_niche_construction!(env)
         tick_agents!(env)
-        apply_body_size!(env)    # metabolic + foraging correction for body size
-        apply_dispersal!(env)    # natal dispersal away from birthplace
+        apply_body_size!(env)             # metabolic + foraging correction
+        apply_dispersal!(env)             # natal dispersal away from birthplace
+        apply_habitat_preference!(env)    # secondary move toward preferred habitat
+        apply_seasonal_mortality!(env)    # winter death probability
 
         # ── Optional modules ─────────────────────────────────────────────
         # (each is a no-op when its flag is false)
@@ -396,6 +399,7 @@ function _reset_counters!(env::Environment)
     env.n_toxic_attacks   = Int32(0)
     env.n_avoided_attacks = Int32(0)
     env.n_dispersal_events = Int32(0)
+    env.n_habitat_moves    = Int32(0)
 end
 
 # ── Internal constructors ─────────────────────────────────────────────────────
@@ -503,6 +507,9 @@ function _make_founder_agent(id::Int64, g::DiploidGenome, brain::AbstractBrain,
     lr       = express_trait(g, TRAIT_LEARNING_RATE, dm,
                              Float32(get(specs, "learning_rate_min", 0.0)),
                              Float32(get(specs, "learning_rate_max", 0.5)), rng)
+    hp       = express_trait(g, TRAIT_HABITAT_PREFERENCE, dm,
+                             Float32(get(specs, "habitat_preference_min", -1.0)),
+                             Float32(get(specs, "habitat_preference_max",  1.0)), rng)
 
     sig_dims = Int(get(specs, "signal_dims", 0))
 
@@ -535,7 +542,9 @@ function _make_founder_agent(id::Int64, g::DiploidGenome, brain::AbstractBrain,
         # Speciation
         Int32(0),
         # Natal dispersal (birth location = spawn location for founders)
-        px, py
+        px, py,
+        # Habitat preference
+        hp
     )
 end
 

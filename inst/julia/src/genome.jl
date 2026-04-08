@@ -142,6 +142,12 @@ function _sample_traits(specs::Dict{String,Any}, rng::AbstractRNG)::Vector{Float
                specs["learning_rate_min"], specs["learning_rate_max"]) :
         Float32(get(specs, "learning_rate", 0.01))
 
+    t[TRAIT_HABITAT_PREFERENCE] = Bool(get(specs, "habitat_preference_evolution", false)) ?
+        sample(get(specs, "habitat_preference_init_mean", 0.0),
+               get(specs, "habitat_preference_mutation_sd", 0.03),
+               get(specs, "habitat_preference_min", -1.0),
+               get(specs, "habitat_preference_max",  1.0)) : 0.0f0
+
     t
 end
 
