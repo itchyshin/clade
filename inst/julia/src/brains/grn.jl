@@ -235,3 +235,21 @@ end
 Number of free parameters = n_genes^2.
 """
 brain_size(brain::GRNBrain) = n_genes(brain)^2
+
+# === CLADE.JL ADDITIONS NEEDED ===
+# (already applied in commit cab2c37; documented here per the post-cab2c37
+#  coordination protocol so that future merges/regenerations of Clade.jl can
+#  verify the hooks are present.)
+#
+# include: include("brains/grn.jl")
+# make_brain dispatcher (in make_brain(g, specs)):
+#     elseif bt == "grn"
+#         return make_grn_brain_from_genome(g, specs)
+# _build_arch (grn branch):
+#     n_genes_v = max(specs["n_genes"], n_in + n_out)
+#     n_out     = min(5, n_genes_v)
+#     return Int32[n_in, n_genes_v, n_out]
+# genome.jl brain_n_params dispatcher (already added in commit cab2c37):
+#     elseif brain_type == "grn"
+#         n = Int(arch[2]); return n * n
+# === END CLADE.JL ADDITIONS ===

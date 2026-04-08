@@ -278,3 +278,20 @@ end
 Total number of free parameters (τ + W + θ).
 """
 brain_size(brain::CTRNNBrain) = ctrnn_n_params(brain.arch)
+
+# === CLADE.JL ADDITIONS NEEDED ===
+# (already applied in commit cab2c37; documented here per the post-cab2c37
+#  coordination protocol so that future merges/regenerations of Clade.jl can
+#  verify the hooks are present.)
+#
+# include: include("brains/ctrnn.jl")
+# make_brain dispatcher (in make_brain(g, specs)):
+#     elseif bt == "ctrnn"
+#         return make_ctrnn_brain_from_genome(g, specs)
+# _build_arch (ctrnn branch):
+#     n_neurons = max(hidden[1], n_in + n_out)
+#     return Int32[n_in, n_neurons, n_out]
+# genome.jl brain_n_params dispatcher (already added in commit cab2c37):
+#     elseif brain_type == "ctrnn"
+#         n = Int(arch[2]); return n + n * n + n
+# === END CLADE.JL ADDITIONS ===
