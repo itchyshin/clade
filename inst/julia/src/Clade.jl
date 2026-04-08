@@ -60,8 +60,8 @@ include("death.jl")
 include("logging.jl")
 
 # Optional module includes — each is a no-op when its flag is false
-# include("modules/disease.jl")
-# include("modules/kin.jl")
+include("modules/disease.jl")
+include("modules/kin.jl")
 # include("modules/cooperation.jl")
 # include("modules/scavenging.jl")
 # include("modules/niche.jl")
@@ -243,9 +243,12 @@ function run_clade(specs::Dict{String,Any})
         tick_agents!(env)
 
         # ── Optional modules ─────────────────────────────────────────────
-        # (stubs; each is a no-op when its flag is false)
-        # apply_disease!(env)
-        # apply_kin_altruism!(env)
+        # (each is a no-op when its flag is false)
+        if t == 1 && Bool(get(specs, "disease", false))
+            seed_disease!(env)
+        end
+        apply_disease!(env)
+        apply_kin_altruism!(env)
         # apply_cooperation!(env)
         # apply_social_learning!(env)
         # apply_parental_care!(env)
