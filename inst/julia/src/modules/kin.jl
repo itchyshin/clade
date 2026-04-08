@@ -139,3 +139,10 @@ function apply_kin_altruism!(env::Environment)
     env.n_altruistic_acts += Int32(n_acts)
     return
 end
+
+# === CLADE.JL ADDITIONS NEEDED ===
+# include: include("modules/kin.jl")
+# tick loop: apply_kin_altruism!(env)   [after apply_disease!, before kill_dead!]
+# Note: apply_kin_altruism! is a no-op when specs["kin_selection"] == false
+# STATUS: already wired in commit 3673dc4 (pre-dates the no-edit-Clade.jl protocol)
+# === END CLADE.JL ADDITIONS ===

@@ -260,3 +260,12 @@ function apply_disease_transmission(env::Environment)
     env.n_new_infections += Int32(n_new)
     return env
 end
+
+# === CLADE.JL ADDITIONS NEEDED ===
+# include: include("modules/disease.jl")
+# tick loop: seed_disease!(env)   [at tick 1 only, when Bool(get(specs,"disease",false))]
+# tick loop: apply_disease!(env)  [after tick_agents!, before kill_dead!]
+# Note: both seed_disease! and apply_disease! are no-ops when specs["disease"] == false
+# STATUS: already wired in commit 3673dc4 (pre-dates the no-edit-Clade.jl protocol)
+# === END CLADE.JL ADDITIONS ===
+
