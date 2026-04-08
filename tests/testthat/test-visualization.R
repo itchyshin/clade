@@ -1,0 +1,158 @@
+# Tests for R/visualization.R — pure R, no Julia required.
+#
+# Mock data matches the structure that get_run_data() produces in Phase 0.
+
+library(testthat)
+
+# ── Mock fixtures ─────────────────────────────────────────────────────────────
+
+.mock_ticks <- function(n = 20L, sigma = 0) {
+  data.frame(
+    t                      = seq_len(n),
+    n_agents               = as.integer(round(seq(10, 20, length.out = n))),
+    n_births               = rep(2L, n),
+    n_deaths               = rep(1L, n),
+    n_starvations          = rep(0L, n),
+    n_age_deaths           = rep(0L, n),
+    mean_energy            = rep(100.0, n),
+    sd_energy              = rep(10.0, n),
+    mean_age               = rep(5.0, n),
+    sd_age                 = rep(2.0, n),
+    mean_body_size         = rep(1.0, n),
+    sd_body_size           = rep(0.1, n),
+    genetic_diversity      = seq(0, 0.3, length.out = n),
+    n_species              = rep(1L, n),
+    mean_cooperation_level = rep(0.5, n),
+    mean_immune_strength   = rep(0.3, n),
+    sd_immune_strength     = rep(0.05, n),
+    mean_metabolic_rate    = rep(1.0, n),
+    mean_learning_rate     = rep(0.01, n),
+    mean_prior_sigma       = if (sigma > 0) seq(sigma, sigma * 0.1, length.out = n)
+                             else rep(0.0, n),
+    grass_coverage         = seq(0.5, 0.4, length.out = n),
+    n_infected             = rep(0L, n),
+    n_new_infections       = rep(0L, n),
+    n_altruistic_acts      = rep(0L, n),
+    n_shelters_built       = rep(0L, n)
+  )
+}
+
+.mock_deaths <- function() {
+  data.frame(
+    id            = 1:5,
+    t             = 1:5,
+    age           = c(10, 8, 15, 3, 20),
+    energy        = c(0, 0, 0, 0, 0),
+    cause         = rep("starvation", 5),
+    body_size     = rep(1.0, 5),
+    num_offspring = c(0, 1, 2, 0, 3)
+  )
+}
+
+.mock_run_data <- function(sigma = 0) {
+  list(ticks = .mock_ticks(sigma = sigma), deaths = .mock_deaths())
+}
+
+.mock_env <- function(rows = 10L, cols = 10L, n_agents = 3L, n_pred = 0L) {
+  grass <- matrix(seq_len(rows * cols) / (rows * cols) * 5, nrow = rows, ncol = cols)
+  agents <- lapply(seq_len(n_agents), function(i) {
+    list(id = i, x = i, y = i, energy = 50 + i * 10)
+  })
+  predators <- lapply(seq_len(n_pred), function(i) list(id = i, x = 5L, y = 5L))
+  list(
+    specs     = list(grid_rows = rows, grid_cols = cols, grass_max = 5),
+    grass     = grass,
+    agents    = agents,
+    predators = predators,
+    t         = 42L
+  )
+}
+
+# ── 1. plot_run returns a patchwork object ────────────────────────────────────
+
+test_that("plot_run() returns a patchwork/ggplot object on valid data", {
+  p <- plot_run(.mock_run_data())
+  expect_s3_class(p, "patchwork")
+  expect_s3_class(p, "ggplot")
+})
+
+# ── 2. plot_run with BNN sigma shows Baldwin Effect panel ─────────────────────
+
+test_that("plot_run() switches sixth panel when mean_prior_sigma varies", {
+  p <- plot_run(.mock_run_data(sigma = 0.5))
+  expect_s3_class(p, "patchwork")
+  # Patchwork objects have a `patches` slot listing panels; check it has 6.
+  expect_true(length(p$patches$plots) + 1L == 6L)
+})
+
+# ── 3. plot_environment returns a ggplot ──────────────────────────────────────
+
+test_that("plot_environment() returns a ggplot given a mock env", {
+  p <- plot_environment(.mock_env())
+  expect_s3_class(p, "ggplot")
+})
+
+test_that("plot_environment() handles predators without error", {
+  p <- plot_environment(.mock_env(n_pred = 2L))
+  expect_s3_class(p, "ggplot")
+})
+
+test_that("plot_environment() handles empty agent list", {
+  env <- .mock_env(n_agents = 0L)
+  p <- plot_environment(env)
+  expect_s3_class(p, "ggplot")
+})
+
+# ── 4. plot_genome_diversity returns a ggplot ─────────────────────────────────
+
+test_that("plot_genome_diversity() returns a ggplot given valid run_data", {
+  p <- plot_genome_diversity(.mock_run_data())
+  expect_s3_class(p, "ggplot")
+})
+
+# ── 5. plot_disease_dynamics handles all-zero case ────────────────────────────
+
+test_that("plot_disease_dynamics() returns placeholder when disease is off", {
+  p <- plot_disease_dynamics(.mock_run_data())
+  expect_s3_class(p, "ggplot")
+})
+
+test_that("plot_disease_dynamics() renders when disease data present", {
+  rd <- .mock_run_data()
+  rd$ticks$n_infected       <- as.integer(seq(0, 5, length.out = nrow(rd$ticks)))
+  rd$ticks$n_new_infections <- rep(1L, nrow(rd$ticks))
+  p <- plot_disease_dynamics(rd)
+  expect_s3_class(p, "ggplot")
+})
+
+# ── 6. plot_run errors informatively on missing ticks ────────────────────────
+
+test_that("plot_run() errors informatively when $ticks is missing", {
+  expect_error(plot_run(list()), regexp = "ticks")
+  expect_error(plot_run(NULL),   regexp = "ticks")
+})
+
+# ── 7. plot_signal_evolution placeholder ──────────────────────────────────────
+
+test_that("plot_signal_evolution() returns a ggplot placeholder", {
+  p <- plot_signal_evolution(.mock_run_data())
+  expect_s3_class(p, "ggplot")
+})
+
+# ── 8. plot_kin_network placeholder ───────────────────────────────────────────
+
+test_that("plot_kin_network() returns a ggplot placeholder", {
+  p <- plot_kin_network(.mock_run_data())
+  expect_s3_class(p, "ggplot")
+})
+
+# ── 9. All plot functions accept disease-off data without error ──────────────
+
+test_that("all plot functions run when disease columns are all zero", {
+  rd <- .mock_run_data()
+  expect_s3_class(plot_run(rd),               "ggplot")
+  expect_s3_class(plot_genome_diversity(rd),  "ggplot")
+  expect_s3_class(plot_disease_dynamics(rd),  "ggplot")
+  expect_s3_class(plot_signal_evolution(rd),  "ggplot")
+  expect_s3_class(plot_kin_network(rd),       "ggplot")
+})
