@@ -47,13 +47,15 @@ Rendell, L. et al. (2010) Why copy others? Insights from the social learning
 # ── Output-layer access ──────────────────────────────────────────────────────
 
 """
-    _output_layer_range(arch::Vector{Int32}) -> UnitRange{Int}
+    _sl_output_layer_range(arch::Vector{Int32}) -> UnitRange{Int}
 
 Return the index range within a flat `[W1(:); b1; W2(:); b2; ...; WL(:); bL]`
 weight vector that corresponds to the **output layer only** (`WL(:); bL`).
-This is used by the BNN path where `brain.mu` is a single flat vector.
+Used by the BNN path where `brain.mu` is a single flat vector. Local to this
+file (`_sl_` prefix) so that each module is self-contained and can be
+included independently.
 """
-function _output_layer_range(arch::Vector{Int32})::UnitRange{Int}
+function _sl_output_layer_range(arch::Vector{Int32})::UnitRange{Int}
     n_layers = length(arch) - 1
     n_layers < 1 && return 1:0
     pos = 1
@@ -102,7 +104,7 @@ cultural trait. Assumes matching architectures.
 """
 function _copy_output_layer!(learner::BNNBrain, model::BNNBrain, rate::Float32)
     learner.arch == model.arch || return
-    rng_out = _output_layer_range(learner.arch)
+    rng_out = _sl_output_layer_range(learner.arch)
     (isempty(rng_out) || last(rng_out) > length(learner.mu)) && return
     @inbounds for i in rng_out
         learner.mu[i] = (1.0f0 - rate) * learner.mu[i] + rate * model.mu[i]
@@ -169,3 +171,18 @@ function apply_social_learning!(env::Environment)
     end
     nothing
 end
+
+# === CLADE.JL ADDITIONS NEEDED ===
+# include: include("modules/social_learning.jl")
+# tick loop: apply_social_learning!(env)
+#   [gated: Bool(get(specs, "social_learning", false))
+#           && Int(get(specs, "social_learning_freq", 10)) > 0
+#           && t % Int(get(specs, "social_learning_freq", 10)) == 0
+#    location: after apply_kin_altruism!, before death/reproduction]
+#
+# Example wiring:
+#   if Bool(get(specs, "social_learning", false))
+#       sl_freq = Int(get(specs, "social_learning_freq", 10))
+#       sl_freq > 0 && t % sl_freq == 0 && apply_social_learning!(env)
+#   end
+# === END CLADE.JL ADDITIONS ===

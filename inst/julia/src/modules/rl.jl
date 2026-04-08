@@ -56,6 +56,32 @@ Hebb, D.O. (1949) *The Organization of Behavior: A Neuropsychological
 const RL_BASELINE_STEP = 0.01f0   # step size for the running baseline update
 const RL_WEIGHT_CLAMP  = 5.0f0    # clamp range for updated weights
 
+# ── Output-layer index helper ────────────────────────────────────────────────
+
+"""
+    _rl_output_layer_range(arch::Vector{Int32}) -> UnitRange{Int}
+
+Return the index range within a flat `[W1(:); b1; ...; WL(:); bL]` weight
+vector that corresponds to the output layer only. Used by the BNN update
+path where `brain.mu` is a flat vector. Local to this file (`_rl_` prefix)
+so the module is self-contained and can be included independently of
+`social_learning.jl`.
+"""
+function _rl_output_layer_range(arch::Vector{Int32})::UnitRange{Int}
+    n_layers = length(arch) - 1
+    n_layers < 1 && return 1:0
+    pos = 1
+    for i in 1:(n_layers - 1)
+        n_in  = Int(arch[i])
+        n_out = Int(arch[i + 1])
+        pos  += n_in * n_out + n_out
+    end
+    n_in_last  = Int(arch[end - 1])
+    n_out_last = Int(arch[end])
+    last_len   = n_in_last * n_out_last + n_out_last
+    return pos:(pos + last_len - 1)
+end
+
 # ── Per-brain output-layer updates ───────────────────────────────────────────
 
 """
@@ -87,7 +113,7 @@ Bayesian `bnn_update!` pathway.
 function _rl_update_output!(brain::BNNBrain, advantage::Float32, lr::Float32)
     (lr == 0.0f0 || advantage == 0.0f0) && return
     step    = lr * advantage
-    rng_out = _output_layer_range(brain.arch)
+    rng_out = _rl_output_layer_range(brain.arch)
     (isempty(rng_out) || last(rng_out) > length(brain.mu)) && return
     @inbounds for i in rng_out
         brain.mu[i] = clamp(brain.mu[i] + step,
@@ -170,3 +196,19 @@ function apply_rl!(env::Environment)
     end
     nothing
 end
+
+# === CLADE.JL ADDITIONS NEEDED ===
+# include: include("modules/rl.jl")
+# tick loop: apply_rl!(env)
+#   [gated: String(get(specs, "rl_mode", "none")) != "none"
+#           && Int(get(specs, "rl_update_freq", 1)) > 0
+#           && t % Int(get(specs, "rl_update_freq", 1)) == 0
+#    location: after apply_kin_altruism! (or after social learning if both on),
+#              before death/reproduction]
+#
+# Example wiring:
+#   if String(get(specs, "rl_mode", "none")) != "none"
+#       rl_freq = Int(get(specs, "rl_update_freq", 1))
+#       rl_freq > 0 && t % rl_freq == 0 && apply_rl!(env)
+#   end
+# === END CLADE.JL ADDITIONS ===
