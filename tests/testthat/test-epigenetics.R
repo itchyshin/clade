@@ -86,16 +86,18 @@ test_that("modules/epigenetics.jl is present in the bundled Julia source", {
   expect_gt(file.info(jl)$size, 100L)
 })
 
-# ── 6. Clade.jl carries the commented-out include for epigenetics.jl ─────────
-# Per the Phase 3 wiring protocol, the live tick loop must not yet pull in
-# epigenetics.jl. The annotation is preserved as a documented entry point.
-test_that("Clade.jl has a commented-out include for modules/epigenetics.jl", {
+# ── 6. Clade.jl actively includes epigenetics.jl ────────────────────────────
+test_that("Clade.jl has an active include for modules/epigenetics.jl", {
   skip_if(!nchar(JULIA_SRC) || !dir.exists(JULIA_SRC),
           "Julia source not installed")
   clade_jl <- readLines(file.path(JULIA_SRC, "Clade.jl"))
-  pattern  <- '#\\s*include\\("modules/epigenetics\\.jl"\\)'
-  expect_true(any(grepl(pattern, clade_jl)),
-              info = "Clade.jl is missing the commented-out epigenetics include")
+  # Match the active (uncommented) include
+  pattern_active    <- '^\\s*include\\("modules/epigenetics\\.jl"\\)'
+  pattern_tick_call <- 'apply_epigenetics!'
+  expect_true(any(grepl(pattern_active, clade_jl)),
+              info = "Clade.jl missing active include for epigenetics.jl")
+  expect_true(any(grepl(pattern_tick_call, clade_jl)),
+              info = "Clade.jl tick loop is missing apply_epigenetics!(env)")
 })
 
 # ── 6b. epigenetics.jl defines all required functions ────────────────────────

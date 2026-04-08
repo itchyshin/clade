@@ -2,63 +2,85 @@
 % Please edit documentation in R/search.R
 \name{search_gradient}
 \alias{search_gradient}
-\title{Gradient descent through simulation (Julia-only)}
+\title{Finite-difference gradient ascent over simulation parameters}
 \usage{
 search_gradient(
   specs_base,
   params = c("grass_rate", "mutation_sd"),
   objective = "genetic_diversity",
-  n_steps = 200L,
-  lr = 0.01,
+  n_steps = 20L,
+  epsilon = 0.05,
+  learning_rate = 0.1,
+  n_cores = 1L,
   verbose = TRUE
 )
 }
 \arguments{
 \item{specs_base}{A specs list from \code{\link[=default_specs]{default_specs()}}.}
 
-\item{params}{Character vector of parameter names to differentiate through.}
+\item{params}{Character vector of numeric parameter names to optimise.
+Defaults to \code{c("grass_rate", "mutation_sd")}.}
 
-\item{objective}{Character. Name of a \verb{$ticks} column to maximise.}
+\item{objective}{Character or function. If a character, the name of a
+column in \code{get_run_data()$ticks} to maximise. If a function, must accept
+an \code{env} list and return a numeric scalar.}
 
-\item{n_steps}{Integer. Number of gradient ascent steps (default 200L).}
+\item{n_steps}{Integer. Number of gradient ascent steps (default 20L).}
 
-\item{lr}{Numeric. Learning rate (step size) (default 0.01).}
+\item{epsilon}{Numeric. Finite-difference step on the log scale
+(default 0.05).}
 
-\item{verbose}{Logical (default \code{TRUE}).}
+\item{learning_rate}{Numeric. Log-scale step size for parameter updates
+(default 0.1).}
+
+\item{n_cores}{Integer. Reserved for future parallel finite-difference
+evaluation; currently unused (default 1L).}
+
+\item{verbose}{Logical. Print progress (default \code{TRUE}).}
 }
 \value{
-A list with \verb{$specs} (final parameter values), \verb{$score},
-\verb{$history}.
+A list with components:
+\describe{
+\item{\verb{$specs}}{Best specs encountered across all gradient steps.}
+\item{\verb{$score}}{Best objective value encountered.}
+\item{\verb{$history}}{Data frame with one row per step and columns
+\code{step}, \code{score}, and one column per optimised parameter.}
+}
 }
 \description{
-Uses Zygote.jl (automatic differentiation) to compute the gradient of a
-scalar objective with respect to named simulation parameters, then applies
-gradient ascent. This is unique to Julia backends — it is not possible with
-Rcpp or C++ MEX.
+Optimises a scalar objective with respect to named numeric simulation
+parameters using forward-difference gradient ascent. Each gradient
+coordinate is estimated by re-running \code{\link[=run_alife]{run_alife()}} with one parameter
+perturbed by \code{epsilon} on the log scale, then comparing the resulting
+objective to a baseline run. Updates are applied on the log scale so that
+positive parameters remain positive.
 }
 \details{
-\strong{Phase 4 feature.} In Phase 0, calling this function raises a clear error
-explaining that gradient search requires the Phase 4 implementation.
+This implementation is intentionally backend-agnostic: it treats
+\code{run_alife()} as a black box and only requires \code{(n_steps + 1) * n_params}
+simulation calls per run. For a true gradient-through-simulation approach
+using Zygote.jl automatic differentiation through the Julia backend, see
+the deferred Phase 4b plan.
 }
 \examples{
 \dontrun{
-# Requires Phase 4 implementation
 result <- search_gradient(
   default_specs(),
-  params    = c("grass_rate", "mutation_sd"),
-  objective = "genetic_diversity",
-  n_steps   = 200L,
-  lr        = 0.01
+  params        = c("grass_rate", "mutation_sd"),
+  objective     = "genetic_diversity",
+  n_steps       = 20L,
+  epsilon       = 0.05,
+  learning_rate = 0.1
 )
+result$specs$grass_rate
 }
 
 }
 \references{
+Spall, J.C. (1998) An overview of the simultaneous perturbation method for
+efficient optimization. \emph{Johns Hopkins APL Technical Digest} 19(4):482–492.
 Innes, M. (2018) Don't unroll adjoint: differentiating SSA-form programs.
-arXiv:1810.07951. (Zygote.jl)
-Baydin, A.G., Pearlmutter, B.A., Radul, A.A. & Siskind, J.M. (2018)
-Automatic differentiation in machine learning: a survey.
-\emph{Journal of Machine Learning Research} 18(153):1–43.
+arXiv:1810.07951. (Zygote.jl — Phase 4b deferred.)
 }
 \seealso{
 \code{\link[=search_map_elites]{search_map_elites()}}, \code{\link[=search_cmaes]{search_cmaes()}}

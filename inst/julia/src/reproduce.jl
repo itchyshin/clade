@@ -203,7 +203,7 @@ function _make_offspring(id::Int64, g::DiploidGenome, brain::AbstractBrain,
                                Float32(get(specs,"learning_rate_min",0.0)),
                                Float32(get(specs,"learning_rate_max",0.5)), rng)
 
-    Agent(
+    off = Agent(
         id, parent.id, mate_id,
         Int32(x), Int32(y),
         energy, Int32(0), Int32(0), true,
@@ -217,6 +217,8 @@ function _make_offspring(id::Int64, g::DiploidGenome, brain::AbstractBrain,
         false, Int32(0), Int32(0), Int32(0), # reproductive tracking
         Int32(0)        # species_id
     )
+    apply_epigenetic_inheritance!(off, parent, specs, rng)
+    off
 end
 
 """

@@ -76,8 +76,20 @@ search_map_elites <- function(specs_base,
                                mutation_sd   = 0.1,
                                n_cores       = 1L,
                                verbose       = TRUE) {
-  .clade_start_julia(verbose = FALSE)
   stopifnot(is.list(specs_base), is.list(archive_dims), length(archive_dims) >= 1L)
+  n_iterations <- as.integer(n_iterations)
+
+  # Validate archive_dims names against the known descriptor columns produced
+  # by get_run_data()$ticks. This catches typos before any Julia call.
+  dim_names <- names(archive_dims)
+  if (is.null(dim_names) || any(!nzchar(dim_names)))
+    stop("archive_dims must be a fully named list.", call. = FALSE)
+  bad <- setdiff(dim_names, .valid_descriptor_columns())
+  if (length(bad) > 0L)
+    stop(sprintf(
+      "archive_dims contains unknown column name(s): %s. Valid columns are produced by get_run_data()$ticks.",
+      paste(sprintf("'%s'", bad), collapse = ", ")
+    ), call. = FALSE)
 
   obj_fn <- if (is.function(objective)) {
     objective
@@ -89,16 +101,27 @@ search_map_elites <- function(specs_base,
   }
 
   if (is.null(mutation_params)) {
-    mutation_params <- names(Filter(is.numeric, specs_base))
+    # Default to continuous (double) positive scalars only — never mutate
+    # integer-typed parameters, since they encode discrete options (ploidy,
+    # max_ticks, ...) that the Julia validator rejects on non-integer values.
+    mutation_params <- names(Filter(function(v) {
+      is.double(v) && length(v) == 1L && !is.na(v) && v > 0
+    }, specs_base))
   }
 
   # Build archive grid
-  dim_names <- names(archive_dims)
   dim_sizes <- vapply(archive_dims, length, integer(1L))
   n_cells   <- prod(dim_sizes)
   archive   <- vector("list", n_cells)
   history   <- data.frame(iteration = integer(0L), score = numeric(0L),
                            filled_cells = integer(0L))
+
+  # If no iterations requested, return an empty archive without starting Julia.
+  if (n_iterations == 0L) {
+    return(list(archive = archive, map = NULL, history = history))
+  }
+
+  .clade_start_julia(verbose = FALSE)
 
   .find_cell <- function(descriptor) {
     # Map descriptor values to cell indices
@@ -120,7 +143,7 @@ search_map_elites <- function(specs_base,
     new_specs <- specs
     for (nm in mutation_params) {
       v <- specs[[nm]]
-      if (is.numeric(v) && length(v) == 1L && v > 0) {
+      if (is.numeric(v) && length(v) == 1L && !is.na(v) && v > 0) {
         new_specs[[nm]] <- exp(log(v) + rnorm(1L, 0, mutation_sd))
       }
     }
@@ -274,59 +297,190 @@ search_cmaes <- function(specs_base,
   list(specs = best_specs, score = best_score, history = history)
 }
 
-#' Gradient descent through simulation (Julia-only)
+#' Finite-difference gradient ascent over simulation parameters
 #'
-#' Uses Zygote.jl (automatic differentiation) to compute the gradient of a
-#' scalar objective with respect to named simulation parameters, then applies
-#' gradient ascent. This is unique to Julia backends — it is not possible with
-#' Rcpp or C++ MEX.
+#' Optimises a scalar objective with respect to named numeric simulation
+#' parameters using forward-difference gradient ascent. Each gradient
+#' coordinate is estimated by re-running [run_alife()] with one parameter
+#' perturbed by `epsilon` on the log scale, then comparing the resulting
+#' objective to a baseline run. Updates are applied on the log scale so that
+#' positive parameters remain positive.
 #'
-#' **Phase 4 feature.** In Phase 0, calling this function raises a clear error
-#' explaining that gradient search requires the Phase 4 implementation.
+#' This implementation is intentionally backend-agnostic: it treats
+#' `run_alife()` as a black box and only requires `(n_steps + 1) * n_params`
+#' simulation calls per run. For a true gradient-through-simulation approach
+#' using Zygote.jl automatic differentiation through the Julia backend, see
+#' the deferred Phase 4b plan.
 #'
 #' @param specs_base A specs list from [default_specs()].
-#' @param params Character vector of parameter names to differentiate through.
-#' @param objective Character. Name of a `$ticks` column to maximise.
-#' @param n_steps Integer. Number of gradient ascent steps (default 200L).
-#' @param lr Numeric. Learning rate (step size) (default 0.01).
-#' @param verbose Logical (default `TRUE`).
+#' @param params Character vector of numeric parameter names to optimise.
+#'   Defaults to `c("grass_rate", "mutation_sd")`.
+#' @param objective Character or function. If a character, the name of a
+#'   column in `get_run_data()$ticks` to maximise. If a function, must accept
+#'   an `env` list and return a numeric scalar.
+#' @param n_steps Integer. Number of gradient ascent steps (default 20L).
+#' @param epsilon Numeric. Finite-difference step on the log scale
+#'   (default 0.05).
+#' @param learning_rate Numeric. Log-scale step size for parameter updates
+#'   (default 0.1).
+#' @param n_cores Integer. Reserved for future parallel finite-difference
+#'   evaluation; currently unused (default 1L).
+#' @param verbose Logical. Print progress (default `TRUE`).
 #'
-#' @return A list with `$specs` (final parameter values), `$score`,
-#'   `$history`.
+#' @return A list with components:
+#' \describe{
+#'   \item{`$specs`}{Best specs encountered across all gradient steps.}
+#'   \item{`$score`}{Best objective value encountered.}
+#'   \item{`$history`}{Data frame with one row per step and columns
+#'     `step`, `score`, and one column per optimised parameter.}
+#' }
 #'
 #' @references
+#' Spall, J.C. (1998) An overview of the simultaneous perturbation method for
+#'   efficient optimization. *Johns Hopkins APL Technical Digest* 19(4):482–492.
 #' Innes, M. (2018) Don't unroll adjoint: differentiating SSA-form programs.
-#'   arXiv:1810.07951. (Zygote.jl)
-#' Baydin, A.G., Pearlmutter, B.A., Radul, A.A. & Siskind, J.M. (2018)
-#'   Automatic differentiation in machine learning: a survey.
-#'   *Journal of Machine Learning Research* 18(153):1–43.
+#'   arXiv:1810.07951. (Zygote.jl — Phase 4b deferred.)
 #'
 #' @examples
 #' \dontrun{
-#' # Requires Phase 4 implementation
 #' result <- search_gradient(
 #'   default_specs(),
-#'   params    = c("grass_rate", "mutation_sd"),
-#'   objective = "genetic_diversity",
-#'   n_steps   = 200L,
-#'   lr        = 0.01
+#'   params        = c("grass_rate", "mutation_sd"),
+#'   objective     = "genetic_diversity",
+#'   n_steps       = 20L,
+#'   epsilon       = 0.05,
+#'   learning_rate = 0.1
 #' )
+#' result$specs$grass_rate
 #' }
 #'
 #' @seealso [search_map_elites()], [search_cmaes()]
 #' @export
 search_gradient <- function(specs_base,
-                             params    = c("grass_rate", "mutation_sd"),
-                             objective = "genetic_diversity",
-                             n_steps   = 200L,
-                             lr        = 0.01,
-                             verbose   = TRUE) {
-  stop(
-    "search_gradient() requires the Phase 4 Julia gradient implementation.\n",
-    "This function will be available after Phase 4 is merged.\n",
-    "Use search_map_elites() or search_cmaes() in the meantime.",
-    call. = FALSE
-  )
+                             params        = c("grass_rate", "mutation_sd"),
+                             objective     = "genetic_diversity",
+                             n_steps       = 20L,
+                             epsilon       = 0.05,
+                             learning_rate = 0.1,
+                             n_cores       = 1L,
+                             verbose       = TRUE) {
+  stopifnot(is.list(specs_base), is.character(params), length(params) >= 1L)
+  n_steps <- as.integer(n_steps)
+  if (n_steps < 1L)
+    stop("n_steps must be a positive integer.", call. = FALSE)
+
+  for (p in params) {
+    v <- specs_base[[p]]
+    if (is.null(v) || !is.numeric(v) || length(v) != 1L || v <= 0)
+      stop(sprintf(
+        "search_gradient() requires positive numeric scalar specs for each parameter; specs_base$%s is %s.",
+        p, deparse(v)
+      ), call. = FALSE)
+  }
+
+  .clade_start_julia(verbose = FALSE)
+
+  obj_fn <- if (is.function(objective)) {
+    objective
+  } else {
+    function(env) {
+      d <- get_run_data(env)
+      mean(d$ticks[[objective]], na.rm = TRUE)
+    }
+  }
+
+  # Per-parameter clipping bounds (log scale). Probabilities are clipped to
+  # (0, 1); other positive parameters are clipped to a wide log window around
+  # the starting value.
+  prob_params <- c("grass_rate", "grass_init_prob", "transmission_prob",
+                   "disease_death_prob", "crossover_rate")
+  log_bounds <- lapply(params, function(p) {
+    v0 <- specs_base[[p]]
+    if (p %in% prob_params) {
+      c(log(.Machine$double.eps), log(1 - .Machine$double.eps))
+    } else {
+      c(log(v0) - 5, log(v0) + 5)
+    }
+  })
+  names(log_bounds) <- params
+
+  # Build a specs list from a log-scale parameter vector.
+  build_specs <- function(log_x) {
+    s <- specs_base
+    for (j in seq_along(params)) s[[params[j]]] <- exp(log_x[j])
+    s
+  }
+
+  evaluate <- function(log_x) {
+    s <- build_specs(log_x)
+    env <- tryCatch(run_alife(s, verbose = FALSE), error = function(e) NULL)
+    if (is.null(env)) return(NA_real_)
+    obj_fn(env)
+  }
+
+  log_x <- log(vapply(params, function(p) specs_base[[p]], numeric(1L)))
+  best_score <- -Inf
+  best_specs <- specs_base
+  history <- vector("list", n_steps)
+
+  if (verbose)
+    message(sprintf(
+      "search_gradient: %d steps, %d params, epsilon=%.3g, lr=%.3g",
+      n_steps, length(params), epsilon, learning_rate
+    ))
+
+  for (step in seq_len(n_steps)) {
+    score0 <- evaluate(log_x)
+    if (is.finite(score0) && score0 > best_score) {
+      best_score <- score0
+      best_specs <- build_specs(log_x)
+    }
+
+    grad <- numeric(length(params))
+    for (j in seq_along(params)) {
+      log_x_plus <- log_x
+      log_x_plus[j] <- log_x[j] + epsilon
+      score_plus <- evaluate(log_x_plus)
+      if (is.finite(score_plus) && is.finite(score0)) {
+        grad[j] <- (score_plus - score0) / epsilon
+      } else {
+        grad[j] <- 0
+      }
+    }
+
+    log_x <- log_x + learning_rate * grad
+    for (j in seq_along(params)) {
+      log_x[j] <- min(max(log_x[j], log_bounds[[j]][1L]), log_bounds[[j]][2L])
+    }
+
+    row <- c(list(step = step, score = score0),
+             setNames(as.list(exp(log_x)), params))
+    history[[step]] <- as.data.frame(row, stringsAsFactors = FALSE)
+
+    if (verbose)
+      message(sprintf("  step %d: score=%.4f", step, score0))
+  }
+
+  history_df <- do.call(rbind, history)
+  list(specs = best_specs, score = best_score, history = history_df)
+}
+
+# ── Internal: known descriptor column names ───────────────────────────────────
+
+#' Valid behavioural-descriptor column names for archive_dims
+#'
+#' Mirrors the columns produced by [get_run_data()] `$ticks`. Used by
+#' [search_map_elites()] for early validation of `archive_dims` names so that
+#' typos are caught before any Julia call.
+#' @keywords internal
+.valid_descriptor_columns <- function() {
+  c("t", "n_agents", "n_births", "n_deaths", "n_starvations",
+    "n_age_deaths", "mean_energy", "sd_energy", "mean_age", "sd_age",
+    "mean_body_size", "sd_body_size", "genetic_diversity", "n_species",
+    "mean_cooperation_level", "mean_immune_strength", "sd_immune_strength",
+    "mean_metabolic_rate", "mean_learning_rate", "mean_prior_sigma",
+    "grass_coverage", "n_infected", "n_new_infections",
+    "n_altruistic_acts", "n_shelters_built", "n_cooperation_acts")
 }
 
 # ── Internal: MAP-Elites plot ─────────────────────────────────────────────────
