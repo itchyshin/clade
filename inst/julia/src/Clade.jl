@@ -366,7 +366,7 @@ function grow_grass!(env::Environment)
     # Seasonal modulation
     amp  = Float32(get(env.specs, "seasonal_amplitude", 0.0))
     if amp > 0.0f0
-        period = Float64(get(env.specs, "seasonal_period", 100))
+        period = Float64(get(env.specs, "season_length", 100))
         rate *= Float32(1.0 + amp * sin(2π * Float64(env.t) / period))
         rate  = clamp(rate, 0.0f0, 1.0f0)
     end

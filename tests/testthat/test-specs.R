@@ -53,7 +53,12 @@ test_that("default_specs() contains all required parameters", {
     "plasticity_init_mean", "plasticity_mutation_sd",
     "plasticity_min", "plasticity_max",
     "metabolic_rate_evolution", "aging_rate_evolution", "immune_evolution",
-    "speciation", "isolation_threshold",
+    "clutch_size_evolution", "clutch_size_init_mean",
+    "clutch_size_min", "clutch_size_max", "clutch_size_mutation_sd",
+    "parental_investment_evolution", "female_investment", "male_repro_cost",
+    "stress_hypermutation", "stress_mutation_multiplier", "stress_threshold",
+    "senescence_shape", "min_repro_age",
+    "wall_density", "wall_clusters",
     "world_evolution", "world_mutation_sd", "world_params_to_evolve",
     "log_freq", "log_genomes", "random_seed"
   )

@@ -674,14 +674,6 @@ default_specs <- function() {
     methylation_rate               = 0.001,
     demethylation_rate             = 0.002,
 
-    # ── Predators ──────────────────────────────────────────────────────────
-    n_predators_init           = 0L,
-    predator_energy_init       = 150.0,
-    predator_attack_cost       = 2.0,
-    predator_kill_gain         = 50.0,
-    predator_mutation_sd       = 0.1,
-    max_predators              = 20L,
-
     # ── Life history ───────────────────────────────────────────────────────
     life_history               = "iteroparous",
     max_age                    = 200L,
@@ -839,24 +831,38 @@ default_specs <- function() {
     carrion_decay_rate         = 0.1,
     carrion_eat_gain           = 3.0,
 
-    # ── Group defense ──────────────────────────────────────────────────────
-    group_defense              = FALSE,
-
-    # ── Habitat preference (IFD) ───────────────────────────────────────────
-    habitat_preference_evolution = FALSE,
-
-    # ── Seasonal dynamics ──────────────────────────────────────────────────
-    seasonal_amplitude         = 0.0,
-    seasonal_period            = 100L,
-
-    # ── Speciation ─────────────────────────────────────────────────────────
-    speciation                 = FALSE,
-    isolation_threshold        = 0.45,
-
     # ── Social learning ────────────────────────────────────────────────────
     social_learning            = FALSE,
     social_learning_freq       = 10L,
     social_learning_rate       = 0.1,
+
+    # ── Clutch size evolution ──────────────────────────────────────────────
+    clutch_size_evolution      = FALSE,
+    clutch_size_init_mean      = 1.0,
+    clutch_size_min            = 1L,
+    clutch_size_max            = 5L,
+    clutch_size_mutation_sd    = 0.3,
+
+    # ── Parental investment evolution ──────────────────────────────────────
+    parental_investment_evolution = FALSE,
+    parental_investment_init_mean = 0.5,
+    female_investment          = 0.7,
+    male_repro_cost            = 0.3,
+
+    # ── Stress hypermutation ───────────────────────────────────────────────
+    stress_hypermutation       = FALSE,
+    stress_mutation_multiplier = 3.0,
+    stress_threshold           = 20.0,
+
+    # ── Senescence shape (Gompertz) ────────────────────────────────────────
+    senescence_shape           = 2.0,
+
+    # ── Reproduction ──────────────────────────────────────────────────────
+    min_repro_age              = 0L,
+
+    # ── Map generation (walls/barriers) ───────────────────────────────────
+    wall_density               = 0.0,
+    wall_clusters              = TRUE,
 
     # ── World evolution ────────────────────────────────────────────────────
     world_evolution            = FALSE,
