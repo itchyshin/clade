@@ -147,21 +147,21 @@ test_that("ann.jl defines ANNBrain and _softmax()", {
 })
 
 # ── 9. N_SCALAR_TRAITS constant matches expected count ─────────────────────────
-test_that("N_SCALAR_TRAITS is defined as 10 in types.jl", {
+test_that("N_SCALAR_TRAITS is defined as 13 in types.jl", {
   skip_no_julia_src()
   types_jl <- paste(readLines(file.path(JULIA_SRC, "types.jl")), collapse = "\n")
-  expect_true(grepl("N_SCALAR_TRAITS = 10", types_jl, fixed = TRUE))
+  expect_true(grepl("N_SCALAR_TRAITS = 13", types_jl, fixed = TRUE))
 })
 
-# ── 10. Trait indices are all distinct 1..10 ───────────────────────────────────
-test_that("TRAIT_* indices in types.jl are distinct and cover 1..10", {
+# ── 10. Trait indices are all distinct 1..13 ───────────────────────────────────
+test_that("TRAIT_* indices in types.jl are distinct and cover 1..13", {
   skip_no_julia_src()
   types_jl <- readLines(file.path(JULIA_SRC, "types.jl"))
   trait_lines <- grep("^const TRAIT_", types_jl, value = TRUE)
-  expect_equal(length(trait_lines), 10L,
-               info = paste("Expected 10 TRAIT_ constants, got", length(trait_lines)))
+  expect_equal(length(trait_lines), 13L,
+               info = paste("Expected 13 TRAIT_ constants, got", length(trait_lines)))
   indices <- as.integer(sub(".*= (\\d+)$", "\\1", trait_lines))
-  expect_equal(sort(indices), 1L:10L)
+  expect_equal(sort(indices), 1L:13L)
 })
 
 # ── 11. ctrnn.jl defines CTRNNBrain struct and required functions ─────────────

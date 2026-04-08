@@ -148,6 +148,22 @@ function _sample_traits(specs::Dict{String,Any}, rng::AbstractRNG)::Vector{Float
                get(specs, "habitat_preference_min", -1.0),
                get(specs, "habitat_preference_max",  1.0)) : 0.0f0
 
+    t[TRAIT_HELPER_TENDENCY] = Bool(get(specs, "cooperative_breeding", false)) ?
+        sample(get(specs, "helper_tendency_init_mean", 0.1),
+               get(specs, "helper_tendency_mutation_sd", 0.02),
+               0.0, 1.0) : 0.0f0
+
+    t[TRAIT_PLASTICITY] = Bool(get(specs, "phenotypic_plasticity", false)) ?
+        sample(get(specs, "plasticity_init_mean", 0.0),
+               get(specs, "plasticity_mutation_sd", 0.03),
+               Float64(get(specs, "plasticity_min", 0.0)),
+               Float64(get(specs, "plasticity_max", 1.0))) : 0.0f0
+
+    t[TRAIT_TOXICITY] = Bool(get(specs, "mimicry", false)) ?
+        sample(get(specs, "toxicity_init_mean", 0.0),
+               get(specs, "toxicity_mutation_sd", 0.05),
+               0.0, 1.0) : 0.0f0
+
     t
 end
 

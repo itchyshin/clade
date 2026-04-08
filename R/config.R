@@ -770,16 +770,61 @@ default_specs <- function() {
 
     # ── Parental care ──────────────────────────────────────────────────────
     parental_care              = FALSE,
-    care_duration              = 5L,
-    care_cost_per_offspring    = 2.0,
+    care_cost_per_tick         = 1.0,
+    feeding_rate               = 5.0,
+    juvenile_independence_age  = 10L,
+    juvenile_independence_energy = 50.0,
     max_clutch_size            = 1L,
 
-    # ── Signal evolution ───────────────────────────────────────────────────
+    # ── Cooperative breeding ───────────────────────────────────────────────
+    cooperative_breeding       = FALSE,
+    helper_min_energy          = 80.0,
+    helper_transfer            = 5.0,
+    helper_kin_threshold       = 0.25,
+    helper_tendency_init_mean  = 0.1,
+    helper_tendency_mutation_sd = 0.02,
+
+    # ── Signal evolution and mate choice ──────────────────────────────────
     signal_dims                = 0L,
     signal_cost                = 0.1,
+    signal_evolution_drift     = FALSE,
+    signal_drift_sd            = 0.01,
+    mate_choice_mode           = "random",
+    mate_choice_strength       = 0.5,
+
+    # ── Speciation (genome-distance clustering) ────────────────────────────
+    speciation                 = FALSE,
+    isolation_threshold        = 0.5,
+    speciation_cluster_interval = 10L,
+
+    # ── Predators ─────────────────────────────────────────────────────────
+    n_predators_init           = 0L,
+    predator_energy_init       = 150.0,
+    predator_live_energy       = 2.0,
+    predator_move_energy       = 1.0,
+    predator_attack_strength   = 40.0,
+    predator_energy_gain       = 30.0,
+    predator_min_repro_energy  = 200.0,
+    predator_min_repro_age     = 5L,
+    predator_mutation_sd       = 0.1,
+    predator_max_agents        = 50L,
 
     # ── Mimicry / toxicity ─────────────────────────────────────────────────
     mimicry                    = FALSE,
+    toxicity_cost_per_tick     = 0.5,
+    toxin_dose                 = 30.0,
+    signal_memory_rate         = 0.3,
+    avoid_threshold            = 0.5,
+    toxicity_init_mean         = 0.0,
+    toxicity_mutation_sd       = 0.05,
+
+    # ── Phenotypic plasticity ──────────────────────────────────────────────
+    phenotypic_plasticity      = FALSE,
+    plasticity_sense_radius    = 3L,
+    plasticity_init_mean       = 0.0,
+    plasticity_mutation_sd     = 0.03,
+    plasticity_min             = 0.0,
+    plasticity_max             = 1.0,
 
     # ── Niche construction ─────────────────────────────────────────────────
     niche_construction         = FALSE,

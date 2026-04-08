@@ -110,7 +110,7 @@ struct DiploidGenome
 end
 
 """Number of scalar traits stored per haplotype in `DiploidGenome`."""
-const N_SCALAR_TRAITS = 10
+const N_SCALAR_TRAITS = 13
 
 # Scalar trait indices (into maternal_traits / paternal_traits)
 const TRAIT_BODY_SIZE             = 1
@@ -123,6 +123,9 @@ const TRAIT_REPRO_THRESHOLD       = 7
 const TRAIT_MUTATION_SD           = 8
 const TRAIT_LEARNING_RATE         = 9
 const TRAIT_HABITAT_PREFERENCE    = 10
+const TRAIT_HELPER_TENDENCY       = 11
+const TRAIT_PLASTICITY            = 12
+const TRAIT_TOXICITY              = 13
 
 """
     is_haploid(g::DiploidGenome) -> Bool
@@ -285,6 +288,12 @@ mutable struct Agent
 
     # Habitat preference (expressed trait; 0 = none, + = prefer rich, - = avoid rich)
     habitat_preference ::Float32
+
+    # Cooperative breeding
+    helper_tendency    ::Float32   # probability of acting as alloparent (0 when disabled)
+
+    # Phenotypic plasticity
+    plasticity         ::Float32   # modifies repro_threshold based on local resource richness
 end
 
 # ── Environment ────────────────────────────────────────────────────────────────
@@ -362,6 +371,7 @@ mutable struct Environment
     n_avoided_attacks   ::Int32
     n_dispersal_events  ::Int32
     n_habitat_moves     ::Int32
+    n_helpers           ::Int32   # cooperative breeding helper acts this tick
 
     # Logging
     progress     ::Dict{String, Vector}

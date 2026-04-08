@@ -484,7 +484,11 @@ search_gradient <- function(specs_base,
     "mean_metabolic_rate", "mean_learning_rate", "mean_prior_sigma",
     "grass_coverage", "n_infected", "n_new_infections",
     "n_altruistic_acts", "n_shelters_built", "n_cooperation_acts",
-    "n_dispersal_events", "n_habitat_moves")
+    "n_dispersal_events", "n_habitat_moves",
+    "n_predators", "n_prey_killed", "n_juveniles", "n_helpers",
+    "n_toxic_attacks", "n_avoided_attacks",
+    "mean_signal_magnitude", "mean_toxicity", "mean_plasticity",
+    "mean_helper_tendency")
 }
 
 # ── Internal: MAP-Elites plot ─────────────────────────────────────────────────

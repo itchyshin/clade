@@ -205,6 +205,11 @@ function _make_offspring(id::Int64, g::DiploidGenome, brain::AbstractBrain,
     hp         = express_trait(g, TRAIT_HABITAT_PREFERENCE, dm,
                                Float32(get(specs,"habitat_preference_min",-1.0)),
                                Float32(get(specs,"habitat_preference_max", 1.0)), rng)
+    helper_t   = express_trait(g, TRAIT_HELPER_TENDENCY, dm, 0.0f0, 1.0f0, rng)
+    plasticity = express_trait(g, TRAIT_PLASTICITY, dm,
+                               Float32(get(specs,"plasticity_min",0.0)),
+                               Float32(get(specs,"plasticity_max",1.0)), rng)
+    toxicity   = express_trait(g, TRAIT_TOXICITY, dm, 0.0f0, 1.0f0, rng)
 
     off = Agent(
         id, parent.id, mate_id,
@@ -213,14 +218,16 @@ function _make_offspring(id::Int64, g::DiploidGenome, brain::AbstractBrain,
         brain, g, Bool[],
         body_size, immune_str, coop, disp, metab, aging, repro_th, mut_sd, lr,
         zeros(Float32, sig_dims), zeros(Float32, sig_dims),
-        0.0f0,          # toxicity
+        toxicity,       # toxicity (heritable via TRAIT_TOXICITY)
         false, false, Int32(0), Int32(0),   # disease
         Any[], Int32(0),                    # parental care
         0.0f0, energy,                      # RL
         false, Int32(0), Int32(0), Int32(0), # reproductive tracking
         Int32(0),       # species_id
         Int32(x), Int32(y),  # x_birth, y_birth = spawn location
-        hp               # habitat_preference
+        hp,              # habitat_preference
+        helper_t,        # helper_tendency
+        plasticity       # plasticity
     )
     apply_epigenetic_inheritance!(off, parent, specs, rng)
     off

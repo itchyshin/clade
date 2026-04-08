@@ -53,10 +53,19 @@ function _init_progress(specs::Dict{String,Any}, n_ticks::Int)::Dict{String,Vect
         "n_cooperation_acts"     => copy(iz),
         "n_dispersal_events"     => copy(iz),
         "n_habitat_moves"        => copy(iz),
+        # Phase 7c–7f modules (always allocated; 0 when module disabled)
+        "n_predators"            => copy(iz),
+        "n_prey_killed"          => copy(iz),
+        "n_juveniles"            => copy(iz),
+        "n_helpers"              => copy(iz),
+        "n_toxic_attacks"        => copy(iz),
+        "n_avoided_attacks"      => copy(iz),
+        "mean_signal_magnitude"  => copy(fz),
+        "mean_toxicity"          => copy(fz),
+        "mean_plasticity"        => copy(fz),
+        "mean_helper_tendency"   => copy(fz),
     )
 
-    # Module-specific vectors (only added when enabled; always present for
-    # simplicity — R code filters by value)
     d
 end
 
@@ -143,6 +152,21 @@ function log_tick!(env::Environment)
     p["n_cooperation_acts"][t]     = Int(env.n_cooperation_acts)
     p["n_dispersal_events"][t]     = Int(env.n_dispersal_events)
     p["n_habitat_moves"][t]        = Int(env.n_habitat_moves)
+
+    # Phase 7c–7f columns
+    p["n_predators"][t]         = length(env.predators)
+    p["n_prey_killed"][t]       = Int(env.n_deaths)   # includes prey deaths from predators
+    n_juv = sum(ag.care_load for ag in ags; init = 0)
+    p["n_juveniles"][t]         = n_juv
+    p["n_helpers"][t]           = Int(env.n_helpers)
+    p["n_toxic_attacks"][t]     = Int(env.n_toxic_attacks)
+    p["n_avoided_attacks"][t]   = Int(env.n_avoided_attacks)
+    sig_dims = Int(get(env.specs, "signal_dims", 0))
+    p["mean_signal_magnitude"][t] = sig_dims > 0 ?
+        mean(sum(abs.(ag.signal)) for ag in ags) : 0.0
+    p["mean_toxicity"][t]       = mean(ag.toxicity for ag in ags)
+    p["mean_plasticity"][t]     = mean(ag.plasticity for ag in ags)
+    p["mean_helper_tendency"][t] = mean(ag.helper_tendency for ag in ags)
 end
 
 """

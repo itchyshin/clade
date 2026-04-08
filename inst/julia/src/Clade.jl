@@ -68,16 +68,18 @@ include("modules/niche.jl")
 include("modules/epigenetics.jl")
 include("modules/social_learning.jl")
 include("modules/rl.jl")
-# include("modules/mimicry.jl")
-# include("modules/signals.jl")
-# include("modules/speciation.jl")
-# include("modules/predators.jl")
+include("modules/mimicry.jl")
+include("modules/signals.jl")
+include("modules/speciation.jl")
+include("modules/tick_predators.jl")
 include("modules/group_defense.jl")
 include("modules/dispersal.jl")
 include("modules/habitat_preference.jl")
 include("modules/seasonal.jl")
-# include("modules/parental_care.jl")
+include("modules/parental_care.jl")
+include("modules/cooperative_breeding.jl")
 include("modules/body_size.jl")
+include("modules/plasticity.jl")
 # include("modules/world_evolution.jl")
 
 # ── R-to-Julia specs bridge ───────────────────────────────────────────────────
@@ -240,12 +242,13 @@ function create_environment(specs::Dict{String,Any})::Environment
         Int32(0),                       # t = 0 (incremented at start of tick)
         rng,
         specs,
-        # per-tick counters (all zero): 13 original + n_dispersal_events + n_habitat_moves
+        # per-tick counters (all zero): 13 original + n_dispersal_events + n_habitat_moves + n_helpers
         Int32(0), Int32(0), Int32(0), Int32(0),
         Int32(0), Int32(0), Int32(0), Int32(0),
         Int32(0), Int32(0), Int32(0), Int32(0), Int32(0),
         Int32(0),                       # n_dispersal_events
         Int32(0),                       # n_habitat_moves
+        Int32(0),                       # n_helpers
         progress,
         deaths,
         Any[]                           # genome_log
@@ -288,11 +291,16 @@ function run_clade(specs::Dict{String,Any})
         # decayed this tick affect grass growth (already applied) and are
         # seen by predators / sensing during movement.
         apply_niche_construction!(env)
+        # Seed predators on first tick if enabled
+        t == 1 && seed_predators!(env)
         tick_agents!(env)
+        tick_predators!(env)              # predator sense-decide-act loop
         apply_body_size!(env)             # metabolic + foraging correction
         apply_dispersal!(env)             # natal dispersal away from birthplace
         apply_habitat_preference!(env)    # secondary move toward preferred habitat
         apply_seasonal_mortality!(env)    # winter death probability
+        apply_toxicity_costs!(env)        # mimicry: per-tick toxicity energy cost
+        apply_signal_costs!(env)          # signal evolution: per-tick signal cost
 
         # ── Optional modules ─────────────────────────────────────────────
         # (each is a no-op when its flag is false)
@@ -307,6 +315,10 @@ function run_clade(specs::Dict{String,Any})
         decay_carrion!(env)
         apply_cooperation!(env)
         apply_epigenetics!(env)
+        apply_care_costs!(env)            # parental care energy cost
+        feed_offspring!(env)              # parental care: feed juveniles
+        age_juveniles!(env)               # parental care: age + metabolic cost
+        apply_cooperative_breeding!(env)  # alloparental helper transfers
         # Social learning: every social_learning_freq ticks
         if Bool(get(specs, "social_learning", false))
             sl_freq = Int(get(specs, "social_learning_freq", 10))
@@ -317,12 +329,13 @@ function run_clade(specs::Dict{String,Any})
             rl_freq = Int(get(specs, "rl_update_freq", 1))
             rl_freq > 0 && t % rl_freq == 0 && apply_rl!(env)
         end
-        # apply_parental_care!(env)
-        # apply_world_evolution!(env)
+        # Speciation clustering every N ticks
+        assign_species!(env)
 
         # ── Death and reproduction ───────────────────────────────────────
         kill_dead!(env)
         remove_dead!(env)
+        graduate_offspring!(env)          # parental care: promote juveniles
         create_offspring!(env)
 
         # ── Logging ──────────────────────────────────────────────────────
@@ -400,6 +413,7 @@ function _reset_counters!(env::Environment)
     env.n_avoided_attacks = Int32(0)
     env.n_dispersal_events = Int32(0)
     env.n_habitat_moves    = Int32(0)
+    env.n_helpers          = Int32(0)
 end
 
 # ── Internal constructors ─────────────────────────────────────────────────────
@@ -510,6 +524,11 @@ function _make_founder_agent(id::Int64, g::DiploidGenome, brain::AbstractBrain,
     hp       = express_trait(g, TRAIT_HABITAT_PREFERENCE, dm,
                              Float32(get(specs, "habitat_preference_min", -1.0)),
                              Float32(get(specs, "habitat_preference_max",  1.0)), rng)
+    helper_t  = express_trait(g, TRAIT_HELPER_TENDENCY, dm, 0.0f0, 1.0f0, rng)
+    plast     = express_trait(g, TRAIT_PLASTICITY, dm,
+                              Float32(get(specs, "plasticity_min", 0.0)),
+                              Float32(get(specs, "plasticity_max", 1.0)), rng)
+    tox       = express_trait(g, TRAIT_TOXICITY, dm, 0.0f0, 1.0f0, rng)
 
     sig_dims = Int(get(specs, "signal_dims", 0))
 
@@ -529,8 +548,8 @@ function _make_founder_agent(id::Int64, g::DiploidGenome, brain::AbstractBrain,
         body_size, immune_str, coop, disp, metab, aging, repro_th, mut_sd, lr,
         # Signal
         zeros(Float32, sig_dims), zeros(Float32, sig_dims),
-        # Mimicry
-        0.0f0,
+        # Mimicry / toxicity (heritable)
+        tox,
         # Disease
         false, false, Int32(0), Int32(0),
         # Parental care
@@ -543,8 +562,8 @@ function _make_founder_agent(id::Int64, g::DiploidGenome, brain::AbstractBrain,
         Int32(0),
         # Natal dispersal (birth location = spawn location for founders)
         px, py,
-        # Habitat preference
-        hp
+        # Habitat preference, cooperative breeding, plasticity, toxicity expressed above
+        hp, helper_t, plast
     )
 end
 

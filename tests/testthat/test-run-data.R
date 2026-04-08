@@ -40,7 +40,17 @@ library(testthat)
     n_shelters_built       = rep(0L, n),
     n_cooperation_acts     = rep(0L, n),
     n_dispersal_events     = rep(0L, n),
-    n_habitat_moves        = rep(0L, n)
+    n_habitat_moves        = rep(0L, n),
+    n_predators            = rep(0L, n),
+    n_prey_killed          = rep(0L, n),
+    n_juveniles            = rep(0L, n),
+    n_helpers              = rep(0L, n),
+    n_toxic_attacks        = rep(0L, n),
+    n_avoided_attacks      = rep(0L, n),
+    mean_signal_magnitude  = rep(0.0, n),
+    mean_toxicity          = rep(0.0, n),
+    mean_plasticity        = rep(0.0, n),
+    mean_helper_tendency   = rep(0.0, n)
   )
 }
 
