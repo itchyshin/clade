@@ -31,7 +31,6 @@ Scan all live agents and create offspring for eligible reproducers.
 """
 function create_offspring!(env::Environment)
     specs     = env.specs
-    repro_th  = Float32(get(specs, "min_repro_energy", 120.0))
     repro_cost= Float32(get(specs, "repro_cost",       30.0))
     off_energy= Float32(get(specs, "offspring_energy", 60.0))
     max_ag    = Int(get(specs, "max_agents",           500))
@@ -43,9 +42,10 @@ function create_offspring!(env::Environment)
     new_agents = Agent[]
 
     for ag in env.agents
-        ag.alive             || continue
-        ag.reproduced        && continue
-        ag.energy < repro_th && continue
+        ag.alive      || continue
+        ag.reproduced && continue
+        # Per-agent threshold: evolved repro_threshold, plasticity-adjusted
+        ag.energy < effective_repro_threshold(ag, env) && continue
         length(env.agents) + length(new_agents) >= max_ag && break
 
         # Allee effect: count neighbours

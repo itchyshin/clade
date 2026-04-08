@@ -305,7 +305,21 @@ function _accumulate_attack!(pred::Agent, attack_str::Float32,
     prey_idx = env.agent_map[pred.x, pred.y]
     prey_idx == 0 && return
     prey_idx > length(env.agents) && return   # stale map entry guard
+    prey = env.agents[prey_idx]
+
+    # Mimicry: check learned avoidance before attacking
+    if should_avoid_prey(pred, prey, env)
+        env.n_avoided_attacks += Int32(1)
+        return
+    end
+
     damage[prey_idx] += attack_str
+
+    # Mimicry: toxic prey damages predator and updates memory
+    if prey.toxicity > 0.0f0
+        env.n_toxic_attacks += Int32(1)
+        apply_predator_toxin!(pred, prey, env)
+    end
 end
 
 """
