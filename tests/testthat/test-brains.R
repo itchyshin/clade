@@ -2,11 +2,18 @@
 #
 # Structural tests (pure R) run on every check — they verify that the specs
 # interface exposes the new brain types and passes validation. Integration
-# tests require a running Julia session and are guarded by
-# `skip_if_not(julia_is_ready())` so that CRAN checks without Julia still
-# pass.
+# tests require Julia and are guarded by skip_no_julia() so that CRAN checks
+# without Julia still pass.
 
 library(testthat)
+
+# ── Helper: skip when Julia toolchain is unavailable ──────────────────────────
+skip_no_julia <- function() {
+  skip_if_not(requireNamespace("JuliaConnectoR", quietly = TRUE),
+              "JuliaConnectoR not available")
+  skip_if_not(JuliaConnectoR::juliaSetupOk(),
+              "Julia toolchain not available")
+}
 
 # ── Structural tests (no Julia required) ─────────────────────────────────────
 
@@ -67,7 +74,7 @@ test_that("Clade.jl make_brain dispatcher covers ctrnn and grn", {
 
 # 1. run_clade with brain_type = "ctrnn" completes without error
 test_that("run_clade completes with brain_type = 'ctrnn'", {
-  skip_if_not(julia_is_ready(), "Julia session not ready")
+  skip_no_julia()
   s <- .minimal_specs(brain_type = "ctrnn", random_seed = 1L)
   env <- expect_silent(run_clade(s, verbose = FALSE))
   expect_true(is.list(env))
@@ -76,7 +83,7 @@ test_that("run_clade completes with brain_type = 'ctrnn'", {
 
 # 2. CTRNN forward passes shift over time (temporal memory)
 test_that("CTRNN temporal state actually evolves between ticks", {
-  skip_if_not(julia_is_ready(), "Julia session not ready")
+  skip_no_julia()
   s <- .minimal_specs(brain_type = "ctrnn", random_seed = 2L,
                        max_ticks = 10L, n_agents_init = 20L,
                        max_agents = 100L)
@@ -89,7 +96,7 @@ test_that("CTRNN temporal state actually evolves between ticks", {
 
 # 3. CTRNN run with more agents and ticks produces non-trivial births
 test_that("CTRNN run produces births over a longer simulation", {
-  skip_if_not(julia_is_ready(), "Julia session not ready")
+  skip_no_julia()
   s <- .minimal_specs(brain_type = "ctrnn", random_seed = 3L,
                        grid_rows = 20L, grid_cols = 20L,
                        n_agents_init = 30L, max_agents = 200L,
@@ -102,7 +109,7 @@ test_that("CTRNN run produces births over a longer simulation", {
 
 # 4. run_clade with brain_type = "grn" completes without error
 test_that("run_clade completes with brain_type = 'grn'", {
-  skip_if_not(julia_is_ready(), "Julia session not ready")
+  skip_no_julia()
   s <- .minimal_specs(brain_type = "grn", random_seed = 4L)
   env <- expect_silent(run_clade(s, verbose = FALSE))
   expect_true(is.list(env))
@@ -111,7 +118,7 @@ test_that("run_clade completes with brain_type = 'grn'", {
 
 # 5. GRN run produces positive mean_energy
 test_that("GRN run produces positive mean_energy", {
-  skip_if_not(julia_is_ready(), "Julia session not ready")
+  skip_no_julia()
   s <- .minimal_specs(brain_type = "grn", random_seed = 5L,
                        max_ticks = 20L, n_agents_init = 20L,
                        max_agents = 100L)
@@ -124,7 +131,7 @@ test_that("GRN run produces positive mean_energy", {
 
 # 6. GRN produces non-zero genetic diversity across agents
 test_that("GRN run exhibits non-zero genetic diversity", {
-  skip_if_not(julia_is_ready(), "Julia session not ready")
+  skip_no_julia()
   s <- .minimal_specs(brain_type = "grn", random_seed = 6L,
                        max_ticks = 20L, n_agents_init = 30L,
                        max_agents = 150L)
