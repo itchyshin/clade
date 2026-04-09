@@ -370,6 +370,12 @@
 #'   \item{`brain_size_cost_scale`}{Numeric. Multiplier on the metabolic
 #'     surcharge per unit of `brain_size - 1.0`. Higher values steepen the
 #'     cost curve and make the bootstrapping problem harder (default 1.0).}
+#'   \item{`brain_size_sensing_exponent`}{Numeric. Power applied to
+#'     `brain_size` when scaling grass sensing inputs. `brain_size^exponent`
+#'     determines the sensing multiplier. Exponent 0 = no sensing effect;
+#'     exponent 1.0 = linear scaling; default 0.3 gives a gentle sublinear
+#'     boost (e.g. `brain_size = 2.0` → 1.23× multiplier). No effect when
+#'     `brain_size_evolution = FALSE`.}
 #' }
 #'
 #' ## Metabolic rate evolution
@@ -797,7 +803,8 @@ default_specs <- function() {
     brain_size_mutation_sd     = 0.05,
     brain_size_min             = 0.1,
     brain_size_max             = 3.0,
-    brain_size_cost_scale      = 1.0,
+    brain_size_cost_scale       = 1.0,
+    brain_size_sensing_exponent = 0.3,
 
     # ── Metabolic rate evolution ───────────────────────────────────────────
     metabolic_rate_evolution   = FALSE,

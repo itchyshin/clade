@@ -348,3 +348,26 @@ test_that("brain_size never goes below brain_size_min in a 50-tick run", {
   bsz <- .agent_bsz(env)
   if (length(bsz) > 0L) expect_true(all(bsz >= 0.5 - 1e-6))
 })
+
+# ── 26. brain_size_sensing_exponent is in default_specs() and defaults to 0.3 ─
+test_that("brain_size_sensing_exponent is present in default_specs() with default 0.3", {
+  s <- default_specs()
+  expect_true("brain_size_sensing_exponent" %in% names(s))
+  expect_identical(s$brain_size_sensing_exponent, 0.3)
+})
+
+# ── 27. run completes with sensing exponent = 0.0 (off) and = 1.0 (linear) ───
+test_that("run_alife completes with brain_size_sensing_exponent = 0.0 and 1.0", {
+  skip_no_julia()
+  s0 <- .bse_specs(brain_size_sensing_exponent = 0.0, random_seed = 11L)
+  expect_no_error(env0 <- run_alife(s0, verbose = FALSE))
+  expect_true(as.integer(env0$t) >= 1L)
+
+  s1 <- .bse_specs(
+    brain_size_init_mean        = 1.5,
+    brain_size_sensing_exponent = 1.0,
+    random_seed                 = 12L
+  )
+  expect_no_error(env1 <- run_alife(s1, verbose = FALSE))
+  expect_true(as.integer(env1$t) >= 1L)
+})

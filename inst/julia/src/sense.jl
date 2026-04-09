@@ -53,19 +53,30 @@ function sense_agent(ag::Agent, env::Environment)::Vector{Float32}
     inp = Vector{Float32}(undef, n_inputs(ag.brain))
     pos = 1
 
+    # Brain-size sensing multiplier (third brain_size_evolution effect).
+    # Scales grass perception by brain_size ^ brain_size_sensing_exponent.
+    # brain_size = 1.0 → multiplier = 1.0 (no change).
+    # brain_size > 1.0 → multiplier > 1.0 → amplified grass gradients → better
+    # navigation toward food. brain_size < 1.0 → attenuated perception.
+    # No-op when brain_size_evolution = false (brain_size is always 1.0f0).
+    bs_exp     = Float32(get(specs, "brain_size_sensing_exponent", 0.3))
+    sense_mult = ag.brain_size ^ bs_exp   # == 1.0 when brain_size == 1.0
+
     # 1. Energy (normalised)
     inp[pos] = clamp(ag.energy / emax, 0.0f0, 1.0f0);  pos += 1
     # 2. Age (normalised)
     inp[pos] = clamp(Float32(ag.age) / amax, 0.0f0, 1.0f0); pos += 1
 
     # 3–(2+4r). Grass in cardinal cells at distances 1..r (N/E/S/W × r steps)
+    # Grass inputs scaled by sense_mult (clamped to [0, 1]): larger-brained
+    # agents perceive resource gradients more clearly.
     for d in 1:r
         xN = mod1(x - d, rows);  xS = mod1(x + d, rows)
         yE = mod1(y + d, cols);  yW = mod1(y - d, cols)
-        inp[pos] = env.grass[xN, y]  / gmax;  pos += 1
-        inp[pos] = env.grass[x,  yE] / gmax;  pos += 1
-        inp[pos] = env.grass[xS, y]  / gmax;  pos += 1
-        inp[pos] = env.grass[x,  yW] / gmax;  pos += 1
+        inp[pos] = clamp(env.grass[xN, y]  / gmax * sense_mult, 0.0f0, 1.0f0);  pos += 1
+        inp[pos] = clamp(env.grass[x,  yE] / gmax * sense_mult, 0.0f0, 1.0f0);  pos += 1
+        inp[pos] = clamp(env.grass[xS, y]  / gmax * sense_mult, 0.0f0, 1.0f0);  pos += 1
+        inp[pos] = clamp(env.grass[x,  yW] / gmax * sense_mult, 0.0f0, 1.0f0);  pos += 1
     end
 
     # Next 4r. Occupied cells (1 = another agent present) at distances 1..r

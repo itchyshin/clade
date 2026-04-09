@@ -16,7 +16,7 @@ Biology*; Griesser et al. 2023 *PNAS*; Song et al. 2025 *PNAS*):
 > provisioning bridges.
 
 Each agent carries a heritable continuous `brain_size` trait (positive scalar,
-default 1.0). Two effects scale with `brain_size`:
+default 1.0). Three effects scale with `brain_size`:
 
 1. **Expensive brain (metabolic cost)**: idle cost increases proportionally.
    `energy -= idle_cost * brain_size_cost_scale * (brain_size - 1.0)`.
@@ -30,6 +30,14 @@ default 1.0). Two effects scale with `brain_size`:
    proportional to `brain_size - 1.0`. This benefit requires effective
    foraging — which in turn requires either having survived infancy (via
    parental provisioning) or having been lucky as a small-brained infant.
+
+3. **Sensing quality**: grass inputs to the agent's neural network are scaled
+   by `brain_size ^ brain_size_sensing_exponent`. Larger-brained agents
+   perceive resource gradients more clearly, enabling better navigation toward
+   food. With exponent 0.3 and brain_size 1.5 the multiplier is ≈ 1.13 —
+   a gentle amplification that compounds with the foraging bonus. This
+   complements effect 2 (which acts on the agent's current cell) by providing
+   a directional navigation advantage across the grid.
 
 ## Bootstrapping problem
 
@@ -52,6 +60,9 @@ strategies → selection can favour larger brains.
 - `brain_size_max::Float64` — maximum allowed brain_size (default 3.0)
 - `brain_size_cost_scale::Float64` — multiplier on idle_cost surcharge
   (default 1.0; increase to steepen the cost curve)
+- `brain_size_sensing_exponent::Float64` — power applied to brain_size when
+  scaling grass sensing inputs in `sense.jl` (default 0.3; 0 = no sensing
+  effect; 1.0 = linear scaling)
 
 ## References
 
