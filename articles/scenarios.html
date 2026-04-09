@@ -3284,8 +3284,8 @@ hypothesis<a class="anchor" aria-label="anchor" href="#part-x-brain-size-evoluti
 </h2>
 <p>The <strong>parental provisioning hypothesis</strong> proposes that
 parental care is a prerequisite for brain size evolution (van Schaik et
-al. 2023; Griesser et al. 2023; Song et al. 2025). The mechanism has two
-components:</p>
+al. 2023; Griesser et al. 2023; Song et al. 2025). The mechanism has
+three components:</p>
 <ol style="list-style-type: decimal">
 <li>
 <strong>Expensive brain hypothesis</strong>: brain tissue is
@@ -3298,6 +3298,14 @@ immediately pay the metabolic surcharge but forage poorly (ANN weights
 are random at birth). They starve before their cognitive advantage can
 offset the cost — <em>unless</em> a parent provides exogenous energy
 during infancy.</li>
+<li>
+<strong>Sensing quality</strong>: larger-brained agents perceive
+grass resource gradients more clearly. Grass inputs to the neural
+network are scaled by
+<code>brain_size ^ brain_size_sensing_exponent</code>, amplifying the
+signal from nearby food cells. This provides a directional navigation
+advantage that complements the on-cell foraging bonus and compounds as
+brain size evolves upward.</li>
 </ol>
 <p>The key prediction: <code>brain_size_evolution = TRUE</code> without
 parental care selects against large brains; with parental care, larger
@@ -3348,6 +3356,12 @@ brains can evolve.</p>
 <td>Scales the idle-cost surcharge per unit of
 <code>brain_size - 1</code>
 </td>
+</tr>
+<tr class="odd">
+<td><code>brain_size_sensing_exponent</code></td>
+<td><code>0.3</code></td>
+<td>Power applied to <code>brain_size</code> when scaling grass sensing
+inputs; 0 = off, 1 = linear</td>
 </tr>
 </tbody>
 </table>
@@ -3421,11 +3435,15 @@ brain phenotypes. In the no-care condition the trajectory remains near
 or below the reference (1.0) because large-brained infants starve before
 they can reproduce.</p>
 <p>The critical parameters are <code>brain_size_cost_scale</code> (how
-steep the cost curve is) and <code>feeding_rate</code> ×
-<code>care_duration</code> (how much energy the parent provides).
-Increasing <code>brain_size_cost_scale</code> makes the bootstrapping
-problem harder; increasing <code>feeding_rate</code> makes it easier for
-large-brained offspring to survive.</p>
+steep the cost curve is), <code>feeding_rate</code> ×
+<code>care_duration</code> (how much energy the parent provides), and
+<code>brain_size_sensing_exponent</code> (how strongly brain size
+amplifies resource perception). Increasing
+<code>brain_size_cost_scale</code> makes the bootstrapping problem
+harder; increasing <code>feeding_rate</code> makes it easier for
+large-brained offspring to survive. Setting
+<code>brain_size_sensing_exponent = 0</code> disables the sensing
+pathway entirely, isolating the foraging-bonus effect.</p>
 <hr>
 </div>
 </div>
