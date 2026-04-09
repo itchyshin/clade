@@ -294,11 +294,11 @@ activation when <code>brain_energy_mode = "activity"</code> (default 0.5).</p></
 <h3 id="genome-and-ploidy">Genome and ploidy<a class="anchor" aria-label="anchor" href="#genome-and-ploidy"></a></h3>
 
 
-<p>clade supports haploid (default) and diploid life cycles. The diploid path
+<p>clade supports diploid (default) and haploid life cycles. The diploid path
 implements full Mendelian genetics with independent assortment and
 recombination.</p>
 <dl><dt><code>ploidy</code></dt>
-<dd><p>Integer. <code>1L</code> = haploid (default); <code>2L</code> = diploid.
+<dd><p>Integer. <code>1L</code> = haploid; <code>2L</code> = diploid (default).
 In the diploid case every heritable trait (brain weights, body size,
 immune strength, cooperation level, etc.) has two alleles – one
 maternal, one paternal. The expressed phenotype is computed by
@@ -565,6 +565,52 @@ Reference: Kleiber, M. (1947) Body size and metabolic rate,
 
 <dt><code>body_size_max</code></dt>
 <dd><p>Numeric. Maximum body size (default 3.0).</p></dd>
+
+
+</dl></div>
+
+<div class="section">
+<h3 id="brain-size-evolution">Brain size evolution<a class="anchor" aria-label="anchor" href="#brain-size-evolution"></a></h3>
+
+
+<dl><dt><code>brain_size_evolution</code></dt>
+<dd><p>Logical. Enable heritable brain size trait
+(default <code>FALSE</code>). Implements the parental provisioning hypothesis: brain
+size is metabolically costly (expensive brain hypothesis) yet confers a
+cognitive foraging advantage. The bootstrapping problem — large-brained
+offspring pay the metabolic cost from birth before their cognitive
+advantage can offset it — means brain size can only evolve when parental
+provisioning (<code>parental_care = TRUE</code>) buffers the infancy energy deficit.
+References: van Schaik et al. (2023) <em>PLoS Biology</em> 21(5):e3002064;
+Griesser et al. (2023) <em>PNAS</em> 120(31):e2301005120;
+Song et al. (2025) <em>PNAS</em> 122(8):e2412783122.</p></dd>
+
+<dt><code>brain_size_init_mean</code></dt>
+<dd><p>Numeric. Initial mean brain size (default 1.0,
+reference = no effect).</p></dd>
+
+<dt><code>brain_size_mutation_sd</code></dt>
+<dd><p>Numeric. Mutation SD for brain size
+(default 0.05).</p></dd>
+
+<dt><code>brain_size_min</code></dt>
+<dd><p>Numeric. Minimum brain size (default 0.1).</p></dd>
+
+<dt><code>brain_size_max</code></dt>
+<dd><p>Numeric. Maximum brain size (default 3.0).</p></dd>
+
+<dt><code>brain_size_cost_scale</code></dt>
+<dd><p>Numeric. Multiplier on the metabolic
+surcharge per unit of <code>brain_size - 1.0</code>. Higher values steepen the
+cost curve and make the bootstrapping problem harder (default 1.0).</p></dd>
+
+<dt><code>brain_size_sensing_exponent</code></dt>
+<dd><p>Numeric. Power applied to
+<code>brain_size</code> when scaling grass sensing inputs. <code>brain_size^exponent</code>
+determines the sensing multiplier. Exponent 0 = no sensing effect;
+exponent 1.0 = linear scaling; default 0.3 gives a gentle sublinear
+boost (e.g. <code>brain_size = 2.0</code> → 1.23× multiplier). No effect when
+<code>brain_size_evolution = FALSE</code>.</p></dd>
 
 
 </dl></div>
