@@ -183,12 +183,12 @@ activation when \code{brain_energy_mode = "activity"} (default 0.5).}
 
 \subsection{Genome and ploidy}{
 
-clade supports haploid (default) and diploid life cycles. The diploid path
+clade supports diploid (default) and haploid life cycles. The diploid path
 implements full Mendelian genetics with independent assortment and
 recombination.
 
 \describe{
-\item{\code{ploidy}}{Integer. \code{1L} = haploid (default); \code{2L} = diploid.
+\item{\code{ploidy}}{Integer. \code{1L} = haploid; \code{2L} = diploid (default).
 In the diploid case every heritable trait (brain weights, body size,
 immune strength, cooperation level, etc.) has two alleles -- one
 maternal, one paternal. The expressed phenotype is computed by
@@ -385,6 +385,37 @@ Reference: Kleiber, M. (1947) Body size and metabolic rate,
 (default 0.08).}
 \item{\code{body_size_min}}{Numeric. Minimum body size (default 0.3).}
 \item{\code{body_size_max}}{Numeric. Maximum body size (default 3.0).}
+}
+}
+
+\subsection{Brain size evolution}{
+
+\describe{
+\item{\code{brain_size_evolution}}{Logical. Enable heritable brain size trait
+(default \code{FALSE}). Implements the parental provisioning hypothesis: brain
+size is metabolically costly (expensive brain hypothesis) yet confers a
+cognitive foraging advantage. The bootstrapping problem — large-brained
+offspring pay the metabolic cost from birth before their cognitive
+advantage can offset it — means brain size can only evolve when parental
+provisioning (\code{parental_care = TRUE}) buffers the infancy energy deficit.
+References: van Schaik et al. (2023) \emph{PLoS Biology} 21(5):e3002064;
+Griesser et al. (2023) \emph{PNAS} 120(31):e2301005120;
+Song et al. (2025) \emph{PNAS} 122(8):e2412783122.}
+\item{\code{brain_size_init_mean}}{Numeric. Initial mean brain size (default 1.0,
+reference = no effect).}
+\item{\code{brain_size_mutation_sd}}{Numeric. Mutation SD for brain size
+(default 0.05).}
+\item{\code{brain_size_min}}{Numeric. Minimum brain size (default 0.1).}
+\item{\code{brain_size_max}}{Numeric. Maximum brain size (default 3.0).}
+\item{\code{brain_size_cost_scale}}{Numeric. Multiplier on the metabolic
+surcharge per unit of \code{brain_size - 1.0}. Higher values steepen the
+cost curve and make the bootstrapping problem harder (default 1.0).}
+\item{\code{brain_size_sensing_exponent}}{Numeric. Power applied to
+\code{brain_size} when scaling grass sensing inputs. \code{brain_size^exponent}
+determines the sensing multiplier. Exponent 0 = no sensing effect;
+exponent 1.0 = linear scaling; default 0.3 gives a gentle sublinear
+boost (e.g. \code{brain_size = 2.0} → 1.23× multiplier). No effect when
+\code{brain_size_evolution = FALSE}.}
 }
 }
 

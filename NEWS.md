@@ -50,9 +50,12 @@ Each module is a no-op when its flag is `FALSE`; overhead is zero.
   The bootstrapping problem — large-brained offspring pay the metabolic cost
   from birth before their foraging advantage emerges — means brain size only
   evolves when `parental_care = TRUE` buffers the infancy energy deficit.
-  Logged as `mean_brain_size` in `env$progress`. New parameters:
-  `brain_size_evolution`, `brain_size_init_mean`, `brain_size_mutation_sd`,
-  `brain_size_min`, `brain_size_max`, `brain_size_cost_scale`.
+  A third effect — sensing quality — scales grass perception inputs by
+  `brain_size ^ brain_size_sensing_exponent`, giving larger-brained agents a
+  directional navigation advantage. Logged as `mean_brain_size` in
+  `env$progress`. New parameters: `brain_size_evolution`,
+  `brain_size_init_mean`, `brain_size_mutation_sd`, `brain_size_min`,
+  `brain_size_max`, `brain_size_cost_scale`, `brain_size_sensing_exponent`.
 
 ## Parameter search
 
