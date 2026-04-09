@@ -428,3 +428,165 @@ species_tree <- function(run_data) {
     )
   )
 }
+
+# ── compare_conditions() ──────────────────────────────────────────────────────
+
+#' Compare evolutionary outcomes across simulation conditions
+#'
+#' @title Compare evolutionary outcomes across simulation conditions
+#' @description
+#' Takes a named list of `run_data` objects (one per condition) and computes
+#' post-burn-in means and standard deviations for key outcome metrics. Returns
+#' a tidy data frame for downstream analysis or plotting.
+#'
+#' Metrics included (when present in all runs):
+#' `n_agents`, `genetic_diversity`, `mean_energy`, `n_births`, `n_deaths`,
+#' `grass_coverage`, `n_species`, `mean_body_size`, `mean_toxicity`,
+#' `mean_plasticity`, `n_predators`.
+#'
+#' @param conditions A named list of `run_data` objects, each from
+#'   [get_run_data()]. Names are used as condition labels.
+#' @param burn_in Integer. Ticks to discard as burn-in (default `100L`).
+#' @param plot Logical. If `TRUE`, returns a ggplot2 bar-chart comparison.
+#'   If `FALSE`, returns only the summary data frame.
+#'
+#' @return A data frame with one row per condition and columns `condition`,
+#'   then mean and SD columns for each outcome metric (e.g. `genetic_diversity`,
+#'   `genetic_diversity_sd`). If `plot = TRUE`, a `$plot` attribute is also
+#'   attached.
+#'
+#' @examples
+#' \dontrun{
+#' s1 <- default_specs(); s1$mutation_sd <- 0.05
+#' s2 <- default_specs(); s2$mutation_sd <- 0.30
+#' env1 <- run_alife(s1); env2 <- run_alife(s2)
+#' result <- compare_conditions(list(low_mut = get_run_data(env1),
+#'                                   hi_mut  = get_run_data(env2)))
+#' result
+#' }
+#'
+#' @seealso [get_run_data()], [estimate_heritability()], [run_alife()]
+#' @export
+compare_conditions <- function(conditions, burn_in = 100L, plot = TRUE) {
+  if (!is.list(conditions) || is.null(names(conditions)))
+    stop("`conditions` must be a named list of run_data objects.", call. = FALSE)
+
+  core_metrics <- c("n_agents", "genetic_diversity", "mean_energy",
+                     "n_births", "n_deaths", "grass_coverage")
+  opt_metrics  <- c("n_species", "mean_body_size", "mean_toxicity",
+                     "mean_plasticity", "mean_helper_tendency",
+                     "n_predators", "mean_signal_magnitude",
+                     "mean_prior_sigma")
+
+  rows <- lapply(names(conditions), function(cond) {
+    rd <- conditions[[cond]]
+    if (!is.list(rd) || is.null(rd$ticks))
+      stop(sprintf("conditions[['%s']] is not a valid run_data list.", cond),
+           call. = FALSE)
+    d   <- rd$ticks
+    d   <- d[d$t > burn_in, , drop = FALSE]
+
+    present <- c(core_metrics,
+                 intersect(opt_metrics, names(d)))
+    means <- vapply(present, function(m)
+      mean(d[[m]], na.rm = TRUE), numeric(1L))
+    sds   <- vapply(present, function(m) {
+      v <- d[[m]]
+      if (sum(!is.na(v)) >= 2L) stats::sd(v, na.rm = TRUE) else NA_real_
+    }, numeric(1L))
+
+    out           <- as.data.frame(as.list(means))
+    names(out)    <- present
+    sd_df         <- as.data.frame(as.list(sds))
+    names(sd_df)  <- paste0(present, "_sd")
+    cbind(data.frame(condition = cond, stringsAsFactors = FALSE), out, sd_df)
+  })
+  result <- do.call(rbind, rows)
+
+  if (isTRUE(plot) && requireNamespace("ggplot2", quietly = TRUE)) {
+    plot_cols <- intersect(c("genetic_diversity", "mean_energy", "n_agents",
+                              "n_species"), names(result))
+    if (length(plot_cols) > 0L) {
+      long <- do.call(rbind, lapply(plot_cols, function(m) {
+        data.frame(
+          condition = result$condition,
+          metric    = m,
+          mean      = result[[m]],
+          sd        = result[[paste0(m, "_sd")]],
+          stringsAsFactors = FALSE
+        )
+      }))
+      p <- ggplot2::ggplot(
+        long,
+        ggplot2::aes(x = .data$condition, y = .data$mean, fill = .data$condition)
+      ) +
+        ggplot2::geom_col(show.legend = FALSE) +
+        ggplot2::geom_errorbar(
+          ggplot2::aes(ymin = .data$mean - .data$sd,
+                       ymax = .data$mean + .data$sd),
+          width = 0.25
+        ) +
+        ggplot2::facet_wrap(~ metric, scales = "free_y") +
+        ggplot2::labs(x = "Condition", y = "Mean (post burn-in)") +
+        ggplot2::theme_minimal() +
+        ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
+      attr(result, "plot") <- p
+    }
+  }
+  result
+}
+
+# ── load_specs() ──────────────────────────────────────────────────────────────
+
+#' Load simulation specs from a JSON file
+#'
+#' @title Load simulation specs from a JSON file
+#' @description
+#' Reads a JSON file containing simulation parameters and merges it over the
+#' defaults from [default_specs()]. Parameters not present in the JSON file
+#' retain their defaults; parameters in the JSON that are not valid spec names
+#' trigger a warning.
+#'
+#' @param path Character. Path to a JSON file. The file should contain a
+#'   single JSON object whose keys are parameter names from [default_specs()].
+#'   Numeric vectors of length 1 are read as scalars; longer vectors as
+#'   R vectors.
+#'
+#' @return A specs list (same format as [default_specs()]).
+#'
+#' @examples
+#' \dontrun{
+#' # specs.json contains {"mutation_sd": 0.3, "grass_rate": 0.6}
+#' specs <- load_specs("path/to/specs.json")
+#' env   <- run_alife(specs)
+#' }
+#'
+#' @seealso [default_specs()], [run_alife()]
+#' @export
+load_specs <- function(path) {
+  if (!file.exists(path))
+    stop(sprintf("File not found: '%s'", path), call. = FALSE)
+  if (!requireNamespace("jsonlite", quietly = TRUE))
+    stop("Package 'jsonlite' is required for load_specs(). ",
+         "Install it with: install.packages('jsonlite')", call. = FALSE)
+
+  raw    <- jsonlite::read_json(path, simplifyVector = TRUE)
+  specs  <- default_specs()
+  known  <- names(specs)
+
+  unknown <- setdiff(names(raw), known)
+  if (length(unknown) > 0L)
+    warning(sprintf(
+      "load_specs(): ignoring unknown parameter(s): %s",
+      paste(sprintf("'%s'", unknown), collapse = ", ")
+    ), call. = FALSE)
+
+  for (nm in intersect(names(raw), known)) {
+    val <- raw[[nm]]
+    # Preserve integer type when the default is integer
+    if (is.integer(specs[[nm]]) && is.numeric(val))
+      val <- as.integer(val)
+    specs[[nm]] <- val
+  }
+  specs
+}

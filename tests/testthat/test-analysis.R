@@ -146,12 +146,9 @@ test_that("heritability estimate is numeric (finite or NA)", {
 test_that("compare_conditions() accepts two run_data lists without error", {
   rd1 <- .mock_rd()
   rd2 <- .mock_rd()
-  # compare_conditions may not exist yet; skip gracefully if absent.
-  skip_if_not(existsFunction <- exists("compare_conditions",
-                                       mode = "function",
-                                       where = asNamespace("clade")),
-              "compare_conditions not yet exported")
-  expect_no_error(compare_conditions(rd1, rd2))
+  expect_no_error(
+    compare_conditions(list(cond_a = rd1, cond_b = rd2), plot = FALSE)
+  )
 })
 
 # 12. get_genome_data() returns a list with at least $genomes element
