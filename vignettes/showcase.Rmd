@@ -1724,6 +1724,149 @@ FIG("bnn_uncertainty")
 
 ---
 
+## 35. The cephalopod paradox: short lifespans can select for fast learning {#section-35}
+
+Standard life-history theory predicts that longer-lived organisms should invest
+more in within-lifetime learning: the longer the amortisation window, the
+greater the return on a costly brain. Cephalopods violate this logic — they
+are short-lived yet possess the most elaborate nervous systems among
+invertebrates (Liedtke & Fromhage 2019). The paradox dissolves once a
+second resource layer (shrubs, requiring learning to exploit) is added: when
+the season is compressed, *shorter-lived* agents must learn *faster* to reach
+the shrub layer before they die, whereas long-lived agents can afford slow,
+incremental learning.
+
+The simulation uses `complex_landscape = TRUE` (mid-layer shrubs as a
+high-value but spatially patchy resource) together with a sweep over `max_age`.
+At each lifespan, we record the mean evolved `learning_rate` after 400 ticks.
+
+```{r sec-35-code}
+library(clade)
+library(ggplot2)
+
+ages   <- c(20L, 40L, 80L, 160L, 300L)
+n_reps <- 3L   # replicate each lifespan for robustness
+
+results <- lapply(ages, function(ma) {
+  reps <- lapply(seq_len(n_reps), function(rep) {
+    s <- default_specs()
+    s$grid_rows               <- 20L
+    s$grid_cols               <- 20L
+    s$n_agents_init           <- 60L
+    s$max_agents              <- 300L
+    s$max_ticks               <- 400L
+    s$max_age                 <- ma
+    s$complex_landscape       <- TRUE
+    s$shrub_density           <- 0.4
+    s$shrub_energy            <- 30.0
+    s$shrub_growth_rate       <- 0.05
+    s$learning_rate_evolution <- TRUE
+    s$learning_rate_init_mean <- 0.05
+    s$learning_rate_min       <- 0.001
+    s$learning_rate_max       <- 0.5
+    s$random_seed             <- as.integer(rep * 100L + ma)
+    env  <- run_alife(s, verbose = FALSE)
+    data <- get_run_data(env)
+    tail_lr <- tail(data$ticks$mean_learning_rate[data$ticks$n_agents > 0], 50)
+    data.frame(max_age = ma, rep = rep, mean_learning = mean(tail_lr))
+  })
+  do.call(rbind, reps)
+})
+
+df <- do.call(rbind, results)
+
+# Aggregate over replicates
+agg <- aggregate(mean_learning ~ max_age, data = df, FUN = mean)
+agg$sd <- aggregate(mean_learning ~ max_age, data = df, FUN = sd)$mean_learning
+
+ggplot(agg, aes(max_age, mean_learning)) +
+  geom_ribbon(aes(ymin = mean_learning - sd, ymax = mean_learning + sd),
+              alpha = 0.2, fill = "steelblue") +
+  geom_line(colour = "steelblue", linewidth = 1) +
+  geom_point(size = 3, colour = "steelblue") +
+  labs(
+    title    = "Cephalopod paradox: short lifespans can select for fast learning",
+    subtitle = paste0("Complex landscape (shrubs); learning_rate free to evolve; ",
+                      n_reps, " replicates per lifespan, last-50-tick mean"),
+    x        = "Maximum lifespan (ticks)",
+    y        = "Evolved learning rate (mean ± SD)"
+  ) +
+  theme_minimal(base_size = 13)
+```
+
+```{r sec-35-fig, eval=TRUE, echo=FALSE, fig.cap="Evolved learning rate as a function of maximum lifespan (cephalopod paradox). With a complex landscape containing shrubs, agents are under selection to learn quickly enough to exploit the mid-layer resource before they die. Very short-lived agents evolve the fastest learning rates; very long-lived agents can afford slow incremental learning. The non-monotone or inverted relationship reverses the standard prediction of life-history theory (Liedtke & Fromhage 2019)."}
+FIG("cephalopod_paradox")
+```
+
+---
+
+## 36. Evolution of bad science {#section-36}
+
+Smaldino & McElreath (2016) showed that the pressure to publish can drive the
+evolution of sloppy science. "Labs" (heritable agents) carry two traits:
+`research_power` W (the probability that a given study tests a true
+hypothesis) and `research_effort` e (investment in methodological rigour). The
+false-positive rate per study is:
+
+$$\alpha = \frac{W}{1 + (1-W)\,e}$$
+
+Each tick, labs produce a mix of true and false positives. Labs with more
+publications reproduce; low-effort labs publish more, so selection favours
+cutting corners. Even costly replication attempts slow but do not stop the
+deterioration — replication finds failures but does not penalise the lab that
+published the original.
+
+`run_bad_science()` is a self-contained pure-R simulation that requires no
+Julia session.
+
+```{r sec-36-code}
+library(clade)
+library(ggplot2)
+library(patchwork)
+
+# Compare three replication rates over 500 ticks
+rep_rates  <- c(0.0, 0.1, 0.5)
+rep_labels <- c("No replication", "10% replication", "50% replication")
+
+results <- mapply(function(rr, lab) {
+  df      <- run_bad_science(n_ticks = 500L, replication_rate = rr, seed = 42L)
+  df$rate <- lab
+  df
+}, rep_rates, rep_labels, SIMPLIFY = FALSE)
+
+df <- do.call(rbind, results)
+df$rate <- factor(df$rate, levels = rev(rep_labels))
+
+p1 <- ggplot(df, aes(t, mean_fpr, colour = rate)) +
+  geom_line(linewidth = 0.9) +
+  scale_colour_manual(values = c("No replication"  = "#d73027",
+                                  "10% replication" = "#fc8d59",
+                                  "50% replication" = "#4575b4"),
+                       name = NULL) +
+  labs(title = "False-positive rate rises under publication pressure",
+       x = "Tick", y = "Mean false-positive rate") +
+  theme_minimal(base_size = 12)
+
+p2 <- ggplot(df, aes(t, mean_effort, colour = rate)) +
+  geom_line(linewidth = 0.9) +
+  scale_colour_manual(values = c("No replication"  = "#d73027",
+                                  "10% replication" = "#fc8d59",
+                                  "50% replication" = "#4575b4"),
+                       name = NULL) +
+  labs(title = "Research effort declines over evolutionary time",
+       x = "Tick", y = "Mean research effort") +
+  theme_minimal(base_size = 12)
+
+p1 / p2 + plot_layout(guides = "collect") &
+  theme(legend.position = "bottom")
+```
+
+```{r sec-36-fig, eval=TRUE, echo=FALSE, fig.cap="Evolution of bad science (Smaldino & McElreath 2016). Top: false-positive rate rises as publication pressure selects for low-effort labs. Bottom: research effort declines in parallel. Higher replication rates slow deterioration but do not prevent it. No Julia session is required: run_bad_science() is a self-contained pure-R simulation."}
+FIG("bad_science")
+```
+
+---
+
 ## Generating the figures yourself
 
 If Julia is available, you can regenerate all figures from source:
@@ -1818,4 +1961,14 @@ This creates `man/figures/showcase_*.png`. Re-build the vignette with
   *Evolutionary Theory* 1:1–30.
 - Zahavi, A. (1975) Mate selection — a selection for a handicap.
   *Journal of Theoretical Biology* 53(1):205–214.
-  *Annual Review of Ecology and Systematics* 30:201–233.
+- Liedtke, J. & Fromhage, L. (2019) Explaining the cephalopod brain: the cost-
+  benefit analysis of a large nervous system. *Philosophical Transactions of the
+  Royal Society B* 374(1774):20180370.
+- Smaldino, P.E. & McElreath, R. (2016) The natural selection of bad science.
+  *Royal Society Open Science* 3(9):160384.
+- Shine, R., Brown, G.P. & Phillips, B.L. (2011) An evolutionary process that
+  assembles phenotypes through space rather than through time. *Proceedings of
+  the National Academy of Sciences* 108(14):5708–5711.
+- Fromhage, L. & Jennions, M.D. (2019) Coevolution of niche breadth and
+  interspecific competition: an inclusive-fitness approach. *Evolution*
+  73(2):278–290.

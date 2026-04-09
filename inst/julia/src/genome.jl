@@ -164,6 +164,12 @@ function _sample_traits(specs::Dict{String,Any}, rng::AbstractRNG)::Vector{Float
                get(specs, "toxicity_mutation_sd", 0.05),
                0.0, 1.0) : 0.0f0
 
+    t[TRAIT_WING_SIZE] = Bool(get(specs, "complex_landscape", false)) ?
+        sample(get(specs, "wing_size_init_mean", 0.0),
+               get(specs, "wing_size_mutation_sd", 0.05),
+               get(specs, "wing_size_min", 0.0),
+               get(specs, "wing_size_max", 1.0)) : 0.0f0
+
     t
 end
 

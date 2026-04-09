@@ -1,0 +1,623 @@
+---
+title: "Biological Scenarios and Modules"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Biological Scenarios and Modules}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(eval = FALSE, collapse = TRUE, comment = "#>")
+```
+
+Each module in `clade` implements a biological mechanism that can be enabled
+independently or combined. This article documents every module: the biological
+motivation, the key parameters, what to look for in the output, and a minimal
+working example.
+
+All examples require Julia. Wrap any call in `if (julia_is_ready()) { ... }`
+for scripts that may run on machines without Julia.
+
+---
+
+## Baseline world
+
+**What it models.** Agents forage on a renewable grass resource and reproduce
+when energy exceeds a threshold. The neural-network genome (brain weights)
+evolves under natural selection with no additional modules. This is the
+simplest demonstration that evolution can occur.
+
+**Key parameters.**
+
+| Parameter | Default | Effect |
+|---|---|---|
+| `grass_rate` | 0.10 | Probability that empty cell regrows per tick |
+| `mutation_sd` | 0.05 | Gaussian noise on brain weights per offspring |
+| `brain_type` | `"bnn"` | Neural architecture |
+| `ploidy` | 1 | Haploid (1) or diploid (2) |
+
+**Expected output.** Population stabilises well below `max_agents`. Genetic
+diversity is maintained: neither fixation nor unbounded growth.
+
+```{r baseline}
+library(clade)
+
+s <- default_specs()
+s$grid_rows     <- 20L
+s$grid_cols     <- 20L
+s$n_agents_init <- 40L
+s$max_ticks     <- 300L
+s$random_seed   <- 1L
+
+env  <- run_alife(s)
+data <- get_run_data(env)
+plot_run(data)
+```
+
+---
+
+## Complex landscape (forest world)
+
+**What it models.** A three-layer habitat: ground (grass), shrubs (mid-level),
+and canopy (top). Shrubs and canopy have higher energy density but slower
+regrowth. Canopy access requires a minimum `wing_size` (a heritable trait).
+This creates a selection pressure for wing-size evolution and niche
+partitioning. The scenario is structurally analogous to the
+*cephalopod paradox* (Liedtke & Fromhage 2019): a rich resource is accessible
+only to agents that have evolved the morphology to exploit it.
+
+**Key parameters.**
+
+| Parameter | Default | Effect |
+|---|---|---|
+| `complex_landscape` | FALSE | Enable this module |
+| `shrub_density` | 0.35 | Fraction of cells with shrubs |
+| `shrub_energy` | 25.0 | Energy gained from shrubs |
+| `shrub_growth_rate` | 0.04 | Shrub regrowth rate |
+| `canopy_density` | 0.15 | Fraction of cells with canopy |
+| `canopy_energy` | 55.0 | Energy gained from canopy |
+| `canopy_threshold` | 0.6 | Minimum wing_size for canopy access |
+| `wing_size_init_mean` | 0.1 | Starting wing size |
+| `wing_size_mutation_sd` | 0.05 | Wing size mutation rate |
+
+**Expected output.** `mean_wing_size` rises over time. `n_canopy_agents`
+increases as wing-size evolution crosses the `canopy_threshold`.
+Niche entropy (ground/shrub/canopy mix) first rises then stabilises.
+
+```{r complex-landscape}
+s <- default_specs()
+s$complex_landscape   <- TRUE
+s$shrub_density       <- 0.35
+s$canopy_density      <- 0.15
+s$canopy_energy       <- 55.0
+s$canopy_threshold    <- 0.6
+s$wing_size_init_mean <- 0.1
+s$max_ticks           <- 400L
+
+env  <- run_alife(s)
+data <- get_run_data(env)
+
+# Wing size evolution
+plot(data$ticks$t, data$ticks$mean_wing_size, type = "l",
+     xlab = "Tick", ylab = "Mean wing size",
+     main = "Wing size evolution in the forest world")
+```
+
+Use `tune_complex_landscape()` to find parameter combinations that
+produce strong wing-size evolution with CMA-ES:
+
+```{r tune-landscape}
+tuned <- tune_complex_landscape(default_specs(), n_iterations = 80L)
+tuned$specs   # optimal landscape parameters
+```
+
+---
+
+## Spatial sorting
+
+**What it models.** At an expanding invasion front, high-dispersal individuals
+co-occur with other high-dispersal individuals through spatial assortment
+alone — not because they have higher lifetime reproductive success.
+Dispersal-enhancing alleles "surf the wave" (Shine et al. 2011). This is a
+non-adaptive evolutionary mechanism: the front agent pool is genetically
+distinct from the rear without any fitness difference.
+
+**Key parameters.**
+
+| Parameter | Default | Effect |
+|---|---|---|
+| `dispersal_evolution` | FALSE | Enable heritable dispersal tendency |
+| `dispersal_init_mean` | 0.5 | Starting dispersal probability |
+| `dispersal_mutation_sd` | 0.05 | Mutation rate for dispersal |
+| `spatial_sorting` | FALSE | Enable invasion-front mating assortment |
+| `sorting_front_threshold` | 0.75 | Fraction from front to define "front zone" |
+| `sorting_mating_boost` | 3.0 | Fold-increase in mate encounters at front |
+
+**Expected output.** `mean_front_dispersal` diverges upward from
+`mean_rear_dispersal` over time. The magnitude of the gap reflects the
+strength of spatial sorting. Rear dispersal may drift downward if there is any
+cost to dispersal.
+
+```{r spatial-sorting}
+s <- default_specs()
+s$dispersal_evolution   <- TRUE
+s$dispersal_init_mean   <- 0.3
+s$dispersal_mutation_sd <- 0.04
+s$spatial_sorting       <- TRUE
+s$sorting_mating_boost  <- 3.0
+s$max_ticks             <- 400L
+
+env  <- run_alife(s)
+data <- get_run_data(env)
+
+library(ggplot2)
+ggplot(data$ticks, aes(t)) +
+  geom_line(aes(y = mean_front_dispersal, colour = "Front")) +
+  geom_line(aes(y = mean_rear_dispersal,  colour = "Rear"), linetype = "dashed") +
+  scale_colour_manual(values = c(Front = "#e41a1c", Rear = "#377eb8"),
+                      name = NULL) +
+  labs(title = "Spatial sorting: dispersal diverges at the invasion front",
+       x = "Tick", y = "Mean dispersal tendency") +
+  theme_minimal()
+```
+
+---
+
+## IFfolk inclusive fitness
+
+**What it models.** Agents can transfer energy to nearby relatives. The
+transfer amount and eligibility radius are controlled by `iffolk_*` parameters.
+Cooperative behaviour evolves because it improves inclusive fitness: the
+donor's fitness cost is recovered through the reproductive gains of related
+recipients (Hamilton 1964). `parliament_suppression` enforces cooperation by
+penalising defectors (low `helper_tendency`) surrounded by cooperators,
+modelling the *parliament of genes* (Fromhage & Jennions 2019).
+
+**Key parameters.**
+
+| Parameter | Default | Effect |
+|---|---|---|
+| `iffolk_selection` | FALSE | Enable IFfolk transfers |
+| `iffolk_r_min` | 0.125 | Minimum relatedness (cousins and closer) |
+| `iffolk_radius` | 5 | Neighbourhood radius for kin search |
+| `iffolk_transfer` | 3.0 | Energy transferred per act |
+| `iffolk_min_energy` | 60.0 | Donor must exceed this energy |
+| `parliament_suppression` | FALSE | Penalise defectors among cooperators |
+| `parliament_cost` | 0.5 | Energy penalty for defectors |
+| `cooperative_breeding` | FALSE | Enable `helper_tendency` trait |
+| `helper_tendency_init_mean` | 0.2 | Starting helper tendency |
+
+**Expected output.** `mean_helper_tendency` increases over time.
+`n_iffolk_transfers` is positive and grows with population size.
+With `parliament_suppression = TRUE`, the increase is faster and converges
+near 1.0 for high-relatedness environments.
+
+```{r iffolk}
+s <- default_specs()
+s$iffolk_selection        <- TRUE
+s$iffolk_r_min            <- 0.125
+s$iffolk_transfer         <- 3.0
+s$parliament_suppression  <- TRUE
+s$parliament_cost         <- 0.5
+s$cooperative_breeding    <- TRUE
+s$helper_tendency_init_mean <- 0.2
+s$max_ticks               <- 400L
+
+env  <- run_alife(s)
+data <- get_run_data(env)
+
+plot(data$ticks$t, data$ticks$mean_helper_tendency, type = "l",
+     xlab = "Tick", ylab = "Mean helper tendency",
+     main = "Helper tendency evolves under IFfolk + parliament suppression")
+```
+
+---
+
+## Kin selection
+
+**What it models.** Agents with energy above a threshold donate a fixed cost to
+the most closely related Moore-neighbourhood agent with relatedness
+r >= `kin_altruism_r_min`. Relatedness is computed from the pedigree (parent
+chains). This is Hamilton's rule operationalised at each tick: the altruistic
+act evolves when Hamilton's rule holds: r &times; benefit &gt; cost.
+
+**Key parameters.**
+
+| Parameter | Default | Effect |
+|---|---|---|
+| `kin_selection` | FALSE | Enable kin altruism |
+| `kin_altruism_r_min` | 0.25 | Minimum relatedness to donate (siblings) |
+| `kin_altruism_cost` | 2.0 | Energy transferred per act |
+| `kin_altruism_min_donor_energy` | 50.0 | Donor energy floor |
+
+**Expected output.** `n_altruistic_acts` is positive. Population size is
+generally higher than baseline (altruism increases mean fitness). Genetic
+diversity may be slightly lower if relatedness clustering creates local
+inbreeding.
+
+```{r kin-selection}
+s <- default_specs()
+s$kin_selection               <- TRUE
+s$kin_altruism_r_min          <- 0.25
+s$kin_altruism_cost           <- 2.0
+s$max_ticks                   <- 300L
+
+env  <- run_alife(s)
+data <- get_run_data(env)
+cat("Total altruistic acts:", sum(data$ticks$n_altruistic_acts), "\n")
+```
+
+---
+
+## SIR disease
+
+**What it models.** A Susceptible-Infected-Recovered epidemic model. Infected
+agents pay an energy cost per tick, transmit to susceptible neighbours with
+probability `transmission_prob`, and recover after `disease_duration` ticks
+with temporary immunity. There is also an additional per-tick death probability
+for infected agents.
+
+**Key parameters.**
+
+| Parameter | Default | Effect |
+|---|---|---|
+| `disease` | FALSE | Enable SIR dynamics |
+| `transmission_prob` | 0.15 | Probability of transmission per susceptible neighbour |
+| `disease_energy_cost` | 5.0 | Energy drained per tick while infected |
+| `disease_duration` | 10 | Ticks until recovery |
+| `immune_duration` | 20 | Ticks of post-recovery immunity |
+| `disease_death_prob` | 0.01 | Extra mortality per tick while infected |
+| `disease_seed_prob` | 0.02 | Fraction infected at tick 1 |
+
+**Expected output.** `n_infected` shows epidemic peaks. Population size dips
+sharply during outbreaks and recovers as immunity builds. Multiple epidemic
+cycles are possible if immunity wanes before the next susceptible cohort matures.
+
+```{r disease}
+s <- default_specs()
+s$disease          <- TRUE
+s$transmission_prob <- 0.20
+s$max_ticks        <- 300L
+
+env  <- run_alife(s)
+data <- get_run_data(env)
+
+plot(data$ticks$t, data$ticks$n_infected, type = "l",
+     xlab = "Tick", ylab = "Infected agents",
+     main = "SIR epidemic dynamics")
+```
+
+---
+
+## Niche construction
+
+**What it models.** Agents build shelter at their current cell when energy
+exceeds `shelter_min_energy`. Shelters reduce predator damage and slow grass
+regrowth on the cell. Shelters decay stochastically each tick. This models
+ecosystem engineering: organisms that modify their selective environment
+(Odling-Smee et al. 2003).
+
+**Key parameters.**
+
+| Parameter | Default | Effect |
+|---|---|---|
+| `niche_construction` | FALSE | Enable shelter building |
+| `shelter_build_prob` | 0.1 | Probability of building per tick |
+| `shelter_min_energy` | 40.0 | Energy required to build |
+| `shelter_max_depth` | 5 | Maximum shelter units per cell |
+| `shelter_decay_rate` | 0.02 | Fraction of shelters lost per tick |
+
+**Expected output.** `n_shelters_built` is positive. Predator damage is reduced
+in sheltered cells. Population size may be larger than baseline due to shelter
+protection.
+
+```{r niche-construction}
+s <- default_specs()
+s$niche_construction <- TRUE
+s$n_predators_init   <- 5L
+s$max_ticks          <- 300L
+
+env  <- run_alife(s)
+data <- get_run_data(env)
+cat("Total shelters built:", sum(data$ticks$n_shelters_built), "\n")
+```
+
+---
+
+## Body size evolution
+
+**What it models.** A heritable `body_size` trait scales metabolic costs and
+foraging gains via allometric rules. Larger body size increases move cost but
+also foraging efficiency. Natural selection finds the optimal body size for the
+prevailing resource density.
+
+**Key parameters.**
+
+| Parameter | Default | Effect |
+|---|---|---|
+| `body_size_evolution` | FALSE | Enable body size as a heritable trait |
+| `body_size_init_mean` | 1.0 | Starting body size (relative units) |
+| `body_size_mutation_sd` | 0.05 | Mutation rate |
+| `body_size_min` | 0.1 | Lower clamp |
+| `body_size_max` | 5.0 | Upper clamp |
+
+**Expected output.** `mean_body_size` evolves to a stable value. High
+`grass_rate` (rich environment) typically selects for larger body size;
+sparse environments select for smaller.
+
+```{r body-size}
+s <- default_specs()
+s$body_size_evolution  <- TRUE
+s$body_size_init_mean  <- 1.0
+s$max_ticks            <- 300L
+
+env  <- run_alife(s)
+data <- get_run_data(env)
+cat("Final mean body size:", tail(data$ticks$mean_body_size, 1L), "\n")
+```
+
+---
+
+## Dispersal evolution
+
+**What it models.** A heritable `dispersal_tendency` trait governs how far
+agents move from their birthplace. This allows evolution to optimise dispersal
+in response to local resource density and competition. Can be combined with
+`spatial_sorting` to study invasion dynamics.
+
+**Key parameters.**
+
+| Parameter | Default | Effect |
+|---|---|---|
+| `dispersal_evolution` | FALSE | Enable heritable dispersal |
+| `dispersal_init_mean` | 0.5 | Starting dispersal probability |
+| `dispersal_mutation_sd` | 0.05 | Mutation rate |
+| `dispersal_min / dispersal_max` | 0.0 / 1.0 | Clamp range |
+
+**Expected output.** `mean_dispersal` evolves in response to crowding.
+Dense, resource-rich environments typically select for lower dispersal
+(local knowledge is valuable); sparse, patchy environments select for higher.
+
+```{r dispersal}
+s <- default_specs()
+s$dispersal_evolution <- TRUE
+s$max_ticks           <- 300L
+
+env  <- run_alife(s)
+data <- get_run_data(env)
+# Dispersal summary is in data$ticks$n_dispersal_events
+```
+
+---
+
+## Social learning
+
+**What it models.** Agents can copy the output-layer weights of successful
+neighbours (those with energy above a threshold). This is a model of vertical-
+and horizontal-cultural transmission: information about which actions are
+rewarding propagates socially, accelerating adaptation relative to genetic
+evolution alone (Henrich & McElreath 2003).
+
+**Key parameters.**
+
+| Parameter | Default | Effect |
+|---|---|---|
+| `social_learning` | FALSE | Enable social learning |
+| `social_learning_freq` | 10 | Ticks between learning events |
+| `social_learning_radius` | 3 | Search radius for models |
+
+**Expected output.** Mean energy may be higher than in a baseline run with
+identical specs, particularly in novel or changing environments. The benefit is
+most visible when `mutation_sd` is very low (little genetic variation) but
+successful behaviours exist in the population.
+
+```{r social-learning}
+s <- default_specs()
+s$social_learning      <- TRUE
+s$social_learning_freq <- 10L
+s$max_ticks            <- 300L
+
+env  <- run_alife(s)
+data <- get_run_data(env)
+```
+
+---
+
+## Parental care
+
+**What it models.** Offspring are carried by the parent until graduation at age
+`care_duration`. While carried, juveniles receive energy from the parent at
+`juvenile_energy_gain` per tick. If the parent dies, carried offspring die too
+(obligate altriciality). This models the evolutionary trade-off between clutch
+size and offspring quality (Smith & Fretwell 1974).
+
+**Key parameters.**
+
+| Parameter | Default | Effect |
+|---|---|---|
+| `parental_care` | FALSE | Enable parental care |
+| `care_duration` | 5 | Ticks offspring are carried |
+| `care_energy_cost` | 2.0 | Energy drained from parent per juvenile per tick |
+| `juvenile_energy_gain` | 3.0 | Energy transferred to juvenile per tick |
+
+**Expected output.** `n_juveniles` is positive. Per-capita offspring count may
+be lower than baseline (parents can carry fewer), but juvenile survival is
+higher. Population dynamics are more buffered.
+
+```{r parental-care}
+s <- default_specs()
+s$parental_care     <- TRUE
+s$care_duration     <- 5L
+s$care_energy_cost  <- 2.0
+s$max_ticks         <- 300L
+
+env  <- run_alife(s)
+data <- get_run_data(env)
+cat("Total juveniles recorded:", sum(data$ticks$n_juveniles, na.rm = TRUE), "\n")
+```
+
+---
+
+## Mimicry and toxicity
+
+**What it models.** A heritable `toxicity` trait makes prey costly to attack.
+Predators learn signal–toxicity associations via a Rescorla-Wagner rule and
+build avoidance. This models the evolution of warning coloration and Batesian/
+Mullerian mimicry (Ruxton et al. 2004): toxic prey are avoided; non-toxic
+prey that resemble toxic prey are also avoided (Batesian mimicry).
+
+**Key parameters.**
+
+| Parameter | Default | Effect |
+|---|---|---|
+| `mimicry` | FALSE | Enable toxicity / predator learning |
+| `toxicity_init_mean` | 0.0 | Starting toxicity (0 = non-toxic) |
+| `toxin_dose` | 2.0 | Damage dealt to attacker per toxicity unit |
+| `signal_memory` | 20 | Predator memory window for learning |
+
+**Expected output.** `mean_toxicity` evolves upward under predator pressure.
+`n_avoided_attacks` increases as predators learn. `n_toxic_attacks` may peak
+and then decline as predators avoid toxic prey.
+
+```{r mimicry}
+s <- default_specs()
+s$mimicry           <- TRUE
+s$n_predators_init  <- 5L
+s$toxicity_init_mean <- 0.1
+s$max_ticks          <- 300L
+
+env  <- run_alife(s)
+data <- get_run_data(env)
+```
+
+---
+
+## Within-lifetime reinforcement learning
+
+**What it models.** Each agent uses REINFORCE-with-baseline (actor-critic) to
+update its brain's output layer based on energy reward signals during its
+lifetime. This implements the Baldwin effect: individually-learned behaviours
+can stabilise genetically over generations because learning relaxes the
+requirement for genes to encode the exact optimal behaviour.
+
+**Key parameters.**
+
+| Parameter | Default | Effect |
+|---|---|---|
+| `rl_mode` | `"none"` | Set to `"actor_critic"` to enable |
+| `rl_update_freq` | 5 | Ticks between RL updates |
+| `learning_rate` | 0.01 | Step size for output-layer update |
+| `learning_rate_evolution` | FALSE | Allow learning rate to evolve |
+
+**Expected output.** Agents with RL enabled adapt within their lifetime to the
+local resource distribution. When `learning_rate_evolution = TRUE`, the
+evolved learning rate reflects the environmental uncertainty: noisy environments
+favour lower rates; stable environments favour higher rates.
+
+```{r rl}
+s <- default_specs()
+s$rl_mode    <- "actor_critic"
+s$max_ticks  <- 300L
+
+env  <- run_alife(s)
+data <- get_run_data(env)
+```
+
+---
+
+## Phenotypic plasticity
+
+**What it models.** A heritable `plasticity` trait modulates how strongly each
+agent's sensory input maps to action. High plasticity agents are more
+responsive to environmental cues; low plasticity agents rely more heavily on
+their evolved baseline behaviour. The evolution of plasticity tracks
+environmental variability: plastic phenotypes are favoured when environments
+are predictably unpredictable (DeWitt & Scheiner 2004).
+
+**Key parameters.**
+
+| Parameter | Default | Effect |
+|---|---|---|
+| `phenotypic_plasticity` | FALSE | Enable plasticity trait |
+| `plasticity_init_mean` | 0.5 | Starting plasticity |
+| `plasticity_mutation_sd` | 0.05 | Mutation rate |
+
+**Expected output.** `mean_plasticity` evolves. In stable environments
+(fixed `grass_rate`), plasticity typically decreases over time. In
+seasonally varying environments, plasticity may be maintained.
+
+```{r plasticity}
+s <- default_specs()
+s$phenotypic_plasticity <- TRUE
+s$max_ticks             <- 300L
+
+env  <- run_alife(s)
+data <- get_run_data(env)
+cat("Final plasticity:", tail(data$ticks$mean_plasticity, 1L), "\n")
+```
+
+---
+
+## Pure-R scenario: Evolution of bad science
+
+**What it models.** A pure-R simulation (no Julia required) of Smaldino &
+McElreath (2016). Labs compete for citations. Publication probability depends
+on finding a positive result. Low statistical power (low `effort`) increases
+false-positive rate (FPR). Under publication pressure, low-effort strategies
+spread because they produce more positive results per unit cost. Replication
+slows but does not stop the deterioration.
+
+```{r bad-science}
+# No Julia required — runs entirely in R
+df_norep <- run_bad_science(n_ticks = 500L, replication_rate = 0.0, seed = 1L)
+df_rep   <- run_bad_science(n_ticks = 500L, replication_rate = 0.5, seed = 1L)
+
+library(ggplot2)
+df <- rbind(
+  cbind(df_norep, rate = "No replication"),
+  cbind(df_rep,   rate = "50% replication")
+)
+ggplot(df, aes(t, mean_fpr, colour = rate)) +
+  geom_line() +
+  labs(title = "False-positive rate under publication pressure",
+       x = "Tick", y = "Mean FPR", colour = NULL) +
+  theme_minimal()
+```
+
+---
+
+## References
+
+DeWitt, T.J. & Scheiner, S.M. (2004) *Phenotypic Plasticity: Functional and
+Conceptual Approaches*. Oxford University Press.
+
+Fromhage, L. & Jennions, M.D. (2019) The evolution of mutualism from
+reciprocal altruism by a selection regime shift. *Nature Communications*
+10:1294.
+
+Hamilton, W.D. (1964) The genetical evolution of social behaviour I & II.
+*Journal of Theoretical Biology* 7(1):1-52.
+
+Henrich, J. & McElreath, R. (2003) The evolution of cultural evolution.
+*Evolutionary Anthropology* 12(3):123-135.
+
+Liedtke, J. & Fromhage, L. (2019) The evolution of learning in the
+cephalopod paradox. *Proceedings of the Royal Society B* 286:20190918.
+
+Odling-Smee, F.J., Laland, K.N. & Feldman, M.W. (2003) *Niche Construction:
+The Neglected Process in Evolution*. Princeton University Press.
+
+Ruxton, G.D., Sherratt, T.N. & Speed, M.P. (2004) *Avoiding Attack:
+The Evolutionary Ecology of Crypsis, Warning Signals and Mimicry*. Oxford
+University Press.
+
+Shine, R., Brown, G.P. & Phillips, B.L. (2011) An evolutionary process that
+assembles phenotypes through space rather than through time. *Proceedings of
+the National Academy of Sciences* 108(14):5708-5711.
+
+Smaldino, P.E. & McElreath, R. (2016) The natural selection of bad science.
+*Royal Society Open Science* 3:160384.
+
+Smith, C.C. & Fretwell, S.D. (1974) The optimal balance between size and
+number of offspring. *American Naturalist* 108(962):499-506.

@@ -279,15 +279,18 @@ batch_alife <- function(specs_list, n_cores = 1L, verbose = FALSE) {
     error = function(e) NULL
   )
 
-  list(
-    agents        = env_julia$agents,
-    t             = env_julia$t,
-    specs         = specs,
-    grass         = grass_r,
-    progress      = as.data.frame(env_julia$progress),
-    deaths        = as.data.frame(env_julia$deaths),
-    genome_log    = env_julia$genome_log,
-    total_carrion = env_julia$total_carrion,
-    total_shelter = env_julia$total_shelter
+  structure(
+    list(
+      agents        = env_julia$agents,
+      t             = env_julia$t,
+      specs         = specs,
+      grass         = grass_r,
+      progress      = as.data.frame(env_julia$progress),
+      deaths        = as.data.frame(env_julia$deaths),
+      genome_log    = env_julia$genome_log,
+      total_carrion = env_julia$total_carrion,
+      total_shelter = env_julia$total_shelter
+    ),
+    class = "clade_env"
   )
 }

@@ -16,7 +16,7 @@ A \code{\link[ggplot2:ggplot]{ggplot2::ggplot()}} object, or \code{NULL} invisib
 data are absent.
 }
 \description{
-Draws the trajectory of mean body size with a ± 1 SD ribbon. When
+Draws the trajectory of mean body size with a +/- 1 SD ribbon. When
 \code{body_size_evolution = FALSE} this produces a flat line at 1.0. When
 evolution is active the population mean drifts toward a size that balances
 metabolic cost against foraging gain (the metabolic optimum; Kleiber 1947).

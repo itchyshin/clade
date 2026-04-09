@@ -140,9 +140,114 @@ function apply_kin_altruism!(env::Environment)
     return
 end
 
+"""
+    apply_iffolk!(env::Environment)
+
+IFfolk inclusive fitness module (Fromhage & Jennions 2019).
+Enabled when `specs["iffolk_selection"] == true`.
+
+Each live agent with sufficient energy scans a radius-limited neighbourhood
+for kin (relatedness >= `iffolk_r_min`). It transfers energy to the most
+energy-depleted relative, provided that relative's energy is below a fraction
+of the donor's energy (Hamilton's rule: the transfer is predicted to be
+favoured when r * benefit > cost, satisfied by the default parameters).
+
+When `parliament_suppression == true`, agents with negative `helper_tendency`
+(defectors) pay an additional metabolic cost when surrounded by cooperators.
+This implements the "parliament of genes" principle: within-genome selection
+suppresses alleles that subvert cooperative behaviour.
+
+References
+----------
+Fromhage, L. & Jennions, M.D. (2019) The strategic reference gene: an
+    organismal theory of inclusive fitness. Proc R Soc B 286:20190459.
+Hamilton, W.D. (1964) The genetical evolution of social behaviour.
+    Journal of Theoretical Biology 7(1):1–52.
+"""
+function apply_iffolk!(env::Environment)
+    specs = env.specs
+    Bool(get(specs, "iffolk_selection", false)) || return
+
+    rows       = Int(specs["grid_rows"])
+    cols       = Int(specs["grid_cols"])
+    r_min      = Float32(get(specs, "iffolk_r_min",      0.125))
+    radius     = Int(get(specs, "iffolk_radius",          5))
+    transfer   = Float32(get(specs, "iffolk_transfer",    3.0))
+    min_e      = Float32(get(specs, "iffolk_min_energy",  60.0))
+    parliament = Bool(get(specs, "parliament_suppression", false))
+    parl_cost  = Float32(get(specs, "parliament_cost",     0.5))
+    # Cooperative threshold for parliament detection
+    coop_thr   = Float32(0.3)
+
+    agents = env.agents
+    n      = length(agents)
+    n == 0 && return
+
+    n_transfers = 0
+
+    @inbounds for i in 1:n
+        donor = agents[i]
+        donor.alive           || continue
+        donor.energy <= min_e && continue
+
+        xi, yi = Int(donor.x), Int(donor.y)
+
+        # Collect relatives within radius (Manhattan scanning)
+        best_target     = nothing
+        best_r          = 0.0f0
+        n_cooperators   = 0
+        n_relatives     = 0
+
+        for dx in -radius:radius, dy in -radius:radius
+            (dx == 0 && dy == 0) && continue
+            nx = mod1(xi + dx, rows)
+            ny = mod1(yi + dy, cols)
+            j  = env.agent_map[nx, ny]
+            (j == 0 || j > n) && continue
+            j == i && continue
+            nb = agents[j]
+            nb.alive || continue
+
+            r = compute_relatedness(donor, nb)
+            if r >= r_min
+                n_relatives += 1
+                # Prefer most energy-depleted relative
+                if nb.energy < donor.energy * 0.7f0
+                    if isnothing(best_target) || nb.energy < best_target.energy
+                        best_target = nb
+                        best_r      = r
+                    end
+                end
+            end
+            # Count cooperators for parliament
+            nb.helper_tendency > coop_thr && (n_cooperators += 1)
+        end
+
+        # Energy transfer
+        if !isnothing(best_target) && best_r >= r_min
+            delta = min(transfer, donor.energy * 0.1f0)
+            donor.energy        -= delta
+            best_target.energy  += delta
+            n_transfers += 1
+        end
+
+        # Parliament of genes: penalise defectors surrounded by cooperators
+        if parliament && donor.helper_tendency < 0.0f0 &&
+           n_cooperators > 0 && n_relatives > 0 &&
+           n_cooperators >= n_relatives ÷ 2
+            donor.energy -= parl_cost
+        end
+    end
+
+    env.n_iffolk_transfers += Int32(n_transfers)
+    return
+end
+
 # === CLADE.JL ADDITIONS NEEDED ===
 # include: include("modules/kin.jl")
 # tick loop: apply_kin_altruism!(env)   [after apply_disease!, before kill_dead!]
+#            apply_iffolk!(env)          [after apply_kin_altruism!]
 # Note: apply_kin_altruism! is a no-op when specs["kin_selection"] == false
 # STATUS: already wired in commit 3673dc4 (pre-dates the no-edit-Clade.jl protocol)
+# apply_iffolk! wired in Tier 2b (2026-04-09)
 # === END CLADE.JL ADDITIONS ===

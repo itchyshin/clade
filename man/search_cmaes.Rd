@@ -9,7 +9,7 @@ search_cmaes(
   objective = "genetic_diversity",
   params = c("grass_rate", "mutation_sd"),
   n_iterations = 200L,
-  popsize = 10L,
+  popsize = NULL,
   sigma0 = 0.3,
   n_cores = 1L,
   verbose = TRUE
@@ -20,37 +20,54 @@ search_cmaes(
 
 \item{objective}{Character or function (same as \code{\link[=search_map_elites]{search_map_elites()}}).}
 
-\item{params}{Character vector of numeric parameter names to optimise.
-Defaults to \code{c("grass_rate", "mutation_sd")}.}
+\item{params}{Character vector of positive numeric parameter names to
+optimise. Defaults to \code{c("grass_rate", "mutation_sd")}.}
 
 \item{n_iterations}{Integer. Maximum CMA-ES generations (default 200L).}
 
-\item{popsize}{Integer. CMA-ES population size (default 10L).}
+\item{popsize}{Integer or \code{NULL}. CMA-ES population size \code{lambda}. If
+\code{NULL} (default), uses the standard formula
+\code{max(8, 4 + floor(3 * log(n_params)))}.}
 
-\item{sigma0}{Numeric. Initial step size (default 0.3).}
+\item{sigma0}{Numeric. Initial step size on the log scale (default 0.3).}
 
-\item{n_cores}{Integer. Parallel cores (default 1L).}
+\item{n_cores}{Integer. Parallel cores for candidate evaluation (default
+1L). Uses \code{\link[parallel:mclapply]{parallel::mclapply()}} on Unix/macOS when \verb{> 1}.}
 
 \item{verbose}{Logical (default \code{TRUE}).}
 }
 \value{
-A list with components \verb{$specs} (best specs), \verb{$score} (best
-objective value), \verb{$history} (data frame of generation × score).
+A list with:
+\describe{
+\item{\verb{$specs}}{Best specs encountered across all generations.}
+\item{\verb{$score}}{Best objective value encountered.}
+\item{\verb{$history}}{Data frame with one row per generation and columns
+\code{generation}, \code{evals}, \code{best_score}, \code{mean_score}, \code{sigma}.}
+}
 }
 \description{
 Optimises a scalar objective function over the simulation parameter space
-using the Covariance Matrix Adaptation Evolution Strategy (CMA-ES). Unlike
-MAP-Elites, CMA-ES finds a single optimal parameter set.
+using a pure-R implementation of the Covariance Matrix Adaptation Evolution
+Strategy (CMA-ES; Hansen & Ostermeier 2001). Unlike MAP-Elites, CMA-ES
+finds a single optimal parameter set by adapting its search distribution to
+the local curvature of the objective landscape.
+}
+\details{
+Parameters are optimised on the log scale so that positive constraints are
+always satisfied. Each generation evaluates \code{lambda} candidate parameter
+sets, selects the best \code{mu = lambda/2}, and updates the mean, step size,
+and covariance matrix. No external packages are required.
 }
 \examples{
 \dontrun{
 result <- search_cmaes(
   default_specs(),
-  objective = "genetic_diversity",
-  params    = c("grass_rate", "mutation_sd"),
+  objective    = "genetic_diversity",
+  params       = c("grass_rate", "mutation_sd"),
   n_iterations = 50L
 )
 result$specs$grass_rate
+result$history   # one row per generation
 }
 
 }
@@ -61,5 +78,5 @@ Hansen, N. (2006) The CMA evolution strategy: a comparing review. In:
 Towards a New Evolutionary Computation, Springer, pp 75-102.
 }
 \seealso{
-\code{\link[=search_map_elites]{search_map_elites()}}, \code{\link[=search_gradient]{search_gradient()}}
+\code{\link[=search_map_elites]{search_map_elites()}}, \code{\link[=search_gradient]{search_gradient()}}, \code{\link[=search_viability]{search_viability()}}
 }

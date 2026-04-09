@@ -2,7 +2,7 @@
 title: "Genetic Diversity Search in clade"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Genetic Diversity Search}
+  %\VignetteIndexEntry{Genetic Diversity Search in clade}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -220,13 +220,129 @@ The same `custom_obj` function can be passed to `search_map_elites()`,
 
 ---
 
+## 6. Why not Zygote.jl (Julia autodiff)?
+
+Zygote.jl computes exact gradients by tracing Julia code. It requires every
+operation in the forward pass to be differentiable. `run_alife()` contains
+discrete events that are not differentiable:
+
+- Agent death (Bernoulli draw — discontinuous in energy)
+- Agent birth (conditional on `energy >= min_repro_energy`)
+- `argmax` over brain outputs (non-differentiable everywhere)
+- Stochastic mating (Categorical sample)
+
+Autodiff through any of these operations would either fail at trace time or
+silently produce a zero gradient. The correct optimisers for this class of
+stochastic discrete-event simulation are:
+
+| Method | Implementation | When |
+|---|---|---|
+| CMA-ES (derivative-free) | `search_cmaes()` (pure R) | 5–30 parameters |
+| MAP-Elites (quality-diversity) | `search_map_elites()` | Explore trade-offs |
+| Finite-difference gradient | `search_gradient()` | Local refinement |
+
+```{r why-not-zygote, eval=FALSE}
+# CMA-ES does not require differentiability.
+# It treats run_alife() as a black box and estimates curvature from
+# population statistics alone.
+result <- search_cmaes(
+  default_specs(),
+  params       = c("grass_rate", "mutation_sd"),
+  objective    = "genetic_diversity",
+  n_iterations = 50L
+)
+```
+
+---
+
+## 7. Finding viable parameters for the complex landscape
+
+Not all parameter combinations allow organisms to survive. Before running CMA-ES
+it is worth mapping the *viable region* — the set of landscape densities and
+energy values where the population does not go extinct. `search_viability()`
+does this in a single call.
+
+```{r viability-map}
+library(clade)
+
+# Step 1: identify which shrub/canopy density combinations are viable
+s <- default_specs()
+s$complex_landscape <- TRUE
+
+vmap <- search_viability(
+  s,
+  param_x = "shrub_density",  values_x = seq(0.1, 0.6, by = 0.1),
+  param_y = "canopy_density", values_y = seq(0.05, 0.35, by = 0.1),
+  n_reps  = 3L
+)
+
+vmap$map     # ggplot2 heatmap: green = viable, red = extinct
+vmap$data    # data frame with viability, mean_final_pop per cell
+```
+
+Once the viable region is identified, run CMA-ES inside it using the
+scenario-specific objective:
+
+```{r cmaes-landscape}
+# Step 2: CMA-ES within the viable region (set sensible starting values from
+# Step 1 first, or let tune_complex_landscape() handle defaults)
+tuned <- tune_complex_landscape(default_specs(), n_iterations = 80L)
+tuned$specs          # optimal parameter set
+tuned$history$sigma  # step-size decay — smaller sigma = converged
+```
+
+`tune_complex_landscape()` pre-configures five landscape parameters
+(`shrub_density`, `canopy_density`, `shrub_energy`, `canopy_energy`,
+`shrub_growth_rate`) and uses `objective_complex_landscape()`, which measures
+the joint increase in wing size, niche diversity, and survival.
+
+---
+
+## 8. Calibrating IFfolk inclusive fitness
+
+The same workflow applies to the IFfolk module. First map which transfer rates
+and parliament costs allow helper tendency to evolve at all:
+
+```{r viability-iffolk}
+s <- default_specs()
+s$iffolk_selection    <- TRUE
+s$cooperative_breeding <- TRUE
+
+vmap_iff <- search_viability(
+  s,
+  param_x  = "iffolk_transfer",   values_x = seq(1, 6, by = 1),
+  param_y  = "parliament_cost",   values_y = seq(0.1, 0.8, by = 0.2),
+  n_reps   = 3L,
+  objective = "mean_helper_tendency"  # also report evolutionary outcome
+)
+
+vmap_iff$map   # heatmap coloured by viability
+```
+
+Then optimise with `tune_iffolk()`:
+
+```{r cmaes-iffolk}
+tuned_iff <- tune_iffolk(default_specs(), n_iterations = 80L)
+tuned_iff$specs$iffolk_transfer   # optimal transfer amount
+```
+
+`objective_iffolk()` fits a linear regression to `mean_helper_tendency` over
+time and rewards upward trends (slope x 1000) plus a per-agent transfer bonus.
+This is much more sensitive than simply maximising mean helper tendency at the
+final tick.
+
+---
+
 ## References
 
 Mouret, J.-B. & Clune, J. (2015) Illuminating search spaces by mapping elites.
 *arXiv:1504.04909*.
 
 Hansen, N. & Ostermeier, A. (2001) Completely derandomized self-adaptation in
-evolution strategies. *Evolutionary Computation* 9(2):159–195.
+evolution strategies. *Evolutionary Computation* 9(2):159-195.
+
+Fromhage, L. & Jennions, M.D. (2019) The evolution of mutualism from reciprocal
+altruism by a selection regime shift. *Nature Communications* 10:1294.
 
 Frankham, R., Ballou, J.D. & Briscoe, D.A. (2010) *Introduction to Conservation
 Genetics*, 2nd edn. Cambridge University Press.

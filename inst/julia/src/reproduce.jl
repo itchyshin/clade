@@ -31,6 +31,8 @@ Scan all live agents and create offspring for eligible reproducers.
 """
 function create_offspring!(env::Environment)
     specs     = env.specs
+    # Spatial sorting: refresh centroid cache once before mate-finding loop
+    refresh_sorting_centroid!(env)
     repro_cost= Float32(get(specs, "repro_cost",       30.0))
     off_energy= Float32(get(specs, "offspring_energy", 60.0))
     max_ag    = Int(get(specs, "max_agents",           500))
@@ -168,10 +170,17 @@ function _find_mate(ag::Agent, env::Environment)::Union{Agent, Nothing}
     candidates = speciation_filter_mates(ag, candidates, specs)
     isempty(candidates) && return nothing
 
+    spatial_sort = Bool(get(specs, "spatial_sorting", false)) &&
+                   Bool(get(specs, "dispersal_evolution", false))
+
     for candidate in candidates
         # Score = negative Euclidean distance between ag.preference and
-        # candidate.signal (Zahavi 1975 — preference for signal)
-        score = -sum(abs2, ag.preference .- candidate.signal)
+        # candidate.signal (Zahavi 1975 — preference for signal),
+        # optionally augmented by spatial sorting dispersal bias.
+        sig_score = -sum(abs2, ag.preference .- candidate.signal)
+        sort_score = spatial_sort ?
+                     Float32(spatial_sort_score(ag, candidate, specs)) : 0.0f0
+        score = sig_score + sort_score
         if score > best_score
             best_score = score
             best_mate  = candidate
@@ -250,6 +259,9 @@ function _make_offspring(id::Int64, g::DiploidGenome, brain::AbstractBrain,
                                Float32(get(specs,"plasticity_min",0.0)),
                                Float32(get(specs,"plasticity_max",1.0)), rng)
     toxicity   = express_trait(g, TRAIT_TOXICITY, dm, 0.0f0, 1.0f0, rng)
+    wing       = express_trait(g, TRAIT_WING_SIZE, dm,
+                               Float32(get(specs,"wing_size_min",0.0)),
+                               Float32(get(specs,"wing_size_max",1.0)), rng)
 
     off = Agent(
         id, parent.id, mate_id,
@@ -267,7 +279,8 @@ function _make_offspring(id::Int64, g::DiploidGenome, brain::AbstractBrain,
         Int32(x), Int32(y),  # x_birth, y_birth = spawn location
         hp,              # habitat_preference
         helper_t,        # helper_tendency
-        plasticity       # plasticity
+        plasticity,      # plasticity
+        wing, Int32(1)   # wing_size, niche_layer (1=ground)
     )
     apply_epigenetic_inheritance!(off, parent, specs, rng)
     off

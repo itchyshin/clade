@@ -1,0 +1,182 @@
+url: ~
+
+template:
+  bootstrap: 5
+  bootswatch: flatly
+
+home:
+  title: "clade — Agent-Based Evolutionary Simulation"
+  description: >
+    Digital organisms with heritable neural-network genomes evolve on a
+    toroidal grid. The Julia backend runs millions of agent-ticks per second;
+    R provides the modelling interface, analysis, and visualisation layer.
+
+navbar:
+  structure:
+    left:  [intro, articles, reference, news]
+    right: [github]
+  components:
+    intro:
+      text: "Get Started"
+      href: articles/getting-started.html
+    articles:
+      text: "Articles"
+      menu:
+        - text: "---"
+        - text: "Core"
+        - text: "Getting started"
+          href: articles/getting-started.html
+        - text: "Biological scenarios & modules"
+          href: articles/scenarios.html
+        - text: "---"
+        - text: "Advanced"
+        - text: "Parameter search (CMA-ES, MAP-Elites, viability)"
+          href: articles/diversity-search.html
+        - text: "Custom modules API"
+          href: articles/custom-modules.html
+        - text: "Parameter reference"
+          href: articles/parameter-reference.html
+        - text: "---"
+        - text: "Gallery"
+        - text: "Full showcase"
+          href: articles/showcase.html
+        - text: "Baldwin effect & RL"
+          href: articles/baldwin-effect.html
+    github:
+      icon: fa-github
+      href: https://github.com/shinichi-nakagawa/clade
+
+articles:
+  - title: "Core"
+    navbar: "Core"
+    contents:
+      - getting-started
+      - introduction
+      - scenarios
+  - title: "Advanced"
+    navbar: "Advanced"
+    contents:
+      - diversity-search
+      - custom-modules
+      - parameter-reference
+  - title: "Gallery"
+    navbar: "Gallery"
+    contents:
+      - showcase
+      - baldwin-effect
+
+reference:
+  - title: "Running simulations"
+    desc: "Entry points for running and batching evolutionary simulations."
+    contents:
+      - run_alife
+      - run_clade
+      - batch_alife
+      - default_specs
+      - load_specs
+
+  - title: "Results & visualisation"
+    desc: "Extract tidy output and produce plots."
+    contents:
+      - clade-visualization
+      - get_run_data
+      - get_genome_data
+      - plot_run
+      - plot_environment
+      - plot_diversity
+      - plot_signal_evolution
+      - plot_disease_dynamics
+      - plot_body_size_evolution
+      - plot_dispersal_events
+      - plot_kin_network
+      - plot_dead_agents
+      - plot_genome_diversity
+      - plot_tsne_genomes
+      - plot_weight_heatmap
+      - plot_module_metrics
+      - visualize_progress
+
+  - title: "Parameter search"
+    desc: >
+      Automated tools for finding parameter combinations that produce
+      target evolutionary outcomes.
+    contents:
+      - search_map_elites
+      - search_cmaes
+      - search_gradient
+      - search_random
+      - search_viability
+
+  - title: "Scenario objectives"
+    desc: >
+      Pre-built objective functions for the complex landscape, spatial
+      sorting, and IFfolk modules. Pass to `search_cmaes()` or write
+      your own with the same signature.
+    contents:
+      - objective_complex_landscape
+      - objective_spatial_sorting
+      - objective_iffolk
+
+  - title: "Convenience tuning wrappers"
+    desc: >
+      Pre-configured `search_cmaes()` / `search_map_elites()` calls for
+      each major module. Use these instead of wiring up objectives and
+      parameter lists manually.
+    contents:
+      - tune_complex_landscape
+      - tune_spatial_sorting
+      - tune_iffolk
+
+  - title: "Custom modules"
+    desc: "Register user-defined hook functions that run at each tick."
+    contents:
+      - register_module
+      - list_modules
+      - clear_modules
+
+  - title: "Pure-R scenarios"
+    desc: "Scenarios that run entirely in R (no Julia required)."
+    contents:
+      - run_bad_science
+
+  - title: "Population genetics & analysis"
+    desc: "Estimate heritability, relatedness, LD, and genome diversity."
+    contents:
+      - estimate_heritability
+      - heritability_estimate
+      - compare_conditions
+      - compute_relatedness
+      - compute_ld
+      - genome_distance
+      - diversity_landscape
+      - species_tree
+
+  - title: "Map generation"
+    desc: "Create structured landscape maps for the simulation grid."
+    contents:
+      - generate_map
+      - prepare_map
+      - load_map
+      - plot_map
+
+  - title: "Agent internals"
+    desc: "Inspect individual agent brains, weights, and actions."
+    contents:
+      - inspect_brain
+      - get_brain_weights
+      - sense_env
+      - take_action
+
+  - title: "Julia session management"
+    desc: "Check Julia availability and version."
+    contents:
+      - julia_is_ready
+      - julia_version
+
+  - title: "Inspection utilities"
+    desc: "Pretty-print specs, summarise environments."
+    contents:
+      - print_specs
+
+news:
+  releases: []

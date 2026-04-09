@@ -19,7 +19,7 @@ tick count and final population size.}
 A \code{\link[patchwork:wrap_plots]{patchwork::wrap_plots()}} composite ggplot object.
 }
 \description{
-Assembles a 2 × 3 panel dashboard from a completed clade run:
+Assembles a 2 x 3 panel dashboard from a completed clade run:
 
 \describe{
 \item{Top-left}{Grid snapshot -- landscape and agent positions at the

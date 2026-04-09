@@ -27,11 +27,6 @@ skip_no_julia <- function() {
               "Julia toolchain not available")
 }
 
-skip_no_ga <- function() {
-  skip_if_not(requireNamespace("GA", quietly = TRUE),
-              "GA package not available")
-}
-
 # ── 1. search_map_elites: bad archive_dims name is rejected ──────────────────
 test_that("search_map_elites() rejects unknown archive_dims column names", {
   expect_error(
@@ -125,24 +120,20 @@ test_that("search_map_elites() history data frame has expected columns", {
                 info = sprintf("history is missing column `%s`", nm))
 })
 
-# Helper: GA::ga emits "population size is less than 10" when popsize < 10.
-# This is purely informational, but we use popsize = 3 to keep tests fast,
-# so suppress that one warning at the call site to keep test output clean.
 .tiny_cmaes <- function() {
-  suppressWarnings(search_cmaes(
+  search_cmaes(
     specs_base   = .tiny_specs(),
     objective    = "genetic_diversity",
     params       = c("grass_rate", "mutation_sd"),
     n_iterations = 2L,
-    popsize      = 3L,
+    popsize      = 4L,    # small but above mu=2 minimum
     verbose      = FALSE
-  ))
+  )
 }
 
 # ── 7. search_cmaes: tiny run returns the documented structure ───────────────
 test_that("search_cmaes() returns specs/score/history list", {
   skip_no_julia()
-  skip_no_ga()
   result <- .tiny_cmaes()
   expect_type(result, "list")
   expect_named(result, c("specs", "score", "history"))
@@ -151,7 +142,6 @@ test_that("search_cmaes() returns specs/score/history list", {
 # ── 8. search_cmaes: returned specs round-trips through .validate_specs() ────
 test_that("search_cmaes() result$specs passes .validate_specs()", {
   skip_no_julia()
-  skip_no_ga()
   result <- .tiny_cmaes()
   expect_true(is.list(result$specs))
   expect_silent(clade:::.validate_specs(result$specs))
@@ -160,11 +150,34 @@ test_that("search_cmaes() result$specs passes .validate_specs()", {
 # ── 9. search_cmaes: result$score is finite and numeric ──────────────────────
 test_that("search_cmaes() result$score is finite numeric", {
   skip_no_julia()
-  skip_no_ga()
   result <- .tiny_cmaes()
   expect_true(is.numeric(result$score))
   expect_length(result$score, 1L)
   expect_true(is.finite(result$score))
+})
+
+# ── 9b. search_cmaes: history has rows and expected columns (pure-R CMA-ES) ──
+test_that("search_cmaes() history has rows and correct columns (no GA needed)", {
+  skip_no_julia()
+  result <- .tiny_cmaes()
+  expect_s3_class(result$history, "data.frame")
+  expect_gte(nrow(result$history), 1L)
+  for (nm in c("generation", "evals", "best_score", "mean_score", "sigma"))
+    expect_true(nm %in% names(result$history),
+                info = sprintf("history missing column '%s'", nm))
+})
+
+# ── 9c. search_cmaes: bad params raise descriptive error ─────────────────────
+test_that("search_cmaes() raises error for non-positive parameter value", {
+  expect_error(
+    search_cmaes(
+      .tiny_specs(grass_rate = 0),
+      params       = "grass_rate",
+      n_iterations = 1L,
+      verbose      = FALSE
+    ),
+    regexp = "grass_rate"
+  )
 })
 
 # ── 10. search_gradient: tiny run returns the documented structure ───────────
@@ -367,4 +380,138 @@ test_that("search_random() samples mutation_sd within the specified range", {
   sampled_vals <- vapply(sl, function(s) s$mutation_sd, numeric(1L))
   expect_true(all(sampled_vals >= 0.01 & sampled_vals <= 0.5),
               info = paste("Out-of-range values:", paste(sampled_vals, collapse = ", ")))
+})
+
+# ── search_viability: input validation (no Julia needed) ─────────────────────
+
+test_that("search_viability() rejects an unknown param_x", {
+  expect_error(
+    search_viability(default_specs(), "not_a_param", c(0.1, 0.2),
+                     verbose = FALSE),
+    regexp = "not_a_param"
+  )
+})
+
+test_that("search_viability() rejects non-numeric values_x", {
+  expect_error(
+    search_viability(default_specs(), "grass_rate",
+                     values_x = "oops", verbose = FALSE)
+  )
+})
+
+test_that("search_viability() rejects an unknown param_y", {
+  expect_error(
+    search_viability(default_specs(), "grass_rate", c(0.1, 0.2),
+                     param_y  = "bad_param",
+                     values_y = c(1, 2),
+                     verbose  = FALSE),
+    regexp = "bad_param"
+  )
+})
+
+test_that("search_viability() returns list with $data and $map", {
+  skip_no_julia()
+  result <- search_viability(
+    .tiny_specs(),
+    param_x  = "grass_rate",
+    values_x = c(0.1, 0.3),
+    n_reps   = 1L,
+    verbose  = FALSE
+  )
+  expect_type(result, "list")
+  expect_named(result, c("data", "map"))
+  expect_s3_class(result$data, "data.frame")
+  expect_true("viability" %in% names(result$data))
+  expect_true("grass_rate" %in% names(result$data))
+})
+
+test_that("search_viability() 2D grid has both param columns", {
+  skip_no_julia()
+  result <- search_viability(
+    .tiny_specs(),
+    param_x  = "grass_rate",  values_x = c(0.1, 0.3),
+    param_y  = "mutation_sd", values_y = c(0.01, 0.1),
+    n_reps   = 1L,
+    verbose  = FALSE
+  )
+  expect_true("grass_rate"  %in% names(result$data))
+  expect_true("mutation_sd" %in% names(result$data))
+  expect_equal(nrow(result$data), 4L)   # 2 x 2 grid
+})
+
+# ── Objective functions: structural tests with mock envs ─────────────────────
+
+# Build a minimal mock env so objectives can be tested without Julia.
+# get_run_data(env) returns list(ticks = as.data.frame(lapply(env$progress, unlist))).
+.mock_env <- function(n_ticks = 30L, wing = NULL, helper = NULL,
+                       front_disp = NULL, rear_disp = NULL,
+                       n_front = NULL, n_alive = NULL) {
+  progress <- list(
+    n_agents           = rep(10L, n_ticks),
+    mean_wing_size     = if (!is.null(wing)) wing else rep(NA_real_, n_ticks),
+    n_ground_agents    = rep(5L,  n_ticks),
+    n_shrub_agents     = rep(3L,  n_ticks),
+    n_canopy_agents    = rep(2L,  n_ticks),
+    mean_helper_tendency  = if (!is.null(helper)) helper else rep(NA_real_, n_ticks),
+    n_iffolk_transfers = rep(2L,  n_ticks),
+    mean_front_dispersal  = if (!is.null(front_disp)) front_disp else
+      rep(NA_real_, n_ticks),
+    mean_rear_dispersal   = if (!is.null(rear_disp)) rear_disp else
+      rep(NA_real_, n_ticks),
+    n_front_agents     = if (!is.null(n_front)) n_front else rep(3L, n_ticks)
+  )
+  if (!is.null(n_alive)) progress$n_agents <- n_alive
+  structure(
+    list(
+      agents   = vector("list", 10L),
+      t        = n_ticks,
+      specs    = list(n_agents_init = 10L),
+      progress = progress,
+      deaths   = list(id = integer(0L), t = integer(0L), age = integer(0L),
+                      energy = numeric(0L), cause = character(0L),
+                      body_size = numeric(0L), num_offspring = integer(0L))
+    ),
+    class = "clade_env"
+  )
+}
+
+test_that("objective_complex_landscape() returns a finite scalar for a mock env", {
+  env <- .mock_env(wing = seq(0.1, 0.5, length.out = 30L))
+  val <- objective_complex_landscape(env)
+  expect_length(val, 1L)
+  expect_true(is.finite(val))
+})
+
+test_that("objective_complex_landscape() returns -Inf for an extinct env", {
+  env <- .mock_env(n_alive = rep(0L, 30L))
+  expect_equal(objective_complex_landscape(env), -Inf)
+})
+
+test_that("objective_spatial_sorting() returns -Inf for extinct env", {
+  env <- .mock_env(n_alive = rep(0L, 30L),
+                   front_disp = rep(0.5, 30L),
+                   rear_disp  = rep(0.3, 30L))
+  expect_equal(objective_spatial_sorting(env), -Inf)
+})
+
+test_that("objective_spatial_sorting() returns numeric for valid mock env", {
+  env <- .mock_env(front_disp = seq(0.3, 0.7, length.out = 30L),
+                   rear_disp  = rep(0.3, 30L),
+                   n_front    = rep(3L, 30L))
+  val <- objective_spatial_sorting(env)
+  expect_length(val, 1L)
+  expect_true(is.numeric(val))
+})
+
+test_that("objective_iffolk() returns -Inf for extinct env", {
+  env <- .mock_env(n_alive = rep(0L, 30L),
+                   helper = rep(0.2, 30L))
+  expect_equal(objective_iffolk(env), -Inf)
+})
+
+test_that("objective_iffolk() returns numeric for valid mock env", {
+  env <- .mock_env(helper = seq(0.1, 0.5, length.out = 30L))
+  val <- objective_iffolk(env)
+  expect_length(val, 1L)
+  expect_true(is.numeric(val))
 })

@@ -82,6 +82,10 @@ include("modules/body_size.jl")
 include("modules/plasticity.jl")
 # include("modules/world_evolution.jl")
 
+# Tier 1–2 new modules
+include("modules/complex_landscape.jl")
+include("modules/spatial_sorting.jl")
+
 # ── R-to-Julia specs bridge ───────────────────────────────────────────────────
 
 """
@@ -230,25 +234,41 @@ function create_environment(specs::Dict{String,Any})::Environment
     progress    = _init_progress(specs, n_log_ticks)
     deaths      = _init_deaths()
 
+    # Complex landscape resource layers (allocated even when disabled; zero-filled)
+    shrub_density  = Bool(get(specs, "complex_landscape", false)) ?
+                     Float32(get(specs, "shrub_density",  0.3)) : 0.0f0
+    canopy_density = Bool(get(specs, "complex_landscape", false)) ?
+                     Float32(get(specs, "canopy_density", 0.15)) : 0.0f0
+    shrub_map  = Matrix{Float32}(undef, rows, cols)
+    canopy_map = Matrix{Float32}(undef, rows, cols)
+    for i in eachindex(shrub_map)
+        shrub_map[i]  = rand(rng) < shrub_density  ? Float32(get(specs, "shrub_energy",  20.0)) * 0.5f0 : 0.0f0
+        canopy_map[i] = rand(rng) < canopy_density ? Float32(get(specs, "canopy_energy", 50.0)) * 0.5f0 : 0.0f0
+    end
+
     Environment(
         grass,
         agent_map,
         zeros(Int64,    rows, cols),   # predator_map
         zeros(Int32,    rows, cols),   # shelter_map
         zeros(Float32,  rows, cols),   # carrion_map
+        shrub_map,
+        canopy_map,
         agents,
         Agent[],                        # predators (empty)
         next_id,
         Int32(0),                       # t = 0 (incremented at start of tick)
         rng,
         specs,
-        # per-tick counters (all zero): 13 original + n_dispersal_events + n_habitat_moves + n_helpers
+        # per-tick counters (all zero)
         Int32(0), Int32(0), Int32(0), Int32(0),
         Int32(0), Int32(0), Int32(0), Int32(0),
         Int32(0), Int32(0), Int32(0), Int32(0), Int32(0),
         Int32(0),                       # n_dispersal_events
         Int32(0),                       # n_habitat_moves
         Int32(0),                       # n_helpers
+        Int32(0),                       # n_front_agents
+        Int32(0),                       # n_iffolk_transfers
         progress,
         deaths,
         Any[]                           # genome_log
@@ -287,6 +307,7 @@ function run_clade(specs::Dict{String,Any})
 
         # ── Core tick sequence ───────────────────────────────────────────
         grow_grass!(env)
+        grow_resources!(env)              # complex landscape: shrub + canopy regrowth
         # Niche construction runs before tick_agents! so shelters built or
         # decayed this tick affect grass growth (already applied) and are
         # seen by predators / sensing during movement.
@@ -310,6 +331,7 @@ function run_clade(specs::Dict{String,Any})
         end
         apply_disease!(env)
         apply_kin_altruism!(env)
+        apply_iffolk!(env)                # IFfolk inclusive fitness + parliament suppression
         # Scavenging: agents consume carrion deposited on previous ticks,
         # then carrion decays exponentially.
         apply_scavenging!(env)
@@ -412,9 +434,11 @@ function _reset_counters!(env::Environment)
     env.n_juv_deaths      = Int32(0)
     env.n_toxic_attacks   = Int32(0)
     env.n_avoided_attacks = Int32(0)
-    env.n_dispersal_events = Int32(0)
-    env.n_habitat_moves    = Int32(0)
-    env.n_helpers          = Int32(0)
+    env.n_dispersal_events  = Int32(0)
+    env.n_habitat_moves     = Int32(0)
+    env.n_helpers           = Int32(0)
+    env.n_front_agents      = Int32(0)
+    env.n_iffolk_transfers  = Int32(0)
 end
 
 # ── Internal constructors ─────────────────────────────────────────────────────
@@ -534,6 +558,9 @@ function _make_founder_agent(id::Int64, g::DiploidGenome, brain::AbstractBrain,
                               Float32(get(specs, "plasticity_min", 0.0)),
                               Float32(get(specs, "plasticity_max", 1.0)), rng)
     tox       = express_trait(g, TRAIT_TOXICITY, dm, 0.0f0, 1.0f0, rng)
+    wing      = express_trait(g, TRAIT_WING_SIZE, dm,
+                              Float32(get(specs, "wing_size_min", 0.0)),
+                              Float32(get(specs, "wing_size_max", 1.0)), rng)
 
     sig_dims = Int(get(specs, "signal_dims", 0))
 
@@ -567,8 +594,10 @@ function _make_founder_agent(id::Int64, g::DiploidGenome, brain::AbstractBrain,
         Int32(0),
         # Natal dispersal (birth location = spawn location for founders)
         px, py,
-        # Habitat preference, cooperative breeding, plasticity, toxicity expressed above
-        hp, helper_t, plast
+        # Habitat preference, cooperative breeding, plasticity
+        hp, helper_t, plast,
+        # Complex landscape traits
+        wing, Int32(1)   # wing_size, niche_layer (1=ground)
     )
 end
 
@@ -610,7 +639,11 @@ function _agents_to_records(agents::Vector{Agent})
             cooperation_level = Float64(ag.cooperation_level),
             metabolic_rate = Float64(ag.metabolic_rate),
             num_offspring  = Int(ag.num_offspring),
-            species_id     = Int(ag.species_id)
+            species_id     = Int(ag.species_id),
+            wing_size      = Float64(ag.wing_size),
+            niche_layer    = Int(ag.niche_layer),
+            dispersal_tendency = Float64(ag.dispersal_tendency),
+            helper_tendency    = Float64(ag.helper_tendency)
         )
     end
 end

@@ -307,5 +307,93 @@ data_ks <- get_run_data(env_ks)
 .save(visualize_progress(env_ks, data_ks),
       "12_kitchen_dashboard", w = 10, h = 7)
 
-message("─── Done. Figures saved to man/figures/ ─────────────────────────────")
+# ── Section 35: Cephalopod learning paradox ──────────────────────────────────
+message("[35] Cephalopod learning paradox…")
+ages   <- c(20L, 40L, 80L, 160L, 300L)
+n_reps <- 3L
+
+results_ceph <- lapply(ages, function(ma) {
+  reps <- lapply(seq_len(n_reps), function(rep) {
+    s <- default_specs()
+    s$grid_rows               <- 20L
+    s$grid_cols               <- 20L
+    s$n_agents_init           <- 60L
+    s$max_agents              <- 300L
+    s$max_ticks               <- 400L
+    s$max_age                 <- ma
+    s$complex_landscape       <- TRUE
+    s$shrub_density           <- 0.4
+    s$shrub_energy            <- 30.0
+    s$shrub_growth_rate       <- 0.05
+    s$learning_rate_evolution <- TRUE
+    s$learning_rate_init_mean <- 0.05
+    s$learning_rate_min       <- 0.001
+    s$learning_rate_max       <- 0.5
+    s$random_seed             <- as.integer(rep * 100L + ma)
+    env  <- run_alife(s, verbose = FALSE)
+    data <- get_run_data(env)
+    active <- data$ticks$n_agents > 0
+    tail_lr <- tail(data$ticks$mean_learning_rate[active], 50)
+    data.frame(max_age = ma, rep = rep, mean_learning = mean(tail_lr))
+  })
+  do.call(rbind, reps)
+})
+
+df_ceph <- do.call(rbind, results_ceph)
+agg_ceph <- aggregate(mean_learning ~ max_age, data = df_ceph, FUN = mean)
+agg_ceph$sd <- aggregate(mean_learning ~ max_age, data = df_ceph,
+                          FUN = sd)$mean_learning
+
+p_ceph <- ggplot(agg_ceph, aes(max_age, mean_learning)) +
+  geom_ribbon(aes(ymin = mean_learning - sd, ymax = mean_learning + sd),
+              alpha = 0.2, fill = "steelblue") +
+  geom_line(colour = "steelblue", linewidth = 1) +
+  geom_point(size = 3, colour = "steelblue") +
+  labs(
+    title    = "Cephalopod paradox: short lifespans can select for fast learning",
+    subtitle = paste0("Complex landscape (shrubs); ", n_reps,
+                      " replicates per lifespan"),
+    x        = "Maximum lifespan (ticks)",
+    y        = "Evolved learning rate (mean \u00b1 SD)"
+  ) +
+  theme_minimal(base_size = 13)
+
+.save(p_ceph, "cephalopod_paradox", w = 8, h = 4.5)
+
+# ── Section 36: Evolution of bad science ─────────────────────────────────────
+message("[36] Evolution of bad science…")
+rep_rates  <- c(0.0, 0.1, 0.5)
+rep_labels <- c("No replication", "10% replication", "50% replication")
+
+bs_results <- mapply(function(rr, lab) {
+  df      <- run_bad_science(n_ticks = 500L, replication_rate = rr, seed = 42L)
+  df$rate <- lab
+  df
+}, rep_rates, rep_labels, SIMPLIFY = FALSE)
+
+df_bs   <- do.call(rbind, bs_results)
+df_bs$rate <- factor(df_bs$rate, levels = rev(rep_labels))
+bs_cols <- c("No replication"  = "#d73027",
+             "10% replication" = "#fc8d59",
+             "50% replication" = "#4575b4")
+
+p_fpr <- ggplot(df_bs, aes(t, mean_fpr, colour = rate)) +
+  geom_line(linewidth = 0.9) +
+  scale_colour_manual(values = bs_cols, name = NULL) +
+  labs(title = "False-positive rate rises under publication pressure",
+       x = "Tick", y = "Mean false-positive rate") +
+  theme_minimal(base_size = 12)
+
+p_eff <- ggplot(df_bs, aes(t, mean_effort, colour = rate)) +
+  geom_line(linewidth = 0.9) +
+  scale_colour_manual(values = bs_cols, name = NULL) +
+  labs(title = "Research effort declines over evolutionary time",
+       x = "Tick", y = "Mean research effort") +
+  theme_minimal(base_size = 12)
+
+.save(p_fpr / p_eff + patchwork::plot_layout(guides = "collect") &
+        ggplot2::theme(legend.position = "bottom"),
+      "bad_science", w = 8, h = 6)
+
+message("─── Done. Figures saved to inst/figures/ ─────────────────────────────")
 message("Now re-build the vignette: devtools::build_vignettes()")

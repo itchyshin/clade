@@ -588,6 +588,79 @@
 #'     `character(0)` (none).}
 #' }
 #'
+#' ## Complex multi-resource landscape (Tier 1)
+#'
+#' Adds shrub and canopy resource layers on top of ground grass.
+#' Canopy access requires `wing_size >= canopy_threshold` (heritable).
+#' Designed to break the standard brain-size x longevity correlation.
+#' Reference: Liedtke & Fromhage (2019); Isbell (2006).
+#' \describe{
+#'   \item{`complex_landscape`}{Logical. Enable multi-layer resources
+#'     (default `FALSE`).}
+#'   \item{`shrub_density`}{Numeric in \[0, 1\]. Initial fraction of cells
+#'     with shrub resource (default 0.3).}
+#'   \item{`shrub_growth_rate`}{Numeric. Per-tick fractional regrowth of
+#'     shrubs (default 0.03).}
+#'   \item{`shrub_energy`}{Numeric. Maximum energy a shrub cell provides
+#'     (default 20.0).}
+#'   \item{`canopy_density`}{Numeric in \[0, 1\]. Initial canopy coverage
+#'     (default 0.15; trees are sparse).}
+#'   \item{`canopy_growth_rate`}{Numeric. Per-tick fractional regrowth of
+#'     canopy (default 0.005; trees grow slowly).}
+#'   \item{`canopy_energy`}{Numeric. Maximum energy a canopy cell provides
+#'     (default 50.0; high energy density for aerial specialists).}
+#'   \item{`canopy_threshold`}{Numeric. Minimum `wing_size` needed for
+#'     canopy access (default 0.6).}
+#'   \item{`wing_size_init_mean`}{Numeric. Initial mean `wing_size` (default
+#'     0.0; ground-bound founders).}
+#'   \item{`wing_size_mutation_sd`}{Numeric. Mutation SD for `wing_size`
+#'     (default 0.05).}
+#'   \item{`wing_size_min`}{Numeric. Minimum wing size (default 0.0).}
+#'   \item{`wing_size_max`}{Numeric. Maximum wing size (default 1.0).}
+#' }
+#'
+#' ## Spatial sorting (Tier 2a)
+#'
+#' Implements assortative mating at the invasion range front, causing
+#' dispersal-enhancing alleles to accumulate at the frontier without requiring
+#' any fitness advantage over sedentary conspecifics.
+#' Reference: Shine et al. (2011) An evolutionary process that assembles
+#' phenotypes through space rather than through time. *PNAS* 108:5708--5711.
+#' Requires `dispersal_evolution = TRUE` to have effect.
+#' \describe{
+#'   \item{`spatial_sorting`}{Logical. Enable range-front mate preference
+#'     for high-dispersal partners (default `FALSE`).}
+#'   \item{`sorting_front_threshold`}{Numeric in \[0, 1\]. Fraction of maximum
+#'     range radius that defines "the front" (default 0.75; outermost 25%).}
+#'   \item{`sorting_mating_boost`}{Numeric. Multiplier applied to
+#'     `dispersal_tendency` when scoring mates at the front (default 3.0).}
+#' }
+#'
+#' ## IFfolk inclusive fitness (Tier 2b)
+#'
+#' IFfolk = own offspring + sum(r x relative's offspring). Agents transfer
+#' energy to energy-depleted kin. Optional parliament suppression penalises
+#' defectors in cooperative populations.
+#' Reference: Fromhage & Jennions (2019) The strategic reference gene.
+#' *Proc R Soc B* 286:20190459. doi:10.1098/rspb.2019.0459
+#' \describe{
+#'   \item{`iffolk_selection`}{Logical. Enable IFfolk energy transfers
+#'     (default `FALSE`).}
+#'   \item{`iffolk_r_min`}{Numeric. Minimum relatedness coefficient for a
+#'     relative to count (default 0.125 = cousin).}
+#'   \item{`iffolk_radius`}{Integer. Spatial search radius for relatives in
+#'     grid cells (default 5L).}
+#'   \item{`iffolk_transfer`}{Numeric. Maximum energy transferred per
+#'     altruistic act (default 3.0).}
+#'   \item{`iffolk_min_energy`}{Numeric. Minimum donor energy required to
+#'     transfer (default 60.0).}
+#'   \item{`parliament_suppression`}{Logical. Enable parliament-of-genes
+#'     penalty for defectors (negative `helper_tendency`) when surrounded
+#'     by cooperators (default `FALSE`).}
+#'   \item{`parliament_cost`}{Numeric. Energy cost per tick for defectors
+#'     in cooperative neighbourhoods (default 0.5).}
+#' }
+#'
 #' ## Logging
 #' \describe{
 #'   \item{`log_freq`}{Integer. Log population-level statistics every this many
@@ -874,6 +947,34 @@ default_specs <- function() {
     world_evolution            = FALSE,
     world_mutation_sd          = 0.02,
     world_params_to_evolve     = character(0L),
+
+    # ── Complex multi-resource landscape (Tier 1) ─────────────────────────
+    complex_landscape           = FALSE,
+    shrub_density               = 0.3,
+    shrub_growth_rate           = 0.03,
+    shrub_energy                = 20.0,
+    canopy_density              = 0.15,
+    canopy_growth_rate          = 0.005,
+    canopy_energy               = 50.0,
+    canopy_threshold            = 0.6,
+    wing_size_init_mean         = 0.0,
+    wing_size_mutation_sd       = 0.05,
+    wing_size_min               = 0.0,
+    wing_size_max               = 1.0,
+
+    # ── Spatial sorting (Tier 2a) ──────────────────────────────────────────
+    spatial_sorting             = FALSE,
+    sorting_front_threshold     = 0.75,
+    sorting_mating_boost        = 3.0,
+
+    # ── IFfolk inclusive fitness (Tier 2b) ────────────────────────────────
+    iffolk_selection            = FALSE,
+    iffolk_r_min                = 0.125,
+    iffolk_radius               = 5L,
+    iffolk_transfer             = 3.0,
+    iffolk_min_energy           = 60.0,
+    parliament_suppression      = FALSE,
+    parliament_cost             = 0.5,
 
     # ── Logging ────────────────────────────────────────────────────────────
     log_freq                   = 1L,

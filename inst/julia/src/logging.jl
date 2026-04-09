@@ -64,6 +64,19 @@ function _init_progress(specs::Dict{String,Any}, n_ticks::Int)::Dict{String,Vect
         "mean_toxicity"          => copy(fz),
         "mean_plasticity"        => copy(fz),
         "mean_helper_tendency"   => copy(fz),
+        # Tier 1: complex landscape
+        "n_ground_agents"        => copy(iz),
+        "n_shrub_agents"         => copy(iz),
+        "n_canopy_agents"        => copy(iz),
+        "mean_wing_size"         => copy(fz),
+        "mean_shrub_coverage"    => copy(fz),
+        "mean_canopy_coverage"   => copy(fz),
+        # Tier 2a: spatial sorting
+        "n_front_agents"         => copy(iz),
+        "mean_front_dispersal"   => copy(fz),
+        "mean_rear_dispersal"    => copy(fz),
+        # Tier 2b: IFfolk inclusive fitness
+        "n_iffolk_transfers"     => copy(iz),
     )
 
     d
@@ -167,6 +180,46 @@ function log_tick!(env::Environment)
     p["mean_toxicity"][t]       = mean(ag.toxicity for ag in ags)
     p["mean_plasticity"][t]     = mean(ag.plasticity for ag in ags)
     p["mean_helper_tendency"][t] = mean(ag.helper_tendency for ag in ags)
+
+    # Tier 1: complex landscape
+    complex_on = Bool(get(env.specs, "complex_landscape", false))
+    if complex_on
+        p["n_ground_agents"][t]   = count(ag -> ag.niche_layer == 1, ags)
+        p["n_shrub_agents"][t]    = count(ag -> ag.niche_layer == 2, ags)
+        p["n_canopy_agents"][t]   = count(ag -> ag.niche_layer == 3, ags)
+        p["mean_wing_size"][t]    = mean(ag.wing_size for ag in ags)
+        shrub_vals = env.shrub_map[env.shrub_map .> 0.0f0]
+        canopy_vals = env.canopy_map[env.canopy_map .> 0.0f0]
+        p["mean_shrub_coverage"][t]  = isempty(shrub_vals)  ? 0.0 :
+            Float64(length(shrub_vals)) / Float64(length(env.shrub_map))
+        p["mean_canopy_coverage"][t] = isempty(canopy_vals) ? 0.0 :
+            Float64(length(canopy_vals)) / Float64(length(env.canopy_map))
+    end
+
+    # Tier 2a: spatial sorting
+    sort_on = Bool(get(env.specs, "spatial_sorting", false))
+    if sort_on && n > 0
+        p["n_front_agents"][t] = Int(env.n_front_agents)
+        cx = _sort_cx[]
+        cy = _sort_cy[]
+        dm = _sort_dmax[]
+        front_thr = Float32(get(env.specs, "sorting_front_threshold", 0.75))
+        front_disps = Float64[]
+        rear_disps  = Float64[]
+        for ag in ags
+            d = sqrt((Float32(ag.x) - cx)^2 + (Float32(ag.y) - cy)^2)
+            if d / dm >= front_thr
+                push!(front_disps, Float64(ag.dispersal_tendency))
+            else
+                push!(rear_disps, Float64(ag.dispersal_tendency))
+            end
+        end
+        p["mean_front_dispersal"][t] = isempty(front_disps) ? 0.0 : mean(front_disps)
+        p["mean_rear_dispersal"][t]  = isempty(rear_disps)  ? 0.0 : mean(rear_disps)
+    end
+
+    # Tier 2b: IFfolk inclusive fitness
+    p["n_iffolk_transfers"][t] = Int(env.n_iffolk_transfers)
 end
 
 """

@@ -86,6 +86,7 @@ function tick_agents!(env::Environment)
             ag.energy    += eat_gain * env.grass[x, y]
             env.grass[x, y] = 0.0f0
         end
+        eat_layered!(ag, env)   # complex landscape: shrub/canopy supplements
         ag.energy = min(ag.energy, Float32(get(specs, "energy_max", 200.0)))
 
         # ── Brain energy cost ─────────────────────────────────────────────

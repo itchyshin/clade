@@ -110,7 +110,9 @@ function seed_predators!(env::Environment)
             # Natal coordinates
             px, py,
             # Habitat preference, helper tendency, plasticity
-            0.0f0, 0.0f0, 0.0f0
+            0.0f0, 0.0f0, 0.0f0,
+            # Wing size, niche layer (predators always ground-layer)
+            0.0f0, Int32(1)
         )
 
         push!(env.predators, pred)
@@ -425,7 +427,9 @@ function _predator_reproduction!(env::Environment)
             # Natal coordinates
             ox, oy,
             # Habitat preference, helper tendency, plasticity
-            0.0f0, 0.0f0, 0.0f0
+            0.0f0, 0.0f0, 0.0f0,
+            # Wing size, niche layer (predators always ground-layer)
+            0.0f0, Int32(1)
         )
 
         pred.energy  -= off_energy

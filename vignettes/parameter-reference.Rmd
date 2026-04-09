@@ -1,0 +1,354 @@
+---
+title: "Parameter Reference"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Parameter Reference}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(eval = TRUE, collapse = TRUE, comment = "#>")
+library(clade)
+```
+
+This article lists every parameter in `default_specs()`, grouped by biological
+theme. For each parameter: the default value, type, and what it controls.
+
+Use `print_specs(diff_only = TRUE)` to see which parameters differ from
+defaults in a given specs list.
+
+```{r print-specs-example, eval=FALSE}
+s <- default_specs()
+s$kin_selection      <- TRUE
+s$complex_landscape  <- TRUE
+print_specs(s, diff_only = TRUE)
+```
+
+---
+
+## Grid and population
+
+| Parameter | Default | Type | Description |
+|---|---|---|---|
+| `grid_rows` | 20 | integer | Number of rows in the toroidal grid |
+| `grid_cols` | 20 | integer | Number of columns |
+| `n_agents_init` | 50 | integer | Starting population size |
+| `max_agents` | 300 | integer | Hard population cap (no births above this) |
+| `max_ticks` | 300 | integer | Simulation length |
+| `random_seed` | 42 | integer | Random seed (set to reproduce runs exactly) |
+
+---
+
+## Energy and metabolism
+
+| Parameter | Default | Type | Description |
+|---|---|---|---|
+| `energy_init` | 30.0 | numeric | Starting energy for each agent |
+| `energy_max` | 200.0 | numeric | Energy cap per agent |
+| `move_cost` | 1.0 | numeric | Energy cost per move action |
+| `idle_cost` | 0.5 | numeric | Energy cost per tick of inaction |
+| `eat_gain` | 20.0 | numeric | Energy gained from eating grass |
+| `min_repro_energy` | 80.0 | numeric | Energy threshold to reproduce |
+| `repro_cost` | 20.0 | numeric | Energy cost to parent per offspring |
+| `offspring_energy` | 20.0 | numeric | Starting energy for offspring |
+| `starvation_threshold` | 0.0 | numeric | Die if energy falls to or below this |
+
+---
+
+## Grass dynamics
+
+| Parameter | Default | Type | Description |
+|---|---|---|---|
+| `grass_init_prob` | 0.5 | numeric \[0,1\] | Fraction of cells with grass at tick 1 |
+| `grass_rate` | 0.10 | numeric \[0,1\] | Per-tick regrowth probability on empty cells |
+| `grass_max` | 1.0 | numeric | Maximum grass per cell |
+
+---
+
+## Neural architecture
+
+| Parameter | Default | Options | Description |
+|---|---|---|---|
+| `brain_type` | `"bnn"` | bnn, ann, ctrnn, grn, transformer, synthesis | Neural network architecture |
+| `hidden_layers` | `c(16, 8)` | integer vector | Hidden layer sizes |
+| `n_inputs` | auto | integer | Sensory input vector size (set by `create_environment()`) |
+| `n_outputs` | 4 | integer | Action output size (N/E/S/W) |
+
+The six brain types differ in expressive power and computational cost:
+
+- **bnn** (Bayesian neural network): default; learns a distribution over weights.
+- **ann**: standard multilayer perceptron.
+- **ctrnn**: continuous-time recurrent network; suitable for temporally extended tasks.
+- **grn**: gene regulatory network topology; sparse, biologically motivated.
+- **transformer**: self-attention architecture; highest capacity, slowest.
+- **synthesis**: symbolic rule extraction from evolved weights.
+
+---
+
+## Reproduction and genetics
+
+| Parameter | Default | Type | Description |
+|---|---|---|---|
+| `ploidy` | 1 | 1 or 2 | Haploid or diploid |
+| `sex_ratio` | 0.5 | numeric \[0,1\] | Fraction of agents that are female |
+| `mating_system` | `"random"` | character | Random, monogamy, polygyny, polyandry |
+| `mutation_sd` | 0.05 | numeric | Gaussian noise on genome weights |
+| `crossover_rate` | 0.1 | numeric \[0,1\] | Per-locus crossover probability (diploid) |
+| `min_repro_age` | 0 | integer | Minimum age to reproduce |
+| `max_repro_age` | Inf | integer | Maximum age to reproduce (Inf = no limit) |
+
+---
+
+## Life history
+
+| Parameter | Default | Options | Description |
+|---|---|---|---|
+| `max_age` | 500 | integer | Die if age exceeds this |
+| `life_history` | `"iteroparous"` | iteroparous, semelparous | Semelparous: reproduce once then die |
+| `senescence_rate` | 0.0 | numeric | Gompertz mortality scaling with age |
+| `repro_senescence` | 0.0 | numeric | Age-related fertility decline rate |
+
+---
+
+## Body size evolution
+
+Enable with `body_size_evolution = TRUE`.
+
+| Parameter | Default | Description |
+|---|---|---|
+| `body_size_evolution` | FALSE | Enable |
+| `body_size_init_mean` | 1.0 | Starting value (relative units) |
+| `body_size_mutation_sd` | 0.05 | Mutation noise |
+| `body_size_min` | 0.1 | Lower clamp |
+| `body_size_max` | 5.0 | Upper clamp |
+
+---
+
+## Dispersal evolution
+
+Enable with `dispersal_evolution = TRUE`. Combine with `spatial_sorting = TRUE`
+for invasion-front dynamics.
+
+| Parameter | Default | Description |
+|---|---|---|
+| `dispersal_evolution` | FALSE | Enable heritable dispersal |
+| `dispersal_init_mean` | 0.5 | Starting dispersal probability |
+| `dispersal_mutation_sd` | 0.05 | Mutation noise |
+| `dispersal_min` | 0.0 | Minimum clamp |
+| `dispersal_max` | 1.0 | Maximum clamp |
+
+---
+
+## Kin selection
+
+Enable with `kin_selection = TRUE`.
+
+| Parameter | Default | Description |
+|---|---|---|
+| `kin_selection` | FALSE | Enable kin altruism |
+| `kin_altruism_r_min` | 0.25 | Minimum pedigree relatedness to donate |
+| `kin_altruism_cost` | 2.0 | Energy transferred per altruistic act |
+| `kin_altruism_min_donor_energy` | 50.0 | Donor energy floor |
+
+---
+
+## SIR disease
+
+Enable with `disease = TRUE`.
+
+| Parameter | Default | Description |
+|---|---|---|
+| `disease` | FALSE | Enable SIR dynamics |
+| `transmission_prob` | 0.15 | Per-tick transmission probability |
+| `disease_energy_cost` | 5.0 | Energy cost per tick while infected |
+| `disease_duration` | 10 | Ticks until recovery |
+| `immune_duration` | 20 | Ticks of post-recovery immunity |
+| `disease_death_prob` | 0.01 | Additional per-tick mortality while infected |
+| `disease_seed_prob` | 0.02 | Fraction of agents infected at tick 1 |
+
+---
+
+## Predators
+
+Enable with `n_predators_init > 0`.
+
+| Parameter | Default | Description |
+|---|---|---|
+| `n_predators_init` | 0 | Starting predator count |
+| `predator_energy_init` | 60.0 | Starting energy for predators |
+| `predator_attack_strength` | 10.0 | Damage dealt to prey per attack |
+| `predator_min_repro_energy` | 100.0 | Predator reproduction threshold |
+| `predator_max_agents` | 50 | Predator population cap |
+
+---
+
+## Niche construction
+
+Enable with `niche_construction = TRUE`.
+
+| Parameter | Default | Description |
+|---|---|---|
+| `niche_construction` | FALSE | Enable shelter building |
+| `shelter_build_prob` | 0.1 | Per-tick build probability (when energy sufficient) |
+| `shelter_min_energy` | 40.0 | Minimum donor energy to build |
+| `shelter_max_depth` | 5 | Maximum shelter units per cell |
+| `shelter_decay_rate` | 0.02 | Fraction of shelters lost per tick |
+
+---
+
+## Within-lifetime RL
+
+Enable with `rl_mode = "actor_critic"`.
+
+| Parameter | Default | Description |
+|---|---|---|
+| `rl_mode` | `"none"` | `"actor_critic"` or `"hebbian"` |
+| `learning_rate` | 0.01 | Output-layer update step size |
+| `learning_rate_evolution` | FALSE | Allow learning rate to evolve genetically |
+| `rl_update_freq` | 5 | Ticks between RL updates |
+
+---
+
+## Social learning
+
+Enable with `social_learning = TRUE`.
+
+| Parameter | Default | Description |
+|---|---|---|
+| `social_learning` | FALSE | Enable copying successful neighbours |
+| `social_learning_freq` | 10 | Ticks between learning events |
+| `social_learning_radius` | 3 | Neighbourhood radius for model selection |
+
+---
+
+## Signals and mate choice
+
+| Parameter | Default | Description |
+|---|---|---|
+| `signal_dims` | 2 | Dimensionality of heritable signal vector |
+| `signal_mutation_sd` | 0.05 | Signal mutation noise |
+| `preference_mutation_sd` | 0.05 | Mate-preference mutation noise |
+
+---
+
+## Mimicry and toxicity
+
+Enable with `mimicry = TRUE`.
+
+| Parameter | Default | Description |
+|---|---|---|
+| `mimicry` | FALSE | Enable toxicity and predator learning |
+| `toxicity_init_mean` | 0.0 | Starting toxicity |
+| `toxin_dose` | 2.0 | Damage per toxicity unit per attack |
+| `signal_memory` | 20 | Predator memory window (Rescorla-Wagner) |
+
+---
+
+## Parental care
+
+Enable with `parental_care = TRUE`.
+
+| Parameter | Default | Description |
+|---|---|---|
+| `parental_care` | FALSE | Enable carried offspring |
+| `care_duration` | 5 | Ticks offspring are carried |
+| `care_energy_cost` | 2.0 | Parent energy cost per juvenile per tick |
+| `juvenile_energy_gain` | 3.0 | Energy transferred to juvenile per tick |
+
+---
+
+## Cooperative breeding
+
+Enable with `cooperative_breeding = TRUE`. Usually combined with
+`iffolk_selection = TRUE`.
+
+| Parameter | Default | Description |
+|---|---|---|
+| `cooperative_breeding` | FALSE | Enable `helper_tendency` trait |
+| `helper_tendency_init_mean` | 0.2 | Starting helper tendency |
+| `helper_tendency_mutation_sd` | 0.05 | Mutation noise |
+
+---
+
+## Phenotypic plasticity
+
+Enable with `phenotypic_plasticity = TRUE`.
+
+| Parameter | Default | Description |
+|---|---|---|
+| `phenotypic_plasticity` | FALSE | Enable plasticity trait |
+| `plasticity_init_mean` | 0.5 | Starting plasticity |
+| `plasticity_mutation_sd` | 0.05 | Mutation noise |
+
+---
+
+## Spatial sorting
+
+Enable with `spatial_sorting = TRUE`. Requires `dispersal_evolution = TRUE`.
+
+| Parameter | Default | Description |
+|---|---|---|
+| `spatial_sorting` | FALSE | Enable invasion-front mating assortment |
+| `sorting_front_threshold` | 0.75 | Fraction from front to define "front zone" |
+| `sorting_mating_boost` | 3.0 | Mating encounter fold-increase at front |
+
+---
+
+## IFfolk inclusive fitness
+
+Enable with `iffolk_selection = TRUE`.
+
+| Parameter | Default | Description |
+|---|---|---|
+| `iffolk_selection` | FALSE | Enable energy transfers to relatives |
+| `iffolk_r_min` | 0.125 | Minimum relatedness (cousins and closer) |
+| `iffolk_radius` | 5 | Neighbourhood radius for kin search |
+| `iffolk_transfer` | 3.0 | Energy transferred per act |
+| `iffolk_min_energy` | 60.0 | Donor energy floor |
+| `parliament_suppression` | FALSE | Penalise defectors among cooperators |
+| `parliament_cost` | 0.5 | Energy cost for defectors per cooperator neighbour |
+
+---
+
+## Complex landscape (forest world)
+
+Enable with `complex_landscape = TRUE`.
+
+| Parameter | Default | Description |
+|---|---|---|
+| `complex_landscape` | FALSE | Enable 3-layer habitat |
+| `shrub_density` | 0.35 | Fraction of cells with shrubs |
+| `shrub_energy` | 25.0 | Energy gained from shrubs |
+| `shrub_growth_rate` | 0.04 | Shrub regrowth rate per tick |
+| `canopy_density` | 0.15 | Fraction of cells with canopy |
+| `canopy_energy` | 55.0 | Energy gained from canopy |
+| `canopy_growth_rate` | 0.005 | Canopy regrowth rate |
+| `canopy_threshold` | 0.6 | Minimum wing_size for canopy access |
+| `wing_size_init_mean` | 0.1 | Starting wing size |
+| `wing_size_mutation_sd` | 0.05 | Wing size mutation noise |
+| `wing_size_min` | 0.0 | Lower clamp |
+| `wing_size_max` | 1.0 | Upper clamp |
+
+---
+
+## Logging and output
+
+| Parameter | Default | Description |
+|---|---|---|
+| `log_genomes` | FALSE | Log full genome matrices (large output) |
+| `log_deaths` | TRUE | Record every agent death |
+| `log_freq` | 1 | Ticks between progress log entries |
+| `verbose_julia` | FALSE | Print Julia-side debug messages |
+
+---
+
+## Inspecting defaults programmatically
+
+```{r inspect-defaults}
+defs <- default_specs()
+# All parameter names
+names(defs)
+# All parameters with their values
+str(defs, max.level = 1, give.attr = FALSE)
+```

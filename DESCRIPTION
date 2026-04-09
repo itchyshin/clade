@@ -12,8 +12,8 @@ Description: Agent-based simulation of evolution and foraging ecology.
     via natural selection on behaviour, life history, and cognition. The
     simulation runs entirely in Julia (via JuliaConnectoR), eliminating the
     per-tick R-backend boundary overhead and enabling runs of 100,000 agents.
-    Provides MAP-Elites and gradient-through-simulation parameter search
-    (using Zygote.jl), which are impossible with Rcpp-based backends.
+    Provides MAP-Elites, CMA-ES (pure R, no external dependencies), and
+    finite-difference gradient parameter search.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -26,7 +26,6 @@ Imports:
     stats,
     utils
 Suggests:
-    GA,
     JuliaConnectoR (>= 0.9.0),
     jsonlite,
     knitr,

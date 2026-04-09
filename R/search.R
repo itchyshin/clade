@@ -1,3 +1,24 @@
+# ── Internal: objective function factory ─────────────────────────────────────
+
+#' Build an objective function from a character name or callable
+#'
+#' All four search functions accept `objective` as either a column name
+#' (character) or a function `f(env) -> scalar`. This helper standardises
+#' both cases, eliminating four identical copy-pasted blocks.
+#'
+#' @param objective Character column name or a function accepting a `clade_env`
+#'   object and returning a numeric scalar.
+#' @return A function `f(env) -> numeric(1)`.
+#' @keywords internal
+.make_obj_fn <- function(objective) {
+  if (is.function(objective)) return(objective)
+  col <- objective
+  function(env) {
+    d <- get_run_data(env)
+    mean(d$ticks[[col]], na.rm = TRUE)
+  }
+}
+
 #' MAP-Elites quality-diversity search over simulation parameters
 #'
 #' Finds a diverse archive of high-performing parameter combinations using the
@@ -93,14 +114,7 @@ search_map_elites <- function(specs_base,
       paste(sprintf("'%s'", bad), collapse = ", ")
     ), call. = FALSE)
 
-  obj_fn <- if (is.function(objective)) {
-    objective
-  } else {
-    function(env) {
-      d <- get_run_data(env)
-      mean(d$ticks[[objective]], na.rm = TRUE)
-    }
-  }
+  obj_fn <- .make_obj_fn(objective)
 
   if (is.null(mutation_params)) {
     # Default to continuous (double) positive scalars only -- never mutate
@@ -203,21 +217,36 @@ search_map_elites <- function(specs_base,
 #' CMA-ES optimisation over simulation parameters
 #'
 #' Optimises a scalar objective function over the simulation parameter space
-#' using the Covariance Matrix Adaptation Evolution Strategy (CMA-ES). Unlike
-#' MAP-Elites, CMA-ES finds a single optimal parameter set.
+#' using a pure-R implementation of the Covariance Matrix Adaptation Evolution
+#' Strategy (CMA-ES; Hansen & Ostermeier 2001). Unlike MAP-Elites, CMA-ES
+#' finds a single optimal parameter set by adapting its search distribution to
+#' the local curvature of the objective landscape.
+#'
+#' Parameters are optimised on the log scale so that positive constraints are
+#' always satisfied. Each generation evaluates `lambda` candidate parameter
+#' sets, selects the best `mu = lambda/2`, and updates the mean, step size,
+#' and covariance matrix. No external packages are required.
 #'
 #' @param specs_base A specs list from [default_specs()].
 #' @param objective Character or function (same as [search_map_elites()]).
-#' @param params Character vector of numeric parameter names to optimise.
-#'   Defaults to `c("grass_rate", "mutation_sd")`.
+#' @param params Character vector of positive numeric parameter names to
+#'   optimise. Defaults to `c("grass_rate", "mutation_sd")`.
 #' @param n_iterations Integer. Maximum CMA-ES generations (default 200L).
-#' @param popsize Integer. CMA-ES population size (default 10L).
-#' @param sigma0 Numeric. Initial step size (default 0.3).
-#' @param n_cores Integer. Parallel cores (default 1L).
+#' @param popsize Integer or `NULL`. CMA-ES population size `lambda`. If
+#'   `NULL` (default), uses the standard formula
+#'   `max(8, 4 + floor(3 * log(n_params)))`.
+#' @param sigma0 Numeric. Initial step size on the log scale (default 0.3).
+#' @param n_cores Integer. Parallel cores for candidate evaluation (default
+#'   1L). Uses [parallel::mclapply()] on Unix/macOS when `> 1`.
 #' @param verbose Logical (default `TRUE`).
 #'
-#' @return A list with components `$specs` (best specs), `$score` (best
-#'   objective value), `$history` (data frame of generation × score).
+#' @return A list with:
+#' \describe{
+#'   \item{`$specs`}{Best specs encountered across all generations.}
+#'   \item{`$score`}{Best objective value encountered.}
+#'   \item{`$history`}{Data frame with one row per generation and columns
+#'     `generation`, `evals`, `best_score`, `mean_score`, `sigma`.}
+#' }
 #'
 #' @references
 #' Hansen, N. & Ostermeier, A. (2001) Completely derandomized self-adaptation
@@ -229,74 +258,186 @@ search_map_elites <- function(specs_base,
 #' \dontrun{
 #' result <- search_cmaes(
 #'   default_specs(),
-#'   objective = "genetic_diversity",
-#'   params    = c("grass_rate", "mutation_sd"),
+#'   objective    = "genetic_diversity",
+#'   params       = c("grass_rate", "mutation_sd"),
 #'   n_iterations = 50L
 #' )
 #' result$specs$grass_rate
+#' result$history   # one row per generation
 #' }
 #'
-#' @seealso [search_map_elites()], [search_gradient()]
+#' @seealso [search_map_elites()], [search_gradient()], [search_viability()]
+#' @importFrom stats rnorm
 #' @export
 search_cmaes <- function(specs_base,
                           objective    = "genetic_diversity",
                           params       = c("grass_rate", "mutation_sd"),
                           n_iterations = 200L,
-                          popsize      = 10L,
+                          popsize      = NULL,
                           sigma0       = 0.3,
                           n_cores      = 1L,
                           verbose      = TRUE) {
+  stopifnot(is.list(specs_base), is.character(params), length(params) >= 1L)
+  n_iterations <- as.integer(n_iterations)
+  n_cores      <- as.integer(n_cores)
+
+  for (p in params) {
+    v <- specs_base[[p]]
+    if (is.null(v) || !is.numeric(v) || length(v) != 1L || v <= 0)
+      stop(sprintf(
+        "search_cmaes() requires positive numeric params; specs_base$%s is %s.",
+        p, deparse(v)
+      ), call. = FALSE)
+  }
+
   .clade_start_julia(verbose = FALSE)
+  obj_fn <- .make_obj_fn(objective)
 
-  obj_fn <- if (is.function(objective)) {
-    objective
-  } else {
-    function(env) {
-      d <- get_run_data(env)
-      mean(d$ticks[[objective]], na.rm = TRUE)
-    }
+  # ---- CMA-ES hyper-parameters (Hansen 2006 defaults) -----------------------
+  n      <- length(params)
+  lambda <- if (is.null(popsize)) max(8L, 4L + floor(3 * log(n))) else
+              as.integer(popsize)
+  mu     <- lambda %/% 2L
+
+  raw_w  <- log(mu + 0.5) - log(seq_len(mu))   # log-decay
+  w      <- raw_w / sum(raw_w)                   # normalised weights
+  mueff  <- 1 / sum(w^2)                         # effective mu
+
+  cc     <- (4 + mueff/n) / (n + 4 + 2*mueff/n)
+  cs     <- (mueff + 2)   / (n + mueff + 5)
+  c1     <- 2 / ((n + 1.3)^2 + mueff)
+  cmu    <- min(1 - c1,
+               2 * (mueff - 2 + 1/mueff) / ((n + 2)^2 + mueff))
+  damps  <- 1 + 2*max(0, sqrt((mueff - 1)/(n + 1)) - 1) + cs
+  chiN   <- sqrt(n) * (1 - 1/(4*n) + 1/(21*n^2))
+
+  # Per-parameter log-scale clipping bounds
+  prob_params <- c("grass_rate", "grass_init_prob", "transmission_prob",
+                   "disease_death_prob", "crossover_rate")
+  lo_log <- vapply(params, function(p) {
+    if (p %in% prob_params) log(.Machine$double.eps) else
+      log(specs_base[[p]]) - 5
+  }, numeric(1L))
+  hi_log <- vapply(params, function(p) {
+    if (p %in% prob_params) log(1 - .Machine$double.eps) else
+      log(specs_base[[p]]) + 5
+  }, numeric(1L))
+
+  # ---- State ----------------------------------------------------------------
+  xmean     <- log(vapply(params, function(p) specs_base[[p]], numeric(1L)))
+  sigma     <- sigma0
+  pc        <- numeric(n)
+  ps        <- numeric(n)
+  B         <- diag(n)
+  D         <- rep(1.0, n)
+  C         <- diag(n)
+  invsqrtC  <- diag(n)
+  eigeneval <- 0L
+
+  best_specs  <- specs_base
+  best_score  <- -Inf
+  total_evals <- 0L
+  history     <- vector("list", n_iterations)
+
+  build_specs <- function(log_x) {
+    log_x <- pmax(lo_log, pmin(hi_log, log_x))
+    s <- specs_base
+    for (j in seq_len(n)) s[[params[j]]] <- exp(log_x[j])
+    s
   }
 
-  if (!requireNamespace("GA", quietly = TRUE)) {
-    stop("Package 'GA' is required for search_cmaes(). ",
-         "Install it with: install.packages('GA')", call. = FALSE)
-  }
-
-  # Extract and log-transform the parameters to optimise
-  x0 <- log(vapply(params, function(p) specs_base[[p]], numeric(1L)))
-
-  best_specs <- specs_base
-  best_score <- -Inf
-  history    <- data.frame(generation = integer(0L), score = numeric(0L))
-
-  eval_fn <- function(x) {
-    test_specs <- specs_base
-    for (j in seq_along(params)) test_specs[[params[j]]] <- exp(x[j])
-    env <- tryCatch(run_alife(test_specs, verbose = FALSE), error = function(e) NULL)
+  eval_one <- function(s) {
+    env <- tryCatch(run_alife(s, verbose = FALSE), error = function(e) NULL)
     if (is.null(env)) return(-Inf)
-    obj_fn(env)
+    tryCatch(obj_fn(env), error = function(e) -Inf)
   }
 
-  # Simple CMA-ES via GA package (real-valued GA as CMA-ES approximation)
-  # Phase 4 will implement full Turing.jl CMA-ES; this is a serviceable
-  # bootstrap for Phase 0.
-  result <- GA::ga(
-    type     = "real-valued",
-    fitness  = eval_fn,
-    lower    = x0 - 3,
-    upper    = x0 + 3,
-    popSize  = popsize,
-    maxiter  = n_iterations,
-    run      = n_iterations,
-    parallel = n_cores > 1L,
-    monitor  = verbose
-  )
+  if (verbose)
+    message(sprintf("CMA-ES: n=%d, lambda=%d, mu=%d, max_gen=%d",
+                    n, lambda, mu, n_iterations))
 
-  best_x <- result@solution[1L, ]
-  for (j in seq_along(params)) best_specs[[params[j]]] <- exp(best_x[j])
-  best_score <- result@fitnessValue
+  for (gen in seq_len(n_iterations)) {
 
-  list(specs = best_specs, score = best_score, history = history)
+    # ---- Sample lambda candidates -------------------------------------------
+    Z <- matrix(rnorm(lambda * n), nrow = lambda, ncol = n)
+    X <- t(xmean + sigma * (B %*% (D * t(Z))))     # lambda x n
+    X <- pmax(matrix(lo_log, lambda, n, byrow = TRUE),
+              pmin(matrix(hi_log, lambda, n, byrow = TRUE), X))
+
+    # ---- Evaluate -----------------------------------------------------------
+    cands       <- lapply(seq_len(lambda), function(k) build_specs(X[k, ]))
+    total_evals <- total_evals + lambda
+
+    scores <- if (n_cores > 1L && .Platform$OS.type != "windows") {
+      unlist(parallel::mclapply(cands, eval_one, mc.cores = n_cores))
+    } else {
+      vapply(cands, eval_one, numeric(1L))
+    }
+    scores[!is.finite(scores)] <- -Inf
+
+    # ---- Select & recombine -------------------------------------------------
+    ord  <- order(scores, decreasing = TRUE)
+    Xsel <- X[ord[seq_len(mu)], , drop = FALSE]   # mu x n
+
+    if (scores[ord[1L]] > best_score) {
+      best_score <- scores[ord[1L]]
+      best_specs <- cands[[ord[1L]]]
+    }
+
+    xold  <- xmean
+    xmean <- colSums(w * Xsel)    # weighted mean
+
+    # ---- Step-size control (cumulative path ps) -----------------------------
+    ps <- (1 - cs) * ps +
+          sqrt(cs * (2 - cs) * mueff) *
+          (invsqrtC %*% (xmean - xold) / sigma)
+
+    hsig <- as.numeric(
+      sqrt(sum(ps^2)) /
+        sqrt(1 - (1 - cs)^(2 * (gen + eigeneval))) / chiN < 1.4 + 2/(n + 1)
+    )
+
+    # ---- Rank-1 cumulation path pc ------------------------------------------
+    pc <- (1 - cc) * pc +
+          hsig * sqrt(cc * (2 - cc) * mueff) * (xmean - xold) / sigma
+
+    # ---- Covariance update --------------------------------------------------
+    artmp <- (Xsel - matrix(xold, mu, n, byrow = TRUE)) / sigma
+    C <- (1 - c1 - cmu) * C +
+         c1 * (tcrossprod(pc) + (1 - hsig) * cc * (2 - cc) * C) +
+         cmu * crossprod(artmp * w)
+
+    # ---- Step-size update ---------------------------------------------------
+    sigma <- sigma * exp((cs / damps) * (sqrt(sum(ps^2)) / chiN - 1))
+    sigma <- max(1e-10, sigma)
+
+    # ---- Lazy eigendecomposition (every ~lambda/(c1+cmu)/n/10 gens) --------
+    if (gen - eigeneval > lambda / (c1 + cmu) / n / 10) {
+      eigeneval <- gen
+      C    <- (C + t(C)) / 2          # symmetrise
+      eig  <- eigen(C, symmetric = TRUE)
+      D    <- sqrt(pmax(0, eig$values))
+      B    <- eig$vectors
+      invsqrtC <- B %*% diag(1 / (D + 1e-12)) %*% t(B)
+    }
+
+    fin_scores <- scores[is.finite(scores)]
+    history[[gen]] <- data.frame(
+      generation = gen,
+      evals      = total_evals,
+      best_score = best_score,
+      mean_score = if (length(fin_scores)) mean(fin_scores) else NA_real_,
+      sigma      = sigma
+    )
+
+    if (verbose && gen %% 10 == 0)
+      message(sprintf("  gen %3d: best=%.4f  sigma=%.4f",
+                      gen, best_score, sigma))
+  }
+
+  list(specs   = best_specs,
+       score   = best_score,
+       history = do.call(rbind, history))
 }
 
 #' Finite-difference gradient ascent over simulation parameters
@@ -383,14 +524,7 @@ search_gradient <- function(specs_base,
 
   .clade_start_julia(verbose = FALSE)
 
-  obj_fn <- if (is.function(objective)) {
-    objective
-  } else {
-    function(env) {
-      d <- get_run_data(env)
-      mean(d$ticks[[objective]], na.rm = TRUE)
-    }
-  }
+  obj_fn <- .make_obj_fn(objective)
 
   # Per-parameter clipping bounds (log scale). Probabilities are clipped to
   # (0, 1); other positive parameters are clipped to a wide log window around
@@ -488,7 +622,14 @@ search_gradient <- function(specs_base,
     "n_predators", "n_prey_killed", "n_juveniles", "n_helpers",
     "n_toxic_attacks", "n_avoided_attacks",
     "mean_signal_magnitude", "mean_toxicity", "mean_plasticity",
-    "mean_helper_tendency")
+    "mean_helper_tendency",
+    # Tier 1: complex landscape
+    "n_ground_agents", "n_shrub_agents", "n_canopy_agents",
+    "mean_wing_size", "mean_shrub_coverage", "mean_canopy_coverage",
+    # Tier 2a: spatial sorting
+    "n_front_agents", "mean_front_dispersal", "mean_rear_dispersal",
+    # Tier 2b: IFfolk
+    "n_iffolk_transfers")
 }
 
 # ── search_random() ───────────────────────────────────────────────────────────
@@ -568,15 +709,7 @@ search_random <- function(specs_base,
   if (is.null(param_names) || any(!nzchar(param_names)))
     stop("search_params must be a fully named list.", call. = FALSE)
 
-  obj_fn <- if (is.function(objective)) {
-    objective
-  } else {
-    col <- objective
-    function(env) {
-      d <- get_run_data(env)
-      mean(d$ticks[[col]], na.rm = TRUE)
-    }
-  }
+  obj_fn <- .make_obj_fn(objective)
 
   # Storage
   scores     <- numeric(n_samples)
@@ -657,4 +790,459 @@ search_random <- function(specs_base,
     ggplot2::labs(x = dim_names[1L], y = dim_names[2L],
                   title = "MAP-Elites archive") +
     ggplot2::theme_minimal()
+}
+
+# ── search_viability() ────────────────────────────────────────────────────────
+
+#' Grid-search parameter viability: which combinations allow population survival?
+#'
+#' Runs a grid of parameter combinations and measures the fraction of replicates
+#' in which the population survives to the end of the simulation. Returns both a
+#' data frame and a ggplot2 heatmap so you can quickly identify the "viable
+#' region" of parameter space before running CMA-ES or MAP-Elites inside it.
+#'
+#' This directly answers the question "which parameters allow organisms to
+#' evolve?" without requiring CMA-ES to converge first.
+#'
+#' @param specs_base A specs list from [default_specs()].
+#' @param param_x Character. Name of the first parameter to vary.
+#' @param values_x Numeric vector of values to test for `param_x`.
+#' @param param_y Character or `NULL`. Optional second parameter (creates a 2D
+#'   grid when supplied).
+#' @param values_y Numeric vector of values for `param_y`. Ignored if
+#'   `param_y = NULL`.
+#' @param n_reps Integer. Replicates per grid cell (different random seeds;
+#'   default 3L).
+#' @param survival_threshold Numeric. Fraction of initial agents that must
+#'   survive for a run to count as viable (default 0.1).
+#' @param objective Character or function or `NULL`. If supplied, the mean
+#'   objective score across surviving replicates is added as column
+#'   `mean_objective` (default `NULL`).
+#' @param verbose Logical (default `TRUE`).
+#'
+#' @return A list with:
+#' \describe{
+#'   \item{`$data`}{Data frame with columns `param_x`, optionally `param_y`,
+#'     `viability` (fraction surviving), `mean_final_pop`, and optionally
+#'     `mean_objective`.}
+#'   \item{`$map`}{A ggplot2 tile/line plot coloured by viability.}
+#' }
+#'
+#' @examples
+#' \dontrun{
+#' s <- default_specs()
+#' s$complex_landscape <- TRUE
+#' vm <- search_viability(
+#'   s,
+#'   param_x = "shrub_density",  values_x = seq(0.1, 0.5, 0.1),
+#'   param_y = "canopy_density", values_y = seq(0.05, 0.3, 0.1),
+#'   n_reps  = 3L
+#' )
+#' vm$map          # heatmap
+#' vm$data         # raw viability fractions
+#' }
+#'
+#' @seealso [search_cmaes()], [tune_complex_landscape()]
+#' @export
+search_viability <- function(specs_base,
+                              param_x, values_x,
+                              param_y = NULL, values_y = NULL,
+                              n_reps = 3L,
+                              survival_threshold = 0.1,
+                              objective = NULL,
+                              verbose = TRUE) {
+  stopifnot(is.list(specs_base))
+  stopifnot(is.character(param_x), length(param_x) == 1L)
+  stopifnot(is.numeric(values_x), length(values_x) >= 1L)
+  if (!is.null(param_y)) {
+    stopifnot(is.character(param_y), length(param_y) == 1L)
+    stopifnot(is.numeric(values_y), length(values_y) >= 1L)
+  }
+  n_reps <- as.integer(n_reps)
+  stopifnot(n_reps >= 1L)
+
+  if (is.null(specs_base[[param_x]]))
+    stop(sprintf("specs_base does not contain parameter '%s'.", param_x),
+         call. = FALSE)
+  if (!is.null(param_y) && is.null(specs_base[[param_y]]))
+    stop(sprintf("specs_base does not contain parameter '%s'.", param_y),
+         call. = FALSE)
+
+  obj_fn <- if (!is.null(objective)) .make_obj_fn(objective) else NULL
+
+  # Build grid
+  grid <- if (is.null(param_y)) {
+    data.frame(vx = values_x, vy = NA_real_, stringsAsFactors = FALSE)
+  } else {
+    expand.grid(vx = values_x, vy = values_y, stringsAsFactors = FALSE)
+  }
+
+  .clade_start_julia(verbose = FALSE)
+
+  results <- vector("list", nrow(grid))
+
+  for (i in seq_len(nrow(grid))) {
+    vx <- grid$vx[i]
+    vy <- grid$vy[i]
+
+    if (verbose) {
+      if (is.null(param_y)) {
+        message(sprintf("[search_viability] %s=%.3g  (cell %d/%d)",
+                        param_x, vx, i, nrow(grid)))
+      } else {
+        message(sprintf("[search_viability] %s=%.3g  %s=%.3g  (cell %d/%d)",
+                        param_x, vx, param_y, vy, i, nrow(grid)))
+      }
+    }
+
+    survived  <- 0L
+    final_pop <- numeric(n_reps)
+    obj_vals  <- if (!is.null(obj_fn)) numeric(n_reps) else NULL
+
+    for (r in seq_len(n_reps)) {
+      s <- specs_base
+      s[[param_x]] <- vx
+      if (!is.null(param_y)) s[[param_y]] <- vy
+      s$random_seed <- as.integer(r * 1000L + i)
+
+      env <- tryCatch(run_alife(s, verbose = FALSE), error = function(e) NULL)
+
+      if (!is.null(env)) {
+        n_fin  <- length(env$agents)
+        n_init <- s$n_agents_init
+        final_pop[r] <- n_fin
+        if (n_fin / n_init > survival_threshold) survived <- survived + 1L
+        if (!is.null(obj_fn))
+          obj_vals[r] <- tryCatch(obj_fn(env), error = function(e) NA_real_)
+      } else {
+        final_pop[r] <- 0L
+        if (!is.null(obj_fn)) obj_vals[r] <- NA_real_
+      }
+    }
+
+    row <- list(
+      param_x_val    = vx,
+      param_y_val    = if (is.null(param_y)) NA_real_ else vy,
+      viability      = survived / n_reps,
+      mean_final_pop = mean(final_pop, na.rm = TRUE)
+    )
+    if (!is.null(obj_fn))
+      row$mean_objective <- mean(obj_vals, na.rm = TRUE)
+    results[[i]] <- as.data.frame(row, stringsAsFactors = FALSE)
+  }
+
+  df <- do.call(rbind, results)
+  names(df)[names(df) == "param_x_val"] <- param_x
+  if (!is.null(param_y)) {
+    names(df)[names(df) == "param_y_val"] <- param_y
+  } else {
+    df$param_y_val <- NULL
+  }
+
+  list(data = df, map = .viability_plot(df, param_x, param_y))
+}
+
+.viability_plot <- function(df, param_x, param_y) {
+  if (!requireNamespace("ggplot2", quietly = TRUE)) return(NULL)
+
+  if (is.null(param_y)) {
+    ggplot2::ggplot(df, ggplot2::aes(x = .data[[param_x]],
+                                      y = .data$viability)) +
+      ggplot2::geom_line(colour = "#2166ac", linewidth = 1) +
+      ggplot2::geom_point(colour = "#2166ac", size = 2) +
+      ggplot2::labs(x = param_x, y = "Viability (fraction surviving)",
+                    title = "Parameter viability scan") +
+      ggplot2::theme_minimal()
+  } else {
+    ggplot2::ggplot(df, ggplot2::aes(x = .data[[param_x]],
+                                      y = .data[[param_y]],
+                                      fill = .data$viability)) +
+      ggplot2::geom_tile() +
+      ggplot2::scale_fill_gradient2(low = "#d73027", mid = "#ffffbf",
+                                     high = "#1a9850", midpoint = 0.5,
+                                     limits = c(0, 1),
+                                     name = "Viability") +
+      ggplot2::labs(x = param_x, y = param_y,
+                    title = "Parameter viability map") +
+      ggplot2::theme_minimal()
+  }
+}
+
+# ── Scenario-specific objective functions ─────────────────────────────────────
+
+#' Objective function for the complex landscape scenario
+#'
+#' Measures how well the complex-landscape module is working by combining:
+#' (1) wing size evolution (late mean - early mean), (2) niche diversity
+#' entropy across ground/shrub/canopy layers, and (3) a log-survival bonus.
+#' Returns `-Inf` for extinct populations or runs with fewer than 10 active
+#' ticks, making it safe to pass directly to [search_cmaes()].
+#'
+#' @param env A `clade_env` object from [run_alife()].
+#' @return A numeric scalar. Higher is better; `-Inf` = unviable.
+#'
+#' @examples
+#' \dontrun{
+#' s <- default_specs()
+#' s$complex_landscape <- TRUE; s$max_ticks <- 100L
+#' env <- run_alife(s, verbose = FALSE)
+#' objective_complex_landscape(env)
+#' }
+#'
+#' @seealso [tune_complex_landscape()], [search_cmaes()]
+#' @importFrom utils head tail
+#' @export
+objective_complex_landscape <- function(env) {
+  d      <- get_run_data(env)
+  ticks  <- d$ticks
+  active <- ticks[ticks$n_agents > 0, ]
+  n      <- nrow(active)
+  if (n < 10L || is.null(active$mean_wing_size)) return(-Inf)
+
+  early <- mean(head(active$mean_wing_size, max(1L, n %/% 5L)), na.rm = TRUE)
+  late  <- mean(tail(active$mean_wing_size, max(1L, n %/% 5L)), na.rm = TRUE)
+
+  entropy <- 0.0
+  cols <- c("n_ground_agents", "n_shrub_agents", "n_canopy_agents")
+  if (all(cols %in% names(active))) {
+    last20 <- tail(active, 20L)
+    cnt <- as.matrix(last20[, cols])
+    row_tot <- rowSums(cnt) + 1e-9
+    p   <- sweep(cnt, 1L, row_tot, "/")
+    entropy <- mean(-rowSums(ifelse(p > 0, p * log(p + 1e-9), 0)))
+  }
+
+  survival <- mean(active$n_agents, na.rm = TRUE) / env$specs$n_agents_init
+  (late - early) + 0.5 * entropy + 0.2 * log1p(survival)
+}
+
+#' Objective function for the spatial sorting scenario
+#'
+#' Measures dispersal divergence between front and rear agents over the last
+#' 20% of active ticks. Returns `-Inf` for extinct runs, `-1.0` when the front
+#' represents fewer than 2% of the population (no meaningful invasion front).
+#'
+#' @param env A `clade_env` object from [run_alife()].
+#' @return A numeric scalar. Higher is better; `-Inf` = unviable.
+#'
+#' @examples
+#' \dontrun{
+#' s <- default_specs()
+#' s$dispersal_evolution <- TRUE; s$spatial_sorting <- TRUE
+#' s$max_ticks <- 200L
+#' env <- run_alife(s, verbose = FALSE)
+#' objective_spatial_sorting(env)
+#' }
+#'
+#' @seealso [tune_spatial_sorting()], [search_cmaes()]
+#' @importFrom utils tail
+#' @export
+objective_spatial_sorting <- function(env) {
+  d      <- get_run_data(env)
+  ticks  <- d$ticks
+  active <- ticks[ticks$n_agents > 0, ]
+  n      <- nrow(active)
+  if (n < 10L) return(-Inf)
+  if (is.null(active$mean_front_dispersal)) return(-Inf)
+
+  if (!is.null(active$n_front_agents)) {
+    front_frac <- mean(active$n_front_agents /
+                       (active$n_agents + 1e-9), na.rm = TRUE)
+    if (front_frac < 0.02) return(-1.0)
+  }
+
+  last <- tail(active, max(1L, n %/% 5L))
+  diff  <- mean(last$mean_front_dispersal - last$mean_rear_dispersal,
+                na.rm = TRUE)
+  front <- mean(last$mean_front_dispersal, na.rm = TRUE)
+  diff + 0.2 * front
+}
+
+#' Objective function for the IFfolk inclusive fitness scenario
+#'
+#' Measures the linear upward trend in `mean_helper_tendency` (scaled x1000
+#' so CMA-ES gradients are numerically comfortable), plus a per-agent IFfolk
+#' transfer bonus. Returns `-Inf` for extinct runs or fewer than 20 active
+#' ticks (insufficient signal for the regression).
+#'
+#' @param env A `clade_env` object from [run_alife()].
+#' @return A numeric scalar. Higher is better; `-Inf` = unviable.
+#'
+#' @examples
+#' \dontrun{
+#' s <- default_specs()
+#' s$iffolk_selection <- TRUE; s$cooperative_breeding <- TRUE
+#' s$max_ticks <- 200L
+#' env <- run_alife(s, verbose = FALSE)
+#' objective_iffolk(env)
+#' }
+#'
+#' @seealso [tune_iffolk()], [search_cmaes()]
+#' @importFrom stats lm coef
+#' @export
+objective_iffolk <- function(env) {
+  d      <- get_run_data(env)
+  ticks  <- d$ticks
+  active <- ticks[ticks$n_agents > 0, ]
+  n      <- nrow(active)
+  if (n < 20L) return(-Inf)
+  if (is.null(active$mean_helper_tendency)) return(-Inf)
+
+  tick_idx <- seq_len(n)
+  fit      <- lm(active$mean_helper_tendency ~ tick_idx)
+  slope    <- coef(fit)[2L]
+
+  bonus <- 0.0
+  if (!is.null(active$n_iffolk_transfers)) {
+    per_agent <- mean(active$n_iffolk_transfers /
+                      (active$n_agents + 1e-9), na.rm = TRUE)
+    bonus <- 0.1 * per_agent
+  }
+
+  slope * 1000 + bonus
+}
+
+# ── Convenience tuning wrappers ───────────────────────────────────────────────
+
+#' Tune parameters for the complex landscape module
+#'
+#' Pre-configures [search_cmaes()] or [search_map_elites()] with biologically
+#' sensible parameters and the [objective_complex_landscape()] objective for
+#' the complex landscape (forest) module. Call this instead of configuring
+#' CMA-ES manually.
+#'
+#' @param specs_base A specs list from [default_specs()]. `complex_landscape`
+#'   and `wing_size_init_mean` are set automatically.
+#' @param n_iterations Integer. Number of CMA-ES generations or MAP-Elites
+#'   iterations (default 100L).
+#' @param method Character. `"cmaes"` (default) or `"map_elites"`.
+#' @param ... Additional arguments passed to [search_cmaes()] or
+#'   [search_map_elites()].
+#'
+#' @return The result of [search_cmaes()] or [search_map_elites()].
+#'
+#' @examples
+#' \dontrun{
+#' tuned <- tune_complex_landscape(default_specs(), n_iterations = 50L)
+#' tuned$specs    # optimal parameter set
+#' tuned$history  # score over generations
+#' }
+#'
+#' @seealso [objective_complex_landscape()], [search_viability()]
+#' @export
+tune_complex_landscape <- function(specs_base = default_specs(),
+                                    n_iterations = 100L,
+                                    method = "cmaes",
+                                    ...) {
+  specs_base$complex_landscape   <- TRUE
+  specs_base$wing_size_init_mean <- 0.1
+
+  params <- c("shrub_density", "canopy_density", "shrub_energy",
+              "canopy_energy", "shrub_growth_rate")
+
+  if (identical(method, "map_elites")) {
+    search_map_elites(specs_base,
+      archive_dims    = list(mean_wing_size       = seq(0, 1, by = 0.1),
+                             mean_shrub_coverage  = seq(0, 1, by = 0.1)),
+      n_iterations    = n_iterations,
+      objective       = objective_complex_landscape,
+      mutation_params = params, ...)
+  } else {
+    search_cmaes(specs_base,
+      objective    = objective_complex_landscape,
+      params       = params,
+      n_iterations = n_iterations, ...)
+  }
+}
+
+#' Tune parameters for the spatial sorting module
+#'
+#' Pre-configures [search_cmaes()] or [search_map_elites()] with
+#' [objective_spatial_sorting()] and the key dispersal/sorting parameters.
+#'
+#' @param specs_base A specs list from [default_specs()]. `dispersal_evolution`
+#'   and `spatial_sorting` are set automatically.
+#' @param n_iterations Integer (default 100L).
+#' @param method Character. `"cmaes"` (default) or `"map_elites"`.
+#' @param ... Additional arguments passed to the chosen search function.
+#'
+#' @return The result of [search_cmaes()] or [search_map_elites()].
+#'
+#' @examples
+#' \dontrun{
+#' tuned <- tune_spatial_sorting(default_specs(), n_iterations = 50L)
+#' tuned$specs$sorting_mating_boost
+#' }
+#'
+#' @seealso [objective_spatial_sorting()], [search_viability()]
+#' @export
+tune_spatial_sorting <- function(specs_base = default_specs(),
+                                  n_iterations = 100L,
+                                  method = "cmaes",
+                                  ...) {
+  specs_base$dispersal_evolution <- TRUE
+  specs_base$spatial_sorting     <- TRUE
+
+  params <- c("sorting_mating_boost", "sorting_front_threshold",
+              "dispersal_init_mean", "dispersal_mutation_sd")
+
+  if (identical(method, "map_elites")) {
+    search_map_elites(specs_base,
+      archive_dims    = list(mean_front_dispersal = seq(0, 1, by = 0.1),
+                             mean_rear_dispersal  = seq(0, 1, by = 0.1)),
+      n_iterations    = n_iterations,
+      objective       = objective_spatial_sorting,
+      mutation_params = params, ...)
+  } else {
+    search_cmaes(specs_base,
+      objective    = objective_spatial_sorting,
+      params       = params,
+      n_iterations = n_iterations, ...)
+  }
+}
+
+#' Tune parameters for the IFfolk inclusive fitness module
+#'
+#' Pre-configures [search_cmaes()] or [search_map_elites()] with
+#' [objective_iffolk()] and the key IFfolk/parliament parameters.
+#'
+#' @param specs_base A specs list from [default_specs()]. `iffolk_selection`
+#'   and `cooperative_breeding` are set automatically.
+#' @param n_iterations Integer (default 100L).
+#' @param method Character. `"cmaes"` (default) or `"map_elites"`.
+#' @param ... Additional arguments passed to the chosen search function.
+#'
+#' @return The result of [search_cmaes()] or [search_map_elites()].
+#'
+#' @examples
+#' \dontrun{
+#' tuned <- tune_iffolk(default_specs(), n_iterations = 50L)
+#' tuned$specs$iffolk_transfer
+#' }
+#'
+#' @seealso [objective_iffolk()], [search_viability()]
+#' @export
+tune_iffolk <- function(specs_base = default_specs(),
+                         n_iterations = 100L,
+                         method = "cmaes",
+                         ...) {
+  specs_base$iffolk_selection    <- TRUE
+  specs_base$cooperative_breeding <- TRUE
+
+  params <- c("iffolk_transfer", "iffolk_min_energy",
+              "parliament_cost", "iffolk_radius")
+
+  if (identical(method, "map_elites")) {
+    search_map_elites(specs_base,
+      archive_dims    = list(mean_helper_tendency  = seq(0, 1, by = 0.1),
+                             n_iffolk_transfers    = seq(0, 100, by = 10)),
+      n_iterations    = n_iterations,
+      objective       = objective_iffolk,
+      mutation_params = params, ...)
+  } else {
+    search_cmaes(specs_base,
+      objective    = objective_iffolk,
+      params       = params,
+      n_iterations = n_iterations, ...)
+  }
 }
