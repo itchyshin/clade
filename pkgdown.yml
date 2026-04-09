@@ -1,0 +1,13 @@
+pandoc: 3.9.0.2
+pkgdown: 2.1.3
+pkgdown_sha: ~
+articles:
+  baldwin-effect: baldwin-effect.html
+  custom-modules: custom-modules.html
+  diversity-search: diversity-search.html
+  getting-started: getting-started.html
+  introduction: introduction.html
+  parameter-reference: parameter-reference.html
+  scenarios: scenarios.html
+  showcase: showcase.html
+last_built: 2026-04-09T14:10Z
