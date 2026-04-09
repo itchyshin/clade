@@ -1067,3 +1067,213 @@ visualize_progress <- function(env, run_data = NULL, title = NULL) {
                         ncol = 3L) +
     patchwork::plot_annotation(title = title)
 }
+
+# ── plot_module_metrics() ─────────────────────────────────────────────────────
+
+#' Plot module-specific metrics from a clade simulation run
+#'
+#' @title Plot module-specific metrics from a clade simulation run
+#' @description
+#' Detects which optional simulation modules were active during a run by
+#' inspecting the logged tick columns in `run_data$ticks`, then assembles up
+#' to six panels into a patchwork grid. Only panels for modules that produced
+#' non-zero data are included:
+#'
+#' \describe{
+#'   \item{Predators}{`n_predators` — line plot of predator population over
+#'     time.}
+#'   \item{Species}{`n_species` — step plot of species count; shown only when
+#'     speciation was active (max > 1).}
+#'   \item{Traits}{Overlay of `mean_toxicity`, `mean_plasticity`, and
+#'     `mean_helper_tendency` as three coloured lines.}
+#'   \item{Signals}{`mean_signal_magnitude` — line plot; shown only when
+#'     signal evolution was active (max > 0).}
+#'   \item{Parental care}{`n_juveniles` — line plot of juveniles under care;
+#'     shown only when max > 0.}
+#'   \item{Mimicry}{`n_toxic_attacks` and `n_avoided_attacks` — two lines
+#'     showing attacks versus avoidance events; shown only when mimicry attacks
+#'     occurred (max n_toxic_attacks > 0).}
+#' }
+#'
+#' If fewer than two panels are active, a single informative placeholder plot
+#' is returned instead.
+#'
+#' @param run_data A list as returned by [get_run_data()]. Must contain a
+#'   `$ticks` data frame. The new module columns (`n_predators`, `n_helpers`,
+#'   `mean_signal_magnitude`, `mean_toxicity`, `mean_plasticity`,
+#'   `mean_helper_tendency`, `n_species`, `n_juveniles`, `n_toxic_attacks`,
+#'   `n_avoided_attacks`) are used when present; absent columns are silently
+#'   skipped.
+#'
+#' @return A [patchwork::wrap_plots()] object with up to six panels arranged in
+#'   at most three columns, or a single [ggplot2::ggplot()] placeholder when
+#'   fewer than two panels are active.
+#'
+#' @examples
+#' \dontrun{
+#' specs <- default_specs()
+#' specs$n_predators_init  <- 10L
+#' specs$mimicry           <- TRUE
+#' env  <- run_clade(specs)
+#' data <- get_run_data(env)
+#' plot_module_metrics(data)
+#' }
+#'
+#' @seealso [plot_run()], [visualize_progress()], [get_run_data()]
+#' @export
+plot_module_metrics <- function(run_data) {
+  .check_run_data(run_data)
+  d <- run_data$ticks
+  if ("t" %in% names(d)) d <- d[d$t > 0L, , drop = FALSE]
+
+  if (nrow(d) == 0L) {
+    return(
+      ggplot2::ggplot() +
+        ggplot2::annotate("text", x = 0.5, y = 0.5,
+                          label = "No module-specific metrics to display") +
+        ggplot2::theme_void()
+    )
+  }
+
+  panels <- list()
+
+  # ── 1. Predators ─────────────────────────────────────────────────────────────
+  if ("n_predators" %in% names(d) && !all(d$n_predators == 0L)) {
+    panels[["predators"]] <- ggplot2::ggplot(
+      d, ggplot2::aes(x = .data$t, y = .data$n_predators)
+    ) +
+      ggplot2::geom_line(colour = "#d62728", linewidth = 0.6) +
+      ggplot2::labs(title = "Predator population",
+                    x = "Tick", y = "n predators") +
+      .clade_theme()
+  }
+
+  # ── 2. Species (only when speciation active) ──────────────────────────────────
+  if ("n_species" %in% names(d) && max(d$n_species, na.rm = TRUE) > 1L) {
+    panels[["species"]] <- ggplot2::ggplot(
+      d, ggplot2::aes(x = .data$t, y = .data$n_species)
+    ) +
+      ggplot2::geom_step(colour = "#6a3d9a", linewidth = 0.6) +
+      ggplot2::labs(title = "Number of species",
+                    x = "Tick", y = "n species") +
+      .clade_theme()
+  }
+
+  # ── 3. Heritable trait means (toxicity / plasticity / helper tendency) ────────
+  trait_cols <- c(
+    "mean_toxicity"        = "#e6550d",
+    "mean_plasticity"      = "#3182bd",
+    "mean_helper_tendency" = "#31a354"
+  )
+  active_traits <- intersect(names(trait_cols), names(d))
+  active_traits <- active_traits[
+    vapply(active_traits, function(col) !all(d[[col]] == 0), logical(1L))
+  ]
+  if (length(active_traits) >= 1L) {
+    trait_label <- c(
+      "mean_toxicity"        = "Toxicity",
+      "mean_plasticity"      = "Plasticity",
+      "mean_helper_tendency" = "Helper tendency"
+    )
+    trait_long <- do.call(rbind, lapply(active_traits, function(col) {
+      data.frame(
+        t      = d$t,
+        value  = d[[col]],
+        trait  = trait_label[[col]],
+        stringsAsFactors = FALSE
+      )
+    }))
+    trait_long$trait <- factor(trait_long$trait,
+                               levels = trait_label[active_traits])
+
+    col_vals <- trait_cols[active_traits]
+    names(col_vals) <- trait_label[active_traits]
+
+    panels[["traits"]] <- ggplot2::ggplot(
+      trait_long,
+      ggplot2::aes(x = .data$t, y = .data$value, colour = .data$trait)
+    ) +
+      ggplot2::geom_line(linewidth = 0.6) +
+      ggplot2::scale_colour_manual(values = col_vals, name = NULL) +
+      ggplot2::labs(title = "Heritable trait means",
+                    x = "Tick", y = "Mean trait value") +
+      .clade_theme() +
+      ggplot2::theme(legend.position = "bottom",
+                     legend.text = ggplot2::element_text(size = 8))
+  }
+
+  # ── 4. Signal magnitude ───────────────────────────────────────────────────────
+  if ("mean_signal_magnitude" %in% names(d) &&
+      max(d$mean_signal_magnitude, na.rm = TRUE) > 0) {
+    panels[["signals"]] <- ggplot2::ggplot(
+      d, ggplot2::aes(x = .data$t, y = .data$mean_signal_magnitude)
+    ) +
+      ggplot2::geom_line(colour = "#f768a1", linewidth = 0.6) +
+      ggplot2::labs(title = "Mean signal magnitude",
+                    x = "Tick", y = "L1 norm (mean)") +
+      .clade_theme()
+  }
+
+  # ── 5. Parental care — juveniles ──────────────────────────────────────────────
+  if ("n_juveniles" %in% names(d) && max(d$n_juveniles, na.rm = TRUE) > 0L) {
+    panels[["care"]] <- ggplot2::ggplot(
+      d, ggplot2::aes(x = .data$t, y = .data$n_juveniles)
+    ) +
+      ggplot2::geom_line(colour = "#74c476", linewidth = 0.6) +
+      ggplot2::labs(title = "Juveniles in care",
+                    x = "Tick", y = "n juveniles") +
+      .clade_theme()
+  }
+
+  # ── 6. Mimicry: attacks vs avoidance ─────────────────────────────────────────
+  has_toxic  <- "n_toxic_attacks"   %in% names(d)
+  has_avoid  <- "n_avoided_attacks" %in% names(d)
+  if (has_toxic && max(d$n_toxic_attacks, na.rm = TRUE) > 0L) {
+    mim_cols <- c("n_toxic_attacks", if (has_avoid) "n_avoided_attacks")
+    mim_label <- c("n_toxic_attacks" = "Toxic attacks",
+                   "n_avoided_attacks" = "Avoided attacks")
+    mim_long <- do.call(rbind, lapply(mim_cols, function(col) {
+      data.frame(
+        t      = d$t,
+        count  = d[[col]],
+        series = mim_label[[col]],
+        stringsAsFactors = FALSE
+      )
+    }))
+    mim_long$series <- factor(mim_long$series,
+                              levels = mim_label[mim_cols])
+
+    mim_col_vals <- c("Toxic attacks" = "#d62728",
+                      "Avoided attacks" = "#2ca02c")
+    mim_col_vals <- mim_col_vals[mim_col_vals %in% levels(mim_long$series) |
+                                   names(mim_col_vals) %in% levels(mim_long$series)]
+
+    panels[["mimicry"]] <- ggplot2::ggplot(
+      mim_long,
+      ggplot2::aes(x = .data$t, y = .data$count, colour = .data$series)
+    ) +
+      ggplot2::geom_line(linewidth = 0.6) +
+      ggplot2::scale_colour_manual(
+        values = c("Toxic attacks" = "#d62728", "Avoided attacks" = "#2ca02c"),
+        name = NULL
+      ) +
+      ggplot2::labs(title = "Mimicry: attacks vs avoidance",
+                    x = "Tick", y = "Count / tick") +
+      .clade_theme() +
+      ggplot2::theme(legend.position = "bottom",
+                     legend.text = ggplot2::element_text(size = 8))
+  }
+
+  # ── Assemble ──────────────────────────────────────────────────────────────────
+  n_panels <- length(panels)
+  if (n_panels < 2L) {
+    return(
+      ggplot2::ggplot() +
+        ggplot2::annotate("text", x = 0.5, y = 0.5,
+                          label = "No module-specific metrics to display") +
+        ggplot2::theme_void()
+    )
+  }
+
+  patchwork::wrap_plots(panels, ncol = min(3L, n_panels))
+}
