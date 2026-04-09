@@ -25,7 +25,7 @@
 #' @name clade-visualization
 NULL
 
-# ── Internal helper ───────────────────────────────────────────────────────────
+# -- Internal helper -----------------------------------------------------------
 .clade_theme <- function() {
   ggplot2::theme_minimal(base_size = 11) +
     ggplot2::theme(
@@ -42,7 +42,7 @@ NULL
   invisible(TRUE)
 }
 
-# ── plot_run() ────────────────────────────────────────────────────────────────
+# -- plot_run() ----------------------------------------------------------------
 
 #' Dashboard plot summarising a clade simulation run
 #'
@@ -186,7 +186,7 @@ plot_run <- function(run_data, ...) {
   )
 }
 
-# ── plot_environment() ────────────────────────────────────────────────────────
+# -- plot_environment() --------------------------------------------------------
 
 #' Plot the current state of a clade environment
 #'
@@ -323,7 +323,7 @@ plot_environment <- function(env) {
     )
 }
 
-# ── plot_map() ───────────────────────────────────────────────────────────────
+# -- plot_map() ---------------------------------------------------------------
 
 #' Plot the spatial distribution of agents on the grid
 #'
@@ -364,7 +364,7 @@ plot_map <- function(env, colour_by = "energy", ...) {
   nr    <- as.integer(specs$grid_rows)
   nc    <- as.integer(specs$grid_cols)
 
-  # Grass background ─────────────────────────────────────────────────────────
+  # Grass background ---------------------------------------------------------
   grass_mat <- env$grass
   if (is.null(grass_mat)) grass_mat <- matrix(0, nrow = nr, ncol = nc)
   grass_df <- data.frame(
@@ -374,7 +374,7 @@ plot_map <- function(env, colour_by = "energy", ...) {
   )
   grass_max <- if (!is.null(specs$grass_max)) as.numeric(specs$grass_max) else 5
 
-  # Agents ───────────────────────────────────────────────────────────────────
+  # Agents -------------------------------------------------------------------
   agents   <- env$agents
   n_agents <- if (!is.null(agents)) as.integer(length(agents)) else 0L
 
@@ -481,7 +481,7 @@ plot_map <- function(env, colour_by = "energy", ...) {
     )
 }
 
-# ── plot_tsne_genomes() ───────────────────────────────────────────────────────
+# -- plot_tsne_genomes() -------------------------------------------------------
 
 #' Plot genome PCA to reveal population genetic structure
 #'
@@ -581,7 +581,7 @@ plot_tsne_genomes <- function(run_data, n_agents = 50L, perplexity = 15, ...) {
     ggplot2::theme(legend.position = "right")
 }
 
-# ── plot_genome_diversity() ───────────────────────────────────────────────────
+# -- plot_genome_diversity() ---------------------------------------------------
 
 #' Plot genetic diversity over time
 #'
@@ -646,7 +646,7 @@ plot_genome_diversity <- function(run_data) {
   p
 }
 
-# ── plot_disease_dynamics() ───────────────────────────────────────────────────
+# -- plot_disease_dynamics() ---------------------------------------------------
 
 #' Plot disease dynamics over time
 #'
@@ -715,7 +715,7 @@ plot_disease_dynamics <- function(run_data) {
     ggplot2::theme(legend.position = "bottom")
 }
 
-# ── plot_signal_evolution() ───────────────────────────────────────────────────
+# -- plot_signal_evolution() ---------------------------------------------------
 
 #' Plot signal evolution (Phase 2 placeholder)
 #'
@@ -745,7 +745,7 @@ plot_signal_evolution <- function(run_data) {
     ggplot2::theme_void()
 }
 
-# ── plot_kin_network() ────────────────────────────────────────────────────────
+# -- plot_kin_network() --------------------------------------------------------
 
 #' Plot kin network (Phase 2 placeholder)
 #'
@@ -775,7 +775,7 @@ plot_kin_network <- function(run_data) {
     ggplot2::theme_void()
 }
 
-# ── plot_dead_agents() ────────────────────────────────────────────────────────
+# -- plot_dead_agents() --------------------------------------------------------
 
 #' Plot lifetime statistics of dead agents
 #'
@@ -867,7 +867,7 @@ plot_dead_agents <- function(run_data) {
   patchwork::wrap_plots(p_scatter, p_cause, ncol = 2L)
 }
 
-# ── plot_diversity() ──────────────────────────────────────────────────────────
+# -- plot_diversity() ----------------------------------------------------------
 
 #' Plot genetic diversity over the run
 #'
@@ -962,13 +962,13 @@ plot_diversity <- function(run_data) {
                    legend.key.width = ggplot2::unit(1.2, "cm"))
 }
 
-# ── plot_body_size_evolution() ────────────────────────────────────────────────
+# -- plot_body_size_evolution() ------------------------------------------------
 
 #' Plot body-size evolution over time
 #'
 #' @title Plot body-size evolution over time
 #' @description
-#' Draws the trajectory of mean body size with a ± 1 SD ribbon. When
+#' Draws the trajectory of mean body size with a +/- 1 SD ribbon. When
 #' `body_size_evolution = FALSE` this produces a flat line at 1.0. When
 #' evolution is active the population mean drifts toward a size that balances
 #' metabolic cost against foraging gain (the metabolic optimum; Kleiber 1947).
@@ -1026,7 +1026,7 @@ plot_body_size_evolution <- function(run_data) {
     .clade_theme()
 }
 
-# ── plot_dispersal_events() ───────────────────────────────────────────────────
+# -- plot_dispersal_events() ---------------------------------------------------
 
 #' Plot natal dispersal events over time
 #'
@@ -1074,7 +1074,7 @@ plot_dispersal_events <- function(run_data) {
     .clade_theme()
 }
 
-# ── plot_weight_heatmap() ─────────────────────────────────────────────────────
+# -- plot_weight_heatmap() -----------------------------------------------------
 
 #' Visualise a neural genome as a weight heatmap
 #'
@@ -1154,13 +1154,13 @@ plot_weight_heatmap <- function(ann, title = "Neural genome") {
   patchwork::wrap_plots(panels, ncol = min(L, 3L))
 }
 
-# ── visualize_progress() ─────────────────────────────────────────────────────
+# -- visualize_progress() -----------------------------------------------------
 
 #' Render the full simulation dashboard
 #'
 #' @title Render the full simulation dashboard
 #' @description
-#' Assembles a 2 × 3 panel dashboard from a completed clade run:
+#' Assembles a 2 x 3 panel dashboard from a completed clade run:
 #'
 #' \describe{
 #'   \item{Top-left}{Grid snapshot -- landscape and agent positions at the
@@ -1197,10 +1197,10 @@ visualize_progress <- function(env, run_data = NULL, title = NULL) {
   tk <- run_data$ticks
   d  <- run_data$deaths
 
-  # ── Top-left: grid snapshot ────────────────────────────────────────────────
+  # -- Top-left: grid snapshot ------------------------------------------------
   p_grid <- plot_environment(env)
 
-  # ── Top-centre: population + energy ───────────────────────────────────────
+  # -- Top-centre: population + energy ---------------------------------------
   tk_live <- tk[tk$t > 0L, , drop = FALSE]
   has_best <- "best_energy" %in% names(tk_live)
 
@@ -1244,7 +1244,7 @@ visualize_progress <- function(env, run_data = NULL, title = NULL) {
     ggplot2::theme(legend.position = "bottom",
                    legend.text = ggplot2::element_text(size = 8))
 
-  # ── Top-right: diversity ───────────────────────────────────────────────────
+  # -- Top-right: diversity ---------------------------------------------------
   p_div_obj <- plot_diversity(run_data)
   p_div <- if (is.null(p_div_obj)) {
     ggplot2::ggplot() +
@@ -1254,7 +1254,7 @@ visualize_progress <- function(env, run_data = NULL, title = NULL) {
     p_div_obj
   }
 
-  # ── Bottom-left: deaths scatter ────────────────────────────────────────────
+  # -- Bottom-left: deaths scatter --------------------------------------------
   if (!is.null(d) && nrow(d) > 0L) {
     has_cause <- "cause" %in% names(d)
     if (has_cause) {
@@ -1284,7 +1284,7 @@ visualize_progress <- function(env, run_data = NULL, title = NULL) {
         .clade_theme()
     }
 
-    # ── Bottom-centre: lifespan histogram ─────────────────────────────────
+    # -- Bottom-centre: lifespan histogram ---------------------------------
     p_hist <- ggplot2::ggplot(d, ggplot2::aes(x = .data$age)) +
       ggplot2::geom_histogram(bins = 25, fill = "#92c5de", colour = "white") +
       ggplot2::labs(title = "Lifespan distribution",
@@ -1298,7 +1298,7 @@ visualize_progress <- function(env, run_data = NULL, title = NULL) {
     p_hist    <- blank
   }
 
-  # ── Bottom-right: body size or genetic diversity ───────────────────────────
+  # -- Bottom-right: body size or genetic diversity ---------------------------
   has_bs_var <- "sd_body_size" %in% names(tk_live) &&
     any(tk_live$sd_body_size > 0, na.rm = TRUE)
   has_bs_col <- "mean_body_size" %in% names(tk_live)
@@ -1309,7 +1309,7 @@ visualize_progress <- function(env, run_data = NULL, title = NULL) {
     p_sixth <- plot_genome_diversity(run_data)
   }
 
-  # ── Assemble title ─────────────────────────────────────────────────────────
+  # -- Assemble title ---------------------------------------------------------
   n_final <- as.integer(length(env$agents))
   t_final <- if (!is.null(env$t)) as.integer(env$t) else max(tk$t)
   n_dead  <- if (!is.null(d)) nrow(d) else 0L
@@ -1326,7 +1326,7 @@ visualize_progress <- function(env, run_data = NULL, title = NULL) {
     patchwork::plot_annotation(title = title)
 }
 
-# ── plot_module_metrics() ─────────────────────────────────────────────────────
+# -- plot_module_metrics() -----------------------------------------------------
 
 #' Plot module-specific metrics from a clade simulation run
 #'
@@ -1395,7 +1395,7 @@ plot_module_metrics <- function(run_data) {
 
   panels <- list()
 
-  # ── 1. Predators ─────────────────────────────────────────────────────────────
+  # -- 1. Predators -------------------------------------------------------------
   if ("n_predators" %in% names(d) && !all(d$n_predators == 0L)) {
     panels[["predators"]] <- ggplot2::ggplot(
       d, ggplot2::aes(x = .data$t, y = .data$n_predators)
@@ -1406,7 +1406,7 @@ plot_module_metrics <- function(run_data) {
       .clade_theme()
   }
 
-  # ── 2. Species (only when speciation active) ──────────────────────────────────
+  # -- 2. Species (only when speciation active) ----------------------------------
   if ("n_species" %in% names(d) && max(d$n_species, na.rm = TRUE) > 1L) {
     panels[["species"]] <- ggplot2::ggplot(
       d, ggplot2::aes(x = .data$t, y = .data$n_species)
@@ -1417,7 +1417,7 @@ plot_module_metrics <- function(run_data) {
       .clade_theme()
   }
 
-  # ── 3. Heritable trait means (toxicity / plasticity / helper tendency) ────────
+  # -- 3. Heritable trait means (toxicity / plasticity / helper tendency) --------
   trait_cols <- c(
     "mean_toxicity"        = "#e6550d",
     "mean_plasticity"      = "#3182bd",
@@ -1460,7 +1460,7 @@ plot_module_metrics <- function(run_data) {
                      legend.text = ggplot2::element_text(size = 8))
   }
 
-  # ── 4. Signal magnitude ───────────────────────────────────────────────────────
+  # -- 4. Signal magnitude -------------------------------------------------------
   if ("mean_signal_magnitude" %in% names(d) &&
       max(d$mean_signal_magnitude, na.rm = TRUE) > 0) {
     panels[["signals"]] <- ggplot2::ggplot(
@@ -1472,7 +1472,7 @@ plot_module_metrics <- function(run_data) {
       .clade_theme()
   }
 
-  # ── 5. Parental care -- juveniles ──────────────────────────────────────────────
+  # -- 5. Parental care -- juveniles ----------------------------------------------
   if ("n_juveniles" %in% names(d) && max(d$n_juveniles, na.rm = TRUE) > 0L) {
     panels[["care"]] <- ggplot2::ggplot(
       d, ggplot2::aes(x = .data$t, y = .data$n_juveniles)
@@ -1483,7 +1483,7 @@ plot_module_metrics <- function(run_data) {
       .clade_theme()
   }
 
-  # ── 6. Mimicry: attacks vs avoidance ─────────────────────────────────────────
+  # -- 6. Mimicry: attacks vs avoidance -----------------------------------------
   has_toxic  <- "n_toxic_attacks"   %in% names(d)
   has_avoid  <- "n_avoided_attacks" %in% names(d)
   if (has_toxic && max(d$n_toxic_attacks, na.rm = TRUE) > 0L) {
@@ -1522,7 +1522,7 @@ plot_module_metrics <- function(run_data) {
                      legend.text = ggplot2::element_text(size = 8))
   }
 
-  # ── Assemble ──────────────────────────────────────────────────────────────────
+  # -- Assemble ------------------------------------------------------------------
   n_panels <- length(panels)
   if (n_panels < 2L) {
     return(
@@ -1536,7 +1536,7 @@ plot_module_metrics <- function(run_data) {
   patchwork::wrap_plots(panels, ncol = min(3L, n_panels))
 }
 
-# ── diversity_landscape() ─────────────────────────────────────────────────────
+# -- diversity_landscape() -----------------------------------------------------
 
 #' Visualise the multi-trait diversity landscape
 #'
