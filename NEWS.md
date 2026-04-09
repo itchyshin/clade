@@ -42,6 +42,17 @@ Each module is a no-op when its flag is `FALSE`; overhead is zero.
 - **Social learning** (`social_learning = TRUE`): prestige-biased copying —
   agents blend a fraction of the highest-energy neighbour's output-layer
   weights into their own policy.
+- **Brain size evolution** (`brain_size_evolution = TRUE`): heritable
+  `brain_size` trait (Float32, reference 1.0) modelling the parental
+  provisioning hypothesis (van Schaik et al. 2023; Griesser et al. 2023;
+  Song et al. 2025). Larger brains incur a per-tick idle-cost surcharge
+  (expensive brain hypothesis) and a proportional cognitive foraging bonus.
+  The bootstrapping problem — large-brained offspring pay the metabolic cost
+  from birth before their foraging advantage emerges — means brain size only
+  evolves when `parental_care = TRUE` buffers the infancy energy deficit.
+  Logged as `mean_brain_size` in `env$progress`. New parameters:
+  `brain_size_evolution`, `brain_size_init_mean`, `brain_size_mutation_sd`,
+  `brain_size_min`, `brain_size_max`, `brain_size_cost_scale`.
 
 ## Parameter search
 

@@ -349,6 +349,29 @@
 #'   \item{`body_size_max`}{Numeric. Maximum body size (default 3.0).}
 #' }
 #'
+#' ## Brain size evolution
+#' \describe{
+#'   \item{`brain_size_evolution`}{Logical. Enable heritable brain size trait
+#'     (default `FALSE`). Implements the parental provisioning hypothesis: brain
+#'     size is metabolically costly (expensive brain hypothesis) yet confers a
+#'     cognitive foraging advantage. The bootstrapping problem — large-brained
+#'     offspring pay the metabolic cost from birth before their cognitive
+#'     advantage can offset it — means brain size can only evolve when parental
+#'     provisioning (`parental_care = TRUE`) buffers the infancy energy deficit.
+#'     References: van Schaik et al. (2023) *PLoS Biology* 21(5):e3002064;
+#'     Griesser et al. (2023) *PNAS* 120(31):e2301005120;
+#'     Song et al. (2025) *PNAS* 122(8):e2412783122.}
+#'   \item{`brain_size_init_mean`}{Numeric. Initial mean brain size (default 1.0,
+#'     reference = no effect).}
+#'   \item{`brain_size_mutation_sd`}{Numeric. Mutation SD for brain size
+#'     (default 0.05).}
+#'   \item{`brain_size_min`}{Numeric. Minimum brain size (default 0.1).}
+#'   \item{`brain_size_max`}{Numeric. Maximum brain size (default 3.0).}
+#'   \item{`brain_size_cost_scale`}{Numeric. Multiplier on the metabolic
+#'     surcharge per unit of `brain_size - 1.0`. Higher values steepen the
+#'     cost curve and make the bootstrapping problem harder (default 1.0).}
+#' }
+#'
 #' ## Metabolic rate evolution
 #' \describe{
 #'   \item{`metabolic_rate_evolution`}{Logical. Enable heritable metabolic rate
@@ -767,6 +790,14 @@ default_specs <- function() {
     body_size_mutation_sd      = 0.08,
     body_size_min              = 0.3,
     body_size_max              = 3.0,
+
+    # ── Brain size evolution (parental provisioning hypothesis) ───────────
+    brain_size_evolution       = FALSE,
+    brain_size_init_mean       = 1.0,
+    brain_size_mutation_sd     = 0.05,
+    brain_size_min             = 0.1,
+    brain_size_max             = 3.0,
+    brain_size_cost_scale      = 1.0,
 
     # ── Metabolic rate evolution ───────────────────────────────────────────
     metabolic_rate_evolution   = FALSE,

@@ -31,7 +31,7 @@ FIG <- function(name, ...) {
 }
 ```
 
-This vignette walks through 36 biological scenarios in `clade`, from a
+This vignette walks through 37 biological scenarios in `clade`, from a
 bare foraging world to kitchen-sink multi-module runs. Each section shows the
 code needed to reproduce the result and a pre-built figure so that the
 vignette renders without a Julia session.
@@ -1862,6 +1862,78 @@ p1 / p2 + plot_layout(guides = "collect") &
 ```{r sec-36-fig, eval=TRUE, echo=FALSE, fig.cap="Evolution of bad science (Smaldino & McElreath 2016). Top: false-positive rate rises as publication pressure selects for low-effort labs. Bottom: research effort declines in parallel. Higher replication rates slow deterioration but do not prevent it. No Julia session is required: run_bad_science() is a self-contained pure-R simulation."}
 FIG("bad_science")
 ```
+
+---
+
+## 37. Brain Size Evolution and the Parental Provisioning Hypothesis {#section-37}
+
+The **parental provisioning hypothesis** proposes that parental care is a
+prerequisite for brain size evolution. Large-brained offspring face a
+"bootstrapping problem": neural tissue is energetically costly from birth
+(*expensive brain hypothesis*) but cognitive benefits materialise only after
+effective foraging — which requires having survived infancy. Parental energy
+provisioning bridges this gap.
+
+`brain_size` is a heritable continuous trait (reference = 1.0). Two forces
+balance: (1) metabolic surcharge proportional to `brain_size - 1.0` (paid
+from the first tick of life), and (2) a cognitive foraging advantage (extra
+grass extracted per tick, proportional to `brain_size - 1.0`). Without parental
+care, selection eliminates large-brained phenotypes because infants starve
+before the advantage emerges. With parental care, the provisioning energy
+buffer allows large-brained offspring to survive long enough for selection to
+favour the trait.
+
+```{r sec-37-code}
+library(clade)
+library(ggplot2)
+
+base <- default_specs()
+base$grid_rows     <- 20L; base$grid_cols <- 20L
+base$n_agents_init <- 40L; base$max_agents <- 300L
+base$max_ticks     <- 200L; base$random_seed <- 42L
+
+base$brain_size_evolution   <- TRUE
+base$brain_size_init_mean   <- 1.1
+base$brain_size_mutation_sd <- 0.05
+base$brain_size_cost_scale  <- 1.2
+
+s_care              <- base
+s_care$parental_care  <- TRUE
+s_care$care_duration  <- 10L; s_care$feeding_rate <- 3.0
+
+s_no_care           <- base
+s_no_care$parental_care <- FALSE
+
+env_care    <- run_alife(s_care,    verbose = FALSE)
+env_no_care <- run_alife(s_no_care, verbose = FALSE)
+
+d_c  <- get_run_data(env_care)$ticks
+d_nc <- get_run_data(env_no_care)$ticks
+
+df <- rbind(
+  cbind(d_c[,  c("t", "mean_brain_size")], condition = "Parental care"),
+  cbind(d_nc[, c("t", "mean_brain_size")], condition = "No parental care")
+)
+
+ggplot(df, aes(t, mean_brain_size, colour = condition)) +
+  geom_line(linewidth = 0.8) +
+  geom_hline(yintercept = 1.0, linetype = "dashed", colour = "grey50") +
+  scale_colour_manual(values = c("Parental care"    = "#2196F3",
+                                  "No parental care" = "#F44336")) +
+  labs(title    = "Brain size evolution: parental provisioning hypothesis",
+       subtitle  = "Parental care unlocks brain size evolution",
+       x = "Tick", y = "Mean brain size", colour = NULL) +
+  theme_minimal()
+```
+
+```{r sec-37-fig, eval=TRUE, echo=FALSE, fig.cap="Parental provisioning hypothesis. Mean brain size drifts upward when parental care is present (blue): the provisioning energy buffer allows large-brained offspring to survive the bootstrapping period. Without parental care (red), the metabolic cost of a large brain eliminates high-brain-size phenotypes, keeping mean brain size at or below the reference (dashed). Based on van Schaik et al. (2023) PLoS Biology, Griesser et al. (2023) PNAS, and Song et al. (2025) PNAS."}
+FIG("brain_size_evolution")
+```
+
+**Key parameters**: `brain_size_evolution`, `brain_size_init_mean`,
+`brain_size_mutation_sd`, `brain_size_min`, `brain_size_max`,
+`brain_size_cost_scale`. For the full mechanism see
+`vignette("scenarios", package = "clade")` Part X.
 
 ---
 

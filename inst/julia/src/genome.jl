@@ -170,6 +170,12 @@ function _sample_traits(specs::Dict{String,Any}, rng::AbstractRNG)::Vector{Float
                get(specs, "wing_size_min", 0.0),
                get(specs, "wing_size_max", 1.0)) : 0.0f0
 
+    t[TRAIT_BRAIN_SIZE] = Bool(get(specs, "brain_size_evolution", false)) ?
+        sample(get(specs, "brain_size_init_mean", 1.0),
+               get(specs, "brain_size_mutation_sd", 0.05),
+               get(specs, "brain_size_min", 0.1),
+               get(specs, "brain_size_max", 3.0)) : 1.0f0
+
     t
 end
 
@@ -494,6 +500,12 @@ function _mutate_traits(t::Vector{Float32}, specs::Dict{String,Any},
         maybe_mutate!(TRAIT_LEARNING_RATE,
                       Float32(specs["learning_rate_init_mean"]) * 0.1f0,
                       specs["learning_rate_min"], specs["learning_rate_max"])
+
+    Bool(get(specs, "brain_size_evolution", false)) &&
+        maybe_mutate!(TRAIT_BRAIN_SIZE,
+                      get(specs, "brain_size_mutation_sd", 0.05),
+                      get(specs, "brain_size_min", 0.1),
+                      get(specs, "brain_size_max", 3.0))
 
     t
 end

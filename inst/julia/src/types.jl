@@ -110,7 +110,7 @@ struct DiploidGenome
 end
 
 """Number of scalar traits stored per haplotype in `DiploidGenome`."""
-const N_SCALAR_TRAITS = 14
+const N_SCALAR_TRAITS = 15
 
 # Scalar trait indices (into maternal_traits / paternal_traits)
 const TRAIT_BODY_SIZE             = 1
@@ -127,6 +127,7 @@ const TRAIT_HELPER_TENDENCY       = 11
 const TRAIT_PLASTICITY            = 12
 const TRAIT_TOXICITY              = 13
 const TRAIT_WING_SIZE             = 14
+const TRAIT_BRAIN_SIZE            = 15
 
 """
     is_haploid(g::DiploidGenome) -> Bool
@@ -299,6 +300,9 @@ mutable struct Agent
     # Complex landscape (Tier 1)
     wing_size          ::Float32   # heritable; 0=ground-bound, 1=full aerial; canopy access when >= canopy_threshold
     niche_layer        ::Int32     # current resource layer: 1=ground, 2=shrub, 3=canopy (updated per tick)
+
+    # Brain size evolution (parental provisioning hypothesis)
+    brain_size         ::Float32   # heritable cognitive capacity trait (1.0 = reference)
 end
 
 # ── Environment ────────────────────────────────────────────────────────────────

@@ -79,6 +79,7 @@ include("modules/seasonal.jl")
 include("modules/parental_care.jl")
 include("modules/cooperative_breeding.jl")
 include("modules/body_size.jl")
+include("modules/brain_size_evolution.jl")
 include("modules/plasticity.jl")
 # include("modules/world_evolution.jl")
 
@@ -317,6 +318,7 @@ function run_clade(specs::Dict{String,Any})
         tick_agents!(env)
         tick_predators!(env)              # predator sense-decide-act loop
         apply_body_size!(env)             # metabolic + foraging correction
+        apply_brain_size_evolution!(env)  # expensive brain + cognitive foraging
         apply_dispersal!(env)             # natal dispersal away from birthplace
         apply_habitat_preference!(env)    # secondary move toward preferred habitat
         apply_seasonal_mortality!(env)    # winter death probability
@@ -561,6 +563,9 @@ function _make_founder_agent(id::Int64, g::DiploidGenome, brain::AbstractBrain,
     wing      = express_trait(g, TRAIT_WING_SIZE, dm,
                               Float32(get(specs, "wing_size_min", 0.0)),
                               Float32(get(specs, "wing_size_max", 1.0)), rng)
+    bsz       = express_trait(g, TRAIT_BRAIN_SIZE, dm,
+                              Float32(get(specs, "brain_size_min", 0.1)),
+                              Float32(get(specs, "brain_size_max", 3.0)), rng)
 
     sig_dims = Int(get(specs, "signal_dims", 0))
 
@@ -597,7 +602,9 @@ function _make_founder_agent(id::Int64, g::DiploidGenome, brain::AbstractBrain,
         # Habitat preference, cooperative breeding, plasticity
         hp, helper_t, plast,
         # Complex landscape traits
-        wing, Int32(1)   # wing_size, niche_layer (1=ground)
+        wing, Int32(1),   # wing_size, niche_layer (1=ground)
+        # Brain size evolution
+        bsz
     )
 end
 
@@ -643,7 +650,8 @@ function _agents_to_records(agents::Vector{Agent})
             wing_size      = Float64(ag.wing_size),
             niche_layer    = Int(ag.niche_layer),
             dispersal_tendency = Float64(ag.dispersal_tendency),
-            helper_tendency    = Float64(ag.helper_tendency)
+            helper_tendency    = Float64(ag.helper_tendency),
+            brain_size         = Float64(ag.brain_size)
         )
     end
 end

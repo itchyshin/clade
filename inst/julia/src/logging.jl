@@ -65,6 +65,7 @@ function _init_progress(specs::Dict{String,Any}, n_ticks::Int)::Dict{String,Vect
         "mean_plasticity"        => copy(fz),
         "mean_helper_tendency"   => copy(fz),
         "mean_habitat_preference" => copy(fz),
+        "mean_brain_size"         => copy(fz),
         # Tier 1: complex landscape
         "n_ground_agents"        => copy(iz),
         "n_shrub_agents"         => copy(iz),
@@ -182,6 +183,7 @@ function log_tick!(env::Environment)
     p["mean_plasticity"][t]     = mean(ag.plasticity for ag in ags)
     p["mean_helper_tendency"][t]    = mean(ag.helper_tendency for ag in ags)
     p["mean_habitat_preference"][t] = mean(ag.habitat_preference for ag in ags)
+    p["mean_brain_size"][t]         = mean(ag.brain_size for ag in ags)
 
     # Tier 1: complex landscape
     complex_on = Bool(get(env.specs, "complex_landscape", false))

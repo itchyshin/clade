@@ -2049,6 +2049,7 @@ replicated batch experiments tractable.
 | `mimicry_experiment.R` | Mimicry and toxicity section | `mimicry`, `toxicity_init_mean`, `n_predators_init` |
 | `social_learning_experiment.R` | Social learning section | `social_learning`, `social_learning_freq` |
 | `rl_experiment.R` | Within-lifetime RL section | `rl_mode`, `learning_rate`, `rl_update_freq` |
+| `brain_size_experiment.R` | Brain size evolution (Part X) | `brain_size_evolution`, `parental_care`, `brain_size_cost_scale` |
 
 **Migration checklist.** Replace the package namespace in all calls
 (`alifeR::` → `clade::`). Confirm that `default_specs()` returns the same
@@ -2089,6 +2090,105 @@ ggplot(df, aes(t, mean_fpr, colour = rate)) +
 ```{r fig-bad-science, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: false-positive rate rises under publication pressure without replication (red). Replication (blue) slows but does not prevent deterioration."}
 FIG("bad_science")
 ```
+
+---
+
+## Part X — Brain size evolution and the parental provisioning hypothesis
+
+The **parental provisioning hypothesis** proposes that parental care is a
+prerequisite for brain size evolution (van Schaik et al. 2023; Griesser et al.
+2023; Song et al. 2025). The mechanism has two components:
+
+1. **Expensive brain hypothesis**: brain tissue is metabolically costly and
+   cannot be down-regulated. Each unit of brain size adds to the idle metabolic
+   cost that must be paid every tick, regardless of whether the agent is
+   foraging successfully.
+2. **Bootstrapping problem**: large-brained newborns immediately pay the
+   metabolic surcharge but forage poorly (ANN weights are random at birth).
+   They starve before their cognitive advantage can offset the cost — *unless*
+   a parent provides exogenous energy during infancy.
+
+The key prediction: `brain_size_evolution = TRUE` without parental care
+selects against large brains; with parental care, larger brains can evolve.
+
+### Parameters
+
+| Parameter | Default | Description |
+|---|---|---|
+| `brain_size_evolution` | `FALSE` | Enable heritable brain size |
+| `brain_size_init_mean` | `1.0` | Initial population mean (reference = no effect) |
+| `brain_size_mutation_sd` | `0.05` | Per-generation mutation SD |
+| `brain_size_min` | `0.1` | Minimum brain size |
+| `brain_size_max` | `3.0` | Maximum brain size |
+| `brain_size_cost_scale` | `1.0` | Scales the idle-cost surcharge per unit of `brain_size - 1` |
+
+### Example: parental care unlocks brain size evolution
+
+```{r brain-size-evolution-setup, eval=FALSE}
+library(clade)
+
+base <- default_specs()
+base$grid_rows     <- 20L
+base$grid_cols     <- 20L
+base$n_agents_init <- 40L
+base$max_agents    <- 300L
+base$max_ticks     <- 300L
+base$random_seed   <- 42L
+
+# Brain size evolution parameters
+base$brain_size_evolution   <- TRUE
+base$brain_size_init_mean   <- 1.1   # start slightly above reference
+base$brain_size_mutation_sd <- 0.05
+base$brain_size_cost_scale  <- 1.2   # moderate metabolic burden
+
+# Condition 1: brain size evolution WITH parental care (care buffers infancy)
+s_care              <- base
+s_care$parental_care  <- TRUE
+s_care$care_duration  <- 10L
+s_care$feeding_rate   <- 3.0
+
+# Condition 2: brain size evolution WITHOUT parental care (bootstrapping fails)
+s_no_care           <- base
+s_no_care$parental_care <- FALSE
+
+env_care    <- run_alife(s_care,    verbose = FALSE)
+env_no_care <- run_alife(s_no_care, verbose = FALSE)
+
+d_care    <- get_run_data(env_care)$ticks
+d_no_care <- get_run_data(env_no_care)$ticks
+
+df <- rbind(
+  cbind(d_care[,    c("t", "mean_brain_size")], condition = "Parental care"),
+  cbind(d_no_care[, c("t", "mean_brain_size")], condition = "No parental care")
+)
+
+ggplot(df, aes(t, mean_brain_size, colour = condition)) +
+  geom_line(linewidth = 0.8) +
+  geom_hline(yintercept = 1.0, linetype = "dashed", colour = "grey50") +
+  scale_colour_manual(values = c("Parental care" = "#2196F3",
+                                  "No parental care" = "#F44336")) +
+  labs(title = "Brain size evolution: parental provisioning hypothesis",
+       subtitle = "Parental care bridges the bootstrapping energy deficit",
+       x = "Tick", y = "Mean brain size", colour = NULL) +
+  theme_minimal()
+```
+
+```{r fig-brain-size, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: mean brain size drifts upward when parental care is present (blue) because the care-energy buffer allows large-brained offspring to survive infancy. Without parental care (red), the metabolic cost of a large brain exceeds early-life foraging gains, selecting for smaller brains."}
+FIG("brain_size")
+```
+
+### Interpretation
+
+A rising `mean_brain_size` trajectory in the parental-care condition reflects
+evolutionary invasion of high-cost, high-benefit brain phenotypes. In the
+no-care condition the trajectory remains near or below the reference (1.0)
+because large-brained infants starve before they can reproduce.
+
+The critical parameters are `brain_size_cost_scale` (how steep the cost
+curve is) and `feeding_rate` × `care_duration` (how much energy the parent
+provides). Increasing `brain_size_cost_scale` makes the bootstrapping problem
+harder; increasing `feeding_rate` makes it easier for large-brained offspring
+to survive.
 
 ---
 
@@ -2209,6 +2309,17 @@ in animal species living together. *Journal of the Council International pour
 l'Exploration de la Mer* 3(1): 3–51.
 
 Williams, G.C. (1975) *Sex and Evolution*. Princeton University Press.
+
+van Schaik, C.P., Barrickman, N.L. & Isler, K. (2023) The "expensive brain"
+framework and the evolution of large brains. *PLoS Biology* 21(5): e3002064.
+
+Griesser, M., Drobniak, S.M., Nakagawa, S. & Botero, C.A. (2023) Parental
+provisioning drives brain size evolution. *Proceedings of the National Academy
+of Sciences* 120(31): e2301005120.
+
+Song, Z., Nakagawa, S., Hadfield, J.D. & Farine, D.R. (2025) Brain size
+evolution and parental investment. *Proceedings of the National Academy of
+Sciences* 122(8): e2412783122.
 
 Zahavi, A. (1975) Mate selection — a selection for a handicap. *Journal of
 Theoretical Biology* 53(1): 205–214.
