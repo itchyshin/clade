@@ -54,3 +54,38 @@ test_that("seasonal_amplitude is present and defaults to 0.0", {
   expect_true("seasonal_amplitude" %in% names(s))
   expect_equal(s$seasonal_amplitude, 0.0)
 })
+
+# ── 9. wall_density = 0.0 by default ─────────────────────────────────────────
+test_that("wall_density defaults to 0.0 (no walls by default)", {
+  expect_equal(default_specs()$wall_density, 0.0)
+})
+
+# ── 10. wall_density cannot be negative: default is non-negative ──────────────
+test_that("wall_density default value is non-negative", {
+  expect_gte(default_specs()$wall_density, 0.0)
+})
+
+# ── 11. wall_clusters is logical ──────────────────────────────────────────────
+test_that("wall_clusters is a logical scalar", {
+  val <- default_specs()$wall_clusters
+  expect_true(is.logical(val))
+  expect_length(val, 1L)
+})
+
+# ── 12. grid_rows and grid_cols defaults ──────────────────────────────────────
+test_that("grid_rows defaults to 30L", {
+  expect_equal(default_specs()$grid_rows, 30L)
+})
+
+test_that("grid_cols defaults to 30L", {
+  expect_equal(default_specs()$grid_cols, 30L)
+})
+
+# ── 13. wall parameters round-trip through default_specs() ───────────────────
+test_that("wall_density and wall_clusters round-trip through modified specs", {
+  s <- default_specs()
+  s$wall_density  <- 0.2
+  s$wall_clusters <- FALSE
+  expect_equal(s$wall_density, 0.2)
+  expect_false(s$wall_clusters)
+})

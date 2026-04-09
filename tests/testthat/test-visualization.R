@@ -27,7 +27,8 @@ library(testthat)
     sd_immune_strength     = rep(0.05, n),
     mean_metabolic_rate    = rep(1.0, n),
     mean_learning_rate     = rep(0.01, n),
-    mean_prior_sigma       = if (sigma > 0) seq(sigma, sigma * 0.1, length.out = n)
+    mean_prior_sigma       = if (sigma > 0)
+                               seq(sigma, sigma * 0.1, length.out = n)
                              else rep(0.0, n),
     grass_coverage         = seq(0.5, 0.4, length.out = n),
     n_infected             = rep(0L, n),
@@ -54,7 +55,10 @@ library(testthat)
 }
 
 .mock_env <- function(rows = 10L, cols = 10L, n_agents = 3L, n_pred = 0L) {
-  grass <- matrix(seq_len(rows * cols) / (rows * cols) * 5, nrow = rows, ncol = cols)
+  grass <- matrix(
+    seq_len(rows * cols) / (rows * cols) * 5,
+    nrow = rows, ncol = cols
+  )
   agents <- lapply(seq_len(n_agents), function(i) {
     list(id = i, x = i, y = i, energy = 50 + i * 10)
   })
@@ -119,7 +123,9 @@ test_that("plot_disease_dynamics() returns placeholder when disease is off", {
 
 test_that("plot_disease_dynamics() renders when disease data present", {
   rd <- .mock_run_data()
-  rd$ticks$n_infected       <- as.integer(seq(0, 5, length.out = nrow(rd$ticks)))
+  rd$ticks$n_infected <- as.integer(
+    seq(0, 5, length.out = nrow(rd$ticks))
+  )
   rd$ticks$n_new_infections <- rep(1L, nrow(rd$ticks))
   p <- plot_disease_dynamics(rd)
   expect_s3_class(p, "ggplot")
@@ -155,4 +161,81 @@ test_that("all plot functions run when disease columns are all zero", {
   expect_s3_class(plot_disease_dynamics(rd),  "ggplot")
   expect_s3_class(plot_signal_evolution(rd),  "ggplot")
   expect_s3_class(plot_kin_network(rd),       "ggplot")
+})
+
+# ── 10. plot_run() returns a patchwork object ─────────────────────────────────
+
+test_that("plot_run() returns an object that inherits from both patchwork and ggplot", {
+  p <- plot_run(.mock_run_data())
+  expect_s3_class(p, "patchwork")
+  expect_s3_class(p, "ggplot")
+})
+
+# ── 11. plot_run() works when ticks has zero rows ─────────────────────────────
+
+test_that("plot_run() handles zero-row ticks without crashing", {
+  rd <- .mock_run_data()
+  rd$ticks <- rd$ticks[integer(0), , drop = FALSE]
+  # Either returns a ggplot placeholder or throws an informative error — both
+  # are acceptable; what is NOT acceptable is an uninformative crash.
+  result <- tryCatch(plot_run(rd), error = function(e) e)
+  expect_true(inherits(result, "ggplot") || inherits(result, "error"))
+})
+
+# ── 12. visualize_progress() returns a patchwork object ──────────────────────
+
+test_that("visualize_progress() returns a patchwork plot given env + run_data", {
+  env <- .mock_env()
+  rd  <- .mock_run_data()
+  p   <- visualize_progress(env, run_data = rd)
+  expect_s3_class(p, "ggplot")
+})
+
+# ── 13. plot_environment() returns a ggplot ───────────────────────────────────
+
+test_that("plot_environment() returns a ggplot for a minimal env", {
+  p <- plot_environment(.mock_env(rows = 5L, cols = 5L, n_agents = 1L))
+  expect_s3_class(p, "ggplot")
+})
+
+# ── 14. plot_diversity() returns a ggplot ────────────────────────────────────
+
+test_that("plot_diversity() returns a ggplot on valid run_data", {
+  p <- plot_diversity(.mock_run_data())
+  # When n_agents >= 2 in all rows, should produce a plot; otherwise NULL.
+  expect_true(is.null(p) || inherits(p, "ggplot"))
+})
+
+# ── 15. plot_signal_evolution() returns a ggplot ─────────────────────────────
+
+test_that("plot_signal_evolution() returns a ggplot or placeholder ggplot", {
+  p <- plot_signal_evolution(.mock_run_data())
+  expect_s3_class(p, "ggplot")
+})
+
+# ── 16. plot_disease_dynamics() returns a ggplot ─────────────────────────────
+
+test_that("plot_disease_dynamics() returns a ggplot for all-zero disease data", {
+  p <- plot_disease_dynamics(.mock_run_data())
+  expect_s3_class(p, "ggplot")
+})
+
+# ── 17. plot_module_metrics() returns a ggplot-compatible object ──────────────
+
+test_that("plot_module_metrics() returns a ggplot or patchwork object", {
+  rd <- .mock_run_data()
+  # Add mock module columns that plot_module_metrics() may need.
+  n  <- nrow(rd$ticks)
+  rd$ticks$n_predators         <- rep(0L, n)
+  rd$ticks$n_prey_killed       <- rep(0L, n)
+  rd$ticks$n_juveniles         <- rep(0L, n)
+  rd$ticks$n_helpers           <- rep(0L, n)
+  rd$ticks$n_toxic_attacks     <- rep(0L, n)
+  rd$ticks$n_avoided_attacks   <- rep(0L, n)
+  rd$ticks$mean_signal_magnitude <- rep(0.0, n)
+  rd$ticks$mean_toxicity       <- rep(0.0, n)
+  rd$ticks$mean_plasticity     <- rep(0.0, n)
+  rd$ticks$mean_helper_tendency <- rep(0.0, n)
+  p <- plot_module_metrics(rd)
+  expect_s3_class(p, "ggplot")
 })

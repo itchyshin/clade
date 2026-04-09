@@ -95,3 +95,117 @@ test_that("all parameter names in default_specs() are unique (no duplicates)", {
   nms <- names(default_specs())
   expect_equal(length(nms), length(unique(nms)))
 })
+
+# ── Julia-dependent tests ─────────────────────────────────────────────────────
+
+skip_no_julia <- function() {
+  skip_if_not(requireNamespace("JuliaConnectoR", quietly = TRUE),
+              "JuliaConnectoR not available")
+  skip_if_not(JuliaConnectoR::juliaSetupOk(),
+              "Julia toolchain not available")
+}
+
+# ── 9. Kitchen-sink run with multiple modules completes without error ─────────
+test_that("run with disease + kin_selection + social_learning completes", {
+  skip_no_julia()
+  s <- default_specs()
+  s$grid_rows          <- 10L
+  s$grid_cols          <- 10L
+  s$n_agents_init      <- 8L
+  s$max_agents         <- 60L
+  s$max_ticks          <- 10L
+  s$disease            <- TRUE
+  s$kin_selection      <- TRUE
+  s$social_learning    <- TRUE
+  env <- run_alife(s, verbose = FALSE)
+  expect_true(is.list(env))
+})
+
+# ── 10. Number of ticks in run_data matches max_ticks ────────────────────────
+test_that("number of rows in run_data$ticks equals max_ticks", {
+  skip_no_julia()
+  s <- default_specs()
+  s$grid_rows     <- 10L
+  s$grid_cols     <- 10L
+  s$n_agents_init <- 5L
+  s$max_agents    <- 50L
+  s$max_ticks     <- 8L
+  env <- run_alife(s, verbose = FALSE)
+  rd  <- get_run_data(env)
+  expect_equal(nrow(rd$ticks), 8L)
+})
+
+# ── 11. All expected column names are present in ticks ───────────────────────
+test_that("run_data$ticks contains all core column names", {
+  skip_no_julia()
+  s <- default_specs()
+  s$grid_rows     <- 10L
+  s$grid_cols     <- 10L
+  s$n_agents_init <- 5L
+  s$max_agents    <- 50L
+  s$max_ticks     <- 5L
+  env <- run_alife(s, verbose = FALSE)
+  rd  <- get_run_data(env)
+  core_cols <- c("t", "n_agents", "n_births", "n_deaths", "mean_energy",
+                 "mean_age", "genetic_diversity", "grass_coverage")
+  missing <- setdiff(core_cols, names(rd$ticks))
+  expect_equal(missing, character(0L))
+})
+
+# ── 12. Births occurred somewhere in the run ─────────────────────────────────
+test_that("n_births > 0 in at least one tick of a standard run", {
+  skip_no_julia()
+  s <- default_specs()
+  s$grid_rows     <- 15L
+  s$grid_cols     <- 15L
+  s$n_agents_init <- 20L
+  s$max_agents    <- 200L
+  s$max_ticks     <- 50L
+  env <- run_alife(s, verbose = FALSE)
+  rd  <- get_run_data(env)
+  expect_true(any(rd$ticks$n_births > 0L))
+})
+
+# ── 13. genetic_diversity is non-negative throughout the run ─────────────────
+test_that("genetic_diversity column is non-negative throughout the run", {
+  skip_no_julia()
+  s <- default_specs()
+  s$grid_rows     <- 10L
+  s$grid_cols     <- 10L
+  s$n_agents_init <- 5L
+  s$max_agents    <- 50L
+  s$max_ticks     <- 10L
+  env <- run_alife(s, verbose = FALSE)
+  rd  <- get_run_data(env)
+  expect_true(all(rd$ticks$genetic_diversity >= 0.0, na.rm = TRUE))
+})
+
+# ── 14. Population size stays positive for at least the first 5 ticks ────────
+test_that("n_agents > 0 for at least the first 5 ticks", {
+  skip_no_julia()
+  s <- default_specs()
+  s$grid_rows     <- 10L
+  s$grid_cols     <- 10L
+  s$n_agents_init <- 8L
+  s$max_agents    <- 80L
+  s$max_ticks     <- 10L
+  env <- run_alife(s, verbose = FALSE)
+  rd  <- get_run_data(env)
+  early <- head(rd$ticks$n_agents, 5L)
+  expect_true(all(early > 0L))
+})
+
+# ── 15. mean_energy stays positive for at least the first 5 ticks ────────────
+test_that("mean_energy > 0 for at least the first 5 ticks", {
+  skip_no_julia()
+  s <- default_specs()
+  s$grid_rows     <- 10L
+  s$grid_cols     <- 10L
+  s$n_agents_init <- 8L
+  s$max_agents    <- 80L
+  s$max_ticks     <- 10L
+  env <- run_alife(s, verbose = FALSE)
+  rd  <- get_run_data(env)
+  early <- head(rd$ticks$mean_energy, 5L)
+  expect_true(all(early > 0.0, na.rm = TRUE))
+})

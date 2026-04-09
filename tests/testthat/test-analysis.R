@@ -127,3 +127,57 @@ test_that("get_genome_data() handles an empty genome_log gracefully", {
   expect_type(g, "list")
   expect_null(g$genomes)
 })
+
+# ── Additional tests ──────────────────────────────────────────────────────────
+
+# 9. estimate_heritability() returns a list with named elements
+test_that("estimate_heritability() return value has all required named elements", {
+  out <- estimate_heritability(.mock_rd(), trait = "body_size")
+  expect_true(all(c("h2", "method", "trait", "n", "note") %in% names(out)))
+})
+
+# 10. heritability estimate is numeric (finite or NA)
+test_that("heritability estimate is numeric (finite or NA)", {
+  out <- estimate_heritability(.mock_rd(), trait = "body_size")
+  expect_true(is.numeric(out$h2))
+})
+
+# 11. compare_conditions() works when given two run_data lists
+test_that("compare_conditions() accepts two run_data lists without error", {
+  rd1 <- .mock_rd()
+  rd2 <- .mock_rd()
+  # compare_conditions may not exist yet; skip gracefully if absent.
+  skip_if_not(existsFunction <- exists("compare_conditions",
+                                       mode = "function",
+                                       where = asNamespace("clade")),
+              "compare_conditions not yet exported")
+  expect_no_error(compare_conditions(rd1, rd2))
+})
+
+# 12. get_genome_data() returns a list with at least $genomes element
+test_that("get_genome_data() returns a list with $genomes element", {
+  env <- list(genome_log = list())
+  g   <- get_genome_data(env)
+  expect_true("genomes" %in% names(g))
+})
+
+# 13. genetic_diversity values are non-decreasing on a monotone mock series
+test_that("genetic_diversity column in mock data changes across ticks", {
+  tk <- .mock_ticks(n = 10L)
+  # The mock uses seq(0.1, 0.3, ...) so it must have non-zero range.
+  expect_gt(diff(range(tk$genetic_diversity)), 0)
+})
+
+# 14. estimate_heritability() note is a non-empty character string
+test_that("estimate_heritability() note is a non-empty character string", {
+  out <- estimate_heritability(.mock_rd(), trait = "body_size")
+  expect_type(out$note, "character")
+  expect_true(nzchar(out$note))
+})
+
+# 15. estimate_heritability() handles single-row ticks (too few for lag-1)
+test_that("estimate_heritability() returns NA when ticks has < 3 rows", {
+  rd <- .mock_rd(n = 2L)
+  out <- estimate_heritability(rd, trait = "body_size")
+  expect_true(is.na(out$h2))
+})

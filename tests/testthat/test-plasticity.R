@@ -41,3 +41,36 @@ test_that("in a rich environment plasticity threshold should move in the correct
   threshold_adj <- baseline - plasticity * local_density
   expect_true(threshold_adj < baseline)
 })
+
+test_that("phenotypic_plasticity = FALSE is the default", {
+  expect_identical(default_specs()$phenotypic_plasticity, FALSE)
+})
+
+test_that("plasticity_min and plasticity_max bound the trait correctly", {
+  s <- default_specs()
+  expect_lte(s$plasticity_min, s$plasticity_max)
+  expect_gte(s$plasticity_min, 0.0)
+  expect_lte(s$plasticity_max, 1.0)
+})
+
+test_that("plasticity_sense_radius defaults to 3L", {
+  expect_equal(default_specs()$plasticity_sense_radius, 3L)
+})
+
+test_that("plasticity_init_mean defaults to 0.0", {
+  expect_equal(default_specs()$plasticity_init_mean, 0.0)
+})
+
+test_that("plasticity_mutation_sd is strictly positive", {
+  expect_gt(default_specs()$plasticity_mutation_sd, 0.0)
+})
+
+test_that("mean_plasticity is a valid descriptor column for MAP-Elites", {
+  expect_true("mean_plasticity" %in% clade:::.valid_descriptor_columns())
+})
+
+test_that("plasticity_init_mean is within [plasticity_min, plasticity_max]", {
+  s <- default_specs()
+  expect_gte(s$plasticity_init_mean, s$plasticity_min)
+  expect_lte(s$plasticity_init_mean, s$plasticity_max)
+})

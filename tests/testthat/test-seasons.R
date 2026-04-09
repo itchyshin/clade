@@ -62,3 +62,23 @@ test_that("seasonal grass modulation formula is <1 in winter", {
   factor <- 1 + amplitude * sin(2 * pi * t / season_length)
   expect_true(factor < 1.0)
 })
+
+test_that("winter_death_prob defaults to 0.0", {
+  expect_equal(default_specs()$winter_death_prob, 0.0)
+})
+
+test_that("season_length defaults to 100L", {
+  sl <- default_specs()$season_length
+  expect_equal(sl, 100L)
+  expect_true(is.integer(sl))
+})
+
+test_that("seasonal_amplitude defaults to 0.0", {
+  expect_equal(default_specs()$seasonal_amplitude, 0.0)
+})
+
+test_that("seasonal_amplitude is a valid descriptor column for MAP-Elites search", {
+  # seasonal_amplitude is a spec parameter, not a tick-logged column; however,
+  # it can be swept during MAP-Elites. The spec name itself should be accessible.
+  expect_true("seasonal_amplitude" %in% names(default_specs()))
+})

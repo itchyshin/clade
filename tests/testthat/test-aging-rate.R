@@ -54,3 +54,45 @@ test_that("aging_rate_init_mean is within [aging_rate_min, aging_rate_max]", {
 test_that("senescence_shape is present in default_specs()", {
   expect_true("senescence_shape" %in% names(default_specs()))
 })
+
+# ── 9. aging_rate_min bound is respected (>= 0) ──────────────────────────────
+test_that("aging_rate_min is non-negative", {
+  expect_gte(default_specs()$aging_rate_min, 0.0)
+})
+
+# ── 10. aging_rate_max bound is finite and positive ──────────────────────────
+test_that("aging_rate_max is finite and positive", {
+  val <- default_specs()$aging_rate_max
+  expect_true(is.finite(val))
+  expect_gt(val, 0.0)
+})
+
+# ── 11. aging_rate_evolution defaults to FALSE ───────────────────────────────
+test_that("aging_rate_evolution = FALSE is the default", {
+  expect_identical(default_specs()$aging_rate_evolution, FALSE)
+})
+
+# ── 12. aging_rate_init_mean defaults to 1.0 ─────────────────────────────────
+test_that("aging_rate_init_mean defaults to 1.0", {
+  expect_equal(default_specs()$aging_rate_init_mean, 1.0)
+})
+
+# ── 13. senescence_shape defaults to 2.0 ─────────────────────────────────────
+test_that("senescence_shape defaults to 2.0", {
+  expect_equal(default_specs()$senescence_shape, 2.0)
+})
+
+# ── 14. default senescence_rate is in [0, 0.1) range ─────────────────────────
+test_that("default senescence_rate is in [0, 0.1) range", {
+  sr <- default_specs()$senescence_rate
+  expect_gte(sr, 0.0)
+  expect_lt(sr, 0.1)
+})
+
+# ── 15. aging_rate_init_mean is within [aging_rate_min, aging_rate_max] ──────
+# (duplicates intent of test 7 but checks the actual default value 1.0 directly)
+test_that("aging_rate_init_mean value 1.0 satisfies the min/max bounds", {
+  s <- default_specs()
+  expect_true(s$aging_rate_init_mean >= s$aging_rate_min &&
+                s$aging_rate_init_mean <= s$aging_rate_max)
+})
