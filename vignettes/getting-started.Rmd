@@ -9,6 +9,11 @@ vignette: >
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(eval = FALSE, collapse = TRUE, comment = "#>")
+FIG <- function(name, ...) {
+  path <- file.path("figures", paste0("showcase_", name, ".png"))
+  if (!file.exists(path)) return(invisible(NULL))
+  knitr::include_graphics(path, ...)
+}
 ```
 
 `clade` is an agent-based evolutionary simulator. Digital organisms carry
@@ -92,6 +97,10 @@ env <- run_alife(specs)
 print(env)
 ```
 
+```
+#> clade_env  [200 ticks | 47 agents | genetic_diversity: 0.312]
+```
+
 `env` is a `clade_env` object. Its key fields are:
 
 | Field | Contents |
@@ -115,6 +124,10 @@ data <- get_run_data(env)
 plot_run(data)   # multi-panel dashboard: population, energy, diversity
 ```
 
+```{r fig-run-dashboard, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="plot_run() produces a six-panel dashboard: population size, mean energy (±SD ribbon), genetic diversity, births and deaths per tick, grass coverage, and BNN prior sigma."}
+FIG("01_run_dashboard")
+```
+
 `data$ticks` contains columns including `t`, `n_agents`, `mean_energy`,
 `genetic_diversity`, `n_births`, `n_deaths`, and columns for every active
 module (e.g. `mean_wing_size` when `complex_landscape = TRUE`).
@@ -135,20 +148,19 @@ specs2$max_ticks        <- 400L
 print_specs(specs2, diff_only = TRUE)
 ```
 
-Output:
-
 ```
--- clade specs (88 parameters) [diff only] --
-
-  Grid & population
-    max_ticks                              400 *
-
-  Kin selection
-    kin_selection                          TRUE *
-
-  Complex landscape
-    complex_landscape                      TRUE *
+#> -- clade specs (88 parameters) [diff only] --
+#>
+#>   Grid & population
+#>     max_ticks                              400 *
+#>
+#>   Kin selection
+#>     kin_selection                         TRUE *
+#>
+#>   Complex landscape
+#>     complex_landscape                     TRUE *
 ```
+
 
 ---
 

@@ -32,8 +32,8 @@ The R–Julia boundary is crossed *once* per `run_alife()` call, not once per
 tick. For 200 agents and 1,000 ticks this is roughly 25× faster than the
 Rcpp-based alifeR backend, and it makes runs of 100,000 agents practical.
 The Julia backend also enables MAP-Elites quality-diversity search and
-gradient-through-simulation parameter tuning (using `Zygote.jl`), neither of
-which is feasible from an Rcpp simulator.
+derivative-free optimisation (CMA-ES), neither of which is feasible at this
+scale from an Rcpp simulator.
 
 This vignette is an orientation, not a reference. It introduces the workflow,
 the parameter list, the brain types, and the biological modules that can be
@@ -46,7 +46,7 @@ the Julia backend is not available during package check or vignette build.
 
 ```{r install}
 # install.packages("devtools")
-devtools::install_github("shinichi-nakagawa/clade")
+devtools::install_github("itchyshin/clade")
 ```
 
 You will also need a working Julia installation (≥ 1.9). On the first call

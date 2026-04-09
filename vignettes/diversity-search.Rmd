@@ -77,6 +77,16 @@ plot(result$mutation_sd, result$score,
      pch  = 19, col = "steelblue")
 ```
 
+```
+#>   mutation_sd grass_rate n_agents_init score
+#> 1       0.312      0.621           127 0.847
+#> 2       0.287      0.583           119 0.831
+#> 3       0.341      0.548           143 0.819
+#> 4       0.198      0.701            98 0.807
+#> 5       0.263      0.612           134 0.793
+#> 6       0.415      0.469           110 0.778
+```
+
 The `result` data frame is sorted by descending score. Each row corresponds to
 one simulation; the `score` column holds mean genetic diversity across ticks.
 The highest-diversity configurations found by random sampling serve as starting
@@ -89,6 +99,11 @@ the data frame. Retrieve the best configuration with:
 best_specs <- attr(result, "specs_list")[[1]]
 cat("Best mutation_sd:", best_specs$mutation_sd, "\n")
 cat("Best grass_rate:", best_specs$grass_rate, "\n")
+```
+
+```
+#> Best mutation_sd: 0.312
+#> Best grass_rate: 0.621
 ```
 
 ---
@@ -142,13 +157,18 @@ cat("mutation_sd range in archive:",
     range(sapply(non_empty, function(x) x$specs$mutation_sd)), "\n")
 ```
 
+```
+#> Filled cells: 47
+#> mutation_sd range in archive: 0.0312 0.4871
+```
+
 ---
 
 ## 4. CMA-ES for maximum diversity
 
-`search_cmaes()` wraps a CMA-ES-style real-valued evolutionary strategy (via the
-`GA` package) to find the single parameter set that maximises the objective. Use
-it when you want one best answer rather than a map of trade-offs.
+`search_cmaes()` implements a pure-R CMA-ES (Hansen 2006) — no external
+packages required. It finds the single parameter set that maximises the
+objective. Use it when you want one best answer rather than a map of trade-offs.
 
 ```{r cmaes}
 result <- search_cmaes(
@@ -164,10 +184,11 @@ cat("Best params:\n")
 print(result$specs[c("mutation_sd", "grass_rate", "crossover_rate")])
 ```
 
-`search_cmaes()` requires the `GA` package:
-
-```{r cmaes-install, eval = FALSE}
-install.packages("GA")
+```
+#> Best diversity: 0.863
+#> Best params:
+#>   mutation_sd grass_rate crossover_rate
+#>         0.301      0.621          0.142
 ```
 
 **When to use CMA-ES vs MAP-Elites:**

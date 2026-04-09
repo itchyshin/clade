@@ -9,6 +9,11 @@ vignette: >
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(eval = FALSE, collapse = TRUE, comment = "#>")
+FIG <- function(name, ...) {
+  path <- file.path("figures", paste0("showcase_", name, ".png"))
+  if (!file.exists(path)) return(invisible(NULL))
+  knitr::include_graphics(path, ...)
+}
 ```
 
 Each module in `clade` implements a biological mechanism that can be enabled
@@ -53,6 +58,10 @@ s$random_seed   <- 1L
 env  <- run_alife(s)
 data <- get_run_data(env)
 plot_run(data)
+```
+
+```{r fig-baseline, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: six-panel run summary showing population dynamics, mean energy, genetic diversity, births/deaths, grass coverage, and BNN sigma."}
+FIG("01_run_dashboard")
 ```
 
 ---
@@ -112,6 +121,10 @@ tuned <- tune_complex_landscape(default_specs(), n_iterations = 80L)
 tuned$specs   # optimal landscape parameters
 ```
 
+```{r fig-complex-landscape, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: agents stratify across ground, shrub, and canopy layers as wing size evolves past the canopy threshold."}
+FIG("16_habitat_preference")
+```
+
 ---
 
 ## Spatial sorting
@@ -160,6 +173,10 @@ ggplot(data$ticks, aes(t)) +
   labs(title = "Spatial sorting: dispersal diverges at the invasion front",
        x = "Tick", y = "Mean dispersal tendency") +
   theme_minimal()
+```
+
+```{r fig-spatial-sorting, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: front-zone dispersal tendency (red) diverges upward from rear-zone dispersal (blue dashed) as high-dispersal genotypes accumulate at the invasion front."}
+FIG("05_dispersal")
 ```
 
 ---
@@ -212,6 +229,10 @@ plot(data$ticks$t, data$ticks$mean_helper_tendency, type = "l",
      main = "Helper tendency evolves under IFfolk + parliament suppression")
 ```
 
+```{r fig-iffolk, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: mean helper tendency rises over time as cooperative genotypes increase in frequency. Parliament suppression accelerates convergence."}
+FIG("20_cooperative_breeding")
+```
+
 ---
 
 ## Kin selection
@@ -246,6 +267,10 @@ s$max_ticks                   <- 300L
 env  <- run_alife(s)
 data <- get_run_data(env)
 cat("Total altruistic acts:", sum(data$ticks$n_altruistic_acts), "\n")
+```
+
+```{r fig-kin-selection, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: population is sustained at higher density than baseline, supported by energy transfers between relatives. Altruistic acts accumulate over the run."}
+FIG("07_kin_selection")
 ```
 
 ---
@@ -288,6 +313,10 @@ plot(data$ticks$t, data$ticks$n_infected, type = "l",
      main = "SIR epidemic dynamics")
 ```
 
+```{r fig-disease, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: epidemic waves visible as peaks in the infected count. Population dips sharply during outbreaks and recovers as immunity builds."}
+FIG("06_disease")
+```
+
 ---
 
 ## Niche construction
@@ -321,6 +350,10 @@ s$max_ticks          <- 300L
 env  <- run_alife(s)
 data <- get_run_data(env)
 cat("Total shelters built:", sum(data$ticks$n_shelters_built), "\n")
+```
+
+```{r fig-niche, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: shelter density builds up over time; predator kill rate is lower in sheltered cells, sustaining a larger population than an equivalent run without niche construction."}
+FIG("09_niche")
 ```
 
 ---
@@ -357,6 +390,10 @@ data <- get_run_data(env)
 cat("Final mean body size:", tail(data$ticks$mean_body_size, 1L), "\n")
 ```
 
+```{r fig-body-size, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: mean body size (±SD ribbon) evolves to a stable intermediate value. The dashed line marks the baseline size of 1.0."}
+FIG("04_body_size")
+```
+
 ---
 
 ## Dispersal evolution
@@ -387,6 +424,10 @@ s$max_ticks           <- 300L
 env  <- run_alife(s)
 data <- get_run_data(env)
 # Dispersal summary is in data$ticks$n_dispersal_events
+```
+
+```{r fig-dispersal, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: mean dispersal tendency evolves in response to local competition. Rich, dense environments typically select for lower dispersal."}
+FIG("05_dispersal")
 ```
 
 ---
@@ -420,6 +461,10 @@ s$max_ticks            <- 300L
 
 env  <- run_alife(s)
 data <- get_run_data(env)
+```
+
+```{r fig-social-learning, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: mean energy and genetic diversity are maintained at higher levels than a baseline run, as successful foraging behaviours propagate through the social network."}
+FIG("11_social_learning")
 ```
 
 ---
@@ -457,6 +502,10 @@ data <- get_run_data(env)
 cat("Total juveniles recorded:", sum(data$ticks$n_juveniles, na.rm = TRUE), "\n")
 ```
 
+```{r fig-parental-care, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: juvenile count is positive throughout the run; per-capita offspring count is lower than baseline but juvenile survival is higher, resulting in more buffered population dynamics."}
+FIG("19_parental_care")
+```
+
 ---
 
 ## Mimicry and toxicity
@@ -489,6 +538,10 @@ s$max_ticks          <- 300L
 
 env  <- run_alife(s)
 data <- get_run_data(env)
+```
+
+```{r fig-mimicry, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: mean toxicity rises under predator pressure; avoided attacks increase as predators learn to avoid toxic prey; toxic attack rate declines."}
+FIG("21_mimicry")
 ```
 
 ---
@@ -524,6 +577,10 @@ env  <- run_alife(s)
 data <- get_run_data(env)
 ```
 
+```{r fig-rl, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: agents with within-lifetime RL adapt to local resource distribution within their lifetime. The Baldwin Effect is visible as the BNN prior sigma narrows over generations."}
+FIG("10_rl")
+```
+
 ---
 
 ## Phenotypic plasticity
@@ -557,6 +614,10 @@ data <- get_run_data(env)
 cat("Final plasticity:", tail(data$ticks$mean_plasticity, 1L), "\n")
 ```
 
+```{r fig-plasticity, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: mean plasticity evolves over time. In stable environments it typically decreases; in seasonally varying environments it is maintained at intermediate values."}
+FIG("22_plasticity")
+```
+
 ---
 
 ## Pure-R scenario: Evolution of bad science
@@ -583,6 +644,10 @@ ggplot(df, aes(t, mean_fpr, colour = rate)) +
   labs(title = "False-positive rate under publication pressure",
        x = "Tick", y = "Mean FPR", colour = NULL) +
   theme_minimal()
+```
+
+```{r fig-bad-science, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: false-positive rate rises under publication pressure without replication (red). Replication (blue) slows but does not prevent deterioration."}
+FIG("bad_science")
 ```
 
 ---
