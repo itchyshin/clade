@@ -712,7 +712,7 @@ genome_distance <- function(agent_a, agent_b) {
 #' @param id_a,id_b Integer; `$id` values of the two agents to compare.
 #' @param env Environment list from [run_alife()].
 #'
-#' @return Numeric scalar in [0, 1].
+#' @return Numeric scalar in the range 0--1.
 #'
 #' @examples
 #' \dontrun{

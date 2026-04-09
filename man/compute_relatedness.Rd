@@ -12,7 +12,7 @@ compute_relatedness(id_a, id_b, env)
 \item{env}{Environment list from \code{\link[=run_alife]{run_alife()}}.}
 }
 \value{
-Numeric scalar in \link{0, 1}.
+Numeric scalar in the range 0--1.
 }
 \description{
 \code{compute_relatedness()} estimates the coefficient of relatedness (r) between

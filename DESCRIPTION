@@ -28,8 +28,11 @@ Imports:
 Suggests:
     GA,
     JuliaConnectoR (>= 0.9.0),
+    jsonlite,
     knitr,
+    NLMR,
     rmarkdown,
+    terra,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 VignetteBuilder: knitr
