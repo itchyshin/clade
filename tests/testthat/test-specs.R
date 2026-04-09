@@ -72,9 +72,9 @@ test_that("default brain_type is 'bnn'", {
   expect_equal(default_specs()$brain_type, "bnn")
 })
 
-# ── 4. Default ploidy is haploid (1L) ─────────────────────────────────────────
-test_that("default ploidy is 1 (haploid)", {
-  expect_equal(default_specs()$ploidy, 1L)
+# ── 4. Default ploidy is diploid (2L) ─────────────────────────────────────────
+test_that("default ploidy is 2 (diploid)", {
+  expect_equal(default_specs()$ploidy, 2L)
 })
 
 # ── 5. All boolean flags default to FALSE ─────────────────────────────────────

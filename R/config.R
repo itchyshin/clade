@@ -161,7 +161,7 @@
 #'
 #' ## Genome and ploidy
 #'
-#' clade supports haploid (default) and diploid life cycles. The diploid path
+#' clade supports diploid (default) and haploid life cycles. The diploid path
 #' implements full Mendelian genetics with independent assortment and
 #' recombination.
 #'

@@ -90,7 +90,7 @@ The six brain types differ in expressive power and computational cost:
 
 | Parameter | Default | Type | Description |
 |---|---|---|---|
-| `ploidy` | 1 | 1 or 2 | Haploid or diploid |
+| `ploidy` | 2 | 1 or 2 | Diploid (default) or haploid |
 | `sex_ratio` | 0.5 | numeric \[0,1\] | Fraction of agents that are female |
 | `mating_system` | `"random"` | character | Random, monogamy, polygyny, polyandry |
 | `mutation_sd` | 0.05 | numeric | Gaussian noise on genome weights |
