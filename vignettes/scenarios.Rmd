@@ -1,8 +1,8 @@
 ---
-title: "Biological Scenarios and Modules"
+title: "Biological Scenarios: A Discovery Guide"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Biological Scenarios and Modules}
+  %\VignetteIndexEntry{Biological Scenarios: A Discovery Guide}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -16,15 +16,24 @@ FIG <- function(name, ...) {
 }
 ```
 
-Each module in `clade` implements a biological mechanism that can be enabled
-independently or combined. This article documents every module: the biological
-motivation, the key parameters, what to look for in the output, and a minimal
-working example.
+Each module in `clade` implements a tested biological mechanism. But the real
+purpose of this guide is not to replicate what we already know — it is to
+show you where the known results end and the unknown begins. Every scenario
+below documents expected dynamics alongside **discovery prompts**: concrete
+experiments the model can run that go beyond existing theory. `clade` is a
+discovery scientific virtual engine: the simulation substrate for finding new
+insights, not just confirming old ones.
 
 All examples require Julia. Wrap any call in `if (julia_is_ready()) { ... }`
 for scripts that may run on machines without Julia.
 
 ---
+
+
+## Theme 1 — How do traits evolve? {#theme-1}
+
+*Genetics, heritability, trait architecture, and mutation dynamics. Each scenario activates a heritable trait and asks: what selective pressures shape it, and what emerges when multiple trait systems interact?*
+
 
 ## Part I — Core ecology and evolution
 
@@ -66,7 +75,331 @@ plot_run(data)
 FIG("01_run_dashboard")
 ```
 
+### Discovery prompts
+
+The baseline result demonstrates that evolution can occur: neural genomes diverge under selection for foraging. To go beyond:
+
+1. **Ploidy under crashes** Switch `ploidy = 1L`. Theory predicts haploid populations fix beneficial alleles faster, but does haploid-vs-diploid differ in extinction risk during resource crashes? Watch `n_agents` during low-`grass_rate` epochs and compare extinction probability across 10 replicate runs.
+
+2. **Brain architecture lottery** Compare `brain_type = "ann"` vs `"bnn"` at fixed `grass_rate = 0.05`. Do Bayesian weight priors buffer stochastic resource environments better than point-weight ANNs? Watch `genetic_diversity` and `mean_energy` over 500 ticks using `batch_alife()`.
+
+3. **Hypermutation availability** Add `stress_hypermutation = TRUE` and `mutation_rate_evolution = TRUE`. Does the population evolve a lower baseline `mutation_sd` when stress-induced hypermutation is available as a contingency? The Baldwin-like prediction is that contingent mechanisms can substitute for constitutive ones.
+
 ---
+
+### Population genetics and narrow-sense heritability
+
+**What it models.** A central quantity in quantitative genetics is narrow-sense
+heritability, h² — the proportion of phenotypic variance in a trait that is
+attributable to additive genetic effects (Falconer & Mackay 1996; Lynch & Walsh
+1998). A trait cannot respond to natural selection unless h² > 0. The
+`estimate_heritability()` function performs parent-offspring regression on
+pedigree records accumulated during the simulation: offspring trait values are
+regressed on mid-parent values, and the slope estimates h². When
+`body_size_evolution = TRUE`, body size is a polygenic trait encoded in the
+neural genome and subject to both mutation and selection, making it a suitable
+target for heritability analysis within a single run.
+
+**Key parameters.**
+
+| Parameter | Default | Effect |
+|---|---|---|
+| `body_size_evolution` | FALSE | Enables heritable, evolving body size |
+| `max_ticks` | — | Longer runs accumulate more parent-offspring pairs |
+
+**Expected output.** h² for `body_size` should be substantially positive
+(0.3–0.7) early in the run, reflecting the strong additive genetic architecture
+of a freshly initialised population. As directional selection erodes genetic
+variance, h² may decline in later ticks. The 95% confidence interval from the
+regression should exclude zero. h² for `energy` is expected to be lower,
+because energy is heavily influenced by the local environment.
+
+```{r pop-genetics}
+library(clade)
+
+s <- default_specs()
+s$body_size_evolution <- TRUE
+s$max_ticks           <- 500L
+
+env  <- run_alife(s)
+data <- get_run_data(env)
+
+h2 <- estimate_heritability(data, trait = "body_size")
+
+cat("Heritability h\u00b2:", round(h2$h2, 3), "\n")
+cat("95% CI: [", round(h2$ci[1], 3), ",", round(h2$ci[2], 3), "]\n")
+
+plot(h2)  # parent-offspring regression scatter with fitted line
+```
+
+```{r fig-pop-genetics, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: parent-offspring regression for body size with a positive slope (h² = 0.3-0.7). Each point is one offspring plotted against its mid-parent value. The shaded band is the 95% confidence interval on the regression line."}
+FIG("population_genetics")
+```
+
+### Discovery prompts
+
+The baseline result confirms that narrow-sense heritability is detectable from parent–offspring regression in simulation data. To go beyond:
+
+1. **Heritability under disease** Add `disease = TRUE`. Infection imposes a non-genetic energy penalty that inflates residual phenotypic variance. Does disease systematically depress estimated h² for `body_size`? Compare `estimate_heritability()` output with and without disease across five replicates.
+
+2. **Multi-trait covariance** Enable both `brain_size_evolution = TRUE` and `body_size_evolution = TRUE`. Do brain and body size show positive genetic covariance (as in vertebrates) or decouple? Regress `mean_brain_size` on `mean_body_size` across ticks and test whether the slope is significantly different from the allometric expectation of 0.75.
+
+3. **Selection vs drift** Run with `n_agents_init = 10L` vs `n_agents_init = 200L`. Small populations experience stronger drift; does narrow-sense h² decline faster in small populations because drift erodes additive variance faster than selection can act? Vary population size across `batch_alife()` and plot final h² against log(N).
+
+---
+
+### Body size evolution
+
+**What it models.** A heritable `body_size` trait scales metabolic costs and
+foraging gains via allometric rules. Larger body size increases move cost but
+also foraging efficiency. Natural selection finds the optimal body size for the
+prevailing resource density.
+
+**Key parameters.**
+
+| Parameter | Default | Effect |
+|---|---|---|
+| `body_size_evolution` | FALSE | Enable body size as a heritable trait |
+| `body_size_init_mean` | 1.0 | Starting body size (relative units) |
+| `body_size_mutation_sd` | 0.05 | Mutation rate |
+| `body_size_min` | 0.1 | Lower clamp |
+| `body_size_max` | 5.0 | Upper clamp |
+
+**Expected output.** `mean_body_size` evolves to a stable value. High
+`grass_rate` (rich environment) typically selects for larger body size;
+sparse environments select for smaller.
+
+```{r body-size}
+s <- default_specs()
+s$body_size_evolution  <- TRUE
+s$body_size_init_mean  <- 1.0
+s$max_ticks            <- 300L
+
+env  <- run_alife(s)
+data <- get_run_data(env)
+cat("Final mean body size:", tail(data$ticks$mean_body_size, 1L), "\n")
+```
+
+```{r fig-body-size, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: mean body size (±SD ribbon) evolves to a stable intermediate value. The dashed line marks the baseline size of 1.0."}
+FIG("04_body_size")
+```
+
+### Discovery prompts
+
+The baseline result shows that body size evolves to an equilibrium set by the metabolic cost–foraging gain trade-off. To go beyond:
+
+1. **Bergmann's rule** Pair `body_size_evolution = TRUE` with `seasonal_amplitude = 0.8`. Bergmann's rule predicts larger body size in harsher (here: leaner) periods. Does population `mean_body_size` covary positively with seasonal phase? Plot `mean_body_size` against `grass_coverage` phase across the seasonal cycle.
+
+2. **Predator-mediated size selection** Add `n_predators_init = 5L`. Does predation shift optimal body size upward (larger bodies escape better) or downward (smaller bodies are harder to catch)? Compare final `mean_body_size` with and without predators across a `grass_rate` gradient of five values in `batch_alife()`.
+
+3. **Body–brain allometry** Add `brain_size_evolution = TRUE`. Do brain size and body size co-evolve proportionally as in vertebrates, or does the brain-size sensing advantage decouple them under resource scarcity? Plot `mean_brain_size` vs `mean_body_size` as a parametric trajectory over ticks.
+
+---
+
+### Brain size evolution and the parental provisioning hypothesis
+
+The **parental provisioning hypothesis** proposes that parental care is a
+prerequisite for brain size evolution (van Schaik et al. 2023; Griesser et al.
+2023; Song et al. 2025). The mechanism has three components:
+
+1. **Expensive brain hypothesis**: brain tissue is metabolically costly and
+   cannot be down-regulated. Each unit of brain size adds to the idle metabolic
+   cost that must be paid every tick, regardless of whether the agent is
+   foraging successfully.
+2. **Bootstrapping problem**: large-brained newborns immediately pay the
+   metabolic surcharge but forage poorly (ANN weights are random at birth).
+   They starve before their cognitive advantage can offset the cost — *unless*
+   a parent provides exogenous energy during infancy.
+3. **Sensing quality**: larger-brained agents perceive grass resource gradients
+   more clearly. Grass inputs to the neural network are scaled by
+   `brain_size ^ brain_size_sensing_exponent`, amplifying the signal from
+   nearby food cells. This provides a directional navigation advantage that
+   complements the on-cell foraging bonus and compounds as brain size evolves
+   upward.
+
+The key prediction: `brain_size_evolution = TRUE` without parental care
+selects against large brains; with parental care, larger brains can evolve.
+
+### Parameters
+
+| Parameter | Default | Description |
+|---|---|---|
+| `brain_size_evolution` | `FALSE` | Enable heritable brain size |
+| `brain_size_init_mean` | `1.0` | Initial population mean (reference = no effect) |
+| `brain_size_mutation_sd` | `0.05` | Per-generation mutation SD |
+| `brain_size_min` | `0.1` | Minimum brain size |
+| `brain_size_max` | `3.0` | Maximum brain size |
+| `brain_size_cost_scale` | `1.0` | Scales the idle-cost surcharge per unit of `brain_size - 1` |
+| `brain_size_sensing_exponent` | `0.3` | Power applied to `brain_size` when scaling grass sensing inputs; 0 = off, 1 = linear |
+
+### Example: parental care unlocks brain size evolution
+
+```{r brain-size-evolution-setup, eval=FALSE}
+library(clade)
+
+base <- default_specs()
+base$grid_rows     <- 20L
+base$grid_cols     <- 20L
+base$n_agents_init <- 40L
+base$max_agents    <- 300L
+base$max_ticks     <- 300L
+base$random_seed   <- 42L
+
+# Brain size evolution parameters
+base$brain_size_evolution   <- TRUE
+base$brain_size_init_mean   <- 1.1   # start slightly above reference
+base$brain_size_mutation_sd <- 0.05
+base$brain_size_cost_scale  <- 1.2   # moderate metabolic burden
+
+# Condition 1: brain size evolution WITH parental care (care buffers infancy)
+s_care              <- base
+s_care$parental_care  <- TRUE
+s_care$care_duration  <- 10L
+s_care$feeding_rate   <- 3.0
+
+# Condition 2: brain size evolution WITHOUT parental care (bootstrapping fails)
+s_no_care           <- base
+s_no_care$parental_care <- FALSE
+
+env_care    <- run_alife(s_care,    verbose = FALSE)
+env_no_care <- run_alife(s_no_care, verbose = FALSE)
+
+d_care    <- get_run_data(env_care)$ticks
+d_no_care <- get_run_data(env_no_care)$ticks
+
+df <- rbind(
+  cbind(d_care[,    c("t", "mean_brain_size")], condition = "Parental care"),
+  cbind(d_no_care[, c("t", "mean_brain_size")], condition = "No parental care")
+)
+
+ggplot(df, aes(t, mean_brain_size, colour = condition)) +
+  geom_line(linewidth = 0.8) +
+  geom_hline(yintercept = 1.0, linetype = "dashed", colour = "grey50") +
+  scale_colour_manual(values = c("Parental care" = "#2196F3",
+                                  "No parental care" = "#F44336")) +
+  labs(title = "Brain size evolution: parental provisioning hypothesis",
+       subtitle = "Parental care bridges the bootstrapping energy deficit",
+       x = "Tick", y = "Mean brain size", colour = NULL) +
+  theme_minimal()
+```
+
+```{r fig-brain-size, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: mean brain size drifts upward when parental care is present (blue) because the care-energy buffer allows large-brained offspring to survive infancy. Without parental care (red), the metabolic cost of a large brain exceeds early-life foraging gains, selecting for smaller brains."}
+FIG("brain_size")
+```
+
+### Interpretation
+
+A rising `mean_brain_size` trajectory in the parental-care condition reflects
+evolutionary invasion of high-cost, high-benefit brain phenotypes. In the
+no-care condition the trajectory remains near or below the reference (1.0)
+because large-brained infants starve before they can reproduce.
+
+The critical parameters are `brain_size_cost_scale` (how steep the cost
+curve is), `feeding_rate` × `care_duration` (how much energy the parent
+provides), and `brain_size_sensing_exponent` (how strongly brain size amplifies
+resource perception). Increasing `brain_size_cost_scale` makes the bootstrapping
+problem harder; increasing `feeding_rate` makes it easier for large-brained
+offspring to survive. Setting `brain_size_sensing_exponent = 0` disables the
+sensing pathway entirely, isolating the foraging-bonus effect.
+
+### Discovery prompts
+
+The baseline result replicates the parental provisioning hypothesis: brain size only evolves upward when parental care buffers the infancy energy deficit. To go beyond:
+
+1. **Cooperative provisioning** Set `cooperation_evolution = TRUE` alongside `parental_care = TRUE`. Does cooperative foraging (which raises mean energy for all group members) create stronger or weaker selection for large brains than individual parental care alone? Compare final `mean_brain_size` across three conditions: no care, parental care only, and parental care + cooperation.
+
+2. **Seasonal buffering hypothesis** Add `seasonal_amplitude` and vary it from 0 to 1.0 across five runs in `batch_alife()`. The cognitive buffering hypothesis (van Schaik et al. 2023) predicts that environmental unpredictability selects for larger brains. Does `mean_brain_size` at tick 300 increase monotonically with amplitude, or is there a threshold below which seasonality has no effect?
+
+3. **Brain–body decoupling** Enable `body_size_evolution = TRUE`. Plot `mean_brain_size` against `mean_body_size` across ticks. Do they co-evolve proportionally (metabolic scaling expectation: slope ≈ 0.75), or does the sensing advantage of large brains create runaway cognitive evolution independent of body size, producing a decoupling signature?
+
+---
+
+### Stress hypermutation — the SOS response
+
+**What it models.** In bacteria, severe DNA damage or prolonged resource
+depletion triggers the SOS response: a suite of error-prone polymerases that
+dramatically increase the genomic mutation rate (McKenzie & Rosenberg 2001).
+This is a bet-hedging strategy — most mutations are deleterious, but the
+expanded variance in offspring phenotype increases the probability that at least
+one lineage will escape the current fitness trough. When
+`stress_hypermutation = TRUE`, agents whose energy falls below `stress_threshold`
+apply a mutation rate multiplied by `stress_mutation_multiplier` to their neural
+genome. Pairing this with a scarce-resource environment (`grass_rate = 0.05`)
+ensures that stress is frequent enough to detect the effect within a tractable
+run length.
+
+**Key parameters.**
+
+| Parameter | Default | Effect |
+|---|---|---|
+| `stress_hypermutation` | FALSE | Enables condition-dependent mutation rate elevation |
+| `stress_threshold` | 20.0 | Energy level below which hypermutation activates |
+| `stress_mutation_multiplier` | 3.0 | Factor by which mutation rate is scaled under stress |
+| `grass_rate` | — | Resource regrowth rate; reduce to impose chronic scarcity |
+
+**Expected output.** Compare `genetic_diversity` trajectories across the two
+conditions. Under stress hypermutation, diversity should spike transiently
+during resource crashes (low `mean_energy` epochs), followed by faster adaptive
+recovery as beneficial mutants sweep. The baseline condition should show slower,
+smoother recovery after equivalent crashes.
+
+```{r stress-hypermutation}
+library(clade)
+library(ggplot2)
+
+make_s <- function(hypermut) {
+  s <- default_specs()
+  s$stress_hypermutation       <- hypermut
+  s$stress_threshold           <- 20.0
+  s$stress_mutation_multiplier <- 5.0
+  s$grass_rate                 <- 0.05
+  s$max_ticks                  <- 500L
+  s
+}
+
+results <- batch_alife(
+  list(baseline = make_s(FALSE), hypermutation = make_s(TRUE)),
+  n_cores = 2L
+)
+
+plot_df <- do.call(rbind, mapply(function(env, nm) {
+  d <- get_run_data(env)$ticks
+  data.frame(t = d$t, genetic_diversity = d$genetic_diversity, condition = nm)
+}, results, names(results), SIMPLIFY = FALSE))
+
+ggplot(plot_df, aes(x = t, y = genetic_diversity, colour = condition)) +
+  geom_line(linewidth = 0.7, alpha = 0.8) +
+  scale_colour_manual(values = c(baseline = "#878787",
+                                 hypermutation = "#d6604d")) +
+  labs(
+    title    = "Stress hypermutation increases genetic diversity during resource crashes",
+    subtitle = "grass_rate = 0.05; stress_mutation_multiplier = 5",
+    x = "Tick", y = "Genetic diversity", colour = "Condition"
+  ) +
+  theme_minimal()
+```
+
+```{r fig-stress-hypermutation, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: genetic diversity is transiently elevated in the stress-hypermutation condition during resource-crash epochs. Adaptive recovery is faster in the hypermutation condition as beneficial variants spread more rapidly through the population."}
+FIG("stress_hypermutation")
+```
+
+### Discovery prompts
+
+The baseline result shows that stress hypermutation transiently elevates genetic diversity during resource crashes and accelerates adaptive recovery. To go beyond:
+
+1. **Kin buffering of hypermutation cost** Add `kin_selection = TRUE`. Kin altruism provides an energy buffer that may reduce how often agents fall below `stress_threshold`, dampening the hypermutation response. Does kin selection reduce the frequency of hypermutation events and the variance of `genetic_diversity` spikes? Plot spike height vs `kin_altruism_r_min` across `batch_alife()`.
+
+2. **Hypermutation × seasonality** Add `seasonal_amplitude = 0.7`. Resource crashes during winter should trigger hypermutation; does the timing of diversity spikes align with the seasonal grass trough? Plot `genetic_diversity` and `grass_coverage` on shared axes to test synchrony.
+
+3. **Evolved mutation rate** Enable `mutation_rate_evolution = TRUE`. Does the population evolve a lower baseline `mutation_sd` when hypermutation is available as a stress-contingent backup? This is the hypermutation analogue of the Baldwin Effect — contingent machinery substituting for constitutive mutation cost.
+
+---
+
+
+## Theme 2 — Ecology and adaptive landscapes {#theme-2}
+
+*Environment–phenotype feedbacks, spatial structure, and ecological engineering. These scenarios ask how the physical world shapes trait evolution and how organisms in turn reshape the world.*
+
 
 ### Complex landscape (forest world)
 
@@ -127,7 +460,58 @@ tuned$specs   # optimal landscape parameters
 FIG("16_habitat_preference")
 ```
 
+### Discovery prompts
+
+The baseline result shows that wing size evolves upward as agents discover and exploit the energetically richer canopy layer. To go beyond:
+
+1. **RL-assisted discovery** Add `rl_mode = "actor_critic"`. Within-lifetime RL allows agents to discover canopy cells during their lifetime rather than relying purely on heritable wing size. Does RL reduce the selective pressure on `wing_size_evolution`, producing a lower equilibrium `mean_wing_size`? Watch whether `n_canopy_agents` reaches the same level with smaller wing size under RL.
+
+2. **Predation drives canopy use** Add `n_predators_init = 5L`. Do predators drive agents into the canopy as a refuge, accelerating `mean_wing_size` evolution even at the cost of slower grass foraging? Watch whether `n_canopy_agents` increases more rapidly under predation and whether the interaction depends on `predator_attack_strength`.
+
+3. **Seasonal canopy value** Add `seasonal_amplitude = 0.7`. If ground-layer grass depletes seasonally, does canopy become relatively more valuable in winter, intensifying selection on wing size during lean periods? Measure the amplitude of `mean_wing_size` fluctuation against seasonal phase across three amplitude values.
+
 ---
+
+### Where to live and when to move
+
+**What it models.** Three related but distinct mechanisms govern where agents end up on the grid and how that pattern changes over time.
+
+**Spatial sorting.** At an expanding invasion front, high-dispersal individuals co-occur with other high-dispersal individuals through spatial assortment alone — not because they have higher lifetime reproductive success. Dispersal-enhancing alleles "surf the wave" (Shine et al. 2011). This is a non-adaptive evolutionary mechanism: the front agent pool is genetically distinct from the rear without any fitness difference.
+
+**Dispersal evolution.** A heritable `dispersal_tendency` trait governs how far agents move from their birthplace, allowing evolution to optimise dispersal in response to local resource density and competition. Dense, resource-rich environments typically select for lower dispersal (local knowledge is valuable); sparse, patchy environments select for higher dispersal.
+
+**Ideal free distribution (IFD).** The IFD predicts that, under perfect information and free movement, individuals should distribute themselves across habitat patches proportionally to resource availability, equalising per-capita intake rates (Fretwell & Lucas 1970). In `clade`, habitat preference is a heritable, continuously varying trait. Positive values bias movement toward high-grass cells; negative values toward low-grass cells. When `habitat_preference_evolution = TRUE`, selection acts on this trait because agents that track resource-rich patches acquire more energy, survive longer, and leave more offspring.
+
+**Spatial sorting parameters.**
+
+| Parameter | Default | Effect |
+|---|---|---|
+| `dispersal_evolution` | FALSE | Enable heritable dispersal tendency |
+| `dispersal_init_mean` | 0.5 | Starting dispersal probability |
+| `dispersal_mutation_sd` | 0.05 | Mutation rate for dispersal |
+| `spatial_sorting` | FALSE | Enable invasion-front mating assortment |
+| `sorting_front_threshold` | 0.75 | Fraction from front to define "front zone" |
+| `sorting_mating_boost` | 3.0 | Fold-increase in mate encounters at front |
+
+**Dispersal evolution parameters.**
+
+| Parameter | Default | Effect |
+|---|---|---|
+| `dispersal_evolution` | FALSE | Enable heritable dispersal |
+| `dispersal_init_mean` | 0.5 | Starting dispersal probability |
+| `dispersal_mutation_sd` | 0.05 | Mutation rate |
+| `dispersal_min / dispersal_max` | 0.0 / 1.0 | Clamp range |
+
+**Habitat preference parameters.**
+
+| Parameter | Default | Effect |
+|---|---|---|
+| `habitat_preference_evolution` | FALSE | Enables evolution of the habitat preference trait |
+| `habitat_preference_init_mean` | 0.0 | Starting mean preference (0 = no bias) |
+| `habitat_preference_mutation_sd` | 0.03 | Mutational step size per generation |
+| `habitat_preference_strength` | 0.5 | Strength of bias applied to movement decisions |
+
+**Expected outputs.** (1) Spatial sorting: `mean_front_dispersal` diverges upward from `mean_rear_dispersal` over time. (2) Dispersal evolution: `mean_dispersal` evolves in response to crowding. (3) IFD: `mean_habitat_preference` drifts toward positive values as agents that prefer grass-rich cells out-compete those that do not.
 
 ### Spatial sorting
 
@@ -138,16 +522,7 @@ Dispersal-enhancing alleles "surf the wave" (Shine et al. 2011). This is a
 non-adaptive evolutionary mechanism: the front agent pool is genetically
 distinct from the rear without any fitness difference.
 
-**Key parameters.**
-
-| Parameter | Default | Effect |
-|---|---|---|
-| `dispersal_evolution` | FALSE | Enable heritable dispersal tendency |
-| `dispersal_init_mean` | 0.5 | Starting dispersal probability |
-| `dispersal_mutation_sd` | 0.05 | Mutation rate for dispersal |
-| `spatial_sorting` | FALSE | Enable invasion-front mating assortment |
-| `sorting_front_threshold` | 0.75 | Fraction from front to define "front zone" |
-| `sorting_mating_boost` | 3.0 | Fold-increase in mate encounters at front |
+**Example: spatial sorting at the invasion front.**
 
 **Expected output.** `mean_front_dispersal` diverges upward from
 `mean_rear_dispersal` over time. The magnitude of the gap reflects the
@@ -181,145 +556,75 @@ ggplot(data$ticks, aes(t)) +
 FIG("05_dispersal")
 ```
 
----
+**Example: dispersal evolution under competition.**
 
-### IFfolk inclusive fitness
+**Expected output.** `mean_dispersal` evolves in response to crowding.
+Dense, resource-rich environments typically select for lower dispersal
+(local knowledge is valuable); sparse, patchy environments select for higher.
 
-**What it models.** Agents can transfer energy to nearby relatives. The
-transfer amount and eligibility radius are controlled by `iffolk_*` parameters.
-Cooperative behaviour evolves because it improves inclusive fitness: the
-donor's fitness cost is recovered through the reproductive gains of related
-recipients (Hamilton 1964). `parliament_suppression` enforces cooperation by
-penalising defectors (low `helper_tendency`) surrounded by cooperators,
-modelling the *parliament of genes* (Fromhage & Jennions 2019).
-
-**Key parameters.**
-
-| Parameter | Default | Effect |
-|---|---|---|
-| `iffolk_selection` | FALSE | Enable IFfolk transfers |
-| `iffolk_r_min` | 0.125 | Minimum relatedness (cousins and closer) |
-| `iffolk_radius` | 5 | Neighbourhood radius for kin search |
-| `iffolk_transfer` | 3.0 | Energy transferred per act |
-| `iffolk_min_energy` | 60.0 | Donor must exceed this energy |
-| `parliament_suppression` | FALSE | Penalise defectors among cooperators |
-| `parliament_cost` | 0.5 | Energy penalty for defectors |
-| `cooperative_breeding` | FALSE | Enable `helper_tendency` trait |
-| `helper_tendency_init_mean` | 0.2 | Starting helper tendency |
-
-**Expected output.** `mean_helper_tendency` increases over time.
-`n_iffolk_transfers` is positive and grows with population size.
-With `parliament_suppression = TRUE`, the increase is faster and converges
-near 1.0 for high-relatedness environments.
-
-```{r iffolk}
+```{r dispersal}
 s <- default_specs()
-s$iffolk_selection        <- TRUE
-s$iffolk_r_min            <- 0.125
-s$iffolk_transfer         <- 3.0
-s$parliament_suppression  <- TRUE
-s$parliament_cost         <- 0.5
-s$cooperative_breeding    <- TRUE
-s$helper_tendency_init_mean <- 0.2
-s$max_ticks               <- 400L
+s$dispersal_evolution <- TRUE
+s$max_ticks           <- 300L
+
+env  <- run_alife(s)
+data <- get_run_data(env)
+# Dispersal summary is in data$ticks$n_dispersal_events
+```
+
+```{r fig-dispersal, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: mean dispersal tendency evolves in response to local competition. Rich, dense environments typically select for lower dispersal."}
+FIG("05_dispersal")
+```
+
+**Example: evolution of habitat preference.**
+
+**Expected output.** Watch `mean_habitat_preference` over ticks. Starting near
+zero, the trait mean should drift toward positive values as agents that prefer
+grass-rich cells out-compete those that do not. Spatial plots at the end of the
+run should show agents concentrated near dense grass patches, consistent with
+the IFD prediction.
+
+```{r habitat-pref}
+library(clade)
+library(ggplot2)
+
+s <- default_specs()
+s$habitat_preference_evolution   <- TRUE
+s$habitat_preference_init_mean   <- 0.0
+s$habitat_preference_mutation_sd <- 0.03
+s$habitat_preference_strength    <- 0.5
+s$n_agents_init                  <- 100L
+s$grid_rows                      <- 30L
+s$grid_cols                      <- 30L
+s$max_ticks                      <- 400L
 
 env  <- run_alife(s)
 data <- get_run_data(env)
 
-plot(data$ticks$t, data$ticks$mean_helper_tendency, type = "l",
-     xlab = "Tick", ylab = "Mean helper tendency",
-     main = "Helper tendency evolves under IFfolk + parliament suppression")
+ggplot(data$ticks, aes(x = t, y = mean_habitat_preference)) +
+  geom_line(colour = "#6A1B9A", linewidth = 0.8) +
+  geom_hline(yintercept = 0, linetype = "dashed", colour = "grey50") +
+  labs(
+    x     = "Tick",
+    y     = "Mean habitat preference",
+    title = "Evolution of habitat preference toward grass-rich patches"
+  ) +
+  theme_classic(base_size = 12)
 ```
 
-```{r fig-iffolk, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: mean helper tendency rises over time as cooperative genotypes increase in frequency. Parliament suppression accelerates convergence."}
-FIG("20_cooperative_breeding")
+```{r fig-habitat-pref, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: mean habitat preference rises from zero toward positive values as selection favours individuals that concentrate near high-grass cells, consistent with ideal free distribution theory."}
+FIG("16_habitat_preference")
 ```
 
----
+### Discovery prompts
 
-### Kin selection
+The merged results confirm that dispersal evolves in response to local competition, spatial sorting concentrates high-dispersal genotypes at invasion fronts, and habitat preference evolves toward grass-rich patches. To go beyond:
 
-**What it models.** Agents with energy above a threshold donate a fixed cost to
-the most closely related Moore-neighbourhood agent with relatedness
-r >= `kin_altruism_r_min`. Relatedness is computed from the pedigree (parent
-chains). This is Hamilton's rule operationalised at each tick: the altruistic
-act evolves when Hamilton's rule holds: r &times; benefit &gt; cost.
+1. **Dispersal × disease** Add `disease = TRUE` alongside `dispersal_evolution = TRUE`. Higher dispersal spreads agents across the grid (reducing local epidemic density) but also spreads pathogens further. Does the evolved `mean_dispersal` differ from the no-disease baseline — and does the answer depend on `transmission_prob`? Compare evolved dispersal at final tick across five transmission probabilities.
 
-**Key parameters.**
+2. **IFD with seasonal resources** Add `seasonal_amplitude = 0.7` to the habitat preference run. If patch quality fluctuates predictably, does the evolved habitat preference become stronger (agents track good patches across seasons) or weaker (averaging over time makes tracking costly)? Plot `mean_habitat_preference` against seasonal phase at equilibrium.
 
-| Parameter | Default | Effect |
-|---|---|---|
-| `kin_selection` | FALSE | Enable kin altruism |
-| `kin_altruism_r_min` | 0.25 | Minimum relatedness to donate (siblings) |
-| `kin_altruism_cost` | 2.0 | Energy transferred per act |
-| `kin_altruism_min_donor_energy` | 50.0 | Donor energy floor |
-
-**Expected output.** `n_altruistic_acts` is positive. Population size is
-generally higher than baseline (altruism increases mean fitness). Genetic
-diversity may be slightly lower if relatedness clustering creates local
-inbreeding.
-
-```{r kin-selection}
-s <- default_specs()
-s$kin_selection               <- TRUE
-s$kin_altruism_r_min          <- 0.25
-s$kin_altruism_cost           <- 2.0
-s$max_ticks                   <- 300L
-
-env  <- run_alife(s)
-data <- get_run_data(env)
-cat("Total altruistic acts:", sum(data$ticks$n_altruistic_acts), "\n")
-```
-
-```{r fig-kin-selection, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: population is sustained at higher density than baseline, supported by energy transfers between relatives. Altruistic acts accumulate over the run."}
-FIG("07_kin_selection")
-```
-
----
-
-## Part II — Ecology modules
-
-### SIR disease
-
-**What it models.** A Susceptible-Infected-Recovered epidemic model. Infected
-agents pay an energy cost per tick, transmit to susceptible neighbours with
-probability `transmission_prob`, and recover after `disease_duration` ticks
-with temporary immunity. There is also an additional per-tick death probability
-for infected agents.
-
-**Key parameters.**
-
-| Parameter | Default | Effect |
-|---|---|---|
-| `disease` | FALSE | Enable SIR dynamics |
-| `transmission_prob` | 0.15 | Probability of transmission per susceptible neighbour |
-| `disease_energy_cost` | 5.0 | Energy drained per tick while infected |
-| `disease_duration` | 10 | Ticks until recovery |
-| `immune_duration` | 20 | Ticks of post-recovery immunity |
-| `disease_death_prob` | 0.01 | Extra mortality per tick while infected |
-| `disease_seed_prob` | 0.02 | Fraction infected at tick 1 |
-
-**Expected output.** `n_infected` shows epidemic peaks. Population size dips
-sharply during outbreaks and recovers as immunity builds. Multiple epidemic
-cycles are possible if immunity wanes before the next susceptible cohort matures.
-
-```{r disease}
-s <- default_specs()
-s$disease          <- TRUE
-s$transmission_prob <- 0.20
-s$max_ticks        <- 300L
-
-env  <- run_alife(s)
-data <- get_run_data(env)
-
-plot(data$ticks$t, data$ticks$n_infected, type = "l",
-     xlab = "Tick", ylab = "Infected agents",
-     main = "SIR epidemic dynamics")
-```
-
-```{r fig-disease, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: epidemic waves visible as peaks in the infected count. Population dips sharply during outbreaks and recovers as immunity builds."}
-FIG("06_disease")
-```
+3. **Invasion front brain size** Combine `spatial_sorting = TRUE` with `brain_size_evolution = TRUE`. Larger-brained agents have better sensory perception and may disperse more effectively toward resource-rich cells at the front. Does `mean_brain_size` differ between front-zone and rear-zone agents at final tick, creating a cognitive vanguard effect?
 
 ---
 
@@ -360,255 +665,15 @@ cat("Total shelters built:", sum(data$ticks$n_shelters_built), "\n")
 FIG("09_niche")
 ```
 
----
+### Discovery prompts
 
-### Body size evolution
+The baseline result shows that shelters reduce predator damage and sustain a larger population than baseline. To go beyond:
 
-**What it models.** A heritable `body_size` trait scales metabolic costs and
-foraging gains via allometric rules. Larger body size increases move cost but
-also foraging efficiency. Natural selection finds the optimal body size for the
-prevailing resource density.
+1. **Disease refugia** Add `disease = TRUE`. Shelters create spatial foci that reduce contact rate between agents. Does lower contact in sheltered cells reduce effective `transmission_prob`, dampening epidemic peaks? Compare `n_infected` peak height with and without niche construction under identical predation and transmission parameters.
 
-**Key parameters.**
+2. **Cooperative shelter building** Add `cooperation_evolution = TRUE`. Can cooperating agents accumulate shelter faster than solitary ones? Watch `n_shelters_built` and `mean_cooperation_level` jointly — does cooperation and niche construction positively reinforce each other through reciprocal energy benefits?
 
-| Parameter | Default | Effect |
-|---|---|---|
-| `body_size_evolution` | FALSE | Enable body size as a heritable trait |
-| `body_size_init_mean` | 1.0 | Starting body size (relative units) |
-| `body_size_mutation_sd` | 0.05 | Mutation rate |
-| `body_size_min` | 0.1 | Lower clamp |
-| `body_size_max` | 5.0 | Upper clamp |
-
-**Expected output.** `mean_body_size` evolves to a stable value. High
-`grass_rate` (rich environment) typically selects for larger body size;
-sparse environments select for smaller.
-
-```{r body-size}
-s <- default_specs()
-s$body_size_evolution  <- TRUE
-s$body_size_init_mean  <- 1.0
-s$max_ticks            <- 300L
-
-env  <- run_alife(s)
-data <- get_run_data(env)
-cat("Final mean body size:", tail(data$ticks$mean_body_size, 1L), "\n")
-```
-
-```{r fig-body-size, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: mean body size (±SD ribbon) evolves to a stable intermediate value. The dashed line marks the baseline size of 1.0."}
-FIG("04_body_size")
-```
-
----
-
-### Dispersal evolution
-
-**What it models.** A heritable `dispersal_tendency` trait governs how far
-agents move from their birthplace. This allows evolution to optimise dispersal
-in response to local resource density and competition. Can be combined with
-`spatial_sorting` to study invasion dynamics.
-
-**Key parameters.**
-
-| Parameter | Default | Effect |
-|---|---|---|
-| `dispersal_evolution` | FALSE | Enable heritable dispersal |
-| `dispersal_init_mean` | 0.5 | Starting dispersal probability |
-| `dispersal_mutation_sd` | 0.05 | Mutation rate |
-| `dispersal_min / dispersal_max` | 0.0 / 1.0 | Clamp range |
-
-**Expected output.** `mean_dispersal` evolves in response to crowding.
-Dense, resource-rich environments typically select for lower dispersal
-(local knowledge is valuable); sparse, patchy environments select for higher.
-
-```{r dispersal}
-s <- default_specs()
-s$dispersal_evolution <- TRUE
-s$max_ticks           <- 300L
-
-env  <- run_alife(s)
-data <- get_run_data(env)
-# Dispersal summary is in data$ticks$n_dispersal_events
-```
-
-```{r fig-dispersal, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: mean dispersal tendency evolves in response to local competition. Rich, dense environments typically select for lower dispersal."}
-FIG("05_dispersal")
-```
-
----
-
-### Social learning
-
-**What it models.** Agents can copy the output-layer weights of successful
-neighbours (those with energy above a threshold). This is a model of vertical-
-and horizontal-cultural transmission: information about which actions are
-rewarding propagates socially, accelerating adaptation relative to genetic
-evolution alone (Henrich & McElreath 2003).
-
-**Key parameters.**
-
-| Parameter | Default | Effect |
-|---|---|---|
-| `social_learning` | FALSE | Enable social learning |
-| `social_learning_freq` | 10 | Ticks between learning events |
-| `social_learning_radius` | 3 | Search radius for models |
-
-**Expected output.** Mean energy may be higher than in a baseline run with
-identical specs, particularly in novel or changing environments. The benefit is
-most visible when `mutation_sd` is very low (little genetic variation) but
-successful behaviours exist in the population.
-
-```{r social-learning}
-s <- default_specs()
-s$social_learning      <- TRUE
-s$social_learning_freq <- 10L
-s$max_ticks            <- 300L
-
-env  <- run_alife(s)
-data <- get_run_data(env)
-```
-
-```{r fig-social-learning, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: mean energy and genetic diversity are maintained at higher levels than a baseline run, as successful foraging behaviours propagate through the social network."}
-FIG("11_social_learning")
-```
-
----
-
-### Predator-prey dynamics
-
-**What it models.** Predator-prey coevolution is one of the oldest and most
-empirically grounded problems in population biology. The classical
-Lotka-Volterra equations predict sustained oscillations in which predator
-abundance tracks prey abundance with a characteristic lag (Lotka 1925;
-Volterra 1928). In `clade`, predators are autonomous agents with their own
-energy budgets, movement rules, and reproduction thresholds, so oscillations
-emerge from individual behaviour rather than being imposed by differential
-equations.
-
-**Key parameters.**
-
-| Parameter | Default | Effect |
-|---|---|---|
-| `n_predators_init` | 0 | Number of predators at tick 1; 0 disables predators entirely |
-| `predator_attack_strength` | 40.0 | Energy damage dealt to prey per successful attack |
-| `predator_energy_gain` | 30.0 | Energy gained by predator after a successful attack |
-| `predator_min_repro_energy` | 200.0 | Energy threshold for predator reproduction |
-| `predator_max_agents` | 50 | Hard cap on predator population size |
-| `grass_rate` | 0.05 | Grass regrowth rate; sets prey carrying capacity |
-
-**Expected output.** Watch `n_agents` (prey) and `n_predators` over time. Prey
-population rises first, then predators increase as food becomes abundant; prey
-then crash, pulling predators down with a lag of approximately 30 ticks — a
-pattern qualitatively consistent with Lotka-Volterra predictions.
-
-```{r predator-prey}
-library(clade)
-library(ggplot2)
-
-s <- default_specs()
-s$n_predators_init      <- 5L
-s$n_agents_init         <- 100L
-s$grid_rows             <- 30L
-s$grid_cols             <- 30L
-s$grass_rate            <- 0.3
-s$max_ticks             <- 500L
-
-env  <- run_alife(s)
-data <- get_run_data(env)
-
-ggplot(data$ticks, aes(x = t)) +
-  geom_line(aes(y = n_agents,    colour = "Prey"),     linewidth = 0.8) +
-  geom_line(aes(y = n_predators, colour = "Predators"), linewidth = 0.8) +
-  scale_colour_manual(
-    values = c("Prey" = "#2196F3", "Predators" = "#F44336"),
-    name   = NULL
-  ) +
-  labs(
-    x     = "Tick",
-    y     = "Population size",
-    title = "Predator-prey population dynamics"
-  ) +
-  theme_classic(base_size = 12)
-```
-
-```{r fig-predators, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: prey and predator populations oscillate with predator peaks lagging prey peaks by approximately 30 ticks, consistent with Lotka-Volterra dynamics."}
-FIG("14_predators")
-```
-
----
-
-### Group defense (dilution of risk)
-
-**What it models.** Hamilton's (1971) selfish herd hypothesis proposes that
-aggregation reduces individual predation risk by diluting attacks across a
-larger group. When any single predator can only attack one agent per encounter,
-each additional group member decreases the per-capita probability of being the
-target. In `clade`, group defense is implemented as a collective
-damage-reduction mechanism: agents within `group_defense_radius` cells of an
-attacked individual jointly absorb a fraction of the attack, reducing effective
-predation pressure on each member.
-
-**Key parameters.**
-
-| Parameter | Default | Effect |
-|---|---|---|
-| `group_defense` | FALSE | Enables collective damage reduction in groups |
-| `group_defense_radius` | 2 | Neighbourhood radius (cells) over which defense is pooled |
-| `group_defense_strength` | 0.3 | Fraction by which attack damage is reduced per additional neighbour |
-| `n_predators_init` | 0 | Set > 0 to activate predation pressure |
-| `predator_attack_strength` | 40.0 | Baseline damage before group reduction is applied |
-
-**Expected output.** In the `group_defense = TRUE` condition, mean population
-size should be substantially higher than the baseline, and survival curves
-should diverge after the first predator boom. The mechanism is dilution:
-per-capita attack rate falls as group size grows, creating a positive feedback
-between aggregation and survival.
-
-```{r group-defense}
-library(clade)
-library(ggplot2)
-
-base_specs <- function() {
-  s <- default_specs()
-  s$n_predators_init <- 5L
-  s$n_agents_init    <- 100L
-  s$grid_rows        <- 30L
-  s$grid_cols        <- 30L
-  s$max_ticks        <- 400L
-  s
-}
-
-s_no <- base_specs()
-s_no$group_defense <- FALSE
-
-s_gd <- base_specs()
-s_gd$group_defense          <- TRUE
-s_gd$group_defense_radius   <- 2L
-s_gd$group_defense_strength <- 0.3
-
-d_no <- get_run_data(run_alife(s_no))$ticks
-d_gd <- get_run_data(run_alife(s_gd))$ticks
-
-d_no$condition <- "No group defense"
-d_gd$condition <- "Group defense"
-dat <- rbind(d_no, d_gd)
-
-ggplot(dat, aes(x = t, y = n_agents, colour = condition)) +
-  geom_line(linewidth = 0.8) +
-  scale_colour_manual(
-    values = c("No group defense" = "#E53935", "Group defense" = "#43A047"),
-    name   = NULL
-  ) +
-  labs(
-    x     = "Tick",
-    y     = "Population size",
-    title = "Group defense reduces predation-driven extinction risk"
-  ) +
-  theme_classic(base_size = 12)
-```
-
-```{r fig-group-defense, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: group defense (green) sustains a larger and more stable population than the baseline (red) under identical predation pressure, illustrating the dilution-of-risk effect."}
-FIG("15_group_defense")
-```
+3. **Shelter × brain size** Add `brain_size_evolution = TRUE`. Do larger-brained agents disproportionately cluster in sheltered cells (better navigation to low-predation patches)? Measure the correlation between `n_shelters_built` in a cell and the mean `brain_size` of its occupants at final tick.
 
 ---
 
@@ -686,66 +751,15 @@ ggplot(dat_long, aes(x = t, y = value, colour = variable)) +
 FIG("17_seasons")
 ```
 
----
+### Discovery prompts
 
-### Habitat preference and ideal free distribution
+The baseline result shows population size tracking grass productivity with a short lag, producing recurrent winter crashes and spring recoveries. To go beyond:
 
-**What it models.** The ideal free distribution (IFD) predicts that, under
-perfect information and free movement, individuals should distribute themselves
-across habitat patches proportionally to resource availability, equalising
-per-capita intake rates (Fretwell & Lucas 1970). In `clade`, habitat preference
-is a heritable, continuously varying trait. Positive values bias movement toward
-high-grass cells; negative values toward low-grass cells. When
-`habitat_preference_evolution = TRUE`, selection acts on this trait because
-agents that track resource-rich patches acquire more energy, survive longer, and
-leave more offspring.
+1. **Life history × seasonality** Compare `life_history = "semelparous"` vs `"iteroparous"` under `seasonal_amplitude = 0.8`. Semelparous organisms time all reproduction to resource peaks; does semelparous life history produce sharper synchrony between birth events and the spring grass peak? Compute the cross-correlation between `n_births` and `grass_coverage` for each life history.
 
-**Key parameters.**
+2. **Dispersal as bet-hedging** Add `dispersal_evolution = TRUE`. In seasonal environments, dispersal spreads risk across patches at different resource phases. Does evolved `mean_dispersal` increase with `seasonal_amplitude` across a five-level `batch_alife()` sweep, consistent with dispersal as a bet-hedging strategy?
 
-| Parameter | Default | Effect |
-|---|---|---|
-| `habitat_preference_evolution` | FALSE | Enables evolution of the habitat preference trait |
-| `habitat_preference_init_mean` | 0.0 | Starting mean preference (0 = no bias) |
-| `habitat_preference_mutation_sd` | 0.03 | Mutational step size per generation |
-| `habitat_preference_strength` | 0.5 | Strength of bias applied to movement decisions |
-
-**Expected output.** Watch `mean_habitat_preference` over ticks. Starting near
-zero, the trait mean should drift toward positive values as agents that prefer
-grass-rich cells out-compete those that do not. Spatial plots at the end of the
-run should show agents concentrated near dense grass patches, consistent with
-the IFD prediction.
-
-```{r habitat-pref}
-library(clade)
-library(ggplot2)
-
-s <- default_specs()
-s$habitat_preference_evolution   <- TRUE
-s$habitat_preference_init_mean   <- 0.0
-s$habitat_preference_mutation_sd <- 0.03
-s$habitat_preference_strength    <- 0.5
-s$n_agents_init                  <- 100L
-s$grid_rows                      <- 30L
-s$grid_cols                      <- 30L
-s$max_ticks                      <- 400L
-
-env  <- run_alife(s)
-data <- get_run_data(env)
-
-ggplot(data$ticks, aes(x = t, y = mean_habitat_preference)) +
-  geom_line(colour = "#6A1B9A", linewidth = 0.8) +
-  geom_hline(yintercept = 0, linetype = "dashed", colour = "grey50") +
-  labs(
-    x     = "Tick",
-    y     = "Mean habitat preference",
-    title = "Evolution of habitat preference toward grass-rich patches"
-  ) +
-  theme_classic(base_size = 12)
-```
-
-```{r fig-habitat-pref, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: mean habitat preference rises from zero toward positive values as selection favours individuals that concentrate near high-grass cells, consistent with ideal free distribution theory."}
-FIG("16_habitat_preference")
-```
+3. **Brain size as cognitive buffering** Add `brain_size_evolution = TRUE`. The cognitive buffering hypothesis (van Schaik et al. 2023) predicts that seasonality selects for larger brains because cognitive flexibility helps navigate variable resource distributions. Does `mean_brain_size` at final tick increase monotonically with `seasonal_amplitude`?
 
 ---
 
@@ -821,9 +835,332 @@ ggplot(dat, aes(x = t, y = mean_energy, colour = condition)) +
 FIG("scavenging")
 ```
 
+### Discovery prompts
+
+The baseline result shows that scavenging sustains higher mean energy than baseline under identical low-grass conditions. To go beyond:
+
+1. **Carrion × disease** Add `disease = TRUE`. Dead agents deposit carrion; if infected carcasses transmit pathogens, scavenging may amplify epidemics. Does `n_new_infections` differ between scavenging and non-scavenging conditions under identical `transmission_prob`? Does `carrion_decay_rate` modulate pathogen persistence on carcasses?
+
+2. **Kin scavenging** Add `kin_selection = TRUE`. Both kin altruism and scavenging buffer energy deficits — are they additive (both help independently) or redundant (populations with kin altruism scavenge less because energy transfers substitute for carrion)? Watch `n_altruistic_acts` and `mean_energy` jointly under combined and single-module conditions.
+
+3. **Scavenging × learning** Add `rl_mode = "actor_critic"`. Can within-lifetime RL discover scavenging opportunities faster than pure genetic evolution can encode the behaviour? Compare `mean_energy` trajectories between RL and no-RL conditions in a scavenging-enabled world at tick 100 (early learning phase) vs tick 400 (late genetic phase).
+
 ---
 
-## Part III — Reproduction and life history
+
+## Theme 3 — Social evolution {#theme-3}
+
+*When does helping pay? Cooperation, signalling, and divergence. These scenarios implement Hamilton's rule, public goods games, honest signalling, and reproductive isolation — the core theoretical toolkit of social evolution.*
+
+
+### Kin selection and cooperative social structure
+
+**What it models.** Agents can transfer energy to nearby relatives via two mechanisms: Hamilton's pedigree-based kin altruism (`kin_selection = TRUE`) and the IFfolk model (`iffolk_selection = TRUE`), which adds parliamentary enforcement of cooperative norms (Fromhage & Jennions 2019).
+
+**Hamilton's kin selection.** Agents with energy above a threshold donate a fixed cost to the most closely related Moore-neighbourhood agent with relatedness r ≥ `kin_altruism_r_min`. Relatedness is computed from the pedigree (parent chains): r = 0.5 for parent–offspring, 0.25 for siblings, 0 otherwise. This operationalises Hamilton's rule: the altruistic act evolves when r × benefit > cost.
+
+**IFfolk and parliamentary enforcement.** The IFfolk model extends kin selection with a `helper_tendency` trait and `parliament_suppression`, which penalises defectors (low `helper_tendency`) surrounded by cooperators. This models the *parliament of genes* (Fromhage & Jennions 2019): cooperative behaviour is enforced by neighbour-level suppression of defection.
+
+**Hamilton's kin altruism parameters.**
+
+| Parameter | Default | Effect |
+|---|---|---|
+| `kin_selection` | FALSE | Enable kin altruism |
+| `kin_altruism_r_min` | 0.25 | Minimum relatedness to donate (siblings) |
+| `kin_altruism_cost` | 2.0 | Energy transferred per act |
+| `kin_altruism_min_donor_energy` | 50.0 | Donor energy floor |
+
+**IFfolk and parliament parameters.**
+
+| Parameter | Default | Effect |
+|---|---|---|
+| `iffolk_selection` | FALSE | Enable IFfolk transfers |
+| `iffolk_r_min` | 0.125 | Minimum relatedness (cousins and closer) |
+| `iffolk_radius` | 5 | Neighbourhood radius for kin search |
+| `iffolk_transfer` | 3.0 | Energy transferred per act |
+| `iffolk_min_energy` | 60.0 | Donor must exceed this energy |
+| `parliament_suppression` | FALSE | Penalise defectors among cooperators |
+| `parliament_cost` | 0.5 | Energy penalty for defectors |
+| `cooperative_breeding` | FALSE | Enable `helper_tendency` trait |
+| `helper_tendency_init_mean` | 0.2 | Starting helper tendency |
+
+**Expected outputs.** (1) Kin altruism: `n_altruistic_acts` is positive; population size is generally higher than baseline; genetic diversity may be slightly lower due to local inbreeding. (2) IFfolk: `mean_helper_tendency` increases over time; `n_iffolk_transfers` grows with population size; parliament suppression accelerates convergence near 1.0.
+
+**Example: Hamilton kin altruism.**
+
+```{r kin-selection}
+s <- default_specs()
+s$kin_selection               <- TRUE
+s$kin_altruism_r_min          <- 0.25
+s$kin_altruism_cost           <- 2.0
+s$max_ticks                   <- 300L
+
+env  <- run_alife(s)
+data <- get_run_data(env)
+cat("Total altruistic acts:", sum(data$ticks$n_altruistic_acts), "\n")
+```
+
+```{r fig-kin-selection, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: population is sustained at higher density than baseline, supported by energy transfers between relatives. Altruistic acts accumulate over the run."}
+FIG("07_kin_selection")
+```
+
+**Example: IFfolk with parliament suppression.**
+
+```{r iffolk}
+s <- default_specs()
+s$iffolk_selection        <- TRUE
+s$iffolk_r_min            <- 0.125
+s$iffolk_transfer         <- 3.0
+s$parliament_suppression  <- TRUE
+s$parliament_cost         <- 0.5
+s$cooperative_breeding    <- TRUE
+s$helper_tendency_init_mean <- 0.2
+s$max_ticks               <- 400L
+
+env  <- run_alife(s)
+data <- get_run_data(env)
+
+plot(data$ticks$t, data$ticks$mean_helper_tendency, type = "l",
+     xlab = "Tick", ylab = "Mean helper tendency",
+     main = "Helper tendency evolves under IFfolk + parliament suppression")
+```
+
+```{r fig-iffolk, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: mean helper tendency rises over time as cooperative genotypes increase in frequency. Parliament suppression accelerates convergence."}
+FIG("20_cooperative_breeding")
+```
+
+### Discovery prompts
+
+The baseline results confirm that Hamilton's rule operates: altruistic acts accumulate and population size is sustained at higher density than baseline. To go beyond:
+
+1. **Epidemic corridors** Add `disease = TRUE`. Kin altruism requires proximity; does proximity-clustering among relatives accelerate pathogen spread? Compare epidemic peak `n_infected` between kin and no-kin conditions. Does `kin_altruism_r_min` modulate epidemic severity — do populations with stricter relatedness thresholds (fewer but closer relatives) show lower or higher peak infection?
+
+2. **Relatedness threshold sweep** Vary `kin_altruism_r_min` from 0.0 to 0.5 across six values in `batch_alife()`. Hamilton's rule predicts a threshold (r × benefit > cost) below which altruism is not favoured. Is there a sharp transition in `n_altruistic_acts`, or a smooth decay? Plot final altruism rate against `kin_altruism_r_min`.
+
+3. **Kin clusters + niche construction** Add `niche_construction = TRUE`. Do relatives cluster in sheltered cells, creating kin-structured microhabitats? Measure the spatial correlation between `shelter_density` and the local mean pedigree relatedness of occupants at the final tick. Does niche construction accelerate or slow kin group formation?
+
+---
+
+### Cooperative breeding and public goods
+
+**What it models.** When `cooperation_evolution = TRUE`, each agent carries a
+heritable cooperation tendency trait that determines its contribution to a local
+public goods pool. The pool benefit is shared among all agents in the
+neighbourhood, scaled by `cooperation_multiplier`, while contributors pay a
+fixed `cooperation_cost`. This implements a spatially explicit Prisoner's
+Dilemma: defectors (low tendency) free-ride on cooperators but, because
+interactions are local, spatial clustering of cooperators can shield them from
+invasion by defectors — a result established analytically by Nowak & May (1992)
+and extended to continuous strategies by Hauert et al. (2002).
+
+**Key parameters.**
+
+| Parameter | Default | Effect |
+|---|---|---|
+| `cooperation_evolution` | FALSE | Enables heritable cooperation tendency |
+| `cooperation_multiplier` | 2.0 | Return multiplier on pooled contributions |
+| `cooperation_cost` | 1.0 | Per-tick energy cost paid by the contributor |
+| `cooperation_init_mean` | 0.5 | Initial mean cooperation tendency |
+| `cooperation_mutation_sd` | 0.05 | Mutation standard deviation on the trait |
+
+**Expected output.** Track `mean_cooperation_level` over ticks. When
+`cooperation_multiplier` exceeds the cost-benefit threshold (here
+2.5 > 1.0 / 0.5 = 2.0), cooperation is favoured and the population-mean
+tendency should rise toward 1.0; spatial structure sustains cooperation even at
+intermediate global frequencies.
+
+```{r cooperation}
+library(clade)
+library(ggplot2)
+
+s <- default_specs()
+s$cooperation_evolution  <- TRUE
+s$cooperation_multiplier <- 2.5
+s$cooperation_cost       <- 1.0
+s$max_ticks              <- 400L
+
+env  <- run_alife(s)
+data <- get_run_data(env)
+
+ggplot(data$ticks, aes(x = t, y = mean_cooperation_level)) +
+  geom_line(colour = "#1b7837", linewidth = 0.8) +
+  geom_smooth(method = "loess", se = TRUE, colour = "#762a83",
+              fill = "#c2a5cf", alpha = 0.3) +
+  labs(
+    title    = "Evolution of cooperation tendency",
+    subtitle = "cooperation_multiplier = 2.5, cost = 1.0",
+    x = "Tick", y = "Mean cooperation tendency"
+  ) +
+  theme_minimal()
+```
+
+```{r fig-cooperation, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: mean cooperation tendency rises over evolutionary time when the multiplier exceeds the cost-benefit threshold. Spatial clustering accelerates the transition by shielding cooperator clusters from defector invasion."}
+FIG("08_cooperation")
+```
+
+### Discovery prompts
+
+The baseline result confirms that cooperation is favoured when the multiplier exceeds the cost-benefit threshold, and spatial clustering accelerates the transition. To go beyond:
+
+1. **Cooperation × disease** Add `disease = TRUE`. Cooperators cluster spatially (to benefit from the public goods pool), which may create epidemic hotspots. Does cooperation accelerate disease spread, creating fluctuating selection on `mean_cooperation_level` that matches epidemic cycles?
+
+2. **Cooperation × predation** Add `n_predators_init = 5L`. Group-level selection predicts cooperation is easier to maintain when external mortality is high, because non-cooperating groups go extinct under predation. Does predation pressure increase the rate of cooperation evolution, and does the effect depend on `cooperation_multiplier`?
+
+3. **Multiplier threshold** Vary `cooperation_multiplier` from 1.0 to 4.0 across six values in `batch_alife()`. Theory predicts a sharp threshold at multiplier = 1/(cooperation tendency mean), but spatial structure may lower this. Is the transition sharp or gradual? Does `n_agents_init` (population size, affecting local encounter rates) shift the threshold?
+
+---
+
+### Signals and mate choice: sexual selection
+
+**What it models.** Sexual selection can produce elaborate traits that reduce
+survival but increase mating success. Two contrasting mechanisms have been
+proposed. Zahavi's (1975) handicap principle requires that signals be
+condition-dependent and costly to maintain, so only high-quality individuals
+can afford elaborate signals; signal magnitude is then an honest indicator of
+genetic quality. Fisher's (1930) runaway process operates through a genetic
+correlation between signal elaboration and preference: once females prefer a
+trait, sons of choosy females inherit the trait and daughters inherit the
+preference, driving both to fixation. This scenario enables multi-dimensional
+signals and female preference, allowing both mechanisms to operate, and tracks
+whether signal magnitude remains correlated with `mean_energy` (consistent with
+honest signalling) or becomes decoupled (consistent with runaway dynamics).
+
+**Key parameters.**
+
+| Parameter | Default | Effect |
+|---|---|---|
+| `signal_dims` | 0L | Number of heritable signal dimensions |
+| `signal_cost` | 0.1 | Energy cost per unit of total signal magnitude |
+| `mate_choice_mode` | `"random"` | `"preference"` enables directional mate choice |
+| `mate_choice_strength` | 0.5 | Weight given to signal match in mate selection |
+
+**Expected output.** `mean_signal_magnitude` increases over time as sexual
+selection drives signal elaboration. When `signal_cost` is sufficient to
+maintain honesty, `mean_signal_magnitude` correlates positively with
+`mean_energy`: agents in better condition carry more elaborate signals. A weak
+or zero `signal_cost` allows decoupling of signal from condition, consistent
+with runaway dynamics.
+
+```{r signals-matechoice}
+library(clade)
+library(ggplot2)
+
+s <- default_specs()
+s$signal_dims          <- 3L
+s$signal_cost          <- 0.05
+s$mate_choice_mode     <- "preference"
+s$mate_choice_strength <- 0.7
+s$max_ticks            <- 400L
+s$random_seed          <- 21L
+
+env  <- run_alife(s)
+data <- get_run_data(env)
+
+p1 <- ggplot(data$ticks, aes(t, mean_signal_magnitude)) +
+  geom_line(colour = "#984ea3") +
+  labs(title = "Signal elaboration under sexual selection",
+       x = "Tick", y = "Mean signal magnitude") +
+  theme_minimal()
+
+p2 <- ggplot(data$ticks, aes(mean_energy, mean_signal_magnitude)) +
+  geom_point(alpha = 0.4, size = 0.8, colour = "#984ea3") +
+  geom_smooth(method = "lm", se = FALSE, colour = "#333333", linewidth = 0.7) +
+  labs(title = "Signal magnitude vs mean energy (honest signalling check)",
+       x = "Mean energy", y = "Mean signal magnitude") +
+  theme_minimal()
+
+print(p1)
+print(p2)
+```
+
+```{r fig-signals-matechoice, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: mean signal magnitude rises over time as sexual selection drives elaboration. A positive correlation between signal magnitude and mean energy indicates that the handicap mechanism is maintaining signal honesty."}
+FIG("signals_matechoice")
+```
+
+### Discovery prompts
+
+The baseline result shows signal elaboration under sexual selection, with signal magnitude correlating positively with mean energy when `signal_cost` maintains honesty. To go beyond:
+
+1. **Signal × brain size** Add `brain_size_evolution = TRUE`. Larger-brained agents have better sensory processing; does brain size evolve faster when signals provide additional information about mate quality under `mate_choice_mode = "preference"`? Compare `mean_brain_size` trajectories with and without mate choice enabled.
+
+2. **Signal honesty under resource stress** Run with `grass_rate = 0.05`. When mean condition is uniformly low, the handicap principle predicts signal honesty breaks down because high-quality individuals cannot afford to distinguish themselves. Does the correlation between `mean_signal_magnitude` and `mean_energy` weaken under scarcity compared to the rich-resource baseline?
+
+3. **Signal × cooperation** Add `cooperation_evolution = TRUE`. Can heritable cooperation tendency serve as an honest signal of genetic quality, substituting for costly ornamental signals? If cooperators have higher mean energy (from public goods), does `mean_signal_magnitude` decline when cooperation is available as an alternative quality indicator?
+
+---
+
+### Speciation and genetic divergence
+
+**What it models.** Speciation by ecological character displacement occurs when
+disruptive selection on a resource-use trait, combined with assortative mating
+among similar phenotypes, drives a single population to split into
+reproductively isolated lineages (Dieckmann & Doebeli 1999). Once genomes
+diverge beyond a threshold, gene flow between incipient species is reduced,
+accelerating further divergence. Coyne & Orr (2004) reviewed extensive
+empirical evidence that reproductive isolation accumulates approximately
+linearly with genetic distance. This scenario enables the speciation module,
+tracks the number of distinct genetic clusters (`n_species`) detected at
+regular intervals, and illustrates how within-species diversity compares to
+between-species divergence over the course of the run.
+
+**Key parameters.**
+
+| Parameter | Default | Effect |
+|---|---|---|
+| `speciation` | FALSE | Enable genetic-cluster detection and isolation |
+| `isolation_threshold` | 0.5 | Minimum genetic distance required for reproductive isolation |
+| `speciation_cluster_interval` | 10L | Ticks between cluster re-detection passes |
+
+**Expected output.** `n_species` starts at 1 and rises to 2–4 as accumulated
+genome divergence exceeds `isolation_threshold` in geographically or
+ecologically separated subpopulations. Within-cluster genetic diversity remains
+lower than between-cluster diversity once isolation is established. The timing
+of the first split depends on population size, mutation rate, and the
+stringency of `isolation_threshold`.
+
+```{r speciation}
+library(clade)
+library(ggplot2)
+
+s <- default_specs()
+s$speciation                  <- TRUE
+s$isolation_threshold         <- 0.5
+s$speciation_cluster_interval <- 10L
+s$max_ticks                   <- 500L
+s$random_seed                 <- 55L
+
+env  <- run_alife(s)
+data <- get_run_data(env)
+
+ggplot(data$ticks, aes(t, n_species)) +
+  geom_step(colour = "#ff7f00", linewidth = 0.9) +
+  scale_y_continuous(breaks = 1:8) +
+  labs(title = "Speciation: number of distinct genetic clusters over time",
+       x = "Tick", y = "Number of species (clusters)") +
+  theme_minimal()
+```
+
+```{r fig-18-speciation, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: n_species rises from 1 to 2-4 as genome divergence accumulates beyond the isolation threshold. Each step in the staircase represents a speciation event."}
+FIG("18_speciation")
+```
+
+### Discovery prompts
+
+The baseline result shows `n_species` rising from 1 to 2–4 as genetic distance accumulates past `isolation_threshold`. To go beyond:
+
+1. **Speciation × disease** Add `disease = TRUE`. Genetically distinct species share fewer contact opportunities (reproductive isolation requires spatial separation), which may create inter-species barriers to pathogen transmission. Does speciation reduce epidemic peak `n_infected` by fragmenting the contact network into partially isolated sub-populations?
+
+2. **Speciation × brain size** Add `brain_size_evolution = TRUE`. Do incipient species diverge in brain size as a by-product of ecological niche partitioning, or does brain size converge across species via parallel evolution toward the same cognitive optimum? Compare `mean_brain_size` across detected genetic clusters at final tick.
+
+3. **Isolation threshold sensitivity** Vary `isolation_threshold` from 0.2 to 0.8 across seven values in `batch_alife()`. Does speciation rate (slope of `n_species` vs time) respond monotonically to threshold, or is there a critical threshold below which sympatric speciation cannot initiate even given sufficient time?
+
+---
+
+
+## Theme 4 — Life history strategies {#theme-4}
+
+*How life is organised across time and energy. These scenarios examine the trade-offs between reproduction timing, parental investment, lifespan, and metabolic pace that define the slow–fast life-history continuum.*
+
 
 ### Parental care
 
@@ -861,6 +1198,16 @@ cat("Total juveniles recorded:", sum(data$ticks$n_juveniles, na.rm = TRUE), "\n"
 ```{r fig-parental-care, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: juvenile count is positive throughout the run; per-capita offspring count is lower than baseline but juvenile survival is higher, resulting in more buffered population dynamics."}
 FIG("19_parental_care")
 ```
+
+### Discovery prompts
+
+The baseline result shows that juvenile counts are positive and population dynamics are more buffered under parental care. To go beyond:
+
+1. **Care × brain size** Add `brain_size_evolution = TRUE`. The parental provisioning hypothesis predicts parental care is a prerequisite for brain size evolution. Does `mean_brain_size` at tick 300 increase more under `parental_care = TRUE`? Vary `care_duration` across `{2, 5, 10, 20}` ticks in `batch_alife()` to find the minimum care duration that allows brain size to evolve upward.
+
+2. **Care × disease** Add `disease = TRUE`. Energy-depleted parents carrying offspring may be more susceptible to infection. Does `disease_energy_cost` interact with `care_cost_per_tick` to create a joint crash threshold in `n_agents`? Plot population survival probability against the sum of both costs.
+
+3. **Care × kin selection** Add `kin_selection = TRUE`. Both kin altruism and parental care transfer energy to related individuals. Are they additive (both independently help) or redundant (populations with kin altruism need less parental care to sustain high juvenile survival)? Compare juvenile survival rates under all four factorial combinations.
 
 ---
 
@@ -930,6 +1277,16 @@ ggplot(df, aes(t, genetic_diversity, colour = system)) +
 FIG("mating_systems")
 ```
 
+### Discovery prompts
+
+The baseline result shows genetic diversity is higher and more variable in the sexual (diploid) condition from early in the run. To go beyond:
+
+1. **Sex × parasites (Red Queen)** Add `disease = TRUE` with high `transmission_prob = 0.3`. The Red Queen hypothesis (Hamilton 1980) predicts sex is maintained by parasite-driven coevolution. Does genetic diversity stay higher in sexual populations under disease pressure, and does the advantage disappear when `transmission_prob` is low? Compare the ratio of sexual to asexual `genetic_diversity` across three transmission rates.
+
+2. **Sex × stress hypermutation** Add `stress_hypermutation = TRUE`. Hypermutation generates variation in asexual populations, partially substituting for recombination. Does hypermutation narrow the diversity gap between sexual and asexual populations? Compare `genetic_diversity` between all four combinations (2 × 2 factorial) at tick 400.
+
+3. **Ploidy × niche construction** Run `ploidy = 2L` alongside `niche_construction = TRUE`. Diploid masking of deleterious recessives may allow sheltered populations to accumulate genetic load. Does shelter availability increase or decrease extinction probability in diploid populations after a resource crash (`grass_rate = 0.01` for 50 ticks)?
+
 ---
 
 ### Life history: semelparous versus iteroparous strategies
@@ -994,6 +1351,16 @@ ggplot(df, aes(t, mean_age, colour = strategy)) +
 ```{r fig-life-history, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: the semelparous population (red) shows lower mean age and episodic birth bursts; the iteroparous population (green) sustains a higher mean age and a smoother birth-rate trajectory."}
 FIG("life_history")
 ```
+
+### Discovery prompts
+
+The baseline result shows semelparous populations have lower mean age and episodic birth bursts, while iteroparous populations sustain smoother birth rates and higher mean age. To go beyond:
+
+1. **Semelparity × predation** Add `n_predators_init = 5L`. Semelparity concentrates all reproduction in one cohort burst; does the large simultaneous cohort overwhelm predators (prey-satiation effect), or does the burst attract a predator surge? Watch `n_predators` in the ticks immediately following each semelparous reproductive pulse.
+
+2. **Semelparity × stress hypermutation** Add `stress_hypermutation = TRUE`. Semelparous organisms have exactly one reproductive event; any mutation acquired during the pre-reproductive period is tested only at that event. Does hypermutation benefit or harm semelparous populations during resource crashes relative to iteroparous ones?
+
+3. **Iteroparous senescence gradient** Vary `senescence_rate` from 0.0 to 0.1 across five values in `batch_alife()` with `life_history = "iteroparous"`. Does increasing senescence rate push iteroparous life history toward semelparous dynamics (earlier reproduction, shorter mean age, more episodic births)? Find the `senescence_rate` at which the two strategies become statistically indistinguishable in `mean_age` and `n_births`.
 
 ---
 
@@ -1065,6 +1432,16 @@ ggplot(df, aes(t, n_births, colour = environment)) +
 FIG("clutch_size")
 ```
 
+### Discovery prompts
+
+The baseline result shows that rich environments select for larger clutches (r-strategy) and scarce environments select for smaller clutches (K-strategy). To go beyond:
+
+1. **Clutch size × parental care** Add `parental_care = TRUE`. Parental care constrains maximum clutch size via `max_clutch_size`. Does the evolved clutch size interact with `care_duration`? Does longer care duration shift the evolved clutch toward 1 (maximum quality investment), or do rich environments allow large clutches even with long care?
+
+2. **Clutch size × predation** Add `n_predators_init = 5L`. High predation mortality selects for faster reproduction (r-strategy). Does predation pressure increase the evolved mean clutch size independent of resource availability, and does the effect depend on `grass_rate`? Run a 2×2 factorial (high/low resources × predation).
+
+3. **r/K under seasonality** Add `seasonal_amplitude = 0.7`. In seasonal environments, r-strategists should dominate during spring resource abundance and K-strategists should persist through winter scarcity. Does `mean_clutch_size` oscillate with the seasonal cycle? Compute the cross-correlation between `mean_clutch_size` and `grass_coverage` to test seasonal tracking.
+
 ---
 
 ### Parental investment: quality versus quantity
@@ -1135,6 +1512,16 @@ ggplot(df, aes(t, n_births, colour = condition)) +
 FIG("parental_investment")
 ```
 
+### Discovery prompts
+
+The baseline result shows the quality-quantity trade-off: high maternal investment produces fewer but better-provisioned offspring. To go beyond:
+
+1. **Investment × brain size** Add `brain_size_evolution = TRUE`. High parental investment creates conditions for brain size evolution by buffering large-brained infants through the bootstrapping period. Does `female_investment = 0.9` produce higher final `mean_brain_size` than `female_investment = 0.5`? How does this interact with `brain_size_cost_scale`?
+
+2. **Investment × kin selection** Add `kin_selection = TRUE`. Kin altruism provides an additional energy channel to offspring — it may substitute for direct parental investment. Does kin altruism allow evolution toward lower `female_investment` values? Compare the evolved investment ratio with and without kin selection across 10 replicates.
+
+3. **Biparental game** Vary `female_investment` from 0.1 to 0.9 across nine values in `batch_alife()`. Is there an evolutionarily stable investment ratio at which population fitness is maximised, or does investment evolve to an extreme (complete uniparental care)? Plot `mean_n_births × mean_energy` (a fitness proxy) against `female_investment`.
+
 ---
 
 ### Pace-of-life syndromes
@@ -1203,9 +1590,182 @@ ggplot(df, aes(t, mean_age, colour = pace)) +
 FIG("pace_of_life")
 ```
 
+### Discovery prompts
+
+The baseline result shows the pace-of-life trade-off: fast-pace agents have higher birth rates and lower mean age; slow-pace agents have lower birth rates and higher mean age and energy stability. To go beyond:
+
+1. **Pace × disease** Add `disease = TRUE`. High metabolic rate means fast-paced organisms have less energy margin; `disease_energy_cost` should push fast-paced agents into energy deficit more readily. Does disease selectively eliminate fast-paced phenotypes when `metabolic_rate_evolution = TRUE`, driving evolved `mean_metabolic_rate` downward?
+
+2. **Pace × brain size** Enable both `metabolic_rate_evolution = TRUE` and `brain_size_evolution = TRUE`. Do fast-paced, high-energy agents evolve larger brains (more metabolic resources available for expensive brain tissue), or does metabolic competition prevent it? Test whether `mean_brain_size` and `mean_metabolic_rate` are positively or negatively correlated at final tick.
+
+3. **Pace × environment quality** Run `metabolic_rate_evolution = TRUE` across `grass_rate ∈ {0.02, 0.1, 0.4}` in `batch_alife()`. Theory predicts rich environments select for fast pace. Does evolved `mean_metabolic_rate` increase monotonically with `grass_rate`, or is there a non-monotone relationship (very high resources remove mortality pressure on fast-paced energy burn)?
+
 ---
 
-## Part IV — Social and coevolutionary dynamics
+
+## Theme 5 — Species interactions and arms races {#theme-5}
+
+*Predator–prey coevolution, infectious disease, warning coloration, and group defence. These scenarios operationalise the major classes of antagonistic species interactions and ask how each reshapes phenotypic and genetic diversity.*
+
+
+### Predator-prey dynamics
+
+**What it models.** Predator-prey coevolution is one of the oldest and most
+empirically grounded problems in population biology. The classical
+Lotka-Volterra equations predict sustained oscillations in which predator
+abundance tracks prey abundance with a characteristic lag (Lotka 1925;
+Volterra 1928). In `clade`, predators are autonomous agents with their own
+energy budgets, movement rules, and reproduction thresholds, so oscillations
+emerge from individual behaviour rather than being imposed by differential
+equations.
+
+**Key parameters.**
+
+| Parameter | Default | Effect |
+|---|---|---|
+| `n_predators_init` | 0 | Number of predators at tick 1; 0 disables predators entirely |
+| `predator_attack_strength` | 40.0 | Energy damage dealt to prey per successful attack |
+| `predator_energy_gain` | 30.0 | Energy gained by predator after a successful attack |
+| `predator_min_repro_energy` | 200.0 | Energy threshold for predator reproduction |
+| `predator_max_agents` | 50 | Hard cap on predator population size |
+| `grass_rate` | 0.05 | Grass regrowth rate; sets prey carrying capacity |
+
+**Expected output.** Watch `n_agents` (prey) and `n_predators` over time. Prey
+population rises first, then predators increase as food becomes abundant; prey
+then crash, pulling predators down with a lag of approximately 30 ticks — a
+pattern qualitatively consistent with Lotka-Volterra predictions.
+
+```{r predator-prey}
+library(clade)
+library(ggplot2)
+
+s <- default_specs()
+s$n_predators_init      <- 5L
+s$n_agents_init         <- 100L
+s$grid_rows             <- 30L
+s$grid_cols             <- 30L
+s$grass_rate            <- 0.3
+s$max_ticks             <- 500L
+
+env  <- run_alife(s)
+data <- get_run_data(env)
+
+ggplot(data$ticks, aes(x = t)) +
+  geom_line(aes(y = n_agents,    colour = "Prey"),     linewidth = 0.8) +
+  geom_line(aes(y = n_predators, colour = "Predators"), linewidth = 0.8) +
+  scale_colour_manual(
+    values = c("Prey" = "#2196F3", "Predators" = "#F44336"),
+    name   = NULL
+  ) +
+  labs(
+    x     = "Tick",
+    y     = "Population size",
+    title = "Predator-prey population dynamics"
+  ) +
+  theme_classic(base_size = 12)
+```
+
+```{r fig-predators, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: prey and predator populations oscillate with predator peaks lagging prey peaks by approximately 30 ticks, consistent with Lotka-Volterra dynamics."}
+FIG("14_predators")
+```
+
+### Discovery prompts
+
+The baseline result shows Lotka-Volterra-like oscillations with predator peaks lagging prey peaks by approximately 30 ticks. To go beyond:
+
+1. **Coevolution × brain size** Add `brain_size_evolution = TRUE` for prey agents (predators use reference brain_size = 1.0). Does predation pressure select for larger prey brains (better spatial evasion through improved sensing)? Compare `mean_brain_size` with and without predators at tick 500, and test whether `brain_size_sensing_exponent` modulates the effect size.
+
+2. **Disease × predation interaction** Add `disease = TRUE`. Infected prey may be energetically depleted and easier to catch. Does disease amplify predation mortality, creating combined boom-bust cycles more severe than either selective pressure alone? Watch whether `n_infected` and predator kill events are temporally correlated.
+
+3. **Predator energy threshold** Vary `predator_min_repro_energy` from 100 to 400 across `batch_alife()`. Does tightening the predator energy threshold eliminate population oscillations (by reducing predator fecundity), change the oscillation period, or cause predator extinction? Plot oscillation amplitude and period against `predator_min_repro_energy`.
+
+---
+
+### Group defense (dilution of risk)
+
+**What it models.** Hamilton's (1971) selfish herd hypothesis proposes that
+aggregation reduces individual predation risk by diluting attacks across a
+larger group. When any single predator can only attack one agent per encounter,
+each additional group member decreases the per-capita probability of being the
+target. In `clade`, group defense is implemented as a collective
+damage-reduction mechanism: agents within `group_defense_radius` cells of an
+attacked individual jointly absorb a fraction of the attack, reducing effective
+predation pressure on each member.
+
+**Key parameters.**
+
+| Parameter | Default | Effect |
+|---|---|---|
+| `group_defense` | FALSE | Enables collective damage reduction in groups |
+| `group_defense_radius` | 2 | Neighbourhood radius (cells) over which defense is pooled |
+| `group_defense_strength` | 0.3 | Fraction by which attack damage is reduced per additional neighbour |
+| `n_predators_init` | 0 | Set > 0 to activate predation pressure |
+| `predator_attack_strength` | 40.0 | Baseline damage before group reduction is applied |
+
+**Expected output.** In the `group_defense = TRUE` condition, mean population
+size should be substantially higher than the baseline, and survival curves
+should diverge after the first predator boom. The mechanism is dilution:
+per-capita attack rate falls as group size grows, creating a positive feedback
+between aggregation and survival.
+
+```{r group-defense}
+library(clade)
+library(ggplot2)
+
+base_specs <- function() {
+  s <- default_specs()
+  s$n_predators_init <- 5L
+  s$n_agents_init    <- 100L
+  s$grid_rows        <- 30L
+  s$grid_cols        <- 30L
+  s$max_ticks        <- 400L
+  s
+}
+
+s_no <- base_specs()
+s_no$group_defense <- FALSE
+
+s_gd <- base_specs()
+s_gd$group_defense          <- TRUE
+s_gd$group_defense_radius   <- 2L
+s_gd$group_defense_strength <- 0.3
+
+d_no <- get_run_data(run_alife(s_no))$ticks
+d_gd <- get_run_data(run_alife(s_gd))$ticks
+
+d_no$condition <- "No group defense"
+d_gd$condition <- "Group defense"
+dat <- rbind(d_no, d_gd)
+
+ggplot(dat, aes(x = t, y = n_agents, colour = condition)) +
+  geom_line(linewidth = 0.8) +
+  scale_colour_manual(
+    values = c("No group defense" = "#E53935", "Group defense" = "#43A047"),
+    name   = NULL
+  ) +
+  labs(
+    x     = "Tick",
+    y     = "Population size",
+    title = "Group defense reduces predation-driven extinction risk"
+  ) +
+  theme_classic(base_size = 12)
+```
+
+```{r fig-group-defense, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: group defense (green) sustains a larger and more stable population than the baseline (red) under identical predation pressure, illustrating the dilution-of-risk effect."}
+FIG("15_group_defense")
+```
+
+### Discovery prompts
+
+The baseline result shows group defense sustains a larger and more stable population under identical predation pressure. To go beyond:
+
+1. **Group defense × disease** Add `disease = TRUE`. Grouping reduces predation risk (dilution) but increases disease transmission (contact). Does `group_defense_radius` create a trade-off: larger groups are better protected from predation but suffer larger epidemic peaks? Find the radius that maximises net population size across a gradient of `transmission_prob`.
+
+2. **Group defense × kin selection** Add `kin_selection = TRUE`. Kin clusters may provide group defense more reliably because relatives stay in proximity. Does kin selection increase the effective neighbourhood size available for defense? Compare mean neighbourhood density during predator attacks with and without kin selection.
+
+3. **Group size × niche construction** Add `niche_construction = TRUE`. Shelters create spatial foci where agents aggregate, potentially concentrating group defense benefits. Does shelter density predict group defense effectiveness? Compare `n_agents` at final tick under `group_defense = TRUE` with and without niche construction.
+
+---
 
 ### Mimicry and toxicity
 
@@ -1243,524 +1803,71 @@ data <- get_run_data(env)
 FIG("21_mimicry")
 ```
 
+### Discovery prompts
+
+The baseline result shows `mean_toxicity` evolves upward under predator pressure and `n_avoided_attacks` increases as predators learn. To go beyond:
+
+1. **Mimicry × kin selection** Add `kin_selection = TRUE`. Kin clusters may accelerate warning coloration evolution (Hamilton's genetical theory of aposematism). Does kin structure speed up or slow the evolution of `mean_toxicity`? Compare `mean_toxicity` trajectories under three conditions: no kin, kin without predators, kin with predators and mimicry.
+
+2. **Mimicry × disease** Add `disease = TRUE`. High-toxicity prey produce costly defensive compounds while simultaneously paying `disease_energy_cost` when infected. Does disease suppress the evolution of costly toxicity by pushing agents into energy deficit during infection? Compare the final `mean_toxicity` under disease vs no-disease at matched `predator_attack_strength`.
+
+3. **Signal honesty and toxicity** Add `signal_dims = 2L`. Do heritable ornamental signals co-evolve with toxicity (honest Müllerian signalling) or become decoupled (Batesian dishonest copying by non-toxic agents)? Plot `mean_toxicity` against `mean_signal_magnitude` as a parametric trajectory and test whether the correlation strengthens or weakens over evolutionary time.
+
 ---
 
-### Cooperative breeding and public goods
+### SIR disease
 
-**What it models.** When `cooperation_evolution = TRUE`, each agent carries a
-heritable cooperation tendency trait that determines its contribution to a local
-public goods pool. The pool benefit is shared among all agents in the
-neighbourhood, scaled by `cooperation_multiplier`, while contributors pay a
-fixed `cooperation_cost`. This implements a spatially explicit Prisoner's
-Dilemma: defectors (low tendency) free-ride on cooperators but, because
-interactions are local, spatial clustering of cooperators can shield them from
-invasion by defectors — a result established analytically by Nowak & May (1992)
-and extended to continuous strategies by Hauert et al. (2002).
+**What it models.** A Susceptible-Infected-Recovered epidemic model. Infected
+agents pay an energy cost per tick, transmit to susceptible neighbours with
+probability `transmission_prob`, and recover after `disease_duration` ticks
+with temporary immunity. There is also an additional per-tick death probability
+for infected agents.
 
 **Key parameters.**
 
 | Parameter | Default | Effect |
 |---|---|---|
-| `cooperation_evolution` | FALSE | Enables heritable cooperation tendency |
-| `cooperation_multiplier` | 2.0 | Return multiplier on pooled contributions |
-| `cooperation_cost` | 1.0 | Per-tick energy cost paid by the contributor |
-| `cooperation_init_mean` | 0.5 | Initial mean cooperation tendency |
-| `cooperation_mutation_sd` | 0.05 | Mutation standard deviation on the trait |
+| `disease` | FALSE | Enable SIR dynamics |
+| `transmission_prob` | 0.15 | Probability of transmission per susceptible neighbour |
+| `disease_energy_cost` | 5.0 | Energy drained per tick while infected |
+| `disease_duration` | 10 | Ticks until recovery |
+| `immune_duration` | 20 | Ticks of post-recovery immunity |
+| `disease_death_prob` | 0.01 | Extra mortality per tick while infected |
+| `disease_seed_prob` | 0.02 | Fraction infected at tick 1 |
 
-**Expected output.** Track `mean_cooperation_level` over ticks. When
-`cooperation_multiplier` exceeds the cost-benefit threshold (here
-2.5 > 1.0 / 0.5 = 2.0), cooperation is favoured and the population-mean
-tendency should rise toward 1.0; spatial structure sustains cooperation even at
-intermediate global frequencies.
+**Expected output.** `n_infected` shows epidemic peaks. Population size dips
+sharply during outbreaks and recovers as immunity builds. Multiple epidemic
+cycles are possible if immunity wanes before the next susceptible cohort matures.
 
-```{r cooperation}
-library(clade)
-library(ggplot2)
-
+```{r disease}
 s <- default_specs()
-s$cooperation_evolution  <- TRUE
-s$cooperation_multiplier <- 2.5
-s$cooperation_cost       <- 1.0
-s$max_ticks              <- 400L
+s$disease          <- TRUE
+s$transmission_prob <- 0.20
+s$max_ticks        <- 300L
 
 env  <- run_alife(s)
 data <- get_run_data(env)
 
-ggplot(data$ticks, aes(x = t, y = mean_cooperation_level)) +
-  geom_line(colour = "#1b7837", linewidth = 0.8) +
-  geom_smooth(method = "loess", se = TRUE, colour = "#762a83",
-              fill = "#c2a5cf", alpha = 0.3) +
-  labs(
-    title    = "Evolution of cooperation tendency",
-    subtitle = "cooperation_multiplier = 2.5, cost = 1.0",
-    x = "Tick", y = "Mean cooperation tendency"
-  ) +
-  theme_minimal()
+plot(data$ticks$t, data$ticks$n_infected, type = "l",
+     xlab = "Tick", ylab = "Infected agents",
+     main = "SIR epidemic dynamics")
 ```
 
-```{r fig-cooperation, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: mean cooperation tendency rises over evolutionary time when the multiplier exceeds the cost-benefit threshold. Spatial clustering accelerates the transition by shielding cooperator clusters from defector invasion."}
-FIG("08_cooperation")
+```{r fig-disease, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: epidemic waves visible as peaks in the infected count. Population dips sharply during outbreaks and recovers as immunity builds."}
+FIG("06_disease")
 ```
+
+### Discovery prompts
+
+The baseline result shows epidemic peaks in `n_infected`, population dips during outbreaks, and recovery as immunity builds. To go beyond:
+
+1. **Kin proximity as epidemic corridor** Add `kin_selection = TRUE`. Kin altruism requires proximity; does proximity-clustering among relatives accelerate pathogen spread? Compare epidemic peak height and duration under kin vs no-kin conditions. Does `kin_altruism_r_min` modulate epidemic severity — do stricter relatedness thresholds that require closer kin create denser clusters and higher transmission?
+
+2. **Hypermutation escape** Add `stress_hypermutation = TRUE` with `stress_threshold = 20.0`. Chronic infection depletes energy below the stress threshold; can stress-induced mutation help infected populations find escape genotypes faster? Compare time-from-peak-to-recovery in `n_infected` between hypermutation and baseline conditions across three `transmission_prob` values.
+
+3. **Shelter as epidemiological refuge** Add `niche_construction = TRUE`. Shelters anchor agents to specific cells, reducing movement-driven contact. Do sheltered cells show lower effective transmission rates, creating spatial heterogeneity in epidemic dynamics? Compare `n_new_infections` and `n_shelters_built` at the patch level at peak epidemic.
 
 ---
-
-### Signals and mate choice: sexual selection
-
-**What it models.** Sexual selection can produce elaborate traits that reduce
-survival but increase mating success. Two contrasting mechanisms have been
-proposed. Zahavi's (1975) handicap principle requires that signals be
-condition-dependent and costly to maintain, so only high-quality individuals
-can afford elaborate signals; signal magnitude is then an honest indicator of
-genetic quality. Fisher's (1930) runaway process operates through a genetic
-correlation between signal elaboration and preference: once females prefer a
-trait, sons of choosy females inherit the trait and daughters inherit the
-preference, driving both to fixation. This scenario enables multi-dimensional
-signals and female preference, allowing both mechanisms to operate, and tracks
-whether signal magnitude remains correlated with `mean_energy` (consistent with
-honest signalling) or becomes decoupled (consistent with runaway dynamics).
-
-**Key parameters.**
-
-| Parameter | Default | Effect |
-|---|---|---|
-| `signal_dims` | 0L | Number of heritable signal dimensions |
-| `signal_cost` | 0.1 | Energy cost per unit of total signal magnitude |
-| `mate_choice_mode` | `"random"` | `"preference"` enables directional mate choice |
-| `mate_choice_strength` | 0.5 | Weight given to signal match in mate selection |
-
-**Expected output.** `mean_signal_magnitude` increases over time as sexual
-selection drives signal elaboration. When `signal_cost` is sufficient to
-maintain honesty, `mean_signal_magnitude` correlates positively with
-`mean_energy`: agents in better condition carry more elaborate signals. A weak
-or zero `signal_cost` allows decoupling of signal from condition, consistent
-with runaway dynamics.
-
-```{r signals-matechoice}
-library(clade)
-library(ggplot2)
-
-s <- default_specs()
-s$signal_dims          <- 3L
-s$signal_cost          <- 0.05
-s$mate_choice_mode     <- "preference"
-s$mate_choice_strength <- 0.7
-s$max_ticks            <- 400L
-s$random_seed          <- 21L
-
-env  <- run_alife(s)
-data <- get_run_data(env)
-
-p1 <- ggplot(data$ticks, aes(t, mean_signal_magnitude)) +
-  geom_line(colour = "#984ea3") +
-  labs(title = "Signal elaboration under sexual selection",
-       x = "Tick", y = "Mean signal magnitude") +
-  theme_minimal()
-
-p2 <- ggplot(data$ticks, aes(mean_energy, mean_signal_magnitude)) +
-  geom_point(alpha = 0.4, size = 0.8, colour = "#984ea3") +
-  geom_smooth(method = "lm", se = FALSE, colour = "#333333", linewidth = 0.7) +
-  labs(title = "Signal magnitude vs mean energy (honest signalling check)",
-       x = "Mean energy", y = "Mean signal magnitude") +
-  theme_minimal()
-
-print(p1)
-print(p2)
-```
-
-```{r fig-signals-matechoice, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: mean signal magnitude rises over time as sexual selection drives elaboration. A positive correlation between signal magnitude and mean energy indicates that the handicap mechanism is maintaining signal honesty."}
-FIG("signals_matechoice")
-```
-
----
-
-### Speciation and genetic divergence
-
-**What it models.** Speciation by ecological character displacement occurs when
-disruptive selection on a resource-use trait, combined with assortative mating
-among similar phenotypes, drives a single population to split into
-reproductively isolated lineages (Dieckmann & Doebeli 1999). Once genomes
-diverge beyond a threshold, gene flow between incipient species is reduced,
-accelerating further divergence. Coyne & Orr (2004) reviewed extensive
-empirical evidence that reproductive isolation accumulates approximately
-linearly with genetic distance. This scenario enables the speciation module,
-tracks the number of distinct genetic clusters (`n_species`) detected at
-regular intervals, and illustrates how within-species diversity compares to
-between-species divergence over the course of the run.
-
-**Key parameters.**
-
-| Parameter | Default | Effect |
-|---|---|---|
-| `speciation` | FALSE | Enable genetic-cluster detection and isolation |
-| `isolation_threshold` | 0.5 | Minimum genetic distance required for reproductive isolation |
-| `speciation_cluster_interval` | 10L | Ticks between cluster re-detection passes |
-
-**Expected output.** `n_species` starts at 1 and rises to 2–4 as accumulated
-genome divergence exceeds `isolation_threshold` in geographically or
-ecologically separated subpopulations. Within-cluster genetic diversity remains
-lower than between-cluster diversity once isolation is established. The timing
-of the first split depends on population size, mutation rate, and the
-stringency of `isolation_threshold`.
-
-```{r speciation}
-library(clade)
-library(ggplot2)
-
-s <- default_specs()
-s$speciation                  <- TRUE
-s$isolation_threshold         <- 0.5
-s$speciation_cluster_interval <- 10L
-s$max_ticks                   <- 500L
-s$random_seed                 <- 55L
-
-env  <- run_alife(s)
-data <- get_run_data(env)
-
-ggplot(data$ticks, aes(t, n_species)) +
-  geom_step(colour = "#ff7f00", linewidth = 0.9) +
-  scale_y_continuous(breaks = 1:8) +
-  labs(title = "Speciation: number of distinct genetic clusters over time",
-       x = "Tick", y = "Number of species (clusters)") +
-  theme_minimal()
-```
-
-```{r fig-18-speciation, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: n_species rises from 1 to 2-4 as genome divergence accumulates beyond the isolation threshold. Each step in the staircase represents a speciation event."}
-FIG("18_speciation")
-```
-
----
-
-## Part V — Learning and cognition
-
-### Within-lifetime reinforcement learning
-
-**What it models.** Each agent uses REINFORCE-with-baseline (actor-critic) to
-update its brain's output layer based on energy reward signals during its
-lifetime. This implements the Baldwin effect: individually-learned behaviours
-can stabilise genetically over generations because learning relaxes the
-requirement for genes to encode the exact optimal behaviour.
-
-**Key parameters.**
-
-| Parameter | Default | Effect |
-|---|---|---|
-| `rl_mode` | `"none"` | Set to `"actor_critic"` to enable |
-| `rl_update_freq` | 5 | Ticks between RL updates |
-| `learning_rate` | 0.01 | Step size for output-layer update |
-| `learning_rate_evolution` | FALSE | Allow learning rate to evolve |
-
-**Expected output.** Agents with RL enabled adapt within their lifetime to the
-local resource distribution. When `learning_rate_evolution = TRUE`, the
-evolved learning rate reflects the environmental uncertainty: noisy environments
-favour lower rates; stable environments favour higher rates.
-
-```{r rl}
-s <- default_specs()
-s$rl_mode   <- "actor_critic"
-s$max_ticks <- 300L
-
-env  <- run_alife(s)
-data <- get_run_data(env)
-```
-
-```{r fig-rl, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: agents with within-lifetime RL adapt to local resource distribution within their lifetime. The Baldwin Effect is visible as the BNN prior sigma narrows over generations."}
-FIG("10_rl")
-```
-
----
-
-### Phenotypic plasticity
-
-**What it models.** A heritable `plasticity` trait modulates how strongly each
-agent's sensory input maps to action. High plasticity agents are more responsive
-to environmental cues; low plasticity agents rely more heavily on their evolved
-baseline behaviour. The evolution of plasticity tracks environmental variability:
-plastic phenotypes are favoured when environments are predictably unpredictable
-(DeWitt & Scheiner 2004).
-
-**Key parameters.**
-
-| Parameter | Default | Effect |
-|---|---|---|
-| `phenotypic_plasticity` | FALSE | Enable plasticity trait |
-| `plasticity_init_mean` | 0.5 | Starting plasticity |
-| `plasticity_mutation_sd` | 0.05 | Mutation rate |
-
-**Expected output.** `mean_plasticity` evolves. In stable environments
-(fixed `grass_rate`), plasticity typically decreases over time. In
-seasonally varying environments, plasticity may be maintained.
-
-```{r plasticity}
-s <- default_specs()
-s$phenotypic_plasticity <- TRUE
-s$max_ticks             <- 300L
-
-env  <- run_alife(s)
-data <- get_run_data(env)
-cat("Final plasticity:", tail(data$ticks$mean_plasticity, 1L), "\n")
-```
-
-```{r fig-plasticity, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: mean plasticity evolves over time. In stable environments it typically decreases; in seasonally varying environments it is maintained at intermediate values."}
-FIG("22_plasticity")
-```
-
----
-
-### BNN uncertainty canalization — the Baldwin Effect
-
-**What it models.** The Bayesian neural network (BNN) brain type
-(`brain_type = "bnn"`) places a prior distribution over each synaptic weight,
-parameterised by a standard deviation σ. A large σ encodes behavioural
-flexibility: the agent samples widely from its weight posterior and can learn
-within its lifetime. A small σ encodes genetic assimilation: the agent's
-behaviour is largely determined by the prior mean — the population has, over
-generations of selection, canalized a formerly learned behaviour into the
-genome. This is the computational signature of the Baldwin Effect (Baldwin
-1896), formalised computationally by Hinton & Nowlan (1987) and analysed
-analytically by Mayley (1996): learning guides evolution toward fixed adaptive
-solutions, after which the learning machinery becomes redundant.
-
-**Key parameters.**
-
-| Parameter | Default | Effect |
-|---|---|---|
-| `brain_type` | `"bnn"` | Must be `"bnn"` to enable Bayesian weight distributions |
-| `learning_rate_init_mean` | 0.01 | Initial within-lifetime learning rate |
-| `max_ticks` | — | Longer runs show fuller canalization |
-
-**Expected output.** Track `mean_prior_sigma` in `data$ticks`. The column
-should decline from approximately 0.3 (broad, flexible priors) toward 0.05
-(narrow, assimilated priors) as selection repeatedly rewards the same weight
-configurations. The decline rate should accelerate when genetic diversity is
-high, because a large pool of variants provides a stronger selection gradient.
-
-```{r bnn-uncertainty}
-library(clade)
-library(ggplot2)
-
-s <- default_specs()
-s$brain_type <- "bnn"
-s$max_ticks  <- 500L
-
-env  <- run_alife(s)
-data <- get_run_data(env)
-
-ggplot(data$ticks, aes(x = t, y = mean_prior_sigma)) +
-  geom_line(colour = "#2166ac", linewidth = 0.8, alpha = 0.7) +
-  geom_smooth(method = "lm", se = TRUE,
-              colour = "#d6604d", fill = "#f4a582", alpha = 0.4) +
-  labs(
-    title    = "Genetic assimilation of learned behaviour (Baldwin Effect)",
-    subtitle = "BNN prior sigma declines as behaviour canalizes into the genome",
-    x = "Tick", y = expression("Mean prior " * sigma)
-  ) +
-  theme_minimal()
-```
-
-```{r fig-bnn-uncertainty, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: mean prior sigma declines monotonically from broad (flexible, ~0.3) to narrow (assimilated, ~0.05), with the steepest drop in periods of high genetic diversity. A fitted linear trend confirms the directional pattern."}
-FIG("bnn_uncertainty")
-```
-
----
-
-### The cephalopod paradox — short lifespan selects for fast learning
-
-**What it models.** Classical life-history theory predicts that long-lived
-organisms should invest more heavily in learning, because only a long lifespan
-provides enough time to recoup the energetic costs of a large brain (the payback
-period argument). The cephalopod paradox inverts this prediction: octopuses and
-squid have among the shortest lifespans of any large-brained animal, yet they
-express sophisticated within-lifetime learning. Liedtke & Fromhage (2019)
-formalised the resolution: when lifespan is too brief for genetic evolution to
-converge on food-finding solutions, within-lifetime learning becomes the only
-viable mechanism for adaptive behaviour. Here, `complex_landscape = TRUE`
-creates a heterogeneous resource topology that cannot be solved by a fixed
-behavioural rule, and `learning_rate_evolution = TRUE` allows the genome to
-optimise how quickly agents update their neural weights from experience.
-
-**Key parameters.**
-
-| Parameter | Default | Effect |
-|---|---|---|
-| `max_age` | — | Maximum agent lifespan in ticks |
-| `complex_landscape` | FALSE | Enables spatially heterogeneous, shifting resource patches |
-| `learning_rate_evolution` | FALSE | Makes the within-lifetime learning rate a heritable trait |
-| `learning_rate_init_mean` | 0.01 | Initial mean evolved learning rate |
-
-**Expected output.** The evolved mean learning rate (recorded at the final tick
-of each run) should be highest at short `max_age` values and decline as
-lifespan increases, because long-lived agents can afford to rely on genetic
-evolution to encode solutions directly. The relationship need not be monotone
-at very short lifespans, where agents have too little experience to benefit
-from any learning.
-
-```{r cephalopod}
-library(clade)
-library(ggplot2)
-
-lifespans  <- c(20L, 50L, 100L, 200L)
-specs_list <- lapply(lifespans, function(ma) {
-  s <- default_specs()
-  s$max_age               <- ma
-  s$complex_landscape     <- TRUE
-  s$learning_rate_evolution <- TRUE
-  s$max_ticks             <- 400L
-  s
-})
-names(specs_list) <- paste0("max_age_", lifespans)
-
-results <- batch_alife(specs_list, n_cores = 4L)
-
-lr_df <- do.call(rbind, mapply(function(env, ma) {
-  d <- get_run_data(env)$ticks
-  data.frame(
-    max_age       = ma,
-    mean_lr_final = tail(d$mean_learning_rate, 1L)
-  )
-}, results, lifespans, SIMPLIFY = FALSE))
-
-ggplot(lr_df, aes(x = max_age, y = mean_lr_final)) +
-  geom_line(colour = "#e08214", linewidth = 1) +
-  geom_point(size = 3, colour = "#8073ac") +
-  labs(
-    title    = "The cephalopod paradox: short lifespan selects for fast learning",
-    subtitle = "Evolved mean learning rate at end of run, by maximum lifespan",
-    x = "Maximum lifespan (ticks)", y = "Evolved mean learning rate"
-  ) +
-  theme_minimal()
-```
-
-```{r fig-cephalopod, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: evolved learning rate is highest under the shortest lifespan (max_age = 20) and declines as lifespan increases, consistent with the cephalopod paradox. Genetic evolution substitutes for within-lifetime learning when the payback period is long enough."}
-FIG("cephalopod_paradox")
-```
-
----
-
-### Stress hypermutation — the SOS response
-
-**What it models.** In bacteria, severe DNA damage or prolonged resource
-depletion triggers the SOS response: a suite of error-prone polymerases that
-dramatically increase the genomic mutation rate (McKenzie & Rosenberg 2001).
-This is a bet-hedging strategy — most mutations are deleterious, but the
-expanded variance in offspring phenotype increases the probability that at least
-one lineage will escape the current fitness trough. When
-`stress_hypermutation = TRUE`, agents whose energy falls below `stress_threshold`
-apply a mutation rate multiplied by `stress_mutation_multiplier` to their neural
-genome. Pairing this with a scarce-resource environment (`grass_rate = 0.05`)
-ensures that stress is frequent enough to detect the effect within a tractable
-run length.
-
-**Key parameters.**
-
-| Parameter | Default | Effect |
-|---|---|---|
-| `stress_hypermutation` | FALSE | Enables condition-dependent mutation rate elevation |
-| `stress_threshold` | 20.0 | Energy level below which hypermutation activates |
-| `stress_mutation_multiplier` | 3.0 | Factor by which mutation rate is scaled under stress |
-| `grass_rate` | — | Resource regrowth rate; reduce to impose chronic scarcity |
-
-**Expected output.** Compare `genetic_diversity` trajectories across the two
-conditions. Under stress hypermutation, diversity should spike transiently
-during resource crashes (low `mean_energy` epochs), followed by faster adaptive
-recovery as beneficial mutants sweep. The baseline condition should show slower,
-smoother recovery after equivalent crashes.
-
-```{r stress-hypermutation}
-library(clade)
-library(ggplot2)
-
-make_s <- function(hypermut) {
-  s <- default_specs()
-  s$stress_hypermutation       <- hypermut
-  s$stress_threshold           <- 20.0
-  s$stress_mutation_multiplier <- 5.0
-  s$grass_rate                 <- 0.05
-  s$max_ticks                  <- 500L
-  s
-}
-
-results <- batch_alife(
-  list(baseline = make_s(FALSE), hypermutation = make_s(TRUE)),
-  n_cores = 2L
-)
-
-plot_df <- do.call(rbind, mapply(function(env, nm) {
-  d <- get_run_data(env)$ticks
-  data.frame(t = d$t, genetic_diversity = d$genetic_diversity, condition = nm)
-}, results, names(results), SIMPLIFY = FALSE))
-
-ggplot(plot_df, aes(x = t, y = genetic_diversity, colour = condition)) +
-  geom_line(linewidth = 0.7, alpha = 0.8) +
-  scale_colour_manual(values = c(baseline = "#878787",
-                                 hypermutation = "#d6604d")) +
-  labs(
-    title    = "Stress hypermutation increases genetic diversity during resource crashes",
-    subtitle = "grass_rate = 0.05; stress_mutation_multiplier = 5",
-    x = "Tick", y = "Genetic diversity", colour = "Condition"
-  ) +
-  theme_minimal()
-```
-
-```{r fig-stress-hypermutation, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: genetic diversity is transiently elevated in the stress-hypermutation condition during resource-crash epochs. Adaptive recovery is faster in the hypermutation condition as beneficial variants spread more rapidly through the population."}
-FIG("stress_hypermutation")
-```
-
----
-
-## Part VI — Population genetics
-
-### Population genetics and narrow-sense heritability
-
-**What it models.** A central quantity in quantitative genetics is narrow-sense
-heritability, h² — the proportion of phenotypic variance in a trait that is
-attributable to additive genetic effects (Falconer & Mackay 1996; Lynch & Walsh
-1998). A trait cannot respond to natural selection unless h² > 0. The
-`estimate_heritability()` function performs parent-offspring regression on
-pedigree records accumulated during the simulation: offspring trait values are
-regressed on mid-parent values, and the slope estimates h². When
-`body_size_evolution = TRUE`, body size is a polygenic trait encoded in the
-neural genome and subject to both mutation and selection, making it a suitable
-target for heritability analysis within a single run.
-
-**Key parameters.**
-
-| Parameter | Default | Effect |
-|---|---|---|
-| `body_size_evolution` | FALSE | Enables heritable, evolving body size |
-| `max_ticks` | — | Longer runs accumulate more parent-offspring pairs |
-
-**Expected output.** h² for `body_size` should be substantially positive
-(0.3–0.7) early in the run, reflecting the strong additive genetic architecture
-of a freshly initialised population. As directional selection erodes genetic
-variance, h² may decline in later ticks. The 95% confidence interval from the
-regression should exclude zero. h² for `energy` is expected to be lower,
-because energy is heavily influenced by the local environment.
-
-```{r pop-genetics}
-library(clade)
-
-s <- default_specs()
-s$body_size_evolution <- TRUE
-s$max_ticks           <- 500L
-
-env  <- run_alife(s)
-data <- get_run_data(env)
-
-h2 <- estimate_heritability(data, trait = "body_size")
-
-cat("Heritability h\u00b2:", round(h2$h2, 3), "\n")
-cat("95% CI: [", round(h2$ci[1], 3), ",", round(h2$ci[2], 3), "]\n")
-
-plot(h2)  # parent-offspring regression scatter with fitted line
-```
-
-```{r fig-pop-genetics, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: parent-offspring regression for body size with a positive slope (h² = 0.3-0.7). Each point is one offspring plotted against its mid-parent value. The shaded band is the 95% confidence interval on the regression line."}
-FIG("population_genetics")
-```
-
----
-
-## Part VII — Comparative experiments
 
 ### Predation and neural evolution
 
@@ -1838,7 +1945,320 @@ p1 / p2
 FIG("vadim_experiment")
 ```
 
+### Discovery prompts
+
+The baseline result shows predation increases genetic diversity in prey populations by imposing strong directional selection on cognition. To go beyond:
+
+1. **Brain size × predation** Add `brain_size_evolution = TRUE`. Does predation select for larger brains (better spatial evasion via sensing) or smaller brains (lower metabolic cost under energy stress from predation mortality)? Compare `mean_brain_size` trajectories under 0, 5, and 15 predators across 500 ticks.
+
+2. **RL × predation** Add `rl_mode = "actor_critic"`. Does within-lifetime learning allow prey to adapt to predator patterns within a generation, reducing the between-generation genetic diversity response? Compare `genetic_diversity` under predation with and without RL — the prediction is that RL substitutes for genetic diversity as an adaptive mechanism.
+
+3. **Social learning of evasion** Add `social_learning = TRUE`. Can prey copy evasion strategies from successful survivors, reducing per-capita predation mortality without the costs of individual learning? Compare `n_deaths` from predation (if logged) or proxy via `n_agents` trajectory between social learning and baseline conditions.
+
 ---
+
+
+## Theme 6 — Learning, plasticity, and cognition {#theme-6}
+
+*Within-lifetime change interacting with genetic evolution. These scenarios implement within-lifetime reinforcement learning, social copying, phenotypic plasticity, and Bayesian neural network uncertainty — asking when individual experience can substitute for, or amplify, genetic adaptation.*
+
+
+### Within-lifetime reinforcement learning
+
+**What it models.** Each agent uses REINFORCE-with-baseline (actor-critic) to
+update its brain's output layer based on energy reward signals during its
+lifetime. This implements the Baldwin effect: individually-learned behaviours
+can stabilise genetically over generations because learning relaxes the
+requirement for genes to encode the exact optimal behaviour.
+
+**Key parameters.**
+
+| Parameter | Default | Effect |
+|---|---|---|
+| `rl_mode` | `"none"` | Set to `"actor_critic"` to enable |
+| `rl_update_freq` | 5 | Ticks between RL updates |
+| `learning_rate` | 0.01 | Step size for output-layer update |
+| `learning_rate_evolution` | FALSE | Allow learning rate to evolve |
+
+**Expected output.** Agents with RL enabled adapt within their lifetime to the
+local resource distribution. When `learning_rate_evolution = TRUE`, the
+evolved learning rate reflects the environmental uncertainty: noisy environments
+favour lower rates; stable environments favour higher rates.
+
+```{r rl}
+s <- default_specs()
+s$rl_mode   <- "actor_critic"
+s$max_ticks <- 300L
+
+env  <- run_alife(s)
+data <- get_run_data(env)
+```
+
+```{r fig-rl, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: agents with within-lifetime RL adapt to local resource distribution within their lifetime. The Baldwin Effect is visible as the BNN prior sigma narrows over generations."}
+FIG("10_rl")
+```
+
+### Discovery prompts
+
+The baseline result shows agents with RL adapt within their lifetime to local resource distribution, and the Baldwin Effect is visible as BNN prior sigma narrows. To go beyond:
+
+1. **RL × brain size** Add `brain_size_evolution = TRUE`. Does within-lifetime RL reduce selection pressure on brain size (because learning compensates for cognitive limitations) or amplify it (because larger-brained agents learn more efficiently via the sensing advantage)? Compare `mean_brain_size` at tick 500 with and without `rl_mode = "actor_critic"`.
+
+2. **RL × social learning** Add `social_learning = TRUE`. Do agents that can both learn individually (RL) and copy socially converge faster than either mechanism alone? Watch `mean_energy` and `genetic_diversity`: does the combination flatten genetic diversity by reducing between-individual variance in foraging success more than either mechanism separately?
+
+3. **RL under seasonality** Add `seasonal_amplitude = 0.8`. Does within-lifetime RL improve survival during resource troughs by allowing agents to adapt their foraging strategy to winter conditions within a single season? Compare mean agent survival rates across the seasonal cycle with and without RL.
+
+---
+
+### Social learning
+
+**What it models.** Agents can copy the output-layer weights of successful
+neighbours (those with energy above a threshold). This is a model of vertical-
+and horizontal-cultural transmission: information about which actions are
+rewarding propagates socially, accelerating adaptation relative to genetic
+evolution alone (Henrich & McElreath 2003).
+
+**Key parameters.**
+
+| Parameter | Default | Effect |
+|---|---|---|
+| `social_learning` | FALSE | Enable social learning |
+| `social_learning_freq` | 10 | Ticks between learning events |
+| `social_learning_radius` | 3 | Search radius for models |
+
+**Expected output.** Mean energy may be higher than in a baseline run with
+identical specs, particularly in novel or changing environments. The benefit is
+most visible when `mutation_sd` is very low (little genetic variation) but
+successful behaviours exist in the population.
+
+```{r social-learning}
+s <- default_specs()
+s$social_learning      <- TRUE
+s$social_learning_freq <- 10L
+s$max_ticks            <- 300L
+
+env  <- run_alife(s)
+data <- get_run_data(env)
+```
+
+```{r fig-social-learning, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: mean energy and genetic diversity are maintained at higher levels than a baseline run, as successful foraging behaviours propagate through the social network."}
+FIG("11_social_learning")
+```
+
+### Discovery prompts
+
+The baseline result shows mean energy and genetic diversity are maintained at higher levels than baseline, as successful foraging behaviours propagate socially. To go beyond:
+
+1. **Social learning × stress hypermutation** Add `stress_hypermutation = TRUE`. Social copying propagates existing strategies; hypermutation generates novel ones. Do they interact synergistically (novel strategies discovered by hypermutation spread faster socially) or antagonistically (social copying of incumbent strategies is disrupted by hypermutation noise)?
+
+2. **Social learning × speciation** Add `speciation = TRUE`. Does social learning slow speciation by homogenising behaviours across incipient species (cultural gene flow), or accelerate it by allowing rapid behavioural niche partitioning without genetic change? Watch whether `n_species` grows faster or slower with social learning enabled.
+
+3. **Learning radius × genetic diversity** Vary `social_learning_radius` from 1 to 10 across `batch_alife()`. Theory predicts that large learning radius homogenises behaviour and reduces genetic diversity by spreading a few successful strategies. Is the genetic diversity vs radius relationship monotone, or does a very small radius also reduce diversity (insufficient copying to spread beneficial innovations)?
+
+---
+
+### Phenotypic plasticity
+
+**What it models.** A heritable `plasticity` trait modulates how strongly each
+agent's sensory input maps to action. High plasticity agents are more responsive
+to environmental cues; low plasticity agents rely more heavily on their evolved
+baseline behaviour. The evolution of plasticity tracks environmental variability:
+plastic phenotypes are favoured when environments are predictably unpredictable
+(DeWitt & Scheiner 2004).
+
+**Key parameters.**
+
+| Parameter | Default | Effect |
+|---|---|---|
+| `phenotypic_plasticity` | FALSE | Enable plasticity trait |
+| `plasticity_init_mean` | 0.5 | Starting plasticity |
+| `plasticity_mutation_sd` | 0.05 | Mutation rate |
+
+**Expected output.** `mean_plasticity` evolves. In stable environments
+(fixed `grass_rate`), plasticity typically decreases over time. In
+seasonally varying environments, plasticity may be maintained.
+
+```{r plasticity}
+s <- default_specs()
+s$phenotypic_plasticity <- TRUE
+s$max_ticks             <- 300L
+
+env  <- run_alife(s)
+data <- get_run_data(env)
+cat("Final plasticity:", tail(data$ticks$mean_plasticity, 1L), "\n")
+```
+
+```{r fig-plasticity, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: mean plasticity evolves over time. In stable environments it typically decreases; in seasonally varying environments it is maintained at intermediate values."}
+FIG("22_plasticity")
+```
+
+### Discovery prompts
+
+The baseline result shows plasticity evolves downward in stable environments and is maintained at intermediate values under seasonal variation. To go beyond:
+
+1. **Plasticity × stress hypermutation** Add `stress_hypermutation = TRUE`. Both mechanisms generate phenotypic variance under stress. Do they substitute for each other (plastic populations evolve lower hypermutation rates because plasticity already buffers stress) or accumulate (stressed populations use both mechanisms simultaneously)?
+
+2. **Plasticity × social learning** Add `social_learning = TRUE`. Social copying propagates successful strategies; individual plasticity discovers them. Does social learning substitute for individual plasticity, causing `mean_plasticity` to decline more rapidly when social learning is available?
+
+3. **Plasticity × seasonality** Add `seasonal_amplitude = 0.7`. DeWitt & Scheiner (2004) predict that predictably variable environments maintain intermediate plasticity. Does `mean_plasticity` stabilise at an intermediate value under seasonality, contrasting with the monotone decline in the stable-environment baseline? Test across three amplitude values.
+
+---
+
+### BNN uncertainty canalization — the Baldwin Effect
+
+**What it models.** The Bayesian neural network (BNN) brain type
+(`brain_type = "bnn"`) places a prior distribution over each synaptic weight,
+parameterised by a standard deviation σ. A large σ encodes behavioural
+flexibility: the agent samples widely from its weight posterior and can learn
+within its lifetime. A small σ encodes genetic assimilation: the agent's
+behaviour is largely determined by the prior mean — the population has, over
+generations of selection, canalized a formerly learned behaviour into the
+genome. This is the computational signature of the Baldwin Effect (Baldwin
+1896), formalised computationally by Hinton & Nowlan (1987) and analysed
+analytically by Mayley (1996): learning guides evolution toward fixed adaptive
+solutions, after which the learning machinery becomes redundant.
+
+**Key parameters.**
+
+| Parameter | Default | Effect |
+|---|---|---|
+| `brain_type` | `"bnn"` | Must be `"bnn"` to enable Bayesian weight distributions |
+| `learning_rate_init_mean` | 0.01 | Initial within-lifetime learning rate |
+| `max_ticks` | — | Longer runs show fuller canalization |
+
+**Expected output.** Track `mean_prior_sigma` in `data$ticks`. The column
+should decline from approximately 0.3 (broad, flexible priors) toward 0.05
+(narrow, assimilated priors) as selection repeatedly rewards the same weight
+configurations. The decline rate should accelerate when genetic diversity is
+high, because a large pool of variants provides a stronger selection gradient.
+
+```{r bnn-uncertainty}
+library(clade)
+library(ggplot2)
+
+s <- default_specs()
+s$brain_type <- "bnn"
+s$max_ticks  <- 500L
+
+env  <- run_alife(s)
+data <- get_run_data(env)
+
+ggplot(data$ticks, aes(x = t, y = mean_prior_sigma)) +
+  geom_line(colour = "#2166ac", linewidth = 0.8, alpha = 0.7) +
+  geom_smooth(method = "lm", se = TRUE,
+              colour = "#d6604d", fill = "#f4a582", alpha = 0.4) +
+  labs(
+    title    = "Genetic assimilation of learned behaviour (Baldwin Effect)",
+    subtitle = "BNN prior sigma declines as behaviour canalizes into the genome",
+    x = "Tick", y = expression("Mean prior " * sigma)
+  ) +
+  theme_minimal()
+```
+
+```{r fig-bnn-uncertainty, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: mean prior sigma declines monotonically from broad (flexible, ~0.3) to narrow (assimilated, ~0.05), with the steepest drop in periods of high genetic diversity. A fitted linear trend confirms the directional pattern."}
+FIG("bnn_uncertainty")
+```
+
+### Discovery prompts
+
+The baseline result shows mean prior sigma declining from broad (flexible) to narrow (assimilated) priors, with the steepest drop during periods of high genetic diversity. To go beyond:
+
+1. **Canalization rate × mutation** Vary `mutation_sd` from 0.01 to 0.2 in `batch_alife()`. Higher mutation continually re-diversifies the genome, competing with canalization. Is there a mutation rate above which the Baldwin Effect cannot proceed — where sigma never reaches its minimum? Plot final-tick `mean_prior_sigma` against `mutation_sd`.
+
+2. **Canalization × epigenetics** Add `epigenetics = TRUE`. Epigenetic inheritance can transmit partially-trained BNN sigma values to offspring (TEI), potentially accelerating canalization. Does `tei_prob > 0` reduce the number of generations required for sigma to reach its minimum? Compare the sigma trajectory slope with and without epigenetics.
+
+3. **Canalization × social learning** Add `social_learning = TRUE`. Social copying of output-layer weights should reduce within-population variance in behaviour, providing a stronger and more consistent selection gradient for sigma narrowing. Does social learning accelerate the sigma decline? Measure the slope of the sigma trajectory under social learning vs baseline.
+
+---
+
+### The cephalopod paradox — short lifespan selects for fast learning
+
+**What it models.** Classical life-history theory predicts that long-lived
+organisms should invest more heavily in learning, because only a long lifespan
+provides enough time to recoup the energetic costs of a large brain (the payback
+period argument). The cephalopod paradox inverts this prediction: octopuses and
+squid have among the shortest lifespans of any large-brained animal, yet they
+express sophisticated within-lifetime learning. Liedtke & Fromhage (2019)
+formalised the resolution: when lifespan is too brief for genetic evolution to
+converge on food-finding solutions, within-lifetime learning becomes the only
+viable mechanism for adaptive behaviour. Here, `complex_landscape = TRUE`
+creates a heterogeneous resource topology that cannot be solved by a fixed
+behavioural rule, and `learning_rate_evolution = TRUE` allows the genome to
+optimise how quickly agents update their neural weights from experience.
+
+**Key parameters.**
+
+| Parameter | Default | Effect |
+|---|---|---|
+| `max_age` | — | Maximum agent lifespan in ticks |
+| `complex_landscape` | FALSE | Enables spatially heterogeneous, shifting resource patches |
+| `learning_rate_evolution` | FALSE | Makes the within-lifetime learning rate a heritable trait |
+| `learning_rate_init_mean` | 0.01 | Initial mean evolved learning rate |
+
+**Expected output.** The evolved mean learning rate (recorded at the final tick
+of each run) should be highest at short `max_age` values and decline as
+lifespan increases, because long-lived agents can afford to rely on genetic
+evolution to encode solutions directly. The relationship need not be monotone
+at very short lifespans, where agents have too little experience to benefit
+from any learning.
+
+```{r cephalopod}
+library(clade)
+library(ggplot2)
+
+lifespans  <- c(20L, 50L, 100L, 200L)
+specs_list <- lapply(lifespans, function(ma) {
+  s <- default_specs()
+  s$max_age               <- ma
+  s$complex_landscape     <- TRUE
+  s$learning_rate_evolution <- TRUE
+  s$max_ticks             <- 400L
+  s
+})
+names(specs_list) <- paste0("max_age_", lifespans)
+
+results <- batch_alife(specs_list, n_cores = 4L)
+
+lr_df <- do.call(rbind, mapply(function(env, ma) {
+  d <- get_run_data(env)$ticks
+  data.frame(
+    max_age       = ma,
+    mean_lr_final = tail(d$mean_learning_rate, 1L)
+  )
+}, results, lifespans, SIMPLIFY = FALSE))
+
+ggplot(lr_df, aes(x = max_age, y = mean_lr_final)) +
+  geom_line(colour = "#e08214", linewidth = 1) +
+  geom_point(size = 3, colour = "#8073ac") +
+  labs(
+    title    = "The cephalopod paradox: short lifespan selects for fast learning",
+    subtitle = "Evolved mean learning rate at end of run, by maximum lifespan",
+    x = "Maximum lifespan (ticks)", y = "Evolved mean learning rate"
+  ) +
+  theme_minimal()
+```
+
+```{r fig-cephalopod, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: evolved learning rate is highest under the shortest lifespan (max_age = 20) and declines as lifespan increases, consistent with the cephalopod paradox. Genetic evolution substitutes for within-lifetime learning when the payback period is long enough."}
+FIG("cephalopod_paradox")
+```
+
+### Discovery prompts
+
+The baseline result shows evolved learning rate is highest at short lifespans and declines as lifespan increases, consistent with the cephalopod paradox. To go beyond:
+
+1. **Landscape × lifespan interaction** Cross `max_age ∈ {20, 50, 100, 200}` with `complex_landscape ∈ {TRUE, FALSE}` in an 8-condition `batch_alife()`. Is the paradox (short lifespan → faster evolved learning rate) amplified by landscape complexity, or does it emerge even in spatially homogeneous environments? The prediction is that landscape complexity is required to make learning beneficial at all.
+
+2. **Social substitution** Add `social_learning = TRUE` across the same lifespan gradient. Can social copying substitute for individual RL in short-lived agents, relieving the selection for high `mean_learning_rate`? Compare the slope of the lifespan–learning rate relationship with and without social learning.
+
+3. **Epigenetic priors** Add `epigenetics = TRUE`. Does epigenetic inheritance of BNN sigma values transmit partially-trained priors to offspring, reducing the effective payback period for learning? Does TEI make the cephalopod paradox disappear at intermediate lifespans (e.g. `max_age = 50`) by allowing offspring to begin with partially optimised priors?
+
+---
+
+
+## Theme 7 — Discovery experiments {#theme-7}
+
+*Combinatorial, computational, and open-ended experiments. These sections combine multiple modules simultaneously, search parameter space algorithmically, or use the simulation itself as a model organism for meta-scientific questions. No discovery prompts are given here — these sections are already the discovery layer.*
+
 
 ### Module comparison — 14-condition experiment
 
@@ -1944,6 +2364,60 @@ FIG("12_kitchen_dashboard")
 
 ---
 
+### MAP-Elites: Discovering Diverse Worlds {#section-33}
+
+Quality-Diversity (QD) algorithms search for a collection of high-performing
+solutions that are also behaviourally diverse, rather than converging on a
+single optimum (Mouret & Clune 2015). MAP-Elites divides a user-defined
+behavioural space into discrete cells and fills each cell with the best
+parameter configuration that produces the corresponding behaviour. Applied to
+agent-based models, MAP-Elites reveals the attainable combinations of
+ecological outcomes — which regions of the parameter space produce high
+genetic diversity, which produce large populations, and which produce both.
+
+`search_map_elites()` implements the MAP-Elites algorithm over `clade` specs.
+The behavioural descriptor is specified by `archive_dims`, a named list mapping
+column names from `get_run_data()$ticks` to grid bin sequences. Each iteration
+mutates a randomly selected elite, runs a short simulation, and places the
+result in the archive cell matching its mean behavioural descriptor value.
+
+```{r map-elites-discovery, eval=FALSE}
+library(clade)
+
+specs <- default_specs()
+specs$n_agents_init <- 50L
+specs$max_ticks     <- 200L   # short runs for MAP-Elites
+specs$grid_rows     <- 20L
+specs$grid_cols     <- 20L
+
+result <- search_map_elites(
+  specs_base   = specs,
+  archive_dims = list(
+    genetic_diversity = seq(0, 1,   by = 0.1),
+    n_agents          = seq(0, 100, by = 10)
+  ),
+  n_iterations = 200L,
+  objective    = "genetic_diversity",
+  verbose      = FALSE
+)
+
+result$map   # ggplot2 heatmap of the archive
+```
+
+```{r fig-map-elites-discovery, eval=TRUE, echo=FALSE, fig.cap="MAP-Elites archive after 200 iterations. Each cell shows the best genetic diversity score achieved for a given (genetic_diversity, n_agents) behavioural profile. Empty cells indicate unattainable or unexplored regions of the behavioural space. The heatmap reveals trade-offs: parameter configurations that maximise diversity often sustain lower population sizes (Mouret & Clune 2015)."}
+FIG("map_elites")
+```
+
+The archive provides a compact summary of the attainable evolutionary
+outcomes across the parameter space, identifying parameter configurations
+that would not be found by single-objective optimisation. Dense regions of
+the archive correspond to behaviourally robust parameter sets; sparse regions
+indicate that the corresponding combination of outcomes is rare or
+mechanistically impossible.
+
+
+---
+
 ### Combining modules — a kitchen-sink run
 
 **What it models.** The preceding sections isolate individual mechanisms to
@@ -2028,40 +2502,7 @@ FIG("12_kitchen_sink")
 
 ---
 
-## Part VIII — alifeR experiment reference guide
-
-`clade` is the direct successor to the `alifeR` R package, which used an Rcpp
-backend for simulation. All biological modules, parameter names, and
-experimental designs are preserved: the sole change required to run any alifeR
-experiment in `clade` is replacing `alifeR::run_alife(specs)` with
-`clade::run_alife(specs)`. The Julia backend provides approximately 25× faster
-throughput for populations above 200 agents, making parameter sweeps and
-replicated batch experiments tractable.
-
-**Key translated experiments.**
-
-| alifeR script | clade equivalent | Key parameters |
-|---|---|---|
-| `grand_experiment.R` | Module comparison (above) | 14 conditions × `batch_alife()` |
-| `kin_selection_experiment.R` | Kin selection section | `kin_selection`, `kin_altruism_r_min` |
-| `niche_experiment.R` | Niche construction section | `niche_construction`, `shelter_build_prob` |
-| `body_size_experiment.R` | Body size + predation | `body_size_evolution`, `n_predators_init` |
-| `mimicry_experiment.R` | Mimicry and toxicity section | `mimicry`, `toxicity_init_mean`, `n_predators_init` |
-| `social_learning_experiment.R` | Social learning section | `social_learning`, `social_learning_freq` |
-| `rl_experiment.R` | Within-lifetime RL section | `rl_mode`, `learning_rate`, `rl_update_freq` |
-| `brain_size_experiment.R` | Brain size evolution (Part X) | `brain_size_evolution`, `parental_care`, `brain_size_cost_scale` |
-
-**Migration checklist.** Replace the package namespace in all calls
-(`alifeR::` → `clade::`). Confirm that `default_specs()` returns the same
-parameter names as the alifeR version being migrated; any alifeR parameters
-introduced after the clade fork will need manual addition via the
-`default_specs()` extension pattern documented in `?default_specs`. No changes
-to downstream analysis functions (`estimate_heritability()`, `get_run_data()`,
-`plot_run()`, `compare_conditions()`) are required.
-
----
-
-## Part IX — Pure-R scenario: evolution of bad science
+### Evolution of bad science
 
 **What it models.** A pure-R simulation (no Julia required) of Smaldino &
 McElreath (2016). Labs compete for citations. Publication probability depends
@@ -2093,111 +2534,36 @@ FIG("bad_science")
 
 ---
 
-## Part X — Brain size evolution and the parental provisioning hypothesis
+## Part VIII — alifeR experiment reference guide
 
-The **parental provisioning hypothesis** proposes that parental care is a
-prerequisite for brain size evolution (van Schaik et al. 2023; Griesser et al.
-2023; Song et al. 2025). The mechanism has three components:
+`clade` is the direct successor to the `alifeR` R package, which used an Rcpp
+backend for simulation. All biological modules, parameter names, and
+experimental designs are preserved: the sole change required to run any alifeR
+experiment in `clade` is replacing `alifeR::run_alife(specs)` with
+`clade::run_alife(specs)`. The Julia backend provides approximately 25× faster
+throughput for populations above 200 agents, making parameter sweeps and
+replicated batch experiments tractable.
 
-1. **Expensive brain hypothesis**: brain tissue is metabolically costly and
-   cannot be down-regulated. Each unit of brain size adds to the idle metabolic
-   cost that must be paid every tick, regardless of whether the agent is
-   foraging successfully.
-2. **Bootstrapping problem**: large-brained newborns immediately pay the
-   metabolic surcharge but forage poorly (ANN weights are random at birth).
-   They starve before their cognitive advantage can offset the cost — *unless*
-   a parent provides exogenous energy during infancy.
-3. **Sensing quality**: larger-brained agents perceive grass resource gradients
-   more clearly. Grass inputs to the neural network are scaled by
-   `brain_size ^ brain_size_sensing_exponent`, amplifying the signal from
-   nearby food cells. This provides a directional navigation advantage that
-   complements the on-cell foraging bonus and compounds as brain size evolves
-   upward.
+**Key translated experiments.**
 
-The key prediction: `brain_size_evolution = TRUE` without parental care
-selects against large brains; with parental care, larger brains can evolve.
-
-### Parameters
-
-| Parameter | Default | Description |
+| alifeR script | clade equivalent | Key parameters |
 |---|---|---|
-| `brain_size_evolution` | `FALSE` | Enable heritable brain size |
-| `brain_size_init_mean` | `1.0` | Initial population mean (reference = no effect) |
-| `brain_size_mutation_sd` | `0.05` | Per-generation mutation SD |
-| `brain_size_min` | `0.1` | Minimum brain size |
-| `brain_size_max` | `3.0` | Maximum brain size |
-| `brain_size_cost_scale` | `1.0` | Scales the idle-cost surcharge per unit of `brain_size - 1` |
-| `brain_size_sensing_exponent` | `0.3` | Power applied to `brain_size` when scaling grass sensing inputs; 0 = off, 1 = linear |
+| `grand_experiment.R` | Module comparison (above) | 14 conditions × `batch_alife()` |
+| `kin_selection_experiment.R` | Kin selection section | `kin_selection`, `kin_altruism_r_min` |
+| `niche_experiment.R` | Niche construction section | `niche_construction`, `shelter_build_prob` |
+| `body_size_experiment.R` | Body size + predation | `body_size_evolution`, `n_predators_init` |
+| `mimicry_experiment.R` | Mimicry and toxicity section | `mimicry`, `toxicity_init_mean`, `n_predators_init` |
+| `social_learning_experiment.R` | Social learning section | `social_learning`, `social_learning_freq` |
+| `rl_experiment.R` | Within-lifetime RL section | `rl_mode`, `learning_rate`, `rl_update_freq` |
+| `brain_size_experiment.R` | Brain size evolution (Theme 1) | `brain_size_evolution`, `parental_care`, `brain_size_cost_scale` |
 
-### Example: parental care unlocks brain size evolution
-
-```{r brain-size-evolution-setup, eval=FALSE}
-library(clade)
-
-base <- default_specs()
-base$grid_rows     <- 20L
-base$grid_cols     <- 20L
-base$n_agents_init <- 40L
-base$max_agents    <- 300L
-base$max_ticks     <- 300L
-base$random_seed   <- 42L
-
-# Brain size evolution parameters
-base$brain_size_evolution   <- TRUE
-base$brain_size_init_mean   <- 1.1   # start slightly above reference
-base$brain_size_mutation_sd <- 0.05
-base$brain_size_cost_scale  <- 1.2   # moderate metabolic burden
-
-# Condition 1: brain size evolution WITH parental care (care buffers infancy)
-s_care              <- base
-s_care$parental_care  <- TRUE
-s_care$care_duration  <- 10L
-s_care$feeding_rate   <- 3.0
-
-# Condition 2: brain size evolution WITHOUT parental care (bootstrapping fails)
-s_no_care           <- base
-s_no_care$parental_care <- FALSE
-
-env_care    <- run_alife(s_care,    verbose = FALSE)
-env_no_care <- run_alife(s_no_care, verbose = FALSE)
-
-d_care    <- get_run_data(env_care)$ticks
-d_no_care <- get_run_data(env_no_care)$ticks
-
-df <- rbind(
-  cbind(d_care[,    c("t", "mean_brain_size")], condition = "Parental care"),
-  cbind(d_no_care[, c("t", "mean_brain_size")], condition = "No parental care")
-)
-
-ggplot(df, aes(t, mean_brain_size, colour = condition)) +
-  geom_line(linewidth = 0.8) +
-  geom_hline(yintercept = 1.0, linetype = "dashed", colour = "grey50") +
-  scale_colour_manual(values = c("Parental care" = "#2196F3",
-                                  "No parental care" = "#F44336")) +
-  labs(title = "Brain size evolution: parental provisioning hypothesis",
-       subtitle = "Parental care bridges the bootstrapping energy deficit",
-       x = "Tick", y = "Mean brain size", colour = NULL) +
-  theme_minimal()
-```
-
-```{r fig-brain-size, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: mean brain size drifts upward when parental care is present (blue) because the care-energy buffer allows large-brained offspring to survive infancy. Without parental care (red), the metabolic cost of a large brain exceeds early-life foraging gains, selecting for smaller brains."}
-FIG("brain_size")
-```
-
-### Interpretation
-
-A rising `mean_brain_size` trajectory in the parental-care condition reflects
-evolutionary invasion of high-cost, high-benefit brain phenotypes. In the
-no-care condition the trajectory remains near or below the reference (1.0)
-because large-brained infants starve before they can reproduce.
-
-The critical parameters are `brain_size_cost_scale` (how steep the cost
-curve is), `feeding_rate` × `care_duration` (how much energy the parent
-provides), and `brain_size_sensing_exponent` (how strongly brain size amplifies
-resource perception). Increasing `brain_size_cost_scale` makes the bootstrapping
-problem harder; increasing `feeding_rate` makes it easier for large-brained
-offspring to survive. Setting `brain_size_sensing_exponent = 0` disables the
-sensing pathway entirely, isolating the foraging-bonus effect.
+**Migration checklist.** Replace the package namespace in all calls
+(`alifeR::` → `clade::`). Confirm that `default_specs()` returns the same
+parameter names as the alifeR version being migrated; any alifeR parameters
+introduced after the clade fork will need manual addition via the
+`default_specs()` extension pattern documented in `?default_specs`. No changes
+to downstream analysis functions (`estimate_heritability()`, `get_run_data()`,
+`plot_run()`, `compare_conditions()`) are required.
 
 ---
 

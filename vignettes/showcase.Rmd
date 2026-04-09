@@ -34,7 +34,21 @@ FIG <- function(name, ...) {
 This vignette walks through 37 biological scenarios in `clade`, from a
 bare foraging world to kitchen-sink multi-module runs. Each section shows the
 code needed to reproduce the result and a pre-built figure so that the
-vignette renders without a Julia session.
+vignette renders without a Julia session. For the full **discovery guide**
+with thematic organisation, merged sections, and discovery prompts for each
+scenario, see the companion vignette `vignette("scenarios", package = "clade")`.
+
+**Thematic index** (maps sections to the seven discovery themes):
+
+| Theme | Sections |
+|---|---|
+| **1. How do traits evolve?** | 2, 4, 32, 34, 35, 37 |
+| **2. Ecology and adaptive landscapes** | 3, 5, 9, 16, 17, 29 |
+| **3. Social evolution** | 7, 8, 20, 23, 18 |
+| **4. Life history strategies** | 19, 26, 27, 30, 31, 25 |
+| **5. Species interactions and arms races** | 14, 15, 21, 13, 24 |
+| **6. Learning, plasticity, and cognition** | 10, 11, 22, 34, 35 |
+| **7. Discovery experiments** | 12, 33, 36 |
 
 To reproduce any figure interactively, copy the code chunk and run it in an R
 session with Julia available. To regenerate all figures, run:
