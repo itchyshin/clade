@@ -192,8 +192,8 @@ batch_alife <- function(specs_list, n_cores = 1L, verbose = FALSE) {
 #' retain their R types (integer, double, logical, character), and the Julia
 #' helper rebuilds the Dict keyed by string.
 #'
-#' Values that JuliaConnectoR cannot serialise — single `NA`s and zero-length
-#' character vectors — are dropped before sending. Julia reads optional
+#' Values that JuliaConnectoR cannot serialise -- single `NA`s and zero-length
+#' character vectors -- are dropped before sending. Julia reads optional
 #' fields via `get(specs, key, default)`, so an absent key is equivalent to
 #' `nothing` or the coded default.
 #'
@@ -240,7 +240,7 @@ batch_alife <- function(specs_list, n_cores = 1L, verbose = FALSE) {
 #' Render a scalar R value as a Julia literal string
 #' @keywords internal
 .r_val_to_julia_str <- function(v) {
-  # NA check first — before type dispatch, because NA_integer_ is also integer
+  # NA check first -- before type dispatch, because NA_integer_ is also integer
   if (length(v) == 1L && is.na(v)) return("nothing")
   if (is.logical(v) && length(v) == 1L) {
     return(if (isTRUE(v)) "true" else "false")

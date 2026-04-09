@@ -2,8 +2,8 @@
 #'
 #' `get_run_data()` converts the raw environment list returned by [run_alife()]
 #' into a list of two tidy data frames:
-#' - `$ticks` — one row per logged tick, with population-level statistics.
-#' - `$deaths` — one row per agent death, with individual-level records.
+#' - `$ticks` -- one row per logged tick, with population-level statistics.
+#' - `$deaths` -- one row per agent death, with individual-level records.
 #'
 #' @param env An environment list returned by [run_alife()].
 #'
@@ -60,7 +60,7 @@ get_run_data <- function(env) {
 #'
 #' @references
 #' Weir, B.S. & Cockerham, C.C. (1984) Estimating F-statistics for the
-#'   analysis of population structure. *Evolution* 38(6):1358–1370.
+#'   analysis of population structure. *Evolution* 38(6):1358-1370.
 #'
 #' @examples
 #' \dontrun{
@@ -196,7 +196,7 @@ estimate_heritability <- function(run_data, trait = "body_size") {
 #'
 #' @references
 #' Lewontin, R.C. & Kojima, K. (1960) The evolutionary dynamics of complex
-#'   polymorphisms. *Evolution* 14(4):458–472.
+#'   polymorphisms. *Evolution* 14(4):458-472.
 #'
 #' @examples
 #' \dontrun{

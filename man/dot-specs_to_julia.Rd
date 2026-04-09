@@ -23,8 +23,8 @@ retain their R types (integer, double, logical, character), and the Julia
 helper rebuilds the Dict keyed by string.
 }
 \details{
-Values that JuliaConnectoR cannot serialise — single \code{NA}s and zero-length
-character vectors — are dropped before sending. Julia reads optional
+Values that JuliaConnectoR cannot serialise -- single \code{NA}s and zero-length
+character vectors -- are dropped before sending. Julia reads optional
 fields via \code{get(specs, key, default)}, so an absent key is equivalent to
 \code{nothing} or the coded default.
 }

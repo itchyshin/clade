@@ -56,9 +56,9 @@ result$specs$grass_rate
 }
 \references{
 Hansen, N. & Ostermeier, A. (2001) Completely derandomized self-adaptation
-in evolution strategies. \emph{Evolutionary Computation} 9(2):159–195.
+in evolution strategies. \emph{Evolutionary Computation} 9(2):159-195.
 Hansen, N. (2006) The CMA evolution strategy: a comparing review. In:
-Towards a New Evolutionary Computation, Springer, pp 75–102.
+Towards a New Evolutionary Computation, Springer, pp 75-102.
 }
 \seealso{
 \code{\link[=search_map_elites]{search_map_elites()}}, \code{\link[=search_gradient]{search_gradient()}}

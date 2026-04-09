@@ -28,8 +28,8 @@ A list with components:
 \code{get_run_data()} converts the raw environment list returned by \code{\link[=run_alife]{run_alife()}}
 into a list of two tidy data frames:
 \itemize{
-\item \verb{$ticks} — one row per logged tick, with population-level statistics.
-\item \verb{$deaths} — one row per agent death, with individual-level records.
+\item \verb{$ticks} -- one row per logged tick, with population-level statistics.
+\item \verb{$deaths} -- one row per agent death, with individual-level records.
 }
 }
 \examples{

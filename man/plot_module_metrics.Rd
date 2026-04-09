@@ -26,17 +26,17 @@ to six panels into a patchwork grid. Only panels for modules that produced
 non-zero data are included:
 
 \describe{
-\item{Predators}{\code{n_predators} — line plot of predator population over
+\item{Predators}{\code{n_predators} -- line plot of predator population over
 time.}
-\item{Species}{\code{n_species} — step plot of species count; shown only when
+\item{Species}{\code{n_species} -- step plot of species count; shown only when
 speciation was active (max > 1).}
 \item{Traits}{Overlay of \code{mean_toxicity}, \code{mean_plasticity}, and
 \code{mean_helper_tendency} as three coloured lines.}
-\item{Signals}{\code{mean_signal_magnitude} — line plot; shown only when
+\item{Signals}{\code{mean_signal_magnitude} -- line plot; shown only when
 signal evolution was active (max > 0).}
-\item{Parental care}{\code{n_juveniles} — line plot of juveniles under care;
+\item{Parental care}{\code{n_juveniles} -- line plot of juveniles under care;
 shown only when max > 0.}
-\item{Mimicry}{\code{n_toxic_attacks} and \code{n_avoided_attacks} — two lines
+\item{Mimicry}{\code{n_toxic_attacks} and \code{n_avoided_attacks} -- two lines
 showing attacks versus avoidance events; shown only when mimicry attacks
 occurred (max n_toxic_attacks > 0).}
 }

@@ -22,9 +22,9 @@ A \code{\link[patchwork:wrap_plots]{patchwork::wrap_plots()}} composite ggplot o
 Assembles a 2 × 3 panel dashboard from a completed clade run:
 
 \describe{
-\item{Top-left}{Grid snapshot — landscape and agent positions at the
+\item{Top-left}{Grid snapshot -- landscape and agent positions at the
 final tick (\code{\link[=plot_environment]{plot_environment()}}).}
-\item{Top-centre}{Population dynamics — agent count, mean and best
+\item{Top-centre}{Population dynamics -- agent count, mean and best
 energy over time.}
 \item{Top-right}{Diversity trajectory (\code{\link[=plot_diversity]{plot_diversity()}}).}
 \item{Bottom-left}{Lifespan vs energy scatter by cause of death.}

@@ -18,7 +18,7 @@ A \code{\link[ggplot2:ggplot]{ggplot2::ggplot()}} object.
 Draws the trajectory of mean pairwise genome distance (genetic diversity)
 and, when body-size evolution is active, the coefficient of variation of
 body size as a proxy for phenotypic diversity. All series are scaled to the
-same 0–1 range for visual comparison.
+same 0-1 range for visual comparison.
 
 A common pattern is high diversity in the founders, a selective sweep that
 reduces diversity as the best foraging strategy spreads, then a partial

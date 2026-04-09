@@ -232,7 +232,7 @@ plot_environment <- function(env) {
 
   grass_max <- if (!is.null(specs$grass_max)) as.numeric(specs$grass_max) else 5
 
-  # Agents — JuliaConnectoR proxies require index-based iteration
+  # Agents -- JuliaConnectoR proxies require index-based iteration
   agents <- env$agents
   n_agents <- if (!is.null(agents)) as.integer(length(agents)) else 0L
   if (n_agents > 0L) {
@@ -554,7 +554,7 @@ plot_tsne_genomes <- function(run_data, n_agents = 50L, perplexity = 15, ...) {
   genome_mat <- genome_mat[, col_vars > 0, drop = FALSE]
 
   if (ncol(genome_mat) < 2L) {
-    return(.placeholder("Genome weights have no variance — run more ticks"))
+    return(.placeholder("Genome weights have no variance -- run more ticks"))
   }
 
   pca_out <- stats::prcomp(genome_mat, center = TRUE, scale. = FALSE,
@@ -876,7 +876,7 @@ plot_dead_agents <- function(run_data) {
 #' Draws the trajectory of mean pairwise genome distance (genetic diversity)
 #' and, when body-size evolution is active, the coefficient of variation of
 #' body size as a proxy for phenotypic diversity. All series are scaled to the
-#' same 0–1 range for visual comparison.
+#' same 0-1 range for visual comparison.
 #'
 #' A common pattern is high diversity in the founders, a selective sweep that
 #' reduces diversity as the best foraging strategy spreads, then a partial
@@ -1163,9 +1163,9 @@ plot_weight_heatmap <- function(ann, title = "Neural genome") {
 #' Assembles a 2 × 3 panel dashboard from a completed clade run:
 #'
 #' \describe{
-#'   \item{Top-left}{Grid snapshot — landscape and agent positions at the
+#'   \item{Top-left}{Grid snapshot -- landscape and agent positions at the
 #'     final tick ([plot_environment()]).}
-#'   \item{Top-centre}{Population dynamics — agent count, mean and best
+#'   \item{Top-centre}{Population dynamics -- agent count, mean and best
 #'     energy over time.}
 #'   \item{Top-right}{Diversity trajectory ([plot_diversity()]).}
 #'   \item{Bottom-left}{Lifespan vs energy scatter by cause of death.}
@@ -1338,17 +1338,17 @@ visualize_progress <- function(env, run_data = NULL, title = NULL) {
 #' non-zero data are included:
 #'
 #' \describe{
-#'   \item{Predators}{`n_predators` — line plot of predator population over
+#'   \item{Predators}{`n_predators` -- line plot of predator population over
 #'     time.}
-#'   \item{Species}{`n_species` — step plot of species count; shown only when
+#'   \item{Species}{`n_species` -- step plot of species count; shown only when
 #'     speciation was active (max > 1).}
 #'   \item{Traits}{Overlay of `mean_toxicity`, `mean_plasticity`, and
 #'     `mean_helper_tendency` as three coloured lines.}
-#'   \item{Signals}{`mean_signal_magnitude` — line plot; shown only when
+#'   \item{Signals}{`mean_signal_magnitude` -- line plot; shown only when
 #'     signal evolution was active (max > 0).}
-#'   \item{Parental care}{`n_juveniles` — line plot of juveniles under care;
+#'   \item{Parental care}{`n_juveniles` -- line plot of juveniles under care;
 #'     shown only when max > 0.}
-#'   \item{Mimicry}{`n_toxic_attacks` and `n_avoided_attacks` — two lines
+#'   \item{Mimicry}{`n_toxic_attacks` and `n_avoided_attacks` -- two lines
 #'     showing attacks versus avoidance events; shown only when mimicry attacks
 #'     occurred (max n_toxic_attacks > 0).}
 #' }
@@ -1472,7 +1472,7 @@ plot_module_metrics <- function(run_data) {
       .clade_theme()
   }
 
-  # ── 5. Parental care — juveniles ──────────────────────────────────────────────
+  # ── 5. Parental care -- juveniles ──────────────────────────────────────────────
   if ("n_juveniles" %in% names(d) && max(d$n_juveniles, na.rm = TRUE) > 0L) {
     panels[["care"]] <- ggplot2::ggplot(
       d, ggplot2::aes(x = .data$t, y = .data$n_juveniles)

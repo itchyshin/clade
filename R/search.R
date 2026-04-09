@@ -103,7 +103,7 @@ search_map_elites <- function(specs_base,
   }
 
   if (is.null(mutation_params)) {
-    # Default to continuous (double) positive scalars only — never mutate
+    # Default to continuous (double) positive scalars only -- never mutate
     # integer-typed parameters, since they encode discrete options (ploidy,
     # max_ticks, ...) that the Julia validator rejects on non-integer values.
     mutation_params <- names(Filter(function(v) {
@@ -221,9 +221,9 @@ search_map_elites <- function(specs_base,
 #'
 #' @references
 #' Hansen, N. & Ostermeier, A. (2001) Completely derandomized self-adaptation
-#'   in evolution strategies. *Evolutionary Computation* 9(2):159–195.
+#'   in evolution strategies. *Evolutionary Computation* 9(2):159-195.
 #' Hansen, N. (2006) The CMA evolution strategy: a comparing review. In:
-#'   Towards a New Evolutionary Computation, Springer, pp 75–102.
+#'   Towards a New Evolutionary Computation, Springer, pp 75-102.
 #'
 #' @examples
 #' \dontrun{
@@ -339,9 +339,9 @@ search_cmaes <- function(specs_base,
 #'
 #' @references
 #' Spall, J.C. (1998) An overview of the simultaneous perturbation method for
-#'   efficient optimization. *Johns Hopkins APL Technical Digest* 19(4):482–492.
+#'   efficient optimization. *Johns Hopkins APL Technical Digest* 19(4):482-492.
 #' Innes, M. (2018) Don't unroll adjoint: differentiating SSA-form programs.
-#'   arXiv:1810.07951. (Zygote.jl — Phase 4b deferred.)
+#'   arXiv:1810.07951. (Zygote.jl -- Phase 4b deferred.)
 #'
 #' @examples
 #' \dontrun{

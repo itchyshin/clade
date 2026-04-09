@@ -38,7 +38,7 @@ plot(gdat$heterozygosity, type = "l", xlab = "Tick", ylab = "Heterozygosity")
 }
 \references{
 Weir, B.S. & Cockerham, C.C. (1984) Estimating F-statistics for the
-analysis of population structure. \emph{Evolution} 38(6):1358–1370.
+analysis of population structure. \emph{Evolution} 38(6):1358-1370.
 }
 \seealso{
 \code{\link[=get_run_data]{get_run_data()}}, \code{\link[=run_alife]{run_alife()}}

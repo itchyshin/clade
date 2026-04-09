@@ -69,7 +69,7 @@ the primary literature.
 \item{\code{brain_type}}{Character. One of \code{"bnn"} (default), \code{"ann"},
 \code{"ctrnn"}, \code{"grn"}, \code{"transformer"}, \code{"synthesis"}, or \code{"random"}.
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{* `"bnn"` — **Bayesian Neural Network** (default). Each synaptic weight
+\if{html}{\out{<div class="sourceCode">}}\preformatted{* `"bnn"` -- **Bayesian Neural Network** (default). Each synaptic weight
   is a probability distribution (mean mu, standard deviation sigma)
   rather than a fixed value. The genome encodes the prior (mu, sigma);
   within lifetime, experience updates the posterior via approximate
@@ -81,13 +81,13 @@ the primary literature.
   Springer; Blundell et al. (2015) Weight Uncertainty in Neural
   Networks, *ICML* pp 1613--1622.
 
-* `"ann"` — **Multilayer Perceptron**. Standard feedforward network with
+* `"ann"` -- **Multilayer Perceptron**. Standard feedforward network with
   fixed weights. Architecture set by `hidden_layers`. Compatible with
   the `alifeR` ANN format.
   Reference: Rumelhart, Hinton & Williams (1986) Learning
   representations by back-propagating errors, *Nature* 323:533--536.
 
-* `"ctrnn"` — **Continuous-Time Recurrent Neural Network**. Each neuron
+* `"ctrnn"` -- **Continuous-Time Recurrent Neural Network**. Each neuron
   i has an internal state y_i governed by the ODE:
   tau_i * dy_i/dt = -y_i + sum_j(w_ij * sigma(y_j + theta_j)) + I_i.
   Produces temporal dynamics, rhythmic behaviour, and autonomous
@@ -96,7 +96,7 @@ the primary literature.
   Reference: Beer (1995) On the dynamics of small continuous-time
   recurrent neural networks, *Adaptive Behavior* 3(4):469--509.
 
-* `"grn"` — **Gene Regulatory Network**. The genome IS the brain;
+* `"grn"` -- **Gene Regulatory Network**. The genome IS the brain;
   no separate neural network. Each locus represents a gene whose
   expression level is regulated by other genes. Some genes receive
   sensory input; others produce action output. Behaviour emerges from
@@ -107,7 +107,7 @@ the primary literature.
   Watson & Szathmary (2016) How can evolution learn?, *Trends in
   Ecology and Evolution* 31(2):147--157.
 
-* `"transformer"` — **Attention-Based Transformer**. Attends over a
+* `"transformer"` -- **Attention-Based Transformer**. Attends over a
   rolling window of the last `transformer_history` sensory inputs.
   Genome encodes query/key/value projection weights and feed-forward
   layers. Enables agents to integrate temporal context without explicit
@@ -115,7 +115,7 @@ the primary literature.
   Reference: Vaswani et al. (2017) Attention is all you need,
   *NeurIPS* 30.
 
-* `"synthesis"` — **Formal / Symbolic Rule Synthesis**. The agent's
+* `"synthesis"` -- **Formal / Symbolic Rule Synthesis**. The agent's
   brain is an evolved symbolic program: a set of IF-THEN rules of the
   form (IF condition_1 AND condition_2 THEN action). Rules are encoded
   as a structured list. Evolution proceeds by rule mutation
@@ -126,7 +126,7 @@ the primary literature.
   Transactions on Neural Networks* 5(1):54--65; see also Koza (1992)
   *Genetic Programming*, MIT Press.
 
-* `"random"` — Null brain. Chooses actions uniformly at random.
+* `"random"` -- Null brain. Chooses actions uniformly at random.
   Used as a baseline to confirm that evolved behaviour outperforms
   chance.
 }\if{html}{\out{</div>}}
@@ -135,6 +135,11 @@ the primary literature.
 \item{\code{hidden_layers}}{Integer vector. Hidden layer widths for \code{"ann"} and
 \code{"bnn"} (default \code{c(8L)}; gives one hidden layer of 8 units). Set to
 \code{c(16L, 8L)} for two hidden layers.}
+\item{\code{input_radius}}{Integer. Radius of the Moore neighbourhood used when
+building each agent's sensory input vector (default \code{1L}). Radius 1 gives
+the standard 8-cell neighbourhood; radius 2 extends to the 24-cell
+neighbourhood. Increasing this value expands the input vector and the
+brain's first-layer width accordingly.}
 \item{\code{n_genes}}{Integer. Number of genes for \code{"grn"} brain type
 (default 20L). Includes sensory input genes and action output genes.}
 \item{\code{transformer_history}}{Integer. Number of past sensory inputs the
@@ -154,12 +159,12 @@ the Polyworld simulation (Yaeger 1994).
 \item{\code{brain_energy_mode}}{Character. One of \code{"none"}, \code{"size"},
 \code{"activity"} (default), or \code{"prediction_error"}.
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{* `"none"` — no brain energy cost.
-* `"size"` — cost proportional to number of synaptic weights.
-* `"activity"` — cost = `brain_energy_base * n_weights +
+\if{html}{\out{<div class="sourceCode">}}\preformatted{* `"none"` -- no brain energy cost.
+* `"size"` -- cost proportional to number of synaptic weights.
+* `"activity"` -- cost = `brain_energy_base * n_weights +
   brain_energy_activity * mean(|activations|)`. Larger and more active
   brains are more costly.
-* `"prediction_error"` — BNN-only; cost proportional to KL divergence
+* `"prediction_error"` -- BNN-only; cost proportional to KL divergence
   between prior and posterior (measures how much the agent had to
   update its beliefs).
 
@@ -185,7 +190,7 @@ recombination.
 \describe{
 \item{\code{ploidy}}{Integer. \code{1L} = haploid (default); \code{2L} = diploid.
 In the diploid case every heritable trait (brain weights, body size,
-immune strength, cooperation level, etc.) has two alleles — one
+immune strength, cooperation level, etc.) has two alleles -- one
 maternal, one paternal. The expressed phenotype is computed by
 \code{dominance_model} at birth and does not change within a lifetime.}
 \item{\code{n_chromosomes}}{Integer. Number of chromosome pairs (default 1L).
@@ -197,9 +202,9 @@ chromosome pair per meiosis (Poisson distributed; default 1.0). Set to
 0 to disable recombination.}
 \item{\code{dominance_model}}{Character. How maternal and paternal alleles
 combine to produce the expressed phenotype:
-* \code{"additive"} (default) — phenotype = (maternal + paternal) / 2.
-* \code{"dominant"} — randomly choose one allele at each locus.
-* \code{"codominant"} — both alleles expressed; implemented as additive but
+* \code{"additive"} (default) -- phenotype = (maternal + paternal) / 2.
+* \code{"dominant"} -- randomly choose one allele at each locus.
+* \code{"codominant"} -- both alleles expressed; implemented as additive but
 reported separately in \code{get_genome_data()}.
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{Reference: Charlesworth & Charlesworth (2010) *Elements of Evolutionary
@@ -241,10 +246,10 @@ encode pre-adapted solutions outcompete those relying on learning.
 \item{\code{rl_mode}}{Character. Reinforcement learning update rule:
 \code{"none"} (default), \code{"actor_critic"}, or \code{"hebbian"}.
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{* `"actor_critic"` — REINFORCE with baseline (Williams 1992).
+\if{html}{\out{<div class="sourceCode">}}\preformatted{* `"actor_critic"` -- REINFORCE with baseline (Williams 1992).
   Reward = energy delta per tick. Advantage = reward - running mean
   (`value_estimate`). Applied to output weights for the chosen action.
-* `"hebbian"` — Hebbian potentiation: weights between co-active
+* `"hebbian"` -- Hebbian potentiation: weights between co-active
   neurons are strengthened proportionally to joint activation
   (Hebb 1949).
 
@@ -295,7 +300,7 @@ corresponding locus is methylated. Within lifetime, learning events can
 methylate loci (epigenetic_learning_coupling). At reproduction, a fraction
 of the parent's methylation pattern is inherited by offspring
 (epigenetic_inheritance). For BNN brains, methylation at locus i shrinks
-the prior sigma_i (canalization — the agent becomes less plastic at that
+the prior sigma_i (canalization -- the agent becomes less plastic at that
 weight). This implements transgenerational epigenetic inheritance (TEI) as
 described by Jablonka & Lamb (2005).
 
@@ -524,7 +529,7 @@ When > 0, each agent evolves a heritable signal vector and a preference
 vector; mates are chosen by proximity of signal to preference.}
 \item{\code{signal_cost}}{Numeric. Energy cost per unit of signal magnitude
 per tick (default 0.1). Models honest signalling costs (Zahavi 1975).
-Reference: Zahavi (1975) Mate selection — a selection for a handicap,
+Reference: Zahavi (1975) Mate selection -- a selection for a handicap,
 \emph{Journal of Theoretical Biology} 53(1):205--214.}
 }
 }

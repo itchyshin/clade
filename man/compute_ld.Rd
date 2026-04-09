@@ -33,7 +33,7 @@ compute_ld(get_run_data(env))
 }
 \references{
 Lewontin, R.C. & Kojima, K. (1960) The evolutionary dynamics of complex
-polymorphisms. \emph{Evolution} 14(4):458–472.
+polymorphisms. \emph{Evolution} 14(4):458-472.
 }
 \seealso{
 \code{\link[=get_genome_data]{get_genome_data()}}, \code{\link[=estimate_heritability]{estimate_heritability()}}

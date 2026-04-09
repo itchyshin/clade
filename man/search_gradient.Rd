@@ -78,9 +78,9 @@ result$specs$grass_rate
 }
 \references{
 Spall, J.C. (1998) An overview of the simultaneous perturbation method for
-efficient optimization. \emph{Johns Hopkins APL Technical Digest} 19(4):482–492.
+efficient optimization. \emph{Johns Hopkins APL Technical Digest} 19(4):482-492.
 Innes, M. (2018) Don't unroll adjoint: differentiating SSA-form programs.
-arXiv:1810.07951. (Zygote.jl — Phase 4b deferred.)
+arXiv:1810.07951. (Zygote.jl -- Phase 4b deferred.)
 }
 \seealso{
 \code{\link[=search_map_elites]{search_map_elites()}}, \code{\link[=search_cmaes]{search_cmaes()}}
