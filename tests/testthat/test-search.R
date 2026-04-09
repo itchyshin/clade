@@ -322,3 +322,49 @@ test_that("search_random() can sweep multiple parameters simultaneously", {
   expect_true("mutation_sd" %in% names(result))
   expect_true("grass_rate"  %in% names(result))
 })
+
+# ── Diversity-search vignette: structural tests ───────────────────────────────
+
+# ── 14. search_random: n_samples = 1L returns a single-row data frame ─────────
+test_that("search_random() with n_samples = 1L returns a one-row data frame with a score column", {
+  skip_no_julia()
+  result <- search_random(
+    specs_base    = .tiny_specs(),
+    search_params = list(mutation_sd = c(0.01, 0.5)),
+    n_samples     = 1L,
+    objective     = "genetic_diversity",
+    verbose       = FALSE
+  )
+  expect_s3_class(result, "data.frame")
+  expect_equal(nrow(result), 1L)
+  expect_true("score" %in% names(result))
+})
+
+# ── 15. search_random: result$score is numeric ────────────────────────────────
+test_that("search_random() result$score column is numeric", {
+  skip_no_julia()
+  result <- search_random(
+    specs_base    = .tiny_specs(),
+    search_params = list(mutation_sd = c(0.01, 0.5)),
+    n_samples     = 2L,
+    objective     = "genetic_diversity",
+    verbose       = FALSE
+  )
+  expect_true(is.numeric(result$score))
+})
+
+# ── 16. search_random: sampled mutation_sd values are within the specified range
+test_that("search_random() samples mutation_sd within the specified range", {
+  skip_no_julia()
+  result <- search_random(
+    specs_base    = .tiny_specs(),
+    search_params = list(mutation_sd = c(0.01, 0.5)),
+    n_samples     = 3L,
+    objective     = "genetic_diversity",
+    verbose       = FALSE
+  )
+  sl <- attr(result, "specs_list")
+  sampled_vals <- vapply(sl, function(s) s$mutation_sd, numeric(1L))
+  expect_true(all(sampled_vals >= 0.01 & sampled_vals <= 0.5),
+              info = paste("Out-of-range values:", paste(sampled_vals, collapse = ", ")))
+})

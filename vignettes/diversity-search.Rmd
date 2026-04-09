@@ -1,0 +1,232 @@
+---
+title: "Genetic Diversity Search in clade"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Genetic Diversity Search}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(eval = FALSE)
+```
+
+## 1. Why search for diversity?
+
+Genetic diversity quantifies the breadth of heritable variation in a simulated
+population. It is a proxy for evolutionary potential (a genetically uniform
+population has little raw material for selection to act on), resilience to
+environmental change (diverse populations are less likely to be uniformly
+maladapted to a novel challenge), and the richness of phenotypic exploration
+(high diversity increases the probability that at least one lineage will
+colonise a new niche).
+
+In conservation biology, the loss of genetic diversity is a leading indicator of
+extinction risk. In artificial life research, diversity is the substrate on which
+open-ended evolution depends. Finding which parameter combinations sustain high
+diversity — and understanding the trade-offs they entail — is therefore a central
+design problem in both fields.
+
+`clade` provides four complementary tools for this search:
+
+| Function | Strategy | When to use |
+|---|---|---|
+| `search_random()` | Stochastic sweep | Fast initial screen |
+| `search_map_elites()` | Quality-diversity (MAP-Elites) | Illuminate the achievable space |
+| `search_cmaes()` | CMA-ES optimisation | Find a single global optimum |
+| `search_gradient()` | Finite-difference gradient ascent | Local refinement |
+
+The workflow below moves from coarse to fine: screen with `search_random()`,
+characterise trade-offs with `search_map_elites()`, and maximise with
+`search_cmaes()`.
+
+---
+
+## 2. Quick stochastic screen with `search_random()`
+
+`search_random()` draws `n_samples` independent parameter configurations from
+the supplied ranges and evaluates each. It is fast enough to run interactively
+and is the right entry point when you have no prior knowledge of which regions
+of parameter space are promising.
+
+The example below screens three parameters simultaneously. Each sample draws
+`mutation_sd`, `grass_rate`, and `n_agents_init` independently and uniformly
+from the specified ranges, runs a full simulation, and records mean genetic
+diversity.
+
+```{r random-screen}
+library(clade)
+
+result <- search_random(
+  specs_base    = default_specs(),
+  search_params = list(
+    mutation_sd   = c(0.01, 0.5),
+    grass_rate    = c(0.05, 0.8),
+    n_agents_init = c(20L, 150L)
+  ),
+  n_samples  = 30L,
+  objective  = "genetic_diversity"
+)
+
+# Top configurations by genetic diversity
+head(result)
+
+# Partial-dependence plot for mutation_sd
+plot(result$mutation_sd, result$score,
+     xlab = "mutation_sd", ylab = "mean genetic diversity",
+     pch  = 19, col = "steelblue")
+```
+
+The `result` data frame is sorted by descending score. Each row corresponds to
+one simulation; the `score` column holds mean genetic diversity across ticks.
+The highest-diversity configurations found by random sampling serve as starting
+points for the targeted searches below.
+
+The `specs_list` attribute stores the full specs for each row, ordered to match
+the data frame. Retrieve the best configuration with:
+
+```{r random-retrieve}
+best_specs <- attr(result, "specs_list")[[1]]
+cat("Best mutation_sd:", best_specs$mutation_sd, "\n")
+cat("Best grass_rate:", best_specs$grass_rate, "\n")
+```
+
+---
+
+## 3. MAP-Elites for the diversity–population trade-off
+
+The MAP-Elites algorithm (Mouret & Clune 2015) fills a grid of niches in
+behavioural space. Unlike a standard optimiser, it does not converge to a single
+point. Instead, every cell of the archive holds the parameter set that achieves
+that particular (diversity, population) combination with the highest diversity
+score. Empty cells indicate combinations that no simulated configuration
+achieved.
+
+This illumination of the achievable space is the key advantage over random
+search: you can read off not just "what maximises diversity" but "what diversity
+is achievable at each population size" — a biologically meaningful trade-off.
+
+```{r map-elites}
+result <- search_map_elites(
+  specs_base   = default_specs(),
+  archive_dims = list(
+    genetic_diversity = seq(0, 1, by = 0.1),
+    n_agents          = seq(0, 200, by = 20)
+  ),
+  n_iterations = 300L,
+  objective    = "genetic_diversity",
+  verbose      = FALSE
+)
+
+# Archive heatmap: x = genetic_diversity niche, y = n_agents niche,
+# fill = objective score (NA = empty cell)
+result$map
+```
+
+Interpreting the heatmap:
+
+- **Filled cells** show achievable (diversity, population) pairs. The colour
+  encodes the objective score: brighter means higher diversity within that niche.
+- **Empty cells** (shown in grey) are combinations that no parameter set
+  produced. If high-diversity, large-population cells are empty, that combination
+  may be intrinsically unattainable under the chosen model.
+- **The archive** itself (`result$archive`) is a list of length equal to the
+  number of cells. Non-null elements contain `$specs`, `$score`, and
+  `$behavioural_descriptor`.
+
+```{r map-elites-inspect}
+# Extract all non-empty cells and compare their mutation_sd
+non_empty <- Filter(Negate(is.null), result$archive)
+cat("Filled cells:", length(non_empty), "\n")
+cat("mutation_sd range in archive:",
+    range(sapply(non_empty, function(x) x$specs$mutation_sd)), "\n")
+```
+
+---
+
+## 4. CMA-ES for maximum diversity
+
+`search_cmaes()` wraps a CMA-ES-style real-valued evolutionary strategy (via the
+`GA` package) to find the single parameter set that maximises the objective. Use
+it when you want one best answer rather than a map of trade-offs.
+
+```{r cmaes}
+result <- search_cmaes(
+  specs_base = default_specs(),
+  params     = c("mutation_sd", "grass_rate", "crossover_rate"),
+  objective  = "genetic_diversity",
+  n_iterations = 20L,
+  popsize    = 10L
+)
+
+cat("Best diversity:", result$score, "\n")
+cat("Best params:\n")
+print(result$specs[c("mutation_sd", "grass_rate", "crossover_rate")])
+```
+
+`search_cmaes()` requires the `GA` package:
+
+```{r cmaes-install, eval = FALSE}
+install.packages("GA")
+```
+
+**When to use CMA-ES vs MAP-Elites:**
+
+- Use `search_cmaes()` when you want the highest possible diversity and do not
+  care about the population-size cost. It converges to a single point.
+- Use `search_map_elites()` when you want to understand how diversity scales
+  with other outcomes (population size, speciation, cooperation level). It
+  reveals the full Pareto-like frontier of achievable outcomes.
+- CMA-ES is faster per run for a single-objective answer; MAP-Elites is more
+  informative per compute budget for multi-objective insight.
+
+---
+
+## 5. Custom diversity objective function
+
+All four search functions accept a custom `objective` function in place of a
+column name. The function receives the `env` object returned by `run_alife()` and
+must return a numeric scalar.
+
+The example below defines an objective that rewards both diversity and sustained
+population size. Runs that go extinct (mean population below 10) receive a score
+of zero regardless of their transient diversity, preventing the optimiser from
+finding parameters that briefly achieve high diversity before collapse.
+
+```{r custom-objective}
+custom_obj <- function(env) {
+  d   <- get_run_data(env)$ticks
+  div <- mean(d$genetic_diversity, na.rm = TRUE)
+  pop <- mean(d$n_agents,          na.rm = TRUE)
+  if (pop < 10) return(0)      # discard runs that go near-extinct
+  div * log1p(pop / 50)        # reward diversity weighted by log-population
+}
+
+result <- search_random(
+  specs_base    = default_specs(),
+  search_params = list(
+    mutation_sd = c(0.01, 0.4),
+    grass_rate  = c(0.1,  0.7)
+  ),
+  n_samples = 20L,
+  objective = custom_obj
+)
+
+head(result)
+```
+
+The same `custom_obj` function can be passed to `search_map_elites()`,
+`search_cmaes()`, or `search_gradient()` without modification.
+
+---
+
+## References
+
+Mouret, J.-B. & Clune, J. (2015) Illuminating search spaces by mapping elites.
+*arXiv:1504.04909*.
+
+Hansen, N. & Ostermeier, A. (2001) Completely derandomized self-adaptation in
+evolution strategies. *Evolutionary Computation* 9(2):159–195.
+
+Frankham, R., Ballou, J.D. & Briscoe, D.A. (2010) *Introduction to Conservation
+Genetics*, 2nd edn. Cambridge University Press.
