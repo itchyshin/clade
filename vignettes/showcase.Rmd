@@ -31,7 +31,7 @@ FIG <- function(name, ...) {
 }
 ```
 
-This vignette walks through twelve biological scenarios in `clade`, from a
+This vignette walks through 36 biological scenarios in `clade`, from a
 bare foraging world to kitchen-sink multi-module runs. Each section shows the
 code needed to reproduce the result and a pre-built figure so that the
 vignette renders without a Julia session.
@@ -1006,7 +1006,7 @@ observed in natural populations of birds-of-paradise and peacocks.
 
 ---
 
-## 24. Vadim's Experiment: Predation and Brain Complexity {#section-24}
+## 24. Predation and neural evolution {#section-24}
 
 Predation is a pervasive selective pressure hypothesised to drive the evolution
 of larger, more computationally complex neural controllers. The "cognitive
@@ -1052,7 +1052,7 @@ ggplot(combined, aes(x = t, y = genetic_diversity, colour = condition)) +
   scale_colour_manual(
     values = c("Predators (n = 10)" = "#d73027",
                "No predators"       = "#4575b4")) +
-  labs(title = "Vadim's experiment: predation and neural diversity",
+  labs(title = "Predation and neural evolution",
        subtitle = "500 ticks, 10 vs 0 predators",
        x = "Tick", y = "Genetic diversity", colour = NULL) +
   theme_minimal() + theme(legend.position = "bottom")
