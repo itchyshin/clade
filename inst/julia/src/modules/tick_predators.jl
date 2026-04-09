@@ -112,7 +112,9 @@ function seed_predators!(env::Environment)
             # Habitat preference, helper tendency, plasticity
             0.0f0, 0.0f0, 0.0f0,
             # Wing size, niche layer (predators always ground-layer)
-            0.0f0, Int32(1)
+            0.0f0, Int32(1),
+            # Brain size (predators use reference value; do not evolve brain_size)
+            1.0f0
         )
 
         push!(env.predators, pred)
@@ -429,7 +431,9 @@ function _predator_reproduction!(env::Environment)
             # Habitat preference, helper tendency, plasticity
             0.0f0, 0.0f0, 0.0f0,
             # Wing size, niche layer (predators always ground-layer)
-            0.0f0, Int32(1)
+            0.0f0, Int32(1),
+            # Brain size (reference value; predators do not evolve brain_size)
+            1.0f0
         )
 
         pred.energy  -= off_energy
