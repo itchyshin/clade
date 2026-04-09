@@ -168,9 +168,9 @@ test_that("immune_strength_min < immune_strength_max", {
   expect_lt(s$immune_strength_min, s$immune_strength_max)
 })
 
-# ── 21. ploidy = 1L is default (haploid) ──────────────────────────────────────
-test_that("default_specs()$ploidy is 1L (haploid)", {
-  expect_equal(default_specs()$ploidy, 1L)
+# ── 21. ploidy = 2L is default (diploid) ──────────────────────────────────────
+test_that("default_specs()$ploidy is 2L (diploid)", {
+  expect_equal(default_specs()$ploidy, 2L)
 })
 
 # ── 22. ploidy = 2L passes validation (diploid) ───────────────────────────────

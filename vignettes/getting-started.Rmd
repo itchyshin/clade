@@ -181,7 +181,7 @@ params <- data.frame(
   ),
   Default = c(
     "20 x 20", "50", "300", "300", "42",
-    "\"bnn\"", "1",
+    "\"bnn\"", "2",
     "0.10", "0.05",
     "FALSE", "FALSE", "FALSE",
     "FALSE", "FALSE",

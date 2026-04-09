@@ -94,7 +94,7 @@ strongly shape the run are summarised below. All others are documented in
 | Parameter              | Default | What it controls                                                              |
 |------------------------|---------|-------------------------------------------------------------------------------|
 | `brain_type`           | `"bnn"` | The cognitive architecture used by every agent (see next section).            |
-| `ploidy`               | `1L`    | Haploid (`1L`) or diploid (`2L`) genomes.                                     |
+| `ploidy`               | `2L`    | Diploid (`2L`) or haploid (`1L`) genomes.                                     |
 | `max_ticks`            | `500L`  | Length of the simulation in time steps.                                       |
 | `n_agents_init`        | `50L`   | Number of founders.                                                           |
 | `disease`              | `FALSE` | Toggles the SIR disease module.                                               |

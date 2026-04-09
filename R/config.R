@@ -166,7 +166,7 @@
 #' recombination.
 #'
 #' \describe{
-#'   \item{`ploidy`}{Integer. `1L` = haploid (default); `2L` = diploid.
+#'   \item{`ploidy`}{Integer. `1L` = haploid; `2L` = diploid (default).
 #'     In the diploid case every heritable trait (brain weights, body size,
 #'     immune strength, cooperation level, etc.) has two alleles -- one
 #'     maternal, one paternal. The expressed phenotype is computed by
@@ -723,7 +723,7 @@ default_specs <- function() {
     brain_energy_activity  = 0.5,
 
     # ── Genome and ploidy ──────────────────────────────────────────────────
-    ploidy                 = 1L,
+    ploidy                 = 2L,
     n_chromosomes          = 1L,
     crossover_rate         = 1.0,
     dominance_model        = "additive",
