@@ -328,3 +328,95 @@ test_that(".specs_to_julia() silently drops NA and character(0)", {
   expect_true(as.logical(JuliaConnectoR::juliaCall(
     "_clade_test_has", d, "grid_rows")))
 })
+
+# ── 28. input_radius = 1 (default) run completes ─────────────────────────────
+test_that("run_alife() completes with input_radius = 1L (default)", {
+  skip_no_julia()
+  s   <- .quick_specs(input_radius = 1L, random_seed = 28L)
+  env <- run_alife(s, verbose = FALSE)
+  expect_equal(as.integer(env$t), s$max_ticks)
+})
+
+# ── 29. input_radius = 2 (wider sensing) run completes ───────────────────────
+test_that("run_alife() completes with input_radius = 2L (wider sensing)", {
+  skip_no_julia()
+  s   <- .quick_specs(input_radius = 2L, random_seed = 29L)
+  env <- run_alife(s, verbose = FALSE)
+  expect_equal(as.integer(env$t), s$max_ticks)
+})
+
+# ── 30. Kitchen-sink run produces births over 300 ticks ──────────────────────
+test_that("kitchen-sink run (all modules) produces n_births > 0 over 300 ticks", {
+  skip_no_julia()
+  skip_on_cran()
+  s <- default_specs()
+  s$grid_rows            <- 15L
+  s$grid_cols            <- 15L
+  s$n_agents_init        <- 30L
+  s$max_agents           <- 200L
+  s$max_ticks            <- 300L
+  s$brain_type           <- "ann"
+  s$disease              <- TRUE
+  s$disease_seed_prob    <- 0.1
+  s$kin_selection        <- TRUE
+  s$body_size_evolution  <- TRUE
+  s$dispersal_evolution  <- TRUE
+  s$parental_care        <- TRUE
+  s$social_learning      <- TRUE
+  s$niche_construction   <- TRUE
+  s$random_seed          <- 30L
+  env <- run_alife(s, verbose = FALSE)
+  expect_gt(sum(as.integer(env$progress$n_births)), 0L)
+})
+
+# ── 31. diploid run reports genetic_diversity >= 0 ───────────────────────────
+test_that("run with ploidy = 2L reports genetic_diversity >= 0 always", {
+  skip_no_julia()
+  s   <- .quick_specs(ploidy = 2L, random_seed = 31L)
+  env <- run_alife(s, verbose = FALSE)
+  expect_true(all(as.numeric(env$progress$genetic_diversity) >= 0))
+})
+
+# ── 32. disease + kin_selection simultaneously ────────────────────────────────
+test_that("run_alife() completes with disease = TRUE and kin_selection = TRUE", {
+  skip_no_julia()
+  s   <- .quick_specs(disease       = TRUE,
+                      disease_seed_prob = 0.2,
+                      kin_selection = TRUE,
+                      random_seed   = 32L)
+  env <- run_alife(s, verbose = FALSE)
+  expect_equal(as.integer(env$t), s$max_ticks)
+})
+
+# ── 33. body_size_evolution + dispersal_evolution simultaneously ──────────────
+test_that("run_alife() completes with body_size_evolution and dispersal_evolution", {
+  skip_no_julia()
+  s   <- .quick_specs(body_size_evolution  = TRUE,
+                      dispersal_evolution  = TRUE,
+                      random_seed          = 33L)
+  env <- run_alife(s, verbose = FALSE)
+  expect_equal(as.integer(env$t), s$max_ticks)
+})
+
+# ── 34. Population goes extinct when grass_rate = 0 ──────────────────────────
+test_that("population goes extinct within 100 ticks when grass_rate = 0", {
+  skip_no_julia()
+  s <- .quick_specs(grass_rate           = 0.0,
+                    grass_init_prob      = 0.0,
+                    starvation_threshold = 1000.0,
+                    max_ticks            = 100L,
+                    random_seed          = 34L)
+  env <- run_alife(s, verbose = FALSE)
+  expect_equal(.n_agents(env), 0L)
+})
+
+# ── 35. social_learning + rl_mode = "actor_critic" simultaneously ─────────────
+test_that("run_alife() completes with social_learning and rl_mode = 'actor_critic'", {
+  skip_no_julia()
+  s   <- .quick_specs(social_learning = TRUE,
+                      rl_mode         = "actor_critic",
+                      brain_type      = "ann",
+                      random_seed     = 35L)
+  env <- run_alife(s, verbose = FALSE)
+  expect_equal(as.integer(env$t), s$max_ticks)
+})

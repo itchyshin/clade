@@ -19,7 +19,7 @@ test_that("default_specs() contains all required parameters", {
     "energy_init", "energy_max", "move_cost", "idle_cost", "eat_gain",
     "min_repro_energy", "repro_cost", "offspring_energy",
     "grass_init_prob", "grass_rate", "grass_max",
-    "brain_type", "hidden_layers",
+    "brain_type", "hidden_layers", "input_radius",
     "ploidy", "n_chromosomes", "crossover_rate", "dominance_model",
     "mutation_sd",
     "rl_mode", "learning_rate", "learning_rate_evolution",

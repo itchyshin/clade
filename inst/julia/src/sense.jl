@@ -4,23 +4,26 @@
 Builds the sensory input vector for one agent at its current position. The
 vector is consumed by brain.forward() each tick.
 
-## Input vector layout (base: 11 elements)
+## Input vector layout
+
+The vector length depends on `input_radius` (r, default 1) and active modules.
 
 Index  Content
 -----  -------
-1      own_energy / energy_max                    (normalised [0, 1])
-2      own_age / max_age                          (normalised [0, 1])
-4–5    grass N / E / S / W (clipped to [0,1])    (4 values)
-6–9    wall N / E / S / W                        (1 = wall/edge, 0 = open)
-10     local_density / max_agents                 (normalised)
-11     constant bias term = 1.0
+1      own_energy / energy_max                       (normalised [0, 1])
+2      own_age / max_age                             (normalised [0, 1])
+3–(2+4r)   grass N/E/S/W at distances 1..r          (4r values)
+(3+4r)–(2+8r) agent occupancy N/E/S/W at 1..r       (4r values)
+(3+8r) constant bias term = 1.0
+
+Base length = 1 + 8r + 2 = 3 + 8r  (r=1 → 11, r=2 → 19)
 
 ## Optional extensions (appended in order):
-+ n_predators_init > 0: predator distance N/E/S/W (+4; value = 1/dist, 0 if none)
++ n_predators_init > 0: predator distance N/E/S/W at 1..r (+4r)
 + parental_care = true: care_load / max_clutch_size, mean offspring energy (+2)
 + signal_dims > 0: own signal vector (+signal_dims)
 
-Total length = 11 + 4*(pred) + 2*(care) + signal_dims.
+Total length = (3 + 8r) + 4r*(pred) + 2*(care) + signal_dims.
 This matches `_compute_n_inputs()` in Clade.jl.
 """
 
@@ -29,6 +32,11 @@ This matches `_compute_n_inputs()` in Clade.jl.
 
 Build the sensory input vector for `ag`. Reads the environment grid directly;
 no memory allocation beyond the output vector.
+
+The sensing radius is controlled by `specs["input_radius"]` (default 1). Radius 1
+gives the standard 4-cell cardinal sensing (N/E/S/W). Radius 2 extends to 8
+cells along each cardinal axis (steps 1 and 2 in each direction), doubling the
+grass and occupancy slots to 8 each and the predator slots to 8.
 """
 function sense_agent(ag::Agent, env::Environment)::Vector{Float32}
     specs = env.specs
@@ -38,12 +46,9 @@ function sense_agent(ag::Agent, env::Environment)::Vector{Float32}
     amax  = Float32(get(specs, "max_age",     200.0))
     mmax  = Float32(get(specs, "max_agents",  500.0))
     gmax  = Float32(get(specs, "grass_max",   5.0))
+    r     = Int(get(specs, "input_radius", 1))
 
     x, y = Int(ag.x), Int(ag.y)
-
-    # Moore neighbourhood — toroidal wrapping
-    xN = mod1(x - 1, rows);  xS = mod1(x + 1, rows)
-    yE = mod1(y + 1, cols);  yW = mod1(y - 1, cols)
 
     inp = Vector{Float32}(undef, n_inputs(ag.brain))
     pos = 1
@@ -52,25 +57,40 @@ function sense_agent(ag::Agent, env::Environment)::Vector{Float32}
     inp[pos] = clamp(ag.energy / emax, 0.0f0, 1.0f0);  pos += 1
     # 2. Age (normalised)
     inp[pos] = clamp(Float32(ag.age) / amax, 0.0f0, 1.0f0); pos += 1
-    # 3–6. Grass in N/E/S/W cells (normalised)
-    inp[pos]   = env.grass[xN, y]  / gmax;  pos += 1
-    inp[pos]   = env.grass[x,  yE] / gmax;  pos += 1
-    inp[pos]   = env.grass[xS, y]  / gmax;  pos += 1
-    inp[pos]   = env.grass[x,  yW] / gmax;  pos += 1
-    # 7–10. Occupied cells (1 = another agent present)
-    inp[pos]   = env.agent_map[xN, y]  > 0 ? 1.0f0 : 0.0f0; pos += 1
-    inp[pos]   = env.agent_map[x,  yE] > 0 ? 1.0f0 : 0.0f0; pos += 1
-    inp[pos]   = env.agent_map[xS, y]  > 0 ? 1.0f0 : 0.0f0; pos += 1
-    inp[pos]   = env.agent_map[x,  yW] > 0 ? 1.0f0 : 0.0f0; pos += 1
-    # 11. Bias
+
+    # 3–(2+4r). Grass in cardinal cells at distances 1..r (N/E/S/W × r steps)
+    for d in 1:r
+        xN = mod1(x - d, rows);  xS = mod1(x + d, rows)
+        yE = mod1(y + d, cols);  yW = mod1(y - d, cols)
+        inp[pos] = env.grass[xN, y]  / gmax;  pos += 1
+        inp[pos] = env.grass[x,  yE] / gmax;  pos += 1
+        inp[pos] = env.grass[xS, y]  / gmax;  pos += 1
+        inp[pos] = env.grass[x,  yW] / gmax;  pos += 1
+    end
+
+    # Next 4r. Occupied cells (1 = another agent present) at distances 1..r
+    for d in 1:r
+        xN = mod1(x - d, rows);  xS = mod1(x + d, rows)
+        yE = mod1(y + d, cols);  yW = mod1(y - d, cols)
+        inp[pos] = env.agent_map[xN, y]  > 0 ? 1.0f0 : 0.0f0; pos += 1
+        inp[pos] = env.agent_map[x,  yE] > 0 ? 1.0f0 : 0.0f0; pos += 1
+        inp[pos] = env.agent_map[xS, y]  > 0 ? 1.0f0 : 0.0f0; pos += 1
+        inp[pos] = env.agent_map[x,  yW] > 0 ? 1.0f0 : 0.0f0; pos += 1
+    end
+
+    # Bias
     inp[pos] = 1.0f0; pos += 1
 
-    # Optional: predator proximity (N/E/S/W)
+    # Optional: predator proximity at distances 1..r (N/E/S/W × r steps)
     if Int(get(specs, "n_predators_init", 0)) > 0
-        inp[pos]   = _pred_dist(env, xN, y);   pos += 1
-        inp[pos]   = _pred_dist(env, x,  yE);  pos += 1
-        inp[pos]   = _pred_dist(env, xS, y);   pos += 1
-        inp[pos]   = _pred_dist(env, x,  yW);  pos += 1
+        for d in 1:r
+            xN = mod1(x - d, rows);  xS = mod1(x + d, rows)
+            yE = mod1(y + d, cols);  yW = mod1(y - d, cols)
+            inp[pos] = _pred_dist(env, xN, y);  pos += 1
+            inp[pos] = _pred_dist(env, x,  yE); pos += 1
+            inp[pos] = _pred_dist(env, xS, y);  pos += 1
+            inp[pos] = _pred_dist(env, x,  yW); pos += 1
+        end
     end
 
     # Optional: parental care signals

@@ -117,6 +117,11 @@
 #'   \item{`hidden_layers`}{Integer vector. Hidden layer widths for `"ann"` and
 #'     `"bnn"` (default `c(8L)`; gives one hidden layer of 8 units). Set to
 #'     `c(16L, 8L)` for two hidden layers.}
+#'   \item{`input_radius`}{Integer. Radius of the Moore neighbourhood used when
+#'     building each agent's sensory input vector (default `1L`). Radius 1 gives
+#'     the standard 8-cell neighbourhood; radius 2 extends to the 24-cell
+#'     neighbourhood. Increasing this value expands the input vector and the
+#'     brain's first-layer width accordingly.}
 #'   \item{`n_genes`}{Integer. Number of genes for `"grn"` brain type
 #'     (default 20L). Includes sensory input genes and action output genes.}
 #'   \item{`transformer_history`}{Integer. Number of past sensory inputs the
@@ -633,6 +638,7 @@ default_specs <- function() {
     # ── Brain architecture ─────────────────────────────────────────────────
     brain_type             = "bnn",
     hidden_layers          = c(8L),
+    input_radius           = 1L,
     n_genes                = 20L,
     transformer_history    = 8L,
     transformer_heads      = 2L,
