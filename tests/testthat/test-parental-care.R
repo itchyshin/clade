@@ -79,3 +79,136 @@ test_that("juvenile independence condition holds when either criterion is met", 
 test_that("max_clutch_size is at least 1", {
   expect_true(default_specs()$max_clutch_size >= 1L)
 })
+
+# ── New tests ─────────────────────────────────────────────────────────────────
+
+test_that("parental_care defaults to FALSE (explicit FALSE check)", {
+  s <- default_specs()
+  expect_identical(s$parental_care, FALSE)
+})
+
+test_that("care_cost_per_tick defaults to 1.0 (explicit value)", {
+  s <- default_specs()
+  expect_identical(s$care_cost_per_tick, 1.0)
+})
+
+test_that("feeding_rate defaults to 5.0 (explicit value)", {
+  s <- default_specs()
+  expect_identical(s$feeding_rate, 5.0)
+})
+
+test_that("juvenile_independence_age defaults to 10L and is integer", {
+  s <- default_specs()
+  expect_identical(s$juvenile_independence_age, 10L)
+  expect_true(is.integer(s$juvenile_independence_age))
+})
+
+test_that("juvenile_independence_energy defaults to 50.0", {
+  s <- default_specs()
+  expect_identical(s$juvenile_independence_energy, 50.0)
+})
+
+test_that("max_clutch_size defaults to 1L", {
+  s <- default_specs()
+  expect_identical(s$max_clutch_size, 1L)
+})
+
+test_that("max_carried parameter does not exist in default_specs (not yet implemented)", {
+  # max_carried is not in default_specs(); document that fact
+  expect_false("max_carried" %in% names(default_specs()))
+})
+
+test_that("parental care params round-trip through default_specs()", {
+  s <- default_specs()
+  expect_equal(s$parental_care,               FALSE)
+  expect_equal(s$care_cost_per_tick,          1.0)
+  expect_equal(s$feeding_rate,                5.0)
+  expect_equal(s$juvenile_independence_age,   10L)
+  expect_equal(s$juvenile_independence_energy, 50.0)
+  expect_equal(s$max_clutch_size,             1L)
+})
+
+test_that("n_juveniles is in valid_descriptor_columns()", {
+  cols <- clade:::.valid_descriptor_columns()
+  expect_true("n_juveniles" %in% cols)
+})
+
+test_that("juvenile_independence_age is integer type in default_specs()", {
+  v <- default_specs()$juvenile_independence_age
+  expect_true(is.integer(v))
+})
+
+test_that("parental_care = TRUE run completes and n_juveniles present in progress", {
+  skip_if_not(requireNamespace("JuliaConnectoR", quietly = TRUE),
+              "JuliaConnectoR not available")
+  skip_if_not(JuliaConnectoR::juliaSetupOk(),
+              "Julia toolchain not available")
+  s <- .minimal_specs(
+    parental_care    = TRUE,
+    random_seed      = 42L
+  )
+  env <- run_alife(s, verbose = FALSE)
+  expect_true("n_juveniles" %in% names(env$progress))
+})
+
+test_that("n_juveniles >= 0 for all ticks when parental_care = TRUE", {
+  skip_if_not(requireNamespace("JuliaConnectoR", quietly = TRUE),
+              "JuliaConnectoR not available")
+  skip_if_not(JuliaConnectoR::juliaSetupOk(),
+              "Julia toolchain not available")
+  s <- .minimal_specs(
+    parental_care    = TRUE,
+    random_seed      = 42L
+  )
+  env <- run_alife(s, verbose = FALSE)
+  expect_true(all(env$progress$n_juveniles >= 0L))
+})
+
+test_that("parental_care = TRUE + max_clutch_size = 3L runs without error", {
+  skip_if_not(requireNamespace("JuliaConnectoR", quietly = TRUE),
+              "JuliaConnectoR not available")
+  skip_if_not(JuliaConnectoR::juliaSetupOk(),
+              "Julia toolchain not available")
+  s <- .minimal_specs(
+    parental_care  = TRUE,
+    max_clutch_size = 3L,
+    random_seed    = 42L
+  )
+  expect_no_error(env <- run_alife(s, verbose = FALSE))
+  expect_true(is.list(env))
+})
+
+test_that("high feeding_rate run completes without error", {
+  skip_if_not(requireNamespace("JuliaConnectoR", quietly = TRUE),
+              "JuliaConnectoR not available")
+  skip_if_not(JuliaConnectoR::juliaSetupOk(),
+              "Julia toolchain not available")
+  s <- .minimal_specs(
+    parental_care = TRUE,
+    feeding_rate  = 20.0,
+    random_seed   = 42L
+  )
+  expect_no_error(env <- run_alife(s, verbose = FALSE))
+})
+
+test_that("low care_cost run produces mean_energy >= high care_cost run", {
+  skip_if_not(requireNamespace("JuliaConnectoR", quietly = TRUE),
+              "JuliaConnectoR not available")
+  skip_if_not(JuliaConnectoR::juliaSetupOk(),
+              "Julia toolchain not available")
+  s_low <- .minimal_specs(
+    parental_care      = TRUE,
+    care_cost_per_tick = 0.0,
+    random_seed        = 42L
+  )
+  s_high <- .minimal_specs(
+    parental_care      = TRUE,
+    care_cost_per_tick = 10.0,
+    random_seed        = 42L
+  )
+  env_low  <- run_alife(s_low,  verbose = FALSE)
+  env_high <- run_alife(s_high, verbose = FALSE)
+  mean_e_low  <- mean(env_low$progress$mean_energy,  na.rm = TRUE)
+  mean_e_high <- mean(env_high$progress$mean_energy, na.rm = TRUE)
+  expect_gte(mean_e_low, mean_e_high)
+})

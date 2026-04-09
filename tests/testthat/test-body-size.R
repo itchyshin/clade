@@ -80,8 +80,8 @@ test_that("body_size stays within [body_size_min, body_size_max]", {
   }
 })
 
-# ── 4. Large agents lose more energy per tick than reference (no food) ────────
-test_that("large body_size loses more energy per tick than reference on no food", {
+# ── 4. Large agents lose more energy per tick than reference (no food) ───────
+test_that("large body_size loses more energy per tick than reference", {
   skip_no_julia()
   base <- .bs_specs(
     n_agents_init    = 20L,
@@ -304,4 +304,98 @@ test_that("default_specs() has body_size parameters with correct defaults", {
   expect_equal(s$body_size_mutation_sd, 0.08)
   expect_true("body_size_init_mean" %in% names(s))
   expect_equal(s$body_size_init_mean, 1.0)
+})
+
+# ── 21. body_size_init_mean defaults to 1.0 ──────────────────────────────────
+test_that("body_size_init_mean defaults to 1.0", {
+  expect_identical(default_specs()$body_size_init_mean, 1.0)
+})
+
+# ── 22. body_size_min defaults to 0.3 ────────────────────────────────────────
+test_that("body_size_min defaults to 0.3", {
+  expect_identical(default_specs()$body_size_min, 0.3)
+})
+
+# ── 23. body_size_max defaults to 3.0 ────────────────────────────────────────
+test_that("body_size_max defaults to 3.0", {
+  expect_identical(default_specs()$body_size_max, 3.0)
+})
+
+# ── 24. body_size_mutation_sd defaults to 0.08 ───────────────────────────────
+test_that("body_size_mutation_sd defaults to 0.08", {
+  expect_identical(default_specs()$body_size_mutation_sd, 0.08)
+})
+
+# ── 25. body_size_evolution defaults to FALSE ─────────────────────────────────
+test_that("body_size_evolution defaults to FALSE", {
+  expect_identical(default_specs()$body_size_evolution, FALSE)
+})
+
+# ── 26. body_size params round-trip through default_specs() ──────────────────
+test_that("body_size params round-trip through default_specs()", {
+  s <- default_specs()
+  expect_equal(s$body_size_evolution,   FALSE)
+  expect_equal(s$body_size_init_mean,   1.0)
+  expect_equal(s$body_size_min,         0.3)
+  expect_equal(s$body_size_max,         3.0)
+  expect_equal(s$body_size_mutation_sd, 0.08)
+})
+
+# ── 27. mean_body_size > 0 at all active ticks with body_size_evolution = TRUE
+test_that("mean_body_size > 0 for all active ticks when body_size_evolution = TRUE", {
+  skip_no_julia()
+  s   <- .bs_specs(body_size_init_mean = 2.5, max_ticks = 15L, random_seed = 11L)
+  env <- run_alife(s, verbose = FALSE)
+  mbz    <- env$progress$mean_body_size
+  active <- env$progress$n_agents > 0L
+  if (any(active)) expect_true(all(mbz[active] > 0.0))
+})
+
+# ── 28. mean_body_size is logged when body_size_init_mean = 2.5 ──────────────
+test_that("mean_body_size column present with body_size_init_mean = 2.5", {
+  skip_no_julia()
+  s   <- .bs_specs(body_size_init_mean = 2.5, max_ticks = 10L, random_seed = 3L)
+  env <- run_alife(s, verbose = FALSE)
+  expect_true("mean_body_size" %in% names(env$progress))
+  mbz <- env$progress$mean_body_size
+  active <- env$progress$n_agents > 0L
+  if (any(active)) expect_gt(mbz[which(active)[1L]], 0.0)
+})
+
+# ── 29. sd_body_size column present when body_size_evolution = TRUE ──────────
+test_that("sd_body_size column present in env$progress when body_size_evolution = TRUE", {
+  skip_no_julia()
+  s   <- .bs_specs(max_ticks = 10L, random_seed = 4L)
+  env <- run_alife(s, verbose = FALSE)
+  expect_true("sd_body_size" %in% names(env$progress))
+})
+
+# ── 30. different body_size_init_mean values produce different mean_energy ────
+test_that("body_size_init_mean = 0.5 vs 2.5 produces different mean_energy", {
+  skip_no_julia()
+  base <- .qs(
+    body_size_evolution   = TRUE,
+    body_size_mutation_sd = 0.0,
+    max_ticks             = 5L,
+    min_repro_energy      = 500.0,
+    random_seed           = 42L
+  )
+
+  s_small <- base
+  s_small$body_size_init_mean <- 0.5
+
+  s_large <- base
+  s_large$body_size_init_mean <- 2.5
+
+  env_small <- run_alife(s_small, verbose = FALSE)
+  env_large <- run_alife(s_large, verbose = FALSE)
+
+  e_small_t1 <- env_small$progress$mean_energy[[1L]]
+  e_large_t1 <- env_large$progress$mean_energy[[1L]]
+
+  if (!is.nan(e_small_t1) && !is.nan(e_large_t1)) {
+    # Body size scaling alters the energy budget; the two conditions should
+    # diverge — we verify they are not identical rather than assuming direction.
+    expect_false(isTRUE(all.equal(e_small_t1, e_large_t1, tolerance = 1e-3)))
+  }
 })
