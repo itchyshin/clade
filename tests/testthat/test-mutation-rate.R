@@ -70,3 +70,73 @@ test_that("stress_threshold is present in default_specs()", {
 test_that("mutation_sd_min is non-negative", {
   expect_gte(default_specs()$mutation_sd_min, 0.0)
 })
+
+# ── 13. mutation_rate_evolution defaults to FALSE ─────────────────────────────
+test_that("mutation_rate_evolution defaults to FALSE", {
+  expect_false(default_specs()$mutation_rate_evolution)
+})
+
+# ── 14. mutation_sd_init_mean defaults to 0.1 ─────────────────────────────────
+test_that("mutation_sd_init_mean defaults to 0.1", {
+  expect_equal(default_specs()$mutation_sd_init_mean, 0.1)
+})
+
+# ── 15. mutation_sd_min defaults to 0.001 ─────────────────────────────────────
+test_that("mutation_sd_min defaults to 0.001", {
+  expect_equal(default_specs()$mutation_sd_min, 0.001)
+})
+
+# ── 16. mutation_sd_max defaults to 1.0 ───────────────────────────────────────
+test_that("mutation_sd_max defaults to 1.0", {
+  expect_equal(default_specs()$mutation_sd_max, 1.0)
+})
+
+# ── 17. stress_hypermutation defaults to FALSE ────────────────────────────────
+test_that("stress_hypermutation defaults to FALSE", {
+  expect_false(default_specs()$stress_hypermutation)
+})
+
+# ── 18. stress_mutation_multiplier defaults to 3.0 ───────────────────────────
+test_that("stress_mutation_multiplier defaults to 3.0", {
+  expect_equal(default_specs()$stress_mutation_multiplier, 3.0)
+})
+
+# ── 19. stress_threshold defaults to 20.0 ────────────────────────────────────
+test_that("stress_threshold defaults to 20.0", {
+  expect_equal(default_specs()$stress_threshold, 20.0)
+})
+
+# ── 20. mutation_sd params round-trip through default_specs() ─────────────────
+test_that("mutation_sd params round-trip correctly through default_specs()", {
+  s <- default_specs()
+  expect_false(s$mutation_rate_evolution)
+  expect_equal(s$mutation_sd_init_mean,      0.1)
+  expect_equal(s$mutation_sd_min,            0.001)
+  expect_equal(s$mutation_sd_max,            1.0)
+  expect_false(s$stress_hypermutation)
+  expect_equal(s$stress_mutation_multiplier, 3.0)
+  expect_equal(s$stress_threshold,           20.0)
+})
+
+# ── 21. mutation_sd_min < mutation_sd_max in defaults ─────────────────────────
+test_that("mutation_sd_min is strictly less than mutation_sd_max in defaults", {
+  s <- default_specs()
+  expect_lt(s$mutation_sd_min, s$mutation_sd_max)
+})
+
+# ── 22. With stress_hypermutation = TRUE, run completes (Julia) ───────────────
+test_that("stress_hypermutation = TRUE run completes", {
+  skip_if_not(requireNamespace("JuliaConnectoR", quietly = TRUE),
+              "JuliaConnectoR not available")
+  skip_if_not(JuliaConnectoR::juliaSetupOk(), "Julia toolchain not available")
+  s <- default_specs()
+  s$grid_rows               <- 15L
+  s$grid_cols               <- 15L
+  s$n_agents_init           <- 20L
+  s$max_agents              <- 100L
+  s$max_ticks               <- 20L
+  s$random_seed             <- 42L
+  s$stress_hypermutation    <- TRUE
+  expect_no_error(env <- run_alife(s, verbose = FALSE))
+  expect_true(is.list(env))
+})

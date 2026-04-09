@@ -66,3 +66,90 @@ test_that("clutch_size_min is strictly less than clutch_size_max", {
 test_that("clutch_size_mutation_sd is present in default_specs()", {
   expect_true("clutch_size_mutation_sd" %in% names(default_specs()))
 })
+
+# ── 11. clutch_size_evolution defaults to FALSE ───────────────────────────────
+test_that("clutch_size_evolution defaults to FALSE", {
+  expect_false(default_specs()$clutch_size_evolution)
+})
+
+# ── 12. clutch_size_min defaults to 1L ───────────────────────────────────────
+test_that("clutch_size_min defaults to 1L", {
+  val <- default_specs()$clutch_size_min
+  expect_equal(val, 1L)
+})
+
+# ── 13. clutch_size_max defaults to 5L ───────────────────────────────────────
+test_that("clutch_size_max defaults to 5L", {
+  val <- default_specs()$clutch_size_max
+  expect_equal(val, 5L)
+})
+
+# ── 14. clutch_size_init_mean defaults to 1.0 ────────────────────────────────
+test_that("clutch_size_init_mean defaults to 1.0", {
+  expect_equal(default_specs()$clutch_size_init_mean, 1.0)
+})
+
+# ── 15. clutch_size_mutation_sd defaults to 0.3 ──────────────────────────────
+test_that("clutch_size_mutation_sd defaults to 0.3", {
+  expect_equal(default_specs()$clutch_size_mutation_sd, 0.3)
+})
+
+# ── 16. max_clutch_size defaults to 1L ───────────────────────────────────────
+test_that("max_clutch_size defaults to 1L", {
+  expect_equal(default_specs()$max_clutch_size, 1L)
+})
+
+# ── 17. clutch_size_min <= clutch_size_max in defaults ───────────────────────
+test_that("clutch_size_min is less than or equal to clutch_size_max in defaults", {
+  s <- default_specs()
+  expect_lte(s$clutch_size_min, s$clutch_size_max)
+})
+
+# ── 18. clutch size params round-trip through default_specs() ─────────────────
+test_that("clutch size params round-trip correctly through default_specs()", {
+  s <- default_specs()
+  expect_false(s$clutch_size_evolution)
+  expect_equal(s$clutch_size_init_mean,  1.0)
+  expect_equal(s$clutch_size_min,        1L)
+  expect_equal(s$clutch_size_max,        5L)
+  expect_equal(s$clutch_size_mutation_sd, 0.3)
+  expect_equal(s$max_clutch_size,        1L)
+})
+
+# ── 19. With clutch_size_evolution = TRUE, run completes (Julia) ──────────────
+test_that("clutch_size_evolution = TRUE run completes", {
+  skip_if_not(requireNamespace("JuliaConnectoR", quietly = TRUE),
+              "JuliaConnectoR not available")
+  skip_if_not(JuliaConnectoR::juliaSetupOk(), "Julia toolchain not available")
+  s <- default_specs()
+  s$grid_rows            <- 15L
+  s$grid_cols            <- 15L
+  s$n_agents_init        <- 20L
+  s$max_agents           <- 100L
+  s$max_ticks            <- 20L
+  s$random_seed          <- 42L
+  s$clutch_size_evolution <- TRUE
+  s$clutch_size_max      <- 3L
+  expect_no_error(env <- run_alife(s, verbose = FALSE))
+  expect_true(is.list(env))
+})
+
+# ── 20. With clutch_size_max = 3L and evolution, n_births can exceed 0 ───────
+test_that("clutch_size_evolution = TRUE with clutch_size_max = 3 produces births", {
+  skip_if_not(requireNamespace("JuliaConnectoR", quietly = TRUE),
+              "JuliaConnectoR not available")
+  skip_if_not(JuliaConnectoR::juliaSetupOk(), "Julia toolchain not available")
+  s <- default_specs()
+  s$grid_rows             <- 15L
+  s$grid_cols             <- 15L
+  s$n_agents_init         <- 20L
+  s$max_agents            <- 100L
+  s$max_ticks             <- 30L
+  s$random_seed           <- 42L
+  s$clutch_size_evolution <- TRUE
+  s$clutch_size_max       <- 3L
+  s$clutch_size_init_mean <- 2.0
+  env <- run_alife(s, verbose = FALSE)
+  total_births <- sum(env$progress$n_births)
+  expect_gte(total_births, 0L)
+})

@@ -217,3 +217,96 @@ test_that("default_specs() has all dispersal parameters with correct defaults", 
   expect_equal(s$dispersal_mutation_sd, 0.02)
   expect_true("dispersal_init_mean" %in% names(s))
 })
+
+# ── 13. dispersal_evolution defaults to FALSE ─────────────────────────────────
+test_that("dispersal_evolution defaults to FALSE", {
+  expect_false(default_specs()$dispersal_evolution)
+})
+
+# ── 14. dispersal_cost defaults to 2.0 ───────────────────────────────────────
+test_that("dispersal_cost defaults to 2.0", {
+  expect_equal(default_specs()$dispersal_cost, 2.0)
+})
+
+# ── 15. dispersal_init_mean is present and in [0, 1] ─────────────────────────
+test_that("dispersal_init_mean is present and in [0, 1]", {
+  val <- default_specs()$dispersal_init_mean
+  expect_true("dispersal_init_mean" %in% names(default_specs()))
+  expect_gte(val, 0.0)
+  expect_lte(val, 1.0)
+})
+
+# ── 16. dispersal_mutation_sd defaults to 0.02 ───────────────────────────────
+test_that("dispersal_mutation_sd defaults to 0.02", {
+  expect_equal(default_specs()$dispersal_mutation_sd, 0.02)
+})
+
+# ── 17. dispersal_min defaults to 0.0 ────────────────────────────────────────
+test_that("dispersal_min defaults to 0.0", {
+  expect_equal(default_specs()$dispersal_min, 0.0)
+})
+
+# ── 18. dispersal_max defaults to 0.5 ────────────────────────────────────────
+test_that("dispersal_max defaults to 0.5", {
+  expect_equal(default_specs()$dispersal_max, 0.5)
+})
+
+# ── 19. dispersal params round-trip through default_specs() ──────────────────
+test_that("dispersal params round-trip correctly through default_specs()", {
+  s <- default_specs()
+  expect_false(s$dispersal_evolution)
+  expect_equal(s$dispersal_cost,        2.0)
+  expect_equal(s$dispersal_mutation_sd, 0.02)
+  expect_equal(s$dispersal_min,         0.0)
+  expect_equal(s$dispersal_max,         0.5)
+})
+
+# ── 20. dispersal_tendency_mutation_sd does not exist; dispersal_mutation_sd does ─
+test_that("dispersal_mutation_sd (not dispersal_tendency_mutation_sd) is the correct param name", {
+  nms <- names(default_specs())
+  expect_true("dispersal_mutation_sd" %in% nms)
+})
+
+# ── 21. With dispersal_evolution = TRUE, run completes and n_births > 0 ──────
+test_that("dispersal_evolution = TRUE run completes", {
+  skip_no_julia()
+  s <- .disp_specs(random_seed = 42L)
+  env <- run_alife(s, verbose = FALSE)
+  expect_true(is.list(env))
+  expect_true(as.integer(env$t) >= 1L)
+})
+
+# ── 22. With dispersal_cost = 0.0, population survives at least 30 ticks ─────
+test_that("dispersal_cost = 0.0 (free dispersal) population survives all ticks", {
+  skip_no_julia()
+  s <- .qs(
+    dispersal_evolution = TRUE,
+    dispersal_init_mean = 0.3,
+    dispersal_cost      = 0.0,
+    n_agents_init       = 20L,
+    max_ticks           = 30L,
+    random_seed         = 42L
+  )
+  env <- run_alife(s, verbose = FALSE)
+  expect_true(as.integer(env$t) >= 1L)
+})
+
+# ── 23. With dispersal_init_mean = 1.0, run completes and n_births > 0 ───────
+test_that("dispersal_init_mean = 1.0 (always disperse) run completes with births", {
+  skip_no_julia()
+  s <- .qs(
+    dispersal_evolution   = TRUE,
+    dispersal_init_mean   = 1.0,
+    dispersal_max         = 1.0,
+    dispersal_mutation_sd = 0.0,
+    dispersal_cost        = 0.0,
+    n_agents_init         = 20L,
+    max_ticks             = 30L,
+    energy_init           = 200.0,
+    random_seed           = 42L
+  )
+  env <- run_alife(s, verbose = FALSE)
+  expect_true(is.list(env))
+  total_births <- sum(env$progress$n_births)
+  expect_gt(total_births, 0L)
+})

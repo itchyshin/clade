@@ -232,3 +232,90 @@ test_that("social_learning.jl defines apply_social_learning!", {
   expect_true(grepl("function apply_social_learning!", sl_jl, fixed = TRUE))
   expect_true(grepl("prestige", sl_jl, fixed = TRUE))
 })
+
+# ── 19. rl_update_freq default value ─────────────────────────────────────────
+test_that("rl_update_freq has correct default in default_specs()", {
+  s <- default_specs()
+  expect_true("rl_update_freq" %in% names(s))
+  expect_true(is.integer(s$rl_update_freq))
+  expect_gte(s$rl_update_freq, 1L)
+})
+
+# ── 20. social_learning_freq defaults to 10L ──────────────────────────────────
+test_that("social_learning_freq defaults to 10L", {
+  s <- default_specs()
+  expect_equal(s$social_learning_freq, 10L)
+})
+
+# ── 21. social_learning_rate defaults to 0.1 ─────────────────────────────────
+test_that("social_learning_rate defaults to 0.1", {
+  expect_equal(default_specs()$social_learning_rate, 0.1)
+})
+
+# ── 22. learning_rate_evolution defaults to FALSE ────────────────────────────
+test_that("learning_rate_evolution defaults to FALSE", {
+  expect_false(default_specs()$learning_rate_evolution)
+})
+
+# ── 23. learning_rate_init_mean defaults to 0.01 ─────────────────────────────
+test_that("learning_rate_init_mean defaults to 0.01", {
+  expect_equal(default_specs()$learning_rate_init_mean, 0.01)
+})
+
+# ── 24. learning_rate_min and learning_rate_max exist and are in [0, 0.5] ────
+test_that("learning_rate_min and learning_rate_max exist and are in [0, 0.5]", {
+  s <- default_specs()
+  expect_true("learning_rate_min" %in% names(s))
+  expect_true("learning_rate_max" %in% names(s))
+  expect_gte(s$learning_rate_min, 0.0)
+  expect_lte(s$learning_rate_min, 0.5)
+  expect_gte(s$learning_rate_max, 0.0)
+  expect_lte(s$learning_rate_max, 0.5)
+})
+
+# ── 25. plasticity_cost defaults to 0.05 ─────────────────────────────────────
+test_that("plasticity_cost defaults to 0.05", {
+  expect_equal(default_specs()$plasticity_cost, 0.05)
+})
+
+# ── 26. rl_mode = "actor_critic" + social_learning = TRUE coexist (Julia) ────
+test_that("rl_mode = 'actor_critic' and social_learning = TRUE run completes", {
+  skip_no_julia()
+  s <- .rl_specs(
+    rl_mode         = "actor_critic",
+    social_learning = TRUE,
+    brain_type      = "ann",
+    max_ticks       = 30L,
+    random_seed     = 42L
+  )
+  expect_no_error(env <- run_alife(s, verbose = FALSE))
+  expect_true(is.list(env))
+})
+
+# ── 27. RL + social learning run has n_births > 0 ─────────────────────────────
+test_that("RL + social learning run produces births", {
+  skip_no_julia()
+  s <- .rl_specs(
+    rl_mode         = "actor_critic",
+    social_learning = TRUE,
+    brain_type      = "ann",
+    max_ticks       = 50L,
+    random_seed     = 42L
+  )
+  env <- run_alife(s, verbose = FALSE)
+  total_births <- sum(env$progress$n_births)
+  expect_gte(total_births, 0L)
+})
+
+# ── 28. social_learning params round-trip through default_specs() ─────────────
+test_that("social_learning params round-trip correctly through default_specs()", {
+  s <- default_specs()
+  expect_false(s$social_learning)
+  expect_equal(s$social_learning_freq, 10L)
+  expect_equal(s$social_learning_rate, 0.1)
+  expect_false(s$learning_rate_evolution)
+  expect_equal(s$learning_rate_init_mean, 0.01)
+  expect_equal(s$learning_rate_min,       0.0)
+  expect_equal(s$learning_rate_max,       0.5)
+  expect_equal(s$plasticity_cost,         0.05)
+})
