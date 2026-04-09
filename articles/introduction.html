@@ -103,9 +103,8 @@ The R–Julia boundary is crossed <em>once</em> per
 1,000 ticks this is roughly 25× faster than the Rcpp-based alifeR
 backend, and it makes runs of 100,000 agents practical. The Julia
 backend also enables MAP-Elites quality-diversity search and
-gradient-through-simulation parameter tuning (using
-<code>Zygote.jl</code>), neither of which is feasible from an Rcpp
-simulator.</p>
+derivative-free optimisation (CMA-ES), neither of which is feasible at
+this scale from an Rcpp simulator.</p>
 <p>This vignette is an orientation, not a reference. It introduces the
 workflow, the parameter list, the brain types, and the biological
 modules that can be toggled on or off. All code chunks below are shown
@@ -118,7 +117,7 @@ package check or vignette build.</p>
 <p><code>clade</code> is currently distributed from GitHub:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"shinichi-nakagawa/clade"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"itchyshin/clade"</span><span class="op">)</span></span></code></pre></div>
 <p>You will also need a working Julia installation (≥ 1.9). On the first
 call to <code><a href="../reference/run_alife.html">run_alife()</a></code>, <code>clade</code> starts a Julia
 session, installs its own Julia dependencies into a private environment,

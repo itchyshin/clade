@@ -156,6 +156,7 @@ sensible defaults. Modify only what you need, then pass to
 <span></span>
 <span><span class="co"># S3 print: one-line summary</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">env</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">#&gt; clade_env  [200 ticks | 47 agents | genetic_diversity: 0.312]</span></span></code></pre>
 <p><code>env</code> is a <code>clade_env</code> object. Its key fields
 are:</p>
 <table class="table">
@@ -191,13 +192,20 @@ are:</p>
 <div class="section level2">
 <h2 id="extracting-and-plotting-results">4. Extracting and plotting results<a class="anchor" aria-label="anchor" href="#extracting-and-plotting-results"></a>
 </h2>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># data$ticks  — per-tick population statistics</span></span>
 <span><span class="co"># data$deaths — one row per agent death</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/plot_run.html">plot_run</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span>   <span class="co"># multi-panel dashboard: population, energy, diversity</span></span></code></pre></div>
+<div class="figure">
+<img src="figures/showcase_01_run_dashboard.png" alt="plot_run() produces a six-panel dashboard: population size, mean energy (±SD ribbon), genetic diversity, births and deaths per tick, grass coverage, and BNN prior sigma." width="100%"><p class="caption">
+plot_run() produces a six-panel dashboard: population size, mean energy
+(±SD ribbon), genetic diversity, births and deaths per tick, grass
+coverage, and BNN prior sigma.
+</p>
+</div>
 <p><code>data$ticks</code> contains columns including <code>t</code>,
 <code>n_agents</code>, <code>mean_energy</code>,
 <code>genetic_diversity</code>, <code>n_births</code>,
@@ -212,24 +220,23 @@ are:</p>
 <p><code><a href="../reference/print_specs.html">print_specs()</a></code> prints every parameter grouped by
 biological theme. Use <code>diff_only = TRUE</code> to show only what
 you changed:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">specs2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">specs2</span><span class="op">$</span><span class="va">kin_selection</span>    <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
 <span><span class="va">specs2</span><span class="op">$</span><span class="va">complex_landscape</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
 <span><span class="va">specs2</span><span class="op">$</span><span class="va">max_ticks</span>        <span class="op">&lt;-</span> <span class="fl">400L</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/print_specs.html">print_specs</a></span><span class="op">(</span><span class="va">specs2</span>, diff_only <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p>Output:</p>
-<pre><code>-- clade specs (88 parameters) [diff only] --
-
-  Grid &amp; population
-    max_ticks                              400 *
-
-  Kin selection
-    kin_selection                          TRUE *
-
-  Complex landscape
-    complex_landscape                      TRUE *</code></pre>
+<pre><code><span><span class="co">#&gt; -- clade specs (88 parameters) [diff only] --</span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt;   Grid &amp; population</span></span>
+<span><span class="co">#&gt;     max_ticks                              400 *</span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt;   Kin selection</span></span>
+<span><span class="co">#&gt;     kin_selection                         TRUE *</span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt;   Complex landscape</span></span>
+<span><span class="co">#&gt;     complex_landscape                     TRUE *</span></span></code></pre>
 <hr>
 </div>
 <div class="section level2">
@@ -358,7 +365,7 @@ you changed:</p>
 </h2>
 <p><code><a href="../reference/batch_alife.html">batch_alife()</a></code> runs a list of specs across R worker
 processes:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">specs_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.10</span>, <span class="fl">0.20</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">gr</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
 <span>  <span class="va">s</span><span class="op">$</span><span class="va">grass_rate</span> <span class="op">&lt;-</span> <span class="va">gr</span></span>

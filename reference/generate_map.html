@@ -132,9 +132,8 @@ when installed; otherwise a pure-R Gaussian-smoothed fallback is used.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">map</span> <span class="op">&lt;-</span> <span class="fu">generate_map</span><span class="op">(</span><span class="st">"random_cluster"</span>, grid_rows <span class="op">=</span> <span class="fl">20L</span>, grid_cols <span class="op">=</span> <span class="fl">20L</span>,</span></span>
 <span class="r-in"><span>                    p_wall <span class="op">=</span> <span class="fl">0.25</span>, seed <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in generate_map("random_cluster", grid_rows = 20L, grid_cols = 20L,     p_wall = 0.25, seed = 1L):</span> could not find function "generate_map"</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">map</span> <span class="op">==</span> <span class="fl">0L</span><span class="op">)</span>  <span class="co"># fraction open</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'map' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.75</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

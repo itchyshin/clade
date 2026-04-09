@@ -144,6 +144,12 @@ fixation nor unbounded growth.</p>
 <span><span class="va">env</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span>
 <span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plot_run.html">plot_run</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span></span></code></pre></div>
+<div class="figure">
+<img src="figures/showcase_01_run_dashboard.png" alt="Expected output: six-panel run summary showing population dynamics, mean energy, genetic diversity, births/deaths, grass coverage, and BNN sigma." width="100%"><p class="caption">
+Expected output: six-panel run summary showing population dynamics, mean
+energy, genetic diversity, births/deaths, grass coverage, and BNN sigma.
+</p>
+</div>
 <hr>
 </div>
 <div class="section level2">
@@ -238,6 +244,12 @@ combinations that produce strong wing-size evolution with CMA-ES:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tuned</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tune_complex_landscape.html">tune_complex_landscape</a></span><span class="op">(</span><span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span>, n_iterations <span class="op">=</span> <span class="fl">80L</span><span class="op">)</span></span>
 <span><span class="va">tuned</span><span class="op">$</span><span class="va">specs</span>   <span class="co"># optimal landscape parameters</span></span></code></pre></div>
+<div class="figure">
+<img src="figures/showcase_16_habitat_preference.png" alt="Expected output: agents stratify across ground, shrub, and canopy layers as wing size evolves past the canopy threshold." width="100%"><p class="caption">
+Expected output: agents stratify across ground, shrub, and canopy layers
+as wing size evolves past the canopy threshold.
+</p>
+</div>
 <hr>
 </div>
 <div class="section level2">
@@ -320,6 +332,13 @@ dispersal may drift downward if there is any cost to dispersal.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Spatial sorting: dispersal diverges at the invasion front"</span>,</span>
 <span>       x <span class="op">=</span> <span class="st">"Tick"</span>, y <span class="op">=</span> <span class="st">"Mean dispersal tendency"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<div class="figure">
+<img src="figures/showcase_05_dispersal.png" alt="Expected output: front-zone dispersal tendency (red) diverges upward from rear-zone dispersal (blue dashed) as high-dispersal genotypes accumulate at the invasion front." width="100%"><p class="caption">
+Expected output: front-zone dispersal tendency (red) diverges upward
+from rear-zone dispersal (blue dashed) as high-dispersal genotypes
+accumulate at the invasion front.
+</p>
+</div>
 <hr>
 </div>
 <div class="section level2">
@@ -416,6 +435,13 @@ converges near 1.0 for high-relatedness environments.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">ticks</span><span class="op">$</span><span class="va">t</span>, <span class="va">data</span><span class="op">$</span><span class="va">ticks</span><span class="op">$</span><span class="va">mean_helper_tendency</span>, type <span class="op">=</span> <span class="st">"l"</span>,</span>
 <span>     xlab <span class="op">=</span> <span class="st">"Tick"</span>, ylab <span class="op">=</span> <span class="st">"Mean helper tendency"</span>,</span>
 <span>     main <span class="op">=</span> <span class="st">"Helper tendency evolves under IFfolk + parliament suppression"</span><span class="op">)</span></span></code></pre></div>
+<div class="figure">
+<img src="figures/showcase_20_cooperative_breeding.png" alt="Expected output: mean helper tendency rises over time as cooperative genotypes increase in frequency. Parliament suppression accelerates convergence." width="100%"><p class="caption">
+Expected output: mean helper tendency rises over time as cooperative
+genotypes increase in frequency. Parliament suppression accelerates
+convergence.
+</p>
+</div>
 <hr>
 </div>
 <div class="section level2">
@@ -476,6 +502,13 @@ relatedness clustering creates local inbreeding.</p>
 <span><span class="va">env</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span>
 <span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Total altruistic acts:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">ticks</span><span class="op">$</span><span class="va">n_altruistic_acts</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span></code></pre></div>
+<div class="figure">
+<img src="figures/showcase_07_kin_selection.png" alt="Expected output: population is sustained at higher density than baseline, supported by energy transfers between relatives. Altruistic acts accumulate over the run." width="100%"><p class="caption">
+Expected output: population is sustained at higher density than
+baseline, supported by energy transfers between relatives. Altruistic
+acts accumulate over the run.
+</p>
+</div>
 <hr>
 </div>
 <div class="section level2">
@@ -553,6 +586,13 @@ immunity wanes before the next susceptible cohort matures.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">ticks</span><span class="op">$</span><span class="va">t</span>, <span class="va">data</span><span class="op">$</span><span class="va">ticks</span><span class="op">$</span><span class="va">n_infected</span>, type <span class="op">=</span> <span class="st">"l"</span>,</span>
 <span>     xlab <span class="op">=</span> <span class="st">"Tick"</span>, ylab <span class="op">=</span> <span class="st">"Infected agents"</span>,</span>
 <span>     main <span class="op">=</span> <span class="st">"SIR epidemic dynamics"</span><span class="op">)</span></span></code></pre></div>
+<div class="figure">
+<img src="figures/showcase_06_disease.png" alt="Expected output: epidemic waves visible as peaks in the infected count. Population dips sharply during outbreaks and recovers as immunity builds." width="100%"><p class="caption">
+Expected output: epidemic waves visible as peaks in the infected count.
+Population dips sharply during outbreaks and recovers as immunity
+builds.
+</p>
+</div>
 <hr>
 </div>
 <div class="section level2">
@@ -611,6 +651,13 @@ may be larger than baseline due to shelter protection.</p>
 <span><span class="va">env</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span>
 <span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Total shelters built:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">ticks</span><span class="op">$</span><span class="va">n_shelters_built</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span></code></pre></div>
+<div class="figure">
+<img src="figures/showcase_09_niche.png" alt="Expected output: shelter density builds up over time; predator kill rate is lower in sheltered cells, sustaining a larger population than an equivalent run without niche construction." width="100%"><p class="caption">
+Expected output: shelter density builds up over time; predator kill rate
+is lower in sheltered cells, sustaining a larger population than an
+equivalent run without niche construction.
+</p>
+</div>
 <hr>
 </div>
 <div class="section level2">
@@ -674,6 +721,12 @@ smaller.</p>
 <span><span class="va">env</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span>
 <span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Final mean body size:"</span>, <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">ticks</span><span class="op">$</span><span class="va">mean_body_size</span>, <span class="fl">1L</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span></code></pre></div>
+<div class="figure">
+<img src="figures/showcase_04_body_size.png" alt="Expected output: mean body size (±SD ribbon) evolves to a stable intermediate value. The dashed line marks the baseline size of 1.0." width="100%"><p class="caption">
+Expected output: mean body size (±SD ribbon) evolves to a stable
+intermediate value. The dashed line marks the baseline size of 1.0.
+</p>
+</div>
 <hr>
 </div>
 <div class="section level2">
@@ -726,6 +779,13 @@ environments select for higher.</p>
 <span><span class="va">env</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span>
 <span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env</span><span class="op">)</span></span>
 <span><span class="co"># Dispersal summary is in data$ticks$n_dispersal_events</span></span></code></pre></div>
+<div class="figure">
+<img src="figures/showcase_05_dispersal.png" alt="Expected output: mean dispersal tendency evolves in response to local competition. Rich, dense environments typically select for lower dispersal." width="100%"><p class="caption">
+Expected output: mean dispersal tendency evolves in response to local
+competition. Rich, dense environments typically select for lower
+dispersal.
+</p>
+</div>
 <hr>
 </div>
 <div class="section level2">
@@ -775,6 +835,13 @@ in the population.</p>
 <span></span>
 <span><span class="va">env</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span>
 <span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env</span><span class="op">)</span></span></code></pre></div>
+<div class="figure">
+<img src="figures/showcase_11_social_learning.png" alt="Expected output: mean energy and genetic diversity are maintained at higher levels than a baseline run, as successful foraging behaviours propagate through the social network." width="100%"><p class="caption">
+Expected output: mean energy and genetic diversity are maintained at
+higher levels than a baseline run, as successful foraging behaviours
+propagate through the social network.
+</p>
+</div>
 <hr>
 </div>
 <div class="section level2">
@@ -836,6 +903,13 @@ are more buffered.</p>
 <span><span class="va">env</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span>
 <span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Total juveniles recorded:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">ticks</span><span class="op">$</span><span class="va">n_juveniles</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span></code></pre></div>
+<div class="figure">
+<img src="figures/showcase_19_parental_care.png" alt="Expected output: juvenile count is positive throughout the run; per-capita offspring count is lower than baseline but juvenile survival is higher, resulting in more buffered population dynamics." width="100%"><p class="caption">
+Expected output: juvenile count is positive throughout the run;
+per-capita offspring count is lower than baseline but juvenile survival
+is higher, resulting in more buffered population dynamics.
+</p>
+</div>
 <hr>
 </div>
 <div class="section level2">
@@ -890,6 +964,13 @@ decline as predators avoid toxic prey.</p>
 <span></span>
 <span><span class="va">env</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span>
 <span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env</span><span class="op">)</span></span></code></pre></div>
+<div class="figure">
+<img src="figures/showcase_21_mimicry.png" alt="Expected output: mean toxicity rises under predator pressure; avoided attacks increase as predators learn to avoid toxic prey; toxic attack rate declines." width="100%"><p class="caption">
+Expected output: mean toxicity rises under predator pressure; avoided
+attacks increase as predators learn to avoid toxic prey; toxic attack
+rate declines.
+</p>
+</div>
 <hr>
 </div>
 <div class="section level2">
@@ -943,6 +1024,13 @@ rates; stable environments favour higher rates.</p>
 <span></span>
 <span><span class="va">env</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span>
 <span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env</span><span class="op">)</span></span></code></pre></div>
+<div class="figure">
+<img src="figures/showcase_10_rl.png" alt="Expected output: agents with within-lifetime RL adapt to local resource distribution within their lifetime. The Baldwin Effect is visible as the BNN prior sigma narrows over generations." width="100%"><p class="caption">
+Expected output: agents with within-lifetime RL adapt to local resource
+distribution within their lifetime. The Baldwin Effect is visible as the
+BNN prior sigma narrows over generations.
+</p>
+</div>
 <hr>
 </div>
 <div class="section level2">
@@ -992,6 +1080,13 @@ environments, plasticity may be maintained.</p>
 <span><span class="va">env</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span>
 <span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Final plasticity:"</span>, <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">ticks</span><span class="op">$</span><span class="va">mean_plasticity</span>, <span class="fl">1L</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span></code></pre></div>
+<div class="figure">
+<img src="figures/showcase_22_plasticity.png" alt="Expected output: mean plasticity evolves over time. In stable environments it typically decreases; in seasonally varying environments it is maintained at intermediate values." width="100%"><p class="caption">
+Expected output: mean plasticity evolves over time. In stable
+environments it typically decreases; in seasonally varying environments
+it is maintained at intermediate values.
+</p>
+</div>
 <hr>
 </div>
 <div class="section level2">
@@ -1019,6 +1114,13 @@ slows but does not stop the deterioration.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"False-positive rate under publication pressure"</span>,</span>
 <span>       x <span class="op">=</span> <span class="st">"Tick"</span>, y <span class="op">=</span> <span class="st">"Mean FPR"</span>, colour <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<div class="figure">
+<img src="figures/showcase_bad_science.png" alt="Expected output: false-positive rate rises under publication pressure without replication (red). Replication (blue) slows but does not prevent deterioration." width="100%"><p class="caption">
+Expected output: false-positive rate rises under publication pressure
+without replication (red). Replication (blue) slows but does not prevent
+deterioration.
+</p>
+</div>
 <hr>
 </div>
 <div class="section level2">

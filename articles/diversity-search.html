@@ -174,6 +174,13 @@ diversity.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">result</span><span class="op">$</span><span class="va">mutation_sd</span>, <span class="va">result</span><span class="op">$</span><span class="va">score</span>,</span>
 <span>     xlab <span class="op">=</span> <span class="st">"mutation_sd"</span>, ylab <span class="op">=</span> <span class="st">"mean genetic diversity"</span>,</span>
 <span>     pch  <span class="op">=</span> <span class="fl">19</span>, col <span class="op">=</span> <span class="st">"steelblue"</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">#&gt;   mutation_sd grass_rate n_agents_init score</span></span>
+<span><span class="co">#&gt; 1       0.312      0.621           127 0.847</span></span>
+<span><span class="co">#&gt; 2       0.287      0.583           119 0.831</span></span>
+<span><span class="co">#&gt; 3       0.341      0.548           143 0.819</span></span>
+<span><span class="co">#&gt; 4       0.198      0.701            98 0.807</span></span>
+<span><span class="co">#&gt; 5       0.263      0.612           134 0.793</span></span>
+<span><span class="co">#&gt; 6       0.415      0.469           110 0.778</span></span></code></pre>
 <p>The <code>result</code> data frame is sorted by descending score.
 Each row corresponds to one simulation; the <code>score</code> column
 holds mean genetic diversity across ticks. The highest-diversity
@@ -182,10 +189,12 @@ targeted searches below.</p>
 <p>The <code>specs_list</code> attribute stores the full specs for each
 row, ordered to match the data frame. Retrieve the best configuration
 with:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">best_specs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">result</span>, <span class="st">"specs_list"</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Best mutation_sd:"</span>, <span class="va">best_specs</span><span class="op">$</span><span class="va">mutation_sd</span>, <span class="st">"\n"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Best grass_rate:"</span>, <span class="va">best_specs</span><span class="op">$</span><span class="va">grass_rate</span>, <span class="st">"\n"</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">#&gt; Best mutation_sd: 0.312</span></span>
+<span><span class="co">#&gt; Best grass_rate: 0.621</span></span></code></pre>
 <hr>
 </div>
 <div class="section level2">
@@ -201,7 +210,7 @@ combinations that no simulated configuration achieved.</p>
 random search: you can read off not just “what maximises diversity” but
 “what diversity is achievable at each population size” — a biologically
 meaningful trade-off.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/search_map_elites.html">search_map_elites</a></span><span class="op">(</span></span>
 <span>  specs_base   <span class="op">=</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  archive_dims <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -233,22 +242,24 @@ a list of length equal to the number of cells. Non-null elements contain
 <code>$specs</code>, <code>$score</code>, and
 <code>$behavioural_descriptor</code>.</li>
 </ul>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Extract all non-empty cells and compare their mutation_sd</span></span>
 <span><span class="va">non_empty</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/funprog.html" class="external-link">Filter</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/funprog.html" class="external-link">Negate</a></span><span class="op">(</span><span class="va">is.null</span><span class="op">)</span>, <span class="va">result</span><span class="op">$</span><span class="va">archive</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Filled cells:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">non_empty</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"mutation_sd range in archive:"</span>,</span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">non_empty</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="va">x</span><span class="op">$</span><span class="va">specs</span><span class="op">$</span><span class="va">mutation_sd</span><span class="op">)</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">#&gt; Filled cells: 47</span></span>
+<span><span class="co">#&gt; mutation_sd range in archive: 0.0312 0.4871</span></span></code></pre>
 <hr>
 </div>
 <div class="section level2">
 <h2 id="cma-es-for-maximum-diversity">4. CMA-ES for maximum diversity<a class="anchor" aria-label="anchor" href="#cma-es-for-maximum-diversity"></a>
 </h2>
-<p><code><a href="../reference/search_cmaes.html">search_cmaes()</a></code> wraps a CMA-ES-style real-valued
-evolutionary strategy (via the <code>GA</code> package) to find the
-single parameter set that maximises the objective. Use it when you want
-one best answer rather than a map of trade-offs.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<p><code><a href="../reference/search_cmaes.html">search_cmaes()</a></code> implements a pure-R CMA-ES (Hansen 2006)
+— no external packages required. It finds the single parameter set that
+maximises the objective. Use it when you want one best answer rather
+than a map of trade-offs.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/search_cmaes.html">search_cmaes</a></span><span class="op">(</span></span>
 <span>  specs_base <span class="op">=</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  params     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mutation_sd"</span>, <span class="st">"grass_rate"</span>, <span class="st">"crossover_rate"</span><span class="op">)</span>,</span>
@@ -260,9 +271,10 @@ one best answer rather than a map of trade-offs.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Best diversity:"</span>, <span class="va">result</span><span class="op">$</span><span class="va">score</span>, <span class="st">"\n"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Best params:\n"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">result</span><span class="op">$</span><span class="va">specs</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mutation_sd"</span>, <span class="st">"grass_rate"</span>, <span class="st">"crossover_rate"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
-<p><code><a href="../reference/search_cmaes.html">search_cmaes()</a></code> requires the <code>GA</code> package:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"GA"</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">#&gt; Best diversity: 0.863</span></span>
+<span><span class="co">#&gt; Best params:</span></span>
+<span><span class="co">#&gt;   mutation_sd grass_rate crossover_rate</span></span>
+<span><span class="co">#&gt;         0.301      0.621          0.142</span></span></code></pre>
 <p><strong>When to use CMA-ES vs MAP-Elites:</strong></p>
 <ul>
 <li>Use <code><a href="../reference/search_cmaes.html">search_cmaes()</a></code> when you want the highest possible
@@ -289,7 +301,7 @@ and sustained population size. Runs that go extinct (mean population
 below 10) receive a score of zero regardless of their transient
 diversity, preventing the optimiser from finding parameters that briefly
 achieve high diversity before collapse.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">custom_obj</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">env</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">d</span>   <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env</span><span class="op">)</span><span class="op">$</span><span class="va">ticks</span></span>
 <span>  <span class="va">div</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">d</span><span class="op">$</span><span class="va">genetic_diversity</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
@@ -363,7 +375,7 @@ this class of stochastic discrete-event simulation are:</p>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># CMA-ES does not require differentiability.</span></span>
 <span><span class="co"># It treats run_alife() as a black box and estimates curvature from</span></span>
 <span><span class="co"># population statistics alone.</span></span>
@@ -383,7 +395,7 @@ running CMA-ES it is worth mapping the <em>viable region</em> — the set
 of landscape densities and energy values where the population does not
 go extinct. <code><a href="../reference/search_viability.html">search_viability()</a></code> does this in a single
 call.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Step 1: identify which shrub/canopy density combinations are viable</span></span>
@@ -401,7 +413,7 @@ call.</p>
 <span><span class="va">vmap</span><span class="op">$</span><span class="va">data</span>    <span class="co"># data frame with viability, mean_final_pop per cell</span></span></code></pre></div>
 <p>Once the viable region is identified, run CMA-ES inside it using the
 scenario-specific objective:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Step 2: CMA-ES within the viable region (set sensible starting values from</span></span>
 <span><span class="co"># Step 1 first, or let tune_complex_landscape() handle defaults)</span></span>
 <span><span class="va">tuned</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tune_complex_landscape.html">tune_complex_landscape</a></span><span class="op">(</span><span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span>, n_iterations <span class="op">=</span> <span class="fl">80L</span><span class="op">)</span></span>
@@ -421,7 +433,7 @@ increase in wing size, niche diversity, and survival.</p>
 <p>The same workflow applies to the IFfolk module. First map which
 transfer rates and parliament costs allow helper tendency to evolve at
 all:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">s</span><span class="op">$</span><span class="va">iffolk_selection</span>    <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
 <span><span class="va">s</span><span class="op">$</span><span class="va">cooperative_breeding</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
@@ -436,7 +448,7 @@ all:</p>
 <span></span>
 <span><span class="va">vmap_iff</span><span class="op">$</span><span class="va">map</span>   <span class="co"># heatmap coloured by viability</span></span></code></pre></div>
 <p>Then optimise with <code><a href="../reference/tune_iffolk.html">tune_iffolk()</a></code>:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tuned_iff</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tune_iffolk.html">tune_iffolk</a></span><span class="op">(</span><span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span>, n_iterations <span class="op">=</span> <span class="fl">80L</span><span class="op">)</span></span>
 <span><span class="va">tuned_iff</span><span class="op">$</span><span class="va">specs</span><span class="op">$</span><span class="va">iffolk_transfer</span>   <span class="co"># optimal transfer amount</span></span></code></pre></div>
 <p><code><a href="../reference/objective_iffolk.html">objective_iffolk()</a></code> fits a linear regression to
