@@ -1,11 +1,9 @@
 Package: clade
 Title: Agent-Based Evolutionary Simulation with Julia Backend
 Version: 0.1.0
-Authors@R: c(
+Authors@R:
     person("Shinichi", "Nakagawa", role = c("aut", "cre"),
-           email = "s.nakagawa@unsw.edu.au"),
-    person("Vadim", "Bulitko", role = "aut")
-    )
+           email = "s.nakagawa@unsw.edu.au")
 Description: Agent-based simulation of evolution and foraging ecology.
     Digital organisms carry heritable neural-network genomes (diploid or
     haploid) and one of six brain types: Bayesian neural network (default),
