@@ -765,3 +765,179 @@ compute_relatedness <- function(id_a, id_b, env) {
 
   0.0
 }
+
+#' Build the sensory input vector for an agent
+#'
+#' `sense_env()` reconstructs the 11-element (or longer, when predators or
+#' parental care are active) sensory input vector that the agent's brain would
+#' receive on the current tick. It mirrors the Julia-side sensing logic so that
+#' you can inspect, plot, or replay individual agent decisions from R.
+#'
+#' The function requires `env$grass` (returned automatically by [run_alife()])
+#' and `env$agents`. Agent-map occupancy is reconstructed from agent positions.
+#' When `env$grass` is `NULL` (e.g. from a mock env), grass slots are set to 0.
+#'
+#' @param env Environment list from [run_alife()].
+#' @param i Integer; index into `env$agents` (1-based). Use `agent_id` to
+#'   locate the index by ID: `which(sapply(env$agents, \(a) a$id) == agent_id)`.
+#'
+#' @return A named numeric vector. Slots:
+#' \describe{
+#'   \item{`grass_L/U/R/D/C`}{Grass value in left, up, right, down, centre.}
+#'   \item{`agent_L/U/R/D`}{Agent presence (0/1) in four cardinal directions.}
+#'   \item{`energy`}{Agent's current energy.}
+#'   \item{`age_norm`}{Agent age normalised by `specs$max_age`.}
+#' }
+#'
+#' @examples
+#' \dontrun{
+#' env <- run_alife(default_specs())
+#' v   <- sense_env(env, 1L)
+#' barplot(v, las = 2, main = "Sensory input, agent 1")
+#' }
+#'
+#' @seealso [take_action()], [inspect_brain()]
+#' @export
+sense_env <- function(env, i = 1L) {
+  stopifnot(is.list(env), !is.null(env$agents))
+  i <- as.integer(i)
+  if (i < 1L || i > length(env$agents))
+    stop(sprintf("Agent index %d is out of range (env has %d agents).",
+                 i, length(env$agents)), call. = FALSE)
+
+  ag    <- env$agents[[i]]
+  specs <- env$specs
+  nr    <- as.integer(specs$grid_rows)
+  nc    <- as.integer(specs$grid_cols)
+  rad   <- if (!is.null(specs$input_radius)) as.integer(specs$input_radius) else 1L
+
+  ax <- as.integer(ag$x)
+  ay <- as.integer(ag$y)
+
+  # Reconstruct agent occupancy map from agent positions
+  agent_map <- matrix(0L, nrow = nr, ncol = nc)
+  for (j in seq_along(env$agents)) {
+    jx <- as.integer(env$agents[[j]]$x)
+    jy <- as.integer(env$agents[[j]]$y)
+    if (jx >= 1L && jx <= nr && jy >= 1L && jy <= nc)
+      agent_map[jx, jy] <- 1L
+  }
+
+  # Grass (use env$grass if present, else zeros)
+  grass_mat <- if (!is.null(env$grass)) env$grass else matrix(0, nr, nc)
+
+  # Helper: directional look-up with toroidal wrap
+  wrap <- function(x, n) ((x - 1L) %% n) + 1L
+  look_grass <- function(dx, dy) {
+    gx <- wrap(ax + dx * rad, nr)
+    gy <- wrap(ay + dy * rad, nc)
+    grass_mat[gx, gy]
+  }
+  look_agent <- function(dx, dy) {
+    gx <- wrap(ax + dx * rad, nr)
+    gy <- wrap(ay + dy * rad, nc)
+    as.numeric(agent_map[gx, gy] > 0L && !(gx == ax && gy == ay))
+  }
+
+  max_age <- if (!is.null(specs$max_age)) as.numeric(specs$max_age) else 200.0
+
+  in_vec <- c(
+    grass_L  = look_grass(-1L,  0L),
+    grass_U  = look_grass( 0L, -1L),
+    grass_R  = look_grass( 1L,  0L),
+    grass_D  = look_grass( 0L,  1L),
+    grass_C  = look_grass( 0L,  0L),
+    agent_L  = look_agent(-1L,  0L),
+    agent_U  = look_agent( 0L, -1L),
+    agent_R  = look_agent( 1L,  0L),
+    agent_D  = look_agent( 0L,  1L),
+    energy   = as.numeric(ag$energy),
+    age_norm = min(1.0, as.numeric(ag$age) / max_age)
+  )
+
+  in_vec
+}
+
+#' Choose an action for an agent given its sensory input
+#'
+#' `take_action()` runs the agent's brain forward pass on its current sensory
+#' input and returns the chosen action index (1-indexed). Action indices match
+#' the Julia convention: 1 = left, 2 = up, 3 = right, 4 = down, 5 = eat,
+#' 6 = reproduce (where 5 and 6 may not be available for all brain types).
+#'
+#' For BNN brains the mean weights (`mu`) are used (the agent acts on the mode
+#' of its weight posterior). For other brain types, `W` weights are used.
+#'
+#' @param env Environment list from [run_alife()].
+#' @param i Integer; index into `env$agents` (1-based).
+#' @param input Numeric vector. Sensory input (from [sense_env()]). If `NULL`,
+#'   `sense_env(env, i)` is called automatically.
+#'
+#' @return A named list:
+#' \describe{
+#'   \item{`$action`}{Integer action index (1-based).}
+#'   \item{`$logits`}{Raw output values from the final brain layer.}
+#'   \item{`$probs`}{Softmax probabilities over actions.}
+#'   \item{`$action_names`}{Character vector of action labels.}
+#' }
+#'
+#' @examples
+#' \dontrun{
+#' env <- run_alife(default_specs())
+#' res <- take_action(env, 1L)
+#' res$action        # which action was chosen
+#' res$probs         # probability distribution over actions
+#' }
+#'
+#' @seealso [sense_env()], [inspect_brain()]
+#' @export
+take_action <- function(env, i = 1L, input = NULL) {
+  stopifnot(is.list(env), !is.null(env$agents))
+  i <- as.integer(i)
+
+  if (is.null(input))
+    input <- sense_env(env, i)
+
+  ag         <- env$agents[[i]]
+  brain      <- ag$brain
+  brain_type <- if (!is.null(env$specs$brain_type)) env$specs$brain_type else "ann"
+  w_key      <- if (identical(brain_type, "bnn")) "mu" else "W"
+
+  if (is.null(brain) || is.null(brain$layers) || length(brain$layers) == 0L)
+    stop(sprintf("Agent %d has no brain$layers; cannot take action.", i),
+         call. = FALSE)
+
+  # Forward pass through all layers with ReLU hidden activations
+  h <- as.numeric(input)
+  n_layers <- length(brain$layers)
+  for (l in seq_len(n_layers)) {
+    lay  <- brain$layers[[l]]
+    # Fall back: try w_key (mu / W), then the other key
+    W_raw <- lay[[w_key]]
+    if (is.null(W_raw)) W_raw <- lay[["W"]]
+    if (is.null(W_raw)) W_raw <- lay[["mu"]]
+    if (is.null(W_raw)) next
+    W   <- as.matrix(W_raw)
+    b   <- as.numeric(lay$b)
+    if (is.null(W) || is.null(b)) next
+    h <- W %*% h + b
+    if (l < n_layers) h <- pmax(h, 0)  # ReLU on hidden layers
+  }
+
+  logits <- as.numeric(h)
+  # Numerically stable softmax
+  logits_s <- logits - max(logits)
+  probs    <- exp(logits_s) / sum(exp(logits_s))
+  action   <- which.max(probs)
+
+  action_names <- c("move_left", "move_up", "move_right", "move_down",
+                    "eat", "reproduce")
+  action_names <- action_names[seq_len(length(probs))]
+
+  list(
+    action       = as.integer(action),
+    logits       = logits,
+    probs        = probs,
+    action_names = action_names
+  )
+}

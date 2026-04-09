@@ -267,10 +267,23 @@ batch_alife <- function(specs_list, n_cores = 1L, verbose = FALSE) {
 #'   `$deaths`, `$genome_log`.
 #' @keywords internal
 .julia_env_to_r <- function(env_julia, specs) {
+  # env_julia$grass is a 2D Julia array; tryCatch in case grass is not
+  # accessible (e.g. when testing with a mock env).
+  grass_r <- tryCatch(
+    {
+      g <- env_julia$grass
+      if (is.null(g)) NULL else matrix(as.numeric(g),
+                                       nrow = as.integer(specs$grid_rows),
+                                       ncol = as.integer(specs$grid_cols))
+    },
+    error = function(e) NULL
+  )
+
   list(
     agents        = env_julia$agents,
     t             = env_julia$t,
     specs         = specs,
+    grass         = grass_r,
     progress      = as.data.frame(env_julia$progress),
     deaths        = as.data.frame(env_julia$deaths),
     genome_log    = env_julia$genome_log,

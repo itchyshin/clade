@@ -204,3 +204,88 @@ test_that("heritability_estimate() n_pairs is non-negative integer", {
   expect_true(is.numeric(out$n_pairs))
   expect_gte(out$n_pairs, 0L)
 })
+
+# ── sense_env() ───────────────────────────────────────────────────────────────
+
+.mock_env_full <- function(n_agents = 3L) {
+  specs <- default_specs()
+  specs$grid_rows <- 10L; specs$grid_cols <- 10L
+  agents <- lapply(seq_len(n_agents), function(i) {
+    list(id = i, parent_id = 0L, energy = 100.0, age = 5L,
+         x = i + 1L, y = 3L,
+         brain = list(layers = list(
+           list(W = matrix(rnorm(44), 4, 11), b = rnorm(4)),
+           list(W = matrix(rnorm(24), 6,  4), b = rnorm(6))
+         )))
+  })
+  grass <- matrix(runif(100), 10, 10)
+  list(agents = agents, specs = specs, grass = grass,
+       t = 10L, progress = list(), deaths = data.frame(),
+       genome_log = list())
+}
+
+# 18. sense_env() returns a numeric vector of length >= 11
+test_that("sense_env() returns a numeric vector of length >= 11", {
+  env <- .mock_env_full()
+  v   <- sense_env(env, 1L)
+  expect_type(v, "double")
+  expect_gte(length(v), 11L)
+})
+
+# 19. sense_env() names the slots
+test_that("sense_env() returns named vector", {
+  env <- .mock_env_full()
+  v   <- sense_env(env, 1L)
+  expect_false(is.null(names(v)))
+  expect_true("energy" %in% names(v))
+})
+
+# 20. sense_env() errors on out-of-range index
+test_that("sense_env() errors on out-of-range agent index", {
+  env <- .mock_env_full(2L)
+  expect_error(sense_env(env, 99L), regexp = "out of range")
+})
+
+# 21. sense_env() works when env$grass is NULL
+test_that("sense_env() works when grass is NULL", {
+  env <- .mock_env_full()
+  env$grass <- NULL
+  v <- sense_env(env, 1L)
+  expect_type(v, "double")
+  # Grass slots should be 0
+  expect_equal(as.numeric(v["grass_C"]), 0.0)
+})
+
+# ── take_action() ─────────────────────────────────────────────────────────────
+
+# 22. take_action() returns a list with action, logits, probs, action_names
+test_that("take_action() returns list with required elements", {
+  env <- .mock_env_full()
+  res <- take_action(env, 1L)
+  expect_type(res, "list")
+  expect_true(all(c("action", "logits", "probs", "action_names") %in% names(res)))
+})
+
+# 23. action is an integer in valid range
+test_that("take_action() action is a valid integer", {
+  env <- .mock_env_full()
+  res <- take_action(env, 1L)
+  expect_type(res$action, "integer")
+  expect_gte(res$action, 1L)
+  expect_lte(res$action, length(res$probs))
+})
+
+# 24. probs sum to 1
+test_that("take_action() probs sum to 1", {
+  env <- .mock_env_full()
+  res <- take_action(env, 1L)
+  expect_equal(sum(res$probs), 1.0, tolerance = 1e-10)
+})
+
+# 25. take_action() accepts explicit input
+test_that("take_action() accepts explicit input vector", {
+  env   <- .mock_env_full()
+  input <- sense_env(env, 1L)
+  res   <- take_action(env, 1L, input = input)
+  expect_type(res$action, "integer")
+})
