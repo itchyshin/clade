@@ -3222,6 +3222,14 @@ making parameter sweeps and replicated batch experiments tractable.</p>
 <code>rl_update_freq</code>
 </td>
 </tr>
+<tr class="even">
+<td><code>brain_size_experiment.R</code></td>
+<td>Brain size evolution (Part X)</td>
+<td>
+<code>brain_size_evolution</code>, <code>parental_care</code>,
+<code>brain_size_cost_scale</code>
+</td>
+</tr>
 </tbody>
 </table>
 <p><strong>Migration checklist.</strong> Replace the package namespace
@@ -3269,6 +3277,157 @@ deterioration.
 </p>
 </div>
 <hr>
+</div>
+<div class="section level2">
+<h2 id="part-x-brain-size-evolution-and-the-parental-provisioning-hypothesis">Part X — Brain size evolution and the parental provisioning
+hypothesis<a class="anchor" aria-label="anchor" href="#part-x-brain-size-evolution-and-the-parental-provisioning-hypothesis"></a>
+</h2>
+<p>The <strong>parental provisioning hypothesis</strong> proposes that
+parental care is a prerequisite for brain size evolution (van Schaik et
+al. 2023; Griesser et al. 2023; Song et al. 2025). The mechanism has two
+components:</p>
+<ol style="list-style-type: decimal">
+<li>
+<strong>Expensive brain hypothesis</strong>: brain tissue is
+metabolically costly and cannot be down-regulated. Each unit of brain
+size adds to the idle metabolic cost that must be paid every tick,
+regardless of whether the agent is foraging successfully.</li>
+<li>
+<strong>Bootstrapping problem</strong>: large-brained newborns
+immediately pay the metabolic surcharge but forage poorly (ANN weights
+are random at birth). They starve before their cognitive advantage can
+offset the cost — <em>unless</em> a parent provides exogenous energy
+during infancy.</li>
+</ol>
+<p>The key prediction: <code>brain_size_evolution = TRUE</code> without
+parental care selects against large brains; with parental care, larger
+brains can evolve.</p>
+<div class="section level3">
+<h3 id="parameters">Parameters<a class="anchor" aria-label="anchor" href="#parameters"></a>
+</h3>
+<table class="table">
+<colgroup>
+<col width="33%">
+<col width="33%">
+<col width="33%">
+</colgroup>
+<thead><tr class="header">
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code>brain_size_evolution</code></td>
+<td><code>FALSE</code></td>
+<td>Enable heritable brain size</td>
+</tr>
+<tr class="even">
+<td><code>brain_size_init_mean</code></td>
+<td><code>1.0</code></td>
+<td>Initial population mean (reference = no effect)</td>
+</tr>
+<tr class="odd">
+<td><code>brain_size_mutation_sd</code></td>
+<td><code>0.05</code></td>
+<td>Per-generation mutation SD</td>
+</tr>
+<tr class="even">
+<td><code>brain_size_min</code></td>
+<td><code>0.1</code></td>
+<td>Minimum brain size</td>
+</tr>
+<tr class="odd">
+<td><code>brain_size_max</code></td>
+<td><code>3.0</code></td>
+<td>Maximum brain size</td>
+</tr>
+<tr class="even">
+<td><code>brain_size_cost_scale</code></td>
+<td><code>1.0</code></td>
+<td>Scales the idle-cost surcharge per unit of
+<code>brain_size - 1</code>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level3">
+<h3 id="example-parental-care-unlocks-brain-size-evolution">Example: parental care unlocks brain size evolution<a class="anchor" aria-label="anchor" href="#example-parental-care-unlocks-brain-size-evolution"></a>
+</h3>
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">base</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">base</span><span class="op">$</span><span class="va">grid_rows</span>     <span class="op">&lt;-</span> <span class="fl">20L</span></span>
+<span><span class="va">base</span><span class="op">$</span><span class="va">grid_cols</span>     <span class="op">&lt;-</span> <span class="fl">20L</span></span>
+<span><span class="va">base</span><span class="op">$</span><span class="va">n_agents_init</span> <span class="op">&lt;-</span> <span class="fl">40L</span></span>
+<span><span class="va">base</span><span class="op">$</span><span class="va">max_agents</span>    <span class="op">&lt;-</span> <span class="fl">300L</span></span>
+<span><span class="va">base</span><span class="op">$</span><span class="va">max_ticks</span>     <span class="op">&lt;-</span> <span class="fl">300L</span></span>
+<span><span class="va">base</span><span class="op">$</span><span class="va">random_seed</span>   <span class="op">&lt;-</span> <span class="fl">42L</span></span>
+<span></span>
+<span><span class="co"># Brain size evolution parameters</span></span>
+<span><span class="va">base</span><span class="op">$</span><span class="va">brain_size_evolution</span>   <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
+<span><span class="va">base</span><span class="op">$</span><span class="va">brain_size_init_mean</span>   <span class="op">&lt;-</span> <span class="fl">1.1</span>   <span class="co"># start slightly above reference</span></span>
+<span><span class="va">base</span><span class="op">$</span><span class="va">brain_size_mutation_sd</span> <span class="op">&lt;-</span> <span class="fl">0.05</span></span>
+<span><span class="va">base</span><span class="op">$</span><span class="va">brain_size_cost_scale</span>  <span class="op">&lt;-</span> <span class="fl">1.2</span>   <span class="co"># moderate metabolic burden</span></span>
+<span></span>
+<span><span class="co"># Condition 1: brain size evolution WITH parental care (care buffers infancy)</span></span>
+<span><span class="va">s_care</span>              <span class="op">&lt;-</span> <span class="va">base</span></span>
+<span><span class="va">s_care</span><span class="op">$</span><span class="va">parental_care</span>  <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
+<span><span class="va">s_care</span><span class="op">$</span><span class="va">care_duration</span>  <span class="op">&lt;-</span> <span class="fl">10L</span></span>
+<span><span class="va">s_care</span><span class="op">$</span><span class="va">feeding_rate</span>   <span class="op">&lt;-</span> <span class="fl">3.0</span></span>
+<span></span>
+<span><span class="co"># Condition 2: brain size evolution WITHOUT parental care (bootstrapping fails)</span></span>
+<span><span class="va">s_no_care</span>           <span class="op">&lt;-</span> <span class="va">base</span></span>
+<span><span class="va">s_no_care</span><span class="op">$</span><span class="va">parental_care</span> <span class="op">&lt;-</span> <span class="cn">FALSE</span></span>
+<span></span>
+<span><span class="va">env_care</span>    <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="va">s_care</span>,    verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">env_no_care</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="va">s_no_care</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">d_care</span>    <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env_care</span><span class="op">)</span><span class="op">$</span><span class="va">ticks</span></span>
+<span><span class="va">d_no_care</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env_no_care</span><span class="op">)</span><span class="op">$</span><span class="va">ticks</span></span>
+<span></span>
+<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">d_care</span><span class="op">[</span>,    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"t"</span>, <span class="st">"mean_brain_size"</span><span class="op">)</span><span class="op">]</span>, condition <span class="op">=</span> <span class="st">"Parental care"</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">d_no_care</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"t"</span>, <span class="st">"mean_brain_size"</span><span class="op">)</span><span class="op">]</span>, condition <span class="op">=</span> <span class="st">"No parental care"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">t</span>, <span class="va">mean_brain_size</span>, colour <span class="op">=</span> <span class="va">condition</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>linewidth <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_hline</a></span><span class="op">(</span>yintercept <span class="op">=</span> <span class="fl">1.0</span>, linetype <span class="op">=</span> <span class="st">"dashed"</span>, colour <span class="op">=</span> <span class="st">"grey50"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_colour_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Parental care"</span> <span class="op">=</span> <span class="st">"#2196F3"</span>,</span>
+<span>                                  <span class="st">"No parental care"</span> <span class="op">=</span> <span class="st">"#F44336"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Brain size evolution: parental provisioning hypothesis"</span>,</span>
+<span>       subtitle <span class="op">=</span> <span class="st">"Parental care bridges the bootstrapping energy deficit"</span>,</span>
+<span>       x <span class="op">=</span> <span class="st">"Tick"</span>, y <span class="op">=</span> <span class="st">"Mean brain size"</span>, colour <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<div class="figure">
+<img src="figures/showcase_brain_size.png" alt="Expected output: mean brain size drifts upward when parental care is present (blue) because the care-energy buffer allows large-brained offspring to survive infancy. Without parental care (red), the metabolic cost of a large brain exceeds early-life foraging gains, selecting for smaller brains." width="100%"><p class="caption">
+Expected output: mean brain size drifts upward when parental care is
+present (blue) because the care-energy buffer allows large-brained
+offspring to survive infancy. Without parental care (red), the metabolic
+cost of a large brain exceeds early-life foraging gains, selecting for
+smaller brains.
+</p>
+</div>
+</div>
+<div class="section level3">
+<h3 id="interpretation">Interpretation<a class="anchor" aria-label="anchor" href="#interpretation"></a>
+</h3>
+<p>A rising <code>mean_brain_size</code> trajectory in the parental-care
+condition reflects evolutionary invasion of high-cost, high-benefit
+brain phenotypes. In the no-care condition the trajectory remains near
+or below the reference (1.0) because large-brained infants starve before
+they can reproduce.</p>
+<p>The critical parameters are <code>brain_size_cost_scale</code> (how
+steep the cost curve is) and <code>feeding_rate</code> ×
+<code>care_duration</code> (how much energy the parent provides).
+Increasing <code>brain_size_cost_scale</code> makes the bootstrapping
+problem harder; increasing <code>feeding_rate</code> makes it easier for
+large-brained offspring to survive.</p>
+<hr>
+</div>
 </div>
 <div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
@@ -3364,6 +3523,15 @@ individuals in animal species living together. <em>Journal of the
 Council International pour l’Exploration de la Mer</em> 3(1): 3–51.</p>
 <p>Williams, G.C. (1975) <em>Sex and Evolution</em>. Princeton
 University Press.</p>
+<p>van Schaik, C.P., Barrickman, N.L. &amp; Isler, K. (2023) The
+“expensive brain” framework and the evolution of large brains. <em>PLoS
+Biology</em> 21(5): e3002064.</p>
+<p>Griesser, M., Drobniak, S.M., Nakagawa, S. &amp; Botero, C.A. (2023)
+Parental provisioning drives brain size evolution. <em>Proceedings of
+the National Academy of Sciences</em> 120(31): e2301005120.</p>
+<p>Song, Z., Nakagawa, S., Hadfield, J.D. &amp; Farine, D.R. (2025)
+Brain size evolution and parental investment. <em>Proceedings of the
+National Academy of Sciences</em> 122(8): e2412783122.</p>
 <p>Zahavi, A. (1975) Mate selection — a selection for a handicap.
 <em>Journal of Theoretical Biology</em> 53(1): 205–214.</p>
 </div>
