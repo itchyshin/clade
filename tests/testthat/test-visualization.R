@@ -239,3 +239,52 @@ test_that("plot_module_metrics() returns a ggplot or patchwork object", {
   p <- plot_module_metrics(rd)
   expect_s3_class(p, "ggplot")
 })
+
+# ── 18. plot_map() — pure-R mock tests ───────────────────────────────────────
+
+test_that("plot_map() returns a ggplot given a mock env (energy colouring)", {
+  env <- .mock_env(rows = 10L, cols = 10L, n_agents = 3L)
+  for (i in seq_along(env$agents)) {
+    env$agents[[i]]$age       <- i * 2L
+    env$agents[[i]]$body_size <- 1.0
+    env$agents[[i]]$species_id <- 1L
+  }
+  p <- plot_map(env)
+  expect_s3_class(p, "ggplot")
+})
+
+test_that("plot_map() returns a ggplot when colour_by = 'age'", {
+  env <- .mock_env(rows = 10L, cols = 10L, n_agents = 3L)
+  for (i in seq_along(env$agents)) {
+    env$agents[[i]]$age       <- i * 3L
+    env$agents[[i]]$body_size <- 1.0
+    env$agents[[i]]$species_id <- 1L
+  }
+  p <- plot_map(env, colour_by = "age")
+  expect_s3_class(p, "ggplot")
+})
+
+# ── 19. plot_tsne_genomes() — no Julia needed ─────────────────────────────────
+
+test_that("plot_tsne_genomes() returns a placeholder ggplot when genomes is NULL", {
+  rd <- .mock_run_data()
+  p <- plot_tsne_genomes(rd)
+  expect_s3_class(p, "ggplot")
+  layers_labels <- vapply(p$layers, function(l) class(l$geom)[1], character(1L))
+  expect_true(any(grepl("GeomText", layers_labels)))
+})
+
+test_that("plot_tsne_genomes() returns a ggplot when genome data are present", {
+  rd <- .mock_run_data()
+  set.seed(42L)
+  n_rows  <- 30L
+  n_genes <- 10L
+  genome_mat <- matrix(rnorm(n_rows * n_genes), nrow = n_rows, ncol = n_genes)
+  colnames(genome_mat) <- paste0("w", seq_len(n_genes))
+  rd$genomes <- cbind(
+    data.frame(id = seq_len(n_rows), t = rep(seq(1L, 20L, length.out = n_rows))),
+    as.data.frame(genome_mat)
+  )
+  p <- plot_tsne_genomes(rd, n_agents = 20L)
+  expect_s3_class(p, "ggplot")
+})

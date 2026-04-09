@@ -323,6 +323,264 @@ plot_environment <- function(env) {
     )
 }
 
+# ── plot_map() ───────────────────────────────────────────────────────────────
+
+#' Plot the spatial distribution of agents on the grid
+#'
+#' @title Plot the spatial distribution of agents on the grid
+#' @description
+#' Renders a snapshot of the grid world with grass density as a green tile
+#' heatmap and agent positions as coloured points. The colour of each agent
+#' can represent energy, age, species identity, or body size, making it easy
+#' to examine the spatial structure of the population at any tick.
+#'
+#' @param env An environment list returned by [run_clade()]. Must contain
+#'   `$specs` (with `grid_rows`, `grid_cols`, and optionally `grass_max`),
+#'   `$grass` (numeric matrix), and `$agents` (list of per-agent records).
+#' @param colour_by Character scalar selecting the agent attribute used to
+#'   colour points. One of `"energy"` (continuous, blue scale), `"age"`
+#'   (continuous, orange scale), `"species"` (`agent$species_id`, discrete,
+#'   up to 10 colours), or `"body_size"` (continuous, purple scale).
+#'   Default: `"energy"`.
+#' @param ... Currently unused. Reserved for forward compatibility.
+#'
+#' @return A [ggplot2::ggplot()] object.
+#'
+#' @examples
+#' \dontrun{
+#' env <- run_clade(default_specs())
+#' plot_map(env)
+#' plot_map(env, colour_by = "age")
+#' }
+#'
+#' @seealso [plot_environment()], [plot_run()], [run_clade()]
+#' @export
+plot_map <- function(env, colour_by = "energy", ...) {
+  if (!is.list(env) || is.null(env$specs)) {
+    stop("`env` must be a list with a `$specs` component.", call. = FALSE)
+  }
+  colour_by <- match.arg(colour_by, c("energy", "age", "species", "body_size"))
+  specs <- env$specs
+  nr    <- as.integer(specs$grid_rows)
+  nc    <- as.integer(specs$grid_cols)
+
+  # Grass background ─────────────────────────────────────────────────────────
+  grass_mat <- env$grass
+  if (is.null(grass_mat)) grass_mat <- matrix(0, nrow = nr, ncol = nc)
+  grass_df <- data.frame(
+    row   = rep(seq_len(nr), times = nc),
+    col   = rep(seq_len(nc), each  = nr),
+    grass = as.vector(grass_mat)
+  )
+  grass_max <- if (!is.null(specs$grass_max)) as.numeric(specs$grass_max) else 5
+
+  # Agents ───────────────────────────────────────────────────────────────────
+  agents   <- env$agents
+  n_agents <- if (!is.null(agents)) as.integer(length(agents)) else 0L
+
+  if (n_agents > 0L) {
+    .get_field <- function(i, field, default = NA_real_) {
+      v <- agents[[i]][[field]]
+      if (is.null(v)) default else as.numeric(v)
+    }
+    agents_df <- data.frame(
+      row        = vapply(seq_len(n_agents), function(i) .get_field(i, "x", 1), numeric(1L)),
+      col        = vapply(seq_len(n_agents), function(i) .get_field(i, "y", 1), numeric(1L)),
+      energy     = vapply(seq_len(n_agents), function(i) .get_field(i, "energy",    0), numeric(1L)),
+      age        = vapply(seq_len(n_agents), function(i) .get_field(i, "age",       0), numeric(1L)),
+      body_size  = vapply(seq_len(n_agents), function(i) .get_field(i, "body_size", 1), numeric(1L)),
+      species_id = vapply(seq_len(n_agents), function(i) .get_field(i, "species_id", 1), numeric(1L))
+    )
+  } else {
+    agents_df <- data.frame(
+      row = integer(0), col = integer(0),
+      energy = numeric(0), age = numeric(0),
+      body_size = numeric(0), species_id = numeric(0)
+    )
+  }
+
+  tick      <- if (!is.null(env$t)) as.integer(env$t) else 0L
+  title_str <- sprintf("Tick %d  |  n = %d  |  colour: %s", tick, n_agents, colour_by)
+
+  p <- ggplot2::ggplot(
+    grass_df,
+    ggplot2::aes(x = .data$col, y = .data$row, fill = .data$grass)
+  ) +
+    ggplot2::geom_tile(show.legend = TRUE) +
+    ggplot2::scale_fill_gradient(
+      low = "#1a3d0a", high = "#7cfc00",
+      limits = c(0, grass_max), name = "Grass"
+    )
+
+  if (nrow(agents_df) > 0L) {
+    if (colour_by == "energy") {
+      p <- p +
+        ggplot2::geom_point(
+          data = agents_df,
+          ggplot2::aes(x = .data$col, y = .data$row, colour = .data$energy),
+          size = 2.5, alpha = 0.85, inherit.aes = FALSE
+        ) +
+        ggplot2::scale_colour_gradient(
+          low = "#deebf7", high = "#08519c", name = "Energy"
+        )
+    } else if (colour_by == "age") {
+      p <- p +
+        ggplot2::geom_point(
+          data = agents_df,
+          ggplot2::aes(x = .data$col, y = .data$row, colour = .data$age),
+          size = 2.5, alpha = 0.85, inherit.aes = FALSE
+        ) +
+        ggplot2::scale_colour_gradient(
+          low = "#fff7e6", high = "#d94801", name = "Age"
+        )
+    } else if (colour_by == "body_size") {
+      p <- p +
+        ggplot2::geom_point(
+          data = agents_df,
+          ggplot2::aes(x = .data$col, y = .data$row, colour = .data$body_size),
+          size = 2.5, alpha = 0.85, inherit.aes = FALSE
+        ) +
+        ggplot2::scale_colour_gradient(
+          low = "#f2e6ff", high = "#6a0dad", name = "Body size"
+        )
+    } else {
+      # species: discrete, up to 10 colours
+      agents_df$species_fac <- factor(as.integer(agents_df$species_id))
+      species_palette <- c(
+        "#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00",
+        "#a65628", "#f781bf", "#999999", "#66c2a5", "#8da0cb"
+      )
+      n_sp <- nlevels(agents_df$species_fac)
+      p <- p +
+        ggplot2::geom_point(
+          data = agents_df,
+          ggplot2::aes(x = .data$col, y = .data$row,
+                       colour = .data$species_fac),
+          size = 2.5, alpha = 0.85, inherit.aes = FALSE
+        ) +
+        ggplot2::scale_colour_manual(
+          values = species_palette[seq_len(min(n_sp, 10L))],
+          name = "Species"
+        )
+    }
+  }
+
+  p +
+    ggplot2::coord_fixed(xlim = c(0.5, nc + 0.5),
+                         ylim = c(0.5, nr + 0.5), expand = FALSE) +
+    ggplot2::labs(title = title_str, x = NULL, y = NULL) +
+    ggplot2::theme_void(base_size = 12) +
+    ggplot2::theme(
+      plot.background  = ggplot2::element_rect(fill = "#0d1117", colour = NA),
+      panel.background = ggplot2::element_rect(fill = "#0d1117", colour = NA),
+      plot.title       = ggplot2::element_text(colour = "grey90", hjust = 0.5,
+                                               margin = ggplot2::margin(b = 6)),
+      legend.text      = ggplot2::element_text(colour = "grey80"),
+      legend.title     = ggplot2::element_text(colour = "grey80"),
+      plot.margin      = ggplot2::margin(8, 8, 8, 8)
+    )
+}
+
+# ── plot_tsne_genomes() ───────────────────────────────────────────────────────
+
+#' Plot genome PCA to reveal population genetic structure
+#'
+#' @title Plot genome PCA to reveal population genetic structure
+#' @description
+#' Takes genome data logged by [get_run_data()] when `log_genomes = TRUE` was
+#' set during the run, draws a random sample of up to `n_agents` rows, runs
+#' principal components analysis on the genome weight matrix, and plots PC1
+#' versus PC2 coloured by tick to show how genetic structure shifts over time.
+#'
+#' When genome data are absent or contain fewer than four rows, a placeholder
+#' ggplot with an explanatory message is returned instead.
+#'
+#' @param run_data A list returned by [get_run_data()]. When `log_genomes =
+#'   TRUE` was active, this list contains a `$genomes` data frame with an `id`
+#'   column, a `t` column, and one numeric column per genome weight. When
+#'   absent the function returns a placeholder.
+#' @param n_agents Integer. Maximum number of genome rows to sample before
+#'   running PCA. Keeps computation tractable for large logs.
+#'   Default: `50L`.
+#' @param perplexity Numeric. Unused; retained for API forward-compatibility
+#'   with a future t-SNE upgrade. Default: `15`.
+#' @param ... Currently unused. Reserved for forward compatibility.
+#'
+#' @return A [ggplot2::ggplot()] object.
+#'
+#' @examples
+#' \dontrun{
+#' specs <- default_specs(); specs$log_genomes <- TRUE
+#' env   <- run_clade(specs)
+#' data  <- get_run_data(env)
+#' plot_tsne_genomes(data)
+#' }
+#'
+#' @seealso [get_run_data()], [plot_genome_diversity()]
+#' @export
+plot_tsne_genomes <- function(run_data, n_agents = 50L, perplexity = 15, ...) {
+  .placeholder <- function(msg) {
+    ggplot2::ggplot() +
+      ggplot2::annotate("text", x = 0.5, y = 0.5, label = msg,
+                        hjust = 0.5, vjust = 0.5, size = 4, colour = "grey40") +
+      ggplot2::theme_void() +
+      ggplot2::labs(title = "Genome PCA \u2014 population genetic structure")
+  }
+
+  # Guard: genome data must exist and have enough rows
+  gdf <- if (is.list(run_data)) run_data$genomes else NULL
+  if (is.null(gdf) || !is.data.frame(gdf) || nrow(gdf) < 4L) {
+    return(.placeholder("Enable log_genomes = TRUE to see genome structure"))
+  }
+
+  # Sample
+  n_rows <- nrow(gdf)
+  idx    <- if (n_rows > n_agents) sample.int(n_rows, n_agents) else seq_len(n_rows)
+  gdf    <- gdf[idx, , drop = FALSE]
+
+  # Extract numeric genome columns (exclude id, t, agent_id, etc.)
+  meta_cols  <- c("id", "t", "agent_id", "tick", "generation")
+  keep_cols  <- setdiff(names(gdf), meta_cols)
+  num_cols   <- keep_cols[vapply(keep_cols, function(cn) is.numeric(gdf[[cn]]), logical(1L))]
+
+  if (length(num_cols) < 2L) {
+    return(.placeholder("Genome data has fewer than 2 numeric weight columns"))
+  }
+
+  genome_mat <- as.matrix(gdf[, num_cols, drop = FALSE])
+
+  # Remove constant columns (prcomp will error on zero-variance columns)
+  col_vars <- apply(genome_mat, 2L, stats::var)
+  genome_mat <- genome_mat[, col_vars > 0, drop = FALSE]
+
+  if (ncol(genome_mat) < 2L) {
+    return(.placeholder("Genome weights have no variance — run more ticks"))
+  }
+
+  pca_out <- stats::prcomp(genome_mat, center = TRUE, scale. = FALSE,
+                            rank. = 2L)
+  scores  <- as.data.frame(pca_out$x[, 1:2, drop = FALSE])
+  scores$t <- if ("t" %in% names(gdf)) gdf$t else seq_len(nrow(scores))
+
+  pct <- round(summary(pca_out)$importance[2, 1:2] * 100, 1)
+  xlab <- sprintf("PC1 (%s%%)", pct[[1]])
+  ylab <- sprintf("PC2 (%s%%)", pct[[2]])
+
+  ggplot2::ggplot(
+    scores,
+    ggplot2::aes(x = .data$PC1, y = .data$PC2, colour = .data$t)
+  ) +
+    ggplot2::geom_point(size = 2, alpha = 0.75) +
+    ggplot2::scale_colour_viridis_c(name = "Tick", option = "viridis") +
+    ggplot2::labs(
+      title = "Genome PCA \u2014 population genetic structure",
+      x     = xlab,
+      y     = ylab
+    ) +
+    .clade_theme() +
+    ggplot2::theme(legend.position = "right")
+}
+
 # ── plot_genome_diversity() ───────────────────────────────────────────────────
 
 #' Plot genetic diversity over time
