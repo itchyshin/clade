@@ -1,91 +1,138 @@
-# Tests for wall/barrier map generation parameters.
-#
-# wall_density and wall_clusters are NOT yet in default_specs(). Failing tests
-# document what needs to be added to config.R.
-# Parameters that DO exist and are tested here: seasonal_amplitude (related
-# environmental structure), niche_construction (structural habitat features).
+# Tests for R/maps.R -- generate_map(), load_map(), prepare_map().
+# These are pure-R functions requiring no Julia session.
 
 library(testthat)
 
-# ── 1. wall_density is present in default_specs() ────────────────────────────
-# NOTE: not yet implemented — test documents what is needed.
-test_that("wall_density is present in default_specs()", {
-  expect_true("wall_density" %in% names(default_specs()))
+# ── generate_map() ────────────────────────────────────────────────────────────
+
+# 1. Returns an integer matrix of the correct dimensions
+test_that("generate_map() returns integer matrix of correct dimensions", {
+  m <- generate_map("open", grid_rows = 10L, grid_cols = 12L)
+  expect_true(is.matrix(m))
+  expect_equal(nrow(m), 10L)
+  expect_equal(ncol(m), 12L)
+  expect_type(m, "integer")
 })
 
-# ── 2. wall_density defaults to 0.0 ──────────────────────────────────────────
-test_that("wall_density defaults to 0.0", {
-  expect_equal(default_specs()$wall_density, 0.0)
+# 2. 'open' type produces all zeros
+test_that("generate_map('open') is all zeros", {
+  m <- generate_map("open", grid_rows = 8L, grid_cols = 8L)
+  expect_equal(sum(m), 0L)
 })
 
-# ── 3. wall_density is in [0, 1] ─────────────────────────────────────────────
-test_that("wall_density default is in [0, 1]", {
-  val <- default_specs()$wall_density
-  expect_gte(val, 0.0)
-  expect_lte(val, 1.0)
+# 3. Values are only 0 or 1
+test_that("generate_map() values are 0 or 1", {
+  for (type in c("open", "patchy", "corridors")) {
+    m <- generate_map(type, grid_rows = 20L, grid_cols = 20L,
+                      p_wall = 0.3, seed = 1L)
+    expect_true(all(m %in% c(0L, 1L)),
+                info = sprintf("type = '%s' should only have 0/1 values", type))
+  }
 })
 
-# ── 4. wall_clusters is present in default_specs() ───────────────────────────
-test_that("wall_clusters is present in default_specs()", {
-  expect_true("wall_clusters" %in% names(default_specs()))
+# 4. 'patchy' with p_wall = 0 produces all zeros
+test_that("generate_map('patchy', p_wall=0) produces all zeros", {
+  m <- generate_map("patchy", grid_rows = 10L, grid_cols = 10L, p_wall = 0)
+  expect_equal(sum(m), 0L)
 })
 
-# ── 5. wall_clusters defaults to TRUE ────────────────────────────────────────
-test_that("wall_clusters defaults to TRUE", {
-  expect_true(default_specs()$wall_clusters)
+# 5. 'corridors' produces walls AND open cells
+test_that("generate_map('corridors') has both walls and open cells", {
+  m <- generate_map("corridors", grid_rows = 20L, grid_cols = 20L,
+                    p_wall = 0.5, corridor_width = 2L, seed = 7L)
+  expect_gt(sum(m == 0L), 0L)
+  expect_gt(sum(m == 1L), 0L)
 })
 
-# ── 6. wall_clusters is logical ──────────────────────────────────────────────
-test_that("wall_clusters is a logical scalar", {
-  val <- default_specs()$wall_clusters
-  expect_true(is.logical(val) && length(val) == 1L)
+# 6. generate_map() warns and forces open cells when p_wall is extreme
+test_that("generate_map() warns and forces cells open when p_wall is extreme", {
+  expect_warning(
+    m <- generate_map("patchy", grid_rows = 20L, grid_cols = 20L, p_wall = 0.99),
+    regexp = "open"
+  )
 })
 
-# ── 7. niche_construction (related structural feature) defaults to FALSE ──────
-test_that("niche_construction is present and defaults to FALSE", {
-  s <- default_specs()
-  expect_true("niche_construction" %in% names(s))
-  expect_false(s$niche_construction)
+# 7. seed gives reproducible results
+test_that("generate_map() is reproducible with the same seed", {
+  m1 <- generate_map("random_cluster", grid_rows = 15L, grid_cols = 15L,
+                     p_wall = 0.3, seed = 42L)
+  m2 <- generate_map("random_cluster", grid_rows = 15L, grid_cols = 15L,
+                     p_wall = 0.3, seed = 42L)
+  expect_identical(m1, m2)
 })
 
-# ── 8. seasonal_amplitude defaults to 0.0 ────────────────────────────────────
-test_that("seasonal_amplitude is present and defaults to 0.0", {
-  s <- default_specs()
-  expect_true("seasonal_amplitude" %in% names(s))
-  expect_equal(s$seasonal_amplitude, 0.0)
+# 8. invalid type argument errors
+test_that("generate_map() errors on unknown type", {
+  expect_error(generate_map("hexagonal"), regexp = "should be one of")
 })
 
-# ── 9. wall_density = 0.0 by default ─────────────────────────────────────────
-test_that("wall_density defaults to 0.0 (no walls by default)", {
-  expect_equal(default_specs()$wall_density, 0.0)
+# ── prepare_map() ─────────────────────────────────────────────────────────────
+
+# 9. Returns correct-dimension integer matrix when map already matches
+test_that("prepare_map() returns correct dimensions", {
+  specs <- default_specs()
+  specs$grid_rows <- 10L; specs$grid_cols <- 10L
+  raw_map <- generate_map("open", grid_rows = 10L, grid_cols = 10L)
+  out     <- prepare_map(raw_map, specs)
+  expect_equal(nrow(out), 10L)
+  expect_equal(ncol(out), 10L)
+  expect_type(out, "integer")
 })
 
-# ── 10. wall_density cannot be negative: default is non-negative ──────────────
-test_that("wall_density default value is non-negative", {
-  expect_gte(default_specs()$wall_density, 0.0)
+# 10. Rescales a mis-sized map with a warning
+test_that("prepare_map() rescales and warns when dimensions mismatch", {
+  specs <- default_specs()
+  specs$grid_rows <- 10L; specs$grid_cols <- 10L
+  big_map <- generate_map("patchy", grid_rows = 20L, grid_cols = 20L, seed = 1L)
+  expect_warning(out <- prepare_map(big_map, specs), regexp = "rescaling")
+  expect_equal(nrow(out), 10L)
+  expect_equal(ncol(out), 10L)
 })
 
-# ── 11. wall_clusters is logical ──────────────────────────────────────────────
-test_that("wall_clusters is a logical scalar", {
-  val <- default_specs()$wall_clusters
-  expect_true(is.logical(val))
-  expect_length(val, 1L)
+# 11. Coerces non-zero values to 1
+test_that("prepare_map() coerces any non-zero value to 1", {
+  specs <- default_specs()
+  specs$grid_rows <- 5L; specs$grid_cols <- 5L
+  m <- matrix(c(0, 0.5, 2, -1, 0), nrow = 5L, ncol = 5L)
+  out <- prepare_map(m, specs)
+  expect_true(all(out %in% c(0L, 1L)))
 })
 
-# ── 12. grid_rows and grid_cols defaults ──────────────────────────────────────
-test_that("grid_rows defaults to 30L", {
-  expect_equal(default_specs()$grid_rows, 30L)
+# 12. prepare_map() on an open map returns all zeros
+test_that("prepare_map() on open map returns all zeros", {
+  specs <- default_specs()
+  specs$grid_rows <- 8L; specs$grid_cols <- 8L
+  m   <- generate_map("open", grid_rows = 8L, grid_cols = 8L)
+  out <- prepare_map(m, specs)
+  expect_equal(sum(out), 0L)
 })
 
-test_that("grid_cols defaults to 30L", {
-  expect_equal(default_specs()$grid_cols, 30L)
+# ── load_map() ────────────────────────────────────────────────────────────────
+
+# 13. load_map() errors gracefully on a non-existent name
+test_that("load_map() errors on unknown name", {
+  expect_error(load_map("nonexistent_map_xyz"), regexp = "not found")
 })
 
-# ── 13. wall parameters round-trip through default_specs() ───────────────────
-test_that("wall_density and wall_clusters round-trip through modified specs", {
-  s <- default_specs()
-  s$wall_density  <- 0.2
-  s$wall_clusters <- FALSE
-  expect_equal(s$wall_density, 0.2)
-  expect_false(s$wall_clusters)
+# 14. load_map() can load a saved RDS file
+test_that("load_map() can load a saved RDS file path", {
+  tmp <- tempfile(fileext = ".rds")
+  m   <- generate_map("open", grid_rows = 5L, grid_cols = 5L)
+  saveRDS(m, tmp)
+  out <- load_map(tmp)
+  expect_identical(out, m)
+  unlink(tmp)
+})
+
+# ── Integration: generate -> prepare ─────────────────────────────────────────
+
+# 15. Full pipeline: generate + prepare produces valid map
+test_that("generate_map() + prepare_map() pipeline works end to end", {
+  specs <- default_specs()
+  specs$grid_rows <- 12L; specs$grid_cols <- 14L
+  m   <- generate_map("patchy", grid_rows = 12L, grid_cols = 14L, seed = 5L)
+  out <- prepare_map(m, specs)
+  expect_equal(dim(out), c(12L, 14L))
+  expect_true(all(out %in% c(0L, 1L)))
+  expect_gte(mean(out == 0L), 0.2)
 })

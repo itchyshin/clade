@@ -590,3 +590,178 @@ load_specs <- function(path) {
   }
   specs
 }
+
+#' Estimate narrow-sense heritability from parent-offspring data
+#'
+#' `heritability_estimate()` computes h2 by regressing offspring trait values
+#' on parent trait values using the `$deaths` data frame returned by
+#' [get_run_data()]. This is the parent-offspring regression method, as
+#' distinct from the lag-1 autocorrelation approach used by
+#' [estimate_heritability()].
+#'
+#' The deaths data frame must contain `parent_id` and the requested `trait`
+#' column. Run the simulation long enough that agents die and are recorded.
+#'
+#' @param data A list from [get_run_data()], specifically using `data$deaths`.
+#' @param trait Character; column name in `data$deaths` to use as the trait.
+#'   Default `"num_offspring"`.
+#'
+#' @return A list with:
+#' \describe{
+#'   \item{`$h2`}{Estimated heritability (slope of parent-offspring regression).
+#'     `NA` when fewer than 5 matched pairs are found.}
+#'   \item{`$n_pairs`}{Number of matched parent-offspring pairs.}
+#'   \item{`$method`}{`"parent_offspring_regression"`.}
+#'   \item{`$trait`}{The trait used.}
+#' }
+#'
+#' @seealso [estimate_heritability()] for the lag-1 autocorrelation approach.
+#' @examples
+#' \dontrun{
+#' env  <- run_alife(default_specs())
+#' data <- get_run_data(env)
+#' h    <- heritability_estimate(data, trait = "num_offspring")
+#' h$h2
+#' }
+#' @export
+heritability_estimate <- function(data, trait = "num_offspring") {
+  d <- data$deaths
+  if (!is.data.frame(d) || nrow(d) == 0L)
+    stop("'data$deaths' is empty. Run a longer simulation so agents die.",
+         call. = FALSE)
+  if (!trait %in% names(d))
+    stop(sprintf("Trait '%s' not found in data$deaths. Available: %s",
+                 trait, paste(names(d), collapse = ", ")),
+         call. = FALSE)
+  if (!"parent_id" %in% names(d))
+    stop("'data$deaths' has no 'parent_id' column.", call. = FALSE)
+
+  offspring <- d[!is.na(d$parent_id), c("id", "parent_id", trait)]
+  parents   <- d[, c("id", trait)]
+  names(parents) <- c("parent_id", "parent_trait")
+  pairs     <- merge(offspring, parents, by = "parent_id", all.x = FALSE)
+  pairs     <- pairs[!is.na(pairs[[trait]]) & !is.na(pairs$parent_trait), ]
+
+  n_pairs <- nrow(pairs)
+  if (n_pairs < 5L) {
+    message(sprintf(
+      "heritability_estimate(): only %d matched parent-offspring pairs; h2 = NA.",
+      n_pairs
+    ))
+    return(list(h2 = NA_real_, n_pairs = n_pairs,
+                method = "parent_offspring_regression", trait = trait))
+  }
+
+  fit <- stats::lm(pairs[[trait]] ~ pairs$parent_trait)
+  h2  <- unname(stats::coef(fit)[2L])
+  list(h2 = h2, n_pairs = n_pairs,
+       method = "parent_offspring_regression", trait = trait)
+}
+
+#' Compute normalised Euclidean genome distance between two agents
+#'
+#' `genome_distance()` quantifies how different two agents are by computing the
+#' normalised Euclidean distance between their flattened brain weight vectors.
+#' For BNN brains, the `mu` (mean) weights are used; for all other brain types,
+#' the `W` weight matrices are used.
+#'
+#' @param agent_a,agent_b Agent lists from `env$agents`. Each must have a
+#'   `$brain$layers` component.
+#'
+#' @return A non-negative numeric scalar. Zero means the two brains are
+#'   identical; values near 1 indicate substantial divergence.
+#'
+#' @examples
+#' \dontrun{
+#' env <- run_alife(default_specs())
+#' if (length(env$agents) >= 2L)
+#'   genome_distance(env$agents[[1]], env$agents[[2]])
+#' }
+#' @export
+genome_distance <- function(agent_a, agent_b) {
+  .flatten_brain <- function(ag, w_key) {
+    if (is.null(ag$brain) || is.null(ag$brain$layers)) return(numeric(0))
+    unlist(lapply(ag$brain$layers, function(l) as.numeric(l[[w_key]])))
+  }
+
+  is_bnn <- function(ag) {
+    !is.null(ag$brain) && !is.null(ag$brain$layers) &&
+      !is.null(ag$brain$layers[[1L]]$mu)
+  }
+
+  w_key <- if (is_bnn(agent_a) || is_bnn(agent_b)) "mu" else "W"
+  va    <- .flatten_brain(agent_a, w_key)
+  vb    <- .flatten_brain(agent_b, w_key)
+
+  n <- min(length(va), length(vb))
+  if (n == 0L) return(NA_real_)
+
+  diff  <- va[seq_len(n)] - vb[seq_len(n)]
+  denom <- max(1.0, sqrt(sum(va[seq_len(n)]^2) + sum(vb[seq_len(n)]^2)) / 2.0)
+  sqrt(sum(diff^2)) / denom
+}
+
+#' Compute pedigree-based relatedness between two agents
+#'
+#' `compute_relatedness()` estimates the coefficient of relatedness (r) between
+#' two agents using parent-ID pedigree chains stored in `env$agents`. The
+#' algorithm returns r = 0.5 for parent-offspring, r = 0.25 for full siblings
+#' (shared parent), and r = 0 otherwise. This matches Hamilton's rule
+#' coefficients used by the kin selection module.
+#'
+#' @param id_a,id_b Integer; `$id` values of the two agents to compare.
+#' @param env Environment list from [run_alife()].
+#'
+#' @return Numeric scalar in [0, 1].
+#'
+#' @examples
+#' \dontrun{
+#' env <- run_alife(default_specs())
+#' ids <- sapply(env$agents, `[[`, "id")
+#' compute_relatedness(ids[1], ids[2], env)
+#' }
+#' @export
+compute_relatedness <- function(id_a, id_b, env) {
+  stopifnot(is.list(env), !is.null(env$agents))
+  id_a <- as.integer(id_a)
+  id_b <- as.integer(id_b)
+
+  if (id_a == id_b) return(1.0)
+
+  # Build id -> parent_id lookup from surviving agents
+  parent_map <- list()
+  for (ag in env$agents) {
+    if (!is.null(ag$id) && !is.null(ag$parent_id))
+      parent_map[[as.character(ag$id)]] <- as.integer(ag$parent_id)
+  }
+
+  # Ancestors of an id up to depth d
+  ancestors <- function(id, depth = 3L) {
+    ids <- integer(0)
+    current <- as.integer(id)
+    for (i in seq_len(depth)) {
+      p <- parent_map[[as.character(current)]]
+      if (is.null(p) || p == 0L) break
+      ids <- c(ids, p)
+      current <- p
+    }
+    ids
+  }
+
+  pid_a <- parent_map[[as.character(id_a)]]
+  pid_b <- parent_map[[as.character(id_b)]]
+
+  # Direct parent-offspring
+  if (!is.null(pid_a) && !is.null(pid_b)) {
+    if (pid_a == id_b || pid_b == id_a) return(0.5)
+    # Siblings: same parent
+    if (pid_a != 0L && pid_a == pid_b) return(0.25)
+  }
+
+  # Grandparent-offspring or first cousins
+  anc_a <- ancestors(id_a)
+  anc_b <- ancestors(id_b)
+  if (any(anc_a %in% anc_b) || any(anc_b %in% anc_a)) return(0.125)
+
+  0.0
+}
