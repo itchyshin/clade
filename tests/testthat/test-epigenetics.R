@@ -220,6 +220,91 @@ test_that("epigenetics = TRUE with ploidy = 2 completes", {
   expect_no_error(env <- run_alife(s, verbose = FALSE))
 })
 
+# ── 13. epigenetics = FALSE by default ───────────────────────────────────────
+test_that("epigenetics is FALSE in default_specs()", {
+  expect_false(default_specs()$epigenetics)
+})
+
+# ── 14. epigenetic_learning_coupling defaults to 0.1 ─────────────────────────
+test_that("epigenetic_learning_coupling defaults to 0.1", {
+  expect_equal(default_specs()$epigenetic_learning_coupling, 0.10)
+})
+
+# ── 15. epigenetic_inheritance defaults to 0.5 ───────────────────────────────
+test_that("epigenetic_inheritance defaults to 0.5", {
+  expect_equal(default_specs()$epigenetic_inheritance, 0.50)
+})
+
+# ── 16. epigenetic_effect_size defaults to 0.2 ───────────────────────────────
+test_that("epigenetic_effect_size defaults to 0.2", {
+  expect_equal(default_specs()$epigenetic_effect_size, 0.20)
+})
+
+# ── 17. methylation_rate defaults to 0.001 ───────────────────────────────────
+test_that("methylation_rate defaults to 0.001", {
+  expect_equal(default_specs()$methylation_rate, 0.001)
+})
+
+# ── 18. demethylation_rate defaults to 0.002 ─────────────────────────────────
+test_that("demethylation_rate defaults to 0.002", {
+  expect_equal(default_specs()$demethylation_rate, 0.002)
+})
+
+# ── 19. methylation_rate < demethylation_rate (net demethylation pressure) ───
+test_that("methylation_rate < demethylation_rate in defaults", {
+  s <- default_specs()
+  expect_lt(s$methylation_rate, s$demethylation_rate)
+})
+
+# ── 20. Epigenetics params are positive numerics ──────────────────────────────
+test_that("all numeric epigenetics params are positive in defaults", {
+  s <- default_specs()
+  for (param in c("epigenetic_learning_coupling", "epigenetic_inheritance",
+                  "epigenetic_effect_size", "methylation_rate",
+                  "demethylation_rate")) {
+    expect_true(is.numeric(s[[param]]),
+                info = sprintf("%s should be numeric", param))
+    expect_gt(s[[param]], 0,
+              label = sprintf("default_specs()$%s > 0", param))
+  }
+})
+
+# ── 21. epigenetic_learning_coupling is in [0, 1] range ──────────────────────
+test_that("epigenetic_learning_coupling default is in [0, 1]", {
+  elc <- default_specs()$epigenetic_learning_coupling
+  expect_gte(elc, 0)
+  expect_lte(elc, 1)
+})
+
+# ── 22. All epigenetics params round-trip through default_specs() ────────────
+test_that("epigenetics params all present and named correctly in default_specs()", {
+  s <- default_specs()
+  expected_params <- c("epigenetics", "epigenetic_learning_coupling",
+                       "epigenetic_inheritance", "epigenetic_effect_size",
+                       "methylation_rate", "demethylation_rate")
+  for (param in expected_params) {
+    expect_true(param %in% names(s),
+                info = sprintf("default_specs() missing '%s'", param))
+  }
+})
+
+# ── 23. epigenetics = TRUE run completes ─────────────────────────────────────
+test_that("run_alife with epigenetics = TRUE completes without error", {
+  skip_no_julia()
+  s <- .epi_specs(epigenetics = TRUE, brain_type = "bnn", max_ticks = 20L)
+  expect_no_error(env <- run_alife(s, verbose = FALSE))
+  expect_true(is.list(env))
+})
+
+# ── 24. epigenetics = TRUE with rl_mode = "actor_critic" completes ───────────
+test_that("epigenetics = TRUE with rl_mode = 'actor_critic' completes", {
+  skip_no_julia()
+  s <- .epi_specs(epigenetics = TRUE, brain_type = "bnn",
+                  rl_mode = "actor_critic", max_ticks = 20L)
+  expect_no_error(env <- run_alife(s, verbose = FALSE))
+  expect_true(is.list(env))
+})
+
 # ── 12. inherit_methylome! transmits ~half the marks at default settings ─────
 # Pure-Julia unit test: build two agents, set the parent's methylome to all
 # TRUE, run inherit_methylome! and check that the offspring has roughly

@@ -254,3 +254,96 @@ test_that("death.jl contains the deposit_carrion! call for scavenging", {
   expect_true(grepl("deposit_carrion!", death_jl, fixed = TRUE),
               info = "death.jl must call deposit_carrion! when an agent dies")
 })
+
+# ── 15. modules/plasticity.jl exists ─────────────────────────────────────────
+test_that("modules/plasticity.jl exists in the installed package", {
+  path <- system.file("julia/src/modules/plasticity.jl", package = "clade")
+  expect_true(nchar(path) > 0L && file.exists(path),
+              info = "modules/plasticity.jl not found in installed package")
+})
+
+# ── 16. modules/mimicry.jl exists ────────────────────────────────────────────
+test_that("modules/mimicry.jl exists in the installed package", {
+  path <- system.file("julia/src/modules/mimicry.jl", package = "clade")
+  expect_true(nchar(path) > 0L && file.exists(path),
+              info = "modules/mimicry.jl not found in installed package")
+})
+
+# ── 17. modules/parental_care.jl exists ──────────────────────────────────────
+test_that("modules/parental_care.jl exists in the installed package", {
+  path <- system.file("julia/src/modules/parental_care.jl", package = "clade")
+  expect_true(nchar(path) > 0L && file.exists(path),
+              info = "modules/parental_care.jl not found in installed package")
+})
+
+# ── 18. modules/cooperative_breeding.jl exists ───────────────────────────────
+test_that("modules/cooperative_breeding.jl exists in the installed package", {
+  path <- system.file("julia/src/modules/cooperative_breeding.jl",
+                      package = "clade")
+  expect_true(nchar(path) > 0L && file.exists(path),
+              info = "modules/cooperative_breeding.jl not found in installed package")
+})
+
+# ── 19. plasticity.jl, mimicry.jl, parental_care.jl, cooperative_breeding.jl
+#        all contain the module-guard pattern ─────────────────────────────────
+test_that("plasticity.jl contains the module guard pattern", {
+  skip_no_julia_src()
+  jl <- readLines(file.path(JULIA_SRC, "modules", "plasticity.jl"))
+  expect_true(any(grepl("Bool(get(env.specs, ", jl, fixed = TRUE)),
+              info = "plasticity.jl missing Bool(get(env.specs, ...) guard pattern")
+})
+
+test_that("mimicry.jl contains the module guard pattern", {
+  skip_no_julia_src()
+  jl <- readLines(file.path(JULIA_SRC, "modules", "mimicry.jl"))
+  expect_true(any(grepl("Bool(get(env.specs, ", jl, fixed = TRUE)),
+              info = "mimicry.jl missing Bool(get(env.specs, ...) guard pattern")
+})
+
+test_that("parental_care.jl contains the module guard pattern", {
+  skip_no_julia_src()
+  jl <- readLines(file.path(JULIA_SRC, "modules", "parental_care.jl"))
+  expect_true(any(grepl("Bool(get(", jl, fixed = TRUE)),
+              info = "parental_care.jl missing Bool(get(...) guard pattern")
+})
+
+test_that("cooperative_breeding.jl contains the module guard pattern", {
+  skip_no_julia_src()
+  jl <- readLines(file.path(JULIA_SRC, "modules", "cooperative_breeding.jl"))
+  expect_true(any(grepl("Bool(get(", jl, fixed = TRUE)),
+              info = "cooperative_breeding.jl missing Bool(get(...) guard pattern")
+})
+
+# ── 20. modules/tick_predators.jl exists and is non-empty ────────────────────
+test_that("modules/tick_predators.jl exists and is non-empty", {
+  skip_no_julia_src()
+  path <- file.path(JULIA_SRC, "modules", "tick_predators.jl")
+  expect_true(file.exists(path),
+              info = "modules/tick_predators.jl not found")
+  expect_gt(file.info(path)$size, 100L,
+            label = "tick_predators.jl should be non-trivial (> 100 bytes)")
+})
+
+# ── 21. reproduce.jl contains "clutch_size_evolution" wiring ─────────────────
+test_that("reproduce.jl contains 'clutch_size_evolution' wiring", {
+  skip_no_julia_src()
+  repro_jl <- readLines(file.path(JULIA_SRC, "reproduce.jl"))
+  expect_true(any(grepl("clutch_size_evolution", repro_jl, fixed = TRUE)),
+              info = "reproduce.jl missing clutch_size_evolution wiring")
+})
+
+# ── 22. reproduce.jl contains "stress_hypermutation" wiring ──────────────────
+test_that("reproduce.jl contains 'stress_hypermutation' wiring", {
+  skip_no_julia_src()
+  repro_jl <- readLines(file.path(JULIA_SRC, "reproduce.jl"))
+  expect_true(any(grepl("stress_hypermutation", repro_jl, fixed = TRUE)),
+              info = "reproduce.jl missing stress_hypermutation wiring")
+})
+
+# ── 23. reproduce.jl contains "parental_investment_evolution" wiring ──────────
+test_that("reproduce.jl contains 'parental_investment_evolution' wiring", {
+  skip_no_julia_src()
+  repro_jl <- readLines(file.path(JULIA_SRC, "reproduce.jl"))
+  expect_true(any(grepl("parental_investment_evolution", repro_jl, fixed = TRUE)),
+              info = "reproduce.jl missing parental_investment_evolution wiring")
+})

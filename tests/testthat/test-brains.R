@@ -143,3 +143,89 @@ test_that("GRN run exhibits non-zero genetic diversity", {
                 info = "GRN genetic diversity should be > 0 in at least one tick")
   }
 })
+
+# ── Additional structural tests ───────────────────────────────────────────────
+
+# 13. brain_type = "ann" is a valid option in default_specs
+test_that("brain_type = 'ann' passes .validate_specs()", {
+  s <- default_specs()
+  s$brain_type <- "ann"
+  expect_silent(clade:::.validate_specs(s))
+})
+
+# 14. brain_type = "bnn" is the default
+test_that("default_specs() has brain_type = 'bnn'", {
+  expect_equal(default_specs()$brain_type, "bnn")
+})
+
+# 15. brain_type = "transformer" is a valid option
+test_that("brain_type = 'transformer' passes .validate_specs()", {
+  s <- default_specs()
+  s$brain_type <- "transformer"
+  expect_silent(clade:::.validate_specs(s))
+})
+
+# 16. brain_type = "synthesis" is a valid option
+test_that("brain_type = 'synthesis' passes .validate_specs()", {
+  s <- default_specs()
+  s$brain_type <- "synthesis"
+  expect_silent(clade:::.validate_specs(s))
+})
+
+# 17. brain_type = "random" is a valid option
+test_that("brain_type = 'random' passes .validate_specs()", {
+  s <- default_specs()
+  s$brain_type <- "random"
+  expect_silent(clade:::.validate_specs(s))
+})
+
+# 18. hidden_layers defaults to c(8L)
+test_that("default_specs()$hidden_layers defaults to c(8L)", {
+  hl <- default_specs()$hidden_layers
+  expect_true(is.integer(hl) || is.numeric(hl))
+  expect_equal(as.integer(hl), c(8L))
+})
+
+# 19. brain_energy_mode defaults to "activity"
+test_that("default_specs()$brain_energy_mode is 'activity'", {
+  expect_equal(default_specs()$brain_energy_mode, "activity")
+})
+
+# 20. brain_energy_base is a positive numeric
+test_that("default_specs()$brain_energy_base is a positive numeric", {
+  beb <- default_specs()$brain_energy_base
+  expect_true(is.numeric(beb))
+  expect_length(beb, 1L)
+  expect_gt(beb, 0)
+})
+
+# ── Additional integration tests (require Julia) ──────────────────────────────
+
+# 21. run_clade with brain_type = "ann" completes without error
+test_that("run_clade completes with brain_type = 'ann'", {
+  skip_no_julia()
+  s <- .minimal_specs(brain_type = "ann", random_seed = 7L)
+  env <- expect_silent(run_clade(s, verbose = FALSE))
+  expect_true(is.list(env))
+  expect_equal(env$t, s$max_ticks)
+})
+
+# 22. run_clade with brain_type = "bnn" produces mean_prior_sigma column
+test_that("run_clade with brain_type = 'bnn' logs mean_prior_sigma", {
+  skip_no_julia()
+  s <- .minimal_specs(brain_type = "bnn", random_seed = 8L)
+  env <- run_clade(s, verbose = FALSE)
+  expect_true("mean_prior_sigma" %in% names(env$progress),
+              info = "BNN run should log mean_prior_sigma in env$progress")
+})
+
+# 23. run_clade with brain_type = "random" completes and n_births >= 0
+test_that("run_clade with brain_type = 'random' completes and n_births >= 0", {
+  skip_no_julia()
+  s <- .minimal_specs(brain_type = "random", random_seed = 9L,
+                       max_ticks = 10L, n_agents_init = 10L,
+                       max_agents = 100L)
+  env <- expect_silent(run_clade(s, verbose = FALSE))
+  data <- get_run_data(env)
+  expect_true(all(data$ticks$n_births >= 0L, na.rm = TRUE))
+})

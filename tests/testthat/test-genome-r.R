@@ -167,3 +167,87 @@ test_that("immune_strength_min < immune_strength_max", {
   s <- default_specs()
   expect_lt(s$immune_strength_min, s$immune_strength_max)
 })
+
+# ── 21. ploidy = 1L is default (haploid) ──────────────────────────────────────
+test_that("default_specs()$ploidy is 1L (haploid)", {
+  expect_equal(default_specs()$ploidy, 1L)
+})
+
+# ── 22. ploidy = 2L passes validation (diploid) ───────────────────────────────
+test_that("ploidy = 2L passes .validate_specs()", {
+  s <- default_specs()
+  s$ploidy <- 2L
+  expect_silent(clade:::.validate_specs(s))
+})
+
+# ── 23. n_chromosomes = 1L is default ────────────────────────────────────────
+test_that("default_specs()$n_chromosomes is 1L", {
+  expect_equal(default_specs()$n_chromosomes, 1L)
+})
+
+# ── 24. crossover_rate = 1.0 is default ──────────────────────────────────────
+test_that("default_specs()$crossover_rate is 1.0", {
+  expect_equal(default_specs()$crossover_rate, 1.0)
+})
+
+# ── 25. dominance_model = "additive" is default ───────────────────────────────
+test_that("default_specs()$dominance_model is 'additive'", {
+  expect_equal(default_specs()$dominance_model, "additive")
+})
+
+# ── 26. dominance_model can be "dominant" or "codominant" ─────────────────────
+test_that("dominance_model 'dominant' and 'codominant' pass .validate_specs()", {
+  for (dm in c("dominant", "codominant")) {
+    s <- default_specs()
+    s$dominance_model <- dm
+    expect_no_error(clade:::.validate_specs(s),
+                    message = sprintf("dominance_model = '%s' should validate", dm))
+  }
+})
+
+# ── 27. ploidy = 2L + n_chromosomes = 2L run completes ───────────────────────
+test_that("run with ploidy = 2L and n_chromosomes = 2L completes", {
+  skip_if_not(requireNamespace("JuliaConnectoR", quietly = TRUE),
+              "JuliaConnectoR not available")
+  skip_if_not(JuliaConnectoR::juliaSetupOk(),
+              "Julia toolchain not available")
+  s <- .minimal_specs(ploidy = 2L, n_chromosomes = 2L, random_seed = 11L)
+  expect_no_error(env <- run_alife(s, verbose = FALSE))
+  expect_true(is.list(env))
+})
+
+# ── 28. crossover_rate = 0.0 (no crossover) run completes ────────────────────
+test_that("run with crossover_rate = 0.0 completes", {
+  skip_if_not(requireNamespace("JuliaConnectoR", quietly = TRUE),
+              "JuliaConnectoR not available")
+  skip_if_not(JuliaConnectoR::juliaSetupOk(),
+              "Julia toolchain not available")
+  s <- .minimal_specs(crossover_rate = 0.0, random_seed = 12L)
+  expect_no_error(env <- run_alife(s, verbose = FALSE))
+  expect_true(is.list(env))
+})
+
+# ── 29. Diploid run produces n_births > 0 over 200 ticks ──────────────────────
+test_that("diploid run produces at least one birth over 200 ticks", {
+  skip_if_not(requireNamespace("JuliaConnectoR", quietly = TRUE),
+              "JuliaConnectoR not available")
+  skip_if_not(JuliaConnectoR::juliaSetupOk(),
+              "Julia toolchain not available")
+  s <- .minimal_specs(ploidy = 2L, random_seed = 13L,
+                       grid_rows = 20L, grid_cols = 20L,
+                       n_agents_init = 30L, max_agents = 200L,
+                       max_ticks = 200L)
+  env <- run_alife(s, verbose = FALSE)
+  data <- get_run_data(env)
+  expect_gt(sum(data$ticks$n_births, na.rm = TRUE), 0L,
+            label = "diploid run should produce at least one birth")
+})
+
+# ── 30. Genome params are all present in default_specs() ──────────────────────
+test_that("genome params present in default_specs()", {
+  s <- default_specs()
+  for (param in c("ploidy", "n_chromosomes", "crossover_rate", "dominance_model")) {
+    expect_true(param %in% names(s),
+                info = sprintf("default_specs() missing '%s'", param))
+  }
+})
