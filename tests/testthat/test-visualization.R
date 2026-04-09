@@ -288,3 +288,46 @@ test_that("plot_tsne_genomes() returns a ggplot when genome data are present", {
   p <- plot_tsne_genomes(rd, n_agents = 20L)
   expect_s3_class(p, "ggplot")
 })
+
+# ── 20. diversity_landscape() ─────────────────────────────────────────────────
+
+test_that("diversity_landscape() returns a ggplot given run_data with mean columns", {
+  rd <- list(
+    ticks = data.frame(
+      t             = 1:10,
+      mean_body_size = seq(1.0, 2.0, length.out = 10),
+      sd_body_size  = rep(0.1, 10),
+      n_agents      = rep(20L, 10)
+    )
+  )
+  p <- diversity_landscape(rd)
+  expect_s3_class(p, "ggplot")
+})
+
+test_that("diversity_landscape() returns a ggplot when traits is specified explicitly", {
+  rd <- list(
+    ticks = data.frame(
+      t             = 1:10,
+      mean_body_size = seq(1.0, 2.0, length.out = 10),
+      sd_body_size  = rep(0.1, 10),
+      n_agents      = rep(20L, 10)
+    )
+  )
+  p <- diversity_landscape(rd, traits = "mean_body_size")
+  expect_s3_class(p, "ggplot")
+})
+
+test_that("diversity_landscape() returns a placeholder ggplot when all trait columns are zero-variance", {
+  rd <- list(
+    ticks = data.frame(
+      t             = 1:10,
+      mean_body_size = rep(1.0, 10),
+      sd_body_size  = rep(0.1, 10),
+      n_agents      = rep(20L, 10)
+    )
+  )
+  p <- diversity_landscape(rd)
+  expect_s3_class(p, "ggplot")
+  # Should be the placeholder (no facets)
+  expect_null(p$facet$params$facets)
+})

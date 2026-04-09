@@ -1535,3 +1535,142 @@ plot_module_metrics <- function(run_data) {
 
   patchwork::wrap_plots(panels, ncol = min(3L, n_panels))
 }
+
+# ── diversity_landscape() ─────────────────────────────────────────────────────
+
+#' Visualise the multi-trait diversity landscape
+#'
+#' @title Visualise the multi-trait diversity landscape
+#' @description
+#' Creates a faceted time-series showing the evolution of multiple heritable
+#' trait means plus/minus one standard deviation across ticks. Each facet
+#' corresponds to one trait. Only traits that are present in `run_data$ticks`
+#' and have non-zero variance across the run are shown. When SD columns exist
+#' (e.g. `sd_body_size` for `mean_body_size`) a shaded ribbon is drawn around
+#' the mean trajectory.
+#'
+#' @param run_data A list from [get_run_data()]. Must contain a `$ticks`
+#'   data frame with a `t` column and at least one `mean_*` trait column.
+#' @param traits Character vector of `mean_*` column names to plot.
+#'   `NULL` (default) auto-detects from the standard set of trait columns.
+#'
+#' @return A [ggplot2::ggplot()] faceted plot object.
+#'
+#' @examples
+#' \dontrun{
+#' env  <- run_clade(default_specs())
+#' data <- get_run_data(env)
+#' diversity_landscape(data)
+#' }
+#'
+#' @seealso [plot_run()], [plot_module_metrics()]
+#' @export
+diversity_landscape <- function(run_data, traits = NULL) {
+  .check_run_data(run_data)
+
+  d <- run_data$ticks
+  d <- d[d$t > 0L, , drop = FALSE]
+
+  # Candidate trait columns (mean_* only)
+  .candidate_traits <- c(
+    "mean_body_size",
+    "mean_cooperation_level",
+    "mean_immune_strength",
+    "mean_metabolic_rate",
+    "mean_learning_rate",
+    "mean_toxicity",
+    "mean_plasticity",
+    "mean_helper_tendency",
+    "mean_prior_sigma",
+    "mean_signal_magnitude"
+  )
+
+  # Resolve traits to plot
+  if (is.null(traits)) {
+    traits <- .candidate_traits
+  }
+
+  # Keep only those present in the data frame
+  traits <- traits[traits %in% names(d)]
+
+  # Keep only those with non-zero variance (i.e. trait is actually evolving)
+  if (length(traits) > 0L) {
+    has_var <- vapply(traits, function(col) {
+      v <- d[[col]]
+      !all(is.na(v)) && stats::var(v, na.rm = TRUE) > 0
+    }, logical(1L))
+    traits <- traits[has_var]
+  }
+
+  # Placeholder when nothing is left
+  if (length(traits) == 0L) {
+    return(
+      ggplot2::ggplot() +
+        ggplot2::annotate(
+          "text", x = 0.5, y = 0.5,
+          label = "No trait diversity data to display.",
+          hjust = 0.5, vjust = 0.5, size = 4, colour = "grey40"
+        ) +
+        ggplot2::theme_void() +
+        ggplot2::labs(title = "Trait diversity landscape")
+    )
+  }
+
+  # Build long data frame: one row per (t, trait)
+  rows <- lapply(traits, function(col) {
+    mean_val <- d[[col]]
+    # SD column: strip "mean_" prefix and prepend "sd_"
+    sd_col <- sub("^mean_", "sd_", col)
+    if (sd_col %in% names(d)) {
+      sdv <- d[[sd_col]]
+      lo  <- mean_val - sdv
+      hi  <- mean_val + sdv
+    } else {
+      lo  <- NA_real_
+      hi  <- NA_real_
+    }
+    data.frame(
+      t         = d$t,
+      trait     = col,
+      mean_val  = mean_val,
+      lo        = lo,
+      hi        = hi,
+      has_sd    = sd_col %in% names(d),
+      stringsAsFactors = FALSE
+    )
+  })
+  long <- do.call(rbind, rows)
+
+  # Split by whether SD is available
+  with_sd    <- long[long$has_sd, , drop = FALSE]
+  without_sd <- long[!long$has_sd, , drop = FALSE]
+
+  p <- ggplot2::ggplot(long, ggplot2::aes(x = .data$t))
+
+  if (nrow(with_sd) > 0L) {
+    p <- p +
+      ggplot2::geom_ribbon(
+        data    = with_sd,
+        ggplot2::aes(ymin = .data$lo, ymax = .data$hi),
+        fill    = "#c6dbef",
+        alpha   = 0.5,
+        inherit.aes = FALSE
+      )
+  }
+
+  p <- p +
+    ggplot2::geom_line(
+      ggplot2::aes(y = .data$mean_val),
+      colour    = "#2166ac",
+      linewidth = 0.6
+    ) +
+    ggplot2::facet_wrap(~ trait, scales = "free_y", ncol = 3L) +
+    ggplot2::labs(
+      title = "Trait diversity landscape",
+      x     = "Tick",
+      y     = "Mean trait value"
+    ) +
+    .clade_theme()
+
+  p
+}
