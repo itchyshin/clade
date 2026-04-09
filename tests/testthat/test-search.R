@@ -214,3 +214,111 @@ test_that("search_gradient() history data frame has at least one row", {
   expect_s3_class(result$history, "data.frame")
   expect_gte(nrow(result$history), 1L)
 })
+
+# ── 13. search_random: structural checks (no Julia) ───────────────────────────
+test_that("search_random() rejects unnamed search_params", {
+  expect_error(
+    search_random(
+      specs_base    = default_specs(),
+      search_params = list(c(0.01, 0.5)),   # unnamed
+      n_samples     = 1L
+    ),
+    "fully named"
+  )
+})
+
+test_that("search_random() returns data frame with rank, score, and param columns", {
+  skip_no_julia()
+  result <- search_random(
+    specs_base    = .tiny_specs(),
+    search_params = list(grass_rate = c(0.1, 0.5)),
+    n_samples     = 3L,
+    objective     = "genetic_diversity",
+    verbose       = FALSE
+  )
+  expect_s3_class(result, "data.frame")
+  expect_true("rank"       %in% names(result))
+  expect_true("score"      %in% names(result))
+  expect_true("grass_rate" %in% names(result))
+  expect_equal(nrow(result), 3L)
+})
+
+test_that("search_random() returns rows sorted by descending score", {
+  skip_no_julia()
+  result <- search_random(
+    specs_base    = .tiny_specs(),
+    search_params = list(grass_rate = c(0.1, 0.6)),
+    n_samples     = 4L,
+    objective     = "genetic_diversity",
+    verbose       = FALSE
+  )
+  valid <- !is.na(result$score)
+  expect_true(all(diff(result$score[valid]) <= 0))
+})
+
+test_that("search_random() rank column is 1..n_samples", {
+  skip_no_julia()
+  result <- search_random(
+    specs_base    = .tiny_specs(),
+    search_params = list(mutation_sd = c(0.01, 0.3)),
+    n_samples     = 3L,
+    objective     = "n_agents",
+    verbose       = FALSE
+  )
+  expect_equal(result$rank, seq_len(3L))
+})
+
+test_that("search_random() accepts integer parameter ranges", {
+  skip_no_julia()
+  result <- search_random(
+    specs_base    = .tiny_specs(),
+    search_params = list(n_agents_init = c(3L, 10L)),
+    n_samples     = 2L,
+    objective     = "genetic_diversity",
+    verbose       = FALSE
+  )
+  expect_true(is.integer(result$n_agents_init))
+})
+
+test_that("search_random() accepts a custom objective function", {
+  skip_no_julia()
+  obj <- function(env) max(get_run_data(env)$ticks$n_agents, na.rm = TRUE)
+  result <- search_random(
+    specs_base    = .tiny_specs(),
+    search_params = list(grass_rate = c(0.1, 0.5)),
+    n_samples     = 2L,
+    objective     = obj,
+    verbose       = FALSE
+  )
+  expect_true(all(result$score >= 0 | is.na(result$score)))
+})
+
+test_that("search_random() attaches specs_list attribute with correct length", {
+  skip_no_julia()
+  result <- search_random(
+    specs_base    = .tiny_specs(),
+    search_params = list(grass_rate = c(0.1, 0.5)),
+    n_samples     = 3L,
+    objective     = "genetic_diversity",
+    verbose       = FALSE
+  )
+  sl <- attr(result, "specs_list")
+  expect_equal(length(sl), 3L)
+  expect_true(all(vapply(sl, is.list, logical(1L))))
+})
+
+test_that("search_random() can sweep multiple parameters simultaneously", {
+  skip_no_julia()
+  result <- search_random(
+    specs_base    = .tiny_specs(),
+    search_params = list(
+      mutation_sd = c(0.01, 0.4),
+      grass_rate  = c(0.1, 0.6)
+    ),
+    n_samples  = 4L,
+    objective  = "genetic_diversity",
+    verbose    = FALSE
+  )
+  expect_true("mutation_sd" %in% names(result))
+  expect_true("grass_rate"  %in% names(result))
+})

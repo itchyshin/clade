@@ -491,6 +491,143 @@ search_gradient <- function(specs_base,
     "mean_helper_tendency")
 }
 
+# ── search_random() ───────────────────────────────────────────────────────────
+
+#' Stochastic parameter sweep for evolutionary outcome discovery
+#'
+#' Evaluates `n_samples` randomly drawn parameter configurations and returns
+#' the results ranked by the chosen objective. Each sample is obtained by
+#' independently perturbing each element of `search_params` (log-scale for
+#' positive parameters, linear scale otherwise). This provides an inexpensive
+#' exploration baseline comparable to a Latin Hypercube Sampling (LHS) sweep.
+#'
+#' Use `search_random()` to:
+#' * Screen which parameters most strongly influence genetic diversity.
+#' * Identify high-diversity corners of the parameter space before running
+#'   the more expensive [search_map_elites()] or [search_cmaes()].
+#' * Compare stochastic results to MAP-Elites elites to spot archive gaps.
+#'
+#' @param specs_base A specs list from [default_specs()].
+#' @param search_params Named list of parameter ranges. Each element should be
+#'   a numeric vector of length 2 (`c(min, max)`) for uniform sampling, or a
+#'   numeric vector of length > 2 for discrete sampling. Example:
+#'   ```r
+#'   list(
+#'     mutation_sd   = c(0.01, 0.5),
+#'     grass_rate    = c(0.05, 0.8),
+#'     n_agents_init = c(10L, 200L)
+#'   )
+#'   ```
+#' @param n_samples Integer. Number of random configurations to evaluate
+#'   (default `50L`).
+#' @param objective Character or function. Column from `get_run_data()$ticks`
+#'   to maximise (default `"genetic_diversity"`), or a function `f(env)`
+#'   returning a numeric scalar.
+#' @param verbose Logical. Print progress (default `TRUE`).
+#'
+#' @return A data frame with one row per sample, columns:
+#' \describe{
+#'   \item{`rank`}{Rank by descending objective score (1 = best).}
+#'   \item{`score`}{Objective value for this sample.}
+#'   \item{...}{One column per element of `search_params` showing the sampled
+#'     value used.}
+#' }
+#' Attribute `"specs_list"` is a list of the full specs for each sample row,
+#' accessible via `attr(result, "specs_list")`.
+#'
+#' @examples
+#' \dontrun{
+#' # Screen mutation_sd and grass_rate for highest genetic diversity
+#' result <- search_random(
+#'   specs_base    = default_specs(),
+#'   search_params = list(
+#'     mutation_sd   = c(0.01, 0.5),
+#'     grass_rate    = c(0.05, 0.8),
+#'     n_agents_init = c(10L, 150L)
+#'   ),
+#'   n_samples  = 30L,
+#'   objective  = "genetic_diversity"
+#' )
+#' head(result)                          # top configurations
+#' plot(result$grass_rate, result$score) # partial dependence
+#' }
+#'
+#' @seealso [search_map_elites()], [search_cmaes()], [search_gradient()]
+#' @importFrom stats runif
+#' @export
+search_random <- function(specs_base,
+                           search_params,
+                           n_samples  = 50L,
+                           objective  = "genetic_diversity",
+                           verbose    = TRUE) {
+  stopifnot(is.list(specs_base), is.list(search_params), length(search_params) >= 1L)
+  n_samples <- as.integer(n_samples)
+  stopifnot(n_samples >= 1L)
+
+  param_names <- names(search_params)
+  if (is.null(param_names) || any(!nzchar(param_names)))
+    stop("search_params must be a fully named list.", call. = FALSE)
+
+  obj_fn <- if (is.function(objective)) {
+    objective
+  } else {
+    col <- objective
+    function(env) {
+      d <- get_run_data(env)
+      mean(d$ticks[[col]], na.rm = TRUE)
+    }
+  }
+
+  # Storage
+  scores     <- numeric(n_samples)
+  sampled    <- vector("list", n_samples)
+  specs_list <- vector("list", n_samples)
+
+  for (i in seq_len(n_samples)) {
+    s <- specs_base
+
+    # Draw one random configuration
+    drawn <- numeric(length(search_params))
+    names(drawn) <- param_names
+    for (p in param_names) {
+      rng <- search_params[[p]]
+      val <- if (length(rng) == 2L) {
+        # Uniform in [min, max]
+        runif(1L, min(rng), max(rng))
+      } else {
+        # Discrete: sample one element
+        sample(rng, 1L)
+      }
+      # Preserve integer type when base param is integer
+      if (is.integer(specs_base[[p]])) val <- as.integer(round(val))
+      s[[p]] <- val
+      drawn[p] <- val
+    }
+    sampled[[i]] <- drawn
+
+    if (isTRUE(verbose))
+      message(sprintf("[search_random] sample %d/%d", i, n_samples))
+
+    env   <- tryCatch(run_alife(s, verbose = FALSE), error = function(e) NULL)
+    score <- if (is.null(env)) NA_real_ else tryCatch(obj_fn(env), error = function(e) NA_real_)
+    scores[i]     <- score
+    specs_list[[i]] <- s
+  }
+
+  # Assemble result
+  param_df <- as.data.frame(do.call(rbind, sampled))
+  for (p in param_names) {
+    if (is.integer(specs_base[[p]])) param_df[[p]] <- as.integer(param_df[[p]])
+  }
+  result <- cbind(data.frame(score = scores), param_df)
+  result <- result[order(-result$score, na.last = TRUE), , drop = FALSE]
+  result$rank <- seq_len(nrow(result))
+  result <- result[, c("rank", "score", param_names), drop = FALSE]
+  rownames(result) <- NULL
+  attr(result, "specs_list") <- specs_list[order(-scores, na.last = TRUE)]
+  result
+}
+
 # ── Internal: MAP-Elites plot ─────────────────────────────────────────────────
 
 .map_elites_plot <- function(archive, archive_dims) {
