@@ -65,8 +65,13 @@ result and a diagnostic plot:
 library(clade)
 
 specs <- default_specs()
-env   <- run_alife(specs)
-data  <- get_run_data(env)
+
+# Modules are off by default; enable any combination independently, e.g.:
+# specs$disease <- TRUE
+# specs$body_size_evolution <- TRUE
+
+env  <- run_alife(specs)
+data <- get_run_data(env)
 
 plot_run(data)
 ```
@@ -116,6 +121,7 @@ is available.
 | `"grn"`         | A gene regulatory network whose nodes are genes and whose interactions evolve via mutation of the regulatory matrix.       |
 | `"transformer"` | A small attention-based architecture with a fixed history window, useful for sequence-dependent foraging.                  |
 | `"synthesis"`   | Symbolic rule synthesis: agents carry an evolved program of if-then rules rather than weights.                             |
+| `"random"`      | Uniformly random action selection; useful as a null model baseline.                                                        |
 
 `"bnn"` is the default because it admits an evolvable prior width and so
 captures Baldwin-style learning–evolution interactions (Baldwin 1896,
@@ -126,18 +132,31 @@ Mouret & Clune 2015) cleanly.
 Modules are toggled through `specs`. They are all off by default, so the
 core simulation is a clean baseline of foraging, reproduction, and death.
 
-| Module               | Spec field              | One-line description                                                                       |
-|----------------------|-------------------------|--------------------------------------------------------------------------------------------|
-| Disease (SIR)        | `disease`               | Susceptible–infected–recovered transmission with energy costs and recovered immunity.       |
-| Kin selection        | `kin_selection`         | Pedigree-based altruistic energy transfer to related neighbours (Hamilton 1964).            |
-| Cooperation          | `cooperation_evolution` | An inheritable cooperation trait that scales the propensity to share with conspecifics.     |
-| Scavenging           | `scavenging`            | Agents may consume carrion left behind by recently dead conspecifics.                       |
-| Niche construction   | `niche_construction`    | Agents build shelters that protect against predators and slow grass regrowth on the cell.   |
-| Body size evolution  | `body_size_evolution`   | Heritable body size scales metabolic cost, foraging gain, and energy storage (Kleiber 1947).|
-| Natal dispersal      | `dispersal_evolution`   | Heritable tendency to move away from birthplace each tick, reducing kin competition.        |
-| Social learning      | `social_learning`       | Periodic copying of output-layer weights from successful Moore-neighbourhood teachers.      |
-| Within-lifetime RL   | `rl_mode`               | REINFORCE-with-baseline updates to the output layer at runtime.                            |
-| Epigenetic inheritance | `epigenetics`         | Lamarckian-style transmission of within-lifetime weight changes (Jablonka & Lamb 2005).    |
+| Module                    | Spec field                        | One-line description                                                                             |
+|---------------------------|-----------------------------------|--------------------------------------------------------------------------------------------------|
+| Body size evolution       | `body_size_evolution`             | Heritable body size scales metabolic cost, foraging gain, and energy storage (Kleiber 1947).     |
+| Natal dispersal           | `dispersal_evolution`             | Heritable tendency to move away from birthplace each tick, reducing kin competition.             |
+| Group defense             | `group_defense`                   | Agents in the same cell share an anti-predator benefit that scales with local group size.        |
+| Habitat preference        | `habitat_preference_evolution`    | Heritable preference for particular terrain or grass-density zones.                              |
+| Seasonal dynamics         | `seasonal_amplitude`              | Grass productivity cycles sinusoidally, imposing periodic resource bottlenecks.                  |
+| Signals and mate choice   | `signal_dims`                     | Agents evolve a multi-dimensional signal; receivers apply a heritable preference at mating.      |
+| Speciation                | `speciation`                      | Reproductive isolation emerges when mate-preference divergence exceeds a threshold.              |
+| Predators                 | `n_predators_init`                | Evolving predator agents pursue prey; predator numbers are set at initialisation.                |
+| Parental care             | `parental_care`                   | Offspring are carried until graduation; parent pays a per-tick care cost.                        |
+| Cooperative breeding      | `cooperative_breeding`            | Non-breeding helpers contribute energy to raise offspring in the same cell.                      |
+| Mimicry and toxicity      | `mimicry`                         | Heritable toxicity deters predators via Rescorla–Wagner avoidance learning.                      |
+| Phenotypic plasticity     | `phenotypic_plasticity`           | Within-lifetime weight adjustment in response to experienced environments.                       |
+| Niche construction        | `niche_construction`              | Agents build shelters that protect against predators and slow grass regrowth on the cell.        |
+| Scavenging                | `scavenging`                      | Agents may consume carrion left behind by recently dead conspecifics.                            |
+| Disease (SIR)             | `disease`                         | Susceptible–infected–recovered transmission with energy costs and recovered immunity.            |
+| Kin selection             | `kin_selection`                   | Pedigree-based altruistic energy transfer to related neighbours (Hamilton 1964).                 |
+| Cooperation (PGG)         | `cooperation_evolution`           | An inheritable cooperation trait that scales the propensity to share with conspecifics.          |
+| Within-lifetime RL        | `rl_mode`                         | REINFORCE-with-baseline updates to the output layer at runtime.                                  |
+| Social learning           | `social_learning`                 | Periodic copying of output-layer weights from successful Moore-neighbourhood teachers.           |
+| Epigenetic inheritance    | `epigenetics`                     | Lamarckian-style transmission of within-lifetime weight changes (Jablonka & Lamb 2005).         |
+| Clutch size evolution     | `clutch_size_evolution`           | Heritable clutch size evolves under the life-history trade-off between offspring number and cost.|
+| Parental investment       | `parental_investment_evolution`   | Heritable per-offspring energy allocation evolves jointly with clutch size.                      |
+| Stress hypermutation      | `stress_hypermutation`            | Mutation rate increases when agent energy falls below a threshold, accelerating escape from traps.|
 
 A typical experimental design fixes the brain type and toggles one module
 at a time, comparing the resulting `get_run_data()` outputs across
@@ -214,6 +233,19 @@ the Rcpp-based `alifeR` backend, and it scales smoothly to populations of
 The first call in an R session pays a one-off start-up cost (~30–60 s)
 for Julia compilation. Subsequent calls reuse the warm Julia session and
 return results immediately.
+
+## Where to go next
+
+The showcase vignette works through a richer set of experiments — combining
+multiple modules, comparing brain types, and reading the outputs with the
+analysis helpers:
+
+```{r showcase}
+vignette("showcase", package = "clade")
+```
+
+For full parameter documentation, see `?default_specs`. Each module's
+parameters are grouped in that help page under the module name.
 
 ## References
 
