@@ -622,7 +622,7 @@ search_gradient <- function(specs_base,
     "n_predators", "n_prey_killed", "n_juveniles", "n_helpers",
     "n_toxic_attacks", "n_avoided_attacks",
     "mean_signal_magnitude", "mean_toxicity", "mean_plasticity",
-    "mean_helper_tendency",
+    "mean_helper_tendency", "mean_habitat_preference",
     # Tier 1: complex landscape
     "n_ground_agents", "n_shrub_agents", "n_canopy_agents",
     "mean_wing_size", "mean_shrub_coverage", "mean_canopy_coverage",

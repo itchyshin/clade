@@ -829,7 +829,7 @@ FIG("scavenging")
 
 **What it models.** Offspring are carried by the parent until graduation at age
 `care_duration`. While carried, juveniles receive energy from the parent at
-`juvenile_energy_gain` per tick. If the parent dies, carried offspring die too
+`feeding_rate` per tick. If the parent dies, carried offspring die too
 (obligate altriciality). This models the evolutionary trade-off between clutch
 size and offspring quality (Smith & Fretwell 1974).
 
@@ -839,8 +839,8 @@ size and offspring quality (Smith & Fretwell 1974).
 |---|---|---|
 | `parental_care` | FALSE | Enable parental care |
 | `care_duration` | 5 | Ticks offspring are carried |
-| `care_energy_cost` | 2.0 | Energy drained from parent per juvenile per tick |
-| `juvenile_energy_gain` | 3.0 | Energy transferred to juvenile per tick |
+| `care_cost_per_tick` | 1.0 | Energy drained from parent per juvenile per tick |
+| `feeding_rate` | 5.0 | Energy transferred to juvenile per tick |
 
 **Expected output.** `n_juveniles` is positive. Per-capita offspring count may
 be lower than baseline (parents can carry fewer), but juvenile survival is
@@ -850,7 +850,7 @@ higher. Population dynamics are more buffered.
 s <- default_specs()
 s$parental_care     <- TRUE
 s$care_duration     <- 5L
-s$care_energy_cost  <- 2.0
+s$care_cost_per_tick <- 2.0
 s$max_ticks         <- 300L
 
 env  <- run_alife(s)
@@ -1019,11 +1019,11 @@ This scenario allows clutch size to evolve freely between `clutch_size_min` and
 | `grass_rate` | 0.10 | Resource renewal rate (varied between conditions) |
 
 **Expected output.** Under rich resources (`grass_rate = 0.4`),
-`mean_clutch_size` evolves towards the upper limit as high reproductive output
-is sustainable. Under scarce resources (`grass_rate = 0.05`), selection drives
-`mean_clutch_size` towards 1–2, consistent with the K end of the r/K
-continuum. The two conditions diverge substantially after approximately 150
-ticks.
+per-tick births are higher as large clutches are sustainable.
+Under scarce resources (`grass_rate = 0.05`), per-tick births are lower
+and the population is constrained by energy — consistent with the K end
+of the r/K continuum. The two conditions diverge substantially after
+approximately 150 ticks.
 
 ```{r clutch-size}
 library(clade)
@@ -1045,17 +1045,19 @@ d_rich <- get_run_data(run_alife(make_s(0.4)))$ticks
 d_scar <- get_run_data(run_alife(make_s(0.05)))$ticks
 
 df <- rbind(
-  cbind(d_rich[, c("t", "mean_clutch_size")], environment = "Rich (0.4)"),
-  cbind(d_scar[, c("t", "mean_clutch_size")], environment = "Scarce (0.05)")
+  cbind(d_rich[, c("t", "n_births")], environment = "Rich (0.4)"),
+  cbind(d_scar[, c("t", "n_births")], environment = "Scarce (0.05)")
 )
 
-ggplot(df, aes(t, mean_clutch_size, colour = environment)) +
-  geom_line() +
+ggplot(df, aes(t, n_births, colour = environment)) +
+  geom_line(alpha = 0.7) +
+  geom_smooth(method = "loess", se = FALSE, linewidth = 1.2) +
   scale_colour_manual(
     values = c("Rich (0.4)" = "#e41a1c", "Scarce (0.05)" = "#377eb8"),
     name = NULL) +
-  labs(title = "Clutch size evolution under contrasting resource availability",
-       x = "Tick", y = "Mean clutch size") +
+  labs(title = "Births per tick under contrasting resource availability",
+       subtitle = "Clutch size evolution enabled",
+       x = "Tick", y = "Births per tick") +
   theme_minimal()
 ```
 
@@ -1087,11 +1089,10 @@ provisioning and survival.
 | `male_repro_cost` | 0.3 | Energy cost to the male per reproductive event |
 
 **Expected output.** High maternal investment (`female_investment = 0.9`)
-produces fewer offspring per female per tick (greater parental cost) but
-increases mean energy at graduation, reflecting better-provisioned juveniles.
-Equal investment (`female_investment = 0.5`) produces more offspring but with
-lower mean juvenile energy. The trade-off is visible in `n_births` and
-`mean_juvenile_energy` trajectories.
+increases the per-offspring energy cost, so fewer births occur per tick.
+Equal investment (`female_investment = 0.5`) allows more births at lower
+per-offspring cost. The trade-off is visible in `n_births` and
+`n_juveniles` trajectories.
 
 ```{r parental-investment}
 library(clade)
@@ -1112,19 +1113,21 @@ d_hi <- get_run_data(run_alife(make_s(0.9)))$ticks
 d_eq <- get_run_data(run_alife(make_s(0.5)))$ticks
 
 df <- rbind(
-  cbind(d_hi[, c("t", "n_births", "mean_juvenile_energy")],
+  cbind(d_hi[, c("t", "n_births", "n_juveniles")],
         condition = "High maternal (0.9)"),
-  cbind(d_eq[, c("t", "n_births", "mean_juvenile_energy")],
+  cbind(d_eq[, c("t", "n_births", "n_juveniles")],
         condition = "Equal (0.5)")
 )
 
-ggplot(df, aes(t, mean_juvenile_energy, colour = condition)) +
-  geom_line() +
+ggplot(df, aes(t, n_births, colour = condition)) +
+  geom_line(alpha = 0.7) +
+  geom_smooth(method = "loess", se = FALSE, linewidth = 1.2) +
   scale_colour_manual(
     values = c("High maternal (0.9)" = "#e41a1c", "Equal (0.5)" = "#377eb8"),
     name = NULL) +
-  labs(title = "Juvenile energy by parental investment allocation",
-       x = "Tick", y = "Mean juvenile energy at graduation") +
+  labs(title = "Births per tick by parental investment allocation",
+       subtitle = "High maternal investment → fewer but better-provisioned offspring",
+       x = "Tick", y = "Births per tick") +
   theme_minimal()
 ```
 
@@ -1264,7 +1267,7 @@ and extended to continuous strategies by Hauert et al. (2002).
 | `cooperation_init_mean` | 0.5 | Initial mean cooperation tendency |
 | `cooperation_mutation_sd` | 0.05 | Mutation standard deviation on the trait |
 
-**Expected output.** Track `mean_cooperation_tendency` over ticks. When
+**Expected output.** Track `mean_cooperation_level` over ticks. When
 `cooperation_multiplier` exceeds the cost-benefit threshold (here
 2.5 > 1.0 / 0.5 = 2.0), cooperation is favoured and the population-mean
 tendency should rise toward 1.0; spatial structure sustains cooperation even at
@@ -1283,7 +1286,7 @@ s$max_ticks              <- 400L
 env  <- run_alife(s)
 data <- get_run_data(env)
 
-ggplot(data$ticks, aes(x = t, y = mean_cooperation_tendency)) +
+ggplot(data$ticks, aes(x = t, y = mean_cooperation_level)) +
   geom_line(colour = "#1b7837", linewidth = 0.8) +
   geom_smooth(method = "loess", se = TRUE, colour = "#762a83",
               fill = "#c2a5cf", alpha = 0.3) +

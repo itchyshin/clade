@@ -64,6 +64,7 @@ function _init_progress(specs::Dict{String,Any}, n_ticks::Int)::Dict{String,Vect
         "mean_toxicity"          => copy(fz),
         "mean_plasticity"        => copy(fz),
         "mean_helper_tendency"   => copy(fz),
+        "mean_habitat_preference" => copy(fz),
         # Tier 1: complex landscape
         "n_ground_agents"        => copy(iz),
         "n_shrub_agents"         => copy(iz),
@@ -179,7 +180,8 @@ function log_tick!(env::Environment)
         mean(sum(abs.(ag.signal)) for ag in ags) : 0.0
     p["mean_toxicity"][t]       = mean(ag.toxicity for ag in ags)
     p["mean_plasticity"][t]     = mean(ag.plasticity for ag in ags)
-    p["mean_helper_tendency"][t] = mean(ag.helper_tendency for ag in ags)
+    p["mean_helper_tendency"][t]    = mean(ag.helper_tendency for ag in ags)
+    p["mean_habitat_preference"][t] = mean(ag.habitat_preference for ag in ags)
 
     # Tier 1: complex landscape
     complex_on = Bool(get(env.specs, "complex_landscape", false))
