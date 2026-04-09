@@ -221,6 +221,175 @@ compute_ld <- function(run_data) {
   )
 }
 
+#' Inspect the brain structure of a single agent
+#'
+#' `inspect_brain()` extracts structural and statistical information from the
+#' brain of a named agent in `env$agents`. It supports both ANN brains
+#' (layers with `$W` and `$b`) and BNN brains (layers with `$mu` and
+#' `$sigma`). When the brain structure is unavailable it returns a minimal
+#' list with a note.
+#'
+#' @param env An environment list returned by [run_clade()].
+#' @param agent_id Integer. The `$id` field of the agent to inspect.
+#'   Defaults to `1L`.
+#'
+#' @return A named list with elements:
+#' \describe{
+#'   \item{`$brain_type`}{Character. Value of `env$specs$brain_type`.}
+#'   \item{`$n_layers`}{Integer. Number of layers in `brain$layers`.}
+#'   \item{`$layer_sizes`}{List of integer vectors `c(nrow, ncol)` for each
+#'     layer weight matrix.}
+#'   \item{`$n_weights`}{Integer. Total number of weight values across all
+#'     layers.}
+#'   \item{`$weight_mean`}{Numeric. Mean of all weights.}
+#'   \item{`$weight_sd`}{Numeric. Standard deviation of all weights.}
+#'   \item{`$weight_min`}{Numeric. Minimum weight value.}
+#'   \item{`$weight_max`}{Numeric. Maximum weight value.}
+#'   \item{`$sigma_mean`, `$sigma_sd`, `$sigma_min`, `$sigma_max`}{Numeric.
+#'     Statistics for the `$sigma` matrices (BNN brains only).}
+#'   \item{`$note`}{Character. Present only when `brain$layers` is
+#'     unavailable; explains why summary statistics are absent.}
+#' }
+#'
+#' @examples
+#' \dontrun{
+#' env <- run_clade(default_specs())
+#' inspect_brain(env, agent_id = 1L)
+#' }
+#'
+#' @seealso [get_brain_weights()], [run_clade()]
+#' @export
+inspect_brain <- function(env, agent_id = 1L) {
+  stopifnot(is.list(env), !is.null(env$agents))
+
+  # Locate agent by $id
+  idx <- NULL
+  for (i in seq_along(env$agents)) {
+    ag <- env$agents[[i]]
+    if (!is.null(ag$id) && identical(as.integer(ag$id), as.integer(agent_id))) {
+      idx <- i
+      break
+    }
+  }
+  if (is.null(idx))
+    stop(sprintf("No agent with id = %d found in env$agents.", agent_id),
+         call. = FALSE)
+
+  brain_type <- env$specs$brain_type
+  brain      <- env$agents[[idx]]$brain
+
+  # Guard: brain$layers missing or NULL
+  if (is.null(brain) || is.null(brain$layers) || length(brain$layers) == 0L) {
+    return(list(
+      brain_type = brain_type,
+      note       = "brain$layers is NULL or empty; structural summary unavailable."
+    ))
+  }
+
+  layers <- brain$layers
+  is_bnn <- identical(brain_type, "bnn")
+
+  # Weight matrix accessor: $W for ANN/CTRNN/GRN, $mu for BNN
+  w_key <- if (is_bnn) "mu" else "W"
+
+  layer_sizes <- lapply(layers, function(l) {
+    W <- l[[w_key]]
+    if (is.null(W)) return(c(NA_integer_, NA_integer_))
+    c(nrow(W), ncol(W))
+  })
+
+  all_weights <- unlist(lapply(layers, function(l) as.numeric(l[[w_key]])))
+  n_weights   <- length(all_weights)
+
+  out <- list(
+    brain_type  = brain_type,
+    n_layers    = length(layers),
+    layer_sizes = layer_sizes,
+    n_weights   = n_weights,
+    weight_mean = mean(all_weights),
+    weight_sd   = stats::sd(all_weights),
+    weight_min  = min(all_weights),
+    weight_max  = max(all_weights)
+  )
+
+  # BNN: add sigma statistics
+  if (is_bnn) {
+    all_sigma <- unlist(lapply(layers, function(l) as.numeric(l$sigma)))
+    out$sigma_mean <- mean(all_sigma)
+    out$sigma_sd   <- stats::sd(all_sigma)
+    out$sigma_min  <- min(all_sigma)
+    out$sigma_max  <- max(all_sigma)
+  }
+
+  out
+}
+
+#' Extract weight values from an agent's brain
+#'
+#' `get_brain_weights()` returns either all weights concatenated across layers
+#' (when `layer = NULL`) or the weight matrix for a single specified layer.
+#' For ANN brains the weight matrix is `$W`; for BNN brains it is `$mu`.
+#'
+#' @param env An environment list returned by [run_clade()].
+#' @param agent_id Integer. The `$id` field of the agent. Defaults to `1L`.
+#' @param layer Integer or NULL. If `NULL` (default), all weights are returned
+#'   as a named numeric vector. If an integer, the weight matrix for that layer
+#'   index is returned.
+#'
+#' @return A named numeric vector (when `layer = NULL`) or a numeric matrix
+#'   (when `layer` is specified).
+#'
+#' @examples
+#' \dontrun{
+#' env <- run_clade(default_specs())
+#' get_brain_weights(env, agent_id = 1L)           # all weights
+#' get_brain_weights(env, agent_id = 1L, layer = 1L) # layer-1 matrix
+#' }
+#'
+#' @seealso [inspect_brain()], [run_clade()]
+#' @export
+get_brain_weights <- function(env, agent_id = 1L, layer = NULL) {
+  stopifnot(is.list(env), !is.null(env$agents))
+
+  # Locate agent by $id
+  idx <- NULL
+  for (i in seq_along(env$agents)) {
+    ag <- env$agents[[i]]
+    if (!is.null(ag$id) && identical(as.integer(ag$id), as.integer(agent_id))) {
+      idx <- i
+      break
+    }
+  }
+  if (is.null(idx))
+    stop(sprintf("No agent with id = %d found in env$agents.", agent_id),
+         call. = FALSE)
+
+  brain      <- env$agents[[idx]]$brain
+  brain_type <- env$specs$brain_type
+  is_bnn     <- identical(brain_type, "bnn")
+  w_key      <- if (is_bnn) "mu" else "W"
+
+  if (is.null(brain) || is.null(brain$layers) || length(brain$layers) == 0L)
+    stop(sprintf("Agent %d has no brain$layers.", agent_id), call. = FALSE)
+
+  if (is.null(layer)) {
+    # Return all weights as a named numeric vector
+    unlist(lapply(seq_along(brain$layers), function(i) {
+      w <- as.numeric(brain$layers[[i]][[w_key]])
+      stats::setNames(w, paste0("L", i, "_", seq_along(w)))
+    }))
+  } else {
+    layer <- as.integer(layer)
+    if (layer < 1L || layer > length(brain$layers))
+      stop(sprintf("`layer` = %d is out of range (brain has %d layers).",
+                   layer, length(brain$layers)), call. = FALSE)
+    W <- brain$layers[[layer]][[w_key]]
+    if (is.null(W))
+      stop(sprintf("Layer %d has no `%s` matrix.", layer, w_key), call. = FALSE)
+    as.matrix(W)
+  }
+}
+
 #' Reconstruct a species tree from a logged simulation
 #'
 #' `species_tree()` is a placeholder. Phylogenetic reconstruction requires

@@ -181,3 +181,82 @@ test_that("estimate_heritability() returns NA when ticks has < 3 rows", {
   out <- estimate_heritability(rd, trait = "body_size")
   expect_true(is.na(out$h2))
 })
+
+# ── inspect_brain() and get_brain_weights() ───────────────────────────────────
+# These tests require a running Julia session to obtain a real env. When Julia
+# is unavailable the tests are skipped gracefully so that CRAN checks still
+# pass without a Julia toolchain.
+
+julia_available <- function() {
+  requireNamespace("JuliaConnectoR", quietly = TRUE) &&
+    JuliaConnectoR::juliaSetupOk()
+}
+
+# Mock env with a minimal ANN brain structure (used when Julia is not needed
+# to run the sim but the R-level logic can be exercised directly).
+.mock_brain_env <- function(brain_type = "ann") {
+  W1 <- matrix(rnorm(12), nrow = 4, ncol = 3)
+  b1 <- rnorm(4)
+  W2 <- matrix(rnorm(8), nrow = 2, ncol = 4)
+  b2 <- rnorm(2)
+  brain <- list(layers = list(
+    list(W = W1, b = b1, mu = W1, sigma = abs(W1) * 0.1),
+    list(W = W2, b = b2, mu = W2, sigma = abs(W2) * 0.1)
+  ))
+  list(
+    specs  = list(brain_type = brain_type),
+    agents = list(list(id = 1L, brain = brain, energy = 100,
+                       age = 0L, x = 1L, y = 1L))
+  )
+}
+
+# 16. inspect_brain() returns a list (Julia test)
+test_that("inspect_brain() returns a list", {
+  skip_if_not(julia_available(), "Julia not available")
+  env <- .mock_brain_env("ann")
+  out <- inspect_brain(env, agent_id = 1L)
+  expect_type(out, "list")
+})
+
+# 17. inspect_brain() contains brain_type element (Julia test)
+test_that("inspect_brain() result contains brain_type element", {
+  skip_if_not(julia_available(), "Julia not available")
+  env <- .mock_brain_env("ann")
+  out <- inspect_brain(env, agent_id = 1L)
+  expect_true("brain_type" %in% names(out))
+  expect_equal(out$brain_type, "ann")
+})
+
+# 18. inspect_brain() contains n_layers >= 1 (Julia test)
+test_that("inspect_brain() result has n_layers >= 1", {
+  skip_if_not(julia_available(), "Julia not available")
+  env <- .mock_brain_env("ann")
+  out <- inspect_brain(env, agent_id = 1L)
+  expect_true("n_layers" %in% names(out))
+  expect_gte(out$n_layers, 1L)
+})
+
+# 19. inspect_brain() with non-existent agent_id throws error (Julia test)
+test_that("inspect_brain() errors on a non-existent agent_id", {
+  skip_if_not(julia_available(), "Julia not available")
+  env <- .mock_brain_env("ann")
+  expect_error(inspect_brain(env, agent_id = 999L),
+               regexp = "No agent with id = 999")
+})
+
+# 20. get_brain_weights() returns numeric vector with length > 0 (Julia test)
+test_that("get_brain_weights() returns a numeric vector with length > 0", {
+  skip_if_not(julia_available(), "Julia not available")
+  env <- .mock_brain_env("ann")
+  w <- get_brain_weights(env, agent_id = 1L)
+  expect_type(w, "double")
+  expect_gt(length(w), 0L)
+})
+
+# 21. get_brain_weights() with layer=1 returns a matrix (Julia test)
+test_that("get_brain_weights() with layer = 1 returns a matrix", {
+  skip_if_not(julia_available(), "Julia not available")
+  env <- .mock_brain_env("ann")
+  W <- get_brain_weights(env, agent_id = 1L, layer = 1L)
+  expect_true(is.matrix(W))
+})
