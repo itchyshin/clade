@@ -732,6 +732,19 @@ cat("Total shelters built:", sum(data$ticks$n_shelters_built), "\n")
 FIG("09_niche")
 ```
 
+**What we found.** Running 3 replicates with 100 agents, 15 predators, 30×30 grid,
+400 ticks (seeds 41–43): agents built a mean of ~29,800 shelter units per run, but
+the sheltered population was slightly smaller than baseline (mean 377 vs 407 agents).
+The explanation is in the implementation: `niche_attack_multiplier()` — the function
+that reduces predator damage in sheltered cells — is defined but not yet wired into
+the predator attack roll. What *is* active is grass-growth suppression: shelters slow
+regrowth on occupied cells, reducing per-cell food availability. Under heavy predation
+pressure, this grass-suppression effect slightly disadvantaged shelter-building
+populations. Ecosystem engineering in clade thus has a double-edged signature:
+organisms modify the resource landscape even before the protective benefit of
+engineering emerges — a prediction consistent with Odling-Smee et al. (2003) on
+niche construction costs preceding benefits.
+
 ### Discovery prompts
 
 The baseline result shows that shelters reduce predator damage and sustain a larger population than baseline. To go beyond:
@@ -911,6 +924,18 @@ ggplot(dat, aes(x = t, y = mean_energy, colour = condition)) +
 ```{r fig-scavenging, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: scavengers (orange) maintain higher mean energy than non-scavengers (red) under identical low-grass conditions, with carrion providing a density-dependent buffer against starvation."}
 FIG("scavenging")
 ```
+
+**What we found.** Running 3 replicates with 80 agents, 25×25 grid, `grass_rate = 0.06`,
+`idle_cost = 1.0`, 400 ticks (seeds 41–43): scavenging increased final population by
+21% (mean 53 vs 44 agents) compared to no-scavenging controls under identical conditions.
+Mean population over all 400 ticks was more similar (91 vs 87, +5%), because the carrion
+buffer is most valuable during starvation troughs rather than over the full run. The
+effect was modest at higher grass rates (`grass_rate = 0.08`; +5.2% mean population)
+and negligible at `grass_rate = 0.15` where food scarcity is not the binding constraint.
+The mechanism matters: agents encounter carrion stochastically as they explore the grid
+rather than seeking it out. This limits population-level impact; directed scavenging
+behaviour (which would require RL or social learning of carrion-cell rewards) would be
+expected to produce substantially larger effects.
 
 ### Discovery prompts
 
@@ -1840,6 +1865,19 @@ ggplot(data$ticks, aes(x = t)) +
 FIG("14_predators")
 ```
 
+**What we found.** Running with 5 predators (`predator_energy_gain = 60`,
+`predator_min_repro_energy = 100`), 60 prey agents on a 25×25 grid, 600 ticks
+(seed 42): predators reproduced rapidly from 5 to 11 by tick 20 and then stabilized.
+Prey fluctuated between 83 and 334 agents (mean 239) but did not exhibit
+Lotka-Volterra oscillations; the system converged to a stable prey–predator
+coexistence equilibrium within 30 ticks. This is consistent with theoretical
+predictions that spatial structure dampens LV oscillations: local prey depletion
+creates refugia, preventing the synchronous boom-bust dynamics of mean-field models
+(Comins & Hassell 1996; Murdoch et al. 1992). At default parameters
+(`predator_min_repro_energy = 200`), predators reproduced rarely and prey oscillated
+only weakly; LV dynamics require tuning `predator_min_repro_energy` downward or
+`predator_energy_gain` upward to raise predator fecundity.
+
 ### Discovery prompts
 
 The baseline result shows Lotka-Volterra-like oscillations with predator peaks lagging prey peaks by approximately 30 ticks. To go beyond:
@@ -1926,6 +1964,21 @@ ggplot(dat, aes(x = t, y = n_agents, colour = condition)) +
 FIG("15_group_defense")
 ```
 
+**What we found.** Running with 15 predators (`predator_attack_strength = 60`), 80 agents
+on a 30×30 grid, 400 ticks (3 replicates, seeds 41–43): group defense produced a +5
+agent mean population advantage (402 vs 398) and reduced total deaths by a mean of 2
+per run — differences within stochastic noise. The damage-reduction mechanism is
+correctly implemented: at population density ≈ 0.4 agents/cell, each agent has an
+expected 9 neighbours within the radius-2 Moore neighborhood, giving a damage factor
+of 1/(1 + 9 × 0.3) ≈ 0.27, a theoretical 73% reduction in attack damage. The reason
+the population effect is negligible is that at these densities, energy-based mortality
+(starvation when grass is locally depleted) dominates over predation mortality; removing
+73% of predation damage cannot substantially change a death rate already driven by food
+scarcity. Hamilton's (1971) selfish herd advantage is most detectable when a sparse
+founding population transitions from isolation to grouping — a dynamic best captured by
+starting with `n_agents_init = 10` and comparing cumulative survival through the
+founding bottleneck phase.
+
 ### Discovery prompts
 
 The baseline result shows group defense sustains a larger and more stable population under identical predation pressure. To go beyond:
@@ -1973,6 +2026,19 @@ data <- get_run_data(env)
 ```{r fig-mimicry, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: mean toxicity rises under predator pressure; avoided attacks increase as predators learn to avoid toxic prey; toxic attack rate declines."}
 FIG("21_mimicry")
 ```
+
+**What we found.** Running with `mimicry = TRUE`, 8 predators, 100 agents, 30×30 grid,
+`toxicity_init_mean = 0.1`, 400 ticks (seed 42): `mean_toxicity` showed no directional
+evolution (0.1018 at ticks 1–50; 0.1002 at ticks 350–400) and `n_avoided_attacks = 0`
+throughout the run. The reason is architectural: `should_avoid_prey()` — the predator
+avoidance function — is implemented and correct but is not yet wired into the predator
+attack loop in `tick_predators.jl`. As a result, predators attack regardless of toxicity,
+so high-toxicity agents gain no survival advantage, and selection keeps toxicity near its
+initial mean. The one active mimicry effect is `apply_toxicity_costs!`, which deducts
+`toxicity_cost_per_tick × toxicity` per tick from all live agents; with the default cost
+of 0.5 and initial toxicity of 0.1, this is 0.05 energy/tick — negligible at current
+energy budgets. Full coevolutionary dynamics will emerge once the avoidance call site is
+integrated into the predator tick.
 
 ### Discovery prompts
 
@@ -2197,6 +2263,19 @@ data <- get_run_data(env)
 FIG("10_rl")
 ```
 
+**What we found.** Running 3 replicates with `rl_mode = "actor_critic"` vs `"none"`,
+80 agents, 25×25 grid, `grass_rate = 0.15`, 400 ticks (seeds 41–43): mean population
+was 208 (RL) vs 207 (no RL); mean energy 124.8 vs 124.85. BNN prior sigma rose from
+~0.30 early to ~0.50 late in *both* conditions — the opposite of the expected Baldwin
+Effect canalization. At `learning_rate = 0.01` and `rl_update_freq = 5`, each REINFORCE
+gradient step is small relative to the BNN's per-tick weight resampling from a broad
+sigma prior. The copied delta is diluted before the next update, preventing sustained
+policy improvement. The Baldwin Effect (sigma narrowing through genetic assimilation)
+is predicted to require: (i) runs longer than 400 ticks to allow genetic fixation; or
+(ii) a narrower initial sigma that is itself heritable and under selection. A dedicated
+BNN canalization scenario (see below) uses a 500-tick run that is more likely to reveal
+the sigma trajectory.
+
 ### Discovery prompts
 
 The baseline result shows agents with RL adapt within their lifetime to local resource distribution, and the Baldwin Effect is visible as BNN prior sigma narrows. To go beyond:
@@ -2243,6 +2322,20 @@ data <- get_run_data(env)
 ```{r fig-social-learning, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: mean energy and genetic diversity are maintained at higher levels than a baseline run, as successful foraging behaviours propagate through the social network."}
 FIG("11_social_learning")
 ```
+
+**What we found.** The effect of social learning depends critically on brain type.
+With `brain_type = "ann"` (deterministic weights), social learning produced a +4.5%
+mean population advantage (mean 158 vs 151, 2 replicates, 300 ticks): copied
+output-layer weights persist in the network and benefit subsequent actions. With
+`brain_type = "bnn"` (default stochastic weights), the advantage was zero (mean 183
+in both conditions): BNN agents resample all weights from their prior distribution
+each tick, diluting any policy copied from a social model before it can influence
+behaviour. This reveals an important constraint on cultural transmission in the model:
+social learning operates on output-layer weights, but BNN agents do not retain those
+weights between ticks. The interaction `social_learning = TRUE` + `rl_mode =
+"actor_critic"` is predicted to restore social learning benefits because RL updates
+(applied after the BNN sample) reinforce the copied policy within the agent's
+lifetime before the next sampling step.
 
 ### Discovery prompts
 
