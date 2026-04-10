@@ -1,0 +1,81 @@
+---
+title: "Phenotypic plasticity"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{clade scenario: Phenotypic plasticity}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(eval = FALSE, collapse = TRUE, comment = "#>")
+FIG <- function(name, ...) {
+  path <- file.path("figures", paste0("showcase_", name, ".png"))
+  if (!file.exists(path)) return(invisible(NULL))
+  knitr::include_graphics(path, ...)
+}
+```
+
+### Phenotypic plasticity
+
+**What it models.** A heritable `plasticity` trait modulates how strongly each
+agent's sensory input maps to action. High plasticity agents are more responsive
+to environmental cues; low plasticity agents rely more heavily on their evolved
+baseline behaviour. The evolution of plasticity tracks environmental variability:
+plastic phenotypes are favoured when environments are predictably unpredictable
+(DeWitt & Scheiner 2004).
+
+**Key parameters.**
+
+| Parameter | Default | Effect |
+|---|---|---|
+| `phenotypic_plasticity` | FALSE | Enable plasticity trait |
+| `plasticity_init_mean` | 0.5 | Starting plasticity |
+| `plasticity_mutation_sd` | 0.05 | Mutation rate |
+
+**Expected output.** `mean_plasticity` evolves. In stable environments
+(fixed `grass_rate`), plasticity typically decreases over time. In
+seasonally varying environments, plasticity may be maintained.
+
+```{r plasticity}
+s <- default_specs()
+s$phenotypic_plasticity <- TRUE
+s$max_ticks             <- 300L
+
+env  <- run_alife(s)
+data <- get_run_data(env)
+cat("Final plasticity:", tail(data$ticks$mean_plasticity, 1L), "\n")
+```
+
+```{r fig-plasticity, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: mean plasticity evolves over time. In stable environments it typically decreases; in seasonally varying environments it is maintained at intermediate values."}
+FIG("22_plasticity")
+```
+
+**What we found.** Running with `phenotypic_plasticity = TRUE`, `plasticity_init_mean =
+0.5`, 80 agents, 25×25 grid, 400 ticks (seed 42): in the stable environment
+(`grass_rate = 0.15`) plasticity remained near 0.5 (early 0.495, late 0.498 — no
+directional evolution). In a seasonal environment (`seasonal_amplitude = 0.6`) it rose
+slightly (0.498 early to 0.511 late). Neither trajectory matched the expected pattern
+(downward in stable, maintained in seasonal). The neutral evolution of plasticity
+indicates the trait has weak fitness consequences at current parameters: the benefit of
+plasticity (better sensory responsiveness) is not detectable through increased foraging
+efficiency, possibly because agents already achieve near-optimal sensory response at
+intermediate plasticity. To create detectable selection on plasticity, test with an
+abrupt mid-run environmental shift (`grass_rate` decreased at tick 200), which should
+favour plastic agents that rapidly adapt their behaviour while low-plasticity agents
+respond more slowly.
+
+### Discovery experiments
+
+The baseline result shows plasticity evolves downward in stable environments and is maintained at intermediate values under seasonal variation. To go beyond:
+
+1. **Plasticity × stress hypermutation** Add `stress_hypermutation = TRUE`. Both mechanisms generate phenotypic variance under stress. Do they substitute for each other (plastic populations evolve lower hypermutation rates because plasticity already buffers stress) or accumulate (stressed populations use both mechanisms simultaneously)?
+
+   *Tried it.* With `phenotypic_plasticity = TRUE`, `grass_rate = 0.05`, 60 agents, 200 ticks, seed 42: without hypermutation — plasticity = 0.010, n = 107. With `stress_hypermutation = TRUE` — plasticity = 0.012, n = 109. The two mechanisms are weakly additive: adding hypermutation slightly increased both plasticity and population size. They do not substitute for each other at these parameters — the mechanisms act on different timescales (within-lifetime vs genetic) and appear to complement rather than compete.
+
+2. **Plasticity × social learning** Add `social_learning = TRUE`. Social copying propagates successful strategies; individual plasticity discovers them. Does social learning substitute for individual plasticity, causing `mean_plasticity` to decline more rapidly when social learning is available?
+
+3. **Plasticity × seasonality** Add `seasonal_amplitude = 0.7`. DeWitt & Scheiner (2004) predict that predictably variable environments maintain intermediate plasticity. Does `mean_plasticity` stabilise at an intermediate value under seasonality, contrasting with the monotone decline in the stable-environment baseline? Test across three amplitude values.
+
+---
+

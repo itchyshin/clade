@@ -1,0 +1,112 @@
+---
+title: "Parental investment"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{clade scenario: Parental investment}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(eval = FALSE, collapse = TRUE, comment = "#>")
+FIG <- function(name, ...) {
+  path <- file.path("figures", paste0("showcase_", name, ".png"))
+  if (!file.exists(path)) return(invisible(NULL))
+  knitr::include_graphics(path, ...)
+}
+```
+
+### Parental investment: quality versus quantity
+
+**What it models.** Trivers (1972) proposed that the sex that invests more per
+offspring should be the one that is more choosy in mate selection, because its
+reproductive success is more constrained by parental effort than by mate access.
+Houston & Davies (1985) extended this to biparental care games, showing that
+evolutionarily stable investment levels depend on the shape of the offspring
+fitness function. This scenario holds `parental_care = TRUE` and varies
+`female_investment` — the fraction of care energetics contributed by the female
+— to examine how the allocation of investment between parents affects offspring
+provisioning and survival.
+
+**Key parameters.**
+
+| Parameter | Default | Effect |
+|---|---|---|
+| `parental_investment_evolution` | FALSE | Allow investment proportions to evolve |
+| `parental_care` | FALSE | Enable offspring carrying and provisioning |
+| `female_investment` | 0.7 | Fraction of total care energy contributed by the mother |
+| `male_repro_cost` | 0.3 | Energy cost to the male per reproductive event |
+
+**Expected output.** High maternal investment (`female_investment = 0.9`)
+increases the per-offspring energy cost, so fewer births occur per tick.
+Equal investment (`female_investment = 0.5`) allows more births at lower
+per-offspring cost. The trade-off is visible in `n_births` and
+`n_juveniles` trajectories.
+
+```{r parental-investment}
+library(clade)
+library(ggplot2)
+
+make_s <- function(fi) {
+  s <- default_specs()
+  s$parental_care                 <- TRUE
+  s$parental_investment_evolution <- TRUE
+  s$female_investment             <- fi
+  s$male_repro_cost               <- 0.3
+  s$max_ticks                     <- 400L
+  s$random_seed                   <- 11L
+  s
+}
+
+d_hi <- get_run_data(run_alife(make_s(0.9)))$ticks
+d_eq <- get_run_data(run_alife(make_s(0.5)))$ticks
+
+df <- rbind(
+  cbind(d_hi[, c("t", "n_births", "n_juveniles")],
+        condition = "High maternal (0.9)"),
+  cbind(d_eq[, c("t", "n_births", "n_juveniles")],
+        condition = "Equal (0.5)")
+)
+
+ggplot(df, aes(t, n_births, colour = condition)) +
+  geom_line(alpha = 0.7) +
+  geom_smooth(method = "loess", se = FALSE, linewidth = 1.2) +
+  scale_colour_manual(
+    values = c("High maternal (0.9)" = "#e41a1c", "Equal (0.5)" = "#377eb8"),
+    name = NULL) +
+  labs(title = "Births per tick by parental investment allocation",
+       subtitle = "High maternal investment → fewer but better-provisioned offspring",
+       x = "Tick", y = "Births per tick") +
+  theme_minimal()
+```
+
+```{r fig-parental-investment, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: high maternal investment (red) produces fewer but better-provisioned offspring; equal investment (blue) produces more offspring at lower individual quality, illustrating the quality-quantity trade-off."}
+FIG("parental_investment")
+```
+
+**What we found.** The parental investment trade-off (quantity vs quality) depends on the
+parental care module, which — as documented in the Parental care scenario above — is not
+yet wired into the Julia tick loop. Running with `parental_care = TRUE` and varying
+`feeding_rate` and `care_duration` produces `n_juveniles = 0` in all conditions because
+the graduation pathway is not active. The population dynamics differ only through
+stochastic variation (variance: care conditions 4,565 vs no-care 5,267 in a 300-tick
+run). The code above is correct and will reveal the quality-quantity trade-off once
+the obligate altricial graduation mechanism is integrated. When wired: high
+`feeding_rate` per offspring with low `max_offspring` should produce fewer but higher-
+energy adult offspring; equal per-offspring investment should produce more offspring of
+lower individual quality, with resource-dependent crossing of their fitness curves.
+
+### Discovery experiments
+
+The baseline result shows the quality-quantity trade-off: high maternal investment produces fewer but better-provisioned offspring. To go beyond:
+
+1. **Investment × brain size** Add `brain_size_evolution = TRUE`. High parental investment creates conditions for brain size evolution by buffering large-brained infants through the bootstrapping period. Does `female_investment = 0.9` produce higher final `mean_brain_size` than `female_investment = 0.5`? How does this interact with `brain_size_cost_scale`?
+
+   *Tried it.* With `brain_size_evolution = TRUE`, `brain_size_cost_scale = 2.0`, `care_duration = 10L`, 60 agents, 200 ticks, seed 42: female_investment = 0.5 produced final brain = 1.111 (n = 89); female_investment = 0.9 produced final brain = 1.083 (n = 86). Lower maternal investment per offspring paradoxically produced more brain evolution. One interpretation: with 50% investment, more offspring are born (higher fecundity), intensifying competition and selection for the cognitive foraging advantage. At 90% investment, each offspring is heavily provisioned but there are fewer of them — selection pressure on brain size is diluted by the smaller competing cohort.
+
+2. **Investment × kin selection** Add `kin_selection = TRUE`. Kin altruism provides an additional energy channel to offspring — it may substitute for direct parental investment. Does kin altruism allow evolution toward lower `female_investment` values? Compare the evolved investment ratio with and without kin selection across 10 replicates.
+
+3. **Biparental game** Vary `female_investment` from 0.1 to 0.9 across nine values in `batch_alife()`. Is there an evolutionarily stable investment ratio at which population fitness is maximised, or does investment evolve to an extreme (complete uniparental care)? Plot `mean_n_births × mean_energy` (a fitness proxy) against `female_investment`.
+
+---
+

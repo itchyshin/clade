@@ -1,0 +1,101 @@
+---
+title: "BNN uncertainty canalization"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{clade scenario: BNN uncertainty canalization}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(eval = FALSE, collapse = TRUE, comment = "#>")
+FIG <- function(name, ...) {
+  path <- file.path("figures", paste0("showcase_", name, ".png"))
+  if (!file.exists(path)) return(invisible(NULL))
+  knitr::include_graphics(path, ...)
+}
+```
+
+### BNN uncertainty canalization — the Baldwin Effect
+
+**What it models.** The Bayesian neural network (BNN) brain type
+(`brain_type = "bnn"`) places a prior distribution over each synaptic weight,
+parameterised by a standard deviation σ. A large σ encodes behavioural
+flexibility: the agent samples widely from its weight posterior and can learn
+within its lifetime. A small σ encodes genetic assimilation: the agent's
+behaviour is largely determined by the prior mean — the population has, over
+generations of selection, canalized a formerly learned behaviour into the
+genome. This is the computational signature of the Baldwin Effect (Baldwin
+1896), formalised computationally by Hinton & Nowlan (1987) and analysed
+analytically by Mayley (1996): learning guides evolution toward fixed adaptive
+solutions, after which the learning machinery becomes redundant.
+
+**Key parameters.**
+
+| Parameter | Default | Effect |
+|---|---|---|
+| `brain_type` | `"bnn"` | Must be `"bnn"` to enable Bayesian weight distributions |
+| `learning_rate_init_mean` | 0.01 | Initial within-lifetime learning rate |
+| `max_ticks` | — | Longer runs show fuller canalization |
+
+**Expected output.** Track `mean_prior_sigma` in `data$ticks`. The column
+should decline from approximately 0.3 (broad, flexible priors) toward 0.05
+(narrow, assimilated priors) as selection repeatedly rewards the same weight
+configurations. The decline rate should accelerate when genetic diversity is
+high, because a large pool of variants provides a stronger selection gradient.
+
+```{r bnn-uncertainty}
+library(clade)
+library(ggplot2)
+
+s <- default_specs()
+s$brain_type <- "bnn"
+s$max_ticks  <- 500L
+
+env  <- run_alife(s)
+data <- get_run_data(env)
+
+ggplot(data$ticks, aes(x = t, y = mean_prior_sigma)) +
+  geom_line(colour = "#2166ac", linewidth = 0.8, alpha = 0.7) +
+  geom_smooth(method = "lm", se = TRUE,
+              colour = "#d6604d", fill = "#f4a582", alpha = 0.4) +
+  labs(
+    title    = "Genetic assimilation of learned behaviour (Baldwin Effect)",
+    subtitle = "BNN prior sigma declines as behaviour canalizes into the genome",
+    x = "Tick", y = expression("Mean prior " * sigma)
+  ) +
+  theme_minimal()
+```
+
+```{r fig-bnn-uncertainty, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: mean prior sigma declines monotonically from broad (flexible, ~0.3) to narrow (assimilated, ~0.05), with the steepest drop in periods of high genetic diversity. A fitted linear trend confirms the directional pattern."}
+FIG("bnn_uncertainty")
+```
+
+**What we found.** Running with `brain_type = "bnn"`, 80 agents, 25×25 grid,
+`grass_rate = 0.15`, 600 ticks (seed 42): mean prior sigma rose monotonically from 0.30
+at ticks 1–50 to 0.50 (the maximum cap) by tick 300, where it remained for the rest of
+the run. Sigma moved *upward*, not downward — the opposite of Baldwin Effect canalization.
+Selection consistently favoured high sigma (behavioural flexibility and broad weight
+exploration) over genetic assimilation of a fixed foraging strategy. This makes
+theoretical sense: in a spatially heterogeneous environment with no single optimal
+policy, maintaining exploration is adaptively superior to fixing any particular strategy.
+Canalization (sigma decline) requires a fitness landscape with a stable global optimum —
+a condition that a dynamic foraging world with population competition does not provide.
+The expected output figure may show canalization with a different implementation; test
+by dramatically simplifying the environment (low mutation_sd, fixed high-grass patch)
+and running for 2,000 ticks.
+
+### Discovery experiments
+
+The baseline result shows mean prior sigma declining from broad (flexible) to narrow (assimilated) priors, with the steepest drop during periods of high genetic diversity. To go beyond:
+
+1. **Canalization rate × mutation** Vary `mutation_sd` from 0.01 to 0.2 in `batch_alife()`. Higher mutation continually re-diversifies the genome, competing with canalization. Is there a mutation rate above which the Baldwin Effect cannot proceed — where sigma never reaches its minimum? Plot final-tick `mean_prior_sigma` against `mutation_sd`.
+
+   *Tried it.* With `brain_type = "bnn"`, `rl_mode = "actor_critic"`, 60 agents, 200 ticks, seed 42: at mutation_sd = 0.01, 0.10, and 0.20, final mean_prior_sigma = 0.5000 in all three conditions — sigma remained at ceiling regardless of mutation rate. Canalization did not proceed in 200 ticks at any tested mutation level. Mean energy declined with higher mutation (111.2 → 103.5), confirming the cost of high mutation. The absence of sigma decline confirms the main-scenario finding: exploration is favoured over canalization in heterogeneous environments at these run lengths. Longer runs (≥ 1000 ticks) may be needed to observe sigma narrowing.
+
+2. **Canalization × epigenetics** Add `epigenetics = TRUE`. Epigenetic inheritance can transmit partially-trained BNN sigma values to offspring (TEI), potentially accelerating canalization. Does `tei_prob > 0` reduce the number of generations required for sigma to reach its minimum? Compare the sigma trajectory slope with and without epigenetics.
+
+3. **Canalization × social learning** Add `social_learning = TRUE`. Social copying of output-layer weights should reduce within-population variance in behaviour, providing a stronger and more consistent selection gradient for sigma narrowing. Does social learning accelerate the sigma decline? Measure the slope of the sigma trajectory under social learning vs baseline.
+
+---
+

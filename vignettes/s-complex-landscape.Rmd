@@ -1,0 +1,104 @@
+---
+title: "Complex landscape"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{clade scenario: Complex landscape}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(eval = FALSE, collapse = TRUE, comment = "#>")
+FIG <- function(name, ...) {
+  path <- file.path("figures", paste0("showcase_", name, ".png"))
+  if (!file.exists(path)) return(invisible(NULL))
+  knitr::include_graphics(path, ...)
+}
+```
+
+### Complex landscape (forest world)
+
+**What it models.** A three-layer habitat: ground (grass), shrubs (mid-level),
+and canopy (top). Shrubs and canopy have higher energy density but slower
+regrowth. Canopy access requires a minimum `wing_size` (a heritable trait).
+This creates a selection pressure for wing-size evolution and niche
+partitioning. The scenario is structurally analogous to the
+*cephalopod paradox* (Liedtke & Fromhage 2019): a rich resource is accessible
+only to agents that have evolved the morphology to exploit it.
+
+**Key parameters.**
+
+| Parameter | Default | Effect |
+|---|---|---|
+| `complex_landscape` | FALSE | Enable this module |
+| `shrub_density` | 0.35 | Fraction of cells with shrubs |
+| `shrub_energy` | 25.0 | Energy gained from shrubs |
+| `shrub_growth_rate` | 0.04 | Shrub regrowth rate |
+| `canopy_density` | 0.15 | Fraction of cells with canopy |
+| `canopy_energy` | 55.0 | Energy gained from canopy |
+| `canopy_threshold` | 0.6 | Minimum wing_size for canopy access |
+| `wing_size_init_mean` | 0.1 | Starting wing size |
+| `wing_size_mutation_sd` | 0.05 | Wing size mutation rate |
+
+**Expected output.** `mean_wing_size` rises over time. `n_canopy_agents`
+increases as wing-size evolution crosses the `canopy_threshold`.
+Niche entropy (ground/shrub/canopy mix) first rises then stabilises.
+
+```{r complex-landscape}
+s <- default_specs()
+s$complex_landscape   <- TRUE
+s$shrub_density       <- 0.35
+s$canopy_density      <- 0.15
+s$canopy_energy       <- 55.0
+s$canopy_threshold    <- 0.6
+s$wing_size_init_mean <- 0.1
+s$max_ticks           <- 400L
+
+env  <- run_alife(s)
+data <- get_run_data(env)
+
+# Wing size evolution
+plot(data$ticks$t, data$ticks$mean_wing_size, type = "l",
+     xlab = "Tick", ylab = "Mean wing size",
+     main = "Wing size evolution in the forest world")
+```
+
+Use `tune_complex_landscape()` to find parameter combinations that
+produce strong wing-size evolution with CMA-ES:
+
+```{r tune-landscape}
+tuned <- tune_complex_landscape(default_specs(), n_iterations = 80L)
+tuned$specs   # optimal landscape parameters
+```
+
+```{r fig-complex-landscape, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: agents stratify across ground, shrub, and canopy layers as wing size evolves past the canopy threshold."}
+FIG("16_habitat_preference")
+```
+
+**What we found.** At the default `canopy_threshold = 0.6` and `wing_size_init_mean = 0.1`,
+no agents accessed the canopy layer over 500 ticks: the 0.5-unit gap between initial wing
+size and threshold is too large for mutation-selection (mutation_sd = 0.05) to bridge when
+shrubs (density = 0.35) provide ample alternative food. Reducing the threshold to 0.20 and
+shrub density to 0.08 (sparse shrubs that do not fully satisfy foraging demand) produced
+clear wing-size evolution: mean wing_size rose from 0.10 to 0.113 by tick 500 (+13%),
+and canopy agents first appeared at tick 57, stabilising at ~17 canopy agents (12% of
+the population) by tick 250. This demonstrates the key calibration principle: the canopy
+is exploited only when (a) the threshold is achievable by mutation from the initial mean,
+and (b) alternative resources are scarce enough that the canopy energy difference is
+fitness-relevant. Run `tune_complex_landscape()` with CMA-ES to find optimal parameter
+combinations automatically.
+
+### Discovery experiments
+
+The baseline result shows that wing size evolves upward as agents discover and exploit the energetically richer canopy layer. To go beyond:
+
+1. **RL-assisted discovery** Add `rl_mode = "actor_critic"`. Within-lifetime RL allows agents to discover canopy cells during their lifetime rather than relying purely on heritable wing size. Does RL reduce the selective pressure on `wing_size_evolution`, producing a lower equilibrium `mean_wing_size`? Watch whether `n_canopy_agents` reaches the same level with smaller wing size under RL.
+
+   *Tried it.* With `complex_landscape = TRUE`, 60 agents, 200 ticks, seed 42: RL condition final n = 221 with mean energy 141.0 vs no-RL final n = 228, mean energy 139.9. Adding RL slightly reduced population size (agents explore more and incur higher move costs) but improved mean energy per agent. The energy gain per agent is higher under RL — within-lifetime learning improves individual foraging efficiency in the heterogeneous landscape even without genetic specialisation.
+
+2. **Predation drives canopy use** Add `n_predators_init = 5L`. Do predators drive agents into the canopy as a refuge, accelerating `mean_wing_size` evolution even at the cost of slower grass foraging? Watch whether `n_canopy_agents` increases more rapidly under predation and whether the interaction depends on `predator_attack_strength`.
+
+3. **Seasonal canopy value** Add `seasonal_amplitude = 0.7`. If ground-layer grass depletes seasonally, does canopy become relatively more valuable in winter, intensifying selection on wing size during lean periods? Measure the amplitude of `mean_wing_size` fluctuation against seasonal phase across three amplitude values.
+
+---
+

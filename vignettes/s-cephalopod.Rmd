@@ -1,0 +1,122 @@
+---
+title: "The cephalopod paradox"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{clade scenario: The cephalopod paradox}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(eval = FALSE, collapse = TRUE, comment = "#>")
+FIG <- function(name, ...) {
+  path <- file.path("figures", paste0("showcase_", name, ".png"))
+  if (!file.exists(path)) return(invisible(NULL))
+  knitr::include_graphics(path, ...)
+}
+```
+
+### The cephalopod paradox — short lifespan selects for fast learning
+
+**What it models.** Classical life-history theory predicts that long-lived
+organisms should invest more heavily in learning, because only a long lifespan
+provides enough time to recoup the energetic costs of a large brain (the payback
+period argument). The cephalopod paradox inverts this prediction: octopuses and
+squid have among the shortest lifespans of any large-brained animal, yet they
+express sophisticated within-lifetime learning. Liedtke & Fromhage (2019)
+formalised the resolution: when lifespan is too brief for genetic evolution to
+converge on food-finding solutions, within-lifetime learning becomes the only
+viable mechanism for adaptive behaviour. Here, `complex_landscape = TRUE`
+creates a heterogeneous resource topology that cannot be solved by a fixed
+behavioural rule, and `learning_rate_evolution = TRUE` allows the genome to
+optimise how quickly agents update their neural weights from experience.
+
+**Key parameters.**
+
+| Parameter | Default | Effect |
+|---|---|---|
+| `max_age` | — | Maximum agent lifespan in ticks |
+| `complex_landscape` | FALSE | Enables spatially heterogeneous, shifting resource patches |
+| `learning_rate_evolution` | FALSE | Makes the within-lifetime learning rate a heritable trait |
+| `learning_rate_init_mean` | 0.01 | Initial mean evolved learning rate |
+
+**Expected output.** The evolved mean learning rate (recorded at the final tick
+of each run) should be highest at short `max_age` values and decline as
+lifespan increases, because long-lived agents can afford to rely on genetic
+evolution to encode solutions directly. The relationship need not be monotone
+at very short lifespans, where agents have too little experience to benefit
+from any learning.
+
+```{r cephalopod}
+library(clade)
+library(ggplot2)
+
+lifespans  <- c(20L, 50L, 100L, 200L)
+specs_list <- lapply(lifespans, function(ma) {
+  s <- default_specs()
+  s$max_age               <- ma
+  s$complex_landscape     <- TRUE
+  s$learning_rate_evolution <- TRUE
+  s$max_ticks             <- 400L
+  s
+})
+names(specs_list) <- paste0("max_age_", lifespans)
+
+results <- batch_alife(specs_list, n_cores = 4L)
+
+lr_df <- do.call(rbind, mapply(function(env, ma) {
+  d <- get_run_data(env)$ticks
+  data.frame(
+    max_age       = ma,
+    mean_lr_final = tail(d$mean_learning_rate, 1L)
+  )
+}, results, lifespans, SIMPLIFY = FALSE))
+
+ggplot(lr_df, aes(x = max_age, y = mean_lr_final)) +
+  geom_line(colour = "#e08214", linewidth = 1) +
+  geom_point(size = 3, colour = "#8073ac") +
+  labs(
+    title    = "The cephalopod paradox: short lifespan selects for fast learning",
+    subtitle = "Evolved mean learning rate at end of run, by maximum lifespan",
+    x = "Maximum lifespan (ticks)", y = "Evolved mean learning rate"
+  ) +
+  theme_minimal()
+```
+
+```{r fig-cephalopod, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: evolved learning rate is highest under the shortest lifespan (max_age = 20) and declines as lifespan increases, consistent with the cephalopod paradox. Genetic evolution substitutes for within-lifetime learning when the payback period is long enough."}
+FIG("cephalopod_paradox")
+```
+
+**What we found.** Running with `rl_mode = "actor_critic"`, `learning_rate = 0.05`,
+80 agents, 25×25 grid, `grass_rate = 0.15`, 400 ticks, under two lifespan conditions
+(2 replicates each, seeds 41–42): short-lived agents (`max_age = 15`) nearly went
+extinct (mean population 8, energy 66, mean age 4.4 ticks), while long-lived agents
+(`max_age = 200`) thrived (mean population 209, energy 126, mean age 87 ticks). With
+only 4.4 ticks of experience on average, short-lived agents die before RL can accumulate
+sufficient gradient steps to improve foraging — they pay the startup cost of learning
+(exploration) without reaching the benefit phase (exploitation). This is precisely the
+paradox: actual cephalopods (octopuses, cuttlefish) ARE short-lived AND demonstrably
+intelligent (fast learners). The model predicts their strategy should fail, yet it does
+not. Candidate resolutions are compressed learning schedules (higher `learning_rate`),
+social learning transmission of trained policies, or epigenetic inheritance of
+behavioural priors — all testable as cross-module interactions.
+
+### Discovery experiments
+
+The baseline result shows evolved learning rate is highest at short lifespans and declines as lifespan increases, consistent with the cephalopod paradox. To go beyond:
+
+1. **Landscape × lifespan interaction** Cross `max_age ∈ {20, 50, 100, 200}` with `complex_landscape ∈ {TRUE, FALSE}` in an 8-condition `batch_alife()`. Is the paradox (short lifespan → faster evolved learning rate) amplified by landscape complexity, or does it emerge even in spatially homogeneous environments? The prediction is that landscape complexity is required to make learning beneficial at all.
+
+   *Tried it (social substitution variant).* With `max_age = 20L`, `rl_mode = "actor_critic"`, 60 agents, 200 ticks, seed 42: without social learning final n = 2 (near extinction); with `social_learning = TRUE` final n = 0 (extinct, mean energy 22.5). Social learning made the cephalopod paradox *worse*, not better. With max_age = 20, agents have too few ticks to refine copied weights before dying; social copying propagates near-zero-quality policies from dying agents, creating a positive feedback loop toward extinction. Social substitution requires agents to live long enough to both copy and improve — at max_age = 20, neither is possible.
+
+2. **Social substitution** Add `social_learning = TRUE` across the same lifespan gradient. Can social copying substitute for individual RL in short-lived agents, relieving the selection for high `mean_learning_rate`? Compare the slope of the lifespan–learning rate relationship with and without social learning.
+
+3. **Epigenetic priors** Add `epigenetics = TRUE`. Does epigenetic inheritance of BNN sigma values transmit partially-trained priors to offspring, reducing the effective payback period for learning? Does TEI make the cephalopod paradox disappear at intermediate lifespans (e.g. `max_age = 50`) by allowing offspring to begin with partially optimised priors?
+
+---
+
+
+## Theme 7 — Discovery experiments {#theme-7}
+
+*Combinatorial, computational, and open-ended experiments. These sections combine multiple modules simultaneously, search parameter space algorithmically, or use the simulation itself as a model organism for meta-scientific questions. No discovery prompts are given here — these sections are already the discovery layer.*
+

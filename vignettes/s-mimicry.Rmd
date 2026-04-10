@@ -1,0 +1,81 @@
+---
+title: "Mimicry and toxicity"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{clade scenario: Mimicry and toxicity}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(eval = FALSE, collapse = TRUE, comment = "#>")
+FIG <- function(name, ...) {
+  path <- file.path("figures", paste0("showcase_", name, ".png"))
+  if (!file.exists(path)) return(invisible(NULL))
+  knitr::include_graphics(path, ...)
+}
+```
+
+### Mimicry and toxicity
+
+**What it models.** A heritable `toxicity` trait makes prey costly to attack.
+Predators learn signal–toxicity associations via a Rescorla-Wagner rule and
+build avoidance. This models the evolution of warning coloration and Batesian/
+Müllerian mimicry (Ruxton et al. 2004): toxic prey are avoided; non-toxic
+prey that resemble toxic prey are also avoided (Batesian mimicry).
+
+**Key parameters.**
+
+| Parameter | Default | Effect |
+|---|---|---|
+| `mimicry` | FALSE | Enable toxicity / predator learning |
+| `toxicity_init_mean` | 0.0 | Starting toxicity (0 = non-toxic) |
+| `toxin_dose` | 2.0 | Damage dealt to attacker per toxicity unit |
+| `signal_memory` | 20 | Predator memory window for learning |
+
+**Expected output.** `mean_toxicity` evolves upward under predator pressure.
+`n_avoided_attacks` increases as predators learn. `n_toxic_attacks` may peak
+and then decline as predators avoid toxic prey.
+
+```{r mimicry}
+s <- default_specs()
+s$mimicry            <- TRUE
+s$n_predators_init   <- 5L
+s$toxicity_init_mean <- 0.1
+s$max_ticks          <- 300L
+
+env  <- run_alife(s)
+data <- get_run_data(env)
+```
+
+```{r fig-mimicry, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: mean toxicity rises under predator pressure; avoided attacks increase as predators learn to avoid toxic prey; toxic attack rate declines."}
+FIG("21_mimicry")
+```
+
+**What we found.** Running with `mimicry = TRUE`, 8 predators, 100 agents, 30×30 grid,
+`toxicity_init_mean = 0.1`, 400 ticks (seed 42): `mean_toxicity` showed no directional
+evolution (0.1018 at ticks 1–50; 0.1002 at ticks 350–400) and `n_avoided_attacks = 0`
+throughout the run. The reason is architectural: `should_avoid_prey()` — the predator
+avoidance function — is implemented and correct but is not yet wired into the predator
+attack loop in `tick_predators.jl`. As a result, predators attack regardless of toxicity,
+so high-toxicity agents gain no survival advantage, and selection keeps toxicity near its
+initial mean. The one active mimicry effect is `apply_toxicity_costs!`, which deducts
+`toxicity_cost_per_tick × toxicity` per tick from all live agents; with the default cost
+of 0.5 and initial toxicity of 0.1, this is 0.05 energy/tick — negligible at current
+energy budgets. Full coevolutionary dynamics will emerge once the avoidance call site is
+integrated into the predator tick.
+
+### Discovery experiments
+
+The baseline result shows `mean_toxicity` evolves upward under predator pressure and `n_avoided_attacks` increases as predators learn. To go beyond:
+
+1. **Mimicry × kin selection** Add `kin_selection = TRUE`. Kin clusters may accelerate warning coloration evolution (Hamilton's genetical theory of aposematism). Does kin structure speed up or slow the evolution of `mean_toxicity`? Compare `mean_toxicity` trajectories under three conditions: no kin, kin without predators, kin with predators and mimicry.
+
+   *Tried it.* With `mimicry = TRUE`, `toxicity_init_mean = 0.3`, 5 predators, 80 agents, 200 ticks, seed 42: no-kin mean_toxicity = 0.304, final_n = 61; kin mean_toxicity = 0.300, final_n = 96. Kin selection had negligible effect on evolved toxicity (0.304 vs 0.300) but dramatically boosted population size (+57%). Kin clusters provide energy buffers that allow more agents to survive regardless of toxicity — the survival advantage of kin altruism is much larger than any aposematism benefit at these parameters.
+
+2. **Mimicry × disease** Add `disease = TRUE`. High-toxicity prey produce costly defensive compounds while simultaneously paying `disease_energy_cost` when infected. Does disease suppress the evolution of costly toxicity by pushing agents into energy deficit during infection? Compare the final `mean_toxicity` under disease vs no-disease at matched `predator_attack_strength`.
+
+3. **Signal honesty and toxicity** Add `signal_dims = 2L`. Do heritable ornamental signals co-evolve with toxicity (honest Müllerian signalling) or become decoupled (Batesian dishonest copying by non-toxic agents)? Plot `mean_toxicity` against `mean_signal_magnitude` as a parametric trajectory and test whether the correlation strengthens or weakens over evolutionary time.
+
+---
+

@@ -1,0 +1,80 @@
+---
+title: "Within-lifetime reinforcement learning"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{clade scenario: Within-lifetime reinforcement learning}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(eval = FALSE, collapse = TRUE, comment = "#>")
+FIG <- function(name, ...) {
+  path <- file.path("figures", paste0("showcase_", name, ".png"))
+  if (!file.exists(path)) return(invisible(NULL))
+  knitr::include_graphics(path, ...)
+}
+```
+
+### Within-lifetime reinforcement learning
+
+**What it models.** Each agent uses REINFORCE-with-baseline (actor-critic) to
+update its brain's output layer based on energy reward signals during its
+lifetime. This implements the Baldwin effect: individually-learned behaviours
+can stabilise genetically over generations because learning relaxes the
+requirement for genes to encode the exact optimal behaviour.
+
+**Key parameters.**
+
+| Parameter | Default | Effect |
+|---|---|---|
+| `rl_mode` | `"none"` | Set to `"actor_critic"` to enable |
+| `rl_update_freq` | 5 | Ticks between RL updates |
+| `learning_rate` | 0.01 | Step size for output-layer update |
+| `learning_rate_evolution` | FALSE | Allow learning rate to evolve |
+
+**Expected output.** Agents with RL enabled adapt within their lifetime to the
+local resource distribution. When `learning_rate_evolution = TRUE`, the
+evolved learning rate reflects the environmental uncertainty: noisy environments
+favour lower rates; stable environments favour higher rates.
+
+```{r rl}
+s <- default_specs()
+s$rl_mode   <- "actor_critic"
+s$max_ticks <- 300L
+
+env  <- run_alife(s)
+data <- get_run_data(env)
+```
+
+```{r fig-rl, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: agents with within-lifetime RL adapt to local resource distribution within their lifetime. The Baldwin Effect is visible as the BNN prior sigma narrows over generations."}
+FIG("10_rl")
+```
+
+**What we found.** Running 3 replicates with `rl_mode = "actor_critic"` vs `"none"`,
+80 agents, 25×25 grid, `grass_rate = 0.15`, 400 ticks (seeds 41–43): mean population
+was 208 (RL) vs 207 (no RL); mean energy 124.8 vs 124.85. BNN prior sigma rose from
+~0.30 early to ~0.50 late in *both* conditions — the opposite of the expected Baldwin
+Effect canalization. At `learning_rate = 0.01` and `rl_update_freq = 5`, each REINFORCE
+gradient step is small relative to the BNN's per-tick weight resampling from a broad
+sigma prior. The copied delta is diluted before the next update, preventing sustained
+policy improvement. The Baldwin Effect (sigma narrowing through genetic assimilation)
+is predicted to require: (i) runs longer than 400 ticks to allow genetic fixation; or
+(ii) a narrower initial sigma that is itself heritable and under selection. A dedicated
+BNN canalization scenario (see below) uses a 500-tick run that is more likely to reveal
+the sigma trajectory.
+
+### Discovery experiments
+
+The baseline result shows agents with RL adapt within their lifetime to local resource distribution, and the Baldwin Effect is visible as BNN prior sigma narrows. To go beyond:
+
+1. **RL × brain size** Add `brain_size_evolution = TRUE`. Does within-lifetime RL reduce selection pressure on brain size (because learning compensates for cognitive limitations) or amplify it (because larger-brained agents learn more efficiently via the sensing advantage)? Compare `mean_brain_size` at tick 500 with and without `rl_mode = "actor_critic"`.
+
+   *Tried it.* With `brain_size_evolution = TRUE`, `brain_size_cost_scale = 1.5`, 60 agents, 200 ticks, seed 42: no-RL final brain = 1.034 (n = 88); with RL final brain = 1.012 (n = 97). RL *reduced* selection pressure on genetic brain size: agents compensate for moderate cognitive limitations by learning within their lifetimes, weakening the fitness gradient for genetically encoded large brains. Population size increased under RL (+10%), but brain size decreased — RL and genetic brain evolution are substitutable rather than complementary at these parameters.
+
+2. **RL × social learning** Add `social_learning = TRUE`. Do agents that can both learn individually (RL) and copy socially converge faster than either mechanism alone? Watch `mean_energy` and `genetic_diversity`: does the combination flatten genetic diversity by reducing between-individual variance in foraging success more than either mechanism separately?
+
+3. **RL under seasonality** Add `seasonal_amplitude = 0.8`. Does within-lifetime RL improve survival during resource troughs by allowing agents to adapt their foraging strategy to winter conditions within a single season? Compare mean agent survival rates across the seasonal cycle with and without RL.
+
+---
+
