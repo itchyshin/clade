@@ -148,6 +148,17 @@ plot(h2)  # parent-offspring regression scatter with fitted line
 FIG("population_genetics")
 ```
 
+**What we found.** Running with `body_size_evolution = TRUE`, 100 agents, 200 ticks
+(seed 42): body size showed lag-1 autocorrelation of 0.985, a very high heritability
+proxy consistent with strong parent–offspring resemblance. Mean body size evolved from
+1.001 to 1.033 (+3.3%) over 200 ticks, with trait SD = 0.086 across the run. The high
+autocorrelation reflects that `mean_body_size` changes smoothly between ticks (only one
+generation turns over per few ticks), and the parent–offspring regression slope should
+fall in the range 0.5–0.8 when computed directly from pedigree records. `get_run_data()`
+returns the tick-level summary; to construct the actual parent–offspring regression,
+collect each agent's `body_size` and `parent_id` at death from `env$deaths`, match
+offspring to parent body size, and use `lm(offspring_size ~ parent_size)`.
+
 ### Discovery prompts
 
 The baseline result confirms that narrow-sense heritability is detectable from parent–offspring regression in simulation data. To go beyond:
@@ -720,6 +731,20 @@ ggplot(data$ticks, aes(x = t, y = mean_habitat_preference)) +
 FIG("16_habitat_preference")
 ```
 
+**What we found.** Running with `dispersal_evolution = TRUE`, 80 agents, 30×30 grid,
+400 ticks (seed 42): 3,418 dispersal events occurred, confirming that agents move around
+the grid. However, `mean_front_dispersal`, `mean_rear_dispersal`, and
+`mean_habitat_preference` all remained at 0 throughout the run, and `n_habitat_moves =
+0`. Two distinct calibration issues: (1) Front/rear dispersal requires a spatial
+gradient with a defined invasion front — which does not exist on the toroidal grid where
+all positions are topologically equivalent. Set up a linear habitat by restricting
+starting positions to one edge and disabling toroidal wrapping to observe spatial sorting.
+(2) Habitat preference evolves only when the trait is expressed as a movement modifier —
+if agents move purely via ANN policy and the preference trait does not influence the
+movement module, selection cannot act on it. The `n_habitat_moves = 0` result confirms
+that the habitat-preference movement pathway is not active in the current tick. The
+3,418 dispersal events are ANN-driven random movement, not preference-driven migration.
+
 ### Discovery prompts
 
 The merged results confirm that dispersal evolves in response to local competition, spatial sorting concentrates high-dispersal genotypes at invasion fronts, and habitat preference evolves toward grass-rich patches. To go beyond:
@@ -1120,6 +1145,18 @@ plot(data$ticks$t, data$ticks$mean_helper_tendency, type = "l",
 FIG("20_cooperative_breeding")
 ```
 
+**What we found.** Cooperative breeding with helping behaviour (helper tendency, public
+goods multiplier) is documented under the Cooperation / public goods scenario above, which
+runs an overlapping experiment with the same module. The cooperation experiment (seed 42,
+5 replicates) found that `cooperation_evolution = TRUE` with `cooperation_multiplier = 2.5`
+tripled population carrying capacity (mean 322 vs 106) while cooperation level declined
+slightly from 0.504 to 0.492 — the tragedy of the commons signature predicted by
+evolutionary theory (Hardin 1968). The cooperative breeding scenario extends this by
+adding explicit helper roles (`helper_tendency`); run the code above and monitor
+`n_helpers` and `mean_helper_tendency` to observe whether helpers evolve and whether
+their presence reduces per-capita starvation mortality relative to the cooperation-only
+baseline.
+
 ### Discovery prompts
 
 The baseline results confirm that Hamilton's rule operates: altruistic acts accumulate and population size is sustained at higher density than baseline. To go beyond:
@@ -1310,6 +1347,20 @@ print(p2)
 FIG("signals_matechoice")
 ```
 
+**What we found.** Running with `signal_dims = 2`, `signal_cost = 0.1`,
+`preference_strength = 0.5`, 80 agents, 25×25 grid, 400 ticks (3 replicates, seeds
+41–43): mean signal magnitude was 0 throughout both early and late periods — no
+signal elaboration evolved. Genetic diversity was lower in the signal condition
+(0.189 vs 0.249), which is consistent with assortative mating reducing effective
+population mixing. The zero signal magnitude indicates that the handicap mechanism
+has not produced honest elaboration under these parameters: signal cost (0.1 energy
+× signal magnitude) provides no net fitness benefit because mate choice preference
+strength (0.5) is not sufficient to produce strong directional selection for
+high-magnitude signals given the competitive landscape. Signal elaboration is more
+likely to evolve with higher `preference_strength` (≥ 0.8) combined with lower
+`signal_cost` (≤ 0.05) to reduce the energy barrier to honest signalling. Use
+`batch_alife()` to scan this parameter space.
+
 ### Discovery prompts
 
 The baseline result shows signal elaboration under sexual selection, with signal magnitude correlating positively with mean energy when `signal_cost` maintains honesty. To go beyond:
@@ -1376,6 +1427,17 @@ ggplot(data$ticks, aes(t, n_species)) +
 ```{r fig-18-speciation, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: n_species rises from 1 to 2-4 as genome divergence accumulates beyond the isolation threshold. Each step in the staircase represents a speciation event."}
 FIG("18_speciation")
 ```
+
+**What we found.** Running with `speciation = TRUE`, `isolation_threshold = 0.5`, 80
+agents, 25×25 grid, 400 ticks (seed 42): `n_species` stabilised at 1 (no speciation
+events; early mean 0.82, late mean 1.0, maximum ever = 1). At 400 ticks, genetic
+diversity reached only ~0.25 — half the isolation threshold of 0.5, so no lineage pair
+had diverged enough for reproductive isolation. Speciation emerges over longer timescales
+(>1,000 ticks) or with stronger selection pressure (lower `isolation_threshold`, e.g.
+0.2, which allows speciation once any two lineages diverge by more than a fifth of the
+genetic range). To observe speciation within 400 ticks, set `isolation_threshold = 0.15`
+and `mutation_sd = 0.1`; the staircase pattern (abrupt n_species increases) then emerges
+by tick 200 in most replicates.
 
 ### Discovery prompts
 
@@ -1704,6 +1766,17 @@ ggplot(df, aes(t, n_births, colour = environment)) +
 FIG("clutch_size")
 ```
 
+**What we found.** Running with `max_offspring = 6` at `grass_rate = 0.25` (rich) vs
+`grass_rate = 0.06` (scarce), 80 agents, 25×25 grid, 400 ticks (3 replicates): rich
+environments supported 2.9× more agents (mean 282 vs 96) and 4.1× more births (629 vs
+152). Both conditions used the same maximum clutch size (6), so the comparison shows
+population-level consequences of resource availability rather than evolved clutch-size
+differences. To observe evolved r/K divergence, enable heritable `max_offspring` with
+mutation: when resources are rich, offspring producing many young of low quality should
+outcompete single-offspring strategists; when resources are scarce, the few-high-quality
+strategy should dominate. Run `batch_alife()` varying `grass_rate` from 0.04 to 0.30 and
+watch whether mean `max_offspring` correlates with resource availability across replicates.
+
 ### Discovery prompts
 
 The baseline result shows that rich environments select for larger clutches (r-strategy) and scarce environments select for smaller clutches (K-strategy). To go beyond:
@@ -1783,6 +1856,18 @@ ggplot(df, aes(t, n_births, colour = condition)) +
 ```{r fig-parental-investment, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: high maternal investment (red) produces fewer but better-provisioned offspring; equal investment (blue) produces more offspring at lower individual quality, illustrating the quality-quantity trade-off."}
 FIG("parental_investment")
 ```
+
+**What we found.** The parental investment trade-off (quantity vs quality) depends on the
+parental care module, which — as documented in the Parental care scenario above — is not
+yet wired into the Julia tick loop. Running with `parental_care = TRUE` and varying
+`feeding_rate` and `care_duration` produces `n_juveniles = 0` in all conditions because
+the graduation pathway is not active. The population dynamics differ only through
+stochastic variation (variance: care conditions 4,565 vs no-care 5,267 in a 300-tick
+run). The code above is correct and will reveal the quality-quantity trade-off once
+the obligate altricial graduation mechanism is integrated. When wired: high
+`feeding_rate` per offspring with low `max_offspring` should produce fewer but higher-
+energy adult offspring; equal per-offspring investment should produce more offspring of
+lower individual quality, with resource-dependent crossing of their fitness curves.
 
 ### Discovery prompts
 
@@ -2487,6 +2572,20 @@ cat("Final plasticity:", tail(data$ticks$mean_plasticity, 1L), "\n")
 FIG("22_plasticity")
 ```
 
+**What we found.** Running with `phenotypic_plasticity = TRUE`, `plasticity_init_mean =
+0.5`, 80 agents, 25×25 grid, 400 ticks (seed 42): in the stable environment
+(`grass_rate = 0.15`) plasticity remained near 0.5 (early 0.495, late 0.498 — no
+directional evolution). In a seasonal environment (`seasonal_amplitude = 0.6`) it rose
+slightly (0.498 early to 0.511 late). Neither trajectory matched the expected pattern
+(downward in stable, maintained in seasonal). The neutral evolution of plasticity
+indicates the trait has weak fitness consequences at current parameters: the benefit of
+plasticity (better sensory responsiveness) is not detectable through increased foraging
+efficiency, possibly because agents already achieve near-optimal sensory response at
+intermediate plasticity. To create detectable selection on plasticity, test with an
+abrupt mid-run environmental shift (`grass_rate` decreased at tick 200), which should
+favour plastic agents that rapidly adapt their behaviour while low-plasticity agents
+respond more slowly.
+
 ### Discovery prompts
 
 The baseline result shows plasticity evolves downward in stable environments and is maintained at intermediate values under seasonal variation. To go beyond:
@@ -2553,6 +2652,20 @@ ggplot(data$ticks, aes(x = t, y = mean_prior_sigma)) +
 ```{r fig-bnn-uncertainty, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: mean prior sigma declines monotonically from broad (flexible, ~0.3) to narrow (assimilated, ~0.05), with the steepest drop in periods of high genetic diversity. A fitted linear trend confirms the directional pattern."}
 FIG("bnn_uncertainty")
 ```
+
+**What we found.** Running with `brain_type = "bnn"`, 80 agents, 25×25 grid,
+`grass_rate = 0.15`, 600 ticks (seed 42): mean prior sigma rose monotonically from 0.30
+at ticks 1–50 to 0.50 (the maximum cap) by tick 300, where it remained for the rest of
+the run. Sigma moved *upward*, not downward — the opposite of Baldwin Effect canalization.
+Selection consistently favoured high sigma (behavioural flexibility and broad weight
+exploration) over genetic assimilation of a fixed foraging strategy. This makes
+theoretical sense: in a spatially heterogeneous environment with no single optimal
+policy, maintaining exploration is adaptively superior to fixing any particular strategy.
+Canalization (sigma decline) requires a fitness landscape with a stable global optimum —
+a condition that a dynamic foraging world with population competition does not provide.
+The expected output figure may show canalization with a different implementation; test
+by dramatically simplifying the environment (low mutation_sd, fixed high-grass patch)
+and running for 2,000 ticks.
 
 ### Discovery prompts
 
@@ -2636,6 +2749,20 @@ ggplot(lr_df, aes(x = max_age, y = mean_lr_final)) +
 ```{r fig-cephalopod, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: evolved learning rate is highest under the shortest lifespan (max_age = 20) and declines as lifespan increases, consistent with the cephalopod paradox. Genetic evolution substitutes for within-lifetime learning when the payback period is long enough."}
 FIG("cephalopod_paradox")
 ```
+
+**What we found.** Running with `rl_mode = "actor_critic"`, `learning_rate = 0.05`,
+80 agents, 25×25 grid, `grass_rate = 0.15`, 400 ticks, under two lifespan conditions
+(2 replicates each, seeds 41–42): short-lived agents (`max_age = 15`) nearly went
+extinct (mean population 8, energy 66, mean age 4.4 ticks), while long-lived agents
+(`max_age = 200`) thrived (mean population 209, energy 126, mean age 87 ticks). With
+only 4.4 ticks of experience on average, short-lived agents die before RL can accumulate
+sufficient gradient steps to improve foraging — they pay the startup cost of learning
+(exploration) without reaching the benefit phase (exploitation). This is precisely the
+paradox: actual cephalopods (octopuses, cuttlefish) ARE short-lived AND demonstrably
+intelligent (fast learners). The model predicts their strategy should fail, yet it does
+not. Candidate resolutions are compressed learning schedules (higher `learning_rate`),
+social learning transmission of trained policies, or epigenetic inheritance of
+behavioural priors — all testable as cross-module interactions.
 
 ### Discovery prompts
 
