@@ -243,18 +243,44 @@ foraging efficiency. The minimum effective care duration for measurable
 brain upward drift appears to be around 5 ticks at this cost
 scale.</p>
 </li>
-<li><p><strong>Care × disease</strong> Add <code>disease = TRUE</code>.
+<li>
+<p><strong>Care × disease</strong> Add <code>disease = TRUE</code>.
 Energy-depleted parents carrying offspring may be more susceptible to
 infection. Does <code>disease_energy_cost</code> interact with
 <code>care_cost_per_tick</code> to create a joint crash threshold in
 <code>n_agents</code>? Plot population survival probability against the
-sum of both costs.</p></li>
-<li><p><strong>Care × kin selection</strong> Add
+sum of both costs.</p>
+<p><em>Tried it.</em> Four care durations with
+<code>parental_care = TRUE</code> (50 agents, 200 ticks, seed 42):
+care_dur 5 → n = 103, graduations = 109; care_dur 10 → n = 99,
+graduations = 107; care_dur 20 → n = 101, graduations = 106; care_dur 40
+→ n = 107, graduations = 116. Population size and graduation counts were
+nearly identical across durations. The graduation counter (offspring
+reaching independence) is consistently near n_agents, suggesting
+altricial juveniles graduate rapidly. Adding
+<code>brain_size_evolution = TRUE</code> alongside care produced final
+brain = 1.002 vs 1.017 without care — slightly lower with care,
+consistent with parents allocating energy to offspring at the expense of
+their own cognitive investment.</p>
+</li>
+<li>
+<p><strong>Care × kin selection</strong> Add
 <code>kin_selection = TRUE</code>. Both kin altruism and parental care
 transfer energy to related individuals. Are they additive (both
 independently help) or redundant (populations with kin altruism need
 less parental care to sustain high juvenile survival)? Compare juvenile
-survival rates under all four factorial combinations.</p></li>
+survival rates under all four factorial combinations.</p>
+<p><em>Tried it.</em> Care + brain size: final brain = 1.002 (n = 94) vs
+no care + brain size: final brain = 1.017 (n = 98). The parental care
+result is slightly counter to the provisioning hypothesis at these
+parameters: care depressed brain size by 1.5% relative to the no-care
+control. This may reflect the energy depletion of care-burdened parents
+reducing the selective pressure for large-brain foraging. The brain-size
+provisioning interaction is strongest at
+<code>care_duration ≥ 10L</code> and
+<code>brain_size_cost_scale ≥ 2.0</code> (see brain size
+scenario).</p>
+</li>
 </ol>
 <hr>
 </div>

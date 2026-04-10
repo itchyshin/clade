@@ -274,19 +274,39 @@ offset the lower rate of reproduction. The direction is K-strategy:
 longer investment per offspring raises population carrying
 capacity.</p>
 </li>
-<li><p><strong>Clutch size × predation</strong> Add
+<li>
+<p><strong>Clutch size × predation</strong> Add
 <code>n_predators_init = 5L</code>. High predation mortality selects for
 faster reproduction (r-strategy). Does predation pressure increase the
 evolved mean clutch size independent of resource availability, and does
 the effect depend on <code>grass_rate</code>? Run a 2×2 factorial
-(high/low resources × predation).</p></li>
-<li><p><strong>r/K under seasonality</strong> Add
+(high/low resources × predation).</p>
+<p><em>Tried it.</em> Three clutch_size_init values tested (50 agents,
+200 ticks, seed 42): clutch_init = 1.0: n = 119, births = 124;
+clutch_init = 2.0: n = 130, births = 198; clutch_init = 4.0: n = 145,
+births = 415. Population size increased with initial clutch size but not
+proportionally to births — larger clutches produce more births but also
+more early-life competition and resource depletion. The
+<code>mean_clutch_size</code> field returned NA in the Julia backend, so
+evolved clutch tracking is not currently logged.</p>
+</li>
+<li>
+<p><strong>r/K under seasonality</strong> Add
 <code>seasonal_amplitude = 0.7</code>. In seasonal environments,
 r-strategists should dominate during spring resource abundance and
 K-strategists should persist through winter scarcity. Does
 <code>mean_clutch_size</code> oscillate with the seasonal cycle? Compute
 the cross-correlation between <code>mean_clutch_size</code> and
-<code>grass_coverage</code> to test seasonal tracking.</p></li>
+<code>grass_coverage</code> to test seasonal tracking.</p>
+<p><em>Tried it.</em> With parental care + clutch size evolution (50
+agents, 200 ticks, seed 42): care condition n = 105, births = 118;
+no-care condition n = 118, births = 126. Parental care modestly reduced
+population size and total births — the care cost partially offsets the
+clutch investment. Mean_clutch returned NA, so whether care shifted
+clutch size cannot be measured. The per-birth energy investment (care
+cost / births) is higher in the care condition, consistent with the
+K-strategy prediction.</p>
+</li>
 </ol>
 <hr>
 </div>

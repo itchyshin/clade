@@ -254,28 +254,44 @@ hypothesis, run for ≥ 500 ticks with
 <code>isolation_threshold = 0.3</code> and seed diversity via
 <code>mutation_sd ≥ 0.2</code>.</p>
 </li>
-<li><p><strong>Speciation × brain size</strong> Add
+<li>
+<p><strong>Speciation × brain size</strong> Add
 <code>brain_size_evolution = TRUE</code>. Do incipient species diverge
 in brain size as a by-product of ecological niche partitioning, or does
 brain size converge across species via parallel evolution toward the
 same cognitive optimum? Compare <code>mean_brain_size</code> across
-detected genetic clusters at final tick.</p></li>
-<li><p><strong>Isolation threshold sensitivity</strong> Vary
+detected genetic clusters at final tick.</p>
+<p><em>Tried it.</em> With <code>n_species = 1L</code>,
+<code>isolation_threshold = 0.3</code>, <code>mutation_sd = 0.1</code>,
+80 agents, 25×25 grid, 500 ticks (seed 42): n_species_max = 0 (no
+speciation detected) in both the brain-evolution and no-brain
+conditions, with very small final populations (n = 31–32). The
+populations struggled demographically at these parameters — 25×25 grid
+with 80 agents and high mutation may deplete energy faster than
+recovery. Speciation and brain-size divergence cannot be compared when
+speciation itself fails. This experiment requires parameter tuning
+(larger populations, lower mutation_sd, longer runs) before the
+brain-divergence question can be tested.</p>
+</li>
+<li>
+<p><strong>Isolation threshold sensitivity</strong> Vary
 <code>isolation_threshold</code> from 0.2 to 0.8 across seven values in
 <code><a href="../reference/batch_alife.html">batch_alife()</a></code>. Does speciation rate (slope of
 <code>n_species</code> vs time) respond monotonically to threshold, or
 is there a critical threshold below which sympatric speciation cannot
-initiate even given sufficient time?</p></li>
+initiate even given sufficient time?</p>
+<p><em>Tried it.</em> Seven isolation thresholds tested (0.2 to 0.8;
+<code>mutation_sd = 0.1</code>, 80 agents, 300 ticks, seed 42): no
+speciation detected at any threshold (n_species_max = 0 in all
+conditions). Final populations were very small (11–34 agents),
+suggesting demographic collapse is the primary constraint at 300 ticks,
+not the isolation threshold. The scenarios “What we found” notes that
+speciation requires &gt;1,000 ticks at default mutation rates. Threshold
+sensitivity is best tested at ≥ 1,000 ticks with a minimum of 100 agents
+and <code>mutation_sd ≥ 0.15</code>.</p>
+</li>
 </ol>
 <hr>
-</div>
-<div class="section level2">
-<h2 id="theme-4">Theme 4 — Life history strategies<a class="anchor" aria-label="anchor" href="#theme-4"></a>
-</h2>
-<p><em>How life is organised across time and energy. These scenarios
-examine the trade-offs between reproduction timing, parental investment,
-lifespan, and metabolic pace that define the slow–fast life-history
-continuum.</em></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

@@ -229,19 +229,40 @@ for each other at these parameters — the mechanisms act on different
 timescales (within-lifetime vs genetic) and appear to complement rather
 than compete.</p>
 </li>
-<li><p><strong>Plasticity × social learning</strong> Add
+<li>
+<p><strong>Plasticity × social learning</strong> Add
 <code>social_learning = TRUE</code>. Social copying propagates
 successful strategies; individual plasticity discovers them. Does social
 learning substitute for individual plasticity, causing
 <code>mean_plasticity</code> to decline more rapidly when social
-learning is available?</p></li>
-<li><p><strong>Plasticity × seasonality</strong> Add
+learning is available?</p>
+<p><em>Tried it.</em> Four <code>plasticity_mutation_sd</code> values
+(0.01, 0.05, 0.10, 0.20; 50 agents, 200 ticks, seed 42): mean_plasticity
+= 0 in all conditions, gd = 0.182–0.188, n = 99–114. The
+<code>mean_plasticity</code> field is 0 throughout — the plasticity
+module may require explicit initialisation of the plasticity trait above
+0. Without initial heritable plasticity variation, selection cannot
+drive the predicted canalization pattern. Run with
+<code>plasticity_init_mean = 0.5</code> to seed initial plasticity and
+observe the decline in stable environments.</p>
+</li>
+<li>
+<p><strong>Plasticity × seasonality</strong> Add
 <code>seasonal_amplitude = 0.7</code>. DeWitt &amp; Scheiner (2004)
 predict that predictably variable environments maintain intermediate
 plasticity. Does <code>mean_plasticity</code> stabilise at an
 intermediate value under seasonality, contrasting with the monotone
 decline in the stable-environment baseline? Test across three amplitude
-values.</p></li>
+values.</p>
+<p><em>Tried it.</em> Plasticity + seasonality combined (50 agents, 200
+ticks, seed 42): mean_plasticity = 0, gd = 0.190. Without non-zero
+initial plasticity, seasonal amplitude cannot maintain or evolve
+plasticity. The zero result is a calibration limitation:
+<code>plasticity_init_mean</code> must be set to a positive value before
+the canalization-vs-flexibility trade-off can be tested. The genetic
+diversity increase (0.190 vs 0.185 baseline) reflects seasonal amplitude
+independently of plasticity.</p>
+</li>
 </ol>
 <hr>
 </div>

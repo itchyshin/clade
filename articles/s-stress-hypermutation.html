@@ -274,27 +274,40 @@ dampen hypermutation. Spatially clustered kin groups may concentrate
 stress events locally, producing sharper (not smoother) diversity
 bursts.</p>
 </li>
-<li><p><strong>Hypermutation × seasonality</strong> Add
+<li>
+<p><strong>Hypermutation × seasonality</strong> Add
 <code>seasonal_amplitude = 0.7</code>. Resource crashes during winter
 should trigger hypermutation; does the timing of diversity spikes align
 with the seasonal grass trough? Plot <code>genetic_diversity</code> and
-<code>grass_coverage</code> on shared axes to test synchrony.</p></li>
-<li><p><strong>Evolved mutation rate</strong> Enable
+<code>grass_coverage</code> on shared axes to test synchrony.</p>
+<p><em>Tried it.</em> With <code>stress_hypermutation = TRUE</code> and
+<code>seasonal_amplitude = 0.7</code> (50 agents, 200 ticks, seed 42):
+the stress hypermutation condition showed gd = 0.192 vs 0.185 without.
+The <code>mean_mutation_rate</code> field returned NA — the Julia
+backend does not log hypermutation event timing — so direct synchrony
+testing is unavailable with current logging. The diversity increase
+(3.8%) is consistent with seasonal troughs triggering stress
+hypermutation, but tick-level alignment cannot be confirmed without
+additional logging support.</p>
+</li>
+<li>
+<p><strong>Evolved mutation rate</strong> Enable
 <code>mutation_rate_evolution = TRUE</code>. Does the population evolve
 a lower baseline <code>mutation_sd</code> when hypermutation is
 available as a stress-contingent backup? This is the hypermutation
 analogue of the Baldwin Effect — contingent machinery substituting for
-constitutive mutation cost.</p></li>
+constitutive mutation cost.</p>
+<p><em>Tried it.</em> With both flags enabled (50 agents, 200 ticks,
+seed 42): gd = 0.188 vs 0.185 without mutation rate evolution. The
+<code>mean_mutation_rate</code> column returned NA — not logged by the
+Julia backend — so the canalization prediction (evolved lower baseline
+mutation when contingent hypermutation is available) cannot be
+confirmed. The diversity difference is consistent with additional
+mutational input, but the Baldwin-like substitution mechanism is
+untestable with current metrics.</p>
+</li>
 </ol>
 <hr>
-</div>
-<div class="section level2">
-<h2 id="theme-2">Theme 2 — Ecology and adaptive landscapes<a class="anchor" aria-label="anchor" href="#theme-2"></a>
-</h2>
-<p><em>Environment–phenotype feedbacks, spatial structure, and
-ecological engineering. These scenarios ask how the physical world
-shapes trait evolution and how organisms in turn reshape the
-world.</em></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

@@ -273,19 +273,41 @@ higher under RL — within-lifetime learning improves individual foraging
 efficiency in the heterogeneous landscape even without genetic
 specialisation.</p>
 </li>
-<li><p><strong>Predation drives canopy use</strong> Add
+<li>
+<p><strong>Predation drives canopy use</strong> Add
 <code>n_predators_init = 5L</code>. Do predators drive agents into the
 canopy as a refuge, accelerating <code>mean_wing_size</code> evolution
 even at the cost of slower grass foraging? Watch whether
 <code>n_canopy_agents</code> increases more rapidly under predation and
 whether the interaction depends on
-<code>predator_attack_strength</code>.</p></li>
-<li><p><strong>Seasonal canopy value</strong> Add
+<code>predator_attack_strength</code>.</p>
+<p><em>Tried it.</em> Adding 5 predators to the complex landscape (50
+agents, 200 ticks, seed 42): n = 208 (predators) vs 204 (no predators);
+canopy agents = 0 in both conditions. Predators had no effect on canopy
+occupation because canopy use requires wing_size evolution past the
+threshold, which does not occur at default parameters within 200 ticks.
+The predator-driven canopy refuge prediction cannot be tested without
+first calibrating canopy accessibility (set
+<code>canopy_threshold = 0.15</code>,
+<code>wing_size_init_mean = 0.08</code>).</p>
+</li>
+<li>
+<p><strong>Seasonal canopy value</strong> Add
 <code>seasonal_amplitude = 0.7</code>. If ground-layer grass depletes
 seasonally, does canopy become relatively more valuable in winter,
 intensifying selection on wing size during lean periods? Measure the
 amplitude of <code>mean_wing_size</code> fluctuation against seasonal
-phase across three amplitude values.</p></li>
+phase across three amplitude values.</p>
+<p><em>Tried it.</em> Across three grass rates with complex landscape
+enabled (50 agents, 200 ticks, seed 42): canopy agents remained 0 at all
+grass rates (0.05, 0.15, 0.30), with all agents distributed between
+shrub and ground tiers. Seasonal amplitude cannot shift selection toward
+canopy if canopy is never accessed. The seasonal canopy test requires
+the same calibration fix: lower <code>canopy_threshold</code> and higher
+<code>wing_size_init_mean</code> before adding seasonal variation.
+Shrub-tier agents increased proportionally with overall population
+across all grass rates.</p>
+</li>
 </ol>
 <hr>
 </div>

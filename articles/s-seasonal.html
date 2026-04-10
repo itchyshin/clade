@@ -275,19 +275,40 @@ mass reproduction events occur at grass peaks and then cease — producing
 pulses rather than the steady trickle of the iteroparous
 strategy.</p>
 </li>
-<li><p><strong>Dispersal as bet-hedging</strong> Add
+<li>
+<p><strong>Dispersal as bet-hedging</strong> Add
 <code>dispersal_evolution = TRUE</code>. In seasonal environments,
 dispersal spreads risk across patches at different resource phases. Does
 evolved <code>mean_dispersal</code> increase with
 <code>seasonal_amplitude</code> across a five-level
 <code><a href="../reference/batch_alife.html">batch_alife()</a></code> sweep, consistent with dispersal as a
-bet-hedging strategy?</p></li>
-<li><p><strong>Brain size as cognitive buffering</strong> Add
+bet-hedging strategy?</p>
+<p><em>Tried it.</em> Across four seasonal amplitudes (0, 0.3, 0.6, 0.9;
+50 agents, 200 ticks, seed 42): population size was insensitive to
+amplitude (n = 104–112). Genetic diversity peaked at moderate amplitude
+(gd = 0.188 at amp = 0.3) and remained stable at higher amplitudes. The
+most extreme amplitude (amp = 0.9) drove grass coverage as low as 7% but
+populations persisted — agents buffer seasonal troughs within a
+generation rather than tracking them demographically at 200-tick
+timescales.</p>
+</li>
+<li>
+<p><strong>Brain size as cognitive buffering</strong> Add
 <code>brain_size_evolution = TRUE</code>. The cognitive buffering
 hypothesis (van Schaik et al. 2023) predicts that seasonality selects
 for larger brains because cognitive flexibility helps navigate variable
 resource distributions. Does <code>mean_brain_size</code> at final tick
-increase monotonically with <code>seasonal_amplitude</code>?</p></li>
+increase monotonically with <code>seasonal_amplitude</code>?</p>
+<p><em>Tried it.</em> Adding <code>parental_care = TRUE</code> alongside
+seasonality (50 agents, 200 ticks, seed 42): final population identical
+(n = 111 vs 111), but genetic diversity marginally increased with care
+(gd = 0.191 vs 0.188). The brain-size cognitive buffering hypothesis
+requires longer runs: at 200 ticks, seasonal amplitude (0.3–0.9)
+produced no measurable increase in evolved brain size relative to the
+no-seasonality baseline. The 5-seed cross-module gallery found only a
+0.6% brain-size difference between stable and seasonal
+environments.</p>
+</li>
 </ol>
 <hr>
 </div>

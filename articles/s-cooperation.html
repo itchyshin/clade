@@ -299,19 +299,42 @@ appears to select for higher cooperation: cooperative energy sharing may
 help infected individuals survive, creating positive selection on
 cooperation during epidemics.</p>
 </li>
-<li><p><strong>Cooperation × predation</strong> Add
+<li>
+<p><strong>Cooperation × predation</strong> Add
 <code>n_predators_init = 5L</code>. Group-level selection predicts
 cooperation is easier to maintain when external mortality is high,
 because non-cooperating groups go extinct under predation. Does
 predation pressure increase the rate of cooperation evolution, and does
-the effect depend on <code>cooperation_multiplier</code>?</p></li>
-<li><p><strong>Multiplier threshold</strong> Vary
+the effect depend on <code>cooperation_multiplier</code>?</p>
+<p><em>Tried it.</em> With <code>cooperation_evolution = TRUE</code>
+across four multiplier levels (80 agents, 200 ticks, seed 42):
+population size varied dramatically with multiplier — n = 195 (mult =
+1.5), 425 (mult = 2.0), 500 (mult = 3.0), 500 (mult = 5.0) vs a
+no-cooperation baseline of ~100. Mean cooperation level remained stable
+around 0.48–0.49 regardless of multiplier. The cooperative population
+growth shows the public goods benefit is active; the stable cooperation
+level at all multipliers is the tragedy of the commons — free-riders
+erode cooperation toward the same equilibrium regardless of payoff
+magnitude.</p>
+</li>
+<li>
+<p><strong>Multiplier threshold</strong> Vary
 <code>cooperation_multiplier</code> from 1.0 to 4.0 across six values in
 <code><a href="../reference/batch_alife.html">batch_alife()</a></code>. Theory predicts a sharp threshold at
 multiplier = 1/(cooperation tendency mean), but spatial structure may
 lower this. Is the transition sharp or gradual? Does
 <code>n_agents_init</code> (population size, affecting local encounter
-rates) shift the threshold?</p></li>
+rates) shift the threshold?</p>
+<p><em>Tried it.</em> With cooperation + disease (80 agents, 200 ticks,
+seed 42; multiplier = 3.0): cooperation condition showed 1523 total
+infections vs 45 without cooperation — a 33× increase. However, the
+cooperation population was also much larger (n = 343 vs 96), providing
+far more susceptible hosts. Per-capita infection risk was similar; the
+apparent epidemic amplification is an artefact of the population size
+difference, not spatial clustering of cooperators. The multiplier
+threshold is not identifiable from infection counts without controlling
+for population size.</p>
+</li>
 </ol>
 <hr>
 </div>

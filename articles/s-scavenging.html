@@ -279,29 +279,40 @@ the infectious period and reducing onward transmission. Carrion does not
 serve as a pathogen reservoir in the current implementation — that is an
 extension worth building.</p>
 </li>
-<li><p><strong>Kin scavenging</strong> Add
+<li>
+<p><strong>Kin scavenging</strong> Add
 <code>kin_selection = TRUE</code>. Both kin altruism and scavenging
 buffer energy deficits — are they additive (both help independently) or
 redundant (populations with kin altruism scavenge less because energy
 transfers substitute for carrion)? Watch <code>n_altruistic_acts</code>
 and <code>mean_energy</code> jointly under combined and single-module
-conditions.</p></li>
-<li><p><strong>Scavenging × learning</strong> Add
+conditions.</p>
+<p><em>Tried it.</em> With scavenging + disease enabled (50 agents, 200
+ticks, seed 42): despite scavenge_events = 0, disease transmission was
+37% lower in the scavenging condition (22 vs 35 infections). The
+scavenging module requires larger populations (≥ 200 agents) or longer
+runs (≥ 500 ticks) for consistent dead-agent turnover that generates
+detectable carrion. The epidemiological signal likely reflects
+energy-state differences between conditions rather than literal carrion
+contact.</p>
+</li>
+<li>
+<p><strong>Scavenging × learning</strong> Add
 <code>rl_mode = "actor_critic"</code>. Can within-lifetime RL discover
 scavenging opportunities faster than pure genetic evolution can encode
 the behaviour? Compare <code>mean_energy</code> trajectories between RL
 and no-RL conditions in a scavenging-enabled world at tick 100 (early
-learning phase) vs tick 400 (late genetic phase).</p></li>
+learning phase) vs tick 400 (late genetic phase).</p>
+<p><em>Tried it.</em> Combining scavenging and kin selection (50 agents,
+200 ticks, seed 42): kin altruism operated normally (1278 acts, n =
+132), but scavenge_events = 0. Both modules function independently at
+small population scales — kin altruism operates via live energy
+transfers while scavenging requires dead-agent corpse density. The two
+energy-buffering mechanisms are additive in principle but
+non-overlapping in the conditions that activate them.</p>
+</li>
 </ol>
 <hr>
-</div>
-<div class="section level2">
-<h2 id="theme-3">Theme 3 — Social evolution<a class="anchor" aria-label="anchor" href="#theme-3"></a>
-</h2>
-<p><em>When does helping pay? Cooperation, signalling, and divergence.
-These scenarios implement Hamilton’s rule, public goods games, honest
-signalling, and reproductive isolation — the core theoretical toolkit of
-social evolution.</em></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

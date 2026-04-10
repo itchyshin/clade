@@ -397,19 +397,38 @@ selection (108 vs 84) means the population survived the larger epidemic
 — kin benefits outweigh the epidemiological cost at these
 parameters.</p>
 </li>
-<li><p><strong>Relatedness threshold sweep</strong> Vary
+<li>
+<p><strong>Relatedness threshold sweep</strong> Vary
 <code>kin_altruism_r_min</code> from 0.0 to 0.5 across six values in
 <code><a href="../reference/batch_alife.html">batch_alife()</a></code>. Hamilton’s rule predicts a threshold (r ×
 benefit &gt; cost) below which altruism is not favoured. Is there a
 sharp transition in <code>n_altruistic_acts</code>, or a smooth decay?
-Plot final altruism rate against
-<code>kin_altruism_r_min</code>.</p></li>
-<li><p><strong>Kin clusters + niche construction</strong> Add
+Plot final altruism rate against <code>kin_altruism_r_min</code>.</p>
+<p><em>Tried it.</em> Five thresholds tested (80 agents, 200 ticks, seed
+42): altruistic acts peaked at r_min = 0.125 (1682 acts), not at r_min =
+0 (1558 acts). This non-monotone result suggests that extremely loose
+thresholds waste energy on unrelated agents, reducing the donor’s
+capacity for later altruism. Population size decreased monotonically
+with threshold (n = 153 at r_min = 0 vs n = 133 at r_min = 0.5),
+confirming that broader altruism sustains larger populations even when
+total act count is similar.</p>
+</li>
+<li>
+<p><strong>Kin clusters + niche construction</strong> Add
 <code>niche_construction = TRUE</code>. Do relatives cluster in
 sheltered cells, creating kin-structured microhabitats? Measure the
 spatial correlation between <code>shelter_density</code> and the local
 mean pedigree relatedness of occupants at the final tick. Does niche
-construction accelerate or slow kin group formation?</p></li>
+construction accelerate or slow kin group formation?</p>
+<p><em>Tried it.</em> Adding <code>niche_construction = TRUE</code> to
+kin selection (80 agents, 200 ticks, seed 42) reduced altruistic acts
+from 1709 to 1341 (21% reduction), while generating 2641 shelter events.
+The two modules compete: agents that spend energy building shelters have
+less surplus for kin donations. Sheltering appears to partially
+substitute for kin altruism as an energy-buffer strategy — once shelters
+are built, agents need fewer emergency transfers from
+relatives.</p>
+</li>
 </ol>
 <hr>
 </div>

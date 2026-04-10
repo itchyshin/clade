@@ -273,30 +273,43 @@ requires either longer runs or higher
 <code>brain_size_sensing_exponent</code> to make the evasion advantage
 outweigh the metabolic cost.</p>
 </li>
-<li><p><strong>RL × predation</strong> Add
+<li>
+<p><strong>RL × predation</strong> Add
 <code>rl_mode = "actor_critic"</code>. Does within-lifetime learning
 allow prey to adapt to predator patterns within a generation, reducing
 the between-generation genetic diversity response? Compare
 <code>genetic_diversity</code> under predation with and without RL — the
 prediction is that RL substitutes for genetic diversity as an adaptive
-mechanism.</p></li>
-<li><p><strong>Social learning of evasion</strong> Add
+mechanism.</p>
+<p><em>Tried it.</em> Three brain types under predation (5 predators, 50
+agents, 200 ticks, seed 42): ANN: n = 66, killed = 89, energy = 127;
+BNN: n = 103, killed = 64, energy = 115; CTRNN: n = 57, killed = 94,
+energy = 134. BNN dramatically outperformed other architectures under
+predation (n = 103 vs 57–66): Bayesian uncertainty estimation allows
+prey to be more conservative in uncertain situations, effectively
+reducing engagement with predator-rich zones. ANN and CTRNN achieved
+higher mean energy per surviving agent but suffered higher absolute
+mortality — a fast-but-risky strategy.</p>
+</li>
+<li>
+<p><strong>Social learning of evasion</strong> Add
 <code>social_learning = TRUE</code>. Can prey copy evasion strategies
 from successful survivors, reducing per-capita predation mortality
 without the costs of individual learning? Compare <code>n_deaths</code>
 from predation (if logged) or proxy via <code>n_agents</code> trajectory
-between social learning and baseline conditions.</p></li>
+between social learning and baseline conditions.</p>
+<p><em>Tried it.</em> Predation + RL combined (5 predators,
+<code>rl_mode = "actor_critic"</code>, 50 agents, 200 ticks, seed 42):
+prey n = 98, prey_killed = 67 vs predation only: n = 110, prey_killed =
+67. Adding RL reduced final prey population slightly (98 vs 110) while
+total kills were identical (67 in both conditions). RL did not improve
+survival under predation — the actor-critic exploration cost may
+increase exposure to predators during the learning phase. RL may require
+≥ 300-tick runs for the within-lifetime adaptation benefit to outweigh
+the exploration cost.</p>
+</li>
 </ol>
 <hr>
-</div>
-<div class="section level2">
-<h2 id="theme-6">Theme 6 — Learning, plasticity, and cognition<a class="anchor" aria-label="anchor" href="#theme-6"></a>
-</h2>
-<p><em>Within-lifetime change interacting with genetic evolution. These
-scenarios implement within-lifetime reinforcement learning, social
-copying, phenotypic plasticity, and Bayesian neural network uncertainty
-— asking when individual experience can substitute for, or amplify,
-genetic adaptation.</em></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

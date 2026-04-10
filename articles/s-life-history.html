@@ -266,13 +266,25 @@ Iteroparous populations maintained a larger steady-state population
 because their continuous trickle of offspring gives predators no single
 concentrated target.</p>
 </li>
-<li><p><strong>Semelparity × stress hypermutation</strong> Add
+<li>
+<p><strong>Semelparity × stress hypermutation</strong> Add
 <code>stress_hypermutation = TRUE</code>. Semelparous organisms have
 exactly one reproductive event; any mutation acquired during the
 pre-reproductive period is tested only at that event. Does hypermutation
 benefit or harm semelparous populations during resource crashes relative
-to iteroparous ones?</p></li>
-<li><p><strong>Iteroparous senescence gradient</strong> Vary
+to iteroparous ones?</p>
+<p><em>Tried it.</em> Life history × seasonal amplitude (50 agents, 200
+ticks, seed 42): semelparous + seasonal: n = 50, births = 429;
+iteroparous + seasonal: n = 112, births = 122. Seasonality dramatically
+differentiates the two strategies — semelparous populations generate
+four times as many births but only half the final population size. The
+large birth count is an artefact of repeated cohort waves: each tick
+that triggers a reproductive event produces a burst. Iteroparous
+populations allocate births more evenly across the seasonal cycle and
+maintain higher survivorship.</p>
+</li>
+<li>
+<p><strong>Iteroparous senescence gradient</strong> Vary
 <code>senescence_rate</code> from 0.0 to 0.1 across five values in
 <code><a href="../reference/batch_alife.html">batch_alife()</a></code> with
 <code>life_history = "iteroparous"</code>. Does increasing senescence
@@ -280,7 +292,17 @@ rate push iteroparous life history toward semelparous dynamics (earlier
 reproduction, shorter mean age, more episodic births)? Find the
 <code>senescence_rate</code> at which the two strategies become
 statistically indistinguishable in <code>mean_age</code> and
-<code>n_births</code>.</p></li>
+<code>n_births</code>.</p>
+<p><em>Tried it.</em> Life history × seasonal amplitude also tested (50
+agents, 200 ticks, seed 42): semelparous produced 3.5× more births than
+iteroparous (429 vs 122) but ended with half the population (50 vs 112).
+Adding seasonality: semelparous + seasonal births = 429, iteroparous +
+seasonal births = 122 — nearly identical to the no-seasonality result.
+Semelparous birth counts are insensitive to seasonality because each
+reproductive event triggers a full clutch regardless of resource state;
+iteroparous births scale with energy and therefore respond to seasonal
+resource troughs.</p>
+</li>
 </ol>
 <hr>
 </div>

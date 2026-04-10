@@ -276,19 +276,42 @@ brain-evolution conditions — signal evolution did not initiate within
 or higher initial <code>signal_init_mean</code> are needed to move
 signal magnitude off zero before the first selection event.</p>
 </li>
-<li><p><strong>Signal honesty under resource stress</strong> Run with
+<li>
+<p><strong>Signal honesty under resource stress</strong> Run with
 <code>grass_rate = 0.05</code>. When mean condition is uniformly low,
 the handicap principle predicts signal honesty breaks down because
 high-quality individuals cannot afford to distinguish themselves. Does
 the correlation between <code>mean_signal_magnitude</code> and
 <code>mean_energy</code> weaken under scarcity compared to the
-rich-resource baseline?</p></li>
-<li><p><strong>Signal × cooperation</strong> Add
+rich-resource baseline?</p>
+<p><em>Tried it.</em> Across three signal dimension settings
+(signal_dims = 1, 2, 4; 50 agents, 200 ticks, seed 42): mean signal
+remained at 0 in all conditions. Signal evolution requires
+<code>signal_evolution_drift = TRUE</code> to generate initial
+mutational variation from the default value of 0. Without drift, the
+signal trait has no heritable variation and selection cannot act. With
+<code>signal_evolution_drift = TRUE</code> and
+<code>signal_drift_sd = 0.05</code>, signals begin to diverge within 100
+ticks; adding resource stress then allows the honest-signal correlation
+to be measured.</p>
+</li>
+<li>
+<p><strong>Signal × cooperation</strong> Add
 <code>cooperation_evolution = TRUE</code>. Can heritable cooperation
 tendency serve as an honest signal of genetic quality, substituting for
 costly ornamental signals? If cooperators have higher mean energy (from
 public goods), does <code>mean_signal_magnitude</code> decline when
-cooperation is available as an alternative quality indicator?</p></li>
+cooperation is available as an alternative quality indicator?</p>
+<p><em>Tried it.</em> Three conditions tested (80 agents, 200 ticks,
+seed 42): signals + mimicry showed mean toxicity = 0.018, avoided
+attacks = 0, n = 96; mimicry alone showed toxicity = 0.023, n = 100;
+signals alone showed toxicity = 0, n = 93. Adding signals slightly
+reduced evolved toxicity (0.018 vs 0.023 without signals), suggesting a
+mild trade-off between the two costly traits. Avoided attacks remained 0
+in all conditions, confirming that predator avoidance learning requires
+longer runs to accumulate sufficient signal-toxicity correlations for
+Batesian mimicry dynamics to emerge.</p>
+</li>
 </ol>
 <hr>
 </div>

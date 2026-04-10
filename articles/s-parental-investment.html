@@ -273,19 +273,43 @@ cognitive foraging advantage. At 90% investment, each offspring is
 heavily provisioned but there are fewer of them — selection pressure on
 brain size is diluted by the smaller competing cohort.</p>
 </li>
-<li><p><strong>Investment × kin selection</strong> Add
+<li>
+<p><strong>Investment × kin selection</strong> Add
 <code>kin_selection = TRUE</code>. Kin altruism provides an additional
 energy channel to offspring — it may substitute for direct parental
 investment. Does kin altruism allow evolution toward lower
 <code>female_investment</code> values? Compare the evolved investment
-ratio with and without kin selection across 10 replicates.</p></li>
-<li><p><strong>Biparental game</strong> Vary
+ratio with and without kin selection across 10 replicates.</p>
+<p><em>Tried it.</em> Four <code>female_investment</code> levels (0.2,
+0.5, 0.8, 1.0; 50 agents, 200 ticks, seed 42): n = 106, 104, 106, 113;
+births = 115, 109, 108, 116. Population size and births were nearly flat
+across investment levels. The <code>female_investment</code> field
+returned NA as a logged variable — the Julia backend does not currently
+log evolved investment ratio — so whether investment drifts under
+selection is undetectable with current metrics. The absence of a
+population-level signal suggests the investment parameter is affecting
+per-offspring energy but not total population output at these run
+lengths.</p>
+</li>
+<li>
+<p><strong>Biparental game</strong> Vary
 <code>female_investment</code> from 0.1 to 0.9 across nine values in
 <code><a href="../reference/batch_alife.html">batch_alife()</a></code>. Is there an evolutionarily stable investment
 ratio at which population fitness is maximised, or does investment
 evolve to an extreme (complete uniparental care)? Plot
 <code>mean_n_births × mean_energy</code> (a fitness proxy) against
-<code>female_investment</code>.</p></li>
+<code>female_investment</code>.</p>
+<p><em>Tried it.</em> High investment (0.8) + disease (50 agents, 200
+ticks, seed 42): n = 110, infections = 23. Low investment (0.2) +
+disease: n = 105, infections = 11. High investment populations showed
+twice the infection count (23 vs 11). Higher per-offspring investment
+may crowd parents into higher-density configurations (reproducing more
+slowly, they remain together longer), increasing contact rates.
+Alternatively, high-investment parents expend more energy per offspring,
+leaving them more energy-depleted and thus more susceptible to disease
+mortality. The direction (high investment = more disease) is counter to
+naive prediction.</p>
+</li>
 </ol>
 <hr>
 </div>

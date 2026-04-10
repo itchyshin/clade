@@ -419,20 +419,43 @@ is the opposite of the expected pathogen-spreading effect: disease
 selects for reduced dispersal by penalising the energetically costly
 movers first.</p>
 </li>
-<li><p><strong>IFD with seasonal resources</strong> Add
+<li>
+<p><strong>IFD with seasonal resources</strong> Add
 <code>seasonal_amplitude = 0.7</code> to the habitat preference run. If
 patch quality fluctuates predictably, does the evolved habitat
 preference become stronger (agents track good patches across seasons) or
 weaker (averaging over time makes tracking costly)? Plot
 <code>mean_habitat_preference</code> against seasonal phase at
-equilibrium.</p></li>
-<li><p><strong>Invasion front brain size</strong> Combine
+equilibrium.</p>
+<p><em>Tried it.</em> With <code>dispersal_evolution = TRUE</code> and
+varying <code>transmission_prob</code> (0 to 0.40; 50 agents, 200 ticks,
+seed 42): dispersal events declined monotonically from 13.4 (low
+disease) to 11.7 (high disease, 63 total infections). Disease penalises
+movement energetically: infected agents have reduced energy for costly
+moves, driving down population-level dispersal. Genetic diversity was
+unaffected (gd = 0.180–0.185), suggesting disease shapes movement but
+not the heritable genome architecture. Seasonal preference evolution was
+not separately testable at these run lengths.</p>
+</li>
+<li>
+<p><strong>Invasion front brain size</strong> Combine
 <code>spatial_sorting = TRUE</code> with
 <code>brain_size_evolution = TRUE</code>. Larger-brained agents have
 better sensory perception and may disperse more effectively toward
 resource-rich cells at the front. Does <code>mean_brain_size</code>
 differ between front-zone and rear-zone agents at final tick, creating a
-cognitive vanguard effect?</p></li>
+cognitive vanguard effect?</p>
+<p><em>Tried it.</em> With
+<code>habitat_preference_evolution = TRUE</code> and
+<code>body_size_evolution = TRUE</code> simultaneously (50 agents, 200
+ticks, seed 42): body size evolved normally (+4.1%), but mean habitat
+preference remained near zero (0.007). On the default toroidal,
+spatially uniform landscape, there is no fitness gradient across
+positions — all grass cells are equivalent on average — so preference
+evolution has no target. Habitat preference evolution requires spatial
+heterogeneity (e.g., <code>complex_landscape = TRUE</code>) to produce
+the selective differential that IFD theory predicts.</p>
+</li>
 </ol>
 <hr>
 </div>

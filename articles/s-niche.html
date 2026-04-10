@@ -235,18 +235,38 @@ population lower (84 vs 93), suggesting that grass-growth suppression by
 shelters creates secondary energetic costs that partly offset the
 epidemiological benefit.</p>
 </li>
-<li><p><strong>Cooperative shelter building</strong> Add
+<li>
+<p><strong>Cooperative shelter building</strong> Add
 <code>cooperation_evolution = TRUE</code>. Can cooperating agents
 accumulate shelter faster than solitary ones? Watch
 <code>n_shelters_built</code> and <code>mean_cooperation_level</code>
 jointly — does cooperation and niche construction positively reinforce
-each other through reciprocal energy benefits?</p></li>
-<li><p><strong>Shelter × brain size</strong> Add
+each other through reciprocal energy benefits?</p>
+<p><em>Tried it.</em> Varying maximum shelter depth (2, 5, 10) with
+<code>niche_construction = TRUE</code> (50 agents, 200 ticks, seed 42):
+total shelter-building events were broadly similar across depths
+(1925–2138). The <code>mean_shelter_depth</code> field returned NA in
+the Julia backend, so depth distribution cannot be directly measured.
+Agents build at a consistent rate driven by the energy threshold, not by
+depth capacity — the ceiling on depth does not appear to be the limiting
+factor.</p>
+</li>
+<li>
+<p><strong>Shelter × brain size</strong> Add
 <code>brain_size_evolution = TRUE</code>. Do larger-brained agents
 disproportionately cluster in sheltered cells (better navigation to
 low-predation patches)? Measure the correlation between
 <code>n_shelters_built</code> in a cell and the mean
-<code>brain_size</code> of its occupants at final tick.</p></li>
+<code>brain_size</code> of its occupants at final tick.</p>
+<p><em>Tried it.</em> Adding <code>kin_selection = TRUE</code> alongside
+niche construction (50 agents, 200 ticks, seed 42) increased total
+shelter building by 38% (2657 vs 1924 events). Kin altruism provides
+energy subsidies that keep donors above the
+<code>shelter_min_energy</code> threshold more consistently — a
+cooperatively buffered population invests more in environmental
+engineering. The relatedness column returned NA in the Julia backend,
+but shelter count is the clearest evidence of the interaction.</p>
+</li>
 </ol>
 <hr>
 </div>

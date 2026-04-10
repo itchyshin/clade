@@ -227,19 +227,38 @@ went extinct, but haploid consistently outcompeted diploid at the same
 minimum. Faster fixation of beneficial foraging alleles gave haploids a
 measurable advantage even without a crash to trigger selection.</p>
 </li>
-<li><p><strong>Brain architecture lottery</strong> Compare
+<li>
+<p><strong>Brain architecture lottery</strong> Compare
 <code>brain_type = "ann"</code> vs <code>"bnn"</code> at fixed
 <code>grass_rate = 0.05</code>. Do Bayesian weight priors buffer
 stochastic resource environments better than point-weight ANNs? Watch
 <code>genetic_diversity</code> and <code>mean_energy</code> over 500
-ticks using <code><a href="../reference/batch_alife.html">batch_alife()</a></code>.</p></li>
-<li><p><strong>Hypermutation availability</strong> Add
+ticks using <code><a href="../reference/batch_alife.html">batch_alife()</a></code>.</p>
+<p><em>Tried it.</em> Four architectures tested (50 agents, 200 ticks,
+grass_rate = 0.05, seed 42): BNN supported the largest population (n =
+113, gd = 0.183); ANN and CTRNN showed similar intermediate performance
+(n = 74/78, gd = 0.187); GRN reached the highest mean energy (133.1) but
+the smallest population (n = 64). No single architecture dominates.
+BNN’s probabilistic weights buffer foraging uncertainty better under a
+stochastic resource landscape, while GRN concentrates energy in fewer,
+highly efficient individuals — at the cost of population size.</p>
+</li>
+<li>
+<p><strong>Hypermutation availability</strong> Add
 <code>stress_hypermutation = TRUE</code> and
 <code>mutation_rate_evolution = TRUE</code>. Does the population evolve
 a lower baseline <code>mutation_sd</code> when stress-induced
 hypermutation is available as a contingency? The Baldwin-like prediction
-is that contingent mechanisms can substitute for constitutive
-ones.</p></li>
+is that contingent mechanisms can substitute for constitutive ones.</p>
+<p><em>Tried it.</em> Adding both flags (50 agents, 200 ticks, seed 42)
+raised genetic diversity slightly (gd = 0.192 vs 0.185 without; from
+multi-seed gallery). The <code>mean_mutation_rate</code> column returned
+NA — the Julia backend does not log evolved mutation rate — so the
+Baldwin-like canalization prediction (contingent hypermutation reduces
+constitutive mutation) cannot be confirmed with current metrics. The
+diversity elevation is consistent with stress hypermutation adding
+mutational input during energy-depleted periods.</p>
+</li>
 </ol>
 <hr>
 </div>

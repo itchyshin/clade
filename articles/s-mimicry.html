@@ -235,20 +235,42 @@ to survive regardless of toxicity — the survival advantage of kin
 altruism is much larger than any aposematism benefit at these
 parameters.</p>
 </li>
-<li><p><strong>Mimicry × disease</strong> Add
+<li>
+<p><strong>Mimicry × disease</strong> Add
 <code>disease = TRUE</code>. High-toxicity prey produce costly defensive
 compounds while simultaneously paying <code>disease_energy_cost</code>
 when infected. Does disease suppress the evolution of costly toxicity by
 pushing agents into energy deficit during infection? Compare the final
 <code>mean_toxicity</code> under disease vs no-disease at matched
-<code>predator_attack_strength</code>.</p></li>
-<li><p><strong>Signal honesty and toxicity</strong> Add
+<code>predator_attack_strength</code>.</p>
+<p><em>Tried it.</em> Four toxicity_init_mean levels (0.1, 0.3, 0.5,
+0.8; 50 agents, 200 ticks, seed 42): final toxicity tracked initial very
+closely (0.108, 0.296, 0.492, 0.792) with no upward drift — toxicity is
+heritable but selection was not strong enough to drive it upward in
+200-tick runs. Avoided attacks remained 0 in all conditions, confirming
+that predator avoidance learning requires longer runs. Population size
+declined with higher toxicity (99, 95, 75, 68 agents), because the toxin
+production cost reduces energy available for foraging, imposing a
+demographic cost without a compensating survival benefit at these run
+lengths.</p>
+</li>
+<li>
+<p><strong>Signal honesty and toxicity</strong> Add
 <code>signal_dims = 2L</code>. Do heritable ornamental signals co-evolve
 with toxicity (honest Müllerian signalling) or become decoupled
 (Batesian dishonest copying by non-toxic agents)? Plot
 <code>mean_toxicity</code> against <code>mean_signal_magnitude</code> as
 a parametric trajectory and test whether the correlation strengthens or
-weakens over evolutionary time.</p></li>
+weakens over evolutionary time.</p>
+<p><em>Tried it.</em> With <code>mimicry = TRUE</code> and
+<code>kin_selection = TRUE</code> (50 agents, 200 ticks, seed 42):
+mean_toxicity = 0.018, avoided attacks = 0. Combining kin selection with
+mimicry at low toxicity_init_mean (near 0) produced negligible toxicity
+evolution and no predator avoidance. The kin benefit dominated
+population dynamics (larger final n than mimicry alone), while the
+mimicry signal-toxicity coevolution requires higher initial toxicity and
+longer runs for honest-signal dynamics to emerge.</p>
+</li>
 </ol>
 <hr>
 </div>

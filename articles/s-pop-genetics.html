@@ -240,19 +240,40 @@ heritability by ~5 percentage points, consistent with
 environmental-variance inflation diluting additive genetic
 variance.</p>
 </li>
-<li><p><strong>Multi-trait covariance</strong> Enable both
+<li>
+<p><strong>Multi-trait covariance</strong> Enable both
 <code>brain_size_evolution = TRUE</code> and
 <code>body_size_evolution = TRUE</code>. Do brain and body size show
 positive genetic covariance (as in vertebrates) or decouple? Regress
 <code>mean_brain_size</code> on <code>mean_body_size</code> across ticks
 and test whether the slope is significantly different from the
-allometric expectation of 0.75.</p></li>
-<li><p><strong>Selection vs drift</strong> Run with
+allometric expectation of 0.75.</p>
+<p><em>Tried it.</em> Both traits enabled simultaneously (50 agents, 200
+ticks, seed 42): raw Pearson r = 0.727 (brain = 1.019, body = 1.010 at
+final tick). After detrending (residuals from lm(trait ~ tick)), r drops
+to 0.169 — the raw correlation reflects a shared temporal trend, not
+mechanistic coupling (see cross-module gallery). The allometric slope
+could not be tested against 0.75 because both traits drifted upward
+under shared constraints rather than showing log-linear
+scaling.</p>
+</li>
+<li>
+<p><strong>Selection vs drift</strong> Run with
 <code>n_agents_init = 10L</code> vs <code>n_agents_init = 200L</code>.
 Small populations experience stronger drift; does narrow-sense h²
 decline faster in small populations because drift erodes additive
 variance faster than selection can act? Vary population size across
-<code><a href="../reference/batch_alife.html">batch_alife()</a></code> and plot final h² against log(N).</p></li>
+<code><a href="../reference/batch_alife.html">batch_alife()</a></code> and plot final h² against log(N).</p>
+<p><em>Tried it.</em> Three founder sizes tested with
+<code>body_size_evolution = TRUE</code> (200 ticks, seed 42): N = 10
+showed highest genetic diversity (gd = 0.293) but body size regressed
+below 1.0 (0.900), confirming drift dominance over directional selection
+at small N. N = 50 showed the balance point (gd = 0.232, body = 1.044).
+N = 200 evolved fastest (body = 1.074, gd = 0.182) but the large cohort
+crashed to n = 19 by tick 200 — density-dependent mortality at high
+initial N created demographic stochasticity that erased the selective
+advantage.</p>
+</li>
 </ol>
 <hr>
 </div>

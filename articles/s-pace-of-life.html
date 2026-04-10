@@ -275,32 +275,45 @@ Population size was modestly lower (102 vs 106). The effect is small but
 in the correct direction: disease imposes a pace-of-life cost that
 selects toward slower, more energy-conservative strategies.</p>
 </li>
-<li><p><strong>Pace × brain size</strong> Enable both
+<li>
+<p><strong>Pace × brain size</strong> Enable both
 <code>metabolic_rate_evolution = TRUE</code> and
 <code>brain_size_evolution = TRUE</code>. Do fast-paced, high-energy
 agents evolve larger brains (more metabolic resources available for
 expensive brain tissue), or does metabolic competition prevent it? Test
 whether <code>mean_brain_size</code> and
 <code>mean_metabolic_rate</code> are positively or negatively correlated
-at final tick.</p></li>
-<li><p><strong>Pace × environment quality</strong> Run
+at final tick.</p>
+<p><em>Tried it.</em> Four starting metabolic rates tested (50 agents,
+200 ticks, seed 42): met_rate_init = 0.5: final_met = 0.503, n = 146,
+energy = 133; met_rate_init = 1.0: final_met = 0.999, n = 105, energy =
+118; met_rate_init = 1.5: final_met = 1.471, n = 66, energy = 109;
+met_rate_init = 2.0: final_met = 1.978, n = 49, energy = 103. Higher
+metabolic rate consistently reduced population size and mean energy,
+confirming the pace-of-life trade-off. Evolved rates did not deviate
+from initial values, suggesting that metabolic rate is heritable but not
+under strong directional selection at default parameters alone.</p>
+</li>
+<li>
+<p><strong>Pace × environment quality</strong> Run
 <code>metabolic_rate_evolution = TRUE</code> across
 <code>grass_rate ∈ {0.02, 0.1, 0.4}</code> in
 <code><a href="../reference/batch_alife.html">batch_alife()</a></code>. Theory predicts rich environments select for
 fast pace. Does evolved <code>mean_metabolic_rate</code> increase
 monotonically with <code>grass_rate</code>, or is there a non-monotone
 relationship (very high resources remove mortality pressure on
-fast-paced energy burn)?</p></li>
+fast-paced energy burn)?</p>
+<p><em>Tried it.</em> With <code>metabolic_rate_evolution = TRUE</code>
+and <code>body_size_evolution = TRUE</code> simultaneously (50 agents,
+200 ticks, seed 42): the within-individual metabolic rate × body size
+correlation was r = -0.834 — strongly negative. Agents with higher
+metabolic rates evolved smaller body sizes. This is the fast-slow
+syndrome as expected: fast pace (high metabolism, fast burning) is
+incompatible with large somatic investment. The negative correlation is
+the pace-of-life syndrome at the individual level.</p>
+</li>
 </ol>
 <hr>
-</div>
-<div class="section level2">
-<h2 id="theme-5">Theme 5 — Species interactions and arms races<a class="anchor" aria-label="anchor" href="#theme-5"></a>
-</h2>
-<p><em>Predator–prey coevolution, infectious disease, warning
-coloration, and group defence. These scenarios operationalise the major
-classes of antagonistic species interactions and ask how each reshapes
-phenotypic and genetic diversity.</em></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
