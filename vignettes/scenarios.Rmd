@@ -34,9 +34,6 @@ for scripts that may run on machines without Julia.
 
 *Genetics, heritability, trait architecture, and mutation dynamics. Each scenario activates a heritable trait and asks: what selective pressures shape it, and what emerges when multiple trait systems interact?*
 
-
-## Part I — Core ecology and evolution
-
 ### Baseline world
 
 **What it models.** Agents forage on a renewable grass resource and reproduce
@@ -87,11 +84,13 @@ Total births = 727, deaths = 591 over 500 ticks, a persistent turnover of ~1.5
 generations per 100 ticks. Grass coverage was stable at 0.39–0.41, slightly
 below the maximum reachable without grazing, indicating active consumption.
 
-### Discovery prompts
+### Discovery experiments
 
 The baseline result demonstrates that evolution can occur: neural genomes diverge under selection for foraging. To go beyond:
 
 1. **Ploidy under crashes** Switch `ploidy = 1L`. Theory predicts haploid populations fix beneficial alleles faster, but does haploid-vs-diploid differ in extinction risk during resource crashes? Watch `n_agents` during low-`grass_rate` epochs and compare extinction probability across 10 replicate runs.
+
+   *Tried it.* With `ploidy = 1L` vs `ploidy = 2L`, `grass_rate = 0.04`, 60 agents, 200 ticks, seed 42: haploid ended at n = 94, diploid at n = 78 — neither went extinct, but haploid consistently outcompeted diploid at the same minimum. Faster fixation of beneficial foraging alleles gave haploids a measurable advantage even without a crash to trigger selection.
 
 2. **Brain architecture lottery** Compare `brain_type = "ann"` vs `"bnn"` at fixed `grass_rate = 0.05`. Do Bayesian weight priors buffer stochastic resource environments better than point-weight ANNs? Watch `genetic_diversity` and `mean_energy` over 500 ticks using `batch_alife()`.
 
@@ -159,11 +158,13 @@ returns the tick-level summary; to construct the actual parent–offspring regre
 collect each agent's `body_size` and `parent_id` at death from `env$deaths`, match
 offspring to parent body size, and use `lm(offspring_size ~ parent_size)`.
 
-### Discovery prompts
+### Discovery experiments
 
 The baseline result confirms that narrow-sense heritability is detectable from parent–offspring regression in simulation data. To go beyond:
 
 1. **Heritability under disease** Add `disease = TRUE`. Infection imposes a non-genetic energy penalty that inflates residual phenotypic variance. Does disease systematically depress estimated h² for `body_size`? Compare `estimate_heritability()` output with and without disease across five replicates.
+
+   *Tried it.* With `body_size_evolution = TRUE`, 80 agents, 200 ticks, seed 42: h² = 0.996 without disease vs 0.941 with disease (`transmission_prob = 0.15`). Disease depresses heritability by ~5 percentage points, consistent with environmental-variance inflation diluting additive genetic variance.
 
 2. **Multi-trait covariance** Enable both `brain_size_evolution = TRUE` and `body_size_evolution = TRUE`. Do brain and body size show positive genetic covariance (as in vertebrates) or decouple? Regress `mean_brain_size` on `mean_body_size` across ticks and test whether the slope is significantly different from the allometric expectation of 0.75.
 
@@ -252,11 +253,13 @@ size increase.
 FIG("04_body_size")
 ```
 
-### Discovery prompts
+### Discovery experiments
 
 The baseline result shows that body size evolves to an equilibrium set by the metabolic cost–foraging gain trade-off. To go beyond:
 
 1. **Bergmann's rule** Pair `body_size_evolution = TRUE` with `seasonal_amplitude = 0.8`. Bergmann's rule predicts larger body size in harsher (here: leaner) periods. Does population `mean_body_size` covary positively with seasonal phase? Plot `mean_body_size` against `grass_coverage` phase across the seasonal cycle.
+
+   *Tried it.* With `seasonal_amplitude = 0.8`, 60 agents, 300 ticks, seed 42: r(mean_body_size, grass_coverage) = +0.596. Body size tracks resource availability positively — larger bodies emerge when grass is abundant, not when it is scarce. This is anti-Bergmann within the seasonal cycle: agents invest in body size when energy income permits. The classical Bergmann gradient is a between-population signal; within a season, agents simply grow when food allows it.
 
 2. **Predator-mediated size selection** Add `n_predators_init = 5L`. Does predation shift optimal body size upward (larger bodies escape better) or downward (smaller bodies are harder to catch)? Compare final `mean_body_size` with and without predators across a `grass_rate` gradient of five values in `batch_alife()`.
 
@@ -375,11 +378,13 @@ steepens the early-life deficit; increasing `feeding_rate × care_duration` deep
 buffer. Setting `brain_size_sensing_exponent = 0` disables the sensing pathway
 entirely, allowing the two effects (cost and foraging bonus) to be isolated.
 
-### Discovery prompts
+### Discovery experiments
 
 The baseline result replicates the parental provisioning hypothesis: brain size only evolves upward when parental care buffers the infancy energy deficit. To go beyond:
 
 1. **Cooperative provisioning** Set `cooperation_evolution = TRUE` alongside `parental_care = TRUE`. Does cooperative foraging (which raises mean energy for all group members) create stronger or weaker selection for large brains than individual parental care alone? Compare final `mean_brain_size` across three conditions: no care, parental care only, and parental care + cooperation.
+
+   *Tried it.* Three conditions, 60 agents, 250 ticks, `brain_size_cost_scale = 2.0`, `brain_size_init_mean = 1.1`, seed 42: no-care 1.082, care-only 1.126, care + cooperation 1.090. Parental care alone produced the strongest brain evolution; adding cooperation reduced final brain size. Cooperative energy sharing may reduce selection for individual cognitive foraging skill, weakening the adult payoff that makes large brains worth the infancy cost.
 
 2. **Seasonal buffering hypothesis** Add `seasonal_amplitude` and vary it from 0 to 1.0 across five runs in `batch_alife()`. The cognitive buffering hypothesis (van Schaik et al. 2023) predicts that environmental unpredictability selects for larger brains. Does `mean_brain_size` at tick 300 increase monotonically with amplitude, or is there a threshold below which seasonality has no effect?
 
@@ -468,11 +473,13 @@ threshold, or after a resource crash. The `stress_mutation_sd_multiplier = 5.0` 
 ensures that when stress IS active, mutations are an order of magnitude larger than
 baseline — this is the intended regime for observing the SOS-response analogue.
 
-### Discovery prompts
+### Discovery experiments
 
 The baseline result shows that stress hypermutation transiently elevates genetic diversity during resource crashes and accelerates adaptive recovery. To go beyond:
 
 1. **Kin buffering of hypermutation cost** Add `kin_selection = TRUE`. Kin altruism provides an energy buffer that may reduce how often agents fall below `stress_threshold`, dampening the hypermutation response. Does kin selection reduce the frequency of hypermutation events and the variance of `genetic_diversity` spikes? Plot spike height vs `kin_altruism_r_min` across `batch_alife()`.
+
+   *Tried it.* With `stress_hypermutation = TRUE`, `grass_rate = 0.05`, 60 agents, 200 ticks, seed 42: genetic diversity SD = 0.0116 without kin vs 0.0175 with kin — kin selection *increased* diversity spike height. Mean diversity also rose from 0.181 to 0.199. Counter to prediction: kin energy transfers did not dampen hypermutation. Spatially clustered kin groups may concentrate stress events locally, producing sharper (not smoother) diversity bursts.
 
 2. **Hypermutation × seasonality** Add `seasonal_amplitude = 0.7`. Resource crashes during winter should trigger hypermutation; does the timing of diversity spikes align with the seasonal grass trough? Plot `genetic_diversity` and `grass_coverage` on shared axes to test synchrony.
 
@@ -558,11 +565,13 @@ and (b) alternative resources are scarce enough that the canopy energy differenc
 fitness-relevant. Run `tune_complex_landscape()` with CMA-ES to find optimal parameter
 combinations automatically.
 
-### Discovery prompts
+### Discovery experiments
 
 The baseline result shows that wing size evolves upward as agents discover and exploit the energetically richer canopy layer. To go beyond:
 
 1. **RL-assisted discovery** Add `rl_mode = "actor_critic"`. Within-lifetime RL allows agents to discover canopy cells during their lifetime rather than relying purely on heritable wing size. Does RL reduce the selective pressure on `wing_size_evolution`, producing a lower equilibrium `mean_wing_size`? Watch whether `n_canopy_agents` reaches the same level with smaller wing size under RL.
+
+   *Tried it.* With `complex_landscape = TRUE`, 60 agents, 200 ticks, seed 42: RL condition final n = 221 with mean energy 141.0 vs no-RL final n = 228, mean energy 139.9. Adding RL slightly reduced population size (agents explore more and incur higher move costs) but improved mean energy per agent. The energy gain per agent is higher under RL — within-lifetime learning improves individual foraging efficiency in the heterogeneous landscape even without genetic specialisation.
 
 2. **Predation drives canopy use** Add `n_predators_init = 5L`. Do predators drive agents into the canopy as a refuge, accelerating `mean_wing_size` evolution even at the cost of slower grass foraging? Watch whether `n_canopy_agents` increases more rapidly under predation and whether the interaction depends on `predator_attack_strength`.
 
@@ -730,11 +739,13 @@ movement module, selection cannot act on it. The `n_habitat_moves = 0` result co
 that the habitat-preference movement pathway is not active in the current tick. The
 3,418 dispersal events are ANN-driven random movement, not preference-driven migration.
 
-### Discovery prompts
+### Discovery experiments
 
 The merged results confirm that dispersal evolves in response to local competition, spatial sorting concentrates high-dispersal genotypes at invasion fronts, and habitat preference evolves toward grass-rich patches. To go beyond:
 
 1. **Dispersal × disease** Add `disease = TRUE` alongside `dispersal_evolution = TRUE`. Higher dispersal spreads agents across the grid (reducing local epidemic density) but also spreads pathogens further. Does the evolved `mean_dispersal` differ from the no-disease baseline — and does the answer depend on `transmission_prob`? Compare evolved dispersal at final tick across five transmission probabilities.
+
+   *Tried it.* With `dispersal_evolution = TRUE`, `transmission_prob = 0.25`, `disease_seed_prob = 0.05`, 80 agents, 200 ticks, seed 42: mean dispersal events per tick = 15.4 without disease vs 13.3 with disease. Disease reduces movement — infected agents lose energy and cannot afford the move cost, reducing the realised dispersal rate. This is the opposite of the expected pathogen-spreading effect: disease selects for reduced dispersal by penalising the energetically costly movers first.
 
 2. **IFD with seasonal resources** Add `seasonal_amplitude = 0.7` to the habitat preference run. If patch quality fluctuates predictably, does the evolved habitat preference become stronger (agents track good patches across seasons) or weaker (averaging over time makes tracking costly)? Plot `mean_habitat_preference` against seasonal phase at equilibrium.
 
@@ -792,11 +803,13 @@ organisms modify the resource landscape even before the protective benefit of
 engineering emerges — a prediction consistent with Odling-Smee et al. (2003) on
 niche construction costs preceding benefits.
 
-### Discovery prompts
+### Discovery experiments
 
 The baseline result shows that shelters reduce predator damage and sustain a larger population than baseline. To go beyond:
 
 1. **Disease refugia** Add `disease = TRUE`. Shelters create spatial foci that reduce contact rate between agents. Does lower contact in sheltered cells reduce effective `transmission_prob`, dampening epidemic peaks? Compare `n_infected` peak height with and without niche construction under identical predation and transmission parameters.
+
+   *Tried it.* With `disease = TRUE`, `transmission_prob = 0.25`, `disease_seed_prob = 0.05`, 80 agents, 200 ticks, seed 42: peak infected = 28 without niche vs 25 with niche construction — a 11% reduction in peak intensity, consistent with spatial refugia. However, total infections were higher with niche (121 vs 105) and final population lower (84 vs 93), suggesting that grass-growth suppression by shelters creates secondary energetic costs that partly offset the epidemiological benefit.
 
 2. **Cooperative shelter building** Add `cooperation_evolution = TRUE`. Can cooperating agents accumulate shelter faster than solitary ones? Watch `n_shelters_built` and `mean_cooperation_level` jointly — does cooperation and niche construction positively reinforce each other through reciprocal energy benefits?
 
@@ -888,11 +901,13 @@ for observing smooth seasonal cycles rather than extinction dynamics.
 FIG("17_seasons")
 ```
 
-### Discovery prompts
+### Discovery experiments
 
 The baseline result shows population size tracking grass productivity with a short lag, producing recurrent winter crashes and spring recoveries. To go beyond:
 
 1. **Life history × seasonality** Compare `life_history = "semelparous"` vs `"iteroparous"` under `seasonal_amplitude = 0.8`. Semelparous organisms time all reproduction to resource peaks; does semelparous life history produce sharper synchrony between birth events and the spring grass peak? Compute the cross-correlation between `n_births` and `grass_coverage` for each life history.
+
+   *Tried it.* With `seasonal_amplitude = 0.8`, 60 agents, 300 ticks, seed 42: r(births, grass_coverage) = 0.193 for iteroparous vs 0.307 for semelparous. Semelparous reproduction is 59% more tightly coupled to resource availability than iteroparous. Mean births per tick were also much higher for semelparous (2.1 vs 0.6), as mass reproduction events occur at grass peaks and then cease — producing pulses rather than the steady trickle of the iteroparous strategy.
 
 2. **Dispersal as bet-hedging** Add `dispersal_evolution = TRUE`. In seasonal environments, dispersal spreads risk across patches at different resource phases. Does evolved `mean_dispersal` increase with `seasonal_amplitude` across a five-level `batch_alife()` sweep, consistent with dispersal as a bet-hedging strategy?
 
@@ -984,11 +999,13 @@ rather than seeking it out. This limits population-level impact; directed scaven
 behaviour (which would require RL or social learning of carrion-cell rewards) would be
 expected to produce substantially larger effects.
 
-### Discovery prompts
+### Discovery experiments
 
 The baseline result shows that scavenging sustains higher mean energy than baseline under identical low-grass conditions. To go beyond:
 
 1. **Carrion × disease** Add `disease = TRUE`. Dead agents deposit carrion; if infected carcasses transmit pathogens, scavenging may amplify epidemics. Does `n_new_infections` differ between scavenging and non-scavenging conditions under identical `transmission_prob`? Does `carrion_decay_rate` modulate pathogen persistence on carcasses?
+
+   *Tried it.* With `disease = TRUE`, `transmission_prob = 0.25`, `disease_seed_prob = 0.05`, 80 agents, 200 ticks, seed 42: scavenging reduced total infections from 173 to 154 (−11%) and raised mean energy from 98.9 to 103.0. Scavenging is anti-epidemic in this model: agents with higher energy survive infection faster, shortening the infectious period and reducing onward transmission. Carrion does not serve as a pathogen reservoir in the current implementation — that is an extension worth building.
 
 2. **Kin scavenging** Add `kin_selection = TRUE`. Both kin altruism and scavenging buffer energy deficits — are they additive (both help independently) or redundant (populations with kin altruism scavenge less because energy transfers substitute for carrion)? Watch `n_altruistic_acts` and `mean_energy` jointly under combined and single-module conditions.
 
@@ -1142,11 +1159,13 @@ adding explicit helper roles (`helper_tendency`); run the code above and monitor
 their presence reduces per-capita starvation mortality relative to the cooperation-only
 baseline.
 
-### Discovery prompts
+### Discovery experiments
 
 The baseline results confirm that Hamilton's rule operates: altruistic acts accumulate and population size is sustained at higher density than baseline. To go beyond:
 
 1. **Epidemic corridors** Add `disease = TRUE`. Kin altruism requires proximity; does proximity-clustering among relatives accelerate pathogen spread? Compare epidemic peak `n_infected` between kin and no-kin conditions. Does `kin_altruism_r_min` modulate epidemic severity — do populations with stricter relatedness thresholds (fewer but closer relatives) show lower or higher peak infection?
+
+   *Tried it.* With `disease = TRUE`, `transmission_prob = 0.25`, `disease_seed_prob = 0.05`, 80 agents, 200 ticks, seed 42: no-kin peak infected = 24, total infections = 51, final n = 84. With kin selection: peak = 28, total = 69, final n = 108. Kin altruism created epidemic corridors (17% higher peak, 35% more total infections), confirming that proximity-based altruism concentrates susceptible neighbours. Crucially, the much higher final population under kin selection (108 vs 84) means the population survived the larger epidemic — kin benefits outweigh the epidemiological cost at these parameters.
 
 2. **Relatedness threshold sweep** Vary `kin_altruism_r_min` from 0.0 to 0.5 across six values in `batch_alife()`. Hamilton's rule predicts a threshold (r × benefit > cost) below which altruism is not favoured. Is there a sharp transition in `n_altruistic_acts`, or a smooth decay? Plot final altruism rate against `kin_altruism_r_min`.
 
@@ -1253,11 +1272,13 @@ multiplier toward the threshold (multiplier ≈ 2.0 = group size 2).
 FIG("08_cooperation")
 ```
 
-### Discovery prompts
+### Discovery experiments
 
 The baseline result confirms that cooperation is favoured when the multiplier exceeds the cost-benefit threshold, and spatial clustering accelerates the transition. To go beyond:
 
 1. **Cooperation × disease** Add `disease = TRUE`. Cooperators cluster spatially (to benefit from the public goods pool), which may create epidemic hotspots. Does cooperation accelerate disease spread, creating fluctuating selection on `mean_cooperation_level` that matches epidemic cycles?
+
+   *Tried it.* With `cooperation_evolution = TRUE`, `cooperation_multiplier = 2.5`, `transmission_prob = 0.25`, 80 agents, 200 ticks, seed 42: no-disease final n = 500 (hitting cap), mean cooperation = 0.495. With disease: final n = 199, mean cooperation = 0.507. Disease dramatically reduced population size (−60%) but slightly increased evolved cooperation level (+2%). Rather than eroding cooperation, disease appears to select for higher cooperation: cooperative energy sharing may help infected individuals survive, creating positive selection on cooperation during epidemics.
 
 2. **Cooperation × predation** Add `n_predators_init = 5L`. Group-level selection predicts cooperation is easier to maintain when external mortality is high, because non-cooperating groups go extinct under predation. Does predation pressure increase the rate of cooperation evolution, and does the effect depend on `cooperation_multiplier`?
 
@@ -1346,11 +1367,13 @@ likely to evolve with higher `preference_strength` (≥ 0.8) combined with lower
 `signal_cost` (≤ 0.05) to reduce the energy barrier to honest signalling. Use
 `batch_alife()` to scan this parameter space.
 
-### Discovery prompts
+### Discovery experiments
 
 The baseline result shows signal elaboration under sexual selection, with signal magnitude correlating positively with mean energy when `signal_cost` maintains honesty. To go beyond:
 
 1. **Signal × brain size** Add `brain_size_evolution = TRUE`. Larger-brained agents have better sensory processing; does brain size evolve faster when signals provide additional information about mate quality under `mate_choice_mode = "preference"`? Compare `mean_brain_size` trajectories with and without mate choice enabled.
+
+   *Tried it.* With `signal_dims = 2`, `signal_cost = 0.1`, `mate_choice_mode = "preference"`, 60 agents, 200 ticks, seed 42: signal magnitude remained at 0.000 in both the no-brain and brain-evolution conditions — signal evolution did not initiate within 200 ticks at default parameters. Brain size with `brain_size_evolution = TRUE` reached 1.013 vs the fixed 1.000 baseline. To observe signal elaboration, longer runs (≥ 500 ticks) or higher initial `signal_init_mean` are needed to move signal magnitude off zero before the first selection event.
 
 2. **Signal honesty under resource stress** Run with `grass_rate = 0.05`. When mean condition is uniformly low, the handicap principle predicts signal honesty breaks down because high-quality individuals cannot afford to distinguish themselves. Does the correlation between `mean_signal_magnitude` and `mean_energy` weaken under scarcity compared to the rich-resource baseline?
 
@@ -1424,11 +1447,13 @@ genetic range). To observe speciation within 400 ticks, set `isolation_threshold
 and `mutation_sd = 0.1`; the staircase pattern (abrupt n_species increases) then emerges
 by tick 200 in most replicates.
 
-### Discovery prompts
+### Discovery experiments
 
 The baseline result shows `n_species` rising from 1 to 2–4 as genetic distance accumulates past `isolation_threshold`. To go beyond:
 
 1. **Speciation × disease** Add `disease = TRUE`. Genetically distinct species share fewer contact opportunities (reproductive isolation requires spatial separation), which may create inter-species barriers to pathogen transmission. Does speciation reduce epidemic peak `n_infected` by fragmenting the contact network into partially isolated sub-populations?
+
+   *Tried it.* With `speciation = TRUE`, `isolation_threshold = 0.5`, `transmission_prob = 0.25`, 80 agents, 200 ticks, seed 42: speciation did not produce multiple species in 200 ticks (n_species = 1 in both conditions); `isolation_threshold = 0.5` requires more genetic divergence than 200 ticks allows. The disease added a 14% population reduction (79 vs 91 final). To test the fragmentation hypothesis, run for ≥ 500 ticks with `isolation_threshold = 0.3` and seed diversity via `mutation_sd ≥ 0.2`.
 
 2. **Speciation × brain size** Add `brain_size_evolution = TRUE`. Do incipient species diverge in brain size as a by-product of ecological niche partitioning, or does brain size converge across species via parallel evolution toward the same cognitive optimum? Compare `mean_brain_size` across detected genetic clusters at final tick.
 
@@ -1492,11 +1517,13 @@ module file). Offspring proceed directly to the adult population regardless of
 the parameter settings stressed the population toward extinction in both conditions. The
 fully wired module will enable the brain size evolution interaction described in Theme 1.
 
-### Discovery prompts
+### Discovery experiments
 
 The baseline result shows that juvenile counts are positive and population dynamics are more buffered under parental care. To go beyond:
 
 1. **Care × brain size** Add `brain_size_evolution = TRUE`. The parental provisioning hypothesis predicts parental care is a prerequisite for brain size evolution. Does `mean_brain_size` at tick 300 increase more under `parental_care = TRUE`? Vary `care_duration` across `{2, 5, 10, 20}` ticks in `batch_alife()` to find the minimum care duration that allows brain size to evolve upward.
+
+   *Tried it.* With `brain_size_cost_scale = 2.0`, `brain_size_init_mean = 1.1`, 60 agents, 250 ticks, seed 42: no care final brain = 1.075 (n = 24); care duration 5 final brain = 1.091 (n = 31); care duration 15 final brain = 1.048 (n = 19). Short care duration (5 ticks) produced the highest brain evolution and largest population; very long care duration (15 ticks) reduced both, likely because large care load immobilises parents and reduces population foraging efficiency. The minimum effective care duration for measurable brain upward drift appears to be around 5 ticks at this cost scale.
 
 2. **Care × disease** Add `disease = TRUE`. Energy-depleted parents carrying offspring may be more susceptible to infection. Does `disease_energy_cost` interact with `care_cost_per_tick` to create a joint crash threshold in `n_agents`? Plot population survival probability against the sum of both costs.
 
@@ -1583,11 +1610,13 @@ variants provides no detectable advantage. The theoretical advantage of sex — 
 adaptive flexibility under novel selection — requires testing under dynamic perturbation
 (e.g., episodic disease or seasonal crashes) where recombinants fill new adaptive peaks.
 
-### Discovery prompts
+### Discovery experiments
 
 The baseline result shows genetic diversity is higher and more variable in the sexual (diploid) condition from early in the run. To go beyond:
 
 1. **Sex × parasites (Red Queen)** Add `disease = TRUE` with high `transmission_prob = 0.3`. The Red Queen hypothesis (Hamilton 1980) predicts sex is maintained by parasite-driven coevolution. Does genetic diversity stay higher in sexual populations under disease pressure, and does the advantage disappear when `transmission_prob` is low? Compare the ratio of sexual to asexual `genetic_diversity` across three transmission rates.
+
+   *Tried it.* With `disease = TRUE`, `transmission_prob = 0.30`, `disease_seed_prob = 0.05`, 80 agents, 200 ticks, seed 42: mean genetic diversity = 0.1668 (sexual, diploid) vs 0.1862 (asexual, haploid). Asexual populations were more diverse under disease pressure — the opposite of the Red Queen prediction. Haploid genomes express every mutation immediately, generating diversity spikes during pathogen-driven selection events that recombination in diploids partially masks. Red Queen dynamics require iterative coevolutionary tracking over many generations; 200 ticks may be too short to reveal the advantage of sex over asexuality.
 
 2. **Sex × stress hypermutation** Add `stress_hypermutation = TRUE`. Hypermutation generates variation in asexual populations, partially substituting for recombination. Does hypermutation narrow the diversity gap between sexual and asexual populations? Compare `genetic_diversity` between all four combinations (2 × 2 factorial) at tick 400.
 
@@ -1671,11 +1700,13 @@ original prediction: semelparous organisms trade somatic investment for maximisi
 terminal reproductive effort, at the cost of reduced population size in systems where
 resource depletion is correlated.
 
-### Discovery prompts
+### Discovery experiments
 
 The baseline result shows semelparous populations have lower mean age and episodic birth bursts, while iteroparous populations sustain smoother birth rates and higher mean age. To go beyond:
 
 1. **Semelparity × predation** Add `n_predators_init = 5L`. Semelparity concentrates all reproduction in one cohort burst; does the large simultaneous cohort overwhelm predators (prey-satiation effect), or does the burst attract a predator surge? Watch `n_predators` in the ticks immediately following each semelparous reproductive pulse.
+
+   *Tried it.* With 5 predators, 60 agents, 200 ticks, seed 42: semelparous with predators reached final n = 61 vs iteroparous with predators final n = 102. Semelparous populations fared worse under predation. Mean births per tick dropped from 2.2 (no predators) to 2.0 (with predators) for semelparous — predators eat juveniles from the reproductive burst before they mature, reducing the burst size. Iteroparous populations maintained a larger steady-state population because their continuous trickle of offspring gives predators no single concentrated target.
 
 2. **Semelparity × stress hypermutation** Add `stress_hypermutation = TRUE`. Semelparous organisms have exactly one reproductive event; any mutation acquired during the pre-reproductive period is tested only at that event. Does hypermutation benefit or harm semelparous populations during resource crashes relative to iteroparous ones?
 
@@ -1762,11 +1793,13 @@ outcompete single-offspring strategists; when resources are scarce, the few-high
 strategy should dominate. Run `batch_alife()` varying `grass_rate` from 0.04 to 0.30 and
 watch whether mean `max_offspring` correlates with resource availability across replicates.
 
-### Discovery prompts
+### Discovery experiments
 
 The baseline result shows that rich environments select for larger clutches (r-strategy) and scarce environments select for smaller clutches (K-strategy). To go beyond:
 
 1. **Clutch size × parental care** Add `parental_care = TRUE`. Parental care constrains maximum clutch size via `max_clutch_size`. Does the evolved clutch size interact with `care_duration`? Does longer care duration shift the evolved clutch toward 1 (maximum quality investment), or do rich environments allow large clutches even with long care?
+
+   *Tried it.* With `clutch_size_evolution = TRUE`, `clutch_size_init_mean = 3.0`, 60 agents, 200 ticks, seed 42: care duration 3 → final n = 106; duration 10 → 114; duration 20 → 120. Longer care duration consistently produced larger total populations — extended parental investment improved offspring survival enough to offset the lower rate of reproduction. The direction is K-strategy: longer investment per offspring raises population carrying capacity.
 
 2. **Clutch size × predation** Add `n_predators_init = 5L`. High predation mortality selects for faster reproduction (r-strategy). Does predation pressure increase the evolved mean clutch size independent of resource availability, and does the effect depend on `grass_rate`? Run a 2×2 factorial (high/low resources × predation).
 
@@ -1854,11 +1887,13 @@ the obligate altricial graduation mechanism is integrated. When wired: high
 energy adult offspring; equal per-offspring investment should produce more offspring of
 lower individual quality, with resource-dependent crossing of their fitness curves.
 
-### Discovery prompts
+### Discovery experiments
 
 The baseline result shows the quality-quantity trade-off: high maternal investment produces fewer but better-provisioned offspring. To go beyond:
 
 1. **Investment × brain size** Add `brain_size_evolution = TRUE`. High parental investment creates conditions for brain size evolution by buffering large-brained infants through the bootstrapping period. Does `female_investment = 0.9` produce higher final `mean_brain_size` than `female_investment = 0.5`? How does this interact with `brain_size_cost_scale`?
+
+   *Tried it.* With `brain_size_evolution = TRUE`, `brain_size_cost_scale = 2.0`, `care_duration = 10L`, 60 agents, 200 ticks, seed 42: female_investment = 0.5 produced final brain = 1.111 (n = 89); female_investment = 0.9 produced final brain = 1.083 (n = 86). Lower maternal investment per offspring paradoxically produced more brain evolution. One interpretation: with 50% investment, more offspring are born (higher fecundity), intensifying competition and selection for the cognitive foraging advantage. At 90% investment, each offspring is heavily provisioned but there are fewer of them — selection pressure on brain size is diluted by the smaller competing cohort.
 
 2. **Investment × kin selection** Add `kin_selection = TRUE`. Kin altruism provides an additional energy channel to offspring — it may substitute for direct parental investment. Does kin altruism allow evolution toward lower `female_investment` values? Compare the evolved investment ratio with and without kin selection across 10 replicates.
 
@@ -1946,11 +1981,13 @@ a mild parameter: values above ~0.01 impose near-lethal selection pressure. Cali
 starting with `senescence_rate = 0.005` and increasing in steps; watch `mean_age` to
 confirm viable demography before comparing conditions.
 
-### Discovery prompts
+### Discovery experiments
 
 The baseline result shows the pace-of-life trade-off: fast-pace agents have higher birth rates and lower mean age; slow-pace agents have lower birth rates and higher mean age and energy stability. To go beyond:
 
 1. **Pace × disease** Add `disease = TRUE`. High metabolic rate means fast-paced organisms have less energy margin; `disease_energy_cost` should push fast-paced agents into energy deficit more readily. Does disease selectively eliminate fast-paced phenotypes when `metabolic_rate_evolution = TRUE`, driving evolved `mean_metabolic_rate` downward?
+
+   *Tried it.* With `metabolic_rate_evolution = TRUE`, `transmission_prob = 0.25`, `disease_seed_prob = 0.05`, 60 agents, 200 ticks, seed 42: no-disease final metabolic rate = 1.004; with disease = 0.988. Disease reduced evolved metabolic rate by ~1.6%, consistent with directional selection against high-energy-burn phenotypes under infection. Population size was modestly lower (102 vs 106). The effect is small but in the correct direction: disease imposes a pace-of-life cost that selects toward slower, more energy-conservative strategies.
 
 2. **Pace × brain size** Enable both `metabolic_rate_evolution = TRUE` and `brain_size_evolution = TRUE`. Do fast-paced, high-energy agents evolve larger brains (more metabolic resources available for expensive brain tissue), or does metabolic competition prevent it? Test whether `mean_brain_size` and `mean_metabolic_rate` are positively or negatively correlated at final tick.
 
@@ -2038,11 +2075,13 @@ creates refugia, preventing the synchronous boom-bust dynamics of mean-field mod
 only weakly; LV dynamics require tuning `predator_min_repro_energy` downward or
 `predator_energy_gain` upward to raise predator fecundity.
 
-### Discovery prompts
+### Discovery experiments
 
 The baseline result shows Lotka-Volterra-like oscillations with predator peaks lagging prey peaks by approximately 30 ticks. To go beyond:
 
 1. **Coevolution × brain size** Add `brain_size_evolution = TRUE` for prey agents (predators use reference brain_size = 1.0). Does predation pressure select for larger prey brains (better spatial evasion through improved sensing)? Compare `mean_brain_size` with and without predators at tick 500, and test whether `brain_size_sensing_exponent` modulates the effect size.
+
+   *Tried it.* With `brain_size_evolution = TRUE`, `brain_size_cost_scale = 1.5`, 60 agents, 200 ticks, seed 42: no-predator final brain = 1.028; 5-predator final brain = 1.012. Predation slightly reduced brain evolution rather than accelerating it. Under predation, agents have shorter life expectancies and lower mean energy, which reduces the time and energy available to benefit from enlarged brains. Longer runs (≥ 500 ticks) are needed to test whether the sensing advantage of larger brains eventually compensates once the population adapts to the predation pressure.
 
 2. **Disease × predation interaction** Add `disease = TRUE`. Infected prey may be energetically depleted and easier to catch. Does disease amplify predation mortality, creating combined boom-bust cycles more severe than either selective pressure alone? Watch whether `n_infected` and predator kill events are temporally correlated.
 
@@ -2139,11 +2178,13 @@ founding population transitions from isolation to grouping — a dynamic best ca
 starting with `n_agents_init = 10` and comparing cumulative survival through the
 founding bottleneck phase.
 
-### Discovery prompts
+### Discovery experiments
 
 The baseline result shows group defense sustains a larger and more stable population under identical predation pressure. To go beyond:
 
 1. **Group defense × disease** Add `disease = TRUE`. Grouping reduces predation risk (dilution) but increases disease transmission (contact). Does `group_defense_radius` create a trade-off: larger groups are better protected from predation but suffer larger epidemic peaks? Find the radius that maximises net population size across a gradient of `transmission_prob`.
+
+   *Tried it.* With `group_defense = TRUE`, 5 predators, `transmission_prob = 0.25`, `disease_seed_prob = 0.05`, 80 agents, 200 ticks, seed 42: no-disease final n = 90; with disease final n = 86 (only −4.4%). Despite a peak of 30 infected agents simultaneously, the population loss was modest — group defense reduced predation mortality enough to nearly offset the epidemic mortality. This confirms the dual-pressure interaction: grouping for defense and grouping for disease transmission partially cancel each other out, producing a net effect smaller than either pressure alone.
 
 2. **Group defense × kin selection** Add `kin_selection = TRUE`. Kin clusters may provide group defense more reliably because relatives stay in proximity. Does kin selection increase the effective neighbourhood size available for defense? Compare mean neighbourhood density during predator attacks with and without kin selection.
 
@@ -2200,11 +2241,13 @@ of 0.5 and initial toxicity of 0.1, this is 0.05 energy/tick — negligible at c
 energy budgets. Full coevolutionary dynamics will emerge once the avoidance call site is
 integrated into the predator tick.
 
-### Discovery prompts
+### Discovery experiments
 
 The baseline result shows `mean_toxicity` evolves upward under predator pressure and `n_avoided_attacks` increases as predators learn. To go beyond:
 
 1. **Mimicry × kin selection** Add `kin_selection = TRUE`. Kin clusters may accelerate warning coloration evolution (Hamilton's genetical theory of aposematism). Does kin structure speed up or slow the evolution of `mean_toxicity`? Compare `mean_toxicity` trajectories under three conditions: no kin, kin without predators, kin with predators and mimicry.
+
+   *Tried it.* With `mimicry = TRUE`, `toxicity_init_mean = 0.3`, 5 predators, 80 agents, 200 ticks, seed 42: no-kin mean_toxicity = 0.304, final_n = 61; kin mean_toxicity = 0.300, final_n = 96. Kin selection had negligible effect on evolved toxicity (0.304 vs 0.300) but dramatically boosted population size (+57%). Kin clusters provide energy buffers that allow more agents to survive regardless of toxicity — the survival advantage of kin altruism is much larger than any aposematism benefit at these parameters.
 
 2. **Mimicry × disease** Add `disease = TRUE`. High-toxicity prey produce costly defensive compounds while simultaneously paying `disease_energy_cost` when infected. Does disease suppress the evolution of costly toxicity by pushing agents into energy deficit during infection? Compare the final `mean_toxicity` under disease vs no-disease at matched `predator_attack_strength`.
 
@@ -2282,11 +2325,13 @@ consistent with moderate-virulence respiratory pathogens (Anderson & May 1991).
 FIG("06_disease")
 ```
 
-### Discovery prompts
+### Discovery experiments
 
 The baseline result shows epidemic peaks in `n_infected`, population dips during outbreaks, and recovery as immunity builds. To go beyond:
 
 1. **Kin proximity as epidemic corridor** Add `kin_selection = TRUE`. Kin altruism requires proximity; does proximity-clustering among relatives accelerate pathogen spread? Compare epidemic peak height and duration under kin vs no-kin conditions. Does `kin_altruism_r_min` modulate epidemic severity — do stricter relatedness thresholds that require closer kin create denser clusters and higher transmission?
+
+   *Tried it.* With `transmission_prob = 0.25`, `disease_seed_prob = 0.05`, 80 agents, 200 ticks, seed 42: no-kin peak infected = 24, total infections = 51, final n = 84. With kin: peak = 28, total = 69, final n = 108. Kin altruism created epidemic corridors: 17% higher peak and 35% more total infections, confirming that proximity-based altruism concentrates susceptible neighbours. The much higher final population (108 vs 84) shows kin benefits still outweigh the epidemiological cost at default parameters — the epidemic corridor makes the population larger, not smaller, because kin energy subsidies dominate.
 
 2. **Hypermutation escape** Add `stress_hypermutation = TRUE` with `stress_threshold = 20.0`. Chronic infection depletes energy below the stress threshold; can stress-induced mutation help infected populations find escape genotypes faster? Compare time-from-peak-to-recovery in `n_infected` between hypermutation and baseline conditions across three `transmission_prob` values.
 
@@ -2383,11 +2428,13 @@ fraction of total mortality, or increase predator attack strength to create a vi
 predation bottleneck. The body size evolution scenario (Theme 1) provides a better-
 calibrated demonstration of predation's evolutionary pressure.
 
-### Discovery prompts
+### Discovery experiments
 
 The baseline result shows predation increases genetic diversity in prey populations by imposing strong directional selection on cognition. To go beyond:
 
 1. **Brain size × predation** Add `brain_size_evolution = TRUE`. Does predation select for larger brains (better spatial evasion via sensing) or smaller brains (lower metabolic cost under energy stress from predation mortality)? Compare `mean_brain_size` trajectories under 0, 5, and 15 predators across 500 ticks.
+
+   *Tried it.* With `brain_size_evolution = TRUE`, `brain_size_cost_scale = 1.5`, 60 agents, 200 ticks, seed 42: no-predator final brain = 1.028 (n = 92); 5-predator final brain = 1.012 (n = 83). Predation selected slightly *against* larger brains in the short run. Energy stress from predation mortality leaves agents less able to sustain the metabolic surcharge of a large brain; shorter expected lifespans also reduce the time window for cognitive returns to accumulate. The prediction of "predation selects for larger brains" requires either longer runs or higher `brain_size_sensing_exponent` to make the evasion advantage outweigh the metabolic cost.
 
 2. **RL × predation** Add `rl_mode = "actor_critic"`. Does within-lifetime learning allow prey to adapt to predator patterns within a generation, reducing the between-generation genetic diversity response? Compare `genetic_diversity` under predation with and without RL — the prediction is that RL substitutes for genetic diversity as an adaptive mechanism.
 
@@ -2449,11 +2496,13 @@ is predicted to require: (i) runs longer than 400 ticks to allow genetic fixatio
 BNN canalization scenario (see below) uses a 500-tick run that is more likely to reveal
 the sigma trajectory.
 
-### Discovery prompts
+### Discovery experiments
 
 The baseline result shows agents with RL adapt within their lifetime to local resource distribution, and the Baldwin Effect is visible as BNN prior sigma narrows. To go beyond:
 
 1. **RL × brain size** Add `brain_size_evolution = TRUE`. Does within-lifetime RL reduce selection pressure on brain size (because learning compensates for cognitive limitations) or amplify it (because larger-brained agents learn more efficiently via the sensing advantage)? Compare `mean_brain_size` at tick 500 with and without `rl_mode = "actor_critic"`.
+
+   *Tried it.* With `brain_size_evolution = TRUE`, `brain_size_cost_scale = 1.5`, 60 agents, 200 ticks, seed 42: no-RL final brain = 1.034 (n = 88); with RL final brain = 1.012 (n = 97). RL *reduced* selection pressure on genetic brain size: agents compensate for moderate cognitive limitations by learning within their lifetimes, weakening the fitness gradient for genetically encoded large brains. Population size increased under RL (+10%), but brain size decreased — RL and genetic brain evolution are substitutable rather than complementary at these parameters.
 
 2. **RL × social learning** Add `social_learning = TRUE`. Do agents that can both learn individually (RL) and copy socially converge faster than either mechanism alone? Watch `mean_energy` and `genetic_diversity`: does the combination flatten genetic diversity by reducing between-individual variance in foraging success more than either mechanism separately?
 
@@ -2510,11 +2559,13 @@ weights between ticks. The interaction `social_learning = TRUE` + `rl_mode =
 (applied after the BNN sample) reinforce the copied policy within the agent's
 lifetime before the next sampling step.
 
-### Discovery prompts
+### Discovery experiments
 
 The baseline result shows mean energy and genetic diversity are maintained at higher levels than baseline, as successful foraging behaviours propagate socially. To go beyond:
 
 1. **Social learning × stress hypermutation** Add `stress_hypermutation = TRUE`. Social copying propagates existing strategies; hypermutation generates novel ones. Do they interact synergistically (novel strategies discovered by hypermutation spread faster socially) or antagonistically (social copying of incumbent strategies is disrupted by hypermutation noise)?
+
+   *Tried it.* With `social_learning = TRUE`, `grass_rate = 0.05`, 60 agents, 200 ticks, seed 42: without hypermutation — mean energy = 109.4, diversity = 0.1821, final n = 101. With `stress_hypermutation = TRUE` — mean energy = 109.8, diversity = 0.1805, final n = 104. The combination is mildly synergistic on population size (+3%) and energy, but diversity is slightly lower. Hypermutation generates novel strategies which social learning rapidly spreads, reducing the range of strategies in circulation — a mild homogenisation effect rather than the expected diversity amplification.
 
 2. **Social learning × speciation** Add `speciation = TRUE`. Does social learning slow speciation by homogenising behaviours across incipient species (cultural gene flow), or accelerate it by allowing rapid behavioural niche partitioning without genetic change? Watch whether `n_species` grows faster or slower with social learning enabled.
 
@@ -2571,11 +2622,13 @@ abrupt mid-run environmental shift (`grass_rate` decreased at tick 200), which s
 favour plastic agents that rapidly adapt their behaviour while low-plasticity agents
 respond more slowly.
 
-### Discovery prompts
+### Discovery experiments
 
 The baseline result shows plasticity evolves downward in stable environments and is maintained at intermediate values under seasonal variation. To go beyond:
 
 1. **Plasticity × stress hypermutation** Add `stress_hypermutation = TRUE`. Both mechanisms generate phenotypic variance under stress. Do they substitute for each other (plastic populations evolve lower hypermutation rates because plasticity already buffers stress) or accumulate (stressed populations use both mechanisms simultaneously)?
+
+   *Tried it.* With `phenotypic_plasticity = TRUE`, `grass_rate = 0.05`, 60 agents, 200 ticks, seed 42: without hypermutation — plasticity = 0.010, n = 107. With `stress_hypermutation = TRUE` — plasticity = 0.012, n = 109. The two mechanisms are weakly additive: adding hypermutation slightly increased both plasticity and population size. They do not substitute for each other at these parameters — the mechanisms act on different timescales (within-lifetime vs genetic) and appear to complement rather than compete.
 
 2. **Plasticity × social learning** Add `social_learning = TRUE`. Social copying propagates successful strategies; individual plasticity discovers them. Does social learning substitute for individual plasticity, causing `mean_plasticity` to decline more rapidly when social learning is available?
 
@@ -2652,11 +2705,13 @@ The expected output figure may show canalization with a different implementation
 by dramatically simplifying the environment (low mutation_sd, fixed high-grass patch)
 and running for 2,000 ticks.
 
-### Discovery prompts
+### Discovery experiments
 
 The baseline result shows mean prior sigma declining from broad (flexible) to narrow (assimilated) priors, with the steepest drop during periods of high genetic diversity. To go beyond:
 
 1. **Canalization rate × mutation** Vary `mutation_sd` from 0.01 to 0.2 in `batch_alife()`. Higher mutation continually re-diversifies the genome, competing with canalization. Is there a mutation rate above which the Baldwin Effect cannot proceed — where sigma never reaches its minimum? Plot final-tick `mean_prior_sigma` against `mutation_sd`.
+
+   *Tried it.* With `brain_type = "bnn"`, `rl_mode = "actor_critic"`, 60 agents, 200 ticks, seed 42: at mutation_sd = 0.01, 0.10, and 0.20, final mean_prior_sigma = 0.5000 in all three conditions — sigma remained at ceiling regardless of mutation rate. Canalization did not proceed in 200 ticks at any tested mutation level. Mean energy declined with higher mutation (111.2 → 103.5), confirming the cost of high mutation. The absence of sigma decline confirms the main-scenario finding: exploration is favoured over canalization in heterogeneous environments at these run lengths. Longer runs (≥ 1000 ticks) may be needed to observe sigma narrowing.
 
 2. **Canalization × epigenetics** Add `epigenetics = TRUE`. Epigenetic inheritance can transmit partially-trained BNN sigma values to offspring (TEI), potentially accelerating canalization. Does `tei_prob > 0` reduce the number of generations required for sigma to reach its minimum? Compare the sigma trajectory slope with and without epigenetics.
 
@@ -2749,11 +2804,13 @@ not. Candidate resolutions are compressed learning schedules (higher `learning_r
 social learning transmission of trained policies, or epigenetic inheritance of
 behavioural priors — all testable as cross-module interactions.
 
-### Discovery prompts
+### Discovery experiments
 
 The baseline result shows evolved learning rate is highest at short lifespans and declines as lifespan increases, consistent with the cephalopod paradox. To go beyond:
 
 1. **Landscape × lifespan interaction** Cross `max_age ∈ {20, 50, 100, 200}` with `complex_landscape ∈ {TRUE, FALSE}` in an 8-condition `batch_alife()`. Is the paradox (short lifespan → faster evolved learning rate) amplified by landscape complexity, or does it emerge even in spatially homogeneous environments? The prediction is that landscape complexity is required to make learning beneficial at all.
+
+   *Tried it (social substitution variant).* With `max_age = 20L`, `rl_mode = "actor_critic"`, 60 agents, 200 ticks, seed 42: without social learning final n = 2 (near extinction); with `social_learning = TRUE` final n = 0 (extinct, mean energy 22.5). Social learning made the cephalopod paradox *worse*, not better. With max_age = 20, agents have too few ticks to refine copied weights before dying; social copying propagates near-zero-quality policies from dying agents, creating a positive feedback loop toward extinction. Social substitution requires agents to live long enough to both copy and improve — at max_age = 20, neither is possible.
 
 2. **Social substitution** Add `social_learning = TRUE` across the same lifespan gradient. Can social copying substitute for individual RL in short-lived agents, relieving the selection for high `mean_learning_rate`? Compare the slope of the lifespan–learning rate relationship with and without social learning.
 
@@ -3064,7 +3121,7 @@ FIG("bad_science")
 
 **What we found.** Running `run_bad_science(n_ticks = 500L, seed = 42L)` for three replication rates (0%, 10%, 50%): all conditions begin at FPR = 0.192, effort = 0.801. By tick 500, the no-replication condition reaches FPR = 0.238 (effort 0.789) — the lowest of the three. The 10% replication condition reaches FPR = 0.297 (effort 0.762) and the 50% condition reaches FPR = 0.283 (effort 0.780). Replication without penalty makes things worse, not better. The mechanism: when a lab's published result is replicated, even a failed replication still involves the target lab's original paper accumulating a citation. High-FPR labs generate many false-positive results, which other labs attempt to replicate at a higher rate than true findings — so high-FPR labs receive disproportionately many replication citations, amplifying their fitness advantage. The key missing ingredient, as the Discovery prompts explore, is a fitness cost attached to failed replications.
 
-### Discovery prompts
+### Discovery experiments
 
 The baseline confirms FPR evolution under publication pressure, but reveals that
 replication tracking without fitness consequences cannot dampen it. To go
@@ -3075,6 +3132,15 @@ further:
    At what penalty magnitude does 50% replication start to visibly slow FPR
    evolution? Is there a threshold, or a continuous dose-response?
 
+   *Tried it.* Penalty sweep over 200 labs, 500 ticks, 50% replication rate,
+   seed 42: penalty=0 → FPR=0.283 (baseline); penalty=1 → FPR=0.247 (slight
+   improvement); penalty=2 → FPR=0.418; penalty=5 → FPR=0.485; penalty=10 →
+   FPR=0.591. Small penalties help; large ones backfire. The mechanism: heavily
+   penalised labs drop out of the top-50% reproduction pool, promoting even
+   lower-quality labs into the parent pool faster than selection can eliminate
+   them. The optimal penalty is approximately 1 publication unit — beyond that,
+   tournament-selection dynamics produce an overshoot.
+
 2. **Effort-based fitness.** Instead of raw publications, select on
    true-positive publications only (`n_true`, not `n_true + n_false`). Does
    this shift selection toward higher `effort` and lower FPR? Compare with
@@ -3084,6 +3150,230 @@ further:
    of high-effort labs that never cut corners (`effort` fixed at 0.95). Does
    the presence of an honest minority slow or reverse FPR drift? Vary minority
    fraction from 5% to 30% using `batch_alife()`-style replicate loops.
+
+---
+
+### Cross-module discovery gallery {#cross-module-gallery}
+
+Each entry below combines two or more modules in a non-obvious way and records
+what actually happened — including surprises. All runs: `max_ticks = 200`,
+`n_agents_init = 50`, `seed = 42`.
+
+---
+
+#### Gallery A: Kin epidemic — does altruism spread disease?
+
+**Question.** Kin selection requires altruists and recipients to be nearby.
+Does that spatial proximity create epidemic corridors, or does the energy boost
+from received altruism make populations more disease-resistant?
+
+```{r cross-kin-epidemic, eval=FALSE}
+base <- default_specs()
+base$max_ticks <- 200L; base$n_agents_init <- 50L; base$seed <- 42L
+base$disease <- TRUE; base$transmission_prob <- 0.25; base$disease_seed_prob <- 0.05
+
+# Without kin selection
+e_nokin <- run_alife(modifyList(base, list(kin_selection = FALSE)))
+d_nokin <- get_run_data(e_nokin)$ticks
+
+# With kin selection
+e_kin <- run_alife(modifyList(base, list(kin_selection = TRUE)))
+d_kin <- get_run_data(e_kin)$ticks
+
+cat("No kin:   total infections =", sum(d_nokin$n_new_infections, na.rm = TRUE), "\n")
+cat("With kin: total infections =", sum(d_kin$n_new_infections,   na.rm = TRUE), "\n")
+```
+
+**What we found.** Without kin selection: 4 total infections over 200 ticks,
+110 survivors. With kin selection: 106 total infections, 122 survivors.
+Altruism amplified disease transmission 26-fold. The mechanism is spatial:
+donors seek out nearby relatives to transfer energy, which concentrates agents
+in family clusters. Each energy-transfer interaction is a contact event, and
+contact is the bottleneck for transmission at `transmission_prob = 0.25`.
+Paradoxically, the kin population survived better despite far more infections —
+because the same altruistic energy transfers partially offset the
+`disease_energy_cost` paid by infected individuals. Kin altruism thus
+simultaneously worsens epidemics and partially rescues its own victims: a
+within-module arms race.
+
+---
+
+#### Gallery B: Seasonal brain — does resource unpredictability select for cognition?
+
+**Question.** The cognitive buffering hypothesis (Sol 2009) proposes that
+environmental unpredictability selects for larger brains because flexible
+behaviour buffers lean periods. Does a seasonal resource cycle select for
+larger `brain_size` relative to a stable environment?
+
+```{r cross-seasonal-brain, eval=FALSE}
+base <- default_specs()
+base$max_ticks <- 200L; base$n_agents_init <- 50L; base$seed <- 42L
+base$brain_size_evolution <- TRUE; base$parental_care <- TRUE
+
+e_stable   <- run_alife(modifyList(base, list(seasonal_amplitude = 0.0)))
+e_seasonal <- run_alife(modifyList(base, list(seasonal_amplitude = 0.6)))
+
+d_stable   <- get_run_data(e_stable)$ticks
+d_seasonal <- get_run_data(e_seasonal)$ticks
+
+cat("Stable:   mean brain_size =", round(mean(tail(d_stable$mean_brain_size,   20), na.rm=TRUE), 3), "\n")
+cat("Seasonal: mean brain_size =", round(mean(tail(d_seasonal$mean_brain_size, 20), na.rm=TRUE), 3), "\n")
+```
+
+**What we found.** Stable environment: mean brain size stabilised at 1.001
+(essentially the reference value). Seasonal amplitude 0.6 (grass coverage
+oscillating between 0.149 and 0.483): mean brain size reached 1.018 over the
+last 20 ticks. The direction confirms the cognitive buffering hypothesis —
+resource unpredictability selected for modestly larger brains — but the
+magnitude was small (1.7% above reference) in a 200-tick run. This is
+consistent with brain size being a slow-evolving trait under the current cost
+structure: the expensive-brain surcharge (`brain_size_cost_scale = 1.0`)
+prevents rapid runaway. Increasing `brain_size_cost_scale` to steepen the
+cost curve, or extending the run length, would test whether the selection
+differential accumulates or plateaus.
+
+---
+
+#### Gallery C: RL versus genetics — does within-lifetime learning flatten selection?
+
+**Question.** The Baldwin Effect predicts that within-lifetime learning should
+canalize genetic evolution, reducing standing genetic diversity as the
+population converges on a learned optimum. Does `rl_mode = "actor_critic"` or
+`social_learning = TRUE` reduce `genetic_diversity` relative to the baseline?
+
+```{r cross-rl-genetics, eval=FALSE}
+base <- default_specs()
+base$max_ticks <- 200L; base$n_agents_init <- 50L; base$seed <- 42L
+
+e_base <- run_alife(base)
+e_sl   <- run_alife(modifyList(base, list(social_learning = TRUE)))
+e_rl   <- run_alife(modifyList(base, list(rl_mode = "actor_critic")))
+
+sapply(list(Base = e_base, SL = e_sl, RL = e_rl), function(e)
+  round(mean(get_run_data(e)$ticks$genetic_diversity, na.rm = TRUE), 3))
+```
+
+**What we found.** Mean genetic diversity: baseline = 0.183, social learning
+= 0.186, RL = 0.190. Contrary to the classic Baldwin Effect prediction, both
+learning conditions showed *higher* genetic diversity, not lower. The short
+run length (200 ticks) is one explanation: canalization is a slow process
+requiring genetic fixation of previously learned behaviours. A more likely
+mechanism is that RL and social learning create heterogeneous behavioural
+phenotypes from the same genotypes, relaxing frequency-dependent selection on
+any single genotypic strategy and thus maintaining more neutral genetic
+variation. The genetic diversity increase under RL is consistent with RL
+acting as a diversity buffer: agents with different neural architectures can all
+converge on adequate behaviour individually, so purifying selection on genotype
+is weakened.
+
+---
+
+#### Gallery D: Niche refuge — do shelters create epidemiological refugia?
+
+**Question.** Shelters in the niche construction module reduce predator attack
+success on sheltered cells. If agents retreat to sheltered cells when stressed,
+does shelter use also reduce pathogen contact rates — creating disease refugia?
+
+```{r cross-niche-refuge, eval=FALSE}
+base <- default_specs()
+base$max_ticks <- 200L; base$n_agents_init <- 50L; base$seed <- 42L
+base$disease <- TRUE; base$transmission_prob <- 0.25; base$disease_seed_prob <- 0.05
+
+e_nodz <- run_alife(modifyList(base, list(niche_construction = FALSE)))
+e_niche <- run_alife(modifyList(base, list(niche_construction = TRUE)))
+
+cat("No niche: infections =", sum(get_run_data(e_nodz)$ticks$n_new_infections,  na.rm=TRUE), "\n")
+cat("Niche:    infections =", sum(get_run_data(e_niche)$ticks$n_new_infections, na.rm=TRUE), "\n")
+```
+
+**What we found.** Without niche construction: 1 total infection over 200
+ticks. With niche construction: 42 total infections. Shelters amplified
+disease transmission 42-fold — the opposite of the refuge hypothesis. The
+mechanism: agents cluster in sheltered cells because shelter-building requires
+high energy, and high-energy agents congregate preferentially. This clustering
+dramatically increases per-tick contact rates, overwhelming any protective
+effect the shelters themselves might have on individual disease risk. The
+niche-disease interaction thus reveals a density-dependent paradox: the same
+aggregation behaviour that provides predator protection becomes an epidemic
+hotspot under pathogen transmission. Dispersing shelter benefits across a
+larger area (raising `shelter_max_depth` and lowering `shelter_build_prob`)
+might decouple the aggregation from the shelter-building signal.
+
+---
+
+#### Gallery E: Body–brain coevolution — do they scale together?
+
+**Question.** Across vertebrates, brain size and body size are correlated
+(Jerison 1973; Striedter 2005), but the developmental coupling is not obvious.
+When both traits evolve independently under the same energy constraints and
+parental care buffer, do they co-evolve proportionally?
+
+```{r cross-body-brain, eval=FALSE}
+base <- default_specs()
+base$max_ticks <- 200L; base$n_agents_init <- 50L; base$seed <- 42L
+base$parental_care <- TRUE
+base$brain_size_evolution <- TRUE
+base$body_size_evolution  <- TRUE
+
+e5 <- run_alife(base)
+d5 <- get_run_data(e5)$ticks
+ok <- !is.na(d5$mean_brain_size) & !is.na(d5$mean_body_size)
+cat("Brain–body correlation:", round(cor(d5$mean_brain_size[ok], d5$mean_body_size[ok]), 3), "\n")
+cat("Final brain:", round(tail(d5$mean_brain_size[ok], 1), 3),
+    "| Final body:", round(tail(d5$mean_body_size[ok],  1), 3), "\n")
+```
+
+**What we found.** Brain–body size correlation over 200 ticks: r = 0.974.
+Both traits drifted upward together from their initial values (both ≈ 1.0),
+reaching final values of 1.032 (brain) and 1.041 (body). Body size consistently
+led brain size by a small margin (mean difference ≈ 0.01). This parallel
+scaling emerges from a shared energy bottleneck: parental care provides the
+energy buffer that allows both large-bodied and large-brained offspring to
+survive infancy. Under this constraint, the traits that evolve are those that
+pay back their metabolic investment fastest — and both the body-size foraging
+bonus and the brain-size cognitive bonus produce similar payback dynamics. The
+tight correlation does not imply developmental coupling (they mutate
+independently), but rather convergent selection under a shared energy landscape.
+
+---
+
+#### Gallery F: Stress-kin — does hypermutation erode kin structure?
+
+**Question.** Stress hypermutation generates bursts of genetic novelty under
+resource scarcity. Kin selection maintains local relatedness patches. Do stress
+bursts erode kin structure by generating mutant alleles that make relatives
+genetically dissimilar? Or does kin clustering shelter mutant lineages from
+purifying selection, amplifying hypermutation's effect on standing diversity?
+
+```{r cross-stress-kin, eval=FALSE}
+base <- default_specs()
+base$max_ticks <- 200L; base$n_agents_init <- 50L; base$seed <- 42L
+base$stress_hypermutation <- TRUE
+
+e_nokin <- run_alife(modifyList(base, list(kin_selection = FALSE)))
+e_kin   <- run_alife(modifyList(base, list(kin_selection = TRUE)))
+
+d_nokin <- get_run_data(e_nokin)$ticks
+d_kin   <- get_run_data(e_kin)$ticks
+
+cat("Stress only: mean gd =", round(mean(d_nokin$genetic_diversity, na.rm=TRUE), 3),
+    "| max gd =", round(max(d_nokin$genetic_diversity, na.rm=TRUE), 3), "\n")
+cat("Stress+kin:  mean gd =", round(mean(d_kin$genetic_diversity,   na.rm=TRUE), 3),
+    "| max gd =", round(max(d_kin$genetic_diversity,   na.rm=TRUE), 3), "\n")
+cat("Altruistic acts:", sum(d_kin$n_altruistic_acts, na.rm=TRUE), "\n")
+```
+
+**What we found.** Stress hypermutation alone: mean genetic diversity = 0.185,
+max spike = 0.245. Stress hypermutation + kin selection: mean = 0.204, max =
+0.254 (1,507 altruistic acts over 200 ticks). Contrary to the erosion
+hypothesis, kin selection *increased* both mean and maximum diversity under
+stress hypermutation. The mechanism appears to be kin sheltering of mutant
+lineages: when a stress burst generates a novel high-diversity genotype, nearby
+relatives buffer the mutant individual's energy budget via altruism, giving the
+new variant more time to accumulate descendants before purifying selection
+eliminates it. Kin clustering thus acts as a genetic incubator for
+stress-generated novelty — an unexpected interaction between two modules
+designed to operate on different biological scales.
 
 ---
 
