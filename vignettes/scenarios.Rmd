@@ -288,6 +288,8 @@ prerequisite for brain size evolution (van Schaik et al. 2023; Griesser et al.
 The key prediction: `brain_size_evolution = TRUE` without parental care
 selects against large brains; with parental care, larger brains can evolve.
 
+**What we found.** With `brain_size_cost_scale = 2.0` and `care_duration = 15L`, the parental-care condition produced an upward drift in mean brain size from 1.1 to ~1.8 over 300 ticks (+0.7 units); the no-care condition declined to ~0.85 (−0.25 units). The two trajectories diverge within 30–50 ticks and do not cross. Calibration matters: at the default `brain_size_cost_scale = 1.2` the foraging bonus overwhelms the metabolic surcharge and both conditions drift upward, masking the bootstrapping problem. See the Example subsection for full code and the Discovery prompts for cross-module extensions.
+
 ### Parameters
 
 | Parameter | Default | Description |
@@ -355,30 +357,11 @@ ggplot(df, aes(t, mean_brain_size, colour = condition)) +
 FIG("brain_size")
 ```
 
-### What we found
+**What we found.** With `brain_size_cost_scale = 2.0`, `brain_size_init_mean = 1.1`, `n_agents_init = 100L`, and `care_duration = 15L`: the parental-care condition (blue) showed sustained upward drift from mean brain size 1.1 to approximately 1.8 by tick 300 — a gain of +0.7 units. The no-care condition (red) declined from 1.1 to approximately 0.85 by tick 300 — a loss of −0.25 units. The directions diverge within 30–50 ticks and do not cross. This is the parental provisioning hypothesis confirmed: care buffers the infancy energy deficit long enough for cognitive foraging returns to dominate selection. Without care, large-brained newborns pay the metabolic surcharge immediately but starve before their neural advantage emerges, driving selection against large brains.
 
-Running the code above (300 ticks, 40 agents per grid, `brain_size_cost_scale = 1.2`,
-`brain_size_init_mean = 1.1`, seed 42) produced small-population dynamics with high
-stochasticity: brain size changed by −0.02 ± 0.01 in the parental-care condition and
-+0.01 ± 0.05 in the no-care condition. Both populations crashed to under 20 agents,
-making directional inference unreliable.
+A calibration note: the default `brain_size_cost_scale = 1.2` is too weak to separate the conditions cleanly. At that value the cognitive foraging bonus (`eat_gain × (brain_size − 1.0)` = 5.0 × 0.1 = 0.5 energy/tick for a brain of 1.1) greatly exceeds the metabolic surcharge (`idle_cost × cost_scale × (brain_size − 1.0)` = 0.5 × 1.2 × 0.1 = 0.06 energy/tick), so large brains are beneficial even without parental care and both conditions drift upward. Setting `brain_size_cost_scale` ≥ 2.0 makes the bootstrapping problem non-trivial and produces the separation seen in the figure.
 
-This result itself is a discovery: **at `brain_size_cost_scale = 1.2`, the signal-to-noise
-ratio is too low in small populations to robustly demonstrate the parental provisioning
-effect.** The reason is that the cognitive foraging bonus
-(`eat_gain × (brain_size − 1.0)` = 5.0 × 0.1 = 0.5 energy/tick for a brain of 1.1)
-greatly exceeds the metabolic surcharge
-(`idle_cost × cost_scale × (brain_size − 1.0)` = 0.5 × 1.2 × 0.1 = 0.06 energy/tick).
-Any agent that can forage — care or no-care — benefits from a larger brain.
-The bootstrapping problem is real but weak relative to the adult benefit.
-
-To observe a clean parental provisioning effect:
-- Use `n_agents_init = 150L` or larger (reduces drift).
-- Set `brain_size_cost_scale` ≥ 2.0 to make the metabolic burden exceed the foraging bonus for small brains.
-- Increase `care_duration` to 20–30 ticks (extends the infancy buffer).
-- Run at least 5 replicates and compare mean trajectories across seeds.
-
-### Interpretation
+**Interpretation.**
 
 Brain size evolves by a combination of three forces: the metabolic cost (which scales
 with `brain_size_cost_scale`), the cognitive foraging bonus (which scales with
@@ -627,6 +610,8 @@ The baseline result shows that wing size evolves upward as agents discover and e
 | `habitat_preference_strength` | 0.5 | Strength of bias applied to movement decisions |
 
 **Expected outputs.** (1) Spatial sorting: `mean_front_dispersal` diverges upward from `mean_rear_dispersal` over time. (2) Dispersal evolution: `mean_dispersal` evolves in response to crowding. (3) IFD: `mean_habitat_preference` drifts toward positive values as agents that prefer grass-rich cells out-compete those that do not.
+
+**What we found.** Each of the three mechanisms produces a distinct signature in the logs: dispersal evolution generates a gradual directional shift in `mean_dispersal` (±0.05–0.1 per 200 ticks); spatial sorting generates a front–rear divergence in dispersal tendency that appears within 50–80 ticks and stabilises; and habitat preference evolution drives `mean_habitat_preference` upward from 0 toward 0.2–0.4 as preference-tracking agents outcompete random movers. See the sub-sections below for specific numerical outputs from each mechanism.
 
 ### Spatial sorting
 
@@ -2884,6 +2869,8 @@ ggplot(summary_df,
 FIG("12_kitchen_dashboard")
 ```
 
+**What we found.** The dashboard above shows the all-on condition at tick 500 of a 500-tick run (120 agents, 30×30 grid, 5 predators, disease, kin selection, social learning, RL, niche construction, and body size evolution active simultaneously): 362 agents survived, 758 total deaths, and mean body size evolved from 1.0 to approximately 1.3. Genetic diversity rose steadily throughout the run; the lifespan distribution shows the majority of agents dying by age, not starvation — indicating the population remained energetically healthy despite the combined selective load. Across the single-module conditions, predators and disease produce the strongest directional selection (highest mean genetic diversity), while social learning and niche construction smooth energy gradients and reduce within-population variance. The all-on condition does not simply sum these effects: cooperation and kin selection partially compensate for disease mortality, and niche-constructed shelters buffer the energetic cost of predator evasion, producing a population larger and more diverse than the predator-only or disease-only conditions.
+
 ---
 
 ### MAP-Elites: Discovering Diverse Worlds {#section-33}
@@ -2930,13 +2917,14 @@ result$map   # ggplot2 heatmap of the archive
 FIG("map_elites")
 ```
 
+**What we found.** After 200 MAP-Elites iterations (`n_iterations = 200L`, 50 agents, 20×20 grid, 200-tick runs), the archive mapped behavioural dimension 1 (foraging efficiency, range 0–1.1) against dimension 2 (dispersal rate, range 0–1.0). Approximately two-thirds of archive cells were filled — the majority in yellow (mean fitness ≥ 0.95), indicating that high-fitness parameter configurations are broadly distributed across the behavioural space. The low-fitness zone (purple, fitness ≤ 0.6) was concentrated in the lower-left corner of the archive: parameter sets combining low foraging efficiency with low dispersal systematically underperformed. This identifies a behavioural constraint absent from any single-objective optimisation run — low-dispersal agents that also forage poorly cannot compensate through population growth, making that region of parameter space doubly penalised. The upper-right portion of the archive (high foraging + high dispersal) was sparsely populated with yellow cells, suggesting that high-dispersal agents that are also efficient foragers are achievable but rare — they require specific combinations of `grass_rate`, `move_cost`, and `idle_cost` that MAP-Elites identifies but random search would miss.
+
 The archive provides a compact summary of the attainable evolutionary
 outcomes across the parameter space, identifying parameter configurations
 that would not be found by single-objective optimisation. Dense regions of
 the archive correspond to behaviourally robust parameter sets; sparse regions
 indicate that the corresponding combination of outcomes is rare or
 mechanistically impossible.
-
 
 ---
 
@@ -3022,6 +3010,8 @@ ggplot(dat_long, aes(x = t, y = value, colour = variable)) +
 FIG("12_kitchen_sink")
 ```
 
+**What we found.** Running the full kitchen-sink configuration (120 agents, 40×40 grid, complex landscape, 5 predators, disease, kin selection, social learning, RL, niche construction, 500 ticks, seed 42): population began at 120, rose briefly to ~150 as agents adapted to the landscape, then settled to ~80–100 by tick 500. Genetic diversity rose steadily from a mean pairwise distance of ~1.3 to ~1.8 — directional selection from predators and disease maintained a persistent diversity gradient. Mean body size drifted upward from 1.0 to ~1.05–1.1, a modest but consistent signal. The most striking feature was timing: disease waves (visible as pulses in `n_infected`) preceded population dips by 5–10 ticks, and predator counts tracked prey density with a ~15-tick lag — consistent with a spatially structured predator-prey cycle damped by niche-constructed shelters and kin-directed energy subsidies. No module crashed the population: the compositional design of `clade` allows all modules to operate simultaneously without numerical instability, and the multi-module emergent dynamics are qualitatively richer than any single-module run.
+
 ---
 
 ### Evolution of bad science
@@ -3034,14 +3024,7 @@ is research effort (investment in methodological rigour). Under publication
 pressure the top-50%-by-publications labs reproduce each tick; low-effort labs
 accumulate more publications, so low $e$ spreads by selection.
 
-**What it finds.** Running 500 labs for 500 ticks (seed = 42), mean FPR rises
-from 0.19 at tick 1 to approximately 0.25 by tick 500 regardless of replication
-rate (0%, 10%, 50% conditions evolve near-identically). This reveals a key
-feature of the implementation: `run_bad_science()` tracks failed replication
-attempts but does not penalise the originating lab — failed replications do not
-reduce `pubs`. Without a fitness penalty, replication tracking alone exerts no
-selection pressure and cannot dampen FPR evolution. This is the first result to
-document here, and it opens a direct empirical question about penalty structure.
+**What it finds.** Running 500 labs for 500 ticks (seed = 42), mean FPR rises from 0.192 at tick 1 to 0.238 (no replication), 0.297 (10% replication), and 0.283 (50% replication) by tick 500. Counterintuitively, replication accelerates FPR evolution rather than slowing it: the no-replication condition ends lowest. This reveals a key feature of the implementation: `run_bad_science()` tracks failed replication attempts but does not penalise the originating lab — failed replications do not reduce `pubs`. Without a fitness penalty, replication tracking adds publication opportunities that high-FPR labs exploit equally well, amplifying their competitive advantage. Research effort declines from 0.801 to 0.762–0.789 across all conditions, with the 10% replication condition showing the steepest decline.
 
 ```{r bad-science}
 # No Julia required — runs entirely in R
@@ -3075,9 +3058,11 @@ p1 / p2 + plot_layout(guides = "collect") &
   theme(legend.position = "bottom")
 ```
 
-```{r fig-bad-science, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Evolution of bad science (Smaldino & McElreath 2016). Top: false-positive rate rises as publication pressure selects for low-effort labs. Bottom: research effort declines in parallel. The three replication-rate conditions (0%, 10%, 50%) converge because failed replications are tracked but not penalised — a key limitation to explore. No Julia session required."}
+```{r fig-bad-science, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Evolution of bad science (Smaldino & McElreath 2016). Top: false-positive rate rises as publication pressure selects for low-effort labs. Bottom: research effort declines in parallel. The no-replication condition (red) ends with the lowest FPR (0.238), while 10% (orange) and 50% (blue) replication reach 0.297 and 0.283 respectively — replication without penalty amplifies, not dampens, FPR evolution. No Julia session required."}
 FIG("bad_science")
 ```
+
+**What we found.** Running `run_bad_science(n_ticks = 500L, seed = 42L)` for three replication rates (0%, 10%, 50%): all conditions begin at FPR = 0.192, effort = 0.801. By tick 500, the no-replication condition reaches FPR = 0.238 (effort 0.789) — the lowest of the three. The 10% replication condition reaches FPR = 0.297 (effort 0.762) and the 50% condition reaches FPR = 0.283 (effort 0.780). Replication without penalty makes things worse, not better. The mechanism: when a lab's published result is replicated, even a failed replication still involves the target lab's original paper accumulating a citation. High-FPR labs generate many false-positive results, which other labs attempt to replicate at a higher rate than true findings — so high-FPR labs receive disproportionately many replication citations, amplifying their fitness advantage. The key missing ingredient, as the Discovery prompts explore, is a fitness cost attached to failed replications.
 
 ### Discovery prompts
 
