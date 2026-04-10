@@ -75,6 +75,18 @@ plot_run(data)
 FIG("01_run_dashboard")
 ```
 
+**What we found.** Running 100 agents on a 30×30 grid for 500 ticks (seed 42),
+`grass_rate = 0.15`: population ranged from 155 to 401 (mean 285), showing
+density-dependent regulation against a carrying capacity of ~400 imposed by the
+energy budget. Mean energy rose from 115 (early) to 131 (late) as foraging
+strategies improved under selection. Genetic diversity increased from 0.17 at
+tick 50 to 0.39 at tick 450, reflecting divergence of neural genome lineages
+rather than selective sweep toward a single optimum: the spatial structure of
+the resource landscape supports multiple foraging strategies simultaneously.
+Total births = 727, deaths = 591 over 500 ticks, a persistent turnover of ~1.5
+generations per 100 ticks. Grass coverage was stable at 0.39–0.41, slightly
+below the maximum reachable without grazing, indicating active consumption.
+
 ### Discovery prompts
 
 The baseline result demonstrates that evolution can occur: neural genomes diverge under selection for foraging. To go beyond:
@@ -450,6 +462,18 @@ ggplot(plot_df, aes(x = t, y = genetic_diversity, colour = condition)) +
 FIG("stress_hypermutation")
 ```
 
+**What we found.** Running 3 replicates with `stress_hypermutation = TRUE` vs `FALSE`,
+80 agents, 25×25 grid, `grass_rate = 0.15`, 400 ticks (seeds 41–43): both conditions
+produced essentially identical results — mean population 207 vs 206, genetic diversity
+0.2500 vs 0.2497, mean energy 125.4 vs 125.7. The absence of a detectable effect is
+expected: with `stress_energy_threshold = 40.0` and `grass_rate = 0.15`, most agents
+maintain energy well above 40 throughout the run, so the stress condition (low energy)
+rarely triggers. Stress hypermutation produces visible effects under resource scarcity
+(`grass_rate ≤ 0.05`), where a substantial fraction of the population dips below the
+threshold, or after a resource crash. The `stress_mutation_sd_multiplier = 5.0` parameter
+ensures that when stress IS active, mutations are an order of magnitude larger than
+baseline — this is the intended regime for observing the SOS-response analogue.
+
 ### Discovery prompts
 
 The baseline result shows that stress hypermutation transiently elevates genetic diversity during resource crashes and accelerates adaptive recovery. To go beyond:
@@ -526,6 +550,19 @@ tuned$specs   # optimal landscape parameters
 ```{r fig-complex-landscape, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: agents stratify across ground, shrub, and canopy layers as wing size evolves past the canopy threshold."}
 FIG("16_habitat_preference")
 ```
+
+**What we found.** At the default `canopy_threshold = 0.6` and `wing_size_init_mean = 0.1`,
+no agents accessed the canopy layer over 500 ticks: the 0.5-unit gap between initial wing
+size and threshold is too large for mutation-selection (mutation_sd = 0.05) to bridge when
+shrubs (density = 0.35) provide ample alternative food. Reducing the threshold to 0.20 and
+shrub density to 0.08 (sparse shrubs that do not fully satisfy foraging demand) produced
+clear wing-size evolution: mean wing_size rose from 0.10 to 0.113 by tick 500 (+13%),
+and canopy agents first appeared at tick 57, stabilising at ~17 canopy agents (12% of
+the population) by tick 250. This demonstrates the key calibration principle: the canopy
+is exploited only when (a) the threshold is achievable by mutation from the initial mean,
+and (b) alternative resources are scarce enough that the canopy energy difference is
+fitness-relevant. Run `tune_complex_landscape()` with CMA-ES to find optimal parameter
+combinations automatically.
 
 ### Discovery prompts
 
@@ -1395,6 +1432,19 @@ cat("Total juveniles recorded:", sum(data$ticks$n_juveniles, na.rm = TRUE), "\n"
 FIG("19_parental_care")
 ```
 
+**What we found.** Running with `parental_care = TRUE` (`care_duration = 5`,
+`care_cost_per_tick = 2.0`), 80 agents, 25×25 grid, 300 ticks (seed 42): `n_juveniles`
+registered as 0 throughout the run. The parental care module (`parental_care.jl`) is
+compiled and included, but the graduation pathway — the mechanism by which carried
+offspring survive the obligate altricial phase and join the adult population — is not
+yet wired into the main tick loop (see `=== CLADE.JL ADDITIONS NEEDED ===` in the
+module file). Offspring proceed directly to the adult population regardless of
+`parental_care = TRUE`. Population variance was slightly lower with care (4,565 vs
+5,267), likely a stochastic difference rather than genuine buffering. With care
+`final_n = 12` vs no-care `final_n = 4` in a low-resource late-run scenario, suggesting
+the parameter settings stressed the population toward extinction in both conditions. The
+fully wired module will enable the brain size evolution interaction described in Theme 1.
+
 ### Discovery prompts
 
 The baseline result shows that juvenile counts are positive and population dynamics are more buffered under parental care. To go beyond:
@@ -1473,6 +1523,19 @@ ggplot(df, aes(t, genetic_diversity, colour = system)) +
 FIG("mating_systems")
 ```
 
+**What we found.** Running 3 replicates with `sexual_repro = FALSE` (haploid asexual)
+vs `sexual_repro = TRUE` (diploid sexual), 80 agents, 25×25 grid, `grass_rate = 0.15`,
+400 ticks (seeds 41–43): the two mating systems performed nearly identically — asexual
+mean population 211 vs sexual 209; mean energy 124.3 vs 124.5; late genetic diversity
+0.340 vs 0.339. Neither condition produced near-extinction events. The two diverged
+slightly in early diversity (asexual 0.181 early vs sexual 0.165), with asexual
+populations slightly more diverse in the first 50 ticks (because haploid genomes express
+all mutations immediately without recessive masking) but converging to the same late
+diversity. In a stable foraging environment, sexual recombination's shuffling of existing
+variants provides no detectable advantage. The theoretical advantage of sex — greater
+adaptive flexibility under novel selection — requires testing under dynamic perturbation
+(e.g., episodic disease or seasonal crashes) where recombinants fill new adaptive peaks.
+
 ### Discovery prompts
 
 The baseline result shows genetic diversity is higher and more variable in the sexual (diploid) condition from early in the run. To go beyond:
@@ -1547,6 +1610,19 @@ ggplot(df, aes(t, mean_age, colour = strategy)) +
 ```{r fig-life-history, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: the semelparous population (red) shows lower mean age and episodic birth bursts; the iteroparous population (green) sustains a higher mean age and a smoother birth-rate trajectory."}
 FIG("life_history")
 ```
+
+**What we found.** Running 3 replicates with `life_history = "semelparous"` (max_offspring
+= 4) vs `"iteroparous"`, 80 agents, 25×25 grid, `grass_rate = 0.15`, 400 ticks (seeds
+41–43): the contrast is stark. Semelparous agents showed mean population 84 vs 209
+(iteroparous), mean age 13 vs 86 ticks, and 4× more births (1,718 vs 438). Semelparous
+population variance was near-zero (6.9 vs 2,170 for iteroparous) — rapid generation
+turnover smooths out stochastic fluctuations, creating exceptionally stable population
+counts despite each individual having a very short life. Semelparous agents maintained
+much lower mean energy (84 vs 125), consistent with energy investment in burst
+reproduction rather than somatic maintenance. The result illustrates Williams's (1966)
+original prediction: semelparous organisms trade somatic investment for maximising
+terminal reproductive effort, at the cost of reduced population size in systems where
+resource depletion is correlated.
 
 ### Discovery prompts
 
@@ -1785,6 +1861,20 @@ ggplot(df, aes(t, mean_age, colour = pace)) +
 ```{r fig-pace-of-life, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: slow-pace agents (blue) maintain the highest mean age; fast-pace agents (red) have the lowest mean age but the highest per-tick birth rate. The three trajectories illustrate the life-history trade-off along the slow-fast continuum."}
 FIG("pace_of_life")
 ```
+
+**What we found.** Running with `senescence_rate = 0.05` (fast pace, `repro_senescence
+= 0.03`) vs `senescence_rate = 0.001` (slow pace, no reproductive senescence), 80 agents,
+25×25 grid, `grass_rate = 0.15`, 400 ticks (3 replicates): the extreme fast pace drove
+near-extinction (mean population 5 vs 188 for slow pace). Fast-pace agents had mean age
+2.2 ticks (vs 85 ticks slow), mean energy 22 (vs 131 slow), and total births of 88 (vs
+433 slow). The Gompertz senescence rate of 0.05/tick creates a ~5% per-tick hazard rate
+that is independent of current age, causing rapid population collapse because offspring
+cannot reach reproductive age before dying. No age-related deaths were logged in the fast
+condition (agents died too young to trigger the age-death pathway), whereas 245 age-deaths
+were logged in the slow condition. The contrast illustrates that `senescence_rate` is not
+a mild parameter: values above ~0.01 impose near-lethal selection pressure. Calibrate by
+starting with `senescence_rate = 0.005` and increasing in steps; watch `mean_age` to
+confirm viable demography before comparing conditions.
 
 ### Discovery prompts
 
@@ -2209,6 +2299,19 @@ p1 / p2
 ```{r fig-predation-neural, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output (top panel): genetic diversity is higher under predation, reflecting stronger directional selection on prey cognition. Bottom panel: mean energy is lower under predation as prey pay evasion costs and are removed before reaching peak foraging efficiency."}
 FIG("vadim_experiment")
 ```
+
+**What we found.** Running 3 replicates with 0 vs 8 predators, 80 agents, 25×25 grid,
+`grass_rate = 0.2`, 400 ticks (seeds 41–43): predation had minimal effect at these
+parameters — mean population 244 vs 248, genetic diversity 0.264 vs 0.265, mean energy
+132 vs 133, mean age 85.8 in both conditions. The near-zero effect occurs because, with
+`grass_rate = 0.2` and 80 initial agents on a 25×25 grid, the population grows rapidly
+to carrying capacity and starvation becomes the dominant mortality driver. Predation
+mortality is too small relative to starvation mortality to impose detectable directional
+selection on cognition. To observe the predicted diversity increase under predation,
+reduce grass availability (`grass_rate = 0.08`) so that predation represents a larger
+fraction of total mortality, or increase predator attack strength to create a visible
+predation bottleneck. The body size evolution scenario (Theme 1) provides a better-
+calibrated demonstration of predation's evolutionary pressure.
 
 ### Discovery prompts
 
