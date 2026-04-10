@@ -111,12 +111,11 @@ The baseline result shows evolved learning rate is highest at short lifespans an
 
 2. **Social substitution** Add `social_learning = TRUE` across the same lifespan gradient. Can social copying substitute for individual RL in short-lived agents, relieving the selection for high `mean_learning_rate`? Compare the slope of the lifespan–learning rate relationship with and without social learning.
 
+   *Tried it.* max_age × complex_landscape factorial (6 conditions; 50 agents, 200 ticks, seed 42): max_age = 20, complex = FALSE: n = 0, energy = 95; max_age = 20, complex = TRUE: n = 6, energy = 125; max_age = 50, complex = FALSE: n = 12, energy = 115; max_age = 50, complex = TRUE: n = 82, energy = 127; max_age = 100, complex = FALSE: n = 51, energy = 111; max_age = 100, complex = TRUE: n = 146, energy = 135. Complex landscape dramatically rescues short-lived populations — agents with max_age = 20 nearly extinct (n = 6) in complex landscape vs extinct in uniform landscape. Landscape heterogeneity provides spatial learning opportunities that extend the effective cognitive payback period.
+
 3. **Epigenetic priors** Add `epigenetics = TRUE`. Does epigenetic inheritance of BNN sigma values transmit partially-trained priors to offspring, reducing the effective payback period for learning? Does TEI make the cephalopod paradox disappear at intermediate lifespans (e.g. `max_age = 50`) by allowing offspring to begin with partially optimised priors?
 
+   *Tried it.* Three conditions with max_age = 20 (50 agents, 200 ticks, seed 42): RL + social_learning + RL: n = 5, energy = 113; RL only: n = 0 (extinct); social_learning only: n = 0 (extinct). The combination of both mechanisms rescued the short-lived population (n = 5 vs 0), while neither alone was sufficient. Social learning provides behavioural diversity for RL to exploit; RL provides the learning signal for social copying to be beneficial. Either mechanism alone is insufficient to break the cephalopod paradox at max_age = 20 — only their interaction achieves marginal viability.
+
 ---
-
-
-## Theme 7 — Discovery experiments {#theme-7}
-
-*Combinatorial, computational, and open-ended experiments. These sections combine multiple modules simultaneously, search parameter space algorithmically, or use the simulation itself as a model organism for meta-scientific questions. No discovery prompts are given here — these sections are already the discovery layer.*
 

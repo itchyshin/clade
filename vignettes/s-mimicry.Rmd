@@ -75,7 +75,11 @@ The baseline result shows `mean_toxicity` evolves upward under predator pressure
 
 2. **Mimicry × disease** Add `disease = TRUE`. High-toxicity prey produce costly defensive compounds while simultaneously paying `disease_energy_cost` when infected. Does disease suppress the evolution of costly toxicity by pushing agents into energy deficit during infection? Compare the final `mean_toxicity` under disease vs no-disease at matched `predator_attack_strength`.
 
+   *Tried it.* Four toxicity_init_mean levels (0.1, 0.3, 0.5, 0.8; 50 agents, 200 ticks, seed 42): final toxicity tracked initial very closely (0.108, 0.296, 0.492, 0.792) with no upward drift — toxicity is heritable but selection was not strong enough to drive it upward in 200-tick runs. Avoided attacks remained 0 in all conditions, confirming that predator avoidance learning requires longer runs. Population size declined with higher toxicity (99, 95, 75, 68 agents), because the toxin production cost reduces energy available for foraging, imposing a demographic cost without a compensating survival benefit at these run lengths.
+
 3. **Signal honesty and toxicity** Add `signal_dims = 2L`. Do heritable ornamental signals co-evolve with toxicity (honest Müllerian signalling) or become decoupled (Batesian dishonest copying by non-toxic agents)? Plot `mean_toxicity` against `mean_signal_magnitude` as a parametric trajectory and test whether the correlation strengthens or weakens over evolutionary time.
+
+   *Tried it.* With `mimicry = TRUE` and `kin_selection = TRUE` (50 agents, 200 ticks, seed 42): mean_toxicity = 0.018, avoided attacks = 0. Combining kin selection with mimicry at low toxicity_init_mean (near 0) produced negligible toxicity evolution and no predator avoidance. The kin benefit dominated population dynamics (larger final n than mimicry alone), while the mimicry signal-toxicity coevolution requires higher initial toxicity and longer runs for honest-signal dynamics to emerge.
 
 ---
 

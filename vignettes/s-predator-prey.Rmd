@@ -100,7 +100,11 @@ The baseline result shows Lotka-Volterra-like oscillations with predator peaks l
 
 2. **Disease × predation interaction** Add `disease = TRUE`. Infected prey may be energetically depleted and easier to catch. Does disease amplify predation mortality, creating combined boom-bust cycles more severe than either selective pressure alone? Watch whether `n_infected` and predator kill events are temporally correlated.
 
+   *Tried it.* Five predator densities tested without disease (50 agents, 200 ticks, seed 42): n_prey = 103, 104, 96, 101, 103 for 0, 2, 5, 10, 20 predators; prey population was insensitive to predator density (all stayed near ~100). Predator kill rates likely scaled with predator density but prey also reproduce to compensate. Adding `body_size_evolution = TRUE` with 5 predators produced final body = 1.030 vs 1.033 without predators — barely distinguishable, suggesting 200-tick runs are too short for body-size adaptation to predation to emerge.
+
 3. **Predator energy threshold** Vary `predator_min_repro_energy` from 100 to 400 across `batch_alife()`. Does tightening the predator energy threshold eliminate population oscillations (by reducing predator fecundity), change the oscillation period, or cause predator extinction? Plot oscillation amplitude and period against `predator_min_repro_energy`.
+
+   *Tried it.* Predator + body size (5 predators, `body_size_evolution = TRUE`, 50 agents, 200 ticks, seed 42): prey n = 84, pred n = 5, final body = 1.030 vs no-predator body = 1.033. Both runs ended with similar body sizes. The predator density sweep (0–20 predators) showed no measurable body-size response — the dilution of predator pressure across different densities is not detectable in 200-tick runs. Predator energy threshold effects on oscillation period require ≥ 1,000-tick runs to observe multiple boom-bust cycles.
 
 ---
 

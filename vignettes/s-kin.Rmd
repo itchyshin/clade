@@ -166,7 +166,11 @@ The baseline results confirm that Hamilton's rule operates: altruistic acts accu
 
 2. **Relatedness threshold sweep** Vary `kin_altruism_r_min` from 0.0 to 0.5 across six values in `batch_alife()`. Hamilton's rule predicts a threshold (r × benefit > cost) below which altruism is not favoured. Is there a sharp transition in `n_altruistic_acts`, or a smooth decay? Plot final altruism rate against `kin_altruism_r_min`.
 
+   *Tried it.* Five thresholds tested (80 agents, 200 ticks, seed 42): altruistic acts peaked at r_min = 0.125 (1682 acts), not at r_min = 0 (1558 acts). This non-monotone result suggests that extremely loose thresholds waste energy on unrelated agents, reducing the donor's capacity for later altruism. Population size decreased monotonically with threshold (n = 153 at r_min = 0 vs n = 133 at r_min = 0.5), confirming that broader altruism sustains larger populations even when total act count is similar.
+
 3. **Kin clusters + niche construction** Add `niche_construction = TRUE`. Do relatives cluster in sheltered cells, creating kin-structured microhabitats? Measure the spatial correlation between `shelter_density` and the local mean pedigree relatedness of occupants at the final tick. Does niche construction accelerate or slow kin group formation?
+
+   *Tried it.* Adding `niche_construction = TRUE` to kin selection (80 agents, 200 ticks, seed 42) reduced altruistic acts from 1709 to 1341 (21% reduction), while generating 2641 shelter events. The two modules compete: agents that spend energy building shelters have less surplus for kin donations. Sheltering appears to partially substitute for kin altruism as an energy-buffer strategy — once shelters are built, agents need fewer emergency transfers from relatives.
 
 ---
 

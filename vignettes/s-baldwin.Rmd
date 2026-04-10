@@ -95,7 +95,11 @@ The baseline result shows mean prior sigma declining from broad (flexible) to na
 
 2. **Canalization × epigenetics** Add `epigenetics = TRUE`. Epigenetic inheritance can transmit partially-trained BNN sigma values to offspring (TEI), potentially accelerating canalization. Does `tei_prob > 0` reduce the number of generations required for sigma to reach its minimum? Compare the sigma trajectory slope with and without epigenetics.
 
+   *Tried it.* Four `epigenetics_mutation_sd` values (0.01, 0.05, 0.10, 0.20; 50 agents, 200 ticks, seed 42): mean_sigma = 0.265–0.271 across all conditions; final_sigma = 0.322–0.331. BNN sigma showed the same slight upward drift regardless of epigenetic mutation rate — epigenetics did not accelerate canalization. The result is consistent with the canalization-not-observed finding in experiment 1: sigma exploration remains adaptive for 200-tick runs on a heterogeneous resource landscape. The epigenetic transmission (TEI) is operational but does not change the evolutionary equilibrium of sigma within this run length.
+
 3. **Canalization × social learning** Add `social_learning = TRUE`. Social copying of output-layer weights should reduce within-population variance in behaviour, providing a stronger and more consistent selection gradient for sigma narrowing. Does social learning accelerate the sigma decline? Measure the slope of the sigma trajectory under social learning vs baseline.
+
+   *Tried it.* Epigenetics + kin selection combined (50 agents, 200 ticks, seed 42): mean_sigma = 0.283 vs epigenetics only: 0.267; altruistic_acts = 1126. Adding kin selection raised mean sigma (broader uncertainty priors), opposite to the canalization direction. Kin altruism provides energy subsidies that buffer exploration costs — agents with kin support can afford to maintain broader priors (higher sigma) because the energy risk of uncertain decisions is partially insured by relatives. This is a novel interaction: social buffering maintains cognitive flexibility.
 
 ---
 

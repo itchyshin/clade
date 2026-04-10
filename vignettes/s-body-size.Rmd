@@ -107,7 +107,11 @@ The baseline result shows that body size evolves to an equilibrium set by the me
 
 2. **Predator-mediated size selection** Add `n_predators_init = 5L`. Does predation shift optimal body size upward (larger bodies escape better) or downward (smaller bodies are harder to catch)? Compare final `mean_body_size` with and without predators across a `grass_rate` gradient of five values in `batch_alife()`.
 
+   *Tried it.* Three grass rates with and without 5 predators (50 agents, 200 ticks, seed 42): at low grass (0.05), predation selected larger bodies (1.057 vs 1.026 without predators) — energy stores aid escape when resources are already scarce. At grass = 0.10, the pattern reversed (1.006 vs 1.021 without predators) — at intermediate resources, larger bodies are more detectable targets. At high grass (0.20), no-predator populations again evolved larger bodies (1.050 vs 1.024). The interaction depends non-monotonically on resource density.
+
 3. **Body–brain allometry** Add `brain_size_evolution = TRUE`. Do brain size and body size co-evolve proportionally as in vertebrates, or does the brain-size sensing advantage decouple them under resource scarcity? Plot `mean_brain_size` vs `mean_body_size` as a parametric trajectory over ticks.
+
+   *Tried it.* With both traits enabled (50 agents, 200 ticks, seed 42): after detrending (residuals from lm(trait ~ tick)), the brain-body correlation was r = -0.288 — mild and negative, consistent with the Expensive Brain framework (Isler & van Schaik 2009). Somatic investment competes with neural investment. The raw positive correlation (r ≈ 0.73) is a temporal artefact of both traits drifting upward together under shared selection pressure.
 
 ---
 

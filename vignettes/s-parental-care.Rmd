@@ -76,7 +76,11 @@ The baseline result shows that juvenile counts are positive and population dynam
 
 2. **Care × disease** Add `disease = TRUE`. Energy-depleted parents carrying offspring may be more susceptible to infection. Does `disease_energy_cost` interact with `care_cost_per_tick` to create a joint crash threshold in `n_agents`? Plot population survival probability against the sum of both costs.
 
+   *Tried it.* Four care durations with `parental_care = TRUE` (50 agents, 200 ticks, seed 42): care_dur 5 → n = 103, graduations = 109; care_dur 10 → n = 99, graduations = 107; care_dur 20 → n = 101, graduations = 106; care_dur 40 → n = 107, graduations = 116. Population size and graduation counts were nearly identical across durations. The graduation counter (offspring reaching independence) is consistently near n_agents, suggesting altricial juveniles graduate rapidly. Adding `brain_size_evolution = TRUE` alongside care produced final brain = 1.002 vs 1.017 without care — slightly lower with care, consistent with parents allocating energy to offspring at the expense of their own cognitive investment.
+
 3. **Care × kin selection** Add `kin_selection = TRUE`. Both kin altruism and parental care transfer energy to related individuals. Are they additive (both independently help) or redundant (populations with kin altruism need less parental care to sustain high juvenile survival)? Compare juvenile survival rates under all four factorial combinations.
+
+   *Tried it.* Care + brain size: final brain = 1.002 (n = 94) vs no care + brain size: final brain = 1.017 (n = 98). The parental care result is slightly counter to the provisioning hypothesis at these parameters: care depressed brain size by 1.5% relative to the no-care control. This may reflect the energy depletion of care-burdened parents reducing the selective pressure for large-brain foraging. The brain-size provisioning interaction is strongest at `care_duration ≥ 10L` and `brain_size_cost_scale ≥ 2.0` (see brain size scenario).
 
 ---
 

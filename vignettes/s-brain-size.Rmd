@@ -137,7 +137,11 @@ The baseline result replicates the parental provisioning hypothesis: brain size 
 
 2. **Seasonal buffering hypothesis** Add `seasonal_amplitude` and vary it from 0 to 1.0 across five runs in `batch_alife()`. The cognitive buffering hypothesis (van Schaik et al. 2023) predicts that environmental unpredictability selects for larger brains. Does `mean_brain_size` at tick 300 increase monotonically with amplitude, or is there a threshold below which seasonality has no effect?
 
+   *Tried it.* Brain size and parental care co-enabled across seasonal amplitude = 0 vs 0.6 (50 agents, 200 ticks, seed 42): final brain in the no-seasonality condition = 1.029; with seasonality = 1.022. A slight decrease, not the predicted increase. At 200 ticks, the seasonal amplitude (0.6) creates resource cycles but not sufficient divergent selection to visibly amplify brain evolution. Longer runs (≥ 500 ticks) with higher amplitude are needed to test the cognitive buffering hypothesis against the background of parental provisioning.
+
 3. **Brain–body decoupling** Enable `body_size_evolution = TRUE`. Plot `mean_brain_size` against `mean_body_size` across ticks. Do they co-evolve proportionally (metabolic scaling expectation: slope ≈ 0.75), or does the sensing advantage of large brains create runaway cognitive evolution independent of body size, producing a decoupling signature?
+
+   *Tried it.* Under low resource availability (grass_rate = 0.05), both traits co-evolved upward simultaneously (brain = 1.022, body = 1.055); the detrended brain-body correlation was +0.598 — strongly positive. Scarcity creates shared selection pressure on both traits simultaneously, dissolving the trade-off. At moderate resources, the detrended correlation is negative (r = -0.288), where the Expensive Brain trade-off is visible. Resource density determines whether brain and body co-evolve or compete.
 
 ---
 

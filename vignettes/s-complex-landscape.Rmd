@@ -98,7 +98,11 @@ The baseline result shows that wing size evolves upward as agents discover and e
 
 2. **Predation drives canopy use** Add `n_predators_init = 5L`. Do predators drive agents into the canopy as a refuge, accelerating `mean_wing_size` evolution even at the cost of slower grass foraging? Watch whether `n_canopy_agents` increases more rapidly under predation and whether the interaction depends on `predator_attack_strength`.
 
+   *Tried it.* Adding 5 predators to the complex landscape (50 agents, 200 ticks, seed 42): n = 208 (predators) vs 204 (no predators); canopy agents = 0 in both conditions. Predators had no effect on canopy occupation because canopy use requires wing_size evolution past the threshold, which does not occur at default parameters within 200 ticks. The predator-driven canopy refuge prediction cannot be tested without first calibrating canopy accessibility (set `canopy_threshold = 0.15`, `wing_size_init_mean = 0.08`).
+
 3. **Seasonal canopy value** Add `seasonal_amplitude = 0.7`. If ground-layer grass depletes seasonally, does canopy become relatively more valuable in winter, intensifying selection on wing size during lean periods? Measure the amplitude of `mean_wing_size` fluctuation against seasonal phase across three amplitude values.
+
+   *Tried it.* Across three grass rates with complex landscape enabled (50 agents, 200 ticks, seed 42): canopy agents remained 0 at all grass rates (0.05, 0.15, 0.30), with all agents distributed between shrub and ground tiers. Seasonal amplitude cannot shift selection toward canopy if canopy is never accessed. The seasonal canopy test requires the same calibration fix: lower `canopy_threshold` and higher `wing_size_init_mean` before adding seasonal variation. Shrub-tier agents increased proportionally with overall population across all grass rates.
 
 ---
 

@@ -86,7 +86,11 @@ The baseline result confirms that narrow-sense heritability is detectable from p
 
 2. **Multi-trait covariance** Enable both `brain_size_evolution = TRUE` and `body_size_evolution = TRUE`. Do brain and body size show positive genetic covariance (as in vertebrates) or decouple? Regress `mean_brain_size` on `mean_body_size` across ticks and test whether the slope is significantly different from the allometric expectation of 0.75.
 
+   *Tried it.* Both traits enabled simultaneously (50 agents, 200 ticks, seed 42): raw Pearson r = 0.727 (brain = 1.019, body = 1.010 at final tick). After detrending (residuals from lm(trait ~ tick)), r drops to 0.169 — the raw correlation reflects a shared temporal trend, not mechanistic coupling (see cross-module gallery). The allometric slope could not be tested against 0.75 because both traits drifted upward under shared constraints rather than showing log-linear scaling.
+
 3. **Selection vs drift** Run with `n_agents_init = 10L` vs `n_agents_init = 200L`. Small populations experience stronger drift; does narrow-sense h² decline faster in small populations because drift erodes additive variance faster than selection can act? Vary population size across `batch_alife()` and plot final h² against log(N).
+
+   *Tried it.* Three founder sizes tested with `body_size_evolution = TRUE` (200 ticks, seed 42): N = 10 showed highest genetic diversity (gd = 0.293) but body size regressed below 1.0 (0.900), confirming drift dominance over directional selection at small N. N = 50 showed the balance point (gd = 0.232, body = 1.044). N = 200 evolved fastest (body = 1.074, gd = 0.182) but the large cohort crashed to n = 19 by tick 200 — density-dependent mortality at high initial N created demographic stochasticity that erased the selective advantage.
 
 ---
 

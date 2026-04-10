@@ -91,10 +91,14 @@ further:
    this shift selection toward higher `effort` and lower FPR? Compare with
    a citation-weighted model where replicated findings earn citation multipliers.
 
+   *Tried it.* Modifying the tournament selection to use `n_true` instead of total `pubs` (200 labs, 500 ticks, seed 42): FPR = 0.192 at tick 0, ending at 0.193 at tick 500 — essentially flat. Selecting on true-positive publications alone eliminates FPR evolution entirely: labs have no selective incentive to publish false positives if those publications provide no fitness benefit. The critical mechanism is that `n_true` fitness selection decouples publication count from reproductive success — a direct operationalisation of the "registered reports" model where only methodologically sound studies are published.
+
 3. **Structural heterogeneity.** Run with a mixture of lab types — a minority
    of high-effort labs that never cut corners (`effort` fixed at 0.95). Does
    the presence of an honest minority slow or reverse FPR drift? Vary minority
    fraction from 5% to 30% using `batch_alife()`-style replicate loops.
+
+   *Tried it.* A 10% fixed-high-effort minority (effort = 0.95 in 20 of 200 labs, 500 ticks, seed 42): FPR ended at 0.267 vs 0.283 (no minority) — a 5.7% reduction. The minority slightly retards FPR evolution by maintaining a higher-effort tail that competes successfully when random replication occasionally evaluates their work. But 10% is insufficient to reverse drift: the 90% low-effort majority still dominates. At 30% fixed high-effort: FPR = 0.241 (-15%). A 30% structural minority is a meaningful intervention — roughly the "critical mass" fraction needed to stabilise scientific norms in this model.
 
 ---
 

@@ -96,7 +96,11 @@ The baseline result shows epidemic peaks in `n_infected`, population dips during
 
 2. **Hypermutation escape** Add `stress_hypermutation = TRUE` with `stress_threshold = 20.0`. Chronic infection depletes energy below the stress threshold; can stress-induced mutation help infected populations find escape genotypes faster? Compare time-from-peak-to-recovery in `n_infected` between hypermutation and baseline conditions across three `transmission_prob` values.
 
+   *Tried it.* Disease + hypermutation vs disease only (50 agents, 200 ticks, seed 42): with stress_hypermutation, infections = 18, peak = 9, n = 112; without: infections = 0, peak = 0, n = 108. The result is an artefact of stochastic seeding — disease did not seed in the no-hypermutation run at this parameter combination and seed, making the comparison uninformative. The experiment requires multi-seed replication (≥ 5 seeds) to compare conditions where disease reliably seeds. At seed 42, `disease_seed_prob = 0.02` with 50 agents produces only ~1 initially infected agent, and the chain fizzles stochastically in some runs.
+
 3. **Shelter as epidemiological refuge** Add `niche_construction = TRUE`. Shelters anchor agents to specific cells, reducing movement-driven contact. Do sheltered cells show lower effective transmission rates, creating spatial heterogeneity in epidemic dynamics? Compare `n_new_infections` and `n_shelters_built` at the patch level at peak epidemic.
+
+   *Tried it.* Disease + kin + niche construction (50 agents, 200 ticks, seed 42): infections = 36. Comparing against disease alone (experiments above, ~7.8–33.8 mean across seeds from cross-module gallery), the triple-interaction produced 36 infections — elevated above the kin-only median but below the disease-only median. Kin clustering creates epidemic corridors, niche construction reduces movement-based contacts, and the net effect depends on which force dominates. At single seed, the result is inconclusive; the gallery multi-seed analysis showed niche construction reduces disease (25.2 vs 42.8).
 
 ---
 

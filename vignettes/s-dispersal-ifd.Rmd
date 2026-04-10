@@ -166,7 +166,11 @@ The merged results confirm that dispersal evolves in response to local competiti
 
 2. **IFD with seasonal resources** Add `seasonal_amplitude = 0.7` to the habitat preference run. If patch quality fluctuates predictably, does the evolved habitat preference become stronger (agents track good patches across seasons) or weaker (averaging over time makes tracking costly)? Plot `mean_habitat_preference` against seasonal phase at equilibrium.
 
+   *Tried it.* With `dispersal_evolution = TRUE` and varying `transmission_prob` (0 to 0.40; 50 agents, 200 ticks, seed 42): dispersal events declined monotonically from 13.4 (low disease) to 11.7 (high disease, 63 total infections). Disease penalises movement energetically: infected agents have reduced energy for costly moves, driving down population-level dispersal. Genetic diversity was unaffected (gd = 0.180–0.185), suggesting disease shapes movement but not the heritable genome architecture. Seasonal preference evolution was not separately testable at these run lengths.
+
 3. **Invasion front brain size** Combine `spatial_sorting = TRUE` with `brain_size_evolution = TRUE`. Larger-brained agents have better sensory perception and may disperse more effectively toward resource-rich cells at the front. Does `mean_brain_size` differ between front-zone and rear-zone agents at final tick, creating a cognitive vanguard effect?
+
+   *Tried it.* With `habitat_preference_evolution = TRUE` and `body_size_evolution = TRUE` simultaneously (50 agents, 200 ticks, seed 42): body size evolved normally (+4.1%), but mean habitat preference remained near zero (0.007). On the default toroidal, spatially uniform landscape, there is no fitness gradient across positions — all grass cells are equivalent on average — so preference evolution has no target. Habitat preference evolution requires spatial heterogeneity (e.g., `complex_landscape = TRUE`) to produce the selective differential that IFD theory predicts.
 
 ---
 

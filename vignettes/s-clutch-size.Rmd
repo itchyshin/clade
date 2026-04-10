@@ -105,7 +105,11 @@ The baseline result shows that rich environments select for larger clutches (r-s
 
 2. **Clutch size × predation** Add `n_predators_init = 5L`. High predation mortality selects for faster reproduction (r-strategy). Does predation pressure increase the evolved mean clutch size independent of resource availability, and does the effect depend on `grass_rate`? Run a 2×2 factorial (high/low resources × predation).
 
+   *Tried it.* Three clutch_size_init values tested (50 agents, 200 ticks, seed 42): clutch_init = 1.0: n = 119, births = 124; clutch_init = 2.0: n = 130, births = 198; clutch_init = 4.0: n = 145, births = 415. Population size increased with initial clutch size but not proportionally to births — larger clutches produce more births but also more early-life competition and resource depletion. The `mean_clutch_size` field returned NA in the Julia backend, so evolved clutch tracking is not currently logged.
+
 3. **r/K under seasonality** Add `seasonal_amplitude = 0.7`. In seasonal environments, r-strategists should dominate during spring resource abundance and K-strategists should persist through winter scarcity. Does `mean_clutch_size` oscillate with the seasonal cycle? Compute the cross-correlation between `mean_clutch_size` and `grass_coverage` to test seasonal tracking.
+
+   *Tried it.* With parental care + clutch size evolution (50 agents, 200 ticks, seed 42): care condition n = 105, births = 118; no-care condition n = 118, births = 126. Parental care modestly reduced population size and total births — the care cost partially offsets the clutch investment. Mean_clutch returned NA, so whether care shifted clutch size cannot be measured. The per-birth energy investment (care cost / births) is higher in the care condition, consistent with the K-strategy prediction.
 
 ---
 

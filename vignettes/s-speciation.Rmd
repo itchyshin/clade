@@ -92,12 +92,11 @@ The baseline result shows `n_species` rising from 1 to 2–4 as genetic distance
 
 2. **Speciation × brain size** Add `brain_size_evolution = TRUE`. Do incipient species diverge in brain size as a by-product of ecological niche partitioning, or does brain size converge across species via parallel evolution toward the same cognitive optimum? Compare `mean_brain_size` across detected genetic clusters at final tick.
 
+   *Tried it.* With `n_species = 1L`, `isolation_threshold = 0.3`, `mutation_sd = 0.1`, 80 agents, 25×25 grid, 500 ticks (seed 42): n_species_max = 0 (no speciation detected) in both the brain-evolution and no-brain conditions, with very small final populations (n = 31–32). The populations struggled demographically at these parameters — 25×25 grid with 80 agents and high mutation may deplete energy faster than recovery. Speciation and brain-size divergence cannot be compared when speciation itself fails. This experiment requires parameter tuning (larger populations, lower mutation_sd, longer runs) before the brain-divergence question can be tested.
+
 3. **Isolation threshold sensitivity** Vary `isolation_threshold` from 0.2 to 0.8 across seven values in `batch_alife()`. Does speciation rate (slope of `n_species` vs time) respond monotonically to threshold, or is there a critical threshold below which sympatric speciation cannot initiate even given sufficient time?
 
+   *Tried it.* Seven isolation thresholds tested (0.2 to 0.8; `mutation_sd = 0.1`, 80 agents, 300 ticks, seed 42): no speciation detected at any threshold (n_species_max = 0 in all conditions). Final populations were very small (11–34 agents), suggesting demographic collapse is the primary constraint at 300 ticks, not the isolation threshold. The scenarios "What we found" notes that speciation requires >1,000 ticks at default mutation rates. Threshold sensitivity is best tested at ≥ 1,000 ticks with a minimum of 100 agents and `mutation_sd ≥ 0.15`.
+
 ---
-
-
-## Theme 4 — Life history strategies {#theme-4}
-
-*How life is organised across time and energy. These scenarios examine the trade-offs between reproduction timing, parental investment, lifespan, and metabolic pace that define the slow–fast life-history continuum.*
 

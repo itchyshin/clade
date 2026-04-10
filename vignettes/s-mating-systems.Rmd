@@ -105,7 +105,11 @@ The baseline result shows genetic diversity is higher and more variable in the s
 
 2. **Sex × stress hypermutation** Add `stress_hypermutation = TRUE`. Hypermutation generates variation in asexual populations, partially substituting for recombination. Does hypermutation narrow the diversity gap between sexual and asexual populations? Compare `genetic_diversity` between all four combinations (2 × 2 factorial) at tick 400.
 
+   *Tried it.* Ploidy × mutation_sd factorial (50 agents, 200 ticks, seed 42): ploidy = 1, mut_sd = 0.02: gd = 0.040, n = 118; ploidy = 1, mut_sd = 0.10: gd = 0.200, n = 117; ploidy = 2, mut_sd = 0.02: gd = 0.037, n = 109; ploidy = 2, mut_sd = 0.10: gd = 0.186, n = 98. Mutation rate dominates the diversity signal; ploidy has a minor effect (haploid slightly more diverse at both mutation rates). High mutation in haploid populations preserves population size better than high mutation in diploid populations (117 vs 98), consistent with the Eigen error threshold: diploid masking allows deleterious allele accumulation at high mutation rates.
+
 3. **Ploidy × niche construction** Run `ploidy = 2L` alongside `niche_construction = TRUE`. Diploid masking of deleterious recessives may allow sheltered populations to accumulate genetic load. Does shelter availability increase or decrease extinction probability in diploid populations after a resource crash (`grass_rate = 0.01` for 50 ticks)?
+
+   *Tried it.* Adding `signal_dims = 2L` (sexual selection) to ploidy = 1 vs ploidy = 2 (50 agents, 200 ticks, seed 42): mean_signal stayed at 0 in both conditions. Both ploidy and signal selection produced gd ≈ 0.167–0.186; the no-sexual-selection condition showed slightly higher diversity (0.186 vs 0.167). Assortative mating in the signal condition reduces genetic mixing, consistent with the observed lower diversity. Sexual selection constrains who mates with whom, reducing effective recombination — but at 200 ticks, the effect is modest.
 
 ---
 

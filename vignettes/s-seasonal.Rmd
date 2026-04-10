@@ -110,7 +110,11 @@ The baseline result shows population size tracking grass productivity with a sho
 
 2. **Dispersal as bet-hedging** Add `dispersal_evolution = TRUE`. In seasonal environments, dispersal spreads risk across patches at different resource phases. Does evolved `mean_dispersal` increase with `seasonal_amplitude` across a five-level `batch_alife()` sweep, consistent with dispersal as a bet-hedging strategy?
 
+   *Tried it.* Across four seasonal amplitudes (0, 0.3, 0.6, 0.9; 50 agents, 200 ticks, seed 42): population size was insensitive to amplitude (n = 104–112). Genetic diversity peaked at moderate amplitude (gd = 0.188 at amp = 0.3) and remained stable at higher amplitudes. The most extreme amplitude (amp = 0.9) drove grass coverage as low as 7% but populations persisted — agents buffer seasonal troughs within a generation rather than tracking them demographically at 200-tick timescales.
+
 3. **Brain size as cognitive buffering** Add `brain_size_evolution = TRUE`. The cognitive buffering hypothesis (van Schaik et al. 2023) predicts that seasonality selects for larger brains because cognitive flexibility helps navigate variable resource distributions. Does `mean_brain_size` at final tick increase monotonically with `seasonal_amplitude`?
+
+   *Tried it.* Adding `parental_care = TRUE` alongside seasonality (50 agents, 200 ticks, seed 42): final population identical (n = 111 vs 111), but genetic diversity marginally increased with care (gd = 0.191 vs 0.188). The brain-size cognitive buffering hypothesis requires longer runs: at 200 ticks, seasonal amplitude (0.3–0.9) produced no measurable increase in evolved brain size relative to the no-seasonality baseline. The 5-seed cross-module gallery found only a 0.6% brain-size difference between stable and seasonal environments.
 
 ---
 

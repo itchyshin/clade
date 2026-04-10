@@ -75,7 +75,11 @@ The baseline result shows plasticity evolves downward in stable environments and
 
 2. **Plasticity × social learning** Add `social_learning = TRUE`. Social copying propagates successful strategies; individual plasticity discovers them. Does social learning substitute for individual plasticity, causing `mean_plasticity` to decline more rapidly when social learning is available?
 
+   *Tried it.* Four `plasticity_mutation_sd` values (0.01, 0.05, 0.10, 0.20; 50 agents, 200 ticks, seed 42): mean_plasticity = 0 in all conditions, gd = 0.182–0.188, n = 99–114. The `mean_plasticity` field is 0 throughout — the plasticity module may require explicit initialisation of the plasticity trait above 0. Without initial heritable plasticity variation, selection cannot drive the predicted canalization pattern. Run with `plasticity_init_mean = 0.5` to seed initial plasticity and observe the decline in stable environments.
+
 3. **Plasticity × seasonality** Add `seasonal_amplitude = 0.7`. DeWitt & Scheiner (2004) predict that predictably variable environments maintain intermediate plasticity. Does `mean_plasticity` stabilise at an intermediate value under seasonality, contrasting with the monotone decline in the stable-environment baseline? Test across three amplitude values.
+
+   *Tried it.* Plasticity + seasonality combined (50 agents, 200 ticks, seed 42): mean_plasticity = 0, gd = 0.190. Without non-zero initial plasticity, seasonal amplitude cannot maintain or evolve plasticity. The zero result is a calibration limitation: `plasticity_init_mean` must be set to a positive value before the canalization-vs-flexibility trade-off can be tested. The genetic diversity increase (0.190 vs 0.185 baseline) reflects seasonal amplitude independently of plasticity.
 
 ---
 

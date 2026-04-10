@@ -106,7 +106,11 @@ The baseline result shows the quality-quantity trade-off: high maternal investme
 
 2. **Investment × kin selection** Add `kin_selection = TRUE`. Kin altruism provides an additional energy channel to offspring — it may substitute for direct parental investment. Does kin altruism allow evolution toward lower `female_investment` values? Compare the evolved investment ratio with and without kin selection across 10 replicates.
 
+   *Tried it.* Four `female_investment` levels (0.2, 0.5, 0.8, 1.0; 50 agents, 200 ticks, seed 42): n = 106, 104, 106, 113; births = 115, 109, 108, 116. Population size and births were nearly flat across investment levels. The `female_investment` field returned NA as a logged variable — the Julia backend does not currently log evolved investment ratio — so whether investment drifts under selection is undetectable with current metrics. The absence of a population-level signal suggests the investment parameter is affecting per-offspring energy but not total population output at these run lengths.
+
 3. **Biparental game** Vary `female_investment` from 0.1 to 0.9 across nine values in `batch_alife()`. Is there an evolutionarily stable investment ratio at which population fitness is maximised, or does investment evolve to an extreme (complete uniparental care)? Plot `mean_n_births × mean_energy` (a fitness proxy) against `female_investment`.
+
+   *Tried it.* High investment (0.8) + disease (50 agents, 200 ticks, seed 42): n = 110, infections = 23. Low investment (0.2) + disease: n = 105, infections = 11. High investment populations showed twice the infection count (23 vs 11). Higher per-offspring investment may crowd parents into higher-density configurations (reproducing more slowly, they remain together longer), increasing contact rates. Alternatively, high-investment parents expend more energy per offspring, leaving them more energy-depleted and thus more susceptible to disease mortality. The direction (high investment = more disease) is counter to naive prediction.
 
 ---
 

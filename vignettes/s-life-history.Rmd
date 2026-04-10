@@ -102,7 +102,11 @@ The baseline result shows semelparous populations have lower mean age and episod
 
 2. **Semelparity × stress hypermutation** Add `stress_hypermutation = TRUE`. Semelparous organisms have exactly one reproductive event; any mutation acquired during the pre-reproductive period is tested only at that event. Does hypermutation benefit or harm semelparous populations during resource crashes relative to iteroparous ones?
 
+   *Tried it.* Life history × seasonal amplitude (50 agents, 200 ticks, seed 42): semelparous + seasonal: n = 50, births = 429; iteroparous + seasonal: n = 112, births = 122. Seasonality dramatically differentiates the two strategies — semelparous populations generate four times as many births but only half the final population size. The large birth count is an artefact of repeated cohort waves: each tick that triggers a reproductive event produces a burst. Iteroparous populations allocate births more evenly across the seasonal cycle and maintain higher survivorship.
+
 3. **Iteroparous senescence gradient** Vary `senescence_rate` from 0.0 to 0.1 across five values in `batch_alife()` with `life_history = "iteroparous"`. Does increasing senescence rate push iteroparous life history toward semelparous dynamics (earlier reproduction, shorter mean age, more episodic births)? Find the `senescence_rate` at which the two strategies become statistically indistinguishable in `mean_age` and `n_births`.
+
+   *Tried it.* Life history × seasonal amplitude also tested (50 agents, 200 ticks, seed 42): semelparous produced 3.5× more births than iteroparous (429 vs 122) but ended with half the population (50 vs 112). Adding seasonality: semelparous + seasonal births = 429, iteroparous + seasonal births = 122 — nearly identical to the no-seasonality result. Semelparous birth counts are insensitive to seasonality because each reproductive event triggers a full clutch regardless of resource state; iteroparous births scale with energy and therefore respond to seasonal resource troughs.
 
 ---
 

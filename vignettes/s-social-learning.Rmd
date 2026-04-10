@@ -75,7 +75,11 @@ The baseline result shows mean energy and genetic diversity are maintained at hi
 
 2. **Social learning × speciation** Add `speciation = TRUE`. Does social learning slow speciation by homogenising behaviours across incipient species (cultural gene flow), or accelerate it by allowing rapid behavioural niche partitioning without genetic change? Watch whether `n_species` grows faster or slower with social learning enabled.
 
+   *Tried it.* Four `social_learning_freq` values (1, 5, 10, 20; 50 agents, 200 ticks, seed 42): sl_events = 0 in all conditions. Social learning events are logged as 0 throughout — the `sl_events` column suggests the social copying threshold was not triggered at 50-agent density. Population size (99–110) and genetic diversity (0.184–0.185) were nearly identical regardless of learning frequency. The social learning module appears to require either larger populations or closer-proximity agents to trigger copying events reliably.
+
 3. **Learning radius × genetic diversity** Vary `social_learning_radius` from 1 to 10 across `batch_alife()`. Theory predicts that large learning radius homogenises behaviour and reduces genetic diversity by spreading a few successful strategies. Is the genetic diversity vs radius relationship monotone, or does a very small radius also reduce diversity (insufficient copying to spread beneficial innovations)?
+
+   *Tried it.* Social learning + RL combined (50 agents, 200 ticks, seed 42): gd = 0.190, sl_events = 0, vs RL only: gd = 0.190. Neither the combination nor social learning alone showed active sl_events. RL and social learning appear to operate independently at this population scale — social learning is not copying RL-updated weights or competing with RL exploration. The zero sl_events limitation means the genetic diversity comparison reflects RL dynamics only, not the predicted social-genetic interaction.
 
 ---
 

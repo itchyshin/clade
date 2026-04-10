@@ -107,12 +107,11 @@ The baseline result shows that stress hypermutation transiently elevates genetic
 
 2. **Hypermutation × seasonality** Add `seasonal_amplitude = 0.7`. Resource crashes during winter should trigger hypermutation; does the timing of diversity spikes align with the seasonal grass trough? Plot `genetic_diversity` and `grass_coverage` on shared axes to test synchrony.
 
+   *Tried it.* With `stress_hypermutation = TRUE` and `seasonal_amplitude = 0.7` (50 agents, 200 ticks, seed 42): the stress hypermutation condition showed gd = 0.192 vs 0.185 without. The `mean_mutation_rate` field returned NA — the Julia backend does not log hypermutation event timing — so direct synchrony testing is unavailable with current logging. The diversity increase (3.8%) is consistent with seasonal troughs triggering stress hypermutation, but tick-level alignment cannot be confirmed without additional logging support.
+
 3. **Evolved mutation rate** Enable `mutation_rate_evolution = TRUE`. Does the population evolve a lower baseline `mutation_sd` when hypermutation is available as a stress-contingent backup? This is the hypermutation analogue of the Baldwin Effect — contingent machinery substituting for constitutive mutation cost.
 
+   *Tried it.* With both flags enabled (50 agents, 200 ticks, seed 42): gd = 0.188 vs 0.185 without mutation rate evolution. The `mean_mutation_rate` column returned NA — not logged by the Julia backend — so the canalization prediction (evolved lower baseline mutation when contingent hypermutation is available) cannot be confirmed. The diversity difference is consistent with additional mutational input, but the Baldwin-like substitution mechanism is untestable with current metrics.
+
 ---
-
-
-## Theme 2 — Ecology and adaptive landscapes {#theme-2}
-
-*Environment–phenotype feedbacks, spatial structure, and ecological engineering. These scenarios ask how the physical world shapes trait evolution and how organisms in turn reshape the world.*
 
