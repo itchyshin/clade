@@ -609,17 +609,36 @@ function _make_founder_agent(id::Int64, g::DiploidGenome, brain::AbstractBrain,
 end
 
 """
+    _dict_to_nt(d::Dict{String, Vector}) -> NamedTuple
+
+Convert a `Dict{String, Vector}` to a Julia NamedTuple with sorted keys.
+JuliaConnectoR converts NamedTuples to R named lists reliably (preserving
+all fields), whereas Dict conversion drops keys inconsistently for larger
+dicts. This is the fix for `mean_brain_size` / `mean_habitat_preference`
+being silently dropped when `progress` was returned as a Dict.
+"""
+function _dict_to_nt(d::Dict{String,Vector})::NamedTuple
+    ks  = sort(collect(keys(d)))
+    syms = Tuple(Symbol(k) for k in ks)
+    vals = Tuple(d[k] for k in ks)
+    NamedTuple{syms}(vals)
+end
+
+"""
     _env_to_result(env::Environment) -> NamedTuple
 
 Convert the environment to a NamedTuple suitable for return to R via
 JuliaConnectoR. R will receive this as a named list.
+
+`progress` and `deaths` are converted from Dict to NamedTuple so that
+JuliaConnectoR serialises all fields without loss.
 """
 function _env_to_result(env::Environment)
     (
         agents        = _agents_to_records(env.agents),
         t             = Int(env.t),
-        progress      = env.progress,
-        deaths        = env.deaths,
+        progress      = _dict_to_nt(env.progress),
+        deaths        = _dict_to_nt(env.deaths),
         genome_log    = env.genome_log,
         total_carrion = Float64(sum(env.carrion_map)),
         total_shelter = Int(sum(env.shelter_map)),
