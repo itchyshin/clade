@@ -8,6 +8,41 @@ articles:
   getting-started: getting-started.html
   introduction: introduction.html
   parameter-reference: parameter-reference.html
+  s-bad-science: s-bad-science.html
+  s-baldwin: s-baldwin.html
+  s-baseline: s-baseline.html
+  s-body-size: s-body-size.html
+  s-brain-size: s-brain-size.html
+  s-cephalopod: s-cephalopod.html
+  s-clutch-size: s-clutch-size.html
+  s-complex-landscape: s-complex-landscape.html
+  s-cooperation: s-cooperation.html
+  s-cross-module: s-cross-module.html
+  s-disease: s-disease.html
+  s-dispersal-ifd: s-dispersal-ifd.html
+  s-group-defense: s-group-defense.html
+  s-kin: s-kin.html
+  s-kitchen-sink: s-kitchen-sink.html
+  s-life-history: s-life-history.html
+  s-map-elites: s-map-elites.html
+  s-mating-systems: s-mating-systems.html
+  s-mimicry: s-mimicry.html
+  s-module-comparison: s-module-comparison.html
+  s-niche: s-niche.html
+  s-pace-of-life: s-pace-of-life.html
+  s-parental-care: s-parental-care.html
+  s-parental-investment: s-parental-investment.html
+  s-plasticity: s-plasticity.html
+  s-pop-genetics: s-pop-genetics.html
+  s-predation-neural: s-predation-neural.html
+  s-predator-prey: s-predator-prey.html
+  s-rl: s-rl.html
+  s-scavenging: s-scavenging.html
+  s-seasonal: s-seasonal.html
+  s-signals: s-signals.html
+  s-social-learning: s-social-learning.html
+  s-speciation: s-speciation.html
+  s-stress-hypermutation: s-stress-hypermutation.html
   scenarios: scenarios.html
   showcase: showcase.html
-last_built: 2026-04-10T11:32Z
+last_built: 2026-04-10T12:13Z

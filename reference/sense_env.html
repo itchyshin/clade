@@ -23,20 +23,69 @@ you can inspect, plot, or replay individual agent decisions from R."></head><bod
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/getting-started.html">Get Started</a></li>
 <li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Core</h6></li>
-    <li><a class="dropdown-item" href="../articles/getting-started.html">Getting started</a></li>
-    <li><a class="dropdown-item" href="../articles/scenarios.html">Biological scenarios &amp; modules</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Advanced</h6></li>
-    <li><a class="dropdown-item" href="../articles/diversity-search.html">Parameter search (CMA-ES, MAP-Elites, viability)</a></li>
-    <li><a class="dropdown-item" href="../articles/custom-modules.html">Custom modules API</a></li>
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-guides" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Guides</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-guides"><li><a class="dropdown-item" href="../articles/getting-started.html">Getting started</a></li>
+    <li><a class="dropdown-item" href="../articles/introduction.html">Introduction</a></li>
     <li><a class="dropdown-item" href="../articles/parameter-reference.html">Parameter reference</a></li>
+    <li><a class="dropdown-item" href="../articles/custom-modules.html">Custom modules API</a></li>
+    <li><a class="dropdown-item" href="../articles/diversity-search.html">Parameter search (CMA-ES, MAP-Elites)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Gallery</h6></li>
     <li><a class="dropdown-item" href="../articles/showcase.html">Full showcase</a></li>
     <li><a class="dropdown-item" href="../articles/baldwin-effect.html">Baldwin effect &amp; RL</a></li>
+  </ul></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-scenarios" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Scenarios</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-scenarios"><li><a class="dropdown-item" href="../articles/scenarios.html">All scenarios (index)</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Theme 1 — Trait evolution</h6></li>
+    <li><a class="dropdown-item" href="../articles/s-baseline.html">Baseline world</a></li>
+    <li><a class="dropdown-item" href="../articles/s-pop-genetics.html">Population genetics</a></li>
+    <li><a class="dropdown-item" href="../articles/s-body-size.html">Body size evolution</a></li>
+    <li><a class="dropdown-item" href="../articles/s-brain-size.html">Brain size evolution</a></li>
+    <li><a class="dropdown-item" href="../articles/s-stress-hypermutation.html">Stress hypermutation</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Theme 2 — Ecology</h6></li>
+    <li><a class="dropdown-item" href="../articles/s-complex-landscape.html">Complex landscape</a></li>
+    <li><a class="dropdown-item" href="../articles/s-dispersal-ifd.html">Dispersal, IFD &amp; spatial sorting</a></li>
+    <li><a class="dropdown-item" href="../articles/s-niche.html">Niche construction</a></li>
+    <li><a class="dropdown-item" href="../articles/s-seasonal.html">Seasonal dynamics</a></li>
+    <li><a class="dropdown-item" href="../articles/s-scavenging.html">Scavenging &amp; carrion</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Theme 3 — Social evolution</h6></li>
+    <li><a class="dropdown-item" href="../articles/s-kin.html">Kin selection</a></li>
+    <li><a class="dropdown-item" href="../articles/s-cooperation.html">Cooperative breeding</a></li>
+    <li><a class="dropdown-item" href="../articles/s-signals.html">Signals &amp; mate choice</a></li>
+    <li><a class="dropdown-item" href="../articles/s-speciation.html">Speciation</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Theme 4 — Life history</h6></li>
+    <li><a class="dropdown-item" href="../articles/s-parental-care.html">Parental care</a></li>
+    <li><a class="dropdown-item" href="../articles/s-mating-systems.html">Mating systems</a></li>
+    <li><a class="dropdown-item" href="../articles/s-life-history.html">Life history strategies</a></li>
+    <li><a class="dropdown-item" href="../articles/s-clutch-size.html">Clutch size (r/K)</a></li>
+    <li><a class="dropdown-item" href="../articles/s-parental-investment.html">Parental investment</a></li>
+    <li><a class="dropdown-item" href="../articles/s-pace-of-life.html">Pace-of-life syndromes</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Theme 5 — Species interactions</h6></li>
+    <li><a class="dropdown-item" href="../articles/s-predator-prey.html">Predator-prey dynamics</a></li>
+    <li><a class="dropdown-item" href="../articles/s-group-defense.html">Group defense</a></li>
+    <li><a class="dropdown-item" href="../articles/s-mimicry.html">Mimicry &amp; toxicity</a></li>
+    <li><a class="dropdown-item" href="../articles/s-disease.html">SIR disease</a></li>
+    <li><a class="dropdown-item" href="../articles/s-predation-neural.html">Predation &amp; neural evolution</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Theme 6 — Cognition &amp; learning</h6></li>
+    <li><a class="dropdown-item" href="../articles/s-rl.html">Within-lifetime RL</a></li>
+    <li><a class="dropdown-item" href="../articles/s-social-learning.html">Social learning</a></li>
+    <li><a class="dropdown-item" href="../articles/s-plasticity.html">Phenotypic plasticity</a></li>
+    <li><a class="dropdown-item" href="../articles/s-baldwin.html">BNN uncertainty canalization</a></li>
+    <li><a class="dropdown-item" href="../articles/s-cephalopod.html">Cephalopod paradox</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Theme 7 — Discovery</h6></li>
+    <li><a class="dropdown-item" href="../articles/s-module-comparison.html">Module comparison</a></li>
+    <li><a class="dropdown-item" href="../articles/s-map-elites.html">MAP-Elites</a></li>
+    <li><a class="dropdown-item" href="../articles/s-kitchen-sink.html">Kitchen-sink run</a></li>
+    <li><a class="dropdown-item" href="../articles/s-bad-science.html">Evolution of bad science</a></li>
+    <li><a class="dropdown-item" href="../articles/s-cross-module.html">Cross-module gallery</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
