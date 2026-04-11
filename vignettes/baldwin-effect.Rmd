@@ -118,8 +118,7 @@ ggplot(df, aes(t, mean_prior_sigma, colour = condition, linetype = condition)) +
   theme(legend.position = "bottom", legend.key.width = unit(1.5, "cm"))
 ```
 
-```{r fig-fixed-patch-demo, eval=TRUE, echo=FALSE, out.width="100%",
-    fig.cap="Mean BNN prior sigma over 1000 ticks. Baseline (blue dashed): sigma holds at 0.5 — exploration is the ESS in a shifting landscape and no canalization occurs. Fixed patch (green): a permanent high-value resource cell creates a stable fitness peak (Hinton & Nowlan 1987); agents that genetically navigate to the patch outcompete explorers and sigma collapses to zero. Epigenetics (orange): transgenerational epigenetic inheritance (TEI) enables rapid canalization even without a stable landscape, but with higher late-run variance."}
+```{r fig-fixed-patch-demo, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Mean BNN prior sigma over 1000 ticks. Baseline (blue dashed): sigma holds at 0.5 — exploration is the ESS in a shifting landscape and no canalization occurs. Fixed patch (green): a permanent high-value resource cell creates a stable fitness peak (Hinton & Nowlan 1987); agents that genetically navigate to the patch outcompete explorers and sigma collapses to zero. Epigenetics (orange): transgenerational epigenetic inheritance (TEI) enables rapid canalization even without a stable landscape, but with higher late-run variance."}
 FIG("bnn_fixed_patch_demo")
 ```
 
