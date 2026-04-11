@@ -41,6 +41,7 @@ successful behaviours exist in the population.
 s <- default_specs()
 s$social_learning      <- TRUE
 s$social_learning_freq <- 10L
+s$n_agents_init        <- 150L   # social learning requires sufficient density
 s$max_ticks            <- 300L
 
 env  <- run_alife(s)

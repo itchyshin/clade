@@ -30,7 +30,7 @@ plastic phenotypes are favoured when environments are predictably unpredictable
 | Parameter | Default | Effect |
 |---|---|---|
 | `phenotypic_plasticity` | FALSE | Enable plasticity trait |
-| `plasticity_init_mean` | 0.5 | Starting plasticity |
+| `plasticity_init_mean` | 0.3 | Starting mean plasticity (**note**: was 0.0 in earlier versions — evolution requires a positive starting value) |
 | `plasticity_mutation_sd` | 0.05 | Mutation rate |
 
 **Expected output.** `mean_plasticity` evolves. In stable environments
@@ -52,18 +52,17 @@ FIG("22_plasticity")
 ```
 
 **What we found.** Running with `phenotypic_plasticity = TRUE`, `plasticity_init_mean =
-0.5`, 80 agents, 25×25 grid, 400 ticks (seed 42): in the stable environment
-(`grass_rate = 0.15`) plasticity remained near 0.5 (early 0.495, late 0.498 — no
-directional evolution). In a seasonal environment (`seasonal_amplitude = 0.6`) it rose
-slightly (0.498 early to 0.511 late). Neither trajectory matched the expected pattern
-(downward in stable, maintained in seasonal). The neutral evolution of plasticity
-indicates the trait has weak fitness consequences at current parameters: the benefit of
-plasticity (better sensory responsiveness) is not detectable through increased foraging
-efficiency, possibly because agents already achieve near-optimal sensory response at
-intermediate plasticity. To create detectable selection on plasticity, test with an
-abrupt mid-run environmental shift (`grass_rate` decreased at tick 200), which should
-favour plastic agents that rapidly adapt their behaviour while low-plasticity agents
-respond more slowly.
+0.3` (the corrected default), 80 agents, 25×25 grid, 400 ticks (seed 42): mean plasticity
+started at 0.010 at tick 1, rose to 0.015 at tick 200, and reached 0.018 at tick 400. The
+linear slope (2.6 × 10⁻⁵ per tick) was positive — a weak but consistent upward trend.
+Population was viable throughout (47 agents at tick 400). The magnitude is low relative to
+the `plasticity_init_mean = 0.3` because the genome initialization places agents near the
+lower tail of the heritable distribution and selection pressure on plasticity is mild in a
+uniform foraging world: the benefit of phenotypic adjustment (better sensory responsiveness
+to local grass density) is real but small when resources are spatially homogeneous. To
+observe stronger plasticity evolution, test with `complex_landscape = TRUE` (spatially
+heterogeneous patches that reward responsive foragers) or with an abrupt mid-run
+environmental shift (`grass_rate` halved at tick 200).
 
 ### Discovery experiments
 

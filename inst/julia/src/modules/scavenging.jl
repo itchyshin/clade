@@ -54,7 +54,12 @@ function deposit_carrion!(env::Environment, agent::Agent)
     frac        = Float32(get(env.specs, "carrion_fraction",    0.5))
     amount      = energy_init * frac
     amount > 0.0f0 || return
-    @inbounds env.carrion_map[agent.x, agent.y] += amount
+    x, y = Int(agent.x), Int(agent.y)
+    @inbounds env.carrion_map[x, y] += amount
+    # D2: mark cell as infectious if source agent was infected
+    if agent.infected
+        @inbounds env.carrion_infected_map[x, y] = true
+    end
     nothing
 end
 
@@ -75,8 +80,9 @@ this), so contention is rare in practice.
 function apply_scavenging!(env::Environment)
     Bool(get(env.specs, "scavenging", false)) || return
 
-    eat_gain = Float32(get(env.specs, "carrion_eat_gain", 3.0))
-    e_max    = Float32(get(env.specs, "energy_max",     200.0))
+    eat_gain      = Float32(get(env.specs, "carrion_eat_gain", 3.0))
+    e_max         = Float32(get(env.specs, "energy_max",     200.0))
+    carrion_tprob = Float32(get(env.specs, "carrion_transmission_prob", 0.0))
     eat_gain > 0.0f0 || return
 
     @inbounds for ag in env.agents
@@ -87,6 +93,18 @@ function apply_scavenging!(env::Environment)
         taken = min(available, eat_gain)
         ag.energy = min(ag.energy + taken, e_max)
         env.carrion_map[x, y] = available - taken
+        env.n_scavenge_events += Int32(1)
+        # D2: carrion-mediated disease transmission
+        if carrion_tprob > 0.0f0 && env.carrion_infected_map[x, y] &&
+                !ag.infected && !ag.immune && rand(env.rng) < carrion_tprob
+            ag.infected      = true
+            ag.infection_age = Int32(0)
+            env.n_new_infections += Int32(1)
+        end
+        # Clear infection flag once carrion is fully consumed
+        if env.carrion_map[x, y] <= 0.0f0
+            env.carrion_infected_map[x, y] = false
+        end
     end
     nothing
 end
@@ -111,6 +129,9 @@ function decay_carrion!(env::Environment)
 
     @inbounds for i in eachindex(env.carrion_map)
         env.carrion_map[i] *= keep
+        if env.carrion_map[i] <= 0.0f0
+            env.carrion_infected_map[i] = false
+        end
     end
     nothing
 end

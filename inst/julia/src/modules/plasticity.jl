@@ -77,15 +77,16 @@ All sensing is done through `env.grass` and the toroidal grid dimensions in
 function effective_repro_threshold(ag::Agent, env::Environment)::Float32
     Bool(get(env.specs, "phenotypic_plasticity", false)) || return ag.repro_threshold
 
-    radius = Int(get(env.specs, "plasticity_sense_radius", 3))
+    radius   = Int(get(env.specs, "plasticity_sense_radius", 3))
+    toroidal = Bool(get(env.specs, "toroidal", true))
     rows, cols = size(env.grass)
 
     total_grass = 0.0f0
     n_cells     = 0
 
     @inbounds for dx in -radius:radius, dy in -radius:radius
-        nx = mod1(Int(ag.x) + dx, rows)
-        ny = mod1(Int(ag.y) + dy, cols)
+        nx = wrap_or_clamp(Int(ag.x) + dx, rows, toroidal)
+        ny = wrap_or_clamp(Int(ag.y) + dy, cols, toroidal)
         total_grass += env.grass[nx, ny]
         n_cells     += 1
     end

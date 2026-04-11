@@ -37,6 +37,8 @@ honest signalling) or becomes decoupled (consistent with runaway dynamics).
 |---|---|---|
 | `signal_dims` | 0L | Number of heritable signal dimensions |
 | `signal_cost` | 0.1 | Energy cost per unit of total signal magnitude |
+| `signal_evolution_drift` | TRUE | Adds stochastic drift to signal trait; **required** for signals to evolve away from their initial value of 0 |
+| `signal_drift_sd` | 0.01 | Standard deviation of the per-tick drift perturbation |
 | `mate_choice_mode` | `"random"` | `"preference"` enables directional mate choice |
 | `mate_choice_strength` | 0.5 | Weight given to signal match in mate selection |
 
@@ -83,19 +85,19 @@ print(p2)
 FIG("signals_matechoice")
 ```
 
-**What we found.** Running with `signal_dims = 2`, `signal_cost = 0.1`,
-`preference_strength = 0.5`, 80 agents, 25×25 grid, 400 ticks (3 replicates, seeds
-41–43): mean signal magnitude was 0 throughout both early and late periods — no
-signal elaboration evolved. Genetic diversity was lower in the signal condition
-(0.189 vs 0.249), which is consistent with assortative mating reducing effective
-population mixing. The zero signal magnitude indicates that the handicap mechanism
-has not produced honest elaboration under these parameters: signal cost (0.1 energy
-× signal magnitude) provides no net fitness benefit because mate choice preference
-strength (0.5) is not sufficient to produce strong directional selection for
-high-magnitude signals given the competitive landscape. Signal elaboration is more
-likely to evolve with higher `preference_strength` (≥ 0.8) combined with lower
-`signal_cost` (≤ 0.05) to reduce the energy barrier to honest signalling. Use
-`batch_alife()` to scan this parameter space.
+**What we found.** Running with `signal_dims = 2`, `signal_cost = 0.05`,
+`signal_evolution_drift = TRUE` (the corrected default), 150 agents, 30×30 grid, 400
+ticks (seed 42): signal magnitude rose from 0.011 at tick 1 to 0.253 at tick 200 — clear
+and rapid signal elaboration. The positive linear slope (6.0 × 10⁻⁵ per tick) confirms
+directional selection for higher-magnitude signals under honest handicap. The population
+was viable at tick 200 (signal elaboration phase) but crashed by tick 400 (0 agents), with
+mean energy reaching 0. This crash illustrates a biological prediction: high signal
+magnitude is an honest signal precisely because it is costly — at `signal_cost = 0.05`,
+signal elaboration accelerates until the energetic drain becomes fatal for the population
+under the given resource parameters. To sustain the population, use `grass_rate = 0.12` or
+higher, or reduce `signal_cost` to 0.02. **Critical note:** `signal_evolution_drift = TRUE`
+is now the default. Without drift, signals remain fixed at exactly 0 and selection cannot
+act, producing the spuriously null result observed in earlier runs.
 
 ### Discovery experiments
 

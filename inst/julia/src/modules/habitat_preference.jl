@@ -38,12 +38,13 @@ Increments `env.n_habitat_moves` for each move made.
 function apply_habitat_preference!(env::Environment)
     Bool(get(env.specs, "habitat_preference_evolution", false)) || return
 
-    specs    = env.specs
-    strength = Float32(get(specs, "habitat_preference_strength", 0.5))
-    gmax     = Float32(get(specs, "grass_max", 5.0))
+    specs     = env.specs
+    strength  = Float32(get(specs, "habitat_preference_strength", 0.5))
+    gmax      = Float32(get(specs, "grass_max", 5.0))
     move_cost = Float32(get(specs, "habitat_move_cost", 0.0))
-    rows     = size(env.grass, 1)
-    cols     = size(env.grass, 2)
+    rows      = size(env.grass, 1)
+    cols      = size(env.grass, 2)
+    toroidal  = Bool(get(specs, "toroidal", true))
 
     # Cardinal directions: N, E, S, W
     DX = (Int32(-1), Int32(0),  Int32(1), Int32(0))
@@ -63,8 +64,8 @@ function apply_habitat_preference!(env::Environment)
         best_dx = Int32(0); best_dy = Int32(0); moved = false
 
         for d in 1:4
-            nx = mod1(x + Int(DX[d]), rows)
-            ny = mod1(y + Int(DY[d]), cols)
+            nx = wrap_or_clamp(x + Int(DX[d]), rows, toroidal)
+            ny = wrap_or_clamp(y + Int(DY[d]), cols, toroidal)
             # Must be unoccupied (agent_map == 0 means free)
             env.agent_map[nx, ny] != 0 && continue
             g     = env.grass[nx, ny]
@@ -81,8 +82,8 @@ function apply_habitat_preference!(env::Environment)
 
         # Perform move: update agent_map and agent position
         env.agent_map[x, y] = 0
-        nx_new = Int32(mod1(x + Int(best_dx), rows))
-        ny_new = Int32(mod1(y + Int(best_dy), cols))
+        nx_new = Int32(wrap_or_clamp(x + Int(best_dx), rows, toroidal))
+        ny_new = Int32(wrap_or_clamp(y + Int(best_dy), cols, toroidal))
         ag.x = nx_new
         ag.y = ny_new
         env.agent_map[nx_new, ny_new] = 1   # non-zero = occupied (index updated below)

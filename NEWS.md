@@ -1,3 +1,53 @@
+# clade 0.1.1 (development)
+
+## Bug fixes
+
+- `plasticity_init_mean` default changed from 0.0 to 0.3. The previous default
+  sat at the trait floor; mutation pressure could not push it upward, so
+  `mean_plasticity` was always 0 in practice.
+- `wing_size_init_mean` default changed from 0.0 to 0.08; `canopy_threshold`
+  changed from 0.6 to 0.15. The previous gap between init and threshold was
+  unreachable by mutation in any realistic run, so `n_canopy_agents` was always
+  0.
+- `signal_evolution_drift` default changed from `FALSE` to `TRUE`. Without
+  drift, signals remained exactly 0 forever, making mate-choice experiments
+  uninformative.
+
+## New features
+
+- **Non-toroidal grid** (`toroidal = FALSE`): all Julia modules now use a
+  `wrap_or_clamp()` helper that either wraps (toroidal) or clamps to the grid
+  boundary (linear). Required for spatial sorting and invasion-front experiments
+  with a defined front.
+- **Carrion as pathogen reservoir** (`carrion_transmission_prob`): when
+  `scavenging = TRUE` and `disease = TRUE`, agents that die while infected
+  deposit a flagged carcass; any agent that scavenges from it becomes infected
+  with probability `carrion_transmission_prob` (default 0.0 — off for
+  backwards compatibility).
+- **`batch_seeds()`**: convenience wrapper around `batch_alife()` that takes a
+  single specs object and a vector of seeds and returns a named list of results.
+- **`quick_specs()` / `full_specs()`**: preset specs for fast exploratory runs
+  (50 agents, 200 ticks, 20×20 grid) and publication-quality runs (200 agents,
+  1000 ticks, 30×30 grid).
+
+## Logging additions
+
+Six previously-NA log columns are now populated:
+
+- `mean_relatedness` — mean pairwise relatedness when `kin_selection = TRUE`.
+- `n_scavenge_events` — number of carrion-eating events per tick.
+- `n_gd_events` — number of group-defense damage reductions per tick.
+- `mean_shelter_depth` — mean shelter depth across occupied cells.
+- `mean_mutation_rate` — mean evolved `mutation_sd` when
+  `mutation_rate_evolution = TRUE`.
+- `mean_clutch_size` — mean clutch size when `clutch_size_evolution = TRUE`.
+
+## Other
+
+- Social learning warning: `run_alife()` now warns when
+  `social_learning = TRUE` and `n_agents_init < 100`, since neighbour density
+  at that population size is rarely sufficient to trigger copying events.
+
 # clade 0.1.0
 
 First public release.

@@ -146,6 +146,7 @@ function tick_predators!(env::Environment)
     energy_gain = Float32(get(specs, "predator_energy_gain",    30.0))
     rows        = size(env.grass, 1)
     cols        = size(env.grass, 2)
+    toroidal    = Bool(get(specs, "toroidal", true))
 
     # ── Build per-prey damage vector for group-defense integration ─────────
     n_prey   = length(env.agents)
@@ -217,6 +218,7 @@ function _sense_predator(pred::Agent, env::Environment)::Vector{Float32}
     rows     = size(env.grass, 1)
     cols     = size(env.grass, 2)
     gmax     = Float32(get(specs, "grass_max", 5.0))
+    toroidal = Bool(get(specs, "toroidal", true))
     max_scan = 5   # cells scanned in each cardinal direction
 
     x, y = Int(pred.x), Int(pred.y)
@@ -234,8 +236,8 @@ function _sense_predator(pred::Agent, env::Environment)::Vector{Float32}
         found_dist = false
         n_prey_d   = 0
         for step in 1:max_scan
-            nx = mod1(x + step * DX[d], rows)
-            ny = mod1(y + step * DY[d], cols)
+            nx = wrap_or_clamp(x + step * DX[d], rows, toroidal)
+            ny = wrap_or_clamp(y + step * DY[d], cols, toroidal)
             if env.agent_map[nx, ny] > 0
                 n_prey_d += 1
                 if !found_dist
@@ -247,8 +249,8 @@ function _sense_predator(pred::Agent, env::Environment)::Vector{Float32}
         prey_count[d] = clamp(Float32(n_prey_d) / Float32(max_scan), 0.0f0, 1.0f0)
 
         # Adjacent cell grass (one step only)
-        nx_adj = mod1(x + DX[d], rows)
-        ny_adj = mod1(y + DY[d], cols)
+        nx_adj = wrap_or_clamp(x + DX[d], rows, toroidal)
+        ny_adj = wrap_or_clamp(y + DY[d], cols, toroidal)
         grass_adj[d] = env.grass[nx_adj, ny_adj] / gmax
     end
 
@@ -285,11 +287,12 @@ records occupation rather than exact index (rebuilt in full after the loop in
 """
 function _move_predator!(pred::Agent, action::Int, rows::Int, cols::Int,
                           env::Environment)
-    DX = (Int32(-1), Int32(0),  Int32(1), Int32(0))
-    DY = (Int32(0),  Int32(1),  Int32(0), Int32(-1))
+    DX      = (Int32(-1), Int32(0),  Int32(1), Int32(0))
+    DY      = (Int32(0),  Int32(1),  Int32(0), Int32(-1))
+    toroidal = Bool(get(env.specs, "toroidal", true))
 
-    nx = Int32(mod1(Int(pred.x) + Int(DX[action]), rows))
-    ny = Int32(mod1(Int(pred.y) + Int(DY[action]), cols))
+    nx = Int32(wrap_or_clamp(Int(pred.x) + Int(DX[action]), rows, toroidal))
+    ny = Int32(wrap_or_clamp(Int(pred.y) + Int(DY[action]), cols, toroidal))
 
     env.predator_map[pred.x, pred.y] = 0
     pred.x = nx
@@ -380,6 +383,7 @@ function _predator_reproduction!(env::Environment)
     mut_sd      = Float32(get(specs, "predator_mutation_sd",      0.1))
     rows        = size(env.grass, 1)
     cols        = size(env.grass, 2)
+    toroidal    = Bool(get(specs, "toroidal", true))
     init_energy = Float32(get(specs, "predator_energy_init",      150.0))
     off_energy  = init_energy * 0.5f0
 
@@ -394,9 +398,9 @@ function _predator_reproduction!(env::Environment)
         # Mutate brain
         off_brain = mutate(pred.brain, mut_sd, env.rng)
 
-        # Place offspring at a random adjacent cell (toroidal)
-        ox = Int32(mod1(Int(pred.x) + rand(env.rng, -1:1), rows))
-        oy = Int32(mod1(Int(pred.y) + rand(env.rng, -1:1), cols))
+        # Place offspring at a random adjacent cell (toroidal or bounded)
+        ox = Int32(wrap_or_clamp(Int(pred.x) + rand(env.rng, -1:1), rows, toroidal))
+        oy = Int32(wrap_or_clamp(Int(pred.y) + rand(env.rng, -1:1), cols, toroidal))
 
         env.next_id += Int64(1)
 

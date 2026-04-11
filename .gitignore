@@ -5,3 +5,6 @@
 *.Rcheck/
 *.tar.gz
 docs/
+/doc/
+/Meta/
+vignettes/*.html

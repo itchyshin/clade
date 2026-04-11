@@ -6,8 +6,8 @@ test_that("plasticity_sense_radius defaults to 3L", {
   expect_equal(default_specs()$plasticity_sense_radius, 3L)
 })
 
-test_that("plasticity_init_mean defaults to 0.0", {
-  expect_equal(default_specs()$plasticity_init_mean, 0.0)
+test_that("plasticity_init_mean defaults to 0.3", {
+  expect_equal(default_specs()$plasticity_init_mean, 0.3)
 })
 
 test_that("plasticity_mutation_sd defaults to 0.03", {
@@ -57,8 +57,8 @@ test_that("plasticity_sense_radius defaults to 3L", {
   expect_equal(default_specs()$plasticity_sense_radius, 3L)
 })
 
-test_that("plasticity_init_mean defaults to 0.0", {
-  expect_equal(default_specs()$plasticity_init_mean, 0.0)
+test_that("plasticity_init_mean defaults to 0.3", {
+  expect_equal(default_specs()$plasticity_init_mean, 0.3)
 })
 
 test_that("plasticity_mutation_sd is strictly positive", {

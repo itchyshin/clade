@@ -102,11 +102,12 @@ Kermack, W.O. & McKendrick, A.G. (1927) A contribution to the mathematical
     115(772):700–721.
 """
 function apply_disease!(env::Environment)
-    specs = env.specs
+    specs    = env.specs
     Bool(get(specs, "disease", false)) || return
 
-    rows = Int(specs["grid_rows"])
-    cols = Int(specs["grid_cols"])
+    rows     = Int(specs["grid_rows"])
+    cols     = Int(specs["grid_cols"])
+    toroidal = Bool(get(specs, "toroidal", true))
 
     tprob        = Float32(get(specs, "transmission_prob",   0.1))
     cost         = Float32(get(specs, "disease_energy_cost", 5.0))
@@ -129,8 +130,8 @@ function apply_disease!(env::Environment)
         xi, yi = Int(src.x), Int(src.y)
         for dx in -1:1, dy in -1:1
             (dx == 0 && dy == 0) && continue
-            nx = mod1(xi + dx, rows)
-            ny = mod1(yi + dy, cols)
+            nx = wrap_or_clamp(xi + dx, rows, toroidal)
+            ny = wrap_or_clamp(yi + dy, cols, toroidal)
             j  = env.agent_map[nx, ny]
             (j == 0 || j > n) && continue
             newly_infected[j] && continue
@@ -215,9 +216,10 @@ The function does not apply disease cost, mortality, recovery, or waning —
 only the transmission step.
 """
 function apply_disease_transmission(env::Environment)
-    specs = env.specs
-    rows  = Int(specs["grid_rows"])
-    cols  = Int(specs["grid_cols"])
+    specs    = env.specs
+    rows     = Int(specs["grid_rows"])
+    cols     = Int(specs["grid_cols"])
+    toroidal = Bool(get(specs, "toroidal", true))
     tprob = Float32(get(specs, "transmission_prob", 0.1))
 
     agents = env.agents
@@ -233,8 +235,8 @@ function apply_disease_transmission(env::Environment)
         xi, yi = Int(src.x), Int(src.y)
         for dx in -1:1, dy in -1:1
             (dx == 0 && dy == 0) && continue
-            nx = mod1(xi + dx, rows)
-            ny = mod1(yi + dy, cols)
+            nx = wrap_or_clamp(xi + dx, rows, toroidal)
+            ny = wrap_or_clamp(yi + dy, cols, toroidal)
             j  = env.agent_map[nx, ny]
             (j == 0 || j > n) && continue
             newly_infected[j] && continue

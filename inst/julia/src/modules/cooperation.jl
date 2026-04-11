@@ -64,9 +64,10 @@ Run one round of the spatial public goods game for all live agents.
 function apply_cooperation!(env::Environment)
     Bool(get(env.specs, "cooperation_evolution", false)) || return
 
-    specs = env.specs
-    rows  = Int(specs["grid_rows"])
-    cols  = Int(specs["grid_cols"])
+    specs    = env.specs
+    rows     = Int(specs["grid_rows"])
+    cols     = Int(specs["grid_cols"])
+    toroidal = Bool(get(specs, "toroidal", true))
     cost  = Float32(get(specs, "cooperation_cost",       1.0))
     mult  = Float32(get(specs, "cooperation_multiplier", 2.0))
     e_max = Float32(get(specs, "energy_max",           200.0))
@@ -89,8 +90,8 @@ function apply_cooperation!(env::Environment)
         pool = 0.0f0
 
         for dx in -1:1, dy in -1:1
-            nx = mod1(fx + dx, rows)
-            ny = mod1(fy + dy, cols)
+            nx = wrap_or_clamp(fx + dx, rows, toroidal)
+            ny = wrap_or_clamp(fy + dy, cols, toroidal)
             m  = env.agent_map[nx, ny]
             m == 0 && continue
             neighbour = env.agents[m]

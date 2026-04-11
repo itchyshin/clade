@@ -91,12 +91,12 @@ test_that("search_map_elites() accepts genetic_diversity archive dimension", {
 })
 
 # ── 5. search_map_elites: tiny Julia run produces a non-empty archive ────────
-test_that("search_map_elites() with 3 iterations fills at least one cell", {
+test_that("search_map_elites() with 10 iterations fills at least one cell", {
   skip_no_julia()
   result <- search_map_elites(
-    specs_base   = .tiny_specs(),
+    specs_base   = .tiny_specs(grass_rate = 0.5),
     archive_dims = list(genetic_diversity = seq(0, 0.5, by = 0.1)),
-    n_iterations = 3L,
+    n_iterations = 10L,
     verbose      = FALSE
   )
   expect_type(result, "list")

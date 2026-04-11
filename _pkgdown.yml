@@ -218,7 +218,10 @@ reference:
       - run_alife
       - run_clade
       - batch_alife
+      - batch_seeds
       - default_specs
+      - quick_specs
+      - full_specs
       - load_specs
 
   - title: "Results & visualisation"

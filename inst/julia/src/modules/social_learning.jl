@@ -138,8 +138,9 @@ function apply_social_learning!(env::Environment)
     rate = Float32(get(env.specs, "social_learning_rate", 0.1))
     rate <= 0.0f0 && return
 
-    rows = Int(env.specs["grid_rows"])
-    cols = Int(env.specs["grid_cols"])
+    rows     = Int(env.specs["grid_rows"])
+    cols     = Int(env.specs["grid_cols"])
+    toroidal = Bool(get(env.specs, "toroidal", true))
 
     n = length(env.agents)
     n == 0 && return
@@ -152,8 +153,8 @@ function apply_social_learning!(env::Environment)
         best_idx = 0
         for dx in -1:1, dy in -1:1
             (dx == 0 && dy == 0) && continue
-            nx = mod1(fx + dx, rows)
-            ny = mod1(fy + dy, cols)
+            nx = wrap_or_clamp(fx + dx, rows, toroidal)
+            ny = wrap_or_clamp(fy + dy, cols, toroidal)
             m  = env.agent_map[nx, ny]
             m == 0 && continue
             nb = env.agents[m]

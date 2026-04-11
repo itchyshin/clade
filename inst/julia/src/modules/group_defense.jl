@@ -49,6 +49,7 @@ function apply_group_defense!(env::Environment,
     specs    = env.specs
     radius   = Int(get(specs, "group_defense_radius",  2))
     strength = Float32(get(specs, "group_defense_strength", 0.3))
+    toroidal = Bool(get(specs, "toroidal", true))
     rows     = size(env.grass, 1)
     cols     = size(env.grass, 2)
 
@@ -60,14 +61,15 @@ function apply_group_defense!(env::Environment,
         n_nearby = 0
         for dx in -radius:radius, dy in -radius:radius
             (dx == 0 && dy == 0) && continue
-            nx = mod1(x + dx, rows)
-            ny = mod1(y + dy, cols)
+            nx = wrap_or_clamp(x + dx, rows, toroidal)
+            ny = wrap_or_clamp(y + dy, cols, toroidal)
             env.agent_map[nx, ny] > 0 && (n_nearby += 1)
         end
 
         if n_nearby > 0
             factor     = 1.0f0 / (1.0f0 + Float32(n_nearby) * strength)
             damage[i] *= factor
+            env.n_gd_events += Int32(1)
         end
     end
     damage

@@ -156,6 +156,50 @@ movement module, selection cannot act on it. The `n_habitat_moves = 0` result co
 that the habitat-preference movement pathway is not active in the current tick. The
 3,418 dispersal events are ANN-driven random movement, not preference-driven migration.
 
+### Non-toroidal grid and the invasion front
+
+**What it models.** Spatial sorting requires a defined invasion front — a direction of expansion — which does not exist on the default toroidal grid where all positions are topologically equivalent. Setting `toroidal = FALSE` creates a linear habitat with hard boundaries: agents at the right edge cannot wrap to the left. Initialising agents at the left quarter of the grid creates an expanding population whose high-dispersal genotypes accumulate at the frontier (Shine et al. 2011; Phillips et al. 2008).
+
+**Parameters.**
+
+| Parameter | Default | Effect |
+|---|---|---|
+| `toroidal` | TRUE | Set to FALSE for a linear habitat with hard boundaries |
+
+```{r toroidal-invasion-front}
+library(clade)
+library(ggplot2)
+
+s <- default_specs()
+s$toroidal              <- FALSE
+s$dispersal_evolution   <- TRUE
+s$dispersal_init_mean   <- 0.3
+s$dispersal_mutation_sd <- 0.05
+s$spatial_sorting       <- TRUE
+s$sorting_mating_boost  <- 3.0
+s$n_agents_init         <- 80L
+s$grid_rows             <- 20L
+s$grid_cols             <- 40L   # wide grid gives front room to develop
+s$max_ticks             <- 400L
+s$random_seed           <- 42L
+
+env  <- run_alife(s)
+data <- get_run_data(env)$ticks
+
+ggplot(data, aes(x = t)) +
+  geom_line(aes(y = mean_front_dispersal, colour = "Front"), linewidth = 0.8) +
+  geom_line(aes(y = mean_rear_dispersal,  colour = "Rear"),
+            linewidth = 0.8, linetype = "dashed") +
+  scale_colour_manual(values = c(Front = "#e41a1c", Rear = "#377eb8"),
+                      name = NULL) +
+  labs(title = "Spatial sorting on a linear (non-toroidal) habitat",
+       subtitle = "Front-zone agents evolve higher dispersal without any fitness advantage",
+       x = "Tick", y = "Mean dispersal tendency") +
+  theme_classic(base_size = 12)
+```
+
+**Expected output.** `mean_front_dispersal` should diverge above `mean_rear_dispersal` within 50–100 ticks as high-dispersal genotypes surf the wave. On a toroidal grid both lines remain identical (all cells are topologically equivalent). The divergence confirms that the mechanism is geometric, not fitness-based.
+
 ### Discovery experiments
 
 The merged results confirm that dispersal evolves in response to local competition, spatial sorting concentrates high-dispersal genotypes at invasion fronts, and habitat preference evolves toward grass-rich patches. To go beyond:

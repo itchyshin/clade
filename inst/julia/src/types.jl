@@ -348,11 +348,12 @@ All counters are `Int32` unless noted.
 """
 mutable struct Environment
     # Grid
-    grass        ::Matrix{Float32}
-    agent_map    ::Matrix{Int64}
-    predator_map ::Matrix{Int64}
-    shelter_map  ::Matrix{Int32}
-    carrion_map  ::Matrix{Float32}
+    grass                ::Matrix{Float32}
+    agent_map            ::Matrix{Int64}
+    predator_map         ::Matrix{Int64}
+    shelter_map          ::Matrix{Int32}
+    carrion_map          ::Matrix{Float32}
+    carrion_infected_map ::Matrix{Bool}    # D2: true when carrion at cell came from infected agent
     # Complex landscape resource layers (Tier 1; zero matrices when complex_landscape=false)
     shrub_map    ::Matrix{Float32}
     canopy_map   ::Matrix{Float32}
@@ -387,6 +388,11 @@ mutable struct Environment
     # New module counters (Tier 2)
     n_front_agents      ::Int32   # spatial sorting: agents at range front this tick
     n_iffolk_transfers  ::Int32   # IFfolk: energy transfers this tick
+    # Session 2 counters (B2, B3, B6)
+    n_scavenge_events   ::Int32   # carrion consumption events this tick
+    n_gd_events         ::Int32   # group defense applications this tick
+    n_repro_events      ::Int32   # reproduction events this tick (for mean_clutch_size)
+    n_clutch_total      ::Int32   # sum of clutch sizes this tick (for mean_clutch_size)
 
     # Logging
     progress     ::Dict{String, Vector}

@@ -39,9 +39,10 @@ cells along each cardinal axis (steps 1 and 2 in each direction), doubling the
 grass and occupancy slots to 8 each and the predator slots to 8.
 """
 function sense_agent(ag::Agent, env::Environment)::Vector{Float32}
-    specs = env.specs
-    rows  = Int(specs["grid_rows"])
-    cols  = Int(specs["grid_cols"])
+    specs    = env.specs
+    rows     = Int(specs["grid_rows"])
+    cols     = Int(specs["grid_cols"])
+    toroidal = Bool(get(specs, "toroidal", true))
     emax  = Float32(get(specs, "energy_max",  200.0))
     amax  = Float32(get(specs, "max_age",     200.0))
     mmax  = Float32(get(specs, "max_agents",  500.0))
@@ -71,8 +72,8 @@ function sense_agent(ag::Agent, env::Environment)::Vector{Float32}
     # Grass inputs scaled by sense_mult (clamped to [0, 1]): larger-brained
     # agents perceive resource gradients more clearly.
     for d in 1:r
-        xN = mod1(x - d, rows);  xS = mod1(x + d, rows)
-        yE = mod1(y + d, cols);  yW = mod1(y - d, cols)
+        xN = wrap_or_clamp(x - d, rows, toroidal);  xS = wrap_or_clamp(x + d, rows, toroidal)
+        yE = wrap_or_clamp(y + d, cols, toroidal);  yW = wrap_or_clamp(y - d, cols, toroidal)
         inp[pos] = clamp(env.grass[xN, y]  / gmax * sense_mult, 0.0f0, 1.0f0);  pos += 1
         inp[pos] = clamp(env.grass[x,  yE] / gmax * sense_mult, 0.0f0, 1.0f0);  pos += 1
         inp[pos] = clamp(env.grass[xS, y]  / gmax * sense_mult, 0.0f0, 1.0f0);  pos += 1
@@ -81,8 +82,8 @@ function sense_agent(ag::Agent, env::Environment)::Vector{Float32}
 
     # Next 4r. Occupied cells (1 = another agent present) at distances 1..r
     for d in 1:r
-        xN = mod1(x - d, rows);  xS = mod1(x + d, rows)
-        yE = mod1(y + d, cols);  yW = mod1(y - d, cols)
+        xN = wrap_or_clamp(x - d, rows, toroidal);  xS = wrap_or_clamp(x + d, rows, toroidal)
+        yE = wrap_or_clamp(y + d, cols, toroidal);  yW = wrap_or_clamp(y - d, cols, toroidal)
         inp[pos] = env.agent_map[xN, y]  > 0 ? 1.0f0 : 0.0f0; pos += 1
         inp[pos] = env.agent_map[x,  yE] > 0 ? 1.0f0 : 0.0f0; pos += 1
         inp[pos] = env.agent_map[xS, y]  > 0 ? 1.0f0 : 0.0f0; pos += 1

@@ -120,6 +120,47 @@ batch_alife <- function(specs_list, n_cores = 1L, verbose = FALSE) {
   }
 }
 
+#' Run one specs object with multiple random seeds
+#'
+#' `batch_seeds()` is a convenience wrapper around [batch_alife()] for
+#' the common case of replicating a single simulation across several random
+#' seeds. Each replicate is identical except for its `random_seed`.
+#'
+#' @param specs A specs list from [default_specs()] (or [quick_specs()] /
+#'   [full_specs()]) with your modifications. The `random_seed` field is
+#'   overwritten for each replicate.
+#' @param seeds Integer vector of seeds to use (default `1:5`).
+#' @param n_cores Integer. Number of parallel R workers (default `1L`).
+#'   Passed to [batch_alife()].
+#' @param verbose Logical. Print progress (default `FALSE`).
+#'
+#' @return A named list of `env` objects, one per seed, named
+#'   `"seed_1"`, `"seed_2"`, etc.
+#'
+#' @examples
+#' \dontrun{
+#' s <- default_specs()
+#' s$max_ticks <- 300L
+#' results <- batch_seeds(s, seeds = 1:3)
+#' lapply(results, function(e) tail(get_run_data(e)$ticks$mean_energy, 1))
+#' }
+#'
+#' @seealso [batch_alife()], [default_specs()], [quick_specs()]
+#' @export
+batch_seeds <- function(specs, seeds = 1:5, n_cores = 1L, verbose = FALSE) {
+  stopifnot(is.list(specs), length(seeds) >= 1L)
+  seeds <- as.integer(seeds)
+  specs_list <- lapply(seeds, function(s) {
+    sp <- specs
+    sp$random_seed <- s
+    sp
+  })
+  names(specs_list) <- paste0("seed_", seeds)
+  results <- batch_alife(specs_list, n_cores = n_cores, verbose = verbose)
+  names(results) <- paste0("seed_", seeds)
+  results
+}
+
 # ── Internal helpers ──────────────────────────────────────────────────────────
 
 #' Validate a specs list before sending to Julia
@@ -178,6 +219,14 @@ batch_alife <- function(specs_list, n_cores = 1L, verbose = FALSE) {
 
   if (specs$n_agents_init > specs$max_agents)
     stop("specs$n_agents_init must not exceed specs$max_agents.", call. = FALSE)
+
+  if (isTRUE(specs$social_learning) && specs$n_agents_init < 100L)
+    warning(
+      "social_learning = TRUE with n_agents_init < 100: neighbour density ",
+      "is likely too low to trigger copying events. ",
+      "Set n_agents_init >= 150L for reliable results.",
+      call. = FALSE
+    )
 
   invisible(TRUE)
 }

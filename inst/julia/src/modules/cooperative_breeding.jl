@@ -89,8 +89,9 @@ function apply_cooperative_breeding!(env::Environment)
     specs = env.specs
     Bool(get(specs, "cooperative_breeding", false)) || return
 
-    rows = Int(specs["grid_rows"])
-    cols = Int(specs["grid_cols"])
+    rows     = Int(specs["grid_rows"])
+    cols     = Int(specs["grid_cols"])
+    toroidal = Bool(get(specs, "toroidal", true))
 
     helper_min_energy    = Float32(get(specs, "helper_min_energy",    80.0))
     helper_transfer      = Float32(get(specs, "helper_transfer",       5.0))
@@ -115,8 +116,8 @@ function apply_cooperative_breeding!(env::Environment)
             for dy in -2:2
                 helped && break
                 (dx == 0 && dy == 0) && continue
-                nx = mod1(xi + dx, rows)
-                ny = mod1(yi + dy, cols)
+                nx = wrap_or_clamp(xi + dx, rows, toroidal)
+                ny = wrap_or_clamp(yi + dy, cols, toroidal)
                 j  = env.agent_map[nx, ny]
                 (j == 0 || j > n) && continue
                 j == i && continue

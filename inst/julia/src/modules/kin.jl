@@ -86,11 +86,12 @@ Hamilton, W.D. (1964) The genetical evolution of social behaviour I & II.
     Journal of Theoretical Biology 7(1):1–52.
 """
 function apply_kin_altruism!(env::Environment)
-    specs = env.specs
+    specs    = env.specs
     Bool(get(specs, "kin_selection", false)) || return
 
-    rows = Int(specs["grid_rows"])
-    cols = Int(specs["grid_cols"])
+    rows     = Int(specs["grid_rows"])
+    cols     = Int(specs["grid_cols"])
+    toroidal = Bool(get(specs, "toroidal", true))
 
     cost    = Float32(get(specs, "kin_altruism_cost",              2.0))
     benefit = Float32(get(specs, "kin_altruism_benefit",          10.0))
@@ -114,8 +115,8 @@ function apply_kin_altruism!(env::Environment)
 
         for dx in -1:1, dy in -1:1
             (dx == 0 && dy == 0) && continue
-            nx = mod1(xi + dx, rows)
-            ny = mod1(yi + dy, cols)
+            nx = wrap_or_clamp(xi + dx, rows, toroidal)
+            ny = wrap_or_clamp(yi + dy, cols, toroidal)
             j  = env.agent_map[nx, ny]
             (j == 0 || j > n) && continue
             j == i && continue
@@ -165,11 +166,12 @@ Hamilton, W.D. (1964) The genetical evolution of social behaviour.
     Journal of Theoretical Biology 7(1):1–52.
 """
 function apply_iffolk!(env::Environment)
-    specs = env.specs
+    specs    = env.specs
     Bool(get(specs, "iffolk_selection", false)) || return
 
-    rows       = Int(specs["grid_rows"])
-    cols       = Int(specs["grid_cols"])
+    rows     = Int(specs["grid_rows"])
+    cols     = Int(specs["grid_cols"])
+    toroidal = Bool(get(specs, "toroidal", true))
     r_min      = Float32(get(specs, "iffolk_r_min",      0.125))
     radius     = Int(get(specs, "iffolk_radius",          5))
     transfer   = Float32(get(specs, "iffolk_transfer",    3.0))
@@ -200,8 +202,8 @@ function apply_iffolk!(env::Environment)
 
         for dx in -radius:radius, dy in -radius:radius
             (dx == 0 && dy == 0) && continue
-            nx = mod1(xi + dx, rows)
-            ny = mod1(yi + dy, cols)
+            nx = wrap_or_clamp(xi + dx, rows, toroidal)
+            ny = wrap_or_clamp(yi + dy, cols, toroidal)
             j  = env.agent_map[nx, ny]
             (j == 0 || j > n) && continue
             j == i && continue

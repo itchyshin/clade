@@ -118,11 +118,12 @@ do not skip entries.
 Guard: no-op when `specs["parental_care"] == false`.
 """
 function graduate_offspring!(env::Environment)
-    specs = env.specs
+    specs    = env.specs
     Bool(get(specs, "parental_care", false)) || return
 
-    rows       = Int(specs["grid_rows"])
-    cols       = Int(specs["grid_cols"])
+    rows     = Int(specs["grid_rows"])
+    cols     = Int(specs["grid_cols"])
+    toroidal = Bool(get(specs, "toroidal", true))
     indep_age  = Int32(get(specs, "juvenile_independence_age",    10))
     indep_en   = Float32(get(specs, "juvenile_independence_energy", 50.0))
 
@@ -154,8 +155,8 @@ function graduate_offspring!(env::Environment)
                 xi, yi   = Int(ag.x), Int(ag.y)
 
                 for p in perm
-                    nx = mod1(xi + dx_offsets[p], rows)
-                    ny = mod1(yi + dy_offsets[p], cols)
+                    nx = wrap_or_clamp(xi + dx_offsets[p], rows, toroidal)
+                    ny = wrap_or_clamp(yi + dy_offsets[p], cols, toroidal)
                     if env.agent_map[nx, ny] == 0
                         juv.x = Int32(nx)
                         juv.y = Int32(ny)

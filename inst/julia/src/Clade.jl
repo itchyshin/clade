@@ -40,6 +40,14 @@ using LinearAlgebra: norm
 # ── Load sub-modules in dependency order ──────────────────────────────────────
 
 include("types.jl")
+
+# D1: wrap_or_clamp — toroidal-or-bounded grid helper
+# Used by all modules that iterate over Moore/Chebyshev neighbourhoods.
+# When toroidal = true  → mod1(x, n)   (classic wraparound)
+# When toroidal = false → clamp(x, 1, n) (reflective boundary)
+@inline function wrap_or_clamp(x::Int, n::Int, toroidal::Bool)::Int
+    toroidal ? mod1(x, n) : clamp(x, 1, n)
+end
 include("genome.jl")
 
 # Brains (load all; make_brain() selects at runtime)
@@ -253,6 +261,7 @@ function create_environment(specs::Dict{String,Any})::Environment
         zeros(Int64,    rows, cols),   # predator_map
         zeros(Int32,    rows, cols),   # shelter_map
         zeros(Float32,  rows, cols),   # carrion_map
+        zeros(Bool,     rows, cols),   # carrion_infected_map
         shrub_map,
         canopy_map,
         agents,
@@ -270,6 +279,10 @@ function create_environment(specs::Dict{String,Any})::Environment
         Int32(0),                       # n_helpers
         Int32(0),                       # n_front_agents
         Int32(0),                       # n_iffolk_transfers
+        Int32(0),                       # n_scavenge_events
+        Int32(0),                       # n_gd_events
+        Int32(0),                       # n_repro_events
+        Int32(0),                       # n_clutch_total
         progress,
         deaths,
         Any[]                           # genome_log
@@ -441,6 +454,10 @@ function _reset_counters!(env::Environment)
     env.n_helpers           = Int32(0)
     env.n_front_agents      = Int32(0)
     env.n_iffolk_transfers  = Int32(0)
+    env.n_scavenge_events   = Int32(0)
+    env.n_gd_events         = Int32(0)
+    env.n_repro_events      = Int32(0)
+    env.n_clutch_total      = Int32(0)
 end
 
 # ── Internal constructors ─────────────────────────────────────────────────────

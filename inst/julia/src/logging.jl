@@ -79,6 +79,13 @@ function _init_progress(specs::Dict{String,Any}, n_ticks::Int)::Dict{String,Vect
         "mean_rear_dispersal"    => copy(fz),
         # Tier 2b: IFfolk inclusive fitness
         "n_iffolk_transfers"     => copy(iz),
+        # Session 2: previously-NA fields (B1–B6)
+        "mean_relatedness"   => copy(fz),   # B1: kin selection; 0 when disabled
+        "n_scavenge_events"  => copy(iz),   # B2: carrion consumption events per tick
+        "n_gd_events"        => copy(iz),   # B3: group defense applications per tick
+        "mean_shelter_depth" => copy(fz),   # B4: mean depth of occupied shelter cells
+        "mean_mutation_rate" => copy(fz),   # B5: mean agent mutation_sd; 0 when not evolved
+        "mean_clutch_size"   => copy(fz),   # B6: mean realized clutch size per tick
     )
 
     d
@@ -224,6 +231,48 @@ function log_tick!(env::Environment)
 
     # Tier 2b: IFfolk inclusive fitness
     p["n_iffolk_transfers"][t] = Int(env.n_iffolk_transfers)
+
+    # Session 2: previously-NA fields (B1–B6)
+
+    # B1: mean pairwise relatedness (sampled; 0 when kin_selection disabled)
+    if Bool(get(env.specs, "kin_selection", false)) && n >= 2
+        n_pairs = min(20, n * (n - 1) ÷ 2)
+        r_total = 0.0
+        sampled = 0
+        for _ in 1:n_pairs
+            i = rand(env.rng, 1:n)
+            j = rand(env.rng, 1:n)
+            i == j && continue
+            r_total += Float64(compute_relatedness(ags[i], ags[j]))
+            sampled += 1
+        end
+        p["mean_relatedness"][t] = sampled > 0 ? r_total / sampled : 0.0
+    end
+
+    # B2: scavenging consumption events
+    p["n_scavenge_events"][t] = Int(env.n_scavenge_events)
+
+    # B3: group defense applications
+    p["n_gd_events"][t] = Int(env.n_gd_events)
+
+    # B4: mean shelter depth (non-zero cells only; 0 when no shelters exist)
+    if Bool(get(env.specs, "niche_construction", false))
+        shelter_vals = view(env.shelter_map, env.shelter_map .> Int32(0))
+        p["mean_shelter_depth"][t] = isempty(shelter_vals) ? 0.0 :
+            mean(Float64.(shelter_vals))
+    end
+
+    # B5: mean evolved mutation rate (only when mutation_rate_evolution = TRUE)
+    if Bool(get(env.specs, "mutation_rate_evolution", false))
+        p["mean_mutation_rate"][t] = mean(Float64(ag.mutation_sd) for ag in ags)
+    end
+
+    # B6: mean realized clutch size this tick
+    p["mean_clutch_size"][t] = if env.n_repro_events > 0
+        Float64(env.n_clutch_total) / Float64(env.n_repro_events)
+    else
+        Float64(get(env.specs, "max_clutch_size", 1))
+    end
 end
 
 """

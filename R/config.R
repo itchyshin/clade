@@ -717,6 +717,7 @@ default_specs <- function() {
     # ── Grid and population ────────────────────────────────────────────────
     grid_rows              = 30L,
     grid_cols              = 30L,
+    toroidal               = TRUE,      # D1: FALSE = boundary edges, TRUE = wrap-around
     n_agents_init          = 50L,
     max_agents             = 500L,
     max_ticks              = 500L,
@@ -896,7 +897,7 @@ default_specs <- function() {
     # ── Signal evolution and mate choice ──────────────────────────────────
     signal_dims                = 0L,
     signal_cost                = 0.1,
-    signal_evolution_drift     = FALSE,
+    signal_evolution_drift     = TRUE,
     signal_drift_sd            = 0.01,
     mate_choice_mode           = "random",
     mate_choice_strength       = 0.5,
@@ -930,7 +931,7 @@ default_specs <- function() {
     # ── Phenotypic plasticity ──────────────────────────────────────────────
     phenotypic_plasticity      = FALSE,
     plasticity_sense_radius    = 3L,
-    plasticity_init_mean       = 0.0,
+    plasticity_init_mean       = 0.3,
     plasticity_mutation_sd     = 0.03,
     plasticity_min             = 0.0,
     plasticity_max             = 1.0,
@@ -947,6 +948,7 @@ default_specs <- function() {
     carrion_fraction           = 0.5,
     carrion_decay_rate         = 0.1,
     carrion_eat_gain           = 3.0,
+    carrion_transmission_prob  = 0.0,   # D2: prob infected carrion infects scavenger (0 = off)
 
     # ── Social learning ────────────────────────────────────────────────────
     social_learning            = FALSE,
@@ -994,8 +996,8 @@ default_specs <- function() {
     canopy_density              = 0.15,
     canopy_growth_rate          = 0.005,
     canopy_energy               = 50.0,
-    canopy_threshold            = 0.6,
-    wing_size_init_mean         = 0.0,
+    canopy_threshold            = 0.15,
+    wing_size_init_mean         = 0.08,
     wing_size_mutation_sd       = 0.05,
     wing_size_min               = 0.0,
     wing_size_max               = 1.0,
@@ -1019,4 +1021,54 @@ default_specs <- function() {
     log_genomes                = FALSE,
     random_seed                = NA_integer_
   )
+}
+
+#' Quick preset specs for fast exploratory runs
+#'
+#' Returns [default_specs()] with a smaller grid, fewer agents, and shorter
+#' run length. Use for rapid prototyping and parameter sweeps where exact
+#' biological accuracy is less important than turnaround time.
+#'
+#' Typical wall time: ~30 seconds per run (Julia warm-up excluded).
+#'
+#' @return A specs list identical to [default_specs()] except:
+#' \describe{
+#'   \item{`n_agents_init`}{50L}
+#'   \item{`max_ticks`}{200L}
+#'   \item{`grid_rows`, `grid_cols`}{20L × 20L}
+#' }
+#' @seealso [default_specs()], [full_specs()]
+#' @export
+quick_specs <- function() {
+  s <- default_specs()
+  s$n_agents_init <- 50L
+  s$max_ticks     <- 200L
+  s$grid_rows     <- 20L
+  s$grid_cols     <- 20L
+  s
+}
+
+#' Full preset specs for publication-quality runs
+#'
+#' Returns [default_specs()] with a larger grid, more agents, and a longer
+#' run to allow evolutionary dynamics to stabilise. Use for final experiments
+#' and vignette figures.
+#'
+#' Typical wall time: ~10–20 minutes per run (Julia warm-up excluded).
+#'
+#' @return A specs list identical to [default_specs()] except:
+#' \describe{
+#'   \item{`n_agents_init`}{200L}
+#'   \item{`max_ticks`}{1000L}
+#'   \item{`grid_rows`, `grid_cols`}{30L × 30L}
+#' }
+#' @seealso [default_specs()], [quick_specs()]
+#' @export
+full_specs <- function() {
+  s <- default_specs()
+  s$n_agents_init <- 200L
+  s$max_ticks     <- 1000L
+  s$grid_rows     <- 30L
+  s$grid_cols     <- 30L
+  s
 }

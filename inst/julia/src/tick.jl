@@ -33,9 +33,10 @@ Apply one tick to all live agents. Modifies agents and env.grass in place.
 Updates env.agent_map after all moves.
 """
 function tick_agents!(env::Environment)
-    specs = env.specs
-    rows  = Int(specs["grid_rows"])
-    cols  = Int(specs["grid_cols"])
+    specs    = env.specs
+    rows     = Int(specs["grid_rows"])
+    cols     = Int(specs["grid_cols"])
+    toroidal = Bool(get(specs, "toroidal", true))
 
     move_cost  = Float32(get(specs, "move_cost",  1.0))
     idle_cost  = Float32(get(specs, "idle_cost",  0.5))
@@ -64,16 +65,16 @@ function tick_agents!(env::Environment)
         ag.energy_last_tick = ag.energy
         x, y = Int(ag.x), Int(ag.y)
         if action == 1      # N
-            x = mod1(x - 1, rows)
+            x = wrap_or_clamp(x - 1, rows, toroidal)
             ag.energy -= move_cost * ag.metabolic_rate
         elseif action == 2  # E
-            y = mod1(y + 1, cols)
+            y = wrap_or_clamp(y + 1, cols, toroidal)
             ag.energy -= move_cost * ag.metabolic_rate
         elseif action == 3  # S
-            x = mod1(x + 1, rows)
+            x = wrap_or_clamp(x + 1, rows, toroidal)
             ag.energy -= move_cost * ag.metabolic_rate
         elseif action == 4  # W
-            y = mod1(y - 1, cols)
+            y = wrap_or_clamp(y - 1, cols, toroidal)
             ag.energy -= move_cost * ag.metabolic_rate
         else                # idle
             ag.energy -= idle_cost * ag.metabolic_rate

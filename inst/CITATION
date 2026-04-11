@@ -1,0 +1,16 @@
+citHeader("To cite clade in publications use:")
+
+bibentry(
+  bibtype  = "Misc",
+  title    = "clade: Agent-based evolutionary simulation with a Julia backend",
+  author   = person("Shinichi", "Nakagawa"),
+  year     = "2026",
+  url      = "https://github.com/itchyshin/clade",
+  note     = "R package version 0.1.1",
+  textVersion = paste(
+    "Nakagawa, S. (2026).",
+    "clade: Agent-based evolutionary simulation with a Julia backend.",
+    "R package version 0.1.1.",
+    "https://github.com/itchyshin/clade"
+  )
+)

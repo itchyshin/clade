@@ -67,6 +67,9 @@ function create_offspring!(env::Environment)
         else
             Int(get(specs, "max_clutch_size", 1))
         end
+        # B6: accumulate for mean_clutch_size logging
+        env.n_repro_events += Int32(1)
+        env.n_clutch_total += Int32(clutch)
 
         for _ in 1:clutch
             length(env.agents) + length(new_agents) >= max_ag && break
@@ -146,8 +149,9 @@ function _find_mate(ag::Agent, env::Environment)::Union{Agent, Nothing}
     end
     # Diploid: find Moore-neighbourhood agent (excluding self) with highest
     # signal-preference compatibility
-    rows = Int(specs["grid_rows"])
-    cols = Int(specs["grid_cols"])
+    rows     = Int(specs["grid_rows"])
+    cols     = Int(specs["grid_cols"])
+    toroidal = Bool(get(specs, "toroidal", true))
     x, y = Int(ag.x), Int(ag.y)
 
     best_score = -Inf32
@@ -156,8 +160,8 @@ function _find_mate(ag::Agent, env::Environment)::Union{Agent, Nothing}
 
     for dx in -1:1, dy in -1:1
         (dx == 0 && dy == 0) && continue
-        nx = mod1(x + dx, rows)
-        ny = mod1(y + dy, cols)
+        nx = wrap_or_clamp(x + dx, rows, toroidal)
+        ny = wrap_or_clamp(y + dy, cols, toroidal)
         idx = env.agent_map[nx, ny]
         idx == 0 && continue
         candidate = env.agents[idx]
@@ -195,15 +199,16 @@ end
 Count live agents in the Moore neighbourhood of `ag` (excluding self).
 """
 function _count_neighbours(ag::Agent, env::Environment)::Int
-    specs = env.specs
-    rows  = Int(specs["grid_rows"])
-    cols  = Int(specs["grid_cols"])
+    specs    = env.specs
+    rows     = Int(specs["grid_rows"])
+    cols     = Int(specs["grid_cols"])
+    toroidal = Bool(get(specs, "toroidal", true))
     x, y  = Int(ag.x), Int(ag.y)
     n = 0
     for dx in -1:1, dy in -1:1
         (dx == 0 && dy == 0) && continue
-        nx = mod1(x + dx, rows)
-        ny = mod1(y + dy, cols)
+        nx = wrap_or_clamp(x + dx, rows, toroidal)
+        ny = wrap_or_clamp(y + dy, cols, toroidal)
         env.agent_map[nx, ny] > 0 && (n += 1)
     end
     n
@@ -219,12 +224,13 @@ function _make_offspring(id::Int64, g::DiploidGenome, brain::AbstractBrain,
                           parent::Agent, mate::Union{Agent,Nothing},
                           energy::Float32, specs::Dict{String,Any},
                           rng)::Agent
-    rows = Int(specs["grid_rows"])
-    cols = Int(specs["grid_cols"])
-    dm   = get(specs, "dominance_model", "additive")
+    rows     = Int(specs["grid_rows"])
+    cols     = Int(specs["grid_cols"])
+    dm       = get(specs, "dominance_model", "additive")
+    toroidal = Bool(get(specs, "toroidal", true))
 
     # Place at an empty adjacent cell if possible
-    x, y = _place_offspring(parent, rows, cols, rng)
+    x, y = _place_offspring(parent, rows, cols, rng; toroidal = toroidal)
 
     mate_id = mate !== nothing ? mate.id : Int64(0)
     sig_dims = Int(get(specs, "signal_dims", 0))
@@ -296,9 +302,10 @@ end
 Return (x, y) for the offspring. Chooses a random adjacent cell (toroidal
 wrap). The caller passes `env.rng` so that seeded runs are reproducible.
 """
-function _place_offspring(parent::Agent, rows::Int, cols::Int, rng)::Tuple{Int, Int}
+function _place_offspring(parent::Agent, rows::Int, cols::Int, rng;
+                           toroidal::Bool = true)::Tuple{Int, Int}
     x, y = Int(parent.x), Int(parent.y)
     dx = rand(rng, -1:1)
     dy = rand(rng, -1:1)
-    (mod1(x + dx, rows), mod1(y + dy, cols))
+    (wrap_or_clamp(x + dx, rows, toroidal), wrap_or_clamp(y + dy, cols, toroidal))
 end

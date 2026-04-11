@@ -87,8 +87,8 @@ test_that("signal_cost defaults to 0.1", {
   expect_equal(default_specs()$signal_cost, 0.1)
 })
 
-test_that("signal_evolution_drift defaults to FALSE", {
-  expect_false(default_specs()$signal_evolution_drift)
+test_that("signal_evolution_drift defaults to TRUE", {
+  expect_true(default_specs()$signal_evolution_drift)
 })
 
 test_that("signal_drift_sd defaults to 0.01", {

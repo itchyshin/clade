@@ -57,10 +57,11 @@ Run one round of natal dispersal for all live agents. No-op when
 function apply_dispersal!(env::Environment)
     Bool(get(env.specs, "dispersal_evolution", false)) || return
 
-    specs = env.specs
-    cost  = Float32(get(specs, "dispersal_cost", 2.0))
-    rows  = Int(specs["grid_rows"])
-    cols  = Int(specs["grid_cols"])
+    specs    = env.specs
+    cost     = Float32(get(specs, "dispersal_cost", 2.0))
+    rows     = Int(specs["grid_rows"])
+    cols     = Int(specs["grid_cols"])
+    toroidal = Bool(get(specs, "toroidal", true))
 
     @inbounds for ag in env.agents
         ag.alive || continue
@@ -81,8 +82,8 @@ function apply_dispersal!(env::Environment)
         best_ny    = ay
 
         for d in 1:4
-            nx = mod1(ax + _DISP_DX[d], rows)
-            ny = mod1(ay + _DISP_DY[d], cols)
+            nx = wrap_or_clamp(ax + _DISP_DX[d], rows, toroidal)
+            ny = wrap_or_clamp(ay + _DISP_DY[d], cols, toroidal)
             env.agent_map[nx, ny] == 0 || continue   # cell occupied
             d2 = _torus_dist2(nx, ny, bx, by, rows, cols)
             if d2 > best_dist2

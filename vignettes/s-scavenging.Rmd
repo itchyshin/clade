@@ -34,6 +34,7 @@ the cell, yielding `carrion_eat_gain` energy units.
 | `carrion_fraction` | 0.5 | Fraction of a dead agent's energy deposited as carrion |
 | `carrion_decay_rate` | 0.1 | Proportional decay of carrion per tick |
 | `carrion_eat_gain` | 3.0 | Energy gained by a scavenger per unit of carrion consumed |
+| `carrion_transmission_prob` | 0.0 | Probability that eating from an infected carcass transmits disease |
 | `grass_rate` | 0.05 | Set low to create resource scarcity that accentuates the scavenging advantage |
 
 **Expected output.** Under scarce grass conditions, mean agent energy should be
@@ -104,9 +105,52 @@ expected to produce substantially larger effects.
 
 The baseline result shows that scavenging sustains higher mean energy than baseline under identical low-grass conditions. To go beyond:
 
-1. **Carrion × disease** Add `disease = TRUE`. Dead agents deposit carrion; if infected carcasses transmit pathogens, scavenging may amplify epidemics. Does `n_new_infections` differ between scavenging and non-scavenging conditions under identical `transmission_prob`? Does `carrion_decay_rate` modulate pathogen persistence on carcasses?
+1. **Carrion as pathogen reservoir** When `disease = TRUE` and `carrion_transmission_prob > 0`, agents that die while infected deposit a flagged carcass; any agent that eats from it becomes infected with the specified probability. This models fomite transmission observed in vultures, hyenas, and other obligate scavengers (Ogada et al. 2012). The question: does carrion-mediated transmission reverse the previously observed anti-epidemic effect of scavenging?
 
-   *Tried it.* With `disease = TRUE`, `transmission_prob = 0.25`, `disease_seed_prob = 0.05`, 80 agents, 200 ticks, seed 42: scavenging reduced total infections from 173 to 154 (−11%) and raised mean energy from 98.9 to 103.0. Scavenging is anti-epidemic in this model: agents with higher energy survive infection faster, shortening the infectious period and reducing onward transmission. Carrion does not serve as a pathogen reservoir in the current implementation — that is an extension worth building.
+```{r carrion-pathogen}
+library(clade)
+library(ggplot2)
+
+make_specs <- function(carrion_tp = 0.0) {
+  s <- default_specs()
+  s$n_agents_init           <- 200L
+  s$grid_rows               <- 25L
+  s$grid_cols               <- 25L
+  s$grass_rate              <- 0.08
+  s$max_ticks               <- 300L
+  s$scavenging              <- TRUE
+  s$carrion_fraction        <- 0.5
+  s$carrion_decay_rate      <- 0.1
+  s$disease                 <- TRUE
+  s$transmission_prob       <- 0.15
+  s$disease_seed_prob       <- 0.03
+  s$carrion_transmission_prob <- carrion_tp
+  s
+}
+
+d_safe <- get_run_data(run_alife(make_specs(0.0)))$ticks
+d_risk <- get_run_data(run_alife(make_specs(0.3)))$ticks
+
+d_safe$condition <- "Carrion safe (prob = 0)"
+d_risk$condition <- "Carrion risky (prob = 0.3)"
+dat <- rbind(d_safe, d_risk)
+
+ggplot(dat, aes(x = t, y = n_new_infections, colour = condition)) +
+  geom_line(linewidth = 0.7, alpha = 0.8) +
+  scale_colour_manual(
+    values = c("Carrion safe (prob = 0)" = "#43A047",
+               "Carrion risky (prob = 0.3)" = "#E53935"),
+    name = NULL
+  ) +
+  labs(
+    x     = "Tick",
+    y     = "New infections per tick",
+    title = "Carrion as pathogen reservoir amplifies epidemics"
+  ) +
+  theme_classic(base_size = 12)
+```
+
+**Expected output.** When `carrion_transmission_prob = 0.3`, `n_new_infections` should be higher than the safe-carrion baseline, particularly during population troughs when scavenging rates are highest. The carrion_decay_rate acts as a natural quarantine: fast decay reduces fomite persistence and dampens transmission. Watch whether the epidemic peak shifts earlier (higher early transmission from dense infection) or later (carcasses accumulate as the epidemic matures).
 
 2. **Kin scavenging** Add `kin_selection = TRUE`. Both kin altruism and scavenging buffer energy deficits — are they additive (both help independently) or redundant (populations with kin altruism scavenge less because energy transfers substitute for carrion)? Watch `n_altruistic_acts` and `mean_energy` jointly under combined and single-module conditions.
 
