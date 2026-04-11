@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -449,6 +449,14 @@ conditions) — population-crash artefact, not canalization.</p>
 canalization-favourable condition tested. Even here, σ rose to ceiling.
 Experiment 2 tests whether longer runs (2000–5000 ticks) change this
 outcome.</p>
+<div class="figure">
+<img src="figures/showcase_bnn_exp1_stability.png" alt="Phase diagram of sigma slope across 9 resource × seasonality conditions. All cells are positive (red) — exploration is selected in every environment tested. The shallowest slope (bottom-right, bold row) still reaches the sigma ceiling." width="100%"><p class="caption">
+Phase diagram of sigma slope across 9 resource × seasonality conditions.
+All cells are positive (red) — exploration is selected in every
+environment tested. The shallowest slope (bottom-right, bold row) still
+reaches the sigma ceiling.
+</p>
+</div>
 <hr>
 </div>
 <div class="section level3">
@@ -532,6 +540,13 @@ rising.</p>
 emerge because exploration is genuinely the ESS in a competitive
 foraging world — the fitness landscape has no stable peak for
 canalization to track.</p>
+<div class="figure">
+<img src="figures/showcase_bnn_exp2_runlength.png" alt="Sigma trajectories at 1000, 2000, and 5000 ticks (mean +/- SE, 5 seeds). All runs hit the 0.5 ceiling; the slope decelerates 21-fold but never reverses. This is ceiling saturation, not canalization." width="100%"><p class="caption">
+Sigma trajectories at 1000, 2000, and 5000 ticks (mean +/- SE, 5 seeds).
+All runs hit the 0.5 ceiling; the slope decelerates 21-fold but never
+reverses. This is ceiling saturation, not canalization.
+</p>
+</div>
 <hr>
 </div>
 <div class="section level3">
@@ -635,6 +650,14 @@ maintaining that capacity. This is the strongest evidence that
 exploration is the ESS: even when it is costly, it is preferred over
 genetic assimilation.</p></li>
 </ol>
+<div class="figure">
+<img src="figures/showcase_bnn_exp3_brains.png" alt="Left: sigma trajectories for BNN-only and BNN+RL (seed 1). The two curves are indistinguishable — RL does not alter sigma dynamics. Right: final mean energy by condition. BNN agents pay a 17% energy cost relative to ANN agents yet the exploration ESS persists." width="100%"><p class="caption">
+Left: sigma trajectories for BNN-only and BNN+RL (seed 1). The two
+curves are indistinguishable — RL does not alter sigma dynamics. Right:
+final mean energy by condition. BNN agents pay a 17% energy cost
+relative to ANN agents yet the exploration ESS persists.
+</p>
+</div>
 <hr>
 </div>
 <div class="section level3">
@@ -780,6 +803,15 @@ predicted to moderately accelerate canalization; it produced the largest
 effect observed across all 4 experiments. Social learning was predicted
 to accelerate canalization; it had no significant effect in the stable
 environment.</p>
+<div class="figure">
+<img src="figures/showcase_bnn_exp4_social.png" alt="Final mean sigma by social module, faceted by environment. Epigenetics (red) is the only mechanism that substantially reduces sigma — 32% below ceiling in stable-abundant conditions, 72% below ceiling in scarce-stable conditions. All other modules remain at or near the 0.5 ceiling (dashed line)." width="100%"><p class="caption">
+Final mean sigma by social module, faceted by environment. Epigenetics
+(red) is the only mechanism that substantially reduces sigma — 32% below
+ceiling in stable-abundant conditions, 72% below ceiling in
+scarce-stable conditions. All other modules remain at or near the 0.5
+ceiling (dashed line).
+</p>
+</div>
 <hr>
 </div>
 <div class="section level3">
@@ -835,6 +867,15 @@ genuine Baldwinian canalization. Only epigenetic inheritance (Experiment
 populations.</p>
 </li>
 </ol>
+<div class="figure">
+<img src="figures/showcase_bnn_exp5_mapelites.png" alt="MAP-Elites archive: each point is a filled cell (20 of 121 total). Low sigma is only found with low genetic diversity — consistent with drift to fixation, not with the Baldwin Effect, which requires low sigma coexisting with high diversity. No cells appear in the low-sigma + high-diversity quadrant (bottom-right of the dashed reference lines)." width="100%"><p class="caption">
+MAP-Elites archive: each point is a filled cell (20 of 121 total). Low
+sigma is only found with low genetic diversity — consistent with drift
+to fixation, not with the Baldwin Effect, which requires low sigma
+coexisting with high diversity. No cells appear in the low-sigma +
+high-diversity quadrant (bottom-right of the dashed reference lines).
+</p>
+</div>
 <hr>
 </div>
 <div class="section level3">
