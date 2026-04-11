@@ -229,6 +229,10 @@ canalization.
 
 **Bold row** = smallest positive slope = most canalization-favourable condition tested. Even here, σ rose to ceiling. Experiment 2 tests whether longer runs (2000–5000 ticks) change this outcome.
 
+```{r fig-bnn-exp1, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Phase diagram of sigma slope across 9 resource × seasonality conditions. All cells are positive (red) — exploration is selected in every environment tested. The shallowest slope (bottom-right, bold row) still reaches the sigma ceiling."}
+FIG("bnn_exp1_stability")
+```
+
 ---
 
 ### Experiment 2 — Is the ceiling an artefact of run length?
@@ -293,6 +297,10 @@ zero. If the ceiling were raised, σ would continue rising.
 Run length is not the limiting factor. The Baldwin Effect does not emerge because
 exploration is genuinely the ESS in a competitive foraging world — the fitness landscape
 has no stable peak for canalization to track.
+
+```{r fig-bnn-exp2, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Sigma trajectories at 1000, 2000, and 5000 ticks (mean +/- SE, 5 seeds). All runs hit the 0.5 ceiling; the slope decelerates 21-fold but never reverses. This is ceiling saturation, not canalization."}
+FIG("bnn_exp2_runlength")
+```
 
 ---
 
@@ -359,6 +367,10 @@ Three findings:
 2. **RL provides no energy benefit at 1000 ticks**: ANN+RL and ANN-null have *identical* final energy (154.97 to 5 significant figures). The REINFORCE gradient offers no measurable foraging advantage over 1000 ticks in this environment — genetic evolution of ANN weights is sufficient.
 
 3. **BNN pays an energy cost for exploration**: BNN agents end with 128 energy vs ANN agents at 155 — a 17% metabolic penalty from broad Thompson sampling. Yet sigma is still selected to ceiling. Agents pay to explore and selection *still* favours maintaining that capacity. This is the strongest evidence that exploration is the ESS: even when it is costly, it is preferred over genetic assimilation.
+
+```{r fig-bnn-exp3, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Left: sigma trajectories for BNN-only and BNN+RL (seed 1). The two curves are indistinguishable — RL does not alter sigma dynamics. Right: final mean energy by condition. BNN agents pay a 17% energy cost relative to ANN agents yet the exploration ESS persists."}
+FIG("bnn_exp3_brains")
+```
 
 ---
 
@@ -444,6 +456,10 @@ The mechanism is epigenetic transmission of sigma itself: when agents learn with
 - Kin selection: negligible effect in stable conditions; in scarce conditions, energy subsidies to relatives allow high-σ exploration to be maintained (kin buffer the cost of uncertainty) — consistent with the earlier finding that social insurance retards canalization
 - **Prediction reversal**: epigenetics was predicted to moderately accelerate canalization; it produced the largest effect observed across all 4 experiments. Social learning was predicted to accelerate canalization; it had no significant effect in the stable environment.
 
+```{r fig-bnn-exp4, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Final mean sigma by social module, faceted by environment. Epigenetics (red) is the only mechanism that substantially reduces sigma — 32% below ceiling in stable-abundant conditions, 72% below ceiling in scarce-stable conditions. All other modules remain at or near the 0.5 ceiling (dashed line)."}
+FIG("bnn_exp4_social")
+```
+
 ---
 
 ### Discovery experiments
@@ -491,6 +507,10 @@ experiments above characterise the boundary. To go further:
    parameter combination in the tested space produces genuine Baldwinian canalization.
    Only epigenetic inheritance (Experiment 4) provides a route to substantially
    reduced σ while maintaining viable populations.
+
+```{r fig-bnn-exp5, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="MAP-Elites archive: each point is a filled cell (20 of 121 total). Low sigma is only found with low genetic diversity — consistent with drift to fixation, not with the Baldwin Effect, which requires low sigma coexisting with high diversity. No cells appear in the low-sigma + high-diversity quadrant (bottom-right of the dashed reference lines)."}
+FIG("bnn_exp5_mapelites")
+```
 
 ---
 

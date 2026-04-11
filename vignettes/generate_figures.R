@@ -395,5 +395,224 @@ p_eff <- ggplot(df_bs, aes(t, mean_effort, colour = rate)) +
         ggplot2::theme(legend.position = "bottom"),
       "bad_science", w = 8, h = 6)
 
+# ── Section 37: Baldwin Effect experiments ───────────────────────────────────
+# Loads pre-computed RDS files from Rdata/ — no Julia required for this section.
+message("[37] Baldwin Effect experiments…")
+
+# Helper: save to both inst/figures/ and vignettes/figures/ (for local preview)
+.save_baldwin <- function(p, name, w = 8, h = 4.5) {
+  dir.create("vignettes/figures", showWarnings = FALSE, recursive = TRUE)
+  for (dir in c("inst/figures", "vignettes/figures")) {
+    ggplot2::ggsave(
+      file.path(dir, paste0("showcase_", name, ".png")),
+      plot = p, width = w, height = h, dpi = 150
+    )
+  }
+  message("  saved: showcase_", name, ".png")
+  invisible(name)
+}
+
+# ── Exp 1: Environmental stability gradient ───────────────────────────────────
+exp1 <- readRDS("Rdata/baldwin_exp1_slopes.rds")
+
+# Scale slope to ×10⁻⁴ for readability
+exp1$slope_scaled <- exp1$mean_slope * 1e4
+exp1$grass_label  <- paste0("grass = ", exp1$grass_rate)
+exp1$seas_label   <- paste0("seasonal = ", exp1$seasonal_amplitude)
+
+p_exp1 <- ggplot(exp1,
+    aes(x = factor(grass_rate), y = factor(seasonal_amplitude),
+        fill = slope_scaled)) +
+  geom_tile(colour = "white", linewidth = 0.5) +
+  geom_text(aes(label = sprintf("%.2f", slope_scaled)), size = 3.5,
+            fontface = "bold") +
+  scale_fill_gradient2(
+    low    = "#1a9850", mid = "white", high = "#d73027",
+    midpoint = 0, name = expression(sigma~"slope \u00d7 10"^-4)
+  ) +
+  labs(
+    title    = "Baldwin Effect phase diagram: all conditions select for exploration",
+    subtitle = "Slope of mean_prior_sigma ~ tick (green = canalization, red = exploration selected)",
+    x = "Resource abundance (grass_rate)",
+    y = "Temporal variability (seasonal_amplitude)"
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(panel.grid = element_blank(),
+        legend.position = "right")
+
+.save_baldwin(p_exp1, "bnn_exp1_stability", w = 7, h = 5)
+
+# ── Exp 2: Run length — ceiling saturation ────────────────────────────────────
+exp2 <- readRDS("Rdata/baldwin_exp2_runlength.rds")
+
+# Extract per-tick sigma from each env object; compute mean ± se across 5 seeds
+traj_list <- lapply(names(exp2$results), function(rlen) {
+  seeds    <- exp2$results[[rlen]]
+  tick_dfs <- lapply(seeds, function(env) get_run_data(env)$ticks)
+  # Compute mean sigma at each tick
+  max_t  <- max(sapply(tick_dfs, nrow))
+  common <- Reduce(intersect, lapply(tick_dfs, function(d) d$t))
+  agg    <- do.call(rbind, lapply(tick_dfs, function(d) d[d$t %in% common, ]))
+  stats  <- aggregate(mean_prior_sigma ~ t, data = agg,
+                      FUN = function(x) c(mu = mean(x), se = sd(x) / sqrt(length(x))))
+  data.frame(
+    t          = stats$t,
+    mu         = stats$mean_prior_sigma[, "mu"],
+    se         = stats$mean_prior_sigma[, "se"],
+    run_length = as.integer(rlen)
+  )
+})
+traj_df <- do.call(rbind, traj_list)
+traj_df$run_label <- factor(
+  paste0(traj_df$run_length, " ticks"),
+  levels = paste0(sort(unique(traj_df$run_length)), " ticks")
+)
+
+rl_cols <- c("1000 ticks" = "#4575b4",
+             "2000 ticks" = "#74add1",
+             "5000 ticks" = "#f46d43")
+
+p_exp2 <- ggplot(traj_df, aes(x = t, y = mu, colour = run_label, fill = run_label)) +
+  geom_ribbon(aes(ymin = mu - se, ymax = mu + se), alpha = 0.15, colour = NA) +
+  geom_line(linewidth = 0.8) +
+  geom_hline(yintercept = 0.5, linetype = "dashed", colour = "grey50",
+             linewidth = 0.5) +
+  annotate("text", x = max(traj_df$t) * 0.05, y = 0.50,
+           label = "\u03c3 ceiling (0.50)", hjust = 0, vjust = -0.4,
+           colour = "grey50", size = 3.5) +
+  scale_colour_manual(values = rl_cols, name = NULL) +
+  scale_fill_manual(values = rl_cols, name = NULL) +
+  scale_y_continuous(limits = c(0, 0.55)) +
+  labs(
+    title    = "Ceiling saturation, not canalization: longer runs do not produce decline",
+    subtitle = "Stable abundant environment (grass = 0.20, seasonal = 0.8); mean \u00b1 SE across 5 seeds",
+    x = "Tick", y = expression("Mean prior " * sigma)
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(legend.position = "top")
+
+.save_baldwin(p_exp2, "bnn_exp2_runlength", w = 8, h = 4.5)
+
+# ── Exp 3: Brain architecture ─────────────────────────────────────────────────
+exp3 <- readRDS("Rdata/baldwin_exp3_brains.rds")
+
+# Panel A: sigma trajectories for BNN-only and BNN+RL (seed 1 each)
+bnn_traj <- lapply(c("BNN only", "BNN + RL"), function(cond) {
+  d <- get_run_data(exp3$results[[cond]]$seed_1)$ticks
+  data.frame(t = d$t, mean_prior_sigma = d$mean_prior_sigma, condition = cond)
+})
+bnn_traj_df <- do.call(rbind, bnn_traj)
+
+p3a <- ggplot(bnn_traj_df, aes(x = t, y = mean_prior_sigma, colour = condition)) +
+  geom_line(linewidth = 0.8) +
+  geom_hline(yintercept = 0.5, linetype = "dashed", colour = "grey60") +
+  scale_colour_manual(values = c("BNN only" = "#2166ac", "BNN + RL" = "#d6604d"),
+                      name = NULL) +
+  scale_y_continuous(limits = c(0, 0.55)) +
+  labs(title = "RL has no effect on \u03c3 dynamics",
+       x = "Tick", y = expression("Mean prior " * sigma)) +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "top")
+
+# Panel B: final energy by condition (from summary)
+energy_df <- exp3$summary[exp3$summary$condition %in%
+                            c("BNN only", "BNN + RL", "ANN + RL", "ANN null"), ]
+energy_df$condition <- factor(
+  energy_df$condition,
+  levels = c("ANN + RL", "ANN null", "BNN + RL", "BNN only")
+)
+energy_df$brain_type <- ifelse(grepl("BNN", energy_df$condition), "BNN", "ANN")
+
+p3b <- ggplot(energy_df, aes(x = final_energy, y = condition, fill = brain_type)) +
+  geom_col(width = 0.6) +
+  geom_text(aes(label = round(final_energy, 1)), hjust = -0.1, size = 3.5) +
+  scale_fill_manual(values = c("BNN" = "#92c5de", "ANN" = "#f4a582"), name = NULL) +
+  scale_x_continuous(limits = c(0, 180)) +
+  labs(title = "BNN pays 17% energy cost yet exploration is still the ESS",
+       x = "Final mean energy", y = NULL) +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "top", panel.grid.major.y = element_blank())
+
+.save_baldwin(p3a + p3b, "bnn_exp3_brains", w = 10, h = 4)
+
+# ── Exp 4: Social modifiers ───────────────────────────────────────────────────
+exp4 <- readRDS("Rdata/baldwin_exp4_social.rds")
+
+# Order modules for display
+module_order <- c("BNN + epigenetics", "BNN + kin select",
+                  "BNN + social learn", "BNN baseline")
+exp4$module  <- factor(exp4$module, levels = module_order)
+exp4$env_lab <- factor(exp4$env,
+                        levels = c("Scarce stable", "Stable abundant"))
+
+# Colour: epigenetics highlighted
+exp4$highlight <- exp4$module == "BNN + epigenetics"
+
+p_exp4 <- ggplot(exp4, aes(x = final_sigma, y = module, colour = highlight)) +
+  geom_vline(xintercept = 0.5, linetype = "dashed", colour = "grey70") +
+  geom_segment(aes(xend = 0, yend = module), linewidth = 0.5, alpha = 0.5) +
+  geom_point(aes(size = highlight)) +
+  geom_text(aes(label = sprintf("%.2f", final_sigma)),
+            hjust = -0.25, size = 3.2) +
+  scale_colour_manual(values = c("TRUE" = "#d6604d", "FALSE" = "#4575b4"),
+                      guide = "none") +
+  scale_size_manual(values = c("TRUE" = 4, "FALSE" = 2.5), guide = "none") +
+  scale_x_continuous(limits = c(0, 0.65)) +
+  facet_wrap(~env_lab, ncol = 2) +
+  labs(
+    title    = "Epigenetic inheritance is the only mechanism that substantially reduces \u03c3",
+    subtitle = "Red = epigenetics condition; dashed line = \u03c3 ceiling (0.50)",
+    x = expression("Final mean prior " * sigma), y = NULL
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(panel.grid.major.y = element_blank(),
+        strip.text = element_text(face = "bold"))
+
+.save_baldwin(p_exp4, "bnn_exp4_social", w = 9, h = 4.5)
+
+# ── Exp 5: MAP-Elites ─────────────────────────────────────────────────────────
+exp5        <- readRDS("Rdata/baldwin_exp5_mapelites.rds")
+archive_df  <- exp5$archive_df
+
+# Background: show grid of all 121 archive cells, filled cells highlighted
+# Create a full grid for context
+grid_df <- expand.grid(
+  sigma_bin = seq(0, 0.5, by = 0.05),
+  gd_bin    = seq(0, 0.5, by = 0.05)
+)
+
+p_exp5 <- ggplot() +
+  # Unfilled archive cells (background)
+  geom_tile(data = grid_df,
+            aes(x = sigma_bin, y = gd_bin),
+            fill = "grey93", colour = "white", linewidth = 0.3) +
+  # Filled cells — colour by score (= genetic diversity)
+  geom_point(data = archive_df,
+             aes(x = sigma, y = gd, colour = gd, size = score),
+             alpha = 0.9) +
+  # Threshold lines
+  geom_vline(xintercept = 0.30, linetype = "dashed", colour = "#d6604d",
+             linewidth = 0.6) +
+  geom_hline(yintercept = 0.20, linetype = "dashed", colour = "#4575b4",
+             linewidth = 0.6) +
+  annotate("text", x = 0.29, y = 0.48,
+           label = "low \u03c3\nzone", hjust = 1, size = 3, colour = "#d6604d") +
+  annotate("text", x = 0.48, y = 0.21,
+           label = "high gd zone\n(Baldwin Effect\nrequires this + low \u03c3)",
+           hjust = 1, vjust = 0, size = 2.8, colour = "#4575b4") +
+  scale_colour_viridis_c(name = "Genetic\ndiversity", option = "plasma") +
+  scale_size_continuous(name = "Score\n(gd)", range = c(1.5, 6)) +
+  labs(
+    title    = "MAP-Elites: low \u03c3 only with low genetic diversity (drift, not canalization)",
+    subtitle = paste0(exp5$filled, "/121 cells filled   |   \u03c3-gd correlation = +0.59   |   ",
+                      "No low-\u03c3 + high-gd cells found"),
+    x        = expression("Mean prior " * sigma * " (archive dimension)"),
+    y        = "Genetic diversity (archive dimension)"
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(legend.position = "right")
+
+.save_baldwin(p_exp5, "bnn_exp5_mapelites", w = 7.5, h = 5.5)
+
 message("─── Done. Figures saved to inst/figures/ ─────────────────────────────")
 message("Now re-build the vignette: devtools::build_vignettes()")
