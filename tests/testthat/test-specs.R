@@ -60,6 +60,8 @@ test_that("default_specs() contains all required parameters", {
     "senescence_shape", "min_repro_age",
     "wall_density", "wall_clusters",
     "world_evolution", "world_mutation_sd", "world_params_to_evolve",
+    "fixed_patch", "fixed_patch_value", "fixed_patch_x",
+    "fixed_patch_y", "fixed_patch_radius",
     "log_freq", "log_genomes", "random_seed"
   )
   missing_params <- setdiff(required, names(s))
@@ -88,7 +90,7 @@ test_that("all boolean module flags default to FALSE", {
     "aging_rate_evolution", "immune_evolution", "dispersal_evolution",
     "epigenetics", "world_evolution", "log_genomes",
     "mutation_rate_evolution", "learning_rate_evolution",
-    "life_history_evolution"
+    "life_history_evolution", "fixed_patch"
   )
   for (nm in bool_flags) {
     expect_false(s[[nm]], info = sprintf("specs$%s should default to FALSE", nm))
@@ -200,4 +202,28 @@ test_that("default kin_altruism parameters satisfy Hamilton's rule (rB > C)", {
 # ── 20. Cooperation multiplier > 1 (PGG is profitable) ────────────────────────
 test_that("default cooperation_multiplier > 1", {
   expect_gt(default_specs()$cooperation_multiplier, 1.0)
+})
+
+# ── 21. fixed_patch defaults to FALSE ────────────────────────────────────────
+test_that("fixed_patch defaults to FALSE", {
+  expect_false(default_specs()$fixed_patch)
+})
+
+# ── 22. fixed_patch_value defaults to 5.0 ────────────────────────────────────
+test_that("fixed_patch_value defaults to 5.0", {
+  expect_equal(default_specs()$fixed_patch_value, 5.0)
+})
+
+# ── 23. fixed_patch_radius defaults to 0L ────────────────────────────────────
+test_that("fixed_patch_radius defaults to 0L (single-cell patch)", {
+  s <- default_specs()
+  expect_equal(s$fixed_patch_radius, 0L)
+  expect_type(s$fixed_patch_radius, "integer")
+})
+
+# ── 24. fixed_patch_x and fixed_patch_y default to NA_integer_ ───────────────
+test_that("fixed_patch_x and fixed_patch_y default to NA_integer_", {
+  s <- default_specs()
+  expect_true(is.na(s$fixed_patch_x))
+  expect_true(is.na(s$fixed_patch_y))
 })

@@ -47,76 +47,105 @@ has placed the population on the exploration–assimilation axis.
 
 ## Demonstration
 
-Two conditions, 500 ticks, 150 agents on a 30×30 grid.
+Three conditions, 1000 ticks, 150 agents on a 25×25 grid. The key readout is
+`mean_prior_sigma`: the population-mean standard deviation of each BNN agent's
+synaptic-weight prior. **High σ = exploration; low σ = canalization.**
 
 ```{r setup}
 library(clade)
 library(ggplot2)
+library(dplyr)
 
-s <- default_specs()
-s$n_agents_init  <- 150L
-s$max_ticks      <- 500L
-s$grass_rate     <- 0.05
-s$random_seed    <- 42L
+base <- default_specs()
+base$brain_type    <- "bnn"
+base$n_agents_init <- 150L
+base$max_ticks     <- 1000L
+base$grid_rows     <- 25L
+base$grid_cols     <- 25L
+base$grass_rate    <- 0.05
+base$random_seed   <- 42L
 ```
 
 ```{r run-demo}
-# Without epigenetics: genetic evolution only
-env_base <- run_alife(s)
+# Condition 1: BNN baseline — dynamic shifting landscape
+env_base <- run_alife(base)
 
-# With reinforcement learning + epigenetic inheritance (TEI)
-s$rl_mode                <- "actor_critic"
-s$epigenetics            <- TRUE
-s$epigenetic_inheritance <- 0.5
-s$methylation_rate       <- 0.2
-env_epi <- run_alife(s)
+# Condition 2: BNN + fixed patch (Hinton & Nowlan 1987 setup)
+# A permanent 3×3 resource patch at the grid centre creates a stable fitness
+# peak. Agents that genetically encode navigation to the patch outcompete
+# those relying on within-lifetime search.
+s_patch <- base
+s_patch$fixed_patch        <- TRUE
+s_patch$fixed_patch_value  <- 8.0   # high vs. grass_max ≈ 2
+s_patch$fixed_patch_x      <- 13L   # column (centre of 25-col grid)
+s_patch$fixed_patch_y      <- 13L   # row    (centre of 25-row grid)
+s_patch$fixed_patch_radius <- 1L    # 3×3 = 9 cells
+env_patch <- run_alife(s_patch)
+
+# Condition 3: BNN + epigenetics — TEI shortcut (no stable landscape needed)
+s_epi <- base
+s_epi$epigenetics            <- TRUE
+s_epi$epigenetic_inheritance <- 0.5
+s_epi$methylation_rate       <- 0.2
+env_epi <- run_alife(s_epi)
 ```
 
-```{r plot-demo, fig.width=8, fig.height=4}
-d <- rbind(
-  transform(get_run_data(env_base)$ticks,
-            condition = "BNN (no epigenetics)"),
-  transform(get_run_data(env_epi)$ticks,
-            condition = "BNN + RL + epigenetic inheritance")
+```{r plot-demo, fig.width=8, fig.height=4.5}
+df <- bind_rows(
+  transform(get_run_data(env_base)$ticks,  condition = "BNN baseline"),
+  transform(get_run_data(env_patch)$ticks, condition = "BNN + fixed patch"),
+  transform(get_run_data(env_epi)$ticks,   condition = "BNN + epigenetics")
 )
-d$condition <- factor(d$condition,
-  levels = c("BNN (no epigenetics)", "BNN + RL + epigenetic inheritance"))
+df$condition <- factor(df$condition,
+  levels = c("BNN baseline", "BNN + fixed patch", "BNN + epigenetics"))
 
-ggplot(d, aes(t, mean_prior_sigma, colour = condition)) +
-  geom_line(linewidth = 1.0) +
-  geom_hline(yintercept = 0.5, linetype = "dashed", colour = "grey60") +
-  scale_colour_manual(
-    values = c("BNN (no epigenetics)"              = "#377eb8",
-               "BNN + RL + epigenetic inheritance" = "#e6550d"),
-    name = NULL) +
-  scale_y_continuous(limits = c(0, 0.58)) +
-  labs(x = "Tick", y = expression("Mean BNN prior " * sigma),
-       title = "The Baldwin Effect: exploration vs. canalization") +
-  theme_minimal(base_size = 13) + theme(legend.position = "top")
+pal <- c("BNN baseline"      = "#377eb8",
+         "BNN + fixed patch" = "#4daf4a",
+         "BNN + epigenetics" = "#e6550d")
+
+ggplot(df, aes(t, mean_prior_sigma, colour = condition, linetype = condition)) +
+  geom_hline(yintercept = 0.5, colour = "grey70", linetype = "dotted") +
+  geom_line(linewidth = 0.95) +
+  scale_colour_manual(values = pal, name = NULL) +
+  scale_linetype_manual(
+    values = c("BNN baseline" = "dashed",
+               "BNN + fixed patch" = "solid",
+               "BNN + epigenetics" = "solid"), name = NULL) +
+  scale_x_continuous(labels = scales::comma) +
+  labs(x = "Tick", y = expression("Mean prior " * sigma),
+       title = "The Baldwin Effect: stable landscape enables genetic assimilation") +
+  theme_classic(base_size = 13) +
+  theme(legend.position = "bottom", legend.key.width = unit(1.5, "cm"))
 ```
 
-```{r fig-canalization-demo, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Mean BNN prior sigma over 500 ticks. Without epigenetics (blue), sigma rises to the 0.5 ceiling — exploration is the evolutionarily stable strategy and no canalization occurs. With reinforcement learning plus epigenetic inheritance (orange), sigma collapses to near zero by tick ~300: genetic assimilation via the Baldwin Effect."}
-FIG("bnn_canalization_demo")
+```{r fig-fixed-patch-demo, eval=TRUE, echo=FALSE, out.width="100%",
+    fig.cap="Mean BNN prior sigma over 1000 ticks. Baseline (blue dashed): sigma holds at 0.5 — exploration is the ESS in a shifting landscape and no canalization occurs. Fixed patch (green): a permanent high-value resource cell creates a stable fitness peak (Hinton & Nowlan 1987); agents that genetically navigate to the patch outcompete explorers and sigma collapses to zero. Epigenetics (orange): transgenerational epigenetic inheritance (TEI) enables rapid canalization even without a stable landscape, but with higher late-run variance."}
+FIG("bnn_fixed_patch_demo")
 ```
 
-Without epigenetics, σ rises steadily to its ceiling (0.5) and stays there.
-Exploration is the evolutionarily stable strategy in a competitive foraging
-world: the fitness landscape shifts continuously with population density and
-resource patchiness, so no single fixed policy outcompetes broad sampling.
-The Baldwin Effect does not occur.
+**Baseline:** σ holds at its ceiling (0.5) for the full 1000 ticks. The
+foraging landscape shifts continuously — grass grows stochastically, population
+density creates local competition, and no single fixed policy consistently
+outcompetes broad sampling. Exploration is the evolutionarily stable strategy.
+The Baldwin Effect does *not* occur.
 
-Add epigenetic inheritance and the picture reverses. **σ collapses from 0.5 to
-near zero within 300 ticks — full genetic assimilation.** The mechanism is a
-two-step transmission chain: (1) within-lifetime RL contracts each agent's
-weight posterior during its lifetime, narrowing σ as the agent learns; (2)
-transgenerational epigenetic inheritance (TEI) passes these narrowed priors to
-offspring. Each generation therefore starts more canalized than the last, and
-selection reinforces the direction. The two mechanisms are synergistic —
-remove either RL or TEI and the assimilation signal disappears.
+**Fixed patch (the Hinton & Nowlan 1987 setup):** Adding a permanent
+high-value resource cell at the grid centre changes everything. Now there is a
+stable fitness peak — an agent that genetically encodes "navigate to centre"
+never needs to search. Over 1000 ticks, selection eliminates high-σ explorers
+in favour of low-σ specialists, and σ collapses to zero. **This is the Baldwin
+Effect proper: a stable target allows genetic assimilation of the learned
+navigation policy.**
 
-This is the Baldwin Effect realized in a computational model: learning creates
-the variation that selection fixes. The five systematic experiments below probe
-*when* and *why* this occurs, and what happens in its absence.
+**Epigenetics:** Transgenerational epigenetic inheritance (TEI) achieves the
+same endpoint without requiring a stable landscape. Within-lifetime learning
+contracts each agent's weight posterior; TEI propagates these narrowed priors
+to offspring. The two mechanisms are complementary — TEI is faster but
+noisier; the fixed-patch route is slower but geometrically inevitable given any
+stable fitness peak.
+
+The five systematic experiments below ask: *when* does canalization occur, and
+what disrupts it?
 
 ## Key parameters
 
@@ -130,6 +159,11 @@ the variation that selection fixes. The five systematic experiments below probe
 | `methylation_rate`       | `0.1`          | Probability a reward event drives methylation     |
 | `demethylation_rate`     | `0.02`         | Background demethylation rate per tick            |
 | `social_learning`        | `FALSE`        | Prestige-biased copying of output-layer weights   |
+| `fixed_patch`            | `FALSE`        | Enable a permanent high-value resource cell (H&N 1987 setup) |
+| `fixed_patch_value`      | `5.0`          | Grass value maintained at patch cells each tick   |
+| `fixed_patch_x`          | `NA`           | Column index of patch centre (`NA` = grid centre) |
+| `fixed_patch_y`          | `NA`           | Row index of patch centre (`NA` = grid centre)    |
+| `fixed_patch_radius`     | `0L`           | Chebyshev radius: 0 = 1 cell, 1 = 3×3, 2 = 5×5  |
 
 ## Systematic experiments: when does canalization occur?
 

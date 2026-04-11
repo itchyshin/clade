@@ -690,6 +690,41 @@
 #'     in cooperative neighbourhoods (default 0.5).}
 #' }
 #'
+#' ## Fixed patch (stable fitness peak — Baldwin Effect demonstration)
+#'
+#' Places one or more grid cells whose grass value is reset to
+#' `fixed_patch_value` after every `grow_grass!` call, creating a permanent
+#' high-value resource that never depletes. This gives natural selection a
+#' *stable fitness peak*: agents whose genome encodes a fixed policy of
+#' navigating to the patch always outperform agents that must re-discover it
+#' by exploration each lifetime. The result is genetic assimilation of the
+#' patch-navigation strategy — the computational Baldwin Effect as described
+#' by Hinton \& Nowlan (1987).
+#'
+#' Without this module, the foraging fitness landscape shifts continuously
+#' (stochastic grass, population density feedbacks) and exploration remains
+#' the evolutionarily stable strategy (`mean_prior_sigma` rises to ceiling).
+#'
+#' Reference: Hinton, G.E. \& Nowlan, S.J. (1987) How learning can guide
+#' evolution. \emph{Complex Systems} 1(3):495--502.
+#' \describe{
+#'   \item{`fixed_patch`}{Logical. Enable the stable resource patch
+#'     (default `FALSE`).}
+#'   \item{`fixed_patch_value`}{Numeric. Grass value maintained at patch
+#'     cells each tick (default `5.0`, equal to `grass_max`). Values above
+#'     `grass_max` are permitted — the cap in `grow_grass!` does not apply
+#'     because the patch uses direct assignment.}
+#'   \item{`fixed_patch_x`}{Integer or `NA_integer_`. Column index of the
+#'     patch centre (1-indexed). `NA_integer_` resolves to the grid centre
+#'     column (default).}
+#'   \item{`fixed_patch_y`}{Integer or `NA_integer_`. Row index of the
+#'     patch centre (1-indexed). `NA_integer_` resolves to the grid centre
+#'     row (default).}
+#'   \item{`fixed_patch_radius`}{Integer. Chebyshev radius of the patch:
+#'     `0L` = single cell; `1L` = 3×3 block; `2L` = 5×5 block
+#'     (default `0L`).}
+#' }
+#'
 #' ## Logging
 #' \describe{
 #'   \item{`log_freq`}{Integer. Log population-level statistics every this many
@@ -1015,6 +1050,13 @@ default_specs <- function() {
     iffolk_min_energy           = 60.0,
     parliament_suppression      = FALSE,
     parliament_cost             = 0.5,
+
+    # ── Fixed patch (stable fitness peak — Baldwin Effect demonstration) ───
+    fixed_patch                 = FALSE,
+    fixed_patch_value           = 5.0,
+    fixed_patch_x               = NA_integer_,
+    fixed_patch_y               = NA_integer_,
+    fixed_patch_radius          = 0L,
 
     # ── Logging ────────────────────────────────────────────────────────────
     log_freq                   = 1L,

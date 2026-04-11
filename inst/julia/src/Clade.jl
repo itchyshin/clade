@@ -94,6 +94,7 @@ include("modules/plasticity.jl")
 # Tier 1–2 new modules
 include("modules/complex_landscape.jl")
 include("modules/spatial_sorting.jl")
+include("modules/fixed_patch.jl")
 
 # ── R-to-Julia specs bridge ───────────────────────────────────────────────────
 
@@ -255,7 +256,7 @@ function create_environment(specs::Dict{String,Any})::Environment
         canopy_map[i] = rand(rng) < canopy_density ? Float32(get(specs, "canopy_energy", 50.0)) * 0.5f0 : 0.0f0
     end
 
-    Environment(
+    env = Environment(
         grass,
         agent_map,
         zeros(Int64,    rows, cols),   # predator_map
@@ -287,6 +288,18 @@ function create_environment(specs::Dict{String,Any})::Environment
         deaths,
         Any[]                           # genome_log
     )
+
+    # Fixed patch: resolve cells once and cache for zero-alloc tick access
+    if Bool(get(specs, "fixed_patch", false))
+        patch_cells = _fixed_patch_cells(specs, rows, cols)
+        env.specs["_fixed_patch_cells"] = patch_cells
+        val = Float32(get(specs, "fixed_patch_value", 5.0))
+        @inbounds for ci in patch_cells
+            env.grass[ci] = val
+        end
+    end
+
+    env
 end
 
 # ── Main simulation loop ──────────────────────────────────────────────────────
@@ -321,6 +334,7 @@ function run_clade(specs::Dict{String,Any})
 
         # ── Core tick sequence ───────────────────────────────────────────
         grow_grass!(env)
+        apply_fixed_patch!(env)           # fixed patch: replenish stable cell(s) after growth
         grow_resources!(env)              # complex landscape: shrub + canopy regrowth
         # Niche construction runs before tick_agents! so shelters built or
         # decayed this tick affect grass growth (already applied) and are
