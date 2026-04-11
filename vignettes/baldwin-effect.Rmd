@@ -14,6 +14,11 @@ knitr::opts_chunk$set(
   comment  = "#>",
   eval     = FALSE
 )
+FIG <- function(name, ...) {
+  path <- file.path("figures", paste0("showcase_", name, ".png"))
+  if (!file.exists(path)) return(invisible(NULL))
+  knitr::include_graphics(path, ...)
+}
 ```
 
 ## Background
@@ -230,6 +235,76 @@ encoded in the genome, mean energy varies less from tick to tick.
 | `epigenetic_inheritance`| `0.5`         | Probability each mark is transmitted      |
 | `methylation_rate`      | `0.1`         | Probability reward drives methylation     |
 | `demethylation_rate`    | `0.02`        | Background demethylation rate             |
+
+## Pre-computed experimental results
+
+The five figures below summarise a systematic study of the Baldwin Effect using
+the BNN brain type (`brain_type = "bnn"`), where the prior standard deviation σ
+is the observable marker of canalization: declining σ indicates genetic
+assimilation of a learned behaviour; rising σ indicates selection for maintained
+flexibility. All results are from runs stored in `Rdata/` — no Julia session
+required to view them.
+
+### Experiment 1 — Environmental stability gradient
+
+3 × 3 factorial design (grass_rate × seasonal_amplitude), 5 seeds × 1000 ticks
+(45 runs). All 9 conditions produced a positive σ slope: exploration is selected
+everywhere. The shallowest slope (grass = 0.20, seasonal = 0.8, bold row) still
+reaches the σ ceiling.
+
+```{r fig-exp1, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Phase diagram of mean_prior_sigma slope across 9 resource-abundance × seasonality conditions. All cells positive (red) — no canalization in any environment tested."}
+FIG("bnn_exp1_stability")
+```
+
+### Experiment 2 — Is the sigma ceiling an artefact of run length?
+
+Most canalization-favourable condition (grass = 0.20, seasonal = 0.8) extended
+to 5000 ticks. The σ slope decelerates 21-fold from 1000 to 5000 ticks, but
+final σ remains at 0.50 in all cases. This is ceiling saturation, not the onset
+of canalization.
+
+```{r fig-exp2, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Sigma trajectories at 1000, 2000, and 5000 ticks (mean +/- SE, 5 seeds). All runs hit the 0.5 ceiling; the slope decelerates but never reverses."}
+FIG("bnn_exp2_runlength")
+```
+
+### Experiment 3 — Brain architecture comparison
+
+BNN-only, ANN+RL, BNN+RL, ANN-null, 5 seeds × 1000 ticks. RL has no effect on
+σ dynamics: BNN-only and BNN+RL produce identical σ trajectories. BNN agents
+pay a 17% energy penalty for broad Thompson sampling yet the exploration ESS
+persists.
+
+```{r fig-exp3, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Left: sigma trajectories for BNN-only vs BNN+RL — indistinguishable. Right: final mean energy by condition — BNN pays 17% relative to ANN but exploration remains the ESS."}
+FIG("bnn_exp3_brains")
+```
+
+### Experiment 4 — Social modifiers
+
+4 modules × 2 environments × 5 seeds × 1000 ticks. Epigenetic inheritance
+(`epigenetics = TRUE`) is the only mechanism that substantially reduces σ —
+32% below ceiling in the stable-abundant environment and 72% below ceiling in
+the scarce-stable environment. Social learning and kin selection have negligible
+effects.
+
+```{r fig-exp4, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Final mean prior sigma by module and environment. Epigenetics (red) is the only social mechanism to substantially reduce sigma. All others remain at or near the 0.5 ceiling (dashed line)."}
+FIG("bnn_exp4_social")
+```
+
+### Experiment 5 — MAP-Elites on σ × genetic diversity space
+
+150 MAP-Elites iterations on the BNN baseline, 500-tick runs, 121-cell archive
+(σ × genetic diversity, both 0–0.5, step 0.05): 20 cells filled. Low σ was
+found (as low as 0.028), but every low-σ cell also had low genetic diversity
+(gd < 0.15). The σ–gd correlation across the archive was +0.59. No low-σ +
+high-gd cells exist — ruling out the Baldwin Effect proper and confirming that
+low σ arises via genetic drift to fixation, not via genetic assimilation of a
+learned strategy.
+
+```{r fig-exp5, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="MAP-Elites archive (20/121 cells filled). Low sigma only coexists with low genetic diversity — drift pseudo-canalization, not the Baldwin Effect. No solutions occupy the low-sigma + high-diversity quadrant."}
+FIG("bnn_exp5_mapelites")
+```
+
+---
 
 ## References
 
