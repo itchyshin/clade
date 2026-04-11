@@ -426,93 +426,438 @@ tick.</p>
 </table>
 </div>
 <div class="section level2">
-<h2 id="pre-computed-experimental-results">Pre-computed experimental results<a class="anchor" aria-label="anchor" href="#pre-computed-experimental-results"></a>
+<h2 id="systematic-experiments-when-does-canalization-occur">Systematic experiments: when does canalization occur?<a class="anchor" aria-label="anchor" href="#systematic-experiments-when-does-canalization-occur"></a>
 </h2>
-<p>The five figures below summarise a systematic study of the Baldwin
-Effect using the BNN brain type (<code>brain_type = "bnn"</code>), where
-the prior standard deviation σ is the observable marker of canalization:
-declining σ indicates genetic assimilation of a learned behaviour;
-rising σ indicates selection for maintained flexibility. All results are
-from runs stored in <code>Rdata/</code> — no Julia session required to
-view them.</p>
+<p>The five experiments below use the BNN brain type
+(<code>brain_type = "bnn"</code>) to ask a sharper question than the
+minimal demonstration above: <em>under what conditions does the Baldwin
+Effect actually produce genetic assimilation?</em></p>
+<p>The BNN brain is uniquely suited to this question because its prior
+standard deviation σ (<code>mean_prior_sigma</code> in the tick log) is
+a direct, continuous readout of the population’s position on the
+exploration–assimilation axis. When σ declines over evolutionary time,
+agents are becoming more certain about their action-selection policy —
+their learned behaviour is being absorbed into the genome. When σ rises
+or plateaus, selection is actively maintaining cognitive flexibility:
+exploration is the evolutionarily stable strategy (ESS).</p>
+<p><strong>A σ slope of zero is not neutral.</strong> In a world where
+exploration is costly (Thompson sampling with high σ burns energy on
+uncertain actions), zero slope means selection is actively maintaining a
+costly trait. It does not mean the population is indifferent. The key
+comparison is always against the prediction that σ <em>declines</em> —
+i.e., that canalization occurs.</p>
+<p>The five experiments manipulate environmental predictability, run
+length, brain architecture, and social transmission mechanisms in turn.
+The designs are 3–45 runs each; all results shown are from pre-computed
+data (no Julia session needed).</p>
+<hr>
 <div class="section level3">
 <h3 id="experiment-1-environmental-stability-gradient">Experiment 1 — Environmental stability gradient<a class="anchor" aria-label="anchor" href="#experiment-1-environmental-stability-gradient"></a>
 </h3>
-<p>3 × 3 factorial design (grass_rate × seasonal_amplitude), 5 seeds ×
-1000 ticks (45 runs). All 9 conditions produced a positive σ slope:
-exploration is selected everywhere. The shallowest slope (grass = 0.20,
-seasonal = 0.8, bold row) still reaches the σ ceiling.</p>
+<p><strong>Question.</strong> Mayley (1996) showed that the Baldwin
+Effect operates fastest when the fitness landscape has a single, stable
+peak. Does varying resource abundance and temporal variability produce
+any condition where canalization occurs?</p>
+<p><strong>Design.</strong> 3 × 3 factorial: <code>grass_rate</code> ∈
+{0.05, 0.10, 0.20} × <code>seasonal_amplitude</code> ∈ {0, 0.4, 0.8}; 5
+seeds × 1000 ticks = 45 runs. For each condition and seed, a linear
+regression of <code>mean_prior_sigma ~ tick</code> was fitted; the slope
+is the measure of canalization (negative = assimilation, positive =
+exploration selected).</p>
+<p><strong>What we found.</strong> Every one of the 9 conditions
+produced a positive σ slope — no canalization in any cell. All 9
+converged to the ceiling (σ = 0.5) by tick 1000.</p>
+<table class="table">
+<thead><tr class="header">
+<th>grass_rate</th>
+<th>seasonal_amp</th>
+<th>mean slope</th>
+<th>final σ</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>0.05</td>
+<td>0.0</td>
+<td>+2.51 × 10⁻⁴</td>
+<td>0.50</td>
+</tr>
+<tr class="even">
+<td>0.05</td>
+<td>0.4</td>
+<td>+5.54 × 10⁻⁴ ‡</td>
+<td>0.40</td>
+</tr>
+<tr class="odd">
+<td>0.05</td>
+<td>0.8</td>
+<td>+2.45 × 10⁻⁴</td>
+<td>0.50</td>
+</tr>
+<tr class="even">
+<td>0.10</td>
+<td>0.0</td>
+<td>+1.98 × 10⁻⁴</td>
+<td>0.50</td>
+</tr>
+<tr class="odd">
+<td>0.10</td>
+<td>0.4</td>
+<td>+1.92 × 10⁻⁴</td>
+<td>0.50</td>
+</tr>
+<tr class="even">
+<td>0.10</td>
+<td>0.8</td>
+<td>+1.83 × 10⁻⁴</td>
+<td>0.50</td>
+</tr>
+<tr class="odd">
+<td>0.20</td>
+<td>0.0</td>
+<td>+1.49 × 10⁻⁴</td>
+<td>0.50</td>
+</tr>
+<tr class="even">
+<td>0.20</td>
+<td>0.4</td>
+<td>+1.43 × 10⁻⁴</td>
+<td>0.50</td>
+</tr>
+<tr class="odd">
+<td><strong>0.20</strong></td>
+<td><strong>0.8</strong></td>
+<td><strong>+1.38 × 10⁻⁴</strong></td>
+<td><strong>0.50</strong></td>
+</tr>
+</tbody>
+</table>
+<p>‡ Population-crash artefact (high variance across seeds), not
+canalization.</p>
+<p>Crucially, the ordering is the <strong>inverse</strong> of the
+Baldwin Effect prediction: resource scarcity (grass = 0.05) produced the
+<em>steepest</em> positive slopes, while abundance (grass = 0.20)
+produced the shallowest — yet still positive. When foraging is
+difficult, agents with high σ that can explore broadly have a strong
+survival advantage; tight priors are fatal. The bold row is the most
+canalization-favourable cell tested; it still reaches the ceiling.</p>
 <div class="figure">
-<img src="figures/showcase_bnn_exp1_stability.png" alt="Phase diagram of mean_prior_sigma slope across 9 resource-abundance × seasonality conditions. All cells positive (red) — no canalization in any environment tested." width="100%"><p class="caption">
-Phase diagram of mean_prior_sigma slope across 9 resource-abundance ×
-seasonality conditions. All cells positive (red) — no canalization in
-any environment tested.
+<img src="figures/showcase_bnn_exp1_stability.png" alt="Phase diagram of mean_prior_sigma slope (×10⁻⁴) across 9 resource-abundance × seasonality conditions. All cells are positive (red). The predicted canalization signal (green) does not appear in any cell." width="100%"><p class="caption">
+Phase diagram of mean_prior_sigma slope (×10⁻⁴) across 9
+resource-abundance × seasonality conditions. All cells are positive
+(red). The predicted canalization signal (green) does not appear in any
+cell.
 </p>
 </div>
+<p><strong>Interpretation.</strong> In a competitive foraging world with
+spatial heterogeneity and population-density feedbacks, no single
+foraging policy is universally optimal. The fitness landscape shifts
+continuously, so there is no stable peak for canalization to track.
+Selection maintains the ability to learn (high σ) as the ESS across all
+resource and seasonality levels tested.</p>
+<hr>
 </div>
 <div class="section level3">
 <h3 id="experiment-2-is-the-sigma-ceiling-an-artefact-of-run-length">Experiment 2 — Is the sigma ceiling an artefact of run length?<a class="anchor" aria-label="anchor" href="#experiment-2-is-the-sigma-ceiling-an-artefact-of-run-length"></a>
 </h3>
-<p>Most canalization-favourable condition (grass = 0.20, seasonal = 0.8)
-extended to 5000 ticks. The σ slope decelerates 21-fold from 1000 to
-5000 ticks, but final σ remains at 0.50 in all cases. This is ceiling
-saturation, not the onset of canalization.</p>
+<p><strong>Question.</strong> σ plateaus at 0.5 within 300 ticks in the
+baseline. Could canalization emerge given substantially longer
+evolutionary time — 2000 or 5000 ticks?</p>
+<p><strong>Design.</strong> The most canalization-favourable condition
+from Experiment 1 (grass = 0.20, seasonal = 0.8): 5 seeds each at 1000,
+2000, and 5000 ticks = 15 runs.</p>
+<p><strong>What we found.</strong> The σ slope decelerates markedly with
+run length:</p>
+<table class="table">
+<thead><tr class="header">
+<th>Run length</th>
+<th>Mean slope</th>
+<th>Final σ</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>1000 ticks</td>
+<td>+1.38 × 10⁻⁴</td>
+<td>0.50 (ceiling)</td>
+</tr>
+<tr class="even">
+<td>2000 ticks</td>
+<td>+3.84 × 10⁻⁵</td>
+<td>0.50 (ceiling)</td>
+</tr>
+<tr class="odd">
+<td>5000 ticks</td>
+<td>+6.54 × 10⁻⁶</td>
+<td>0.50 (ceiling)</td>
+</tr>
+</tbody>
+</table>
+<p>The slope shrinks 21-fold from 1000 to 5000 ticks. But
+<code>final_sigma</code> remains at 0.50 in all cases. This deceleration
+is <strong>ceiling saturation</strong>: σ presses against its upper
+bound (0.5), so the observable slope must approach zero as the ceiling
+is reached — regardless of whether canalization is occurring. If the
+ceiling parameter (<code>prior_sigma_max</code>) were raised, σ would
+continue rising.</p>
 <div class="figure">
-<img src="figures/showcase_bnn_exp2_runlength.png" alt="Sigma trajectories at 1000, 2000, and 5000 ticks (mean +/- SE, 5 seeds). All runs hit the 0.5 ceiling; the slope decelerates but never reverses." width="100%"><p class="caption">
-Sigma trajectories at 1000, 2000, and 5000 ticks (mean +/- SE, 5 seeds).
-All runs hit the 0.5 ceiling; the slope decelerates but never reverses.
+<img src="figures/showcase_bnn_exp2_runlength.png" alt="Sigma trajectories at 1000, 2000, and 5000 ticks (mean ± SE across 5 seeds). All runs reach the 0.5 ceiling; the slope decelerates 21-fold but never reverses. The dashed line marks the ceiling." width="100%"><p class="caption">
+Sigma trajectories at 1000, 2000, and 5000 ticks (mean ± SE across 5
+seeds). All runs reach the 0.5 ceiling; the slope decelerates 21-fold
+but never reverses. The dashed line marks the ceiling.
 </p>
 </div>
+<p><strong>Interpretation.</strong> Run length is not the limiting
+factor. The near-zero slope at 5000 ticks looks superficially like the
+onset of canalization but is a measurement artefact of the ceiling
+constraint. The biological conclusion is unchanged: no canalization
+occurs even with five times the evolutionary time of the baseline.</p>
+<hr>
 </div>
 <div class="section level3">
 <h3 id="experiment-3-brain-architecture-comparison">Experiment 3 — Brain architecture comparison<a class="anchor" aria-label="anchor" href="#experiment-3-brain-architecture-comparison"></a>
 </h3>
-<p>BNN-only, ANN+RL, BNN+RL, ANN-null, 5 seeds × 1000 ticks. RL has no
-effect on σ dynamics: BNN-only and BNN+RL produce identical σ
-trajectories. BNN agents pay a 17% energy penalty for broad Thompson
-sampling yet the exploration ESS persists.</p>
+<p><strong>Question.</strong> Does the Baldwin Effect require the BNN
+specifically, or would any within-lifetime adaptation mechanism (here,
+REINFORCE RL) produce the same σ dynamics?</p>
+<p><strong>Design.</strong> 4 brain conditions × 5 seeds × 1000 ticks =
+20 runs, in the most canalization-favourable environment:</p>
+<table class="table">
+<colgroup>
+<col width="25%">
+<col width="25%">
+<col width="25%">
+<col width="25%">
+</colgroup>
+<thead><tr class="header">
+<th>Condition</th>
+<th><code>brain_type</code></th>
+<th><code>rl_mode</code></th>
+<th>Learning mechanism</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>BNN only</td>
+<td><code>"bnn"</code></td>
+<td><code>"none"</code></td>
+<td>Thompson sampling (σ-driven)</td>
+</tr>
+<tr class="even">
+<td>BNN + RL</td>
+<td><code>"bnn"</code></td>
+<td><code>"actor_critic"</code></td>
+<td>Thompson sampling + REINFORCE</td>
+</tr>
+<tr class="odd">
+<td>ANN + RL</td>
+<td><code>"ann"</code></td>
+<td><code>"actor_critic"</code></td>
+<td>REINFORCE only</td>
+</tr>
+<tr class="even">
+<td>ANN null</td>
+<td><code>"ann"</code></td>
+<td><code>"none"</code></td>
+<td>None (genetic evolution only)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>What we found.</strong> Three results:</p>
+<ol style="list-style-type: decimal">
+<li><p><strong>RL has no effect on σ dynamics.</strong> BNN-only and
+BNN+RL produce indistinguishable σ trajectories — the same slope, the
+same ceiling arrival tick. Adding REINFORCE on top of Thompson sampling
+does not alter how exploration evolves.</p></li>
+<li><p><strong>RL provides no energy benefit at 1000 ticks.</strong>
+ANN+RL and ANN-null both end at 154.97 mean energy — identical to 5
+significant figures. REINFORCE gradient updates offer no measurable
+foraging advantage over genetic evolution of ANN weights at this
+timescale.</p></li>
+<li><p><strong>BNN pays a 17% energy penalty for exploration, yet
+exploration is still the ESS.</strong> BNN agents end at 128 energy
+versus ANN agents at 155. The metabolic cost of broad Thompson sampling
+is real and large — but selection still drives σ to ceiling. This is the
+clearest evidence that exploration is genuinely the ESS in this world:
+it is favoured even when it is costly.</p></li>
+</ol>
 <div class="figure">
-<img src="figures/showcase_bnn_exp3_brains.png" alt="Left: sigma trajectories for BNN-only vs BNN+RL — indistinguishable. Right: final mean energy by condition — BNN pays 17% relative to ANN but exploration remains the ESS." width="100%"><p class="caption">
-Left: sigma trajectories for BNN-only vs BNN+RL — indistinguishable.
-Right: final mean energy by condition — BNN pays 17% relative to ANN but
-exploration remains the ESS.
+<img src="figures/showcase_bnn_exp3_brains.png" alt="Left: sigma trajectories for BNN-only and BNN+RL are indistinguishable — RL does not affect sigma dynamics. Right: final mean energy by condition — BNN pays a 17% energy cost relative to ANN, yet sigma rises to ceiling in both BNN conditions." width="100%"><p class="caption">
+Left: sigma trajectories for BNN-only and BNN+RL are indistinguishable —
+RL does not affect sigma dynamics. Right: final mean energy by condition
+— BNN pays a 17% energy cost relative to ANN, yet sigma rises to ceiling
+in both BNN conditions.
 </p>
 </div>
+<p><strong>Interpretation.</strong> σ is purely a BNN property: ANN
+agents have no σ to evolve. But within BNN conditions, neither RL nor
+social information changes the evolutionary trajectory of σ. The driving
+force is the foraging fitness differential between high-σ and low-σ
+agents — a differential that REINFORCE does not alter because it acts on
+policy weights, not on prior width.</p>
+<hr>
 </div>
 <div class="section level3">
-<h3 id="experiment-4-social-modifiers">Experiment 4 — Social modifiers<a class="anchor" aria-label="anchor" href="#experiment-4-social-modifiers"></a>
+<h3 id="experiment-4-social-modifiers-can-they-break-the-ceiling">Experiment 4 — Social modifiers: can they break the ceiling?<a class="anchor" aria-label="anchor" href="#experiment-4-social-modifiers-can-they-break-the-ceiling"></a>
 </h3>
-<p>4 modules × 2 environments × 5 seeds × 1000 ticks. Epigenetic
-inheritance (<code>epigenetics = TRUE</code>) is the only mechanism that
-substantially reduces σ — 32% below ceiling in the stable-abundant
-environment and 72% below ceiling in the scarce-stable environment.
-Social learning and kin selection have negligible effects.</p>
+<p><strong>Question.</strong> If genetic evolution and within-lifetime
+RL both fail to produce canalization, can social transmission mechanisms
+do so? Three candidates: kin-based altruism (energy transfers to
+relatives), prestige-biased social learning (copying successful
+neighbours’ policy weights), and epigenetic inheritance
+(transgenerational transmission of within-lifetime weight
+contractions).</p>
+<p><strong>Design.</strong> 4 modules × 2 environments × 5 seeds × 1000
+ticks = 40 runs. The two environments are stable-abundant (grass = 0.20,
+seasonal = 0.0) and scarce-stable (grass = 0.05, seasonal = 0.0).</p>
+<p><strong>What we found.</strong></p>
+<p><em>Stable abundant (grass = 0.20, seasonal = 0):</em></p>
+<table class="table">
+<thead><tr class="header">
+<th>Module</th>
+<th>σ slope</th>
+<th>Final σ</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>BNN + epigenetics</td>
+<td>+6.6 × 10⁻⁵</td>
+<td><strong>0.342</strong></td>
+</tr>
+<tr class="even">
+<td>BNN + kin selection</td>
+<td>+1.5 × 10⁻⁴</td>
+<td>0.500 (ceiling)</td>
+</tr>
+<tr class="odd">
+<td>BNN + social learning</td>
+<td>+1.7 × 10⁻⁴</td>
+<td>0.500 (ceiling)</td>
+</tr>
+<tr class="even">
+<td>BNN baseline</td>
+<td>+1.7 × 10⁻⁴</td>
+<td>0.500 (ceiling)</td>
+</tr>
+</tbody>
+</table>
+<p><em>Scarce stable (grass = 0.05, seasonal = 0):</em></p>
+<table class="table">
+<thead><tr class="header">
+<th>Module</th>
+<th>σ slope</th>
+<th>Final σ</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>BNN + epigenetics</td>
+<td>+5.5 × 10⁻⁴</td>
+<td><strong>0.140</strong></td>
+</tr>
+<tr class="even">
+<td>BNN + social learning</td>
+<td>+6.2 × 10⁻⁴</td>
+<td>0.300</td>
+</tr>
+<tr class="odd">
+<td>BNN baseline</td>
+<td>+4.5 × 10⁻⁴</td>
+<td>0.400</td>
+</tr>
+<tr class="even">
+<td>BNN + kin selection</td>
+<td>+5.6 × 10⁻⁴</td>
+<td>0.400</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Epigenetic inheritance is the only mechanism that
+substantially reduces σ.</strong> In the stable-abundant environment, it
+reduces final σ from 0.500 to 0.342 — 32% below ceiling. In the
+scarce-stable environment the effect is stronger: σ reaches only 0.140,
+a 72% reduction from the 0.5 ceiling and 65% below the baseline final
+value of 0.400.</p>
 <div class="figure">
-<img src="figures/showcase_bnn_exp4_social.png" alt="Final mean prior sigma by module and environment. Epigenetics (red) is the only social mechanism to substantially reduce sigma. All others remain at or near the 0.5 ceiling (dashed line)." width="100%"><p class="caption">
-Final mean prior sigma by module and environment. Epigenetics (red) is
-the only social mechanism to substantially reduce sigma. All others
-remain at or near the 0.5 ceiling (dashed line).
+<img src="figures/showcase_bnn_exp4_social.png" alt="Final mean prior sigma by social module and environment. Epigenetics (red dot) is the only mechanism that substantially reduces sigma below the 0.5 ceiling (dashed line). All other modules are indistinguishable from the baseline in the stable environment and provide only moderate reductions in the scarce environment." width="100%"><p class="caption">
+Final mean prior sigma by social module and environment. Epigenetics
+(red dot) is the only mechanism that substantially reduces sigma below
+the 0.5 ceiling (dashed line). All other modules are indistinguishable
+from the baseline in the stable environment and provide only moderate
+reductions in the scarce environment.
 </p>
 </div>
+<p><strong>Interpretation.</strong> The epigenetic mechanism here is
+transgenerational epigenetic inheritance (TEI): when an agent contracts
+its weight posterior during its lifetime (σ narrows as it learns),
+offspring inherit partially-contracted priors with probability
+<code>tei_prob</code>. This is a Lamarckian shortcut — within-lifetime
+narrowing is transmitted directly to descendants, bypassing the slow
+route that requires mutations to fix via selection over many
+generations. In contrast:</p>
+<ul>
+<li>
+<strong>Social learning</strong> had no significant effect in the
+stable environment because copying output-layer weights from successful
+neighbours propagates <em>what</em> to do, not <em>how certain to be
+about it</em>. σ is a prior width, not a policy weight, and social
+copying does not transmit it.</li>
+<li>
+<strong>Kin selection</strong> was predicted to retard canalization
+(energy subsidies buffer the cost of exploration, maintaining high σ).
+The effect was negligible in the stable environment; kin altruism had no
+detectable effect on σ dynamics at these parameter values.</li>
+</ul>
+<p>The prediction was reversed: epigenetics produced the largest effect
+across all four experiments. Social learning, predicted to accelerate
+assimilation via rapid spread of optimal policies, had no effect on
+σ.</p>
+<hr>
 </div>
 <div class="section level3">
-<h3 id="experiment-5-map-elites-on-σ-genetic-diversity-space">Experiment 5 — MAP-Elites on σ × genetic diversity space<a class="anchor" aria-label="anchor" href="#experiment-5-map-elites-on-%CF%83-genetic-diversity-space"></a>
+<h3 id="experiment-5-map-elites-mapping-the-canalization-compatible-parameter-space">Experiment 5 — MAP-Elites: mapping the canalization-compatible
+parameter space<a class="anchor" aria-label="anchor" href="#experiment-5-map-elites-mapping-the-canalization-compatible-parameter-space"></a>
 </h3>
-<p>150 MAP-Elites iterations on the BNN baseline, 500-tick runs,
-121-cell archive (σ × genetic diversity, both 0–0.5, step 0.05): 20
-cells filled. Low σ was found (as low as 0.028), but every low-σ cell
-also had low genetic diversity (gd &lt; 0.15). The σ–gd correlation
-across the archive was +0.59. No low-σ + high-gd cells exist — ruling
-out the Baldwin Effect proper and confirming that low σ arises via
-genetic drift to fixation, not via genetic assimilation of a learned
-strategy.</p>
+<p><strong>Question.</strong> The experiments above all used the same
+BNN baseline parameters. Are there <em>any</em> parameter combinations —
+across the full space that <code>clade</code> can reach — that produce
+low-σ solutions? And if so, do those solutions coexist with high genetic
+diversity (the Baldwin Effect proper) or with low genetic diversity
+(drift-driven pseudo-canalization)?</p>
+<p><strong>Design.</strong> <code><a href="../reference/search_map_elites.html">search_map_elites()</a></code> with a 11 ×
+11 archive over σ × genetic diversity space (both 0–0.5, step 0.05 = 121
+cells), 150 iterations, 500-tick runs per evaluation. The archive
+records the highest-scoring parameter configuration found for each (σ,
+gd) combination.</p>
+<p><strong>What we found.</strong> 20 of 121 cells were filled (16.5%).
+Low-σ solutions were found — σ as low as 0.028 — but every low-σ cell
+had very low genetic diversity (gd &lt; 0.15 for all cells with σ &lt;
+0.3). The σ–gd correlation across the archive was +0.593. The five
+highest-scoring cells (highest genetic diversity) all had σ &gt;
+0.40.</p>
+<p><strong>No low-σ + high-gd cell was found anywhere in the
+archive.</strong></p>
 <div class="figure">
-<img src="figures/showcase_bnn_exp5_mapelites.png" alt="MAP-Elites archive (20/121 cells filled). Low sigma only coexists with low genetic diversity — drift pseudo-canalization, not the Baldwin Effect. No solutions occupy the low-sigma + high-diversity quadrant." width="100%"><p class="caption">
-MAP-Elites archive (20/121 cells filled). Low sigma only coexists with
-low genetic diversity — drift pseudo-canalization, not the Baldwin
-Effect. No solutions occupy the low-sigma + high-diversity quadrant.
+<img src="figures/showcase_bnn_exp5_mapelites.png" alt="MAP-Elites archive: each point is a filled cell (20 of 121 total), coloured by genetic diversity. Low sigma is only found at low genetic diversity (bottom-left region). The bottom-right quadrant — low sigma + high diversity, required for the Baldwin Effect proper — is empty." width="100%"><p class="caption">
+MAP-Elites archive: each point is a filled cell (20 of 121 total),
+coloured by genetic diversity. Low sigma is only found at low genetic
+diversity (bottom-left region). The bottom-right quadrant — low sigma +
+high diversity, required for the Baldwin Effect proper — is empty.
 </p>
 </div>
+<p><strong>Interpretation.</strong> The Baldwin Effect <em>proper</em>
+requires low σ coexisting with high genetic diversity: the genome has
+converged on specific adaptive weight configurations (canalization at
+key loci) while maintaining diversity at others. MAP-Elites found no
+such solution in the accessible parameter space.</p>
+<p>Low σ in the archive is entirely explained by <strong>genetic drift
+to fixation</strong>: when a small or bottlenecked population becomes
+genetically homogeneous (low gd), heterozygosity collapses everywhere,
+driving σ toward zero as a byproduct of fixation, not of selection for
+canalized behaviour. This is <em>pseudo-canalization</em> via drift — it
+looks like genetic assimilation from the σ readout alone, but the
+mechanism is demographic, not adaptive.</p>
+<p>The MAP-Elites result closes the argument. Epigenetics (Experiment 4)
+provides the only route to substantially reduced σ in viable,
+genetically diverse populations. Without it, the competitive foraging
+world in <code>clade</code> consistently selects for maintained
+exploration.</p>
 <hr>
 </div>
 </div>
