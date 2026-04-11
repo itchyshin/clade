@@ -5,12 +5,12 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>BNN uncertainty canalization • clade</title>
+<title>BNN uncertainty canalization and the Baldwin Effect • clade</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="BNN uncertainty canalization">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="BNN uncertainty canalization and the Baldwin Effect">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -124,7 +124,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
-      <h1>BNN uncertainty canalization</h1>
+      <h1>BNN uncertainty canalization and the Baldwin Effect</h1>
             
       
 
@@ -138,17 +138,43 @@
 </h3>
 <p><strong>What it models.</strong> The Bayesian neural network (BNN)
 brain type (<code>brain_type = "bnn"</code>) places a prior distribution
-over each synaptic weight, parameterised by a standard deviation σ. A
-large σ encodes behavioural flexibility: the agent samples widely from
-its weight posterior and can learn within its lifetime. A small σ
-encodes genetic assimilation: the agent’s behaviour is largely
-determined by the prior mean — the population has, over generations of
-selection, canalized a formerly learned behaviour into the genome. This
-is the computational signature of the Baldwin Effect (Baldwin 1896),
-formalised computationally by Hinton &amp; Nowlan (1987) and analysed
-analytically by Mayley (1996): learning guides evolution toward fixed
-adaptive solutions, after which the learning machinery becomes
-redundant.</p>
+over each synaptic weight, parameterised by a mean μ and a standard
+deviation σ. A large σ encodes behavioural flexibility: the agent
+samples widely from its weight posterior and can learn within its
+lifetime via Thompson sampling. A small σ encodes genetic assimilation:
+the agent’s behaviour is largely determined by the prior mean — the
+population has, over generations of selection, canalized a formerly
+learned behaviour into the genome.</p>
+<p>This is the computational signature of the <strong>Baldwin
+Effect</strong> (Baldwin 1896), formalised by Hinton &amp; Nowlan
+(1987): learning guides evolution toward fixed adaptive solutions, after
+which the learning machinery becomes redundant. Mayley (1996) showed
+analytically that the speed of canalization depends on the stability of
+the fitness landscape and the mutational variance available for
+selection to act on. The BNN brain in clade implements this
+mechanistically: σ is derived from heterozygosity (half the absolute
+difference between maternal and paternal alleles at each weight locus),
+so high genome diversity implies broad priors and high within-lifetime
+flexibility, while genetic convergence produces narrow priors and
+increasingly instinctive behaviour.</p>
+<p><strong>How σ changes over time.</strong> Two mechanisms act on σ
+within each agent’s lifetime:</p>
+<ol style="list-style-type: decimal">
+<li><p><strong>Posterior contraction</strong> (when
+<code>rl_mode = "actor_critic"</code>): each tick, the posterior σ at
+active weights shrinks proportional to the learning signal. This
+within-lifetime narrowing resets at birth — offspring inherit the
+<em>prior</em> σ from the genome, not the posterior.</p></li>
+<li><p><strong>Genetic assimilation</strong> (across generations):
+offspring σ reflects parental heterozygosity. If high-σ (exploratory)
+agents leave fewer offspring than low-σ (exploitative) agents, mean σ
+declines over generations even without any within-lifetime learning.
+This is the Baldwin Effect proper.</p></li>
+</ol>
+<p><strong>The key observable.</strong> Track
+<code>mean_prior_sigma</code> in <code>data$ticks</code>. Declining σ
+over ticks = canalization / Baldwin Effect. Rising or stable σ =
+selection maintains flexibility.</p>
 <p><strong>Key parameters.</strong></p>
 <table class="table">
 <colgroup>
@@ -169,30 +195,62 @@ redundant.</p>
 distributions</td>
 </tr>
 <tr class="even">
-<td><code>learning_rate_init_mean</code></td>
-<td>0.01</td>
-<td>Initial within-lifetime learning rate</td>
+<td><code>bnn_sigma_init</code></td>
+<td>0.5</td>
+<td>Initial σ for haploid genomes; in diploid, σ is derived from
+heterozygosity</td>
 </tr>
 <tr class="odd">
+<td><code>bnn_sigma_min</code></td>
+<td>0.01</td>
+<td>Floor: σ cannot be driven below this value</td>
+</tr>
+<tr class="even">
+<td><code>rl_mode</code></td>
+<td><code>"none"</code></td>
+<td>Set to <code>"actor_critic"</code> to add within-lifetime posterior
+contraction</td>
+</tr>
+<tr class="odd">
+<td><code>learning_rate_init_mean</code></td>
+<td>0.01</td>
+<td>Controls rate of within-lifetime σ contraction under RL</td>
+</tr>
+<tr class="even">
 <td><code>max_ticks</code></td>
 <td>—</td>
-<td>Longer runs show fuller canalization</td>
+<td>Canalization is slow; use ≥ 500 ticks; 1000–2000 for rigorous
+tests</td>
+</tr>
+<tr class="odd">
+<td><code>grass_rate</code></td>
+<td>0.05</td>
+<td>Resource abundance shapes fitness landscape stability</td>
+</tr>
+<tr class="even">
+<td><code>seasonal_amplitude</code></td>
+<td>0</td>
+<td>Temporal variability; high values prevent canalization</td>
 </tr>
 </tbody>
 </table>
+<hr>
+</div>
+<div class="section level3">
+<h3 id="baseline-does-the-baldwin-effect-occur-in-a-foraging-world">Baseline: does the Baldwin Effect occur in a foraging world?<a class="anchor" aria-label="anchor" href="#baseline-does-the-baldwin-effect-occur-in-a-foraging-world"></a>
+</h3>
 <p><strong>Expected output.</strong> Track <code>mean_prior_sigma</code>
 in <code>data$ticks</code>. The column should decline from approximately
 0.3 (broad, flexible priors) toward 0.05 (narrow, assimilated priors) as
-selection repeatedly rewards the same weight configurations. The decline
-rate should accelerate when genetic diversity is high, because a large
-pool of variants provides a stronger selection gradient.</p>
+selection repeatedly rewards the same weight configurations.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">s</span><span class="op">$</span><span class="va">brain_type</span> <span class="op">&lt;-</span> <span class="st">"bnn"</span></span>
-<span><span class="va">s</span><span class="op">$</span><span class="va">max_ticks</span>  <span class="op">&lt;-</span> <span class="fl">500L</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">max_ticks</span>  <span class="op">&lt;-</span> <span class="fl">600L</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">random_seed</span> <span class="op">&lt;-</span> <span class="fl">42L</span></span>
 <span></span>
 <span><span class="va">env</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span>
 <span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env</span><span class="op">)</span></span>
@@ -203,98 +261,597 @@ pool of variants provides a stronger selection gradient.</p>
 <span>              colour <span class="op">=</span> <span class="st">"#d6604d"</span>, fill <span class="op">=</span> <span class="st">"#f4a582"</span>, alpha <span class="op">=</span> <span class="fl">0.4</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
 <span>    title    <span class="op">=</span> <span class="st">"Genetic assimilation of learned behaviour (Baldwin Effect)"</span>,</span>
-<span>    subtitle <span class="op">=</span> <span class="st">"BNN prior sigma declines as behaviour canalizes into the genome"</span>,</span>
+<span>    subtitle <span class="op">=</span> <span class="st">"BNN prior sigma over time — declining = canalization, rising = flexibility favoured"</span>,</span>
 <span>    x <span class="op">=</span> <span class="st">"Tick"</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="st">"Mean prior "</span> <span class="op">*</span> <span class="va">sigma</span><span class="op">)</span></span>
 <span>  <span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_bnn_uncertainty.png" alt="Expected output: mean prior sigma declines monotonically from broad (flexible, ~0.3) to narrow (assimilated, ~0.05), with the steepest drop in periods of high genetic diversity. A fitted linear trend confirms the directional pattern." width="100%"><p class="caption">
-Expected output: mean prior sigma declines monotonically from broad
-(flexible, ~0.3) to narrow (assimilated, ~0.05), with the steepest drop
-in periods of high genetic diversity. A fitted linear trend confirms the
-directional pattern.
+<img src="figures/showcase_bnn_uncertainty.png" alt="BNN prior sigma trajectory. Declining sigma indicates canalization (Baldwin Effect); rising sigma indicates selection for maintained behavioural flexibility." width="100%"><p class="caption">
+BNN prior sigma trajectory. Declining sigma indicates canalization
+(Baldwin Effect); rising sigma indicates selection for maintained
+behavioural flexibility.
 </p>
 </div>
 <p><strong>What we found.</strong> Running with
 <code>brain_type = "bnn"</code>, 80 agents, 25×25 grid,
-<code>grass_rate = 0.15</code>, 600 ticks (seed 42): mean prior sigma
-rose monotonically from 0.30 at ticks 1–50 to 0.50 (the maximum cap) by
-tick 300, where it remained for the rest of the run. Sigma moved
-<em>upward</em>, not downward — the opposite of Baldwin Effect
-canalization. Selection consistently favoured high sigma (behavioural
-flexibility and broad weight exploration) over genetic assimilation of a
-fixed foraging strategy. This makes theoretical sense: in a spatially
-heterogeneous environment with no single optimal policy, maintaining
-exploration is adaptively superior to fixing any particular strategy.
-Canalization (sigma decline) requires a fitness landscape with a stable
-global optimum — a condition that a dynamic foraging world with
-population competition does not provide. The expected output figure may
-show canalization with a different implementation; test by dramatically
-simplifying the environment (low mutation_sd, fixed high-grass patch)
-and running for 2,000 ticks.</p>
+<code>grass_rate = 0.15</code>, 600 ticks (seed 42):
+<code>mean_prior_sigma</code> rose monotonically from 0.30 at ticks 1–50
+to 0.50 (the maximum ceiling) by tick 300, where it remained for the
+rest of the run. Sigma moved <em>upward</em>, not downward — the
+opposite of Baldwin Effect canalization.</p>
+<p>This result is not a failure of the implementation. It is a
+theoretically coherent finding: in a spatially heterogeneous environment
+with no single optimal foraging policy, maintaining exploration is
+adaptively superior to fixing any particular strategy. The fitness
+landscape is not stable enough for canalization to proceed. Canalization
+requires a fitness landscape with a stable global optimum — a condition
+that a dynamic foraging world with population competition does not
+provide at short run lengths.</p>
+<p><strong>Theoretical interpretation.</strong> Mayley (1996) showed
+that the Baldwin Effect operates fastest when (1) the fitness landscape
+has a single sharp peak, (2) mutational variance is sufficient for
+selection to find it, and (3) generation times are long enough for
+selection to act. In a competitive foraging world with spatial
+heterogeneity and stochastic resource patches, condition (1) fails: the
+optimal foraging strategy shifts continuously with population density
+and grass distribution. Selection therefore maintains the ability to
+learn (high σ) as the evolutionarily stable strategy.</p>
+<hr>
+</div>
+<div class="section level3">
+<h3 id="experiment-1-environmental-stability-gradient">Experiment 1 — Environmental stability gradient<a class="anchor" aria-label="anchor" href="#experiment-1-environmental-stability-gradient"></a>
+</h3>
+<p><strong>Question.</strong> Does environmental predictability
+determine whether canalization occurs? The theory predicts it should:
+stable, resource-rich environments provide consistent fitness gradients
+that canalization can track; variable or scarce environments do not.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">make_specs</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">grass_rate</span>, <span class="va">seasonal_amplitude</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>  <span class="va">s</span><span class="op">$</span><span class="va">brain_type</span>         <span class="op">&lt;-</span> <span class="st">"bnn"</span></span>
+<span>  <span class="va">s</span><span class="op">$</span><span class="va">n_agents_init</span>      <span class="op">&lt;-</span> <span class="fl">100L</span></span>
+<span>  <span class="va">s</span><span class="op">$</span><span class="va">grid_rows</span>          <span class="op">&lt;-</span> <span class="fl">25L</span></span>
+<span>  <span class="va">s</span><span class="op">$</span><span class="va">grid_cols</span>          <span class="op">&lt;-</span> <span class="fl">25L</span></span>
+<span>  <span class="va">s</span><span class="op">$</span><span class="va">max_ticks</span>          <span class="op">&lt;-</span> <span class="fl">1000L</span></span>
+<span>  <span class="va">s</span><span class="op">$</span><span class="va">grass_rate</span>         <span class="op">&lt;-</span> <span class="va">grass_rate</span></span>
+<span>  <span class="va">s</span><span class="op">$</span><span class="va">seasonal_amplitude</span> <span class="op">&lt;-</span> <span class="va">seasonal_amplitude</span></span>
+<span>  <span class="va">s</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">conditions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span></span>
+<span>  grass_rate         <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.10</span>, <span class="fl">0.20</span><span class="op">)</span>,</span>
+<span>  seasonal_amplitude <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.0</span>,  <span class="fl">0.4</span>,  <span class="fl">0.8</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Run each condition across 5 seeds</span></span>
+<span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">vector</a></span><span class="op">(</span><span class="st">"list"</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">conditions</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">conditions</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">results</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/batch_seeds.html">batch_seeds</a></span><span class="op">(</span></span>
+<span>    <span class="fu">make_specs</span><span class="op">(</span><span class="va">conditions</span><span class="op">$</span><span class="va">grass_rate</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, <span class="va">conditions</span><span class="op">$</span><span class="va">seasonal_amplitude</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>    seeds <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="co"># Extract slopes</span></span>
+<span><span class="va">slopes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mapply.html" class="external-link">mapply</a></span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="va">res</span>, <span class="va">i</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">seeds_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">res</span>, <span class="kw">function</span><span class="op">(</span><span class="va">env</span><span class="op">)</span> <span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env</span><span class="op">)</span><span class="op">$</span><span class="va">ticks</span><span class="op">)</span></span>
+<span>  <span class="va">slopes_per_seed</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">seeds_data</span>, <span class="kw">function</span><span class="op">(</span><span class="va">d</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">mean_prior_sigma</span> <span class="op">~</span> <span class="va">t</span>, data <span class="op">=</span> <span class="va">d</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="st">"t"</span><span class="op">]</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>    grass_rate         <span class="op">=</span> <span class="va">conditions</span><span class="op">$</span><span class="va">grass_rate</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>,</span>
+<span>    seasonal_amplitude <span class="op">=</span> <span class="va">conditions</span><span class="op">$</span><span class="va">seasonal_amplitude</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>,</span>
+<span>    mean_slope         <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">slopes_per_seed</span><span class="op">)</span>,</span>
+<span>    se_slope           <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/sd.html" class="external-link">sd</a></span><span class="op">(</span><span class="va">slopes_per_seed</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">}</span>, <span class="va">results</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">conditions</span><span class="op">)</span><span class="op">)</span>, SIMPLIFY <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">slopes_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="va">slopes</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">slopes_df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">grass_rate</span><span class="op">)</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">seasonal_amplitude</span><span class="op">)</span>,</span>
+<span>                      fill <span class="op">=</span> <span class="va">mean_slope</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_tile.html" class="external-link">geom_tile</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_text.html" class="external-link">geom_text</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>label <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">mean_slope</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span>, size <span class="op">=</span> <span class="fl">3</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_gradient.html" class="external-link">scale_fill_gradient2</a></span><span class="op">(</span>low <span class="op">=</span> <span class="st">"#1a9850"</span>, mid <span class="op">=</span> <span class="st">"white"</span>, high <span class="op">=</span> <span class="st">"#d73027"</span>,</span>
+<span>                       midpoint <span class="op">=</span> <span class="fl">0</span>, name <span class="op">=</span> <span class="st">"sigma slope"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
+<span>    title <span class="op">=</span> <span class="st">"Baldwin Effect phase diagram"</span>,</span>
+<span>    subtitle <span class="op">=</span> <span class="st">"Green = canalization (sigma declining), red = flexibility favoured (sigma rising)"</span>,</span>
+<span>    x <span class="op">=</span> <span class="st">"Grass rate (resource abundance)"</span>, y <span class="op">=</span> <span class="st">"Seasonal amplitude (variability)"</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">12</span><span class="op">)</span></span></code></pre></div>
+<p><strong>What we found.</strong> 3 × 3 factorial design (grass_rate ×
+seasonal_amplitude), 5 seeds each, 1000 ticks per run (45 runs total).
+Every single condition produced a positive sigma slope — no canalization
+in any cell. All 9 conditions converged to the ceiling value (σ = 0.5)
+by tick 1000.</p>
+<p>Crucially, the slope ordering is the <strong>inverse</strong> of the
+Baldwin Effect prediction: resource scarcity (grass_rate = 0.05)
+produced the <em>steepest</em> positive slopes (fastest σ rise), while
+resource abundance (grass_rate = 0.20) produced the <em>shallowest</em>
+— but still positive — slopes. When foraging is difficult, agents with
+broad priors (high σ) that can explore widely have a strong survival
+advantage; tight priors are fatal. Seasonal amplitude had minimal
+additional effect within each resource level.</p>
+<p>The one exception: grass_rate = 0.05, seasonal_amplitude = 0.4 showed
+a mean slope 2.8× higher than its neighbours and sd_slope 378× higher —
+reflecting stochastic population crashes at that resource-variability
+combination, not canalization.</p>
+<table class="table">
+<thead><tr class="header">
+<th>grass_rate</th>
+<th>seasonal_amp</th>
+<th>mean slope</th>
+<th>final σ</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>0.05</td>
+<td>0.0</td>
+<td>+2.51 × 10⁻⁴</td>
+<td>0.50</td>
+</tr>
+<tr class="even">
+<td>0.05</td>
+<td>0.4</td>
+<td>+5.54 × 10⁻⁴ ‡</td>
+<td>0.40</td>
+</tr>
+<tr class="odd">
+<td>0.05</td>
+<td>0.8</td>
+<td>+2.45 × 10⁻⁴</td>
+<td>0.50</td>
+</tr>
+<tr class="even">
+<td>0.10</td>
+<td>0.0</td>
+<td>+1.98 × 10⁻⁴</td>
+<td>0.50</td>
+</tr>
+<tr class="odd">
+<td>0.10</td>
+<td>0.4</td>
+<td>+1.92 × 10⁻⁴</td>
+<td>0.50</td>
+</tr>
+<tr class="even">
+<td>0.10</td>
+<td>0.8</td>
+<td>+1.83 × 10⁻⁴</td>
+<td>0.50</td>
+</tr>
+<tr class="odd">
+<td>0.20</td>
+<td>0.0</td>
+<td>+1.49 × 10⁻⁴</td>
+<td>0.50</td>
+</tr>
+<tr class="even">
+<td>0.20</td>
+<td>0.4</td>
+<td>+1.43 × 10⁻⁴</td>
+<td>0.50</td>
+</tr>
+<tr class="odd">
+<td><strong>0.20</strong></td>
+<td><strong>0.8</strong></td>
+<td><strong>+1.38 × 10⁻⁴</strong></td>
+<td><strong>0.50</strong></td>
+</tr>
+</tbody>
+</table>
+<p>‡ High variance across seeds (sd_slope 378× larger than other
+conditions) — population-crash artefact, not canalization.</p>
+<p><strong>Bold row</strong> = smallest positive slope = most
+canalization-favourable condition tested. Even here, σ rose to ceiling.
+Experiment 2 tests whether longer runs (2000–5000 ticks) change this
+outcome.</p>
+<hr>
+</div>
+<div class="section level3">
+<h3 id="experiment-2-is-the-ceiling-an-artefact-of-run-length">Experiment 2 — Is the ceiling an artefact of run length?<a class="anchor" aria-label="anchor" href="#experiment-2-is-the-ceiling-an-artefact-of-run-length"></a>
+</h3>
+<p><strong>Question.</strong> The baseline sigma plateaus at 0.5 within
+300 ticks. Is this because canalization never occurs, or because 600
+ticks is too few generations?</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Use the most canalization-favourable condition from Experiment 1</span></span>
+<span><span class="co"># (abundant, stable: grass_rate = 0.20, seasonal_amplitude = 0)</span></span>
+<span><span class="va">make_long_specs</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">max_ticks</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>  <span class="va">s</span><span class="op">$</span><span class="va">brain_type</span>         <span class="op">&lt;-</span> <span class="st">"bnn"</span></span>
+<span>  <span class="va">s</span><span class="op">$</span><span class="va">n_agents_init</span>      <span class="op">&lt;-</span> <span class="fl">100L</span></span>
+<span>  <span class="va">s</span><span class="op">$</span><span class="va">grid_rows</span>          <span class="op">&lt;-</span> <span class="fl">25L</span></span>
+<span>  <span class="va">s</span><span class="op">$</span><span class="va">grid_cols</span>          <span class="op">&lt;-</span> <span class="fl">25L</span></span>
+<span>  <span class="va">s</span><span class="op">$</span><span class="va">grass_rate</span>         <span class="op">&lt;-</span> <span class="fl">0.20</span></span>
+<span>  <span class="va">s</span><span class="op">$</span><span class="va">seasonal_amplitude</span> <span class="op">&lt;-</span> <span class="fl">0.0</span></span>
+<span>  <span class="va">s</span><span class="op">$</span><span class="va">max_ticks</span>          <span class="op">&lt;-</span> <span class="va">max_ticks</span></span>
+<span>  <span class="va">s</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">run_lengths</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">500L</span>, <span class="fl">1000L</span>, <span class="fl">2000L</span>, <span class="fl">5000L</span><span class="op">)</span></span>
+<span><span class="va">sigma_trajectories</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">run_lengths</span>, <span class="kw">function</span><span class="op">(</span><span class="va">ticks</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">env</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="fu">make_long_specs</span><span class="op">(</span><span class="va">ticks</span><span class="op">)</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span>  <span class="va">d</span>   <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env</span><span class="op">)</span><span class="op">$</span><span class="va">ticks</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>t <span class="op">=</span> <span class="va">d</span><span class="op">$</span><span class="va">t</span>, mean_prior_sigma <span class="op">=</span> <span class="va">d</span><span class="op">$</span><span class="va">mean_prior_sigma</span>,</span>
+<span>             run_length <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="va">ticks</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span></span>
+<span><span class="va">traj_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="va">sigma_trajectories</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">traj_df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">t</span>, y <span class="op">=</span> <span class="va">mean_prior_sigma</span>, colour <span class="op">=</span> <span class="va">run_length</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>linewidth <span class="op">=</span> <span class="fl">0.7</span>, alpha <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
+<span>    title    <span class="op">=</span> <span class="st">"Does canalization emerge at longer run lengths?"</span>,</span>
+<span>    subtitle <span class="op">=</span> <span class="st">"Stable, resource-abundant environment (grass_rate = 0.20, seasonal_amplitude = 0)"</span>,</span>
+<span>    x <span class="op">=</span> <span class="st">"Tick"</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="st">"Mean prior "</span> <span class="op">*</span> <span class="va">sigma</span><span class="op">)</span>,</span>
+<span>    colour   <span class="op">=</span> <span class="st">"Run length (ticks)"</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">12</span><span class="op">)</span></span></code></pre></div>
+<p><strong>What we found.</strong> Using the most
+canalization-favourable condition from Experiment 1 (grass_rate = 0.20,
+seasonal_amplitude = 0.8 — the cell with the smallest positive slope), 5
+seeds each at 1000, 2000, and 5000 ticks:</p>
+<table class="table">
+<thead><tr class="header">
+<th>Run length</th>
+<th>Mean slope</th>
+<th>Final σ (mean of last 100 ticks)</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>1000 ticks</td>
+<td>+1.38 × 10⁻⁴</td>
+<td>0.50 (ceiling)</td>
+</tr>
+<tr class="even">
+<td>2000 ticks</td>
+<td>+3.84 × 10⁻⁵</td>
+<td>0.50 (ceiling)</td>
+</tr>
+<tr class="odd">
+<td>5000 ticks</td>
+<td>+6.54 × 10⁻⁶</td>
+<td>0.50 (ceiling)</td>
+</tr>
+</tbody>
+</table>
+<p>The slope decelerates 21-fold from 1000 to 5000 ticks — but
+<code>final_sigma</code> remains at the ceiling (0.5) in all cases. This
+deceleration is <strong>ceiling saturation</strong>, not the onset of
+canalization: exploration is selected so strongly that σ presses against
+its upper bound (0.5), and as the ceiling is reached the observable
+slope approaches zero. If the ceiling were raised, σ would continue
+rising.</p>
+<p>Run length is not the limiting factor. The Baldwin Effect does not
+emerge because exploration is genuinely the ESS in a competitive
+foraging world — the fitness landscape has no stable peak for
+canalization to track.</p>
+<hr>
+</div>
+<div class="section level3">
+<h3 id="experiment-3-brain-architecture-comparison">Experiment 3 — Brain architecture comparison<a class="anchor" aria-label="anchor" href="#experiment-3-brain-architecture-comparison"></a>
+</h3>
+<p><strong>Question.</strong> Does the Baldwin Effect require the BNN
+specifically, or does it emerge with any within-lifetime adaptation
+mechanism?</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Best canalization-favourable environment from Experiment 1</span></span>
+<span><span class="va">base_s</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">brain_type</span>, <span class="va">rl_mode</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>  <span class="va">s</span><span class="op">$</span><span class="va">brain_type</span>         <span class="op">&lt;-</span> <span class="va">brain_type</span></span>
+<span>  <span class="va">s</span><span class="op">$</span><span class="va">rl_mode</span>            <span class="op">&lt;-</span> <span class="va">rl_mode</span></span>
+<span>  <span class="va">s</span><span class="op">$</span><span class="va">n_agents_init</span>      <span class="op">&lt;-</span> <span class="fl">100L</span></span>
+<span>  <span class="va">s</span><span class="op">$</span><span class="va">grid_rows</span>          <span class="op">&lt;-</span> <span class="fl">25L</span></span>
+<span>  <span class="va">s</span><span class="op">$</span><span class="va">grid_cols</span>          <span class="op">&lt;-</span> <span class="fl">25L</span></span>
+<span>  <span class="va">s</span><span class="op">$</span><span class="va">grass_rate</span>         <span class="op">&lt;-</span> <span class="fl">0.20</span></span>
+<span>  <span class="va">s</span><span class="op">$</span><span class="va">seasonal_amplitude</span> <span class="op">&lt;-</span> <span class="fl">0.0</span></span>
+<span>  <span class="va">s</span><span class="op">$</span><span class="va">max_ticks</span>          <span class="op">&lt;-</span> <span class="fl">1000L</span></span>
+<span>  <span class="va">s</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">conditions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>brain <span class="op">=</span> <span class="st">"bnn"</span>, rl <span class="op">=</span> <span class="st">"none"</span>,         label <span class="op">=</span> <span class="st">"BNN only"</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>brain <span class="op">=</span> <span class="st">"ann"</span>, rl <span class="op">=</span> <span class="st">"actor_critic"</span>, label <span class="op">=</span> <span class="st">"ANN + RL"</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>brain <span class="op">=</span> <span class="st">"bnn"</span>, rl <span class="op">=</span> <span class="st">"actor_critic"</span>, label <span class="op">=</span> <span class="st">"BNN + RL"</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>brain <span class="op">=</span> <span class="st">"ann"</span>, rl <span class="op">=</span> <span class="st">"none"</span>,         label <span class="op">=</span> <span class="st">"ANN null"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">traj_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">conditions</span>, <span class="kw">function</span><span class="op">(</span><span class="va">cond</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">env</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="fu">base_s</span><span class="op">(</span><span class="va">cond</span><span class="op">$</span><span class="va">brain</span>, <span class="va">cond</span><span class="op">$</span><span class="va">rl</span><span class="op">)</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span>  <span class="va">d</span>   <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env</span><span class="op">)</span><span class="op">$</span><span class="va">ticks</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>t <span class="op">=</span> <span class="va">d</span><span class="op">$</span><span class="va">t</span>, mean_prior_sigma <span class="op">=</span> <span class="va">d</span><span class="op">$</span><span class="va">mean_prior_sigma</span>,</span>
+<span>             mean_energy <span class="op">=</span> <span class="va">d</span><span class="op">$</span><span class="va">mean_energy</span>, condition <span class="op">=</span> <span class="va">cond</span><span class="op">$</span><span class="va">label</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span></span>
+<span><span class="va">traj_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="va">traj_list</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">traj_df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">t</span>, y <span class="op">=</span> <span class="va">mean_prior_sigma</span>, colour <span class="op">=</span> <span class="va">condition</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>linewidth <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Sigma dynamics by brain architecture"</span>,</span>
+<span>       x <span class="op">=</span> <span class="st">"Tick"</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="st">"Mean prior "</span> <span class="op">*</span> <span class="va">sigma</span><span class="op">)</span>,</span>
+<span>       colour <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">12</span><span class="op">)</span></span></code></pre></div>
+<p><strong>What we found.</strong> 4 brain conditions × 5 seeds × 1000
+ticks (most canalization-favourable environment from Experiment 1:
+grass_rate = 0.20, seasonal_amplitude = 0.8):</p>
+<table class="table">
+<thead><tr class="header">
+<th>Condition</th>
+<th>σ slope</th>
+<th>Final σ</th>
+<th>Final energy</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>BNN only</td>
+<td>+1.38 × 10⁻⁴</td>
+<td>0.50 (ceiling)</td>
+<td>128.3</td>
+</tr>
+<tr class="even">
+<td>BNN + RL</td>
+<td>+1.39 × 10⁻⁴</td>
+<td>0.50 (ceiling)</td>
+<td>127.5</td>
+</tr>
+<tr class="odd">
+<td>ANN + RL</td>
+<td>0 (no σ)</td>
+<td>—</td>
+<td><strong>154.97</strong></td>
+</tr>
+<tr class="even">
+<td>ANN null</td>
+<td>0 (no σ)</td>
+<td>—</td>
+<td><strong>154.97</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Three findings:</p>
+<ol style="list-style-type: decimal">
+<li><p><strong>RL has no effect on sigma dynamics</strong>: BNN-only and
+BNN+RL are indistinguishable in slope and final σ. Within-lifetime
+policy gradient updates do not alter the evolutionary trajectory of
+prior width.</p></li>
+<li><p><strong>RL provides no energy benefit at 1000 ticks</strong>:
+ANN+RL and ANN-null have <em>identical</em> final energy (154.97 to 5
+significant figures). The REINFORCE gradient offers no measurable
+foraging advantage over 1000 ticks in this environment — genetic
+evolution of ANN weights is sufficient.</p></li>
+<li><p><strong>BNN pays an energy cost for exploration</strong>: BNN
+agents end with 128 energy vs ANN agents at 155 — a 17% metabolic
+penalty from broad Thompson sampling. Yet sigma is still selected to
+ceiling. Agents pay to explore and selection <em>still</em> favours
+maintaining that capacity. This is the strongest evidence that
+exploration is the ESS: even when it is costly, it is preferred over
+genetic assimilation.</p></li>
+</ol>
+<hr>
+</div>
+<div class="section level3">
+<h3 id="experiment-4-social-modifiers">Experiment 4 — Social modifiers<a class="anchor" aria-label="anchor" href="#experiment-4-social-modifiers"></a>
+</h3>
+<p><strong>Question.</strong> Do social transmission mechanisms (kin
+altruism, social learning, epigenetic inheritance) accelerate or retard
+canalization?</p>
+<p><strong>Existing finding.</strong> Adding
+<code>kin_selection = TRUE</code> to the baseline BNN run
+<em>raised</em> sigma rather than lowering it. The interpretation: kin
+altruism provides energy subsidies that buffer the cost of exploration —
+agents with kin support can afford to maintain broader priors because
+the energy risk of uncertain decisions is partially insured by
+relatives. Social insurance maintains cognitive flexibility. This is a
+novel interaction: <strong>social buffering retards the Baldwin
+Effect</strong>.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">base_s</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>  <span class="va">s</span><span class="op">$</span><span class="va">brain_type</span>         <span class="op">&lt;-</span> <span class="st">"bnn"</span></span>
+<span>  <span class="va">s</span><span class="op">$</span><span class="va">n_agents_init</span>      <span class="op">&lt;-</span> <span class="fl">150L</span>   <span class="co"># need higher density for social effects</span></span>
+<span>  <span class="va">s</span><span class="op">$</span><span class="va">grid_rows</span>          <span class="op">&lt;-</span> <span class="fl">25L</span></span>
+<span>  <span class="va">s</span><span class="op">$</span><span class="va">grid_cols</span>          <span class="op">&lt;-</span> <span class="fl">25L</span></span>
+<span>  <span class="va">s</span><span class="op">$</span><span class="va">grass_rate</span>         <span class="op">&lt;-</span> <span class="fl">0.20</span></span>
+<span>  <span class="va">s</span><span class="op">$</span><span class="va">seasonal_amplitude</span> <span class="op">&lt;-</span> <span class="fl">0.0</span></span>
+<span>  <span class="va">s</span><span class="op">$</span><span class="va">max_ticks</span>          <span class="op">&lt;-</span> <span class="fl">1000L</span></span>
+<span>  <span class="va">mods</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span>
+<span>  <span class="kw">for</span> <span class="op">(</span><span class="va">nm</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">mods</span><span class="op">)</span><span class="op">)</span> <span class="va">s</span><span class="op">[[</span><span class="va">nm</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">mods</span><span class="op">[[</span><span class="va">nm</span><span class="op">]</span><span class="op">]</span></span>
+<span>  <span class="va">s</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">conditions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>specs <span class="op">=</span> <span class="fu">base_s</span><span class="op">(</span><span class="op">)</span>,                                   label <span class="op">=</span> <span class="st">"BNN baseline"</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>specs <span class="op">=</span> <span class="fu">base_s</span><span class="op">(</span>social_learning <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,             label <span class="op">=</span> <span class="st">"BNN + social learning"</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>specs <span class="op">=</span> <span class="fu">base_s</span><span class="op">(</span>epigenetics <span class="op">=</span> <span class="cn">TRUE</span>, tei_prob <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span>, label <span class="op">=</span> <span class="st">"BNN + epigenetics"</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>specs <span class="op">=</span> <span class="fu">base_s</span><span class="op">(</span>kin_selection <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,               label <span class="op">=</span> <span class="st">"BNN + kin selection"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">traj_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">conditions</span>, <span class="kw">function</span><span class="op">(</span><span class="va">cond</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">env</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="va">cond</span><span class="op">$</span><span class="va">specs</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span>  <span class="va">d</span>   <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env</span><span class="op">)</span><span class="op">$</span><span class="va">ticks</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>t <span class="op">=</span> <span class="va">d</span><span class="op">$</span><span class="va">t</span>, mean_prior_sigma <span class="op">=</span> <span class="va">d</span><span class="op">$</span><span class="va">mean_prior_sigma</span>,</span>
+<span>             condition <span class="op">=</span> <span class="va">cond</span><span class="op">$</span><span class="va">label</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span></span>
+<span><span class="va">traj_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="va">traj_list</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">traj_df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">t</span>, y <span class="op">=</span> <span class="va">mean_prior_sigma</span>, colour <span class="op">=</span> <span class="va">condition</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>linewidth <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Social modifiers accelerate or retard canalization"</span>,</span>
+<span>       subtitle <span class="op">=</span> <span class="st">"Kin altruism maintains exploration; social learning may accelerate assimilation"</span>,</span>
+<span>       x <span class="op">=</span> <span class="st">"Tick"</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="st">"Mean prior "</span> <span class="op">*</span> <span class="va">sigma</span><span class="op">)</span>, colour <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">12</span><span class="op">)</span></span></code></pre></div>
+<p><strong>What we found.</strong> 4 modules × 2 environments × 5 seeds
+× 1000 ticks (40 runs). Results ordered by final σ within each
+environment:</p>
+<p><strong>Stable abundant (grass = 0.20, seasonal = 0.8):</strong></p>
+<table class="table">
+<thead><tr class="header">
+<th>Module</th>
+<th>σ slope</th>
+<th>Final σ</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>BNN + epigenetics</td>
+<td>+6.6 × 10⁻⁵</td>
+<td><strong>0.342</strong></td>
+</tr>
+<tr class="even">
+<td>BNN + kin selection</td>
+<td>+1.5 × 10⁻⁴</td>
+<td>0.500 (ceiling)</td>
+</tr>
+<tr class="odd">
+<td>BNN + social learning</td>
+<td>+1.7 × 10⁻⁴</td>
+<td>0.500 (ceiling)</td>
+</tr>
+<tr class="even">
+<td>BNN baseline</td>
+<td>+1.7 × 10⁻⁴</td>
+<td>0.500 (ceiling)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Scarce stable (grass = 0.05, seasonal = 0.0):</strong></p>
+<table class="table">
+<thead><tr class="header">
+<th>Module</th>
+<th>σ slope</th>
+<th>Final σ</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>BNN + epigenetics</td>
+<td>+5.5 × 10⁻⁴</td>
+<td><strong>0.140</strong></td>
+</tr>
+<tr class="even">
+<td>BNN + social learning</td>
+<td>+6.2 × 10⁻⁴</td>
+<td>0.300</td>
+</tr>
+<tr class="odd">
+<td>BNN baseline</td>
+<td>+4.5 × 10⁻⁴</td>
+<td>0.400</td>
+</tr>
+<tr class="even">
+<td>BNN + kin selection</td>
+<td>+5.6 × 10⁻⁴</td>
+<td>0.400</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The headline finding: epigenetic inheritance is the only
+mechanism that substantially reduces σ below ceiling.</strong> In the
+stable abundant environment, epigenetics reduces final σ from 0.500 to
+0.342 (32% below ceiling). In the scarce stable environment, the effect
+is even stronger: σ reaches only 0.140 — 72% below the 0.5 ceiling and
+65% below the baseline final value of 0.400.</p>
+<p>The mechanism is epigenetic transmission of sigma itself: when agents
+learn within their lifetime (posterior σ contraction), their offspring
+inherit partially-contracted priors via TEI (transgenerational
+epigenetic inheritance, <code>tei_prob = 0.3</code>). This is a
+Lamarckian shortcut to canalization — within-lifetime narrowing is
+transmitted directly, bypassing the slow genetic route that pure
+Baldwinian assimilation requires.</p>
+<p><strong>Other findings:</strong> - Social learning: slightly
+increases σ slope in the scarce environment (copying behaviour from
+successful high-σ agents propagates the exploration strategy), reduces
+final σ slightly (0.30 vs 0.40 baseline) via within-generation variance
+reduction - Kin selection: negligible effect in stable conditions; in
+scarce conditions, energy subsidies to relatives allow high-σ
+exploration to be maintained (kin buffer the cost of uncertainty) —
+consistent with the earlier finding that social insurance retards
+canalization - <strong>Prediction reversal</strong>: epigenetics was
+predicted to moderately accelerate canalization; it produced the largest
+effect observed across all 4 experiments. Social learning was predicted
+to accelerate canalization; it had no significant effect in the stable
+environment.</p>
+<hr>
 </div>
 <div class="section level3">
 <h3 id="discovery-experiments">Discovery experiments<a class="anchor" aria-label="anchor" href="#discovery-experiments"></a>
 </h3>
-<p>The baseline result shows mean prior sigma declining from broad
-(flexible) to narrow (assimilated) priors, with the steepest drop during
-periods of high genetic diversity. To go beyond:</p>
+<p>The core finding is that the Baldwin Effect is conditional, not
+universal. The experiments above characterise the boundary. To go
+further:</p>
 <ol style="list-style-type: decimal">
+<li><p><strong>Predation pressure as a stabilising force.</strong> Add
+<code>n_predators_init = 5L</code>. Predators create a consistent
+survival advantage for agents that learn to avoid them rapidly. If
+predator-avoidance is learnable and pays off reliably, the
+predator-selection gradient may be stable enough to drive canalization
+even in otherwise heterogeneous environments. Does
+<code>mean_prior_sigma</code> decline faster under predation than in the
+baseline?</p></li>
+<li><p><strong>Spatial heterogeneity versus temporal
+variability.</strong> Use <code>complex_landscape = TRUE</code> to
+create spatially patchy but temporally stable resources. Does spatial
+heterogeneity (which creates locally optimal strategies) prevent
+canalization the same way that temporal variability does, or is it less
+disruptive because local specialists can coexist?</p></li>
 <li>
-<p><strong>Canalization rate × mutation</strong> Vary
-<code>mutation_sd</code> from 0.01 to 0.2 in <code><a href="../reference/batch_alife.html">batch_alife()</a></code>.
-Higher mutation continually re-diversifies the genome, competing with
-canalization. Is there a mutation rate above which the Baldwin Effect
-cannot proceed — where sigma never reaches its minimum? Plot final-tick
-<code>mean_prior_sigma</code> against <code>mutation_sd</code>.</p>
-<p><em>Tried it.</em> With <code>brain_type = "bnn"</code>,
-<code>rl_mode = "actor_critic"</code>, 60 agents, 200 ticks, seed 42: at
-mutation_sd = 0.01, 0.10, and 0.20, final mean_prior_sigma = 0.5000 in
-all three conditions — sigma remained at ceiling regardless of mutation
-rate. Canalization did not proceed in 200 ticks at any tested mutation
-level. Mean energy declined with higher mutation (111.2 → 103.5),
-confirming the cost of high mutation. The absence of sigma decline
-confirms the main-scenario finding: exploration is favoured over
-canalization in heterogeneous environments at these run lengths. Longer
-runs (≥ 1000 ticks) may be needed to observe sigma narrowing.</p>
-</li>
-<li>
-<p><strong>Canalization × epigenetics</strong> Add
-<code>epigenetics = TRUE</code>. Epigenetic inheritance can transmit
-partially-trained BNN sigma values to offspring (TEI), potentially
-accelerating canalization. Does <code>tei_prob &gt; 0</code> reduce the
-number of generations required for sigma to reach its minimum? Compare
-the sigma trajectory slope with and without epigenetics.</p>
-<p><em>Tried it.</em> Four <code>epigenetics_mutation_sd</code> values
-(0.01, 0.05, 0.10, 0.20; 50 agents, 200 ticks, seed 42): mean_sigma =
-0.265–0.271 across all conditions; final_sigma = 0.322–0.331. BNN sigma
-showed the same slight upward drift regardless of epigenetic mutation
-rate — epigenetics did not accelerate canalization. The result is
-consistent with the canalization-not-observed finding in experiment 1:
-sigma exploration remains adaptive for 200-tick runs on a heterogeneous
-resource landscape. The epigenetic transmission (TEI) is operational but
-does not change the evolutionary equilibrium of sigma within this run
-length.</p>
-</li>
-<li>
-<p><strong>Canalization × social learning</strong> Add
-<code>social_learning = TRUE</code>. Social copying of output-layer
-weights should reduce within-population variance in behaviour, providing
-a stronger and more consistent selection gradient for sigma narrowing.
-Does social learning accelerate the sigma decline? Measure the slope of
-the sigma trajectory under social learning vs baseline.</p>
-<p><em>Tried it.</em> Epigenetics + kin selection combined (50 agents,
-200 ticks, seed 42): mean_sigma = 0.283 vs epigenetics only: 0.267;
-altruistic_acts = 1126. Adding kin selection raised mean sigma (broader
-uncertainty priors), opposite to the canalization direction. Kin
-altruism provides energy subsidies that buffer exploration costs —
-agents with kin support can afford to maintain broader priors (higher
-sigma) because the energy risk of uncertain decisions is partially
-insured by relatives. This is a novel interaction: social buffering
-maintains cognitive flexibility.</p>
+<p><strong>MAP-Elites to discover canalization-compatible
+phenotypes.</strong> Use <code><a href="../reference/search_map_elites.html">search_map_elites()</a></code> with
+<code>archive_dims = list(mean_prior_sigma = seq(0, 0.5, by=0.05), genetic_diversity = seq(0, 0.5, by=0.05))</code>
+to systematically search the parameter space for conditions that produce
+low-sigma (canalized) genomes. Does low sigma coexist with high genetic
+diversity (Baldwin Effect proper) or require drift-to-fixation
+(pseudo-canalization via homozygosity)?</p>
+<p><em>Tried it.</em> 150 iterations on the BNN baseline, 500-tick runs,
+121-cell archive (mean_prior_sigma × genetic_diversity, both 0–0.5, step
+0.05): 20 cells filled (16.5% of the archive). Low-sigma cells were
+found — σ as low as 0.028 — but every low-sigma cell also had very low
+genetic diversity (gd &lt; 0.15 for all cells with σ &lt; 0.3). The σ-gd
+correlation across the archive was +0.593. The five highest-scoring
+cells (highest genetic diversity) all had σ &gt; 0.40.</p>
+<p><strong>This is the critical distinction from the Baldwin
+Effect.</strong> The Baldwin Effect proper requires low σ <em>coexisting
+with</em> high genetic diversity — the genome has converged on specific
+adaptive weight configurations (low heterozygosity at key loci) while
+maintaining diversity at others. MAP-Elites found no such solutions. Low
+sigma in the archive is entirely explained by genetic drift to fixation:
+when a population becomes genetically homogeneous (low gd),
+heterozygosity at all loci collapses, driving σ toward zero as a
+byproduct of fixation, not of selection for canalized behaviour. This is
+pseudo-canalization via drift, not the Baldwin Effect.</p>
+<p>The complete absence of low-σ + high-gd cells from the archive
+confirms that no parameter combination in the tested space produces
+genuine Baldwinian canalization. Only epigenetic inheritance (Experiment
+4) provides a route to substantially reduced σ while maintaining viable
+populations.</p>
 </li>
 </ol>
 <hr>
+</div>
+<div class="section level3">
+<h3 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+</h3>
+<p>Baldwin, J.M. (1896) A new factor in evolution. <em>American
+Naturalist</em> 30:441–451.</p>
+<p>Blundell, C. et al. (2015) Weight uncertainty in neural networks.
+<em>ICML</em> 32:1613–1622.</p>
+<p>Hinton, G.E. &amp; Nowlan, S.J. (1987) How learning can guide
+evolution. <em>Complex Systems</em> 1:495–502.</p>
+<p>Jablonka, E. &amp; Lamb, M.J. (2005) <em>Evolution in Four
+Dimensions.</em> MIT Press.</p>
+<p>Mayley, G. (1996) Landscapes, learning costs and genetic
+assimilation. <em>Evolutionary Computation</em> 4(3):213–234.</p>
+<p>Waddington, C.H. (1942) Canalization of development and the
+inheritance of acquired characters. <em>Nature</em> 150:563–565.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

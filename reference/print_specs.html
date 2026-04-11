@@ -140,7 +140,7 @@ Default <code>FALSE</code>.</p></dd>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">print_specs</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -- clade specs (212 parameters) --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -- clade specs (221 parameters) --</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Grid &amp; population</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     grid_rows                              30</span>
@@ -171,7 +171,7 @@ Default <code>FALSE</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     hidden_layers                          8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Reproduction &amp; sex</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     ploidy                                 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     ploidy                                 2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     mutation_sd                            0.1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     crossover_rate                         1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     min_repro_age                          0</span>
@@ -252,7 +252,7 @@ Default <code>FALSE</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Phenotypic plasticity</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     phenotypic_plasticity                  FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     plasticity_init_mean                   0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     plasticity_init_mean                   0.3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     plasticity_mutation_sd                 0.03</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Spatial sorting</span>
@@ -277,8 +277,8 @@ Default <code>FALSE</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     canopy_density                         0.15</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     canopy_growth_rate                     0.005</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     canopy_energy                          50</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     canopy_threshold                       0.6</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     wing_size_init_mean                    0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     canopy_threshold                       0.15</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     wing_size_init_mean                    0.08</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     wing_size_mutation_sd                  0.05</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     wing_size_min                          0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     wing_size_max                          1</span>
@@ -288,6 +288,7 @@ Default <code>FALSE</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     log_freq                               1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Other</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     toroidal                               TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     input_radius                           1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     n_genes                                20</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     transformer_history                    8</span>
@@ -314,6 +315,13 @@ Default <code>FALSE</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     demethylation_rate                     0.002</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     life_history_evolution                 FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     allee_threshold                        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     brain_size_evolution                   FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     brain_size_init_mean                   1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     brain_size_mutation_sd                 0.05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     brain_size_min                         0.1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     brain_size_max                         3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     brain_size_cost_scale                  1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     brain_size_sensing_exponent            0.3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     metabolic_rate_evolution               FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     metabolic_rate_init_mean               1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     metabolic_rate_mutation_sd             0.05</span>
@@ -358,7 +366,7 @@ Default <code>FALSE</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     helper_transfer                        5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     helper_kin_threshold                   0.25</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     signal_cost                            0.1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     signal_evolution_drift                 FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     signal_evolution_drift                 TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     signal_drift_sd                        0.01</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     mate_choice_mode                       random</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     mate_choice_strength                   0.5</span>
@@ -382,6 +390,7 @@ Default <code>FALSE</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     carrion_fraction                       0.5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     carrion_decay_rate                     0.1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     carrion_eat_gain                       3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     carrion_transmission_prob              0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     social_learning_rate                   0.1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     clutch_size_evolution                  FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     clutch_size_init_mean                  1</span>
@@ -405,7 +414,7 @@ Default <code>FALSE</code>.</p></dd>
 <span class="r-in"><span><span class="va">s</span><span class="op">$</span><span class="va">kin_selection</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="va">s</span><span class="op">$</span><span class="va">complex_landscape</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="fu">print_specs</span><span class="op">(</span><span class="va">s</span>, diff_only <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -- clade specs (212 parameters) [diff only] --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -- clade specs (221 parameters) [diff only] --</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Kin selection</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     kin_selection                          TRUE *</span>

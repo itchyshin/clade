@@ -176,6 +176,7 @@ in the population.</p>
 <code class="sourceCode R"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">s</span><span class="op">$</span><span class="va">social_learning</span>      <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
 <span><span class="va">s</span><span class="op">$</span><span class="va">social_learning_freq</span> <span class="op">&lt;-</span> <span class="fl">10L</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">n_agents_init</span>        <span class="op">&lt;-</span> <span class="fl">150L</span>   <span class="co"># social learning requires sufficient density</span></span>
 <span><span class="va">s</span><span class="op">$</span><span class="va">max_ticks</span>            <span class="op">&lt;-</span> <span class="fl">300L</span></span>
 <span></span>
 <span><span class="va">env</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span>

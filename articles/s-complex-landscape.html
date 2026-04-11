@@ -184,12 +184,12 @@ agents that have evolved the morphology to exploit it.</p>
 </tr>
 <tr class="odd">
 <td><code>canopy_threshold</code></td>
-<td>0.6</td>
+<td>0.15</td>
 <td>Minimum wing_size for canopy access</td>
 </tr>
 <tr class="even">
 <td><code>wing_size_init_mean</code></td>
-<td>0.1</td>
+<td>0.08</td>
 <td>Starting wing size</td>
 </tr>
 <tr class="odd">
@@ -209,8 +209,8 @@ crosses the <code>canopy_threshold</code>. Niche entropy
 <span><span class="va">s</span><span class="op">$</span><span class="va">shrub_density</span>       <span class="op">&lt;-</span> <span class="fl">0.35</span></span>
 <span><span class="va">s</span><span class="op">$</span><span class="va">canopy_density</span>      <span class="op">&lt;-</span> <span class="fl">0.15</span></span>
 <span><span class="va">s</span><span class="op">$</span><span class="va">canopy_energy</span>       <span class="op">&lt;-</span> <span class="fl">55.0</span></span>
-<span><span class="va">s</span><span class="op">$</span><span class="va">canopy_threshold</span>    <span class="op">&lt;-</span> <span class="fl">0.6</span></span>
-<span><span class="va">s</span><span class="op">$</span><span class="va">wing_size_init_mean</span> <span class="op">&lt;-</span> <span class="fl">0.1</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">canopy_threshold</span>    <span class="op">&lt;-</span> <span class="fl">0.15</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">wing_size_init_mean</span> <span class="op">&lt;-</span> <span class="fl">0.08</span></span>
 <span><span class="va">s</span><span class="op">$</span><span class="va">max_ticks</span>           <span class="op">&lt;-</span> <span class="fl">400L</span></span>
 <span></span>
 <span><span class="va">env</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span>
@@ -231,21 +231,20 @@ Expected output: agents stratify across ground, shrub, and canopy layers
 as wing size evolves past the canopy threshold.
 </p>
 </div>
-<p><strong>What we found.</strong> At the default
-<code>canopy_threshold = 0.6</code> and
-<code>wing_size_init_mean = 0.1</code>, no agents accessed the canopy
-layer over 500 ticks: the 0.5-unit gap between initial wing size and
-threshold is too large for mutation-selection (mutation_sd = 0.05) to
-bridge when shrubs (density = 0.35) provide ample alternative food.
-Reducing the threshold to 0.20 and shrub density to 0.08 (sparse shrubs
-that do not fully satisfy foraging demand) produced clear wing-size
-evolution: mean wing_size rose from 0.10 to 0.113 by tick 500 (+13%),
-and canopy agents first appeared at tick 57, stabilising at ~17 canopy
-agents (12% of the population) by tick 250. This demonstrates the key
-calibration principle: the canopy is exploited only when (a) the
-threshold is achievable by mutation from the initial mean, and (b)
-alternative resources are scarce enough that the canopy energy
-difference is fitness-relevant. Run
+<p><strong>What we found.</strong> With the corrected defaults
+(<code>canopy_threshold = 0.15</code>,
+<code>wing_size_init_mean = 0.08</code>), 150 agents, 30×30 grid, 600
+ticks (seed 42): canopy agents appeared from tick 1 (mean wing_size at
+tick 1 was 0.083 — already above the 0.15 threshold for some individuals
+due to genome heterozygosity). By tick 600, mean wing_size had risen
+from 0.083 to 0.096 (+16%), and 57 of 217 surviving agents (26%)
+occupied the canopy layer. This confirms the calibration fix works: the
+0.07-unit gap between <code>wing_size_init_mean = 0.08</code> and
+<code>canopy_threshold = 0.15</code> is bridgeable by realistic mutation
+rates, whereas the original 0.5-unit gap (init 0.1, threshold 0.6) was
+not. <strong>Important:</strong> small populations (≤ 80 agents) may not
+produce canopy agents even with the correct parameters — use
+<code>n_agents_init ≥ 150L</code> for this module. Run
 <code><a href="../reference/tune_complex_landscape.html">tune_complex_landscape()</a></code> with CMA-ES to find optimal
 parameter combinations automatically.</p>
 </div>

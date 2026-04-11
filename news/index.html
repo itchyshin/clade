@@ -102,6 +102,51 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.1.1" id="clade-011-development">clade 0.1.1 (development)<a class="anchor" aria-label="anchor" href="#clade-011-development"></a></h2>
+<div class="section level3">
+<h3 id="bug-fixes-0-1-1">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-1-1"></a></h3>
+<ul><li>
+<code>plasticity_init_mean</code> default changed from 0.0 to 0.3. The previous default sat at the trait floor; mutation pressure could not push it upward, so <code>mean_plasticity</code> was always 0 in practice.</li>
+<li>
+<code>wing_size_init_mean</code> default changed from 0.0 to 0.08; <code>canopy_threshold</code> changed from 0.6 to 0.15. The previous gap between init and threshold was unreachable by mutation in any realistic run, so <code>n_canopy_agents</code> was always
+<ol start="0" style="list-style-type: decimal"><li>
+</li></ol></li>
+<li>
+<code>signal_evolution_drift</code> default changed from <code>FALSE</code> to <code>TRUE</code>. Without drift, signals remained exactly 0 forever, making mate-choice experiments uninformative.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="new-features-0-1-1">New features<a class="anchor" aria-label="anchor" href="#new-features-0-1-1"></a></h3>
+<ul><li>
+<strong>Non-toroidal grid</strong> (<code>toroidal = FALSE</code>): all Julia modules now use a <code>wrap_or_clamp()</code> helper that either wraps (toroidal) or clamps to the grid boundary (linear). Required for spatial sorting and invasion-front experiments with a defined front.</li>
+<li>
+<strong>Carrion as pathogen reservoir</strong> (<code>carrion_transmission_prob</code>): when <code>scavenging = TRUE</code> and <code>disease = TRUE</code>, agents that die while infected deposit a flagged carcass; any agent that scavenges from it becomes infected with probability <code>carrion_transmission_prob</code> (default 0.0 — off for backwards compatibility).</li>
+<li>
+<strong><code><a href="../reference/batch_seeds.html">batch_seeds()</a></code></strong>: convenience wrapper around <code><a href="../reference/batch_alife.html">batch_alife()</a></code> that takes a single specs object and a vector of seeds and returns a named list of results.</li>
+<li>
+<strong><code><a href="../reference/quick_specs.html">quick_specs()</a></code> / <code><a href="../reference/full_specs.html">full_specs()</a></code></strong>: preset specs for fast exploratory runs (50 agents, 200 ticks, 20×20 grid) and publication-quality runs (200 agents, 1000 ticks, 30×30 grid).</li>
+</ul></div>
+<div class="section level3">
+<h3 id="logging-additions-0-1-1">Logging additions<a class="anchor" aria-label="anchor" href="#logging-additions-0-1-1"></a></h3>
+<p>Six previously-NA log columns are now populated:</p>
+<ul><li>
+<code>mean_relatedness</code> — mean pairwise relatedness when <code>kin_selection = TRUE</code>.</li>
+<li>
+<code>n_scavenge_events</code> — number of carrion-eating events per tick.</li>
+<li>
+<code>n_gd_events</code> — number of group-defense damage reductions per tick.</li>
+<li>
+<code>mean_shelter_depth</code> — mean shelter depth across occupied cells.</li>
+<li>
+<code>mean_mutation_rate</code> — mean evolved <code>mutation_sd</code> when <code>mutation_rate_evolution = TRUE</code>.</li>
+<li>
+<code>mean_clutch_size</code> — mean clutch size when <code>clutch_size_evolution = TRUE</code>.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="other-0-1-1">Other<a class="anchor" aria-label="anchor" href="#other-0-1-1"></a></h3>
+<ul><li>Social learning warning: <code><a href="../reference/run_alife.html">run_alife()</a></code> now warns when <code>social_learning = TRUE</code> and <code>n_agents_init &lt; 100</code>, since neighbour density at that population size is rarely sufficient to trigger copying events.</li>
+</ul></div>
+</div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.1.0" id="clade-010">clade 0.1.0<a class="anchor" aria-label="anchor" href="#clade-010"></a></h2>
 <p>First public release.</p>
 <div class="section level3">

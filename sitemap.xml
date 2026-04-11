@@ -50,6 +50,7 @@
 <url><loc>/index.html</loc></url>
 <url><loc>/news/index.html</loc></url>
 <url><loc>/reference/batch_alife.html</loc></url>
+<url><loc>/reference/batch_seeds.html</loc></url>
 <url><loc>/reference/clade-visualization.html</loc></url>
 <url><loc>/reference/clear_modules.html</loc></url>
 <url><loc>/reference/compare_conditions.html</loc></url>
@@ -67,6 +68,7 @@
 <url><loc>/reference/dot-valid_descriptor_columns.html</loc></url>
 <url><loc>/reference/dot-validate_specs.html</loc></url>
 <url><loc>/reference/estimate_heritability.html</loc></url>
+<url><loc>/reference/full_specs.html</loc></url>
 <url><loc>/reference/generate_map.html</loc></url>
 <url><loc>/reference/genome_distance.html</loc></url>
 <url><loc>/reference/get_brain_weights.html</loc></url>
@@ -99,6 +101,7 @@
 <url><loc>/reference/plot_weight_heatmap.html</loc></url>
 <url><loc>/reference/prepare_map.html</loc></url>
 <url><loc>/reference/print_specs.html</loc></url>
+<url><loc>/reference/quick_specs.html</loc></url>
 <url><loc>/reference/register_module.html</loc></url>
 <url><loc>/reference/run_alife.html</loc></url>
 <url><loc>/reference/run_bad_science.html</loc></url>
