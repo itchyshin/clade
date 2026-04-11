@@ -139,319 +139,160 @@ Nakagawa</h4>
 <h2 id="background">Background<a class="anchor" aria-label="anchor" href="#background"></a>
 </h2>
 <p>The Baldwin Effect (Baldwin 1896; Simpson 1953) is a neo-Darwinian
-mechanism by which phenotypic plasticity — the ability of an organism to
-adjust its behaviour within its lifetime — can accelerate genetic
-evolution without Lamarckian inheritance. The logic is as follows:</p>
+mechanism by which within-lifetime learning can accelerate genetic
+evolution without Lamarckian inheritance. The logic has four steps:</p>
 <ol style="list-style-type: decimal">
-<li>In a novel environment, genetically fixed behaviours are
-suboptimal.</li>
-<li>Individuals that can learn (or copy successful neighbours) survive
-long enough to reproduce, even when their genome does not yet encode the
-optimal behaviour.</li>
+<li>In a novel or variable environment, genetically fixed behaviours are
+suboptimal. Individuals that can adjust behaviour within their lifetime
+survive long enough to reproduce.</li>
 <li>Because learners reproduce more, genetic variants that predispose
-faster or deeper learning spread in the population.</li>
-<li>Over generations, the benefit of learning decreases as the genome
-gradually encodes the once-learned behaviour directly — a process called
-<em>genetic assimilation</em> (Waddington 1942).</li>
+faster or deeper learning spread — learning ability itself becomes
+selected.</li>
+<li>Over generations, the fitness benefit of learning shrinks as the
+genome gradually encodes the once-learned behaviour directly.</li>
+<li>The endpoint is <em>genetic assimilation</em> (Waddington 1942):
+what was once learned is now innate. The organism no longer needs to
+learn it.</li>
 </ol>
-<p><code>clade</code> provides two within-lifetime learning modules that
-can be used independently or together to study these dynamics:</p>
-<ul>
-<li>
-<strong>Within-lifetime RL</strong>
-(<code>rl_mode = "actor_critic"</code>): REINFORCE with baseline updates
-the action-selection layer of an agent’s neural network each tick,
-driven by energy-gain reward.</li>
-<li>
-<strong>Social learning</strong>
-(<code>social_learning = TRUE</code>): prestige-biased copying — each
-agent blends a fraction of the highest-energy neighbour’s output-layer
-weights into its own policy, following the strategy of Henrich &amp;
-Gil-White (2001).</li>
-</ul>
+<p>In <code>clade</code>, the BNN brain type
+(<code>brain_type = "bnn"</code>) makes this process directly
+observable. Each agent’s neural network carries a prior standard
+deviation σ over its synaptic weights. <strong>High σ =
+exploration</strong> (wide Thompson sampling, broad behavioural
+flexibility). <strong>Low σ = canalization</strong> (narrow prior,
+behaviour largely determined by the genome). The population mean
+<code>mean_prior_sigma</code> is therefore a continuous readout of where
+evolution has placed the population on the exploration–assimilation
+axis.</p>
 </div>
 <div class="section level2">
-<h2 id="minimal-demonstration">Minimal demonstration<a class="anchor" aria-label="anchor" href="#minimal-demonstration"></a>
+<h2 id="demonstration">Demonstration<a class="anchor" aria-label="anchor" href="#demonstration"></a>
 </h2>
-<p>The experiment compares three conditions over 500 ticks on a 30×30
-grid. <code>n_agents_init = 150L</code> is required for the social
-learning module to fire reliably — at lower densities, agents rarely
-have a high-energy neighbour within copying range.</p>
-<table class="table">
-<colgroup>
-<col width="14%">
-<col width="24%">
-<col width="25%">
-<col width="35%">
-</colgroup>
-<thead><tr class="header">
-<th>Condition</th>
-<th><code>rl_mode</code></th>
-<th><code>social_learning</code></th>
-<th>Within-lifetime learning</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td>Baseline</td>
-<td><code>"none"</code></td>
-<td><code>FALSE</code></td>
-<td>None — genetic only</td>
-</tr>
-<tr class="even">
-<td>RL only</td>
-<td><code>"actor_critic"</code></td>
-<td><code>FALSE</code></td>
-<td>Individual REINFORCE</td>
-</tr>
-<tr class="odd">
-<td>RL + SL</td>
-<td><code>"actor_critic"</code></td>
-<td><code>TRUE</code></td>
-<td>REINFORCE + copying</td>
-</tr>
-</tbody>
-</table>
+<p>Two conditions, 500 ticks, 150 agents on a 30×30 grid.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span><span class="op">)</span></span></code></pre></div>
+<span></span>
+<span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">n_agents_init</span>  <span class="op">&lt;-</span> <span class="fl">150L</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">max_ticks</span>      <span class="op">&lt;-</span> <span class="fl">500L</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">grass_rate</span>     <span class="op">&lt;-</span> <span class="fl">0.05</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">random_seed</span>    <span class="op">&lt;-</span> <span class="fl">42L</span></span></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">base</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">base</span><span class="op">$</span><span class="va">grid_rows</span>      <span class="op">&lt;-</span> <span class="fl">30L</span></span>
-<span><span class="va">base</span><span class="op">$</span><span class="va">grid_cols</span>      <span class="op">&lt;-</span> <span class="fl">30L</span></span>
-<span><span class="va">base</span><span class="op">$</span><span class="va">n_agents_init</span>  <span class="op">&lt;-</span> <span class="fl">150L</span>   <span class="co"># minimum for social learning to fire</span></span>
-<span><span class="va">base</span><span class="op">$</span><span class="va">max_agents</span>     <span class="op">&lt;-</span> <span class="fl">600L</span></span>
-<span><span class="va">base</span><span class="op">$</span><span class="va">max_ticks</span>      <span class="op">&lt;-</span> <span class="fl">500L</span></span>
-<span><span class="va">base</span><span class="op">$</span><span class="va">random_seed</span>    <span class="op">&lt;-</span> <span class="fl">42L</span></span>
-<span><span class="va">base</span><span class="op">$</span><span class="va">grass_rate</span>     <span class="op">&lt;-</span> <span class="fl">0.05</span></span>
-<span><span class="va">base</span><span class="op">$</span><span class="va">grass_init_prob</span> <span class="op">&lt;-</span> <span class="fl">0.3</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># Without epigenetics: genetic evolution only</span></span>
+<span><span class="va">env_base</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># With reinforcement learning + epigenetic inheritance (TEI)</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">rl_mode</span>                <span class="op">&lt;-</span> <span class="st">"actor_critic"</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">epigenetics</span>            <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">epigenetic_inheritance</span> <span class="op">&lt;-</span> <span class="fl">0.5</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">methylation_rate</span>       <span class="op">&lt;-</span> <span class="fl">0.2</span></span>
+<span><span class="va">env_epi</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Condition 1: no within-lifetime learning (genetic evolution only)</span></span>
-<span><span class="va">s_base</span> <span class="op">&lt;-</span> <span class="va">base</span></span>
-<span><span class="va">s_base</span><span class="op">$</span><span class="va">rl_mode</span>         <span class="op">&lt;-</span> <span class="st">"none"</span></span>
-<span><span class="va">s_base</span><span class="op">$</span><span class="va">social_learning</span> <span class="op">&lt;-</span> <span class="cn">FALSE</span></span>
-<span><span class="va">env_base</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="va">s_base</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Condition 2: individual RL only</span></span>
-<span><span class="va">s_rl</span> <span class="op">&lt;-</span> <span class="va">base</span></span>
-<span><span class="va">s_rl</span><span class="op">$</span><span class="va">rl_mode</span>         <span class="op">&lt;-</span> <span class="st">"actor_critic"</span></span>
-<span><span class="va">s_rl</span><span class="op">$</span><span class="va">rl_update_freq</span>  <span class="op">&lt;-</span> <span class="fl">1L</span></span>
-<span><span class="va">s_rl</span><span class="op">$</span><span class="va">social_learning</span> <span class="op">&lt;-</span> <span class="cn">FALSE</span></span>
-<span><span class="va">env_rl</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="va">s_rl</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Condition 3: RL + prestige-biased social learning</span></span>
-<span><span class="va">s_both</span> <span class="op">&lt;-</span> <span class="va">base</span></span>
-<span><span class="va">s_both</span><span class="op">$</span><span class="va">rl_mode</span>              <span class="op">&lt;-</span> <span class="st">"actor_critic"</span></span>
-<span><span class="va">s_both</span><span class="op">$</span><span class="va">rl_update_freq</span>       <span class="op">&lt;-</span> <span class="fl">1L</span></span>
-<span><span class="va">s_both</span><span class="op">$</span><span class="va">social_learning</span>       <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
-<span><span class="va">s_both</span><span class="op">$</span><span class="va">social_learning_freq</span>  <span class="op">&lt;-</span> <span class="fl">5L</span></span>
-<span><span class="va">s_both</span><span class="op">$</span><span class="va">social_learning_rate</span>  <span class="op">&lt;-</span> <span class="fl">0.1</span></span>
-<span><span class="va">env_both</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="va">s_both</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="comparing-population-trajectories">Comparing population trajectories<a class="anchor" aria-label="anchor" href="#comparing-population-trajectories"></a>
-</h2>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">d_base</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env_base</span><span class="op">)</span><span class="op">$</span><span class="va">ticks</span></span>
-<span><span class="va">d_rl</span>   <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env_rl</span><span class="op">)</span><span class="op">$</span><span class="va">ticks</span></span>
-<span><span class="va">d_both</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env_both</span><span class="op">)</span><span class="op">$</span><span class="va">ticks</span></span>
-<span></span>
-<span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform</a></span><span class="op">(</span><span class="va">d_base</span>, condition <span class="op">=</span> <span class="st">"Baseline"</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform</a></span><span class="op">(</span><span class="va">d_rl</span>,   condition <span class="op">=</span> <span class="st">"RL only"</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform</a></span><span class="op">(</span><span class="va">d_both</span>, condition <span class="op">=</span> <span class="st">"RL + SL"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform</a></span><span class="op">(</span><span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env_base</span><span class="op">)</span><span class="op">$</span><span class="va">ticks</span>,</span>
+<span>            condition <span class="op">=</span> <span class="st">"BNN (no epigenetics)"</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform</a></span><span class="op">(</span><span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env_epi</span><span class="op">)</span><span class="op">$</span><span class="va">ticks</span>,</span>
+<span>            condition <span class="op">=</span> <span class="st">"BNN + RL + epigenetic inheritance"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="va">d</span><span class="op">$</span><span class="va">condition</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">d</span><span class="op">$</span><span class="va">condition</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Baseline"</span>, <span class="st">"RL only"</span>, <span class="st">"RL + SL"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">p_agents</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">d</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">t</span>, <span class="va">n_agents</span>, colour <span class="op">=</span> <span class="va">condition</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>linewidth <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_colour_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Baseline"</span> <span class="op">=</span> <span class="st">"#e41a1c"</span>,</span>
-<span>                                  <span class="st">"RL only"</span>  <span class="op">=</span> <span class="st">"#4daf4a"</span>,</span>
-<span>                                  <span class="st">"RL + SL"</span>  <span class="op">=</span> <span class="st">"#377eb8"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Tick"</span>, y <span class="op">=</span> <span class="st">"Population size"</span>, colour <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>       title <span class="op">=</span> <span class="st">"Population size over time"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">12</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"top"</span><span class="op">)</span></span>
+<span><span class="va">d</span><span class="op">$</span><span class="va">condition</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">d</span><span class="op">$</span><span class="va">condition</span>,</span>
+<span>  levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"BNN (no epigenetics)"</span>, <span class="st">"BNN + RL + epigenetic inheritance"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">p_energy</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">d</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">t</span>, <span class="va">mean_energy</span>, colour <span class="op">=</span> <span class="va">condition</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>linewidth <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_colour_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Baseline"</span> <span class="op">=</span> <span class="st">"#e41a1c"</span>,</span>
-<span>                                  <span class="st">"RL only"</span>  <span class="op">=</span> <span class="st">"#4daf4a"</span>,</span>
-<span>                                  <span class="st">"RL + SL"</span>  <span class="op">=</span> <span class="st">"#377eb8"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Tick"</span>, y <span class="op">=</span> <span class="st">"Mean energy per agent"</span>, colour <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>       title <span class="op">=</span> <span class="st">"Mean energy over time"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">12</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">p_agents</span> <span class="op">/</span> <span class="va">p_energy</span></span></code></pre></div>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">d</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">t</span>, <span class="va">mean_prior_sigma</span>, colour <span class="op">=</span> <span class="va">condition</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>linewidth <span class="op">=</span> <span class="fl">1.0</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_hline</a></span><span class="op">(</span>yintercept <span class="op">=</span> <span class="fl">0.5</span>, linetype <span class="op">=</span> <span class="st">"dashed"</span>, colour <span class="op">=</span> <span class="st">"grey60"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_colour_manual</a></span><span class="op">(</span></span>
+<span>    values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"BNN (no epigenetics)"</span>              <span class="op">=</span> <span class="st">"#377eb8"</span>,</span>
+<span>               <span class="st">"BNN + RL + epigenetic inheritance"</span> <span class="op">=</span> <span class="st">"#e6550d"</span><span class="op">)</span>,</span>
+<span>    name <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_continuous</a></span><span class="op">(</span>limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.58</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Tick"</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="st">"Mean BNN prior "</span> <span class="op">*</span> <span class="va">sigma</span><span class="op">)</span>,</span>
+<span>       title <span class="op">=</span> <span class="st">"The Baldwin Effect: exploration vs. canalization"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">13</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"top"</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_bnn_demo_trajectories.png" alt="Population size (top) and mean energy per agent (bottom) for baseline, RL-only, and RL+SL conditions over 500 ticks. All three conditions show similar population trajectories. The baseline (genetic evolution only) reaches slightly higher mean energy by tick 500 — within-lifetime learning adds overhead without producing a measurable foraging benefit at this timescale." width="100%"><p class="caption">
-Population size (top) and mean energy per agent (bottom) for baseline,
-RL-only, and RL+SL conditions over 500 ticks. All three conditions show
-similar population trajectories. The baseline (genetic evolution only)
-reaches slightly higher mean energy by tick 500 — within-lifetime
-learning adds overhead without producing a measurable foraging benefit
-at this timescale.
-</p>
-</div>
-<p>All three conditions show similar population decline from 150 to
-~40–50 agents as the carrying capacity of a sparse-resource environment
-asserts itself. Counterintuitively, the <strong>baseline (genetic
-evolution only) reaches slightly higher mean energy</strong> than the RL
-and RL+SL conditions by the end of the run. Within-lifetime learning
-adds computational overhead (REINFORCE updates every tick) but does not
-improve foraging outcomes — genetic evolution of neural weights is
-sufficient at 500-tick timescales, and RL’s gradient signal is too noisy
-in a stochastic foraging world to provide consistent advantage. This is
-consistent with the brain-architecture experiment (Exp 3) in the
-systematic study section below.</p>
-</div>
-<div class="section level2">
-<h2 id="tracing-genetic-diversity">Tracing genetic diversity<a class="anchor" aria-label="anchor" href="#tracing-genetic-diversity"></a>
-</h2>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">d</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">t</span>, <span class="va">genetic_diversity</span>, colour <span class="op">=</span> <span class="va">condition</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>linewidth <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_colour_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Baseline"</span> <span class="op">=</span> <span class="st">"#e41a1c"</span>,</span>
-<span>                                  <span class="st">"RL only"</span>  <span class="op">=</span> <span class="st">"#4daf4a"</span>,</span>
-<span>                                  <span class="st">"RL + SL"</span>  <span class="op">=</span> <span class="st">"#377eb8"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Tick"</span>, y <span class="op">=</span> <span class="st">"Mean pairwise genome distance"</span>,</span>
-<span>       colour <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>       title <span class="op">=</span> <span class="st">"Genetic diversity over time"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">12</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"top"</span><span class="op">)</span></span></code></pre></div>
-<div class="figure">
-<img src="figures/showcase_bnn_demo_diversity.png" alt="Genetic diversity (mean pairwise genome distance) over 500 ticks for all three conditions. Diversity rises steadily across all conditions — no selective sweep occurs and no genotype converges to fixation." width="100%"><p class="caption">
-Genetic diversity (mean pairwise genome distance) over 500 ticks for all
-three conditions. Diversity rises steadily across all conditions — no
-selective sweep occurs and no genotype converges to fixation.
-</p>
-</div>
-<p>Genetic diversity rises over time in all three conditions. This is
-the <strong>opposite</strong> of what the classical Baldwin Effect
-predicts: if canalization were occurring, a small number of well-adapted
-genotypes would spread through selection, reducing diversity. Here,
-diversity increases because no single genotype is universally optimal in
-a spatially heterogeneous, competitive foraging world — the fitness
-landscape has no stable peak. Neutral divergence accumulates across
-lineages in the absence of a selective sweep. The absence of a diversity
-decline is itself evidence that genetic assimilation is not taking
-place.</p>
-</div>
-<div class="section level2">
-<h2 id="epigenetics-as-a-route-to-canalization">Epigenetics as a route to canalization<a class="anchor" aria-label="anchor" href="#epigenetics-as-a-route-to-canalization"></a>
-</h2>
-<p>Adding <code>epigenetics = TRUE</code> introduces transgenerational
-epigenetic inheritance (TEI): methylation marks accumulated during an
-agent’s lifetime — reflecting which synaptic weights were most used —
-are passed to offspring with probability
-<code>epigenetic_inheritance</code>. This is a non-Mendelian
-transmission channel for within-lifetime experience.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">s_epi</span> <span class="op">&lt;-</span> <span class="va">s_both</span></span>
-<span><span class="va">s_epi</span><span class="op">$</span><span class="va">epigenetics</span>            <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
-<span><span class="va">s_epi</span><span class="op">$</span><span class="va">epigenetic_inheritance</span> <span class="op">&lt;-</span> <span class="fl">0.5</span></span>
-<span><span class="va">s_epi</span><span class="op">$</span><span class="va">methylation_rate</span>       <span class="op">&lt;-</span> <span class="fl">0.2</span></span>
-<span><span class="va">s_epi</span><span class="op">$</span><span class="va">demethylation_rate</span>     <span class="op">&lt;-</span> <span class="fl">0.05</span></span>
-<span><span class="va">env_epi</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="va">s_epi</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">d_epi</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env_epi</span><span class="op">)</span><span class="op">$</span><span class="va">ticks</span></span>
-<span><span class="va">d2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform</a></span><span class="op">(</span><span class="va">d_both</span>, condition <span class="op">=</span> <span class="st">"RL + SL"</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform</a></span><span class="op">(</span><span class="va">d_epi</span>,  condition <span class="op">=</span> <span class="st">"RL + SL + Epigenetics"</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="va">d2</span><span class="op">$</span><span class="va">condition</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">d2</span><span class="op">$</span><span class="va">condition</span>,</span>
-<span>  levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"RL + SL"</span>, <span class="st">"RL + SL + Epigenetics"</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">d2</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">t</span>, <span class="va">mean_prior_sigma</span>, colour <span class="op">=</span> <span class="va">condition</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>linewidth <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_hline</a></span><span class="op">(</span>yintercept <span class="op">=</span> <span class="fl">0.5</span>, linetype <span class="op">=</span> <span class="st">"dashed"</span>, colour <span class="op">=</span> <span class="st">"grey50"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_colour_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"RL + SL"</span>                  <span class="op">=</span> <span class="st">"#377eb8"</span>,</span>
-<span>                                  <span class="st">"RL + SL + Epigenetics"</span>   <span class="op">=</span> <span class="st">"#e6550d"</span><span class="op">)</span>,</span>
-<span>                       name <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_continuous</a></span><span class="op">(</span>limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.55</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Tick"</span>, y <span class="op">=</span> <span class="st">"Mean BNN prior sigma"</span>,</span>
-<span>       title <span class="op">=</span> <span class="st">"BNN prior sigma: epigenetics produces canalization"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">12</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"top"</span><span class="op">)</span></span></code></pre></div>
-<div class="figure">
-<img src="figures/showcase_bnn_demo_sigma.png" alt="Mean BNN prior sigma over 500 ticks. Without epigenetics (blue), sigma rises to the 0.5 ceiling and stays there — exploration is the ESS. With epigenetics (orange), sigma drops from 0.5 to near zero by tick 500 — within-lifetime weight contraction is transmitted directly to offspring, producing rapid canalization." width="100%"><p class="caption">
+<img src="figures/showcase_bnn_canalization_demo.png" alt="Mean BNN prior sigma over 500 ticks. Without epigenetics (blue), sigma rises to the 0.5 ceiling — exploration is the evolutionarily stable strategy and no canalization occurs. With reinforcement learning plus epigenetic inheritance (orange), sigma collapses to near zero by tick ~300: genetic assimilation via the Baldwin Effect." width="100%"><p class="caption">
 Mean BNN prior sigma over 500 ticks. Without epigenetics (blue), sigma
-rises to the 0.5 ceiling and stays there — exploration is the ESS. With
-epigenetics (orange), sigma drops from 0.5 to near zero by tick 500 —
-within-lifetime weight contraction is transmitted directly to offspring,
-producing rapid canalization.
+rises to the 0.5 ceiling — exploration is the evolutionarily stable
+strategy and no canalization occurs. With reinforcement learning plus
+epigenetic inheritance (orange), sigma collapses to near zero by tick
+~300: genetic assimilation via the Baldwin Effect.
 </p>
 </div>
-<p><code>mean_prior_sigma</code> is the mean standard deviation of BNN
-weight distributions — a continuous readout of where the population sits
-on the exploration–assimilation axis. Without epigenetics, σ rises to
-the 0.5 ceiling and stays there, confirming that exploration is the ESS.
-<strong>With epigenetics, σ collapses from 0.5 to near zero by tick
-500.</strong> The mechanism is a Lamarckian shortcut: when an agent
-learns within its lifetime (Thompson sampling contracts its posterior),
-its offspring inherit the narrowed prior rather than the broad initial
-prior. Within-lifetime learning does not itself produce assimilation,
-but it generates the epigenetic marks that TEI transmits — the two
-mechanisms are synergistic. Remove either one (RL or TEI) and the
-assimilation signal disappears.</p>
+<p>Without epigenetics, σ rises steadily to its ceiling (0.5) and stays
+there. Exploration is the evolutionarily stable strategy in a
+competitive foraging world: the fitness landscape shifts continuously
+with population density and resource patchiness, so no single fixed
+policy outcompetes broad sampling. The Baldwin Effect does not
+occur.</p>
+<p>Add epigenetic inheritance and the picture reverses. <strong>σ
+collapses from 0.5 to near zero within 300 ticks — full genetic
+assimilation.</strong> The mechanism is a two-step transmission chain:
+(1) within-lifetime RL contracts each agent’s weight posterior during
+its lifetime, narrowing σ as the agent learns; (2) transgenerational
+epigenetic inheritance (TEI) passes these narrowed priors to offspring.
+Each generation therefore starts more canalized than the last, and
+selection reinforces the direction. The two mechanisms are synergistic —
+remove either RL or TEI and the assimilation signal disappears.</p>
+<p>This is the Baldwin Effect realized in a computational model:
+learning creates the variation that selection fixes. The five systematic
+experiments below probe <em>when</em> and <em>why</em> this occurs, and
+what happens in its absence.</p>
 </div>
 <div class="section level2">
 <h2 id="key-parameters">Key parameters<a class="anchor" aria-label="anchor" href="#key-parameters"></a>
 </h2>
 <table class="table">
 <colgroup>
-<col width="30%">
-<col width="18%">
-<col width="51%">
+<col width="27%">
+<col width="17%">
+<col width="54%">
 </colgroup>
 <thead><tr class="header">
 <th>Parameter</th>
 <th>Default</th>
-<th>Role in Baldwin pathway</th>
+<th>Role</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
+<td><code>brain_type</code></td>
+<td><code>"bnn"</code></td>
+<td>Enables σ as an evolvable exploration parameter</td>
+</tr>
+<tr class="even">
 <td><code>rl_mode</code></td>
 <td><code>"none"</code></td>
 <td>
-<code>"actor_critic"</code> enables REINFORCE</td>
+<code>"actor_critic"</code> enables within-lifetime REINFORCE</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>rl_update_freq</code></td>
 <td><code>1L</code></td>
 <td>RL update every N ticks</td>
 </tr>
-<tr class="odd">
-<td><code>social_learning</code></td>
-<td><code>FALSE</code></td>
-<td>Enables prestige-biased copying</td>
-</tr>
-<tr class="even">
-<td><code>social_learning_freq</code></td>
-<td><code>10L</code></td>
-<td>Copy every N ticks</td>
-</tr>
-<tr class="odd">
-<td><code>social_learning_rate</code></td>
-<td><code>0.1</code></td>
-<td>Fraction of model weights copied</td>
-</tr>
 <tr class="even">
 <td><code>epigenetics</code></td>
 <td><code>FALSE</code></td>
-<td>Enables methylation + TEI</td>
+<td>Enables methylation marks + TEI</td>
 </tr>
 <tr class="odd">
 <td><code>epigenetic_inheritance</code></td>
 <td><code>0.5</code></td>
-<td>Probability each mark is transmitted</td>
+<td>Probability each methylation mark is transmitted</td>
 </tr>
 <tr class="even">
 <td><code>methylation_rate</code></td>
 <td><code>0.1</code></td>
-<td>Probability reward drives methylation</td>
+<td>Probability a reward event drives methylation</td>
 </tr>
 <tr class="odd">
 <td><code>demethylation_rate</code></td>
 <td><code>0.02</code></td>
-<td>Background demethylation rate</td>
+<td>Background demethylation rate per tick</td>
+</tr>
+<tr class="even">
+<td><code>social_learning</code></td>
+<td><code>FALSE</code></td>
+<td>Prestige-biased copying of output-layer weights</td>
 </tr>
 </tbody>
 </table>
@@ -459,10 +300,9 @@ assimilation signal disappears.</p>
 <div class="section level2">
 <h2 id="systematic-experiments-when-does-canalization-occur">Systematic experiments: when does canalization occur?<a class="anchor" aria-label="anchor" href="#systematic-experiments-when-does-canalization-occur"></a>
 </h2>
-<p>The five experiments below use the BNN brain type
-(<code>brain_type = "bnn"</code>) to ask a sharper question than the
-minimal demonstration above: <em>under what conditions does the Baldwin
-Effect actually produce genetic assimilation?</em></p>
+<p>The five experiments below ask a sharper question than the
+demonstration above: <em>under what conditions does canalization occur,
+and what prevents it?</em></p>
 <p>The BNN brain is uniquely suited to this question because its prior
 standard deviation σ (<code>mean_prior_sigma</code> in the tick log) is
 a direct, continuous readout of the population’s position on the
