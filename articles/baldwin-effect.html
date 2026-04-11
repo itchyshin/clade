@@ -426,6 +426,97 @@ tick.</p>
 </table>
 </div>
 <div class="section level2">
+<h2 id="pre-computed-experimental-results">Pre-computed experimental results<a class="anchor" aria-label="anchor" href="#pre-computed-experimental-results"></a>
+</h2>
+<p>The five figures below summarise a systematic study of the Baldwin
+Effect using the BNN brain type (<code>brain_type = "bnn"</code>), where
+the prior standard deviation σ is the observable marker of canalization:
+declining σ indicates genetic assimilation of a learned behaviour;
+rising σ indicates selection for maintained flexibility. All results are
+from runs stored in <code>Rdata/</code> — no Julia session required to
+view them.</p>
+<div class="section level3">
+<h3 id="experiment-1-environmental-stability-gradient">Experiment 1 — Environmental stability gradient<a class="anchor" aria-label="anchor" href="#experiment-1-environmental-stability-gradient"></a>
+</h3>
+<p>3 × 3 factorial design (grass_rate × seasonal_amplitude), 5 seeds ×
+1000 ticks (45 runs). All 9 conditions produced a positive σ slope:
+exploration is selected everywhere. The shallowest slope (grass = 0.20,
+seasonal = 0.8, bold row) still reaches the σ ceiling.</p>
+<div class="figure">
+<img src="figures/showcase_bnn_exp1_stability.png" alt="Phase diagram of mean_prior_sigma slope across 9 resource-abundance × seasonality conditions. All cells positive (red) — no canalization in any environment tested." width="100%"><p class="caption">
+Phase diagram of mean_prior_sigma slope across 9 resource-abundance ×
+seasonality conditions. All cells positive (red) — no canalization in
+any environment tested.
+</p>
+</div>
+</div>
+<div class="section level3">
+<h3 id="experiment-2-is-the-sigma-ceiling-an-artefact-of-run-length">Experiment 2 — Is the sigma ceiling an artefact of run length?<a class="anchor" aria-label="anchor" href="#experiment-2-is-the-sigma-ceiling-an-artefact-of-run-length"></a>
+</h3>
+<p>Most canalization-favourable condition (grass = 0.20, seasonal = 0.8)
+extended to 5000 ticks. The σ slope decelerates 21-fold from 1000 to
+5000 ticks, but final σ remains at 0.50 in all cases. This is ceiling
+saturation, not the onset of canalization.</p>
+<div class="figure">
+<img src="figures/showcase_bnn_exp2_runlength.png" alt="Sigma trajectories at 1000, 2000, and 5000 ticks (mean +/- SE, 5 seeds). All runs hit the 0.5 ceiling; the slope decelerates but never reverses." width="100%"><p class="caption">
+Sigma trajectories at 1000, 2000, and 5000 ticks (mean +/- SE, 5 seeds).
+All runs hit the 0.5 ceiling; the slope decelerates but never reverses.
+</p>
+</div>
+</div>
+<div class="section level3">
+<h3 id="experiment-3-brain-architecture-comparison">Experiment 3 — Brain architecture comparison<a class="anchor" aria-label="anchor" href="#experiment-3-brain-architecture-comparison"></a>
+</h3>
+<p>BNN-only, ANN+RL, BNN+RL, ANN-null, 5 seeds × 1000 ticks. RL has no
+effect on σ dynamics: BNN-only and BNN+RL produce identical σ
+trajectories. BNN agents pay a 17% energy penalty for broad Thompson
+sampling yet the exploration ESS persists.</p>
+<div class="figure">
+<img src="figures/showcase_bnn_exp3_brains.png" alt="Left: sigma trajectories for BNN-only vs BNN+RL — indistinguishable. Right: final mean energy by condition — BNN pays 17% relative to ANN but exploration remains the ESS." width="100%"><p class="caption">
+Left: sigma trajectories for BNN-only vs BNN+RL — indistinguishable.
+Right: final mean energy by condition — BNN pays 17% relative to ANN but
+exploration remains the ESS.
+</p>
+</div>
+</div>
+<div class="section level3">
+<h3 id="experiment-4-social-modifiers">Experiment 4 — Social modifiers<a class="anchor" aria-label="anchor" href="#experiment-4-social-modifiers"></a>
+</h3>
+<p>4 modules × 2 environments × 5 seeds × 1000 ticks. Epigenetic
+inheritance (<code>epigenetics = TRUE</code>) is the only mechanism that
+substantially reduces σ — 32% below ceiling in the stable-abundant
+environment and 72% below ceiling in the scarce-stable environment.
+Social learning and kin selection have negligible effects.</p>
+<div class="figure">
+<img src="figures/showcase_bnn_exp4_social.png" alt="Final mean prior sigma by module and environment. Epigenetics (red) is the only social mechanism to substantially reduce sigma. All others remain at or near the 0.5 ceiling (dashed line)." width="100%"><p class="caption">
+Final mean prior sigma by module and environment. Epigenetics (red) is
+the only social mechanism to substantially reduce sigma. All others
+remain at or near the 0.5 ceiling (dashed line).
+</p>
+</div>
+</div>
+<div class="section level3">
+<h3 id="experiment-5-map-elites-on-σ-genetic-diversity-space">Experiment 5 — MAP-Elites on σ × genetic diversity space<a class="anchor" aria-label="anchor" href="#experiment-5-map-elites-on-%CF%83-genetic-diversity-space"></a>
+</h3>
+<p>150 MAP-Elites iterations on the BNN baseline, 500-tick runs,
+121-cell archive (σ × genetic diversity, both 0–0.5, step 0.05): 20
+cells filled. Low σ was found (as low as 0.028), but every low-σ cell
+also had low genetic diversity (gd &lt; 0.15). The σ–gd correlation
+across the archive was +0.59. No low-σ + high-gd cells exist — ruling
+out the Baldwin Effect proper and confirming that low σ arises via
+genetic drift to fixation, not via genetic assimilation of a learned
+strategy.</p>
+<div class="figure">
+<img src="figures/showcase_bnn_exp5_mapelites.png" alt="MAP-Elites archive (20/121 cells filled). Low sigma only coexists with low genetic diversity — drift pseudo-canalization, not the Baldwin Effect. No solutions occupy the low-sigma + high-diversity quadrant." width="100%"><p class="caption">
+MAP-Elites archive (20/121 cells filled). Low sigma only coexists with
+low genetic diversity — drift pseudo-canalization, not the Baldwin
+Effect. No solutions occupy the low-sigma + high-diversity quadrant.
+</p>
+</div>
+<hr>
+</div>
+</div>
+<div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
 <p>Baldwin, J.M. (1896) A new factor in evolution. <em>American
