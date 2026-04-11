@@ -24,239 +24,117 @@ FIG <- function(name, ...) {
 ## Background
 
 The Baldwin Effect (Baldwin 1896; Simpson 1953) is a neo-Darwinian mechanism by
-which phenotypic plasticity — the ability of an organism to adjust its behaviour
-within its lifetime — can accelerate genetic evolution without Lamarckian
-inheritance.  The logic is as follows:
+which within-lifetime learning can accelerate genetic evolution without
+Lamarckian inheritance. The logic has four steps:
 
-1. In a novel environment, genetically fixed behaviours are suboptimal.
-2. Individuals that can learn (or copy successful neighbours) survive long
-   enough to reproduce, even when their genome does not yet encode the optimal
-   behaviour.
-3. Because learners reproduce more, genetic variants that predispose faster or
-   deeper learning spread in the population.
-4. Over generations, the benefit of learning decreases as the genome gradually
-   encodes the once-learned behaviour directly — a process called *genetic
-   assimilation* (Waddington 1942).
+1. In a novel or variable environment, genetically fixed behaviours are
+   suboptimal. Individuals that can adjust behaviour within their lifetime
+   survive long enough to reproduce.
+2. Because learners reproduce more, genetic variants that predispose faster or
+   deeper learning spread — learning ability itself becomes selected.
+3. Over generations, the fitness benefit of learning shrinks as the genome
+   gradually encodes the once-learned behaviour directly.
+4. The endpoint is *genetic assimilation* (Waddington 1942): what was once
+   learned is now innate. The organism no longer needs to learn it.
 
-`clade` provides two within-lifetime learning modules that can be used
-independently or together to study these dynamics:
+In `clade`, the BNN brain type (`brain_type = "bnn"`) makes this process
+directly observable. Each agent's neural network carries a prior standard
+deviation σ over its synaptic weights. **High σ = exploration** (wide
+Thompson sampling, broad behavioural flexibility). **Low σ = canalization**
+(narrow prior, behaviour largely determined by the genome). The population
+mean `mean_prior_sigma` is therefore a continuous readout of where evolution
+has placed the population on the exploration–assimilation axis.
 
-- **Within-lifetime RL** (`rl_mode = "actor_critic"`): REINFORCE with
-  baseline updates the action-selection layer of an agent's neural network
-  each tick, driven by energy-gain reward.
-- **Social learning** (`social_learning = TRUE`): prestige-biased copying —
-  each agent blends a fraction of the highest-energy neighbour's output-layer
-  weights into its own policy, following the strategy of Henrich & Gil-White
-  (2001).
+## Demonstration
 
-## Minimal demonstration
-
-The experiment compares three conditions over 500 ticks on a 30×30 grid.
-`n_agents_init = 150L` is required for the social learning module to fire
-reliably — at lower densities, agents rarely have a high-energy neighbour
-within copying range.
-
-| Condition | `rl_mode`        | `social_learning` | Within-lifetime learning |
-|-----------|------------------|-------------------|--------------------------|
-| Baseline  | `"none"`         | `FALSE`           | None — genetic only      |
-| RL only   | `"actor_critic"` | `FALSE`           | Individual REINFORCE      |
-| RL + SL   | `"actor_critic"` | `TRUE`            | REINFORCE + copying      |
+Two conditions, 500 ticks, 150 agents on a 30×30 grid.
 
 ```{r setup}
 library(clade)
 library(ggplot2)
-library(patchwork)
+
+s <- default_specs()
+s$n_agents_init  <- 150L
+s$max_ticks      <- 500L
+s$grass_rate     <- 0.05
+s$random_seed    <- 42L
 ```
 
-```{r base-specs}
-base <- default_specs()
-base$grid_rows      <- 30L
-base$grid_cols      <- 30L
-base$n_agents_init  <- 150L   # minimum for social learning to fire
-base$max_agents     <- 600L
-base$max_ticks      <- 500L
-base$random_seed    <- 42L
-base$grass_rate     <- 0.05
-base$grass_init_prob <- 0.3
+```{r run-demo}
+# Without epigenetics: genetic evolution only
+env_base <- run_alife(s)
+
+# With reinforcement learning + epigenetic inheritance (TEI)
+s$rl_mode                <- "actor_critic"
+s$epigenetics            <- TRUE
+s$epigenetic_inheritance <- 0.5
+s$methylation_rate       <- 0.2
+env_epi <- run_alife(s)
 ```
 
-```{r run-conditions}
-# Condition 1: no within-lifetime learning (genetic evolution only)
-s_base <- base
-s_base$rl_mode         <- "none"
-s_base$social_learning <- FALSE
-env_base <- run_alife(s_base)
-
-# Condition 2: individual RL only
-s_rl <- base
-s_rl$rl_mode         <- "actor_critic"
-s_rl$rl_update_freq  <- 1L
-s_rl$social_learning <- FALSE
-env_rl <- run_alife(s_rl)
-
-# Condition 3: RL + prestige-biased social learning
-s_both <- base
-s_both$rl_mode              <- "actor_critic"
-s_both$rl_update_freq       <- 1L
-s_both$social_learning       <- TRUE
-s_both$social_learning_freq  <- 5L
-s_both$social_learning_rate  <- 0.1
-env_both <- run_alife(s_both)
-```
-
-## Comparing population trajectories
-
-```{r trajectories}
-d_base <- get_run_data(env_base)$ticks
-d_rl   <- get_run_data(env_rl)$ticks
-d_both <- get_run_data(env_both)$ticks
-
+```{r plot-demo, fig.width=8, fig.height=4}
 d <- rbind(
-  transform(d_base, condition = "Baseline"),
-  transform(d_rl,   condition = "RL only"),
-  transform(d_both, condition = "RL + SL")
+  transform(get_run_data(env_base)$ticks,
+            condition = "BNN (no epigenetics)"),
+  transform(get_run_data(env_epi)$ticks,
+            condition = "BNN + RL + epigenetic inheritance")
 )
-d$condition <- factor(d$condition, levels = c("Baseline", "RL only", "RL + SL"))
+d$condition <- factor(d$condition,
+  levels = c("BNN (no epigenetics)", "BNN + RL + epigenetic inheritance"))
+
+ggplot(d, aes(t, mean_prior_sigma, colour = condition)) +
+  geom_line(linewidth = 1.0) +
+  geom_hline(yintercept = 0.5, linetype = "dashed", colour = "grey60") +
+  scale_colour_manual(
+    values = c("BNN (no epigenetics)"              = "#377eb8",
+               "BNN + RL + epigenetic inheritance" = "#e6550d"),
+    name = NULL) +
+  scale_y_continuous(limits = c(0, 0.58)) +
+  labs(x = "Tick", y = expression("Mean BNN prior " * sigma),
+       title = "The Baldwin Effect: exploration vs. canalization") +
+  theme_minimal(base_size = 13) + theme(legend.position = "top")
 ```
 
-```{r plot-pop, fig.width=7, fig.height=5.5}
-p_agents <- ggplot(d, aes(t, n_agents, colour = condition)) +
-  geom_line(linewidth = 0.8) +
-  scale_colour_manual(values = c("Baseline" = "#e41a1c",
-                                  "RL only"  = "#4daf4a",
-                                  "RL + SL"  = "#377eb8")) +
-  labs(x = "Tick", y = "Population size", colour = NULL,
-       title = "Population size over time") +
-  theme_minimal(base_size = 12) + theme(legend.position = "top")
-
-p_energy <- ggplot(d, aes(t, mean_energy, colour = condition)) +
-  geom_line(linewidth = 0.8) +
-  scale_colour_manual(values = c("Baseline" = "#e41a1c",
-                                  "RL only"  = "#4daf4a",
-                                  "RL + SL"  = "#377eb8")) +
-  labs(x = "Tick", y = "Mean energy per agent", colour = NULL,
-       title = "Mean energy over time") +
-  theme_minimal(base_size = 12) + theme(legend.position = "none")
-
-p_agents / p_energy
+```{r fig-canalization-demo, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Mean BNN prior sigma over 500 ticks. Without epigenetics (blue), sigma rises to the 0.5 ceiling — exploration is the evolutionarily stable strategy and no canalization occurs. With reinforcement learning plus epigenetic inheritance (orange), sigma collapses to near zero by tick ~300: genetic assimilation via the Baldwin Effect."}
+FIG("bnn_canalization_demo")
 ```
 
-```{r fig-demo-traj, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Population size (top) and mean energy per agent (bottom) for baseline, RL-only, and RL+SL conditions over 500 ticks. All three conditions show similar population trajectories. The baseline (genetic evolution only) reaches slightly higher mean energy by tick 500 — within-lifetime learning adds overhead without producing a measurable foraging benefit at this timescale."}
-FIG("bnn_demo_trajectories")
-```
+Without epigenetics, σ rises steadily to its ceiling (0.5) and stays there.
+Exploration is the evolutionarily stable strategy in a competitive foraging
+world: the fitness landscape shifts continuously with population density and
+resource patchiness, so no single fixed policy outcompetes broad sampling.
+The Baldwin Effect does not occur.
 
-All three conditions show similar population decline from 150 to ~40–50
-agents as the carrying capacity of a sparse-resource environment asserts
-itself. Counterintuitively, the **baseline (genetic evolution only) reaches
-slightly higher mean energy** than the RL and RL+SL conditions by the end of
-the run. Within-lifetime learning adds computational overhead (REINFORCE
-updates every tick) but does not improve foraging outcomes — genetic evolution
-of neural weights is sufficient at 500-tick timescales, and RL's gradient
-signal is too noisy in a stochastic foraging world to provide consistent
-advantage. This is consistent with the brain-architecture experiment (Exp 3)
-in the systematic study section below.
+Add epigenetic inheritance and the picture reverses. **σ collapses from 0.5 to
+near zero within 300 ticks — full genetic assimilation.** The mechanism is a
+two-step transmission chain: (1) within-lifetime RL contracts each agent's
+weight posterior during its lifetime, narrowing σ as the agent learns; (2)
+transgenerational epigenetic inheritance (TEI) passes these narrowed priors to
+offspring. Each generation therefore starts more canalized than the last, and
+selection reinforces the direction. The two mechanisms are synergistic —
+remove either RL or TEI and the assimilation signal disappears.
 
-## Tracing genetic diversity
-
-```{r plot-diversity, fig.width=7, fig.height=3.5}
-ggplot(d, aes(t, genetic_diversity, colour = condition)) +
-  geom_line(linewidth = 0.8) +
-  scale_colour_manual(values = c("Baseline" = "#e41a1c",
-                                  "RL only"  = "#4daf4a",
-                                  "RL + SL"  = "#377eb8")) +
-  labs(x = "Tick", y = "Mean pairwise genome distance",
-       colour = NULL,
-       title = "Genetic diversity over time") +
-  theme_minimal(base_size = 12) + theme(legend.position = "top")
-```
-
-```{r fig-demo-div, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Genetic diversity (mean pairwise genome distance) over 500 ticks for all three conditions. Diversity rises steadily across all conditions — no selective sweep occurs and no genotype converges to fixation."}
-FIG("bnn_demo_diversity")
-```
-
-Genetic diversity rises over time in all three conditions. This is the
-**opposite** of what the classical Baldwin Effect predicts: if canalization
-were occurring, a small number of well-adapted genotypes would spread through
-selection, reducing diversity. Here, diversity increases because no single
-genotype is universally optimal in a spatially heterogeneous, competitive
-foraging world — the fitness landscape has no stable peak. Neutral divergence
-accumulates across lineages in the absence of a selective sweep. The absence
-of a diversity decline is itself evidence that genetic assimilation is not
-taking place.
-
-## Epigenetics as a route to canalization
-
-Adding `epigenetics = TRUE` introduces transgenerational epigenetic inheritance
-(TEI): methylation marks accumulated during an agent's lifetime — reflecting
-which synaptic weights were most used — are passed to offspring with probability
-`epigenetic_inheritance`. This is a non-Mendelian transmission channel for
-within-lifetime experience.
-
-```{r run-epigenetics}
-s_epi <- s_both
-s_epi$epigenetics            <- TRUE
-s_epi$epigenetic_inheritance <- 0.5
-s_epi$methylation_rate       <- 0.2
-s_epi$demethylation_rate     <- 0.05
-env_epi <- run_alife(s_epi)
-```
-
-```{r plot-epi, fig.width=7, fig.height=3.5}
-d_epi <- get_run_data(env_epi)$ticks
-d2 <- rbind(
-  transform(d_both, condition = "RL + SL"),
-  transform(d_epi,  condition = "RL + SL + Epigenetics")
-)
-d2$condition <- factor(d2$condition,
-  levels = c("RL + SL", "RL + SL + Epigenetics"))
-
-ggplot(d2, aes(t, mean_prior_sigma, colour = condition)) +
-  geom_line(linewidth = 0.8) +
-  geom_hline(yintercept = 0.5, linetype = "dashed", colour = "grey50") +
-  scale_colour_manual(values = c("RL + SL"                  = "#377eb8",
-                                  "RL + SL + Epigenetics"   = "#e6550d"),
-                       name = NULL) +
-  scale_y_continuous(limits = c(0, 0.55)) +
-  labs(x = "Tick", y = "Mean BNN prior sigma",
-       title = "BNN prior sigma: epigenetics produces canalization") +
-  theme_minimal(base_size = 12) + theme(legend.position = "top")
-```
-
-```{r fig-demo-sigma, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Mean BNN prior sigma over 500 ticks. Without epigenetics (blue), sigma rises to the 0.5 ceiling and stays there — exploration is the ESS. With epigenetics (orange), sigma drops from 0.5 to near zero by tick 500 — within-lifetime weight contraction is transmitted directly to offspring, producing rapid canalization."}
-FIG("bnn_demo_sigma")
-```
-
-`mean_prior_sigma` is the mean standard deviation of BNN weight distributions
-— a continuous readout of where the population sits on the
-exploration–assimilation axis. Without epigenetics, σ rises to the 0.5 ceiling
-and stays there, confirming that exploration is the ESS. **With epigenetics,
-σ collapses from 0.5 to near zero by tick 500.** The mechanism is a Lamarckian
-shortcut: when an agent learns within its lifetime (Thompson sampling contracts
-its posterior), its offspring inherit the narrowed prior rather than the broad
-initial prior. Within-lifetime learning does not itself produce assimilation,
-but it generates the epigenetic marks that TEI transmits — the two mechanisms
-are synergistic. Remove either one (RL or TEI) and the assimilation signal
-disappears.
+This is the Baldwin Effect realized in a computational model: learning creates
+the variation that selection fixes. The five systematic experiments below probe
+*when* and *why* this occurs, and what happens in its absence.
 
 ## Key parameters
 
-| Parameter               | Default       | Role in Baldwin pathway                   |
-|-------------------------|---------------|-------------------------------------------|
-| `rl_mode`               | `"none"`      | `"actor_critic"` enables REINFORCE        |
-| `rl_update_freq`        | `1L`          | RL update every N ticks                   |
-| `social_learning`       | `FALSE`       | Enables prestige-biased copying           |
-| `social_learning_freq`  | `10L`         | Copy every N ticks                        |
-| `social_learning_rate`  | `0.1`         | Fraction of model weights copied          |
-| `epigenetics`           | `FALSE`       | Enables methylation + TEI                 |
-| `epigenetic_inheritance`| `0.5`         | Probability each mark is transmitted      |
-| `methylation_rate`      | `0.1`         | Probability reward drives methylation     |
-| `demethylation_rate`    | `0.02`        | Background demethylation rate             |
+| Parameter                | Default        | Role                                              |
+|--------------------------|----------------|---------------------------------------------------|
+| `brain_type`             | `"bnn"`        | Enables σ as an evolvable exploration parameter   |
+| `rl_mode`                | `"none"`       | `"actor_critic"` enables within-lifetime REINFORCE|
+| `rl_update_freq`         | `1L`           | RL update every N ticks                           |
+| `epigenetics`            | `FALSE`        | Enables methylation marks + TEI                   |
+| `epigenetic_inheritance` | `0.5`          | Probability each methylation mark is transmitted  |
+| `methylation_rate`       | `0.1`          | Probability a reward event drives methylation     |
+| `demethylation_rate`     | `0.02`         | Background demethylation rate per tick            |
+| `social_learning`        | `FALSE`        | Prestige-biased copying of output-layer weights   |
 
 ## Systematic experiments: when does canalization occur?
 
-The five experiments below use the BNN brain type (`brain_type = "bnn"`) to ask
-a sharper question than the minimal demonstration above: *under what conditions
-does the Baldwin Effect actually produce genetic assimilation?*
+The five experiments below ask a sharper question than the demonstration above:
+*under what conditions does canalization occur, and what prevents it?*
 
 The BNN brain is uniquely suited to this question because its prior standard
 deviation σ (`mean_prior_sigma` in the tick log) is a direct, continuous readout
