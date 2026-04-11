@@ -168,14 +168,16 @@ axis.</p>
 <div class="section level2">
 <h2 id="demonstration">Demonstration<a class="anchor" aria-label="anchor" href="#demonstration"></a>
 </h2>
-<p>Three conditions, 1000 ticks, 150 agents on a 25×25 grid. The key
-readout is <code>mean_prior_sigma</code>: the population-mean standard
-deviation of each BNN agent’s synaptic-weight prior. <strong>High σ =
-exploration; low σ = canalization.</strong></p>
+<p>Two conditions, 1000 ticks, 150 agents on a 25×25 grid
+(<code>grass_rate = 0.10</code>). Two readouts:
+<code>mean_prior_sigma</code> (the assimilation signal — high σ =
+exploration, low σ = canalization) and <code>genetic_diversity</code>
+(mean pairwise genome distance).</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">base</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">base</span><span class="op">$</span><span class="va">brain_type</span>    <span class="op">&lt;-</span> <span class="st">"bnn"</span></span>
@@ -183,25 +185,15 @@ exploration; low σ = canalization.</strong></p>
 <span><span class="va">base</span><span class="op">$</span><span class="va">max_ticks</span>     <span class="op">&lt;-</span> <span class="fl">1000L</span></span>
 <span><span class="va">base</span><span class="op">$</span><span class="va">grid_rows</span>     <span class="op">&lt;-</span> <span class="fl">25L</span></span>
 <span><span class="va">base</span><span class="op">$</span><span class="va">grid_cols</span>     <span class="op">&lt;-</span> <span class="fl">25L</span></span>
-<span><span class="va">base</span><span class="op">$</span><span class="va">grass_rate</span>    <span class="op">&lt;-</span> <span class="fl">0.05</span></span>
+<span><span class="va">base</span><span class="op">$</span><span class="va">grass_rate</span>    <span class="op">&lt;-</span> <span class="fl">0.10</span></span>
 <span><span class="va">base</span><span class="op">$</span><span class="va">random_seed</span>   <span class="op">&lt;-</span> <span class="fl">42L</span></span></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Condition 1: BNN baseline — dynamic shifting landscape</span></span>
+<code class="sourceCode R"><span><span class="co"># Condition 1: BNN baseline — genetic evolution only</span></span>
 <span><span class="va">env_base</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="va">base</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Condition 2: BNN + fixed patch (Hinton &amp; Nowlan 1987 setup)</span></span>
-<span><span class="co"># A permanent 3×3 resource patch at the grid centre creates a stable fitness</span></span>
-<span><span class="co"># peak. Agents that genetically encode navigation to the patch outcompete</span></span>
-<span><span class="co"># those relying on within-lifetime search.</span></span>
-<span><span class="va">s_patch</span> <span class="op">&lt;-</span> <span class="va">base</span></span>
-<span><span class="va">s_patch</span><span class="op">$</span><span class="va">fixed_patch</span>        <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
-<span><span class="va">s_patch</span><span class="op">$</span><span class="va">fixed_patch_value</span>  <span class="op">&lt;-</span> <span class="fl">8.0</span>   <span class="co"># high vs. grass_max ≈ 2</span></span>
-<span><span class="va">s_patch</span><span class="op">$</span><span class="va">fixed_patch_x</span>      <span class="op">&lt;-</span> <span class="fl">13L</span>   <span class="co"># column (centre of 25-col grid)</span></span>
-<span><span class="va">s_patch</span><span class="op">$</span><span class="va">fixed_patch_y</span>      <span class="op">&lt;-</span> <span class="fl">13L</span>   <span class="co"># row    (centre of 25-row grid)</span></span>
-<span><span class="va">s_patch</span><span class="op">$</span><span class="va">fixed_patch_radius</span> <span class="op">&lt;-</span> <span class="fl">1L</span>    <span class="co"># 3×3 = 9 cells</span></span>
-<span><span class="va">env_patch</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="va">s_patch</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Condition 3: BNN + epigenetics — TEI shortcut (no stable landscape needed)</span></span>
+<span><span class="co"># Condition 2: BNN + epigenetics (TEI)</span></span>
+<span><span class="co"># Within-lifetime learning narrows the BNN prior; TEI transmits the</span></span>
+<span><span class="co"># narrowed priors to offspring. No stable landscape required.</span></span>
 <span><span class="va">s_epi</span> <span class="op">&lt;-</span> <span class="va">base</span></span>
 <span><span class="va">s_epi</span><span class="op">$</span><span class="va">epigenetics</span>            <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
 <span><span class="va">s_epi</span><span class="op">$</span><span class="va">epigenetic_inheritance</span> <span class="op">&lt;-</span> <span class="fl">0.5</span></span>
@@ -209,54 +201,111 @@ exploration; low σ = canalization.</strong></p>
 <span><span class="va">env_epi</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="va">s_epi</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform</a></span><span class="op">(</span><span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env_base</span><span class="op">)</span><span class="op">$</span><span class="va">ticks</span>,  condition <span class="op">=</span> <span class="st">"BNN baseline"</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform</a></span><span class="op">(</span><span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env_patch</span><span class="op">)</span><span class="op">$</span><span class="va">ticks</span>, condition <span class="op">=</span> <span class="st">"BNN + fixed patch"</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform</a></span><span class="op">(</span><span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env_epi</span><span class="op">)</span><span class="op">$</span><span class="va">ticks</span>,   condition <span class="op">=</span> <span class="st">"BNN + epigenetics"</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform</a></span><span class="op">(</span><span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env_base</span><span class="op">)</span><span class="op">$</span><span class="va">ticks</span>, condition <span class="op">=</span> <span class="st">"BNN baseline"</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform</a></span><span class="op">(</span><span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env_epi</span><span class="op">)</span><span class="op">$</span><span class="va">ticks</span>,  condition <span class="op">=</span> <span class="st">"BNN + epigenetics"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">df</span><span class="op">$</span><span class="va">condition</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">condition</span>,</span>
-<span>  levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"BNN baseline"</span>, <span class="st">"BNN + fixed patch"</span>, <span class="st">"BNN + epigenetics"</span><span class="op">)</span><span class="op">)</span></span>
+<span>  levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"BNN baseline"</span>, <span class="st">"BNN + epigenetics"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">pal</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"BNN baseline"</span>      <span class="op">=</span> <span class="st">"#377eb8"</span>,</span>
-<span>         <span class="st">"BNN + fixed patch"</span> <span class="op">=</span> <span class="st">"#4daf4a"</span>,</span>
 <span>         <span class="st">"BNN + epigenetics"</span> <span class="op">=</span> <span class="st">"#e6550d"</span><span class="op">)</span></span>
+<span><span class="va">lty</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"BNN baseline"</span>      <span class="op">=</span> <span class="st">"dashed"</span>,</span>
+<span>         <span class="st">"BNN + epigenetics"</span> <span class="op">=</span> <span class="st">"solid"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">t</span>, <span class="va">mean_prior_sigma</span>, colour <span class="op">=</span> <span class="va">condition</span>, linetype <span class="op">=</span> <span class="va">condition</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_hline</a></span><span class="op">(</span>yintercept <span class="op">=</span> <span class="fl">0.5</span>, colour <span class="op">=</span> <span class="st">"grey70"</span>, linetype <span class="op">=</span> <span class="st">"dotted"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>linewidth <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span> <span class="op">+</span></span>
+<span><span class="va">pA</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">t</span>, <span class="va">mean_prior_sigma</span>, colour <span class="op">=</span> <span class="va">condition</span>, linetype <span class="op">=</span> <span class="va">condition</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_hline</a></span><span class="op">(</span>yintercept <span class="op">=</span> <span class="fl">0.5</span>, colour <span class="op">=</span> <span class="st">"grey70"</span>, linetype <span class="op">=</span> <span class="st">"dotted"</span>, linewidth <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>linewidth <span class="op">=</span> <span class="fl">0.9</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_colour_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="va">pal</span>, name <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_linetype_manual</a></span><span class="op">(</span></span>
-<span>    values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"BNN baseline"</span> <span class="op">=</span> <span class="st">"dashed"</span>,</span>
-<span>               <span class="st">"BNN + fixed patch"</span> <span class="op">=</span> <span class="st">"solid"</span>,</span>
-<span>               <span class="st">"BNN + epigenetics"</span> <span class="op">=</span> <span class="st">"solid"</span><span class="op">)</span>, name <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_linetype_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="va">lty</span>, name <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous</a></span><span class="op">(</span>labels <span class="op">=</span> <span class="fu">scales</span><span class="fu">::</span><span class="va"><a href="https://scales.r-lib.org/reference/comma.html" class="external-link">comma</a></span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Tick"</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="st">"Mean prior "</span> <span class="op">*</span> <span class="va">sigma</span><span class="op">)</span>,</span>
-<span>       title <span class="op">=</span> <span class="st">"The Baldwin Effect: stable landscape enables genetic assimilation"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_classic</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">13</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span>, legend.key.width <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grid/unit.html" class="external-link">unit</a></span><span class="op">(</span><span class="fl">1.5</span>, <span class="st">"cm"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><code>{r fig-fixed-patch-demo, eval=TRUE, echo=FALSE, out.width="100%",     fig.cap="Mean BNN prior sigma over 1000 ticks. Baseline (blue dashed): sigma holds at 0.5 — exploration is the ESS in a shifting landscape and no canalization occurs. Fixed patch (green): a permanent high-value resource cell creates a stable fitness peak (Hinton &amp; Nowlan 1987); agents that genetically navigate to the patch outcompete explorers and sigma collapses to zero. Epigenetics (orange): transgenerational epigenetic inheritance (TEI) enables rapid canalization even without a stable landscape, but with higher late-run variance."} FIG("bnn_fixed_patch_demo")</code></p>
-<p><strong>Baseline:</strong> σ holds at its ceiling (0.5) for the full
-1000 ticks. The foraging landscape shifts continuously — grass grows
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_continuous</a></span><span class="op">(</span>limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.55</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="cn">NULL</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="st">"Mean prior "</span> <span class="op">*</span> <span class="va">sigma</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_classic</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">11</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span>, legend.key.width <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grid/unit.html" class="external-link">unit</a></span><span class="op">(</span><span class="fl">1.4</span>, <span class="st">"cm"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">pB</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">t</span>, <span class="va">genetic_diversity</span>, colour <span class="op">=</span> <span class="va">condition</span>, linetype <span class="op">=</span> <span class="va">condition</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>linewidth <span class="op">=</span> <span class="fl">0.9</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_colour_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="va">pal</span>, name <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_linetype_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="va">lty</span>, name <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous</a></span><span class="op">(</span>labels <span class="op">=</span> <span class="fu">scales</span><span class="fu">::</span><span class="va"><a href="https://scales.r-lib.org/reference/comma.html" class="external-link">comma</a></span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Tick"</span>, y <span class="op">=</span> <span class="st">"Genetic diversity\n(mean pairwise genome distance)"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_classic</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">11</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">pA</span> <span class="op">/</span> <span class="va">pB</span> <span class="op">+</span> <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_layout.html" class="external-link">plot_layout</a></span><span class="op">(</span>heights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<div class="figure">
+<img src="figures/showcase_bnn_canalization_demo.png" alt="Top: mean BNN prior sigma over 1000 ticks. Baseline (blue dashed): sigma rises to the 0.5 exploration ceiling — no canalization in a dynamic foraging world. Epigenetics (orange): sigma declines toward zero as TEI propagates within-lifetime learning across generations. Bottom: genetic diversity (mean pairwise genome distance) rises in both conditions — epigenetic canalization of sigma does not cause a selective sweep of the genome; different genotypes can encode the same canalized behaviour." width="100%"><p class="caption">
+Top: mean BNN prior sigma over 1000 ticks. Baseline (blue dashed): sigma
+rises to the 0.5 exploration ceiling — no canalization in a dynamic
+foraging world. Epigenetics (orange): sigma declines toward zero as TEI
+propagates within-lifetime learning across generations. Bottom: genetic
+diversity (mean pairwise genome distance) rises in both conditions —
+epigenetic canalization of sigma does not cause a selective sweep of the
+genome; different genotypes can encode the same canalized behaviour.
+</p>
+</div>
+<p><strong>Baseline:</strong> σ rises to its ceiling (0.5) and stays
+there. The foraging landscape shifts continuously — grass grows
 stochastically, population density creates local competition, and no
 single fixed policy consistently outcompetes broad sampling. Exploration
 is the evolutionarily stable strategy. The Baldwin Effect does
-<em>not</em> occur.</p>
-<p><strong>Fixed patch (the Hinton &amp; Nowlan 1987 setup):</strong>
-Adding a permanent high-value resource cell at the grid centre changes
-everything. Now there is a stable fitness peak — an agent that
-genetically encodes “navigate to centre” never needs to search. Over
-1000 ticks, selection eliminates high-σ explorers in favour of low-σ
-specialists, and σ collapses to zero. <strong>This is the Baldwin Effect
-proper: a stable target allows genetic assimilation of the learned
-navigation policy.</strong></p>
-<p><strong>Epigenetics:</strong> Transgenerational epigenetic
-inheritance (TEI) achieves the same endpoint without requiring a stable
-landscape. Within-lifetime learning contracts each agent’s weight
-posterior; TEI propagates these narrowed priors to offspring. The two
-mechanisms are complementary — TEI is faster but noisier; the
-fixed-patch route is slower but geometrically inevitable given any
-stable fitness peak.</p>
+<em>not</em> occur in this default dynamic world.</p>
+<p><strong>Epigenetics:</strong> σ declines from 0.5 toward zero over
+1000 ticks. The mechanism is a two-step chain: (1) within-lifetime
+learning contracts each agent’s weight posterior during its lifetime,
+narrowing σ as the agent forages; (2) transgenerational epigenetic
+inheritance (TEI) passes these narrowed priors to offspring. Each
+generation starts more canalized than the last, and selection reinforces
+the direction. <strong>This is genetic assimilation via the Baldwin
+Effect</strong> — but achieved through a Lamarckian-adjacent
+transmission mechanism (TEI), not pure Darwinian selection on a stable
+fitness peak.</p>
+<p><strong>Genetic diversity:</strong> Both conditions show
+<em>rising</em> diversity over 1000 ticks. This is a notable result:
+epigenetic canalization of σ does not sweep the genome. Different weight
+matrices can all encode the same low-σ (canalized) foraging policy, so
+genetic variation is maintained even as the phenotypic trait (σ)
+converges.</p>
 <p>The five systematic experiments below ask: <em>when</em> does
 canalization occur, and what disrupts it?</p>
+<hr>
+<div class="section level3">
+<h3 id="the-hinton-nowlan-1987-setup-fixed_patch">The Hinton &amp; Nowlan (1987) setup: <code>fixed_patch</code><a class="anchor" aria-label="anchor" href="#the-hinton-nowlan-1987-setup-fixed_patch"></a>
+</h3>
+<p>The original computational demonstration of the Baldwin Effect
+(Hinton &amp; Nowlan 1987) used a needle-in-a-haystack fitness
+landscape: one correct genotype gave high fitness, all others gave
+near-zero fitness, and learning (random search) provided an intermediate
+fitness signal. Canalization occurred because agents with <em>more</em>
+correct alleles needed less learning to find the needle — σ declined as
+correct alleles accumulated.</p>
+<p><code>clade</code> provides a <code>fixed_patch</code> module that
+implements the closest spatial equivalent: a permanent high-value
+resource cell that never moves. Agents that genetically encode
+navigation toward the patch need less within-lifetime exploration,
+creating selection pressure against high σ.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Hinton &amp; Nowlan (1987) analogue: sparse background, large fixed patch</span></span>
+<span><span class="va">s_hn</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">s_hn</span><span class="op">$</span><span class="va">brain_type</span>         <span class="op">&lt;-</span> <span class="st">"bnn"</span></span>
+<span><span class="va">s_hn</span><span class="op">$</span><span class="va">grass_rate</span>         <span class="op">&lt;-</span> <span class="fl">0.02</span>   <span class="co"># sparse — patch becomes essential</span></span>
+<span><span class="va">s_hn</span><span class="op">$</span><span class="va">fixed_patch</span>        <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
+<span><span class="va">s_hn</span><span class="op">$</span><span class="va">fixed_patch_value</span>  <span class="op">&lt;-</span> <span class="fl">5.0</span></span>
+<span><span class="va">s_hn</span><span class="op">$</span><span class="va">fixed_patch_radius</span> <span class="op">&lt;-</span> <span class="fl">3L</span>     <span class="co"># 7×7 = 49 cells at grid centre</span></span>
+<span><span class="va">s_hn</span><span class="op">$</span><span class="va">fixed_patch_x</span>      <span class="op">&lt;-</span> <span class="fl">13L</span></span>
+<span><span class="va">s_hn</span><span class="op">$</span><span class="va">fixed_patch_y</span>      <span class="op">&lt;-</span> <span class="fl">13L</span></span>
+<span><span class="va">s_hn</span><span class="op">$</span><span class="va">max_ticks</span>          <span class="op">&lt;-</span> <span class="fl">2000L</span></span>
+<span><span class="va">env_hn</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="va">s_hn</span><span class="op">)</span></span></code></pre></div>
+<p>The carrying capacity of the environment must match the patch size:
+with 49 patch cells and a sparse background, a starting population of
+50–80 agents allows selection to act without crashing to extinction.
+Parameter tuning (patch radius, <code>grass_rate</code>,
+<code>n_agents_init</code>) determines whether the Hinton–Nowlan result
+(σ declines) or a population crash occurs — reflecting the sensitivity
+of genetic assimilation to the fitness landscape geometry.</p>
+<p>The five systematic experiments below used
+<code>fixed_patch = FALSE</code> (dynamic world only) to map the
+boundary conditions of canalization in clade’s default environment.</p>
+</div>
 </div>
 <div class="section level2">
 <h2 id="key-parameters">Key parameters<a class="anchor" aria-label="anchor" href="#key-parameters"></a>
