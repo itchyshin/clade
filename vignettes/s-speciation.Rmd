@@ -79,12 +79,12 @@ scenario's parameter subspace discovered the following regime, which
 produces a fitness improvement of **189.1x** over the defaults above. See
 `dev/audit/calibration/RESULTS.md` for the full CMA-ES results.
 
-```{r speciation-calibrated}
-# Copy-paste the displayed spec block above, then override with the
-# CMA-ES-discovered values:
+```{r speciation-calibrated, eval=FALSE}
+# Parameter overrides discovered by CMA-ES (see dev/audit/calibration/):
+s <- default_specs()
 s$isolation_threshold            <- 0.5127
 s$mutation_sd                    <- 1.31
-# Then: env <- run_alife(s); data <- get_run_data(env)
+# env <- run_alife(s)   # uncomment to run the calibrated regime
 ```
 ```{r fig-18-speciation, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: n_species rises from 1 to 2-4 as genome divergence accumulates beyond the isolation threshold. Each step in the staircase represents a speciation event."}
 FIG("18_speciation")

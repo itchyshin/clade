@@ -88,12 +88,12 @@ scenario's parameter subspace discovered the following regime, which
 produces a fitness improvement of **4.0x** over the defaults above. See
 `dev/audit/calibration/RESULTS.md` for the full CMA-ES results.
 
-```{r clutch-size-calibrated}
-# Copy-paste the displayed spec block above, then override with the
-# CMA-ES-discovered values:
+```{r clutch-size-calibrated, eval=FALSE}
+# Parameter overrides discovered by CMA-ES (see dev/audit/calibration/):
+s <- default_specs()
 s$clutch_size_mutation_sd        <- 0.6538
 s$clutch_size_init_mean          <- 5L
-# Then: env <- run_alife(s); data <- get_run_data(env)
+# env <- run_alife(s)   # uncomment to run the calibrated regime
 ```
 ```{r fig-clutch-size, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: mean clutch size diverges between resource environments. Rich conditions (red) select for larger clutches; scarce conditions (blue) select for smaller clutches, illustrating the r/K continuum."}
 FIG("clutch_size")

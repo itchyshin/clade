@@ -56,13 +56,13 @@ scenario's parameter subspace discovered the following regime, which
 produces a fitness improvement of **21.0x** over the defaults above. See
 `dev/audit/calibration/RESULTS.md` for the full CMA-ES results.
 
-```{r mimicry-calibrated}
-# Copy-paste the displayed spec block above, then override with the
-# CMA-ES-discovered values:
+```{r mimicry-calibrated, eval=FALSE}
+# Parameter overrides discovered by CMA-ES (see dev/audit/calibration/):
+s <- default_specs()
 s$toxin_dose                     <- 23L
 s$toxicity_cost_per_tick         <- 0.2776
 s$signal_memory_rate             <- 0.2991
-# Then: env <- run_alife(s); data <- get_run_data(env)
+# env <- run_alife(s)   # uncomment to run the calibrated regime
 ```
 ```{r fig-mimicry, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: mean toxicity rises under predator pressure; avoided attacks increase as predators learn to avoid toxic prey; toxic attack rate declines."}
 FIG("21_mimicry")

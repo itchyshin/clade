@@ -57,12 +57,12 @@ scenario's parameter subspace discovered the following regime, which
 produces a fitness improvement of **4.9x** over the defaults above. See
 `dev/audit/calibration/RESULTS.md` for the full CMA-ES results.
 
-```{r niche-calibrated}
-# Copy-paste the displayed spec block above, then override with the
-# CMA-ES-discovered values:
+```{r niche-calibrated, eval=FALSE}
+# Parameter overrides discovered by CMA-ES (see dev/audit/calibration/):
+s <- default_specs()
 s$shelter_decay_prob             <- 0.0624
 s$grass_rate                     <- 1
-# Then: env <- run_alife(s); data <- get_run_data(env)
+# env <- run_alife(s)   # uncomment to run the calibrated regime
 ```
 ```{r fig-niche, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: shelter density builds up over time; predator kill rate is lower in sheltered cells, sustaining a larger population than an equivalent run without niche construction."}
 FIG("09_niche")

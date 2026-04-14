@@ -90,12 +90,12 @@ scenario's parameter subspace discovered the following regime, which
 produces a fitness improvement of **45.2x** over the defaults above. See
 `dev/audit/calibration/RESULTS.md` for the full CMA-ES results.
 
-```{r disease-calibrated}
-# Copy-paste the displayed spec block above, then override with the
-# CMA-ES-discovered values:
+```{r disease-calibrated, eval=FALSE}
+# Parameter overrides discovered by CMA-ES (see dev/audit/calibration/):
+s <- default_specs()
 s$transmission_prob              <- 0.9001
 s$disease_death_prob             <- 5e-04
-# Then: env <- run_alife(s); data <- get_run_data(env)
+# env <- run_alife(s)   # uncomment to run the calibrated regime
 ```
 ```{r fig-disease, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: epidemic wave visible as a peak in the infected count (top). Population size declines noticeably during the outbreak (bottom)."}
 FIG("06_disease")
