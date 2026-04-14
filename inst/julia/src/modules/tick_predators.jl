@@ -63,13 +63,20 @@ function seed_predators!(env::Environment)
     cols        = size(env.grass, 2)
     init_energy = Float32(get(specs, "predator_energy_init", 150.0))
 
+    # Predators use a dedicated 15-input sensory vector (see
+    # `_sense_predator`). Build a predator-specific architecture so the
+    # brain's `n_inputs == 15`, not the prey's `_compute_n_inputs(specs)`
+    # which varies with input_radius and active sensory modules. Without
+    # this override, the predator brain reads prey-sense slots for its
+    # own inputs (silent size mismatch).
+    prey_arch   = _build_arch(specs)
+    hidden_arch = length(prey_arch) > 2 ? prey_arch[2:end-1] : Int32[]
+    pred_arch   = Int32[Int32(15); hidden_arch; Int32(5)]
+
     for _ in 1:n
         env.next_id += Int64(1)
 
-        # Build genome and brain using the same architecture as prey so that
-        # predators can evolve within the same parameter space.
-        arch = _build_arch(specs)
-        g    = make_genome(specs, arch, env.rng)
+        g    = make_genome(specs, pred_arch, env.rng)
         br   = make_brain(g, specs)
 
         px = Int32(rand(env.rng, 1:rows))

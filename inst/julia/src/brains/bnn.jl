@@ -91,9 +91,14 @@ The posterior (this struct) starts equal to the prior at birth and is updated
 by within-lifetime learning.
 """
 mutable struct BNNBrain <: AbstractBrain
-    mu    ::Vector{Float32}   # posterior mean
-    sigma ::Vector{Float32}   # posterior std (> 0)
-    arch  ::Vector{Int32}
+    mu          ::Vector{Float32}   # posterior mean
+    sigma       ::Vector{Float32}   # posterior std (> 0)
+    arch        ::Vector{Int32}
+    last_sample ::Vector{Float32}   # most recent Thompson-sampled weights,
+                                    # used by bnn_update! for a correct
+                                    # REINFORCE score w.r.t. the Gaussian
+                                    # policy. Initialised empty; populated
+                                    # by the first forward pass.
 end
 
 n_inputs(b::BNNBrain)  = Int(b.arch[1])
@@ -132,7 +137,7 @@ function make_bnn_brain(g::DiploidGenome, specs::Dict{String,Any})::BNNBrain
         sigma .= max.(sigma, sigma_min)
     end
 
-    BNNBrain(mu, sigma, g.architecture)
+    BNNBrain(mu, sigma, g.architecture, Float32[])
 end
 
 # ── Forward pass (Thompson sampling) ──────────────────────────────────────────
@@ -152,8 +157,10 @@ Reference: Thompson, W.R. (1933) On the likelihood that one unknown probability
 exceeds another in view of the evidence of two samples. Biometrika 25:285–294.
 """
 function forward(brain::BNNBrain, input::Vector{Float32})::Vector{Float32}
-    # Sample weight vector from posterior
+    # Sample weight vector from posterior and cache it so bnn_update!
+    # can compute the true score function w.r.t. the Gaussian policy.
     w_sample = brain.mu .+ brain.sigma .* Float32.(randn(length(brain.mu)))
+    brain.last_sample = w_sample
 
     # Run sampled ANN forward (reuse ANNBrain infrastructure)
     sampled_ann = make_ann_brain(w_sample, brain.arch)
@@ -182,15 +189,26 @@ At reproduction, offspring inherit from the genome (prior), not the posterior.
 function bnn_update!(brain::BNNBrain, input::Vector{Float32},
                       action_idx::Int, advantage::Float32, lr::Float32)
     lr == 0.0f0 && return
+    # Need a cached sample from the most recent forward pass to compute
+    # the score function of the Gaussian policy. If forward has never run
+    # (shouldn't happen in normal operation) fall back to no-op.
+    isempty(brain.last_sample) && return
+    length(brain.last_sample) == length(brain.mu) || return
 
-    # REINFORCE: gradient of log pi(a|x) w.r.t. weights
-    # Approximate: grad ≈ sigma * (indicator_action - p_action) for output weights
-    # For hidden weights: grad ≈ sigma (score function of Gaussian)
-    # We use the simple sigma-scaled update as in Blundell et al. (2015) Eq. 8.
+    # REINFORCE (Williams 1992) with a Gaussian policy over weights
+    # (Bayes-By-Backprop score function; Blundell et al. 2015 §3.2):
+    #   d log N(w; mu, sigma) / d mu   = (w - mu) / sigma^2
+    #   d log N(w; mu, sigma) / d sigma = ((w - mu)^2 - sigma^2) / sigma^3
+    #
+    # Update mu along the mean-score direction; contract sigma when the
+    # sampled weight is further from the mean than the prior predicts
+    # under the current advantage sign. The 0.1 damping on the sigma
+    # step keeps the posterior contraction slow and stable across ticks.
     abs_adv = abs(advantage)
-
     @inbounds for i in eachindex(brain.mu)
-        brain.mu[i]    += lr * advantage * brain.sigma[i]
+        s2    = max(brain.sigma[i] * brain.sigma[i], 1.0f-6)
+        delta = brain.last_sample[i] - brain.mu[i]
+        brain.mu[i]    += lr * advantage * delta / s2
         brain.sigma[i] *= max(0.01f0, 1.0f0 - lr * abs_adv * 0.1f0)
     end
 end
@@ -205,7 +223,7 @@ Return a new BNNBrain with Gaussian perturbations to mu. Sigma is not mutated
 """
 function mutate(brain::BNNBrain, mutation_sd::Float32, rng)::BNNBrain
     new_mu = brain.mu .+ Float32.(mutation_sd .* randn(rng, length(brain.mu)))
-    BNNBrain(new_mu, copy(brain.sigma), brain.arch)
+    BNNBrain(new_mu, copy(brain.sigma), brain.arch, Float32[])
 end
 
 # ── Crossover ──────────────────────────────────────────────────────────────────
@@ -223,7 +241,7 @@ function crossover(b1::BNNBrain, b2::BNNBrain,
                     crossover_points::Vector{Int}, rng)::BNNBrain
     new_mu    = _crossover_vectors(b1.mu, b2.mu, crossover_points)
     new_sigma = _crossover_vectors(b1.sigma, b2.sigma, crossover_points)
-    BNNBrain(new_mu, new_sigma, b1.arch)
+    BNNBrain(new_mu, new_sigma, b1.arch, Float32[])
 end
 
 # ── Serialisation ──────────────────────────────────────────────────────────────

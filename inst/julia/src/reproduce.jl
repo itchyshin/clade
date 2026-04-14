@@ -92,8 +92,13 @@ function create_offspring!(env::Environment)
             end
             off_energy_actual = off_energy
 
-            # Stress hypermutation: scale mutation_sd when parent energy is low
-            base_mut_sd = Float32(get(specs, "mutation_sd", 0.1))
+            # Base mutation rate: when mutation_rate_evolution is on, use
+            # the parent's per-agent evolved trait (ag.mutation_sd); else
+            # use the global default from specs. Stress hypermutation
+            # multiplies the base when parent energy is below threshold.
+            global_mut_sd = Float32(get(specs, "mutation_sd", 0.1))
+            evo_rate_on  = Bool(get(specs, "mutation_rate_evolution", false))
+            base_mut_sd  = evo_rate_on ? ag.mutation_sd : global_mut_sd
             eff_mut_sd = if Bool(get(specs, "stress_hypermutation", false)) &&
                             ag.energy < Float32(get(specs, "stress_threshold", 20.0))
                 base_mut_sd * Float32(get(specs, "stress_mutation_multiplier", 3.0))
@@ -111,7 +116,7 @@ function create_offspring!(env::Environment)
                 mate !== nothing ? mate.genome : nothing,
                 specs, env.rng
             )
-            specs["mutation_sd"] = base_mut_sd   # restore after meiosis
+            specs["mutation_sd"] = global_mut_sd   # restore after meiosis
 
             off_brain = make_brain(off_genome, specs)
             off = _make_offspring(env.next_id, off_genome, off_brain,
