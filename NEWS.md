@@ -14,6 +14,20 @@ displayed defaults).
 
 ## Julia kernel
 
+- **Parental-care graduation pathway wired up.** `reproduce.jl:126-131` was a
+  Phase 2 stub that pushed offspring straight into `env.agents` even when
+  `parental_care = TRUE`. Offspring now enter the parent's
+  `carried_offspring` brood (with `care_load += 1`), age there via
+  `age_juveniles!`, are fed via `feed_offspring!`, and graduate to the
+  main agent pool via `graduate_offspring!` when they reach
+  `juvenile_independence_age` or `juvenile_independence_energy`.
+  Before the fix, `n_juveniles` was always 0 in `s-parental-care` and
+  `s-parental-investment`; after, typical runs log hundreds of carried
+  juveniles.
+- **`randperm` now imported in `Clade.jl`.** Latent bug that only surfaced
+  after the parental-care fix enabled the `graduate_offspring!` code path:
+  `randperm` was referenced in `modules/parental_care.jl:153` but not
+  imported in the `using Random` line.
 - **Include-order fix** (`inst/julia/src/brains/ann.jl` → `bnn.jl`). The
   `_quantize_brain_weights!(::BNNBrain, ...)` method was defined in `ann.jl`
   before `bnn.jl` was loaded; on Julia 1.12 this aborts module load with
@@ -63,14 +77,13 @@ intentionally preserved rather than papered over:
 - BNN prior sigma rises rather than narrows in a competitive foraging world
   (s-baldwin). The Baldwin effect as formalised by Hinton & Nowlan (1987)
   requires a stable global fitness peak; clade's default world does not
-  provide one.
-- `parental_care` module: the carried-juvenile graduation pathway is not
-  fully wired, so `n_juveniles` stays at 0 in displayed runs of
-  s-parental-care and s-parental-investment.
-- `speciation`: at displayed 400-tick scale `n_species` stays at 1;
-  speciation requires ≥1000 ticks and `mutation_sd ≥ 0.15`.
-- `stress_hypermutation`: stress threshold rarely fires at displayed
-  `grass_rate` defaults; effect only visible at `grass_rate ≤ 0.05`.
+  provide one. The vignette's 45-run 3×3 factorial plus run-length
+  experiments (500/1000/2000/5000 ticks) establish this rigorously.
+- `stress_hypermutation` scales `specs["mutation_sd"]` transiently at
+  reproduction rather than mutating the per-agent `ag.mutation_sd` field,
+  so the logged `mean_mutation_rate` stays flat even when the mechanism
+  fires. The observable signal is a transient rise in `genetic_diversity`
+  during resource crashes.
 
 # clade 0.1.1 (development)
 

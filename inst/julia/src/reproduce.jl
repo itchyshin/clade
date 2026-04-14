@@ -123,8 +123,14 @@ function create_offspring!(env::Environment)
             env.n_births     += Int32(1)
 
             if care
-                # Phase 2: add to ag.carried_offspring
-                push!(new_agents, off)   # placeholder: treat as direct birth
+                # Parental care: offspring enter the brood instead of the
+                # main agent pool. They do not occupy a grid cell, do not
+                # forage, and pay no movement cost until they graduate via
+                # `graduate_offspring!()` (see modules/parental_care.jl).
+                # Carried juveniles keep their `alive = true` flag so
+                # age/feeding logic treats them as live.
+                push!(ag.carried_offspring, off)
+                ag.care_load += Int32(1)
             else
                 push!(new_agents, off)
             end

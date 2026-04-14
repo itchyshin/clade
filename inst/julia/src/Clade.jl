@@ -33,7 +33,7 @@ of each tick in `remove_dead!()`. This is the same pattern used in alifeR
 """
 module Clade
 
-using Random: Xoshiro, seed!, default_rng
+using Random: Xoshiro, seed!, default_rng, randperm
 using Statistics: mean, std
 using LinearAlgebra: norm
 

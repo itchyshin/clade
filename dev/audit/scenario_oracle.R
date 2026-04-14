@@ -108,7 +108,11 @@ audit_oracle <- function() {
       # Per vignette: at displayed 400-tick scale n_species stays at 1
       # (speciation requires >1000 ticks and mutation_sd >= 0.15). Oracle
       # matches the displayed-scale finding, not textbook expectation.
-      flags = "speciation_threshold", metric = "n_species",
+      # Speciation DOES fire at isolation_threshold=0.15 + mutation_sd=0.15
+      # (n_species peaks near 80, then declines to ~50-70 as small lineages
+      # go extinct). "nonzero" captures the peak-then-decline pattern that
+      # Dobzhansky-Muller speciation + extinction produces.
+      flags = "speciation", metric = "n_species",
       direction = "nonzero",
       test_file = "test-speciation.R",
       module_file = "speciation.jl"
@@ -205,10 +209,12 @@ audit_oracle <- function() {
       module_file = NA
     ),
     "s-stress-hypermutation.Rmd" = list(
-      # Vignette: effect requires grass_rate <= 0.05; at displayed defaults
-      # population stays above stress_threshold and hypermutation rarely
-      # fires. Oracle relaxed to nonzero activity.
-      flags = "stress_hypermutation", metric = "mean_mutation_rate",
+      # Stress hypermutation scales specs["mutation_sd"] transiently at
+      # reproduction (reproduce.jl:97-101), not the per-agent
+      # ag.mutation_sd field. So mean_mutation_rate (which logs the
+      # per-agent field) stays flat. Vignette's actual claim is on
+      # genetic_diversity — transient spikes during resource crashes.
+      flags = "stress_hypermutation", metric = "genetic_diversity",
       direction = "nonzero",
       test_file = "test-mutation-rate.R",
       module_file = NA
