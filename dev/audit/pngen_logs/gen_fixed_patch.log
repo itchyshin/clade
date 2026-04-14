@@ -1,0 +1,27 @@
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+Starting clade Julia session...
+Running condition 1: BNN baseline (grass_rate=0.10)...
+clade: starting Julia session...
+Starting Julia ...
+clade: Julia 1.12.6 ready.
+clade: 150 agents, 1000 ticks, brain=bnn, ploidy=2
+  n_agents range: 11–286 | final sigma: 0.500 | final GD: 0.701
+Running condition 2: BNN + epigenetics (grass_rate=0.10)...
+clade: 150 agents, 1000 ticks, brain=bnn, ploidy=2
+  n_agents range: 28–290 | final sigma: 0.016 | final GD: 0.657
+Running condition 3: BNN + fixed_patch (grass_rate=0.02, radius=3)...
+clade: 150 agents, 1000 ticks, brain=bnn, ploidy=2
+  n_agents range: 9–330 | final sigma: 0.500 | final GD: 0.504
+RDS saved to Rdata/baldwin_fixed_patch_demo.rds
+Saved: showcase_bnn_fixed_patch_demo.png
+Done.
