@@ -82,6 +82,21 @@ direct disease death (which is only `disease_death_prob = 0.01` per tick).
 **Key empirical calibration point**: R₀ ≈ 1.5–2.5 at these parameters,
 consistent with moderate-virulence respiratory pathogens (Anderson & May 1991).
 
+
+### Calibrated regime (CMA-ES discovered)
+
+Running Phase 7 auto-calibration (`dev/audit/calibration/`) over the
+scenario's parameter subspace discovered the following regime, which
+produces a fitness improvement of **45.2x** over the defaults above. See
+`dev/audit/calibration/RESULTS.md` for the full CMA-ES results.
+
+```{r disease-calibrated}
+# Copy-paste the displayed spec block above, then override with the
+# CMA-ES-discovered values:
+s$transmission_prob              <- 0.9001
+s$disease_death_prob             <- 5e-04
+# Then: env <- run_alife(s); data <- get_run_data(env)
+```
 ```{r fig-disease, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: epidemic wave visible as a peak in the infected count (top). Population size declines noticeably during the outbreak (bottom)."}
 FIG("06_disease")
 ```

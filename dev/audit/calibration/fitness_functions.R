@@ -217,10 +217,14 @@ fitness_registry[["s-life-history"]] <- list(
 
 fitness_registry[["s-pace-of-life"]] <- list(
   params     = c("metabolic_rate_mutation_sd", "metabolic_rate_init_mean"),
-  specs_mods = function(s) { s$max_ticks <- 400L; s },
+  specs_mods = function(s) {
+    s$metabolic_rate_evolution <- TRUE
+    s$aging_rate_evolution     <- TRUE
+    s$max_ticks <- 400L; s
+  },
   fitness    = function(env) {
     x <- .safe_traj(env, "mean_metabolic_rate"); if (!length(x)) return(-Inf)
-    abs(as.numeric(.slope(x)))  # any directional change = signal of evolution
+    abs(as.numeric(.slope(x)) * length(x))  # cumulative directional change
   }
 )
 
@@ -326,9 +330,19 @@ fitness_registry[["s-body-size"]] <- list(
   params     = c("body_size_mutation_sd", "mutation_sd"),
   specs_mods = function(s) { s$body_size_evolution <- TRUE; s$max_ticks <- 400L; s },
   fitness    = function(env) {
+    # Reward directional drift away from the init mean (trait
+    # responding to selection) while penalising runaway drift
+    # (mutation = 0 no-op is a null solution). Objective is a
+    # balance: late mean body_size should move at least 10% away
+    # from the init mean, but not to the hard bounds.
     x <- .safe_traj(env, "mean_body_size"); if (length(x) < 4) return(-Inf)
-    el <- .early_late(x); if (any(is.na(el))) return(-Inf)
-    -abs(el[2] - el[1])   # minimise drift; i.e. find stable regime
+    init_mean <- mean(x[seq_len(max(1L, floor(length(x) / 10)))])
+    late_mean <- mean(x[seq.int(max(1L, floor(3 * length(x) / 4)), length(x))])
+    drift   <- abs(late_mean - init_mean)
+    # Penalise pinned-to-bounds: body_size_min = 0.3, max = 3.0
+    margin  <- min(abs(late_mean - 0.3), abs(late_mean - 3.0))
+    # Reward drift that's non-zero but bounded
+    drift * min(margin, 1.0)
   }
 )
 

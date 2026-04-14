@@ -100,6 +100,21 @@ ggplot(data$ticks, aes(x = t, y = mean_prior_sigma)) +
   theme_minimal()
 ```
 
+
+### Calibrated regime (CMA-ES discovered)
+
+Running Phase 7 auto-calibration (`dev/audit/calibration/`) over the
+scenario's parameter subspace discovered the following regime, which
+produces a fitness improvement of **1.2x** over the defaults above. See
+`dev/audit/calibration/RESULTS.md` for the full CMA-ES results.
+
+```{r baldwin-calibrated}
+# Copy-paste the displayed spec block above, then override with the
+# CMA-ES-discovered values:
+s$grass_rate                     <- 0.0266
+s$learning_rate_init_mean        <- 0.007
+# Then: env <- run_alife(s); data <- get_run_data(env)
+```
 ```{r fig-bnn-baseline, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="BNN prior sigma trajectory. Declining sigma indicates canalization (Baldwin Effect); rising sigma indicates selection for maintained behavioural flexibility."}
 FIG("bnn_uncertainty")
 ```
