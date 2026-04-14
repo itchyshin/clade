@@ -15,7 +15,8 @@ targets <- c(
   "s-stress-hypermutation", "s-predator-prey",
   "s-baldwin",  # included for the sigma-sign flip
   "s-pace-of-life",  # Task 3a fix: metabolic_rate_evolution unblocked
-  "s-body-size"      # Task 3c fix: reformulated objective
+  "s-body-size",     # Task 3c fix: reformulated objective
+  "s-signals"        # 0.3.0 fix: mean_signal_magnitude objective
 )
 
 art <- "dev/audit/calibration/_artifacts"
