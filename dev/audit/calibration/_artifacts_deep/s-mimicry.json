@@ -1,0 +1,22 @@
+{
+  "scenario": "s-mimicry",
+  "params": ["toxin_dose", "toxicity_cost_per_tick", "signal_memory_rate"],
+  "best_fitness": 0.014,
+  "param_deltas": {
+    "toxin_dose": {
+      "initial": 30,
+      "final": 3.2048
+    },
+    "toxicity_cost_per_tick": {
+      "initial": 0.5,
+      "final": 0.0913
+    },
+    "signal_memory_rate": {
+      "initial": 0.3,
+      "final": 0.1155
+    }
+  },
+  "elapsed": 732.8681,
+  "iterations": 40,
+  "popsize": 12
+}

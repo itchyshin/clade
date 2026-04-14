@@ -1,0 +1,5 @@
+Starting Julia ...
+<clade_env>  grid 30×30 | 3 ticks | 8 agents alive
+  brain: bnn  ploidy: 2
+  modules: disease
+  $progress, $agents, $specs, $grass  -- use get_run_data() for tidy output

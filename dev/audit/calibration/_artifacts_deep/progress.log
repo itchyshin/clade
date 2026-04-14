@@ -1,0 +1,11 @@
+12:17:49	s-clutch-size	DEEP_END	best=2	elapsed=733s
+12:17:49	s-mimicry	DEEP_END	best=0.01398	elapsed=733s
+12:17:52	s-plasticity	DEEP_END	best=0.04721	elapsed=736s
+12:17:53	s-disease	DEEP_END	best=3981	elapsed=737s
+12:18:22	s-baldwin	DEEP_END	best=0.001081	elapsed=765s
+12:18:29	s-cephalopod	DEEP_END	best=0.4163	elapsed=773s
+12:18:47	s-speciation	DEEP_END	best=222	elapsed=790s
+12:20:33	s-scavenging	DEEP_END	best=11.65	elapsed=897s
+12:20:36	s-niche	DEEP_END	best=41.24	elapsed=900s
+12:20:59	s-kin	DEEP_END	best=31.6	elapsed=923s
+12:23:30	s-complex-landscape	DEEP_END	best=1517	elapsed=1074s

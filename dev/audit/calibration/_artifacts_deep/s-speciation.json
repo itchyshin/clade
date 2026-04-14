@@ -1,0 +1,18 @@
+{
+  "scenario": "s-speciation",
+  "params": ["isolation_threshold", "mutation_sd"],
+  "best_fitness": 222.0039,
+  "param_deltas": {
+    "isolation_threshold": {
+      "initial": 0.5,
+      "final": 0.0056
+    },
+    "mutation_sd": {
+      "initial": 0.1,
+      "final": 0.246
+    }
+  },
+  "elapsed": 790.4853,
+  "iterations": 40,
+  "popsize": 12
+}

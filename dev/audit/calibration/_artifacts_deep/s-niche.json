@@ -1,0 +1,18 @@
+{
+  "scenario": "s-niche",
+  "params": ["shelter_decay_prob", "grass_rate"],
+  "best_fitness": 41.2367,
+  "param_deltas": {
+    "shelter_decay_prob": {
+      "initial": 0.05,
+      "final": 6.8476
+    },
+    "grass_rate": {
+      "initial": 0.05,
+      "final": 1
+    }
+  },
+  "elapsed": 899.6922,
+  "iterations": 40,
+  "popsize": 12
+}
