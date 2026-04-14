@@ -3,3 +3,8 @@
 ^doc$
 ^Meta$
 ^Rdata$
+^CLAUDE\.md$
+^LICENSE\.md$
+^_pkgdown\.yml$
+^dev$
+^Rplots\.pdf$
