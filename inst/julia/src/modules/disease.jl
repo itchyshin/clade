@@ -18,6 +18,24 @@ When `immune_evolution == false`, every agent has `immune_strength == 0`, so
 the effective probabilities collapse to the raw `transmission_prob` and
 `disease_death_prob` values from specs.
 
+**Transmission is contact-based (density-dependent, not frequency-dependent).**
+Each tick an infected agent rolls against every susceptible neighbour within
+the Moore radius (radius 1, 8 cells) independently with probability
+`transmission_prob`. Expected new infections per infected individual per tick
+scale linearly with local susceptible density rather than with the population
+frequency `S/N` of classical `β·S·I/N` frequency-dependent SIR (Anderson & May
+1991, §2.2). For a densely populated grid this is close to the classical
+density-dependent contact rate; for sparse populations transmission is lower
+than the frequency-dependent analogue would predict.
+
+`disease_duration` (ticks) is the deterministic recovery period. An agent
+recovers at tick `infection_age >= disease_duration`. The expected time to
+recovery is therefore fixed (equivalent to a Dirac delta on the duration
+distribution) rather than exponential as in classical SIR. The mean-field
+basic reproduction number is approximately
+`R0 ~ transmission_prob * 8 * disease_duration` for a fully-connected
+neighbourhood with all neighbours susceptible.
+
 References
 ----------
 Kermack, W.O. & McKendrick, A.G. (1927) A contribution to the mathematical

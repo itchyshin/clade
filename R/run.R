@@ -228,6 +228,19 @@ batch_seeds <- function(specs, seeds = 1:5, n_cores = 1L, verbose = FALSE) {
       call. = FALSE
     )
 
+  # Shine et al. (2011) spatial sorting requires an invasion front; a
+  # toroidal grid wraps continuously and has no defined front, so the
+  # centroid/front-threshold computation in spatial_sorting.jl is
+  # geometrically ill-posed. Warn the user and suggest toroidal = FALSE.
+  if (isTRUE(specs$spatial_sorting) && isTRUE(specs$toroidal))
+    warning(
+      "spatial_sorting = TRUE with toroidal = TRUE: Shine et al. (2011) ",
+      "invasion-front dynamics require a bounded grid. On a torus the ",
+      "population centroid wraps and 'front' has no fixed location. ",
+      "Set specs$toroidal <- FALSE for spatial_sorting experiments.",
+      call. = FALSE
+    )
+
   invisible(TRUE)
 }
 

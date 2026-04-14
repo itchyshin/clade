@@ -333,6 +333,14 @@ function _accumulate_attack!(pred::Agent, attack_str::Float32,
     if prey.toxicity > 0.0f0
         env.n_toxic_attacks += Int32(1)
         apply_predator_toxin!(pred, prey, env)
+    elseif Bool(get(env.specs, "batesian_mimicry", false)) &&
+           Bool(get(env.specs, "mimicry", false))
+        # Batesian: predator attacks a palatable mimic and receives no
+        # toxin. Learning still runs (prey.toxicity = 0), which decays
+        # the aversion memory toward zero — the "predator betrayal"
+        # mechanism that stops mimics exploiting the learned signal
+        # indefinitely.
+        apply_predator_toxin!(pred, prey, env)
     end
 end
 
