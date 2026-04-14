@@ -185,14 +185,15 @@ fitness_registry[["s-signals"]] <- list(
   params     = c("signal_cost", "signal_drift_sd"),
   specs_mods = function(s) { s$signal_mating <- TRUE; s$signal_evolution_drift <- TRUE; s$mate_choice <- TRUE; s$ploidy <- 2L; s$signal_dims <- 2L; s$max_ticks <- 300L; s },
   fitness    = function(env) {
-    # Correlation of signal and preference across final agents.
-    ags <- env$agents
-    if (length(ags) < 10) return(-Inf)
-    sigs <- vapply(ags, function(a) as.numeric(a$signal[1] %||% NA_real_), numeric(1))
-    prefs <- vapply(ags, function(a) as.numeric(a$preference[1] %||% NA_real_), numeric(1))
-    ok <- is.finite(sigs) & is.finite(prefs)
-    if (sum(ok) < 10) return(-Inf)
-    as.numeric(stats::cor(sigs[ok], prefs[ok]))
+    # The original fitness (signal-preference correlation at end of run)
+    # returned NA at 300 ticks: signals start near zero and the magnitude
+    # only grows slowly under drift. Switch to mean_signal_magnitude
+    # elaboration (early -> late difference), which is the natural
+    # observable for Fisher runaway / Zahavi handicap evolution.
+    x <- .safe_traj(env, "mean_signal_magnitude")
+    if (length(x) < 4) return(-Inf)
+    el <- .early_late(x); if (any(is.na(el))) return(-Inf)
+    el[2] - el[1]
   }
 )
 
