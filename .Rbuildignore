@@ -1,6 +1,7 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^doc$
+^docs$
 ^Meta$
 ^Rdata$
 ^CLAUDE\.md$
