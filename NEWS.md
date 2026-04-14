@@ -1,4 +1,56 @@
-# clade 0.2.0
+# clade 0.3.0
+
+## New biological mechanisms
+
+- **Batesian mimicry** (`specs$batesian_mimicry = TRUE`). A palatable
+  mimic (toxicity = 0) whose signal matches a toxic model species
+  now benefits from the predator's learned aversion — the predator
+  avoids the mimic alongside true toxic prey. Repeated attacks on
+  palatable mimics decay the predator's aversion memory
+  (Rescorla-Wagner toward 0), reproducing the Bates–Wallace predator
+  discrimination-learning cycle. Default `FALSE` — existing runs are
+  byte-identical. Reference: Bates (1862) *Trans. Linn. Soc.*
+  23:495–566; Ruxton, Sherratt & Speed (2004) *Avoiding Attack*.
+- **Heritable niche-construction benefit**
+  (`specs$shelter_occupancy_bonus > 0`). Agents occupying a
+  sheltered cell receive `bonus × depth` energy per tick, the
+  Odling-Smee, Laland & Feldman (2003) heritable-environment
+  effect. Existing `niche_construction` semantics (grass
+  suppression + persistence + decay) are unchanged; the new
+  parameter is additive and defaults to 0 (no behavior change).
+
+## Ecology corrections
+
+- `R/run.R` `.validate_specs()` now warns when
+  `spatial_sorting = TRUE` combined with `toroidal = TRUE`.
+  Shine et al. (2011) invasion-front dynamics require a bounded
+  grid; on a torus the population centroid wraps and the "front"
+  concept is geometrically ill-posed.
+- `toxicity_cost_per_tick` default raised `0.5 → 2.0`. The prior
+  default equalled `idle_cost`, making toxicity effectively free
+  (Zahavi 1975 handicap principle violated). 2.0 makes a
+  maximally-toxic agent pay ~4× the idle baseline per tick.
+- `inst/julia/src/modules/disease.jl` docstring now documents that
+  transmission is **density-dependent** (per-neighbour contact, not
+  `β · S · I / N` frequency-dependent SIR) and that
+  `disease_duration` is a deterministic recovery period
+  (delta-distribution, not exponential). Includes the mean-field
+  `R0 ≈ transmission_prob × 8 × disease_duration` approximation.
+
+## CMA-ES auto-calibration harness
+
+- New `dev/audit/calibration/` harness drives
+  `search_cmaes()` over each scenario's parameter subspace, with a
+  per-scenario fitness function encoding the biological claim.
+  Parallel launcher (`run_all.sh`) runs 31 scenarios concurrently.
+- Full Phase 7 results in
+  [`dev/audit/calibration/RESULTS.md`](dev/audit/calibration/RESULTS.md).
+  Headline discoveries: a regime where the **Baldwin effect does
+  emerge** (`grass_rate ≈ 0.027`, `learning_rate_init_mean ≈ 0.007`)
+  in the otherwise non-canalising foraging world; a regime where
+  speciation fires (`mutation_sd ≈ 1.31`); the cephalopod paradox
+  (Liedtke & Fromhage 2019) reproduced at short max_age with high
+  learning rate.
 
 ## Scenario audit
 

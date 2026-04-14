@@ -92,7 +92,8 @@ list. Modules can be freely combined.
 | Mating systems | `ploidy = 2`, `mate_choice` | Haploid / diploid; signal-preference assortative mating |
 | Mimicry | `mimicry` | Predator learning + warning colouration (currently Müllerian; Batesian disabled by design) |
 | Mutation-rate evolution | `mutation_rate_evolution` | Per-agent heritable `mutation_sd` |
-| Niche construction | `niche_construction` | Shelter-building modifies the selection environment (local public good; inheritance on roadmap for 0.3.0) |
+| Niche construction | `niche_construction` | Shelter-building modifies the selection environment (local public good). With `shelter_occupancy_bonus > 0`: shelters confer a heritable metabolic benefit to occupants (Odling-Smee et al. 2003) |
+| Batesian mimicry | `mimicry` + `batesian_mimicry` | Palatable mimics (`toxicity = 0`) exploit a predator's aversion for a shared signal; predator-betrayal decay prevents runaway cheating (Bates 1862) |
 | Parental care | `parental_care` | Obligate altriciality — offspring carried, fed, and graduated |
 | Parental investment | `parental_investment_evolution` | Evolved male / offspring-quality investment |
 | Phenotypic plasticity | `phenotypic_plasticity` | Environment-dependent reproduction threshold |
@@ -155,6 +156,7 @@ If you use clade in published work, please cite:
   author  = {Nakagawa, Shinichi},
   title   = {clade: Agent-based evolutionary simulation with a Julia backend},
   year    = {2026},
+  note    = {R package version 0.3.0},
   url     = {https://github.com/itchyshin/clade}
 }
 ```
