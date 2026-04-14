@@ -95,6 +95,8 @@ include("modules/plasticity.jl")
 include("modules/complex_landscape.jl")
 include("modules/spatial_sorting.jl")
 include("modules/fixed_patch.jl")
+include("modules/lamarckian.jl")
+include("modules/ann_regularization.jl")
 
 # ── R-to-Julia specs bridge ───────────────────────────────────────────────────
 
@@ -138,21 +140,27 @@ Construct the appropriate brain type from the genome and specs.
 """
 function make_brain(g::DiploidGenome, specs::Dict{String,Any})::AbstractBrain
     bt = get(specs, "brain_type", "bnn")
-    if bt == "ann"
-        return make_ann_brain_from_genome(g, specs)
+    brain = if bt == "ann"
+        make_ann_brain_from_genome(g, specs)
     elseif bt == "bnn"
-        return make_bnn_brain(g, specs)
+        make_bnn_brain(g, specs)
     elseif bt == "ctrnn"
-        return make_ctrnn_brain_from_genome(g, specs)
+        make_ctrnn_brain_from_genome(g, specs)
     elseif bt == "grn"
-        return make_grn_brain_from_genome(g, specs)
+        make_grn_brain_from_genome(g, specs)
     elseif bt == "random"
-        return make_random_brain(g.architecture)
+        make_random_brain(g.architecture)
     else
         error("Brain type '$bt' is not yet implemented. " *
               "Supported: \"ann\", \"bnn\", \"ctrnn\", \"grn\", \"random\". " *
               "Transformer and Synthesis are planned for later phases.")
     end
+    # Discrete/quantized weights: snap to allowed set when ann_weight_values is set.
+    pv = get(specs, "ann_weight_values", nothing)
+    if !isnothing(pv) && length(pv) > 0
+        _quantize_brain_weights!(brain, Float32.(pv))
+    end
+    brain
 end
 
 # ── Random brain (null model) ─────────────────────────────────────────────────
@@ -346,6 +354,7 @@ function run_clade(specs::Dict{String,Any})
         tick_predators!(env)              # predator sense-decide-act loop
         apply_body_size!(env)             # metabolic + foraging correction
         apply_brain_size_evolution!(env)  # expensive brain + cognitive foraging
+        apply_ann_regularization!(env)    # L1/L0 weight complexity penalty
         apply_dispersal!(env)             # natal dispersal away from birthplace
         apply_habitat_preference!(env)    # secondary move toward preferred habitat
         apply_seasonal_mortality!(env)    # winter death probability

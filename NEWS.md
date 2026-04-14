@@ -15,6 +15,45 @@
 
 ## New features
 
+- **Lamarckian evolution** (`lamarckian = TRUE`): when `rl_mode` is not
+  `"none"`, the within-lifetime RL-updated brain weights are written back to
+  the parent's genome before meiosis so offspring inherit the learned solution
+  directly. Implemented in `inst/julia/src/modules/lamarckian.jl`. Distinct
+  from the epigenetics module (which inherits methylation marks, not weight
+  values) and from the Baldwin Effect (which leaves the genome unchanged).
+  References: Baldwin (1896); Weismann (1892); Jablonka & Lamb (2005).
+
+- **Discrete / quantized ANN weights** (`ann_weight_values`): when set to a
+  numeric vector (e.g. `c(-1, 0, 1)` for ternary weights), every synaptic
+  weight and bias is snapped to the nearest allowed value after genome
+  expression. Applies to `"ann"` and `"bnn"` brain types. Biologically
+  motivated by evidence that biological synapses operate in discrete strength
+  states (Bhumbra & Bhatt 2020). Enables symbolic formula distillation from
+  evolved ANNs (as in the original MATLAB `alife2025usra` codebase).
+
+- **ANN weight regularisation** (`ann_regularization`): per-tick energy
+  penalty for brain weight complexity. Two modes: `"weight_magnitude"` (L1
+  penalty, drives weights toward zero) and `"weight_count"` (L0-like penalty,
+  fixed cost per active synapse). Scaled by `ann_regularization_lambda`
+  (default 0.001). The mean weight magnitude is now logged in every run as
+  `mean_ann_weight_magnitude`. References: Laughlin et al. (1998);
+  Attwell & Laughlin (2001).
+
+- **Native Julia test directory** (`inst/julia/test/`): unit tests for
+  quantization, regularisation, and Lamarckian logic that can be run directly
+  in Julia without the R side. Run with
+  `julia --project=inst/julia inst/julia/test/runtests.jl`.
+
+- **Module triage script** (`inst/scripts/triage_modules.R`): runs each
+  module in isolation for 300 ticks and reports whether a key biological signal
+  is detected (`[OK]`), absent (`[FLAT]`), or crashing (`[ERR]`). Run with
+  `Rscript inst/scripts/triage_modules.R`.
+
+- **`expect_evolution()` test helper** (in `tests/testthat/helper.R`): asserts
+  that a logged trait moves directionally over a simulation run. Also
+  consolidates the duplicated `skip_no_julia()` definition into `helper.R` so
+  individual test files no longer need to re-define it.
+
 - **Non-toroidal grid** (`toroidal = FALSE`): all Julia modules now use a
   `wrap_or_clamp()` helper that either wraps (toroidal) or clamps to the grid
   boundary (linear). Required for spatial sorting and invasion-front experiments

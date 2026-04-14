@@ -129,6 +129,30 @@
 #'   \item{`transformer_heads`}{Integer. Number of attention heads (default 2L).}
 #'   \item{`synthesis_max_rules`}{Integer. Maximum number of IF-THEN rules
 #'     per agent (default 10L).}
+#'   \item{`ann_weight_values`}{Numeric vector or `NULL`. When not `NULL`,
+#'     every synaptic weight and bias is snapped to the nearest value in this
+#'     set immediately after genome expression (before the first forward pass
+#'     each generation). Use `c(-1, 0, 1)` for ternary weights or `c(-1, 1)`
+#'     for binary weights. Applies to `"ann"` and `"bnn"` brain types.
+#'     Biologically motivated by evidence that biological synapses operate in
+#'     a small number of discrete strength states (Bhumbra & Bhatt 2020).
+#'     Also enables symbolic formula distillation from evolved ANNs (as in
+#'     the original MATLAB alife2025usra codebase). Default `NULL` = continuous
+#'     weights.}
+#'   \item{`ann_regularization`}{Character. Energy penalty applied to brain
+#'     weight complexity each tick. One of:
+#'     * `"none"` (default) — no penalty.
+#'     * `"weight_magnitude"` — deduct `lambda * sum(|w|)` per agent per tick
+#'       (L1 regularisation; drives weights toward zero, producing sparse brains).
+#'     * `"weight_count"` — deduct `lambda * n_active_weights` per agent
+#'       (L0-like; fixed cost per active synapse, stronger pressure for binary
+#'       connectivity patterns).
+#'     References: Laughlin, de Ruyter van Steveninck & Anderson (1998)
+#'     *Nature Neuroscience* 1:36–41; Attwell & Laughlin (2001)
+#'     *J. Cerebral Blood Flow and Metabolism* 21:1133–1145.}
+#'   \item{`ann_regularization_lambda`}{Numeric. Scale factor for the
+#'     regularisation penalty (default 0.001). Too large a value will cause
+#'     all weights to collapse to zero within a few ticks.}
 #' }
 #'
 #' ## Brain energy cost
@@ -258,6 +282,19 @@
 #'     1(1):36--41.}
 #'   \item{`rl_update_freq`}{Integer. Apply RL update every this many ticks
 #'     (default 1L).}
+#'   \item{`lamarckian`}{Logical. If `TRUE` and `rl_mode` is not `"none"`,
+#'     the within-lifetime RL-updated brain weights are written back to the
+#'     parent's genome before meiosis. Offspring therefore directly inherit the
+#'     learned solution rather than rediscovering it from the unmodified
+#'     starting genome (Darwinian path). This is **distinct** from
+#'     `epigenetics`: epigenetics inherits methylation marks that record
+#'     *which* loci should be canalized; Lamarckian inheritance copies the
+#'     actual learned *weight values* into the heritable material.
+#'     Both can be active simultaneously (default `FALSE`).
+#'
+#'     Reference: Baldwin (1896) *American Naturalist* 30:441–451;
+#'     Weismann (1892) *Das Keimplasma*; Jablonka & Lamb (2005) *Evolution
+#'     in Four Dimensions*, MIT Press.}
 #' }
 #'
 #' ## Epigenetics and transgenerational inheritance
@@ -781,6 +818,14 @@ default_specs <- function() {
     transformer_history    = 8L,
     transformer_heads      = 2L,
     synthesis_max_rules    = 10L,
+    ann_weight_values      = NULL,         # NULL = continuous weights (default).
+                                           # Numeric vector: snap each weight to
+                                           # the nearest element after genome
+                                           # expression. E.g. c(-1, 0, 1) for
+                                           # ternary weights. Applied to "ann"
+                                           # and "bnn" brain types.
+    ann_regularization        = "none",   # "none", "weight_magnitude", "weight_count"
+    ann_regularization_lambda = 0.001,    # penalty scale (energy / unit / tick)
 
     # ── Brain energy cost ──────────────────────────────────────────────────
     brain_energy_mode      = "activity",
@@ -809,6 +854,13 @@ default_specs <- function() {
     learning_rate_max          = 0.5,
     plasticity_cost            = 0.05,
     rl_update_freq             = 1L,
+    lamarckian                 = FALSE,   # if TRUE and rl_mode != "none": write
+                                          # RL-learned brain weights back to genome
+                                          # before meiosis so offspring directly
+                                          # inherit the learned solution. Distinct
+                                          # from epigenetics (which inherits
+                                          # methylation marks, not weight values).
+                                          # See modules/lamarckian.jl for detail.
 
     # ── Epigenetics ────────────────────────────────────────────────────────
     epigenetics                    = FALSE,

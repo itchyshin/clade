@@ -40,6 +40,10 @@ function create_offspring!(env::Environment)
     allee_th      = Int(get(specs, "allee_threshold",  0))
     min_repro_age = Int32(get(specs, "min_repro_age",  0))
 
+    # Lamarckian flag: precompute once (avoids dict lookup per agent)
+    do_lamarck = Bool(get(specs, "lamarckian", false)) &&
+                 get(specs, "rl_mode", "none") != "none"
+
     # Collect reproducers before iterating (avoid modifying during loop)
     new_agents = Agent[]
 
@@ -97,6 +101,9 @@ function create_offspring!(env::Environment)
                 base_mut_sd
             end
             specs["mutation_sd"] = eff_mut_sd
+
+            # Lamarckian: write RL-learned phenotype back to genome before meiosis
+            do_lamarck && lamarck_genome_update!(ag)
 
             # Create offspring
             off_genome = make_offspring_genome(

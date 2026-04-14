@@ -177,6 +177,69 @@ Total number of free parameters (weights + biases).
 """
 brain_size(brain::ANNBrain) = arch_to_n_weights(brain.arch)
 
+# ── Discrete / quantized weights ──────────────────────────────────────────────
+
+"""
+    _snap_to_nearest!(v, pv::Vector{Float32})
+
+Replace every element of `v` with the nearest value in sorted `pv` (in-place).
+"""
+function _snap_to_nearest!(v::AbstractArray{Float32}, pv::Vector{Float32})
+    isempty(pv) && return
+    @inbounds for i in eachindex(v)
+        best_d = abs(v[i] - pv[1])
+        best_v = pv[1]
+        for j in 2:length(pv)
+            d = abs(v[i] - pv[j])
+            if d < best_d
+                best_d = d
+                best_v = pv[j]
+            end
+        end
+        v[i] = best_v
+    end
+    nothing
+end
+
+"""
+    _quantize_brain_weights!(brain, pv::Vector{Float32})
+
+Snap all weights in `brain` to the nearest value in `pv` (sorted, in-place).
+Operates on ANNBrain layers and BNNBrain mu; no-op for other types.
+
+Called from `make_brain()` in Clade.jl when `ann_weight_values` is set.
+
+## Biological interpretation
+
+Discrete synaptic weights model the observation that biological synapses
+operate in a small number of distinguishable strength states rather than
+along a continuous spectrum (Bhumbra & Bhatt 2020; Bhambhani et al. 2020).
+Binary (0/1) and ternary (−1/0/1) regimes are the most studied.
+
+References
+----------
+Petersen, C.C.H. (2002) Short-term dynamics of synaptic transmission within
+    the excitatory neuronal network of rat layer IV barrel cortex.
+    *J. Neurophysiology* 87(6):2904–2914.
+Bhumbra, G.S. & Bhatt, D.L. (2020) Quantised synaptic transmission:
+    graded weights and all-or-none release. *Curr. Biol.* 30:R1023–R1026.
+"""
+function _quantize_brain_weights!(brain::ANNBrain, pv::Vector{Float32})
+    for (W, b) in brain.layers
+        _snap_to_nearest!(W, pv)
+        _snap_to_nearest!(b, pv)
+    end
+    nothing
+end
+
+function _quantize_brain_weights!(brain::BNNBrain, pv::Vector{Float32})
+    _snap_to_nearest!(brain.mu, pv)
+    nothing
+end
+
+# No-op for all other brain types
+_quantize_brain_weights!(::AbstractBrain, ::Vector{Float32}) = nothing
+
 # ── Softmax ────────────────────────────────────────────────────────────────────
 
 """

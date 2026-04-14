@@ -319,3 +319,66 @@ test_that("social_learning params round-trip correctly through default_specs()",
   expect_equal(s$learning_rate_max,       0.5)
   expect_equal(s$plasticity_cost,         0.05)
 })
+
+# ── Lamarckian evolution ──────────────────────────────────────────────────────
+
+test_that("lamarckian = FALSE is the default", {
+  expect_false(default_specs()$lamarckian)
+})
+
+test_that("lamarckian spec round-trips through default_specs()", {
+  s <- default_specs()
+  s$lamarckian <- TRUE
+  expect_true(s$lamarckian)
+})
+
+test_that("Lamarckian run completes without error (ANN + haploid)", {
+  skip_no_julia()
+  s <- default_specs()
+  s$brain_type    <- "ann"
+  s$ploidy        <- 1L
+  s$n_agents_init <- 40L
+  s$max_ticks     <- 80L
+  s$rl_mode       <- "actor_critic"
+  s$learning_rate <- 0.02
+  s$lamarckian    <- TRUE
+  s$random_seed   <- 7L
+  env <- run_alife(s, verbose = FALSE)
+  expect_gt(length(env$agents), 0L)
+})
+
+test_that("Lamarckian run completes without error (BNN + diploid)", {
+  skip_no_julia()
+  s <- default_specs()
+  s$brain_type    <- "bnn"
+  s$ploidy        <- 2L
+  s$n_agents_init <- 40L
+  s$max_ticks     <- 80L
+  s$rl_mode       <- "actor_critic"
+  s$learning_rate <- 0.02
+  s$lamarckian    <- TRUE
+  s$random_seed   <- 8L
+  env <- run_alife(s, verbose = FALSE)
+  expect_gt(length(env$agents), 0L)
+})
+
+test_that("Lamarckian is no-op when rl_mode = 'none'", {
+  skip_no_julia()
+  # With rl_mode='none' the genome never changes due to lamarckian flag —
+  # run should be identical to lamarckian=FALSE (same seed, same outcome).
+  make_sp <- function(lam) {
+    s <- default_specs()
+    s$brain_type    <- "ann"
+    s$ploidy        <- 1L
+    s$n_agents_init <- 30L
+    s$max_ticks     <- 50L
+    s$rl_mode       <- "none"
+    s$lamarckian    <- lam
+    s$random_seed   <- 99L
+    s
+  }
+  env_f <- run_alife(make_sp(FALSE), verbose = FALSE)
+  env_t <- run_alife(make_sp(TRUE),  verbose = FALSE)
+  # Population trajectories should be identical (same RNG seed, no RL delta)
+  expect_equal(env_f$progress$n_agents, env_t$progress$n_agents)
+})

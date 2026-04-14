@@ -102,3 +102,91 @@ test_that("default hidden_layers values are each >= 4", {
   s$hidden_layers <- c(16L, 8L)
   expect_true(all(s$hidden_layers >= 4L))
 })
+
+# ── Discrete / quantized weights ─────────────────────────────────────────────
+
+test_that("ann_weight_values defaults to NULL", {
+  expect_null(default_specs()$ann_weight_values)
+})
+
+test_that("ann_weight_values round-trips through default_specs()", {
+  s <- default_specs()
+  s$ann_weight_values <- c(-1, 0, 1)
+  expect_equal(s$ann_weight_values, c(-1, 0, 1))
+})
+
+test_that("discrete ANN run completes without error (ternary weights)", {
+  skip_no_julia()
+  s <- default_specs()
+  s$brain_type       <- "ann"
+  s$ploidy           <- 1L
+  s$n_agents_init    <- 30L
+  s$max_ticks        <- 40L
+  s$ann_weight_values <- c(-1.0, 0.0, 1.0)
+  s$random_seed      <- 5L
+  env <- run_alife(s, verbose = FALSE)
+  expect_gt(length(env$agents), 0L)
+})
+
+test_that("discrete BNN run completes without error (binary weights)", {
+  skip_no_julia()
+  s <- default_specs()
+  s$brain_type        <- "bnn"
+  s$n_agents_init     <- 30L
+  s$max_ticks         <- 40L
+  s$ann_weight_values <- c(-1.0, 1.0)
+  s$random_seed       <- 6L
+  env <- run_alife(s, verbose = FALSE)
+  expect_gt(length(env$agents), 0L)
+})
+
+# ── ANN weight regularisation ─────────────────────────────────────────────────
+
+test_that("ann_regularization defaults to 'none'", {
+  expect_equal(default_specs()$ann_regularization, "none")
+})
+
+test_that("ann_regularization_lambda defaults to 0.001", {
+  expect_equal(default_specs()$ann_regularization_lambda, 0.001)
+})
+
+test_that("weight_magnitude regularisation run completes without error", {
+  skip_no_julia()
+  s <- default_specs()
+  s$brain_type               <- "ann"
+  s$ploidy                   <- 1L
+  s$n_agents_init            <- 30L
+  s$max_ticks                <- 60L
+  s$ann_regularization       <- "weight_magnitude"
+  s$ann_regularization_lambda<- 0.005
+  s$random_seed              <- 11L
+  env <- run_alife(s, verbose = FALSE)
+  expect_gt(length(env$agents), 0L)
+  # mean_ann_weight_magnitude should be logged
+  expect_true("mean_ann_weight_magnitude" %in% names(env$progress))
+})
+
+test_that("weight_count regularisation run completes without error", {
+  skip_no_julia()
+  s <- default_specs()
+  s$brain_type               <- "ann"
+  s$ploidy                   <- 1L
+  s$n_agents_init            <- 30L
+  s$max_ticks                <- 60L
+  s$ann_regularization       <- "weight_count"
+  s$ann_regularization_lambda<- 0.002
+  s$random_seed              <- 12L
+  env <- run_alife(s, verbose = FALSE)
+  expect_gt(length(env$agents), 0L)
+})
+
+test_that("mean_ann_weight_magnitude is logged even without regularisation", {
+  skip_no_julia()
+  s <- default_specs()
+  s$brain_type    <- "ann"
+  s$n_agents_init <- 20L
+  s$max_ticks     <- 20L
+  env  <- run_alife(s, verbose = FALSE)
+  expect_true("mean_ann_weight_magnitude" %in% names(env$progress))
+  expect_true(any(env$progress$mean_ann_weight_magnitude > 0))
+})

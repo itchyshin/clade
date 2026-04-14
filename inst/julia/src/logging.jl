@@ -86,6 +86,7 @@ function _init_progress(specs::Dict{String,Any}, n_ticks::Int)::Dict{String,Vect
         "mean_shelter_depth" => copy(fz),   # B4: mean depth of occupied shelter cells
         "mean_mutation_rate" => copy(fz),   # B5: mean agent mutation_sd; 0 when not evolved
         "mean_clutch_size"   => copy(fz),   # B6: mean realized clutch size per tick
+        "mean_ann_weight_magnitude" => copy(fz),  # B7: mean |w| per agent; 0 when regularization off
     )
 
     d
@@ -272,6 +273,13 @@ function log_tick!(env::Environment)
         Float64(env.n_clutch_total) / Float64(env.n_repro_events)
     else
         Float64(get(env.specs, "max_clutch_size", 1))
+    end
+
+    # B7: mean ANN weight magnitude (always logged; useful even without regularisation)
+    p["mean_ann_weight_magnitude"][t] = if n > 0
+        mean(_ann_weight_magnitude(ag.brain) for ag in ags)
+    else
+        0.0
     end
 end
 
