@@ -232,10 +232,7 @@ function _quantize_brain_weights!(brain::ANNBrain, pv::Vector{Float32})
     nothing
 end
 
-function _quantize_brain_weights!(brain::BNNBrain, pv::Vector{Float32})
-    _snap_to_nearest!(brain.mu, pv)
-    nothing
-end
+# (BNNBrain method moved to bnn.jl so it's defined after the BNNBrain type.)
 
 # No-op for all other brain types
 _quantize_brain_weights!(::AbstractBrain, ::Vector{Float32}) = nothing

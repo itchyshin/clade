@@ -262,3 +262,9 @@ function apply_methylation!(brain::BNNBrain, methylome::Vector{Bool},
         methylome[i] && (brain.sigma[i] *= (1.0f0 - effect_size))
     end
 end
+
+# Quantize BNN mean weights (moved from ann.jl so BNNBrain is in scope).
+function _quantize_brain_weights!(brain::BNNBrain, pv::Vector{Float32})
+    _snap_to_nearest!(brain.mu, pv)
+    nothing
+end

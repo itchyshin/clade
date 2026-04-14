@@ -1,3 +1,77 @@
+# clade 0.2.0
+
+## Scenario audit
+
+A systematic end-to-end audit of the 35 scenario vignettes under
+`vignettes/s-*.Rmd` was performed. Each vignette's displayed code was run
+against the live Julia kernel, the oracle metric trajectory inspected, and the
+outcome classified. Full audit machinery ships under `dev/audit/` so this can
+be rerun. Final state: 30 scenarios OK, 2 aggregate galleries (s-cross-module,
+s-module-comparison) by design without a direction oracle, 2 search-only
+scenarios (s-bad-science, s-map-elites) by design without trajectory output,
+and 1 documented limitation (s-stress-hypermutation, flat mutation rate at
+displayed defaults).
+
+## Julia kernel
+
+- **Include-order fix** (`inst/julia/src/brains/ann.jl` → `bnn.jl`). The
+  `_quantize_brain_weights!(::BNNBrain, ...)` method was defined in `ann.jl`
+  before `bnn.jl` was loaded; on Julia 1.12 this aborts module load with
+  `UndefVarError: BNNBrain`. The method now lives in `bnn.jl` alongside the
+  type, matching the method's dispatch target.
+- **Manifest regenerated** for Julia ≥ 1.11 compatibility (previously pinned
+  to Statistics 1.10 which doesn't ship with 1.12). Project.toml is
+  unchanged.
+
+## Vignettes
+
+- **`s-pop-genetics.Rmd` chunk rewrite.** The displayed code called
+  `h2$ci` and `plot(h2)`, neither of which
+  `estimate_heritability()` returns. The chunk now shows the lag-1
+  autocorrelation proxy (what the function actually computes) and plots the
+  mean trajectory that the proxy is derived from, with a note pointing to
+  `heritability_estimate()` for the parent-offspring-regression route.
+- **`DESCRIPTION`**: `tidyr` added to `Suggests` because
+  `vignettes/s-kitchen-sink.Rmd` and `vignettes/s-seasonal.Rmd` call
+  `tidyr::pivot_longer()`.
+
+## Infrastructure (under `dev/audit/`)
+
+- Rmd parser (`parse_rmd.R`) extracts displayed chunks, figure refs, and
+  "What we found" prose from every scenario.
+- Scenario oracle (`scenario_oracle.R`) maps vignettes to expected module
+  flags and a direction-only signal oracle. Each entry carries a comment
+  documenting *why* the oracle is phrased as it is, grounded in the
+  vignette's own reported findings (several vignettes document honest
+  negative results and the oracle matches them).
+- Serial driver (`run_audit.R`) runs all scenarios in one warm Julia session
+  — parallel forks deadlock JuliaConnectoR's socket; sequential is reliable
+  and completes in ~5–7 min.
+- Text-drift scanner (`text_drift_scan.R`) catches displayed-vs-prose
+  numeric drift without running the simulation.
+- Consolidation survey (`consolidation_report.md`) enumerates ~550 lines of
+  refactor opportunities across `R/` and `inst/julia/src/modules/`; scheduled
+  for 0.3.0.
+- `tests/testthat/test-scenario-signals.R` asserts direction-only signals
+  for every scenario with an oracle, robust to seed noise.
+
+## Known limitations surfaced by the audit
+
+These are documented in each vignette's "What we found" section and are
+intentionally preserved rather than papered over:
+
+- BNN prior sigma rises rather than narrows in a competitive foraging world
+  (s-baldwin). The Baldwin effect as formalised by Hinton & Nowlan (1987)
+  requires a stable global fitness peak; clade's default world does not
+  provide one.
+- `parental_care` module: the carried-juvenile graduation pathway is not
+  fully wired, so `n_juveniles` stays at 0 in displayed runs of
+  s-parental-care and s-parental-investment.
+- `speciation`: at displayed 400-tick scale `n_species` stays at 1;
+  speciation requires ≥1000 ticks and `mutation_sd ≥ 0.15`.
+- `stress_hypermutation`: stress threshold rarely fires at displayed
+  `grass_rate` defaults; effect only visible at `grass_rate ≤ 0.05`.
+
 # clade 0.1.1 (development)
 
 ## Bug fixes
