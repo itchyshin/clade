@@ -14,6 +14,32 @@ displayed defaults).
 
 ## Julia kernel
 
+- **BNN REINFORCE score function fixed.** The previous update rule was
+  `mu[i] += lr * advantage * sigma[i]`, which is not the score function of
+  the Gaussian policy. The new rule
+  `mu[i] += lr * advantage * (w_sample[i] - mu[i]) / sigma[i]^2` matches
+  the exact score from Williams (1992) and Blundell et al. (2015) §3.2.
+  A new `last_sample::Vector{Float32}` field on `BNNBrain` caches the
+  Thompson-sampled weights from `forward()` for use by `bnn_update!`.
+  This is likely the main reason earlier runs showed no Baldwin-effect
+  sigma narrowing even in favourable regimes.
+- **Parliament-of-genes penalty logic fixed** in `modules/kin.jl`. The
+  counter previously included cooperators across all neighbours; now it
+  counts cooperative kin separately, and the penalty fires when
+  cooperative relatives outnumber non-cooperative relatives — consistent
+  with Haig (2000) intragenomic conflict suppression.
+- **Predator dedicated sensory architecture.** `seed_predators!` now
+  builds a predator-specific brain architecture `[15, hidden..., 5]` so
+  the brain's `n_inputs` matches the 15-element predator sense vector.
+  Previously predators used the prey's architecture (dynamic size
+  depending on `input_radius` and active sensory modules), producing a
+  silent dimension mismatch whenever those defaults changed.
+- **Mutation-rate evolution uses per-agent trait.** When
+  `mutation_rate_evolution = TRUE`, `reproduce.jl` now reads
+  `parent.mutation_sd` as the base mutation rate for meiosis. Previously
+  the global `specs["mutation_sd"]` was used unconditionally, so the
+  evolved trait never propagated. The stress-hypermutation multiplier
+  continues to apply on top.
 - **Parental-care graduation pathway wired up.** `reproduce.jl:126-131` was a
   Phase 2 stub that pushed offspring straight into `env.agents` even when
   `parental_care = TRUE`. Offspring now enter the parent's
