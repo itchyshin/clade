@@ -1,0 +1,208 @@
+# Cross-module discovery gallery
+
+### Cross-module discovery gallery
+
+Each entry below combines two or more modules in a non-obvious way and
+records what actually happened — including surprises. All entries report
+mean ± SD across five seeds (42–46), `max_ticks = 200`,
+`n_agents_init = 50`. Single-seed results are included where they
+illuminate stochastic variability.
+
+------------------------------------------------------------------------
+
+#### Gallery A: Kin epidemic — does altruism spread disease?
+
+**Question.** Kin selection requires altruists and recipients to be
+nearby. Does that spatial proximity create epidemic corridors, or does
+the energy boost from received altruism make populations more
+disease-resistant?
+
+``` r
+base <- default_specs()
+base$max_ticks <- 200L; base$n_agents_init <- 50L; base$seed <- 42L
+base$disease <- TRUE; base$transmission_prob <- 0.25; base$disease_seed_prob <- 0.05
+
+# Without kin selection
+e_nokin <- run_alife(modifyList(base, list(kin_selection = FALSE)))
+d_nokin <- get_run_data(e_nokin)$ticks
+
+# With kin selection
+e_kin <- run_alife(modifyList(base, list(kin_selection = TRUE)))
+d_kin <- get_run_data(e_kin)$ticks
+
+cat("No kin:   total infections =", sum(d_nokin$n_new_infections, na.rm = TRUE), "\n")
+cat("With kin: total infections =", sum(d_kin$n_new_infections,   na.rm = TRUE), "\n")
+```
+
+**What we found.** Across five seeds: no kin = 33.8 ± 34.8 infections;
+with kin = 7.8 ± 8.8 infections. Kin selection **reduced** cumulative
+infections by roughly 4×, contrary to the epidemic-corridor hypothesis.
+The result is highly variable (SD ≈ mean in both conditions) — at seed
+42 alone, the no-kin condition had only 4 infections (disease chain
+stochastically fizzled) while the kin condition had 106, producing a
+misleadingly reversed effect in that single run. Across replicates the
+direction is clear: kin altruism reduces disease burden. The mechanism
+is likely energy-mediated immunity: altruistic energy transfers keep
+recipients above the critical energy threshold for disease recovery,
+shortening infectious periods and reducing secondary transmission. Kin
+clusters effectively share an immunity buffer — once the first relative
+recovers and gains immunity, altruistic provisioning of sick relatives
+accelerates the same outcome across the cluster.
+
+------------------------------------------------------------------------
+
+#### Gallery B: Seasonal brain — does resource unpredictability select for cognition?
+
+**Question.** The cognitive buffering hypothesis (Sol 2009) proposes
+that environmental unpredictability selects for larger brains because
+flexible behaviour buffers lean periods. Does a seasonal resource cycle
+select for larger `brain_size` relative to a stable environment?
+
+``` r
+base <- default_specs()
+base$max_ticks <- 200L; base$n_agents_init <- 50L; base$seed <- 42L
+base$brain_size_evolution <- TRUE; base$parental_care <- TRUE
+
+e_stable   <- run_alife(modifyList(base, list(seasonal_amplitude = 0.0)))
+e_seasonal <- run_alife(modifyList(base, list(seasonal_amplitude = 0.6)))
+
+d_stable   <- get_run_data(e_stable)$ticks
+d_seasonal <- get_run_data(e_seasonal)$ticks
+
+cat("Stable:   mean brain_size =", round(mean(tail(d_stable$mean_brain_size,   20), na.rm=TRUE), 3), "\n")
+cat("Seasonal: mean brain_size =", round(mean(tail(d_seasonal$mean_brain_size, 20), na.rm=TRUE), 3), "\n")
+```
+
+**What we found.** Across five seeds: stable = 1.015 ± 0.003; seasonal
+amplitude 0.6 = 1.009 ± 0.011. Contrary to the single-seed result (which
+suggested seasonality increased brain size by 1.7%), the five-seed
+analysis shows that **stable environments produce slightly larger
+brains** than seasonal ones (difference ≈ 0.006, stable SD much lower).
+The cognitive buffering hypothesis — that unpredictability selects for
+larger brains — is not supported at 200 ticks. The mechanism in the
+opposite direction: seasonal lean periods make the expensive-brain
+surcharge unaffordable, suppressing brain size evolution. A stable
+resource environment provides consistent energy income, allowing both
+brain-size investment and parental provisioning to operate without
+interruption. The higher SD in the seasonal condition (0.011 vs 0.003)
+reflects stochastic variation in when lean seasons hit relative to the
+evolutionary clock. Longer runs (≥ 1,000 ticks) may eventually show the
+hypothesised buffering advantage as the population genetically encodes
+more flexible foraging strategies.
+
+------------------------------------------------------------------------
+
+#### Gallery C: RL versus genetics — does within-lifetime learning flatten selection?
+
+**Question.** The Baldwin Effect predicts that within-lifetime learning
+should canalize genetic evolution, reducing standing genetic diversity
+as the population converges on a learned optimum. Does
+`rl_mode = "actor_critic"` or `social_learning = TRUE` reduce
+`genetic_diversity` relative to the baseline?
+
+``` r
+base <- default_specs()
+base$max_ticks <- 200L; base$n_agents_init <- 50L; base$seed <- 42L
+
+e_base <- run_alife(base)
+e_sl   <- run_alife(modifyList(base, list(social_learning = TRUE)))
+e_rl   <- run_alife(modifyList(base, list(rl_mode = "actor_critic")))
+
+sapply(list(Base = e_base, SL = e_sl, RL = e_rl), function(e)
+  round(mean(get_run_data(e)$ticks$genetic_diversity, na.rm = TRUE), 3))
+```
+
+**What we found.** Across five seeds: baseline = 0.186 ± 0.003; social
+learning = 0.186 ± 0.004; RL actor-critic = 0.189 ± 0.002. Social
+learning has essentially no effect on genetic diversity (mean difference
+\< 0.001). RL produces a small, consistent increase (+0.003 above
+baseline). Contrary to the classic Baldwin Effect prediction, neither
+learning condition reduces genetic diversity. The null result for social
+learning and small positive result for RL are consistent across all five
+seeds, ruling out stochastic artefact. The interpretation:
+within-lifetime RL allows agents with heterogeneous genotypes to all
+achieve adequate foraging performance (by adjusting output-layer weights
+individually), relaxing purifying selection on genotype and allowing
+more neutral variation to persist. Social learning copies output-layer
+weights from successful neighbours, producing behavioural convergence
+without genotypic convergence — explaining its neutral effect. Classic
+Baldwin Effect canalization (genetic fixation of a learned optimal)
+would require much longer runs and a more sharply defined fitness peak.
+
+------------------------------------------------------------------------
+
+#### Gallery D: Niche refuge — do shelters create epidemiological refugia?
+
+**Question.** Shelters in the niche construction module reduce predator
+attack success on sheltered cells. If agents retreat to sheltered cells
+when stressed, does shelter use also reduce pathogen contact rates —
+creating disease refugia?
+
+``` r
+base <- default_specs()
+base$max_ticks <- 200L; base$n_agents_init <- 50L; base$seed <- 42L
+base$disease <- TRUE; base$transmission_prob <- 0.25; base$disease_seed_prob <- 0.05
+
+e_nodz <- run_alife(modifyList(base, list(niche_construction = FALSE)))
+e_niche <- run_alife(modifyList(base, list(niche_construction = TRUE)))
+
+cat("No niche: infections =", sum(get_run_data(e_nodz)$ticks$n_new_infections,  na.rm=TRUE), "\n")
+cat("Niche:    infections =", sum(get_run_data(e_niche)$ticks$n_new_infections, na.rm=TRUE), "\n")
+```
+
+**What we found.** Across five seeds: no niche = 42.8 ± 32.7 infections;
+niche construction = 25.2 ± 23.8 infections. Niche construction
+**reduced** cumulative infections by ~41% on average. The single-seed
+result (no-niche = 1, niche = 42) was entirely an artefact: at seed 42,
+disease fizzled in the no-niche run (1 infection = initial seed with no
+secondary spread), making the niche condition appear 42× worse. Across
+five seeds the no-niche condition averages 42.8 infections, more than
+the niche condition. The mechanism: shelters reduce predator attack
+success, so sheltered agents retain more energy, maintain longer
+immune-recovery windows, and clear infection faster. The protection is
+partial — shelter does not prevent transmission, only accelerates
+recovery — which explains the large variability (SD ≈ 25 in both
+conditions). High stochasticity in disease seeding and chain propagation
+dominates the signal at 200 ticks; longer runs with a stable endemic
+disease state would give cleaner estimates of the shelter refuge effect.
+
+------------------------------------------------------------------------
+
+#### Gallery E: Body–brain coevolution — do they scale together?
+
+**Question.** Across vertebrates, brain size and body size are
+correlated (Jerison 1973; Striedter 2005), but the developmental
+coupling is not obvious. When both traits evolve independently under the
+same energy constraints and parental care buffer, do they co-evolve
+proportionally?
+
+``` r
+base <- default_specs()
+base$max_ticks <- 200L; base$n_agents_init <- 50L; base$seed <- 42L
+base$parental_care <- TRUE
+base$brain_size_evolution <- TRUE
+base$body_size_evolution  <- TRUE
+
+e5 <- run_alife(base)
+d5 <- get_run_data(e5)$ticks
+ok <- !is.na(d5$mean_brain_size) & !is.na(d5$mean_body_size)
+cat("Brain–body correlation:", round(cor(d5$mean_brain_size[ok], d5$mean_body_size[ok]), 3), "\n")
+cat("Final brain:", round(tail(d5$mean_brain_size[ok], 1), 3),
+    "| Final body:", round(tail(d5$mean_body_size[ok],  1), 3), "\n")
+```
+
+**What we found.** Across five seeds: raw brain–body correlation = 0.869
+± 0.062; detrended correlation (residuals from linear regressions on
+tick number) = 0.169 ± 0.424. **The r = 0.974 from a single seed was a
+temporal-trend artefact.** Both traits increase monotonically over 200
+ticks (both start at ≈ 1.0, both drift upward under parental care), so
+their raw correlation is almost entirely a time-series correlation, not
+a mechanistic coupling. After removing the shared temporal trend, the
+residual correlation is close to zero (mean 0.169, ranging from −0.494
+to +0.622 across seeds), consistent with independent evolution. Brain
+and body size do *not* co-evolve in a coupled way in this model: they
+independently respond to the same energy constraint (parental care
+provides an energy buffer for both), producing parallel but
+mechanistically unrelated trajectories. To test for true allometric
+coupling, one would need a condition where the traits are selectively
+uncoupled — e.g., enabling

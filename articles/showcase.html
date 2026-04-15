@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -30,7 +30,7 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../articles/getting-started.html">Get Started</a></li>
-<li class="nav-item dropdown">
+<li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-guides" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Guides</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-guides">
 <li><a class="dropdown-item" href="../articles/getting-started.html">Getting started</a></li>
@@ -129,7 +129,7 @@
 Nakagawa</h4>
             
       
-
+      <small class="dont-index">Source: <a href="https://github.com/itchyshin/clade/blob/scenario-audit-0.2.0/vignettes/showcase.Rmd" class="external-link"><code>vignettes/showcase.Rmd</code></a></small>
       <div class="d-none name"><code>showcase.Rmd</code></div>
     </div>
 
@@ -187,7 +187,7 @@ run:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/source.html" class="external-link">source</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"generate_figures.R"</span>, package <span class="op">=</span> <span class="st">"clade"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span><span class="op">)</span></span></code></pre></div>
 <hr>
@@ -213,7 +213,7 @@ survival and reproduction.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_environment.html">plot_environment</a></span><span class="op">(</span><span class="va">env</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_01_world_grid.png" alt="Final grid state after 500 ticks (40 × 40, seed 42). Bright cells have abundant grass; dark cells have been depleted. Agents (white dots, sized by energy) cluster near high-productivity patches." width="100%"><p class="caption">
+<img src="figures/showcase_01_world_grid.png" class="r-plt" alt="Final grid state after 500 ticks (40 × 40, seed 42). Bright cells have abundant grass; dark cells have been depleted. Agents (white dots, sized by energy) cluster near high-productivity patches." width="100%"><p class="caption">
 Final grid state after 500 ticks (40 × 40, seed 42). Bright cells have
 abundant grass; dark cells have been depleted. Agents (white dots, sized
 by energy) cluster near high-productivity patches.
@@ -222,7 +222,7 @@ by energy) cluster near high-productivity patches.
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_run.html">plot_run</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_01_run_dashboard.png" alt="Six-panel run summary: population size, mean energy (±SD ribbon), genetic diversity, births and deaths per tick, grass coverage, and BNN prior sigma (Baldwin Effect panel)." width="100%"><p class="caption">
+<img src="figures/showcase_01_run_dashboard.png" class="r-plt" alt="Six-panel run summary: population size, mean energy (±SD ribbon), genetic diversity, births and deaths per tick, grass coverage, and BNN prior sigma (Baldwin Effect panel)." width="100%"><p class="caption">
 Six-panel run summary: population size, mean energy (±SD ribbon),
 genetic diversity, births and deaths per tick, grass coverage, and BNN
 prior sigma (Baldwin Effect panel).
@@ -260,7 +260,7 @@ offspring.</p>
 <span>       x <span class="op">=</span> <span class="st">"Tick"</span>, y <span class="op">=</span> <span class="st">"Mean pairwise genome distance"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_02_selection.png" alt="Left: mean age (±SD) rises as efficient foragers replace inefficient ones. Right: genetic diversity declines as the fit genotype sweeps, then partially recovers as spatial structure opens niches." width="100%"><p class="caption">
+<img src="figures/showcase_02_selection.png" class="r-plt" alt="Left: mean age (±SD) rises as efficient foragers replace inefficient ones. Right: genetic diversity declines as the fit genotype sweeps, then partially recovers as spatial structure opens niches." width="100%"><p class="caption">
 Left: mean age (±SD) rises as efficient foragers replace inefficient
 ones. Right: genetic diversity declines as the fit genotype sweeps, then
 partially recovers as spatial structure opens niches.
@@ -308,7 +308,7 @@ default (0.1), and scarce (0.02).</p>
 <span></span>
 <span><span class="va">p1</span> <span class="op">|</span> <span class="va">p2</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_03_food_scarcity.png" alt="Population size (left) and mean age (right) across three food-availability conditions. Scarce food imposes stronger selection (older mean age) but sustains fewer individuals." width="100%"><p class="caption">
+<img src="figures/showcase_03_food_scarcity.png" class="r-plt" alt="Population size (left) and mean age (right) across three food-availability conditions. Scarce food imposes stronger selection (older mean age) but sustains fewer individuals." width="100%"><p class="caption">
 Population size (left) and mean age (right) across three
 food-availability conditions. Scarce food imposes stronger selection
 (older mean age) but sustains fewer individuals.
@@ -354,7 +354,7 @@ cheaper to run but gain less. An intermediate optimum typically evolves
 <span>       x <span class="op">=</span> <span class="st">"Tick"</span>, y <span class="op">=</span> <span class="st">"Mean body size"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_04_body_size.png" alt="Mean body size (±1 SD ribbon) over 500 ticks. The dashed line marks the reference size (1.0 = no metabolic correction). Selection typically drives mean body size toward a value balancing foraging gain against metabolic cost." width="100%"><p class="caption">
+<img src="figures/showcase_04_body_size.png" class="r-plt" alt="Mean body size (±1 SD ribbon) over 500 ticks. The dashed line marks the reference size (1.0 = no metabolic correction). Selection typically drives mean body size toward a value balancing foraging gain against metabolic cost." width="100%"><p class="caption">
 Mean body size (±1 SD ribbon) over 500 ticks. The dashed line marks the
 reference size (1.0 = no metabolic correction). Selection typically
 drives mean body size toward a value balancing foraging gain against
@@ -394,7 +394,7 @@ Dispersal reduces inbreeding and kin competition but costs
 <span></span>
 <span><span class="va">p_nd</span> <span class="op">|</span> <span class="fu"><a href="../reference/plot_environment.html">plot_environment</a></span><span class="op">(</span><span class="va">env_disp</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_05_dispersal.png" alt="Left: dispersal events per tick (bars) with smoothed trend. Dispersal spikes during high-density periods when kin competition is strongest. Right: final grid snapshot — agents are more evenly distributed than without dispersal." width="100%"><p class="caption">
+<img src="figures/showcase_05_dispersal.png" class="r-plt" alt="Left: dispersal events per tick (bars) with smoothed trend. Dispersal spikes during high-density periods when kin competition is strongest. Right: final grid snapshot — agents are more evenly distributed than without dispersal." width="100%"><p class="caption">
 Left: dispersal events per tick (bars) with smoothed trend. Dispersal
 spikes during high-density periods when kin competition is strongest.
 Right: final grid snapshot — agents are more evenly distributed than
@@ -435,7 +435,7 @@ McKendrick 1927).</p>
 <span>       y <span class="op">=</span> <span class="st">"Agent count"</span>, fill <span class="op">=</span> <span class="cn">NULL</span>, colour <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_06_disease.png" alt="SIR epidemic waves over 400 ticks. Infected counts (red area) rise and fall as herd immunity builds. New infections per tick × 5 (blue line) marks the epidemic's leading edge. Waves recur as immune agents die and naive offspring are born." width="100%"><p class="caption">
+<img src="figures/showcase_06_disease.png" class="r-plt" alt="SIR epidemic waves over 400 ticks. Infected counts (red area) rise and fall as herd immunity builds. New infections per tick × 5 (blue line) marks the epidemic's leading edge. Waves recur as immune agents die and naive offspring are born." width="100%"><p class="caption">
 SIR epidemic waves over 400 ticks. Infected counts (red area) rise and
 fall as herd immunity builds. New infections per tick × 5 (blue line)
 marks the epidemic’s leading edge. Waves recur as immune agents die and
@@ -477,7 +477,7 @@ Hamilton 1964).</p>
 <span>       x <span class="op">=</span> <span class="st">"Tick"</span>, y <span class="op">=</span> <span class="st">"N agents"</span>, colour <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_07_kin_selection.png" alt="Population dynamics with kin selection on (green) vs off (grey). Kin altruism buffers starvation events by redistributing energy among relatives, raising the population floor under moderate food scarcity." width="100%"><p class="caption">
+<img src="figures/showcase_07_kin_selection.png" class="r-plt" alt="Population dynamics with kin selection on (green) vs off (grey). Kin altruism buffers starvation events by redistributing energy among relatives, raising the population floor under moderate food scarcity." width="100%"><p class="caption">
 Population dynamics with kin selection on (green) vs off (grey). Kin
 altruism buffers starvation events by redistributing energy among
 relatives, raising the population floor under moderate food scarcity.
@@ -520,7 +520,7 @@ other.</p>
 <span></span>
 <span><span class="va">p1</span> <span class="op">|</span> <span class="va">p2</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_08_cooperation.png" alt="Left: mean cooperation level over time (dashed = initial mean 0.5). Values above 0.5 indicate net selective advantage for cooperation under this grid structure. Right: cooperation acts per tick track population growth." width="100%"><p class="caption">
+<img src="figures/showcase_08_cooperation.png" class="r-plt" alt="Left: mean cooperation level over time (dashed = initial mean 0.5). Values above 0.5 indicate net selective advantage for cooperation under this grid structure. Right: cooperation acts per tick track population growth." width="100%"><p class="caption">
 Left: mean cooperation level over time (dashed = initial mean 0.5).
 Values above 0.5 indicate net selective advantage for cooperation under
 this grid structure. Right: cooperation acts per tick track population
@@ -538,6 +538,16 @@ they have surplus energy. Shelters slow grass regrowth on the cell
 stochastically. Shelter building is an extended phenotype that modifies
 the selective environment for subsequent generations (Odling-Smee,
 Laland &amp; Feldman 2003).</p>
+<p><strong>Heritable niche benefit (0.3.0).</strong> By default
+<code>shelter_occupancy_bonus = 0</code>, so the module is a local
+public good only — shelters persist beyond the builder’s lifetime but
+confer no direct benefit to subsequent occupants. Set
+<code>specs$shelter_occupancy_bonus &lt;- 0.1</code> (or similar) to
+enable the heritable niche-construction effect proper: agents occupying
+a sheltered cell receive <code>bonus × depth</code> energy per tick.
+Descendants of shelter-builders who cluster near ancestral constructions
+then out-compete lineages that disperse into unsheltered terrain — the
+Odling-Smee et al. (2003) eco-evolutionary feedback.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">niche</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">niche</span><span class="op">$</span><span class="va">grid_rows</span>          <span class="op">&lt;-</span> <span class="fl">30L</span>; <span class="va">niche</span><span class="op">$</span><span class="va">grid_cols</span>     <span class="op">&lt;-</span> <span class="fl">30L</span></span>
@@ -557,7 +567,7 @@ Laland &amp; Feldman 2003).</p>
 <span>       x <span class="op">=</span> <span class="st">"Tick"</span>, y <span class="op">=</span> <span class="st">"N shelters built"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_09_niche.png" alt="Left: shelter building events per tick — construction rates track population density. Right: final grid snapshot. Shelters cluster where agents spend most time, creating a spatial legacy that shapes the landscape for their offspring." width="100%"><p class="caption">
+<img src="figures/showcase_09_niche.png" class="r-plt" alt="Left: shelter building events per tick — construction rates track population density. Right: final grid snapshot. Shelters cluster where agents spend most time, creating a spatial legacy that shapes the landscape for their offspring." width="100%"><p class="caption">
 Left: shelter building events per tick — construction rates track
 population density. Right: final grid snapshot. Shelters cluster where
 agents spend most time, creating a spatial legacy that shapes the
@@ -601,7 +611,7 @@ individual experience changing behaviour.</p>
 <span>       x <span class="op">=</span> <span class="st">"Tick"</span>, y <span class="op">=</span> <span class="st">"Mean energy"</span>, colour <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_10_rl.png" alt="Mean energy over time with within-lifetime RL on (blue) vs off (grey). Agents with actor-critic learning update their foraging policies from direct experience, typically yielding higher mean energy than purely evolutionary agents under the same food regime." width="100%"><p class="caption">
+<img src="figures/showcase_10_rl.png" class="r-plt" alt="Mean energy over time with within-lifetime RL on (blue) vs off (grey). Agents with actor-critic learning update their foraging policies from direct experience, typically yielding higher mean energy than purely evolutionary agents under the same food regime." width="100%"><p class="caption">
 Mean energy over time with within-lifetime RL on (blue) vs off (grey).
 Agents with actor-critic learning update their foraging policies from
 direct experience, typically yielding higher mean energy than purely
@@ -654,7 +664,7 @@ mechanism.</p>
 <span></span>
 <span><span class="va">p_div2</span> <span class="op">|</span> <span class="va">p_en2</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_11_social_learning.png" alt="Social learning (orange) vs no learning (grey). Left: social learning spreads efficient strategies, temporarily reducing genetic diversity below the purely evolutionary baseline. Right: mean energy is higher when learning accelerates the cultural spread of good foraging policies." width="100%"><p class="caption">
+<img src="figures/showcase_11_social_learning.png" class="r-plt" alt="Social learning (orange) vs no learning (grey). Left: social learning spreads efficient strategies, temporarily reducing genetic diversity below the purely evolutionary baseline. Right: mean energy is higher when learning accelerates the cultural spread of good foraging policies." width="100%"><p class="caption">
 Social learning (orange) vs no learning (grey). Left: social learning
 spreads efficient strategies, temporarily reducing genetic diversity
 below the purely evolutionary baseline. Right: mean energy is higher
@@ -683,7 +693,7 @@ grid.</p>
 <span></span>
 <span><span class="fu"><a href="../reference/plot_run.html">plot_run</a></span><span class="op">(</span><span class="va">data_ks</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_12_kitchen_sink.png" alt="Six-panel run summary for the kitchen-sink configuration (body size + dispersal + kin selection + social learning). The body-size panel (bottom-right) replaces the BNN sigma panel from Section 1." width="100%"><p class="caption">
+<img src="figures/showcase_12_kitchen_sink.png" class="r-plt" alt="Six-panel run summary for the kitchen-sink configuration (body size + dispersal + kin selection + social learning). The body-size panel (bottom-right) replaces the BNN sigma panel from Section 1." width="100%"><p class="caption">
 Six-panel run summary for the kitchen-sink configuration (body size +
 dispersal + kin selection + social learning). The body-size panel
 (bottom-right) replaces the BNN sigma panel from Section 1.
@@ -692,7 +702,7 @@ dispersal + kin selection + social learning). The body-size panel
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/visualize_progress.html">visualize_progress</a></span><span class="op">(</span><span class="va">env_ks</span>, <span class="va">data_ks</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_12_kitchen_dashboard.png" alt="Full dashboard for the kitchen-sink run: grid snapshot, population and energy dynamics, diversity trajectory, death scatter (age vs energy by cause), lifespan histogram, and body-size evolution." width="100%"><p class="caption">
+<img src="figures/showcase_12_kitchen_dashboard.png" class="r-plt" alt="Full dashboard for the kitchen-sink run: grid snapshot, population and energy dynamics, diversity trajectory, death scatter (age vs energy by cause), lifespan histogram, and body-size evolution." width="100%"><p class="caption">
 Full dashboard for the kitchen-sink run: grid snapshot, population and
 energy dynamics, diversity trajectory, death scatter (age vs energy by
 cause), lifespan histogram, and body-size evolution.
@@ -712,7 +722,7 @@ transmission resistance. Over time, selection should drive immune
 investment upward in populations under sustained pathogen pressure
 (Boots &amp; Bowers 2004).</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span><span class="va">specs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">specs</span><span class="op">$</span><span class="va">disease</span>           <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
 <span><span class="va">specs</span><span class="op">$</span><span class="va">immune_evolution</span>  <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
@@ -728,7 +738,7 @@ investment upward in populations under sustained pathogen pressure
 <span><span class="va">rd</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plot_run.html">plot_run</a></span><span class="op">(</span><span class="va">rd</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_13_disease.png" alt="Population and immune dynamics under evolving immunity. The n_infected panel shows SIR epidemic waves declining in amplitude as mean immune_strength rises across generations under continued pathogen pressure." width="100%"><p class="caption">
+<img src="figures/showcase_13_disease.png" class="r-plt" alt="Population and immune dynamics under evolving immunity. The n_infected panel shows SIR epidemic waves declining in amplitude as mean immune_strength rises across generations under continued pathogen pressure." width="100%"><p class="caption">
 Population and immune dynamics under evolving immunity. The n_infected
 panel shows SIR epidemic waves declining in amplitude as mean
 immune_strength rises across generations under continued pathogen
@@ -747,7 +757,7 @@ deliberately engineered cycle (Lotka 1925). Predator populations
 collapse when prey density falls below the level needed to sustain
 maintenance costs.</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span><span class="va">specs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">specs</span><span class="op">$</span><span class="va">n_predators_init</span>  <span class="op">&lt;-</span> <span class="fl">5L</span></span>
 <span><span class="va">specs</span><span class="op">$</span><span class="va">n_agents_init</span>     <span class="op">&lt;-</span> <span class="fl">100L</span></span>
@@ -761,7 +771,7 @@ maintenance costs.</p>
 <span><span class="va">rd</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plot_run.html">plot_run</a></span><span class="op">(</span><span class="va">rd</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_14_predators.png" alt="Dual time series of prey (n_agents) and predator (n_predators) population size over 300 ticks. Asynchronous boom-bust cycles emerge from local predator-prey interactions on the spatial grid." width="100%"><p class="caption">
+<img src="figures/showcase_14_predators.png" class="r-plt" alt="Dual time series of prey (n_agents) and predator (n_predators) population size over 300 ticks. Asynchronous boom-bust cycles emerge from local predator-prey interactions on the spatial grid." width="100%"><p class="caption">
 Dual time series of prey (n_agents) and predator (n_predators)
 population size over 300 ticks. Asynchronous boom-bust cycles emerge
 from local predator-prey interactions on the spatial grid.
@@ -778,7 +788,7 @@ dilution-of-risk effect (Hamilton 1971). Agents in dense clusters are
 individually safer, creating positive fitness feedback for aggregation
 even when aggregation competes for grass.</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">run_defense</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">defense</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -807,7 +817,7 @@ even when aggregation competes for grass.</p>
 <span>       x <span class="op">=</span> <span class="st">"Tick"</span>, y <span class="op">=</span> <span class="st">"N agents"</span>, colour <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_15_group_defense.png" alt="Prey population size over time with group defense on (blue) and off (red) under identical predator pressure. Dilution of risk reduces per-capita predation and typically sustains higher population densities." width="100%"><p class="caption">
+<img src="figures/showcase_15_group_defense.png" class="r-plt" alt="Prey population size over time with group defense on (blue) and off (red) under identical predator pressure. Dilution of risk reduces per-capita predation and typically sustains higher population densities." width="100%"><p class="caption">
 Prey population size over time with group defense on (blue) and off
 (red) under identical predator pressure. Dilution of risk reduces
 per-capita predation and typically sustains higher population densities.
@@ -825,7 +835,7 @@ that, at evolutionary equilibrium, all habitat patches yield equal
 fitness (Fretwell &amp; Lucas 1970). Deviations from IFD appear in early
 generations before selection has had time to tune preference.</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span><span class="va">specs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">specs</span><span class="op">$</span><span class="va">habitat_preference_evolution</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
 <span><span class="va">specs</span><span class="op">$</span><span class="va">n_agents_init</span>                <span class="op">&lt;-</span> <span class="fl">80L</span></span>
@@ -840,7 +850,7 @@ generations before selection has had time to tune preference.</p>
 <span></span>
 <span><span class="fu"><a href="../reference/plot_dispersal_events.html">plot_dispersal_events</a></span><span class="op">(</span><span class="va">rd</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_16_habitat_preference.png" alt="Habitat preference evolution and dispersal events over 300 ticks. As habitat preference traits evolve, agents increasingly concentrate on productive patches, and dispersal event rates reflect the changing spatial distribution of resources and competitors." width="100%"><p class="caption">
+<img src="figures/showcase_16_habitat_preference.png" class="r-plt" alt="Habitat preference evolution and dispersal events over 300 ticks. As habitat preference traits evolve, agents increasingly concentrate on productive patches, and dispersal event rates reflect the changing spatial distribution of resources and competitors." width="100%"><p class="caption">
 Habitat preference evolution and dispersal events over 300 ticks. As
 habitat preference traits evolve, agents increasingly concentrate on
 productive patches, and dispersal event rates reflect the changing
@@ -859,7 +869,7 @@ must persist on stored energy until spring. Population size therefore
 tracks the seasonal calendar, and life-history traits are expected to
 align with the seasonal cycle (Dingle 1996).</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span><span class="va">specs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">specs</span><span class="op">$</span><span class="va">seasonal_amplitude</span> <span class="op">&lt;-</span> <span class="fl">0.6</span></span>
 <span><span class="va">specs</span><span class="op">$</span><span class="va">season_length</span>      <span class="op">&lt;-</span> <span class="fl">100L</span></span>
@@ -874,7 +884,7 @@ align with the seasonal cycle (Dingle 1996).</p>
 <span><span class="va">rd</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plot_run.html">plot_run</a></span><span class="op">(</span><span class="va">rd</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_17_seasons.png" alt="Population and resource dynamics under seasonal forcing (amplitude = 0.6, season_length = 100). Population size oscillates in phase with the seasonal grass cycle, with winter mortality troughs visible every 100 ticks." width="100%"><p class="caption">
+<img src="figures/showcase_17_seasons.png" class="r-plt" alt="Population and resource dynamics under seasonal forcing (amplitude = 0.6, season_length = 100). Population size oscillates in phase with the seasonal grass cycle, with winter mortality troughs visible every 100 ticks." width="100%"><p class="caption">
 Population and resource dynamics under seasonal forcing (amplitude =
 0.6, season_length = 100). Population size oscillates in phase with the
 seasonal grass cycle, with winter mortality troughs visible every 100
@@ -893,7 +903,7 @@ spatially segregated clusters may diverge sufficiently to constitute
 distinct species, increasing <code>n_species</code> (Gavrilets
 2004).</p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span><span class="va">specs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">specs</span><span class="op">$</span><span class="va">speciation</span>         <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
 <span><span class="va">specs</span><span class="op">$</span><span class="va">isolation_threshold</span> <span class="op">&lt;-</span> <span class="fl">0.4</span></span>
@@ -923,7 +933,7 @@ distinct species, increasing <code>n_species</code> (Gavrilets
 <span></span>
 <span><span class="va">p1</span> <span class="op">|</span> <span class="va">p2</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_18_speciation.png" alt="Left: cumulative number of species over 500 ticks — each step marks a new lineage passing the isolation threshold. Right: genetic diversity rises as diverging lineages accumulate sequence differences." width="100%"><p class="caption">
+<img src="figures/showcase_18_speciation.png" class="r-plt" alt="Left: cumulative number of species over 500 ticks — each step marks a new lineage passing the isolation threshold. Right: genetic diversity rises as diverging lineages accumulate sequence differences." width="100%"><p class="caption">
 Left: cumulative number of species over 500 ticks — each step marks a
 new lineage passing the isolation threshold. Right: genetic diversity
 rises as diverging lineages accumulate sequence differences.
@@ -941,7 +951,7 @@ survival. The result is a shift toward slower life histories — longer
 gestation, higher offspring quality, lower turnover — a trade-off well
 documented across vertebrates (Clutton-Brock 1991).</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span><span class="va">specs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">specs</span><span class="op">$</span><span class="va">parental_care</span>      <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
 <span><span class="va">specs</span><span class="op">$</span><span class="va">care_cost_per_tick</span> <span class="op">&lt;-</span> <span class="fl">1.5</span></span>
@@ -971,7 +981,7 @@ documented across vertebrates (Clutton-Brock 1991).</p>
 <span></span>
 <span><span class="va">p1</span> <span class="op">|</span> <span class="va">p2</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_19_parental_care.png" alt="Left: adult and juvenile population counts over time — juveniles track adult breeding pulses. Right: lifespan distribution from plot_dead_agents(), showing that care-reared offspring reach later ages compared to no-care baselines." width="100%"><p class="caption">
+<img src="figures/showcase_19_parental_care.png" class="r-plt" alt="Left: adult and juvenile population counts over time — juveniles track adult breeding pulses. Right: lifespan distribution from plot_dead_agents(), showing that care-reared offspring reach later ages compared to no-care baselines." width="100%"><p class="caption">
 Left: adult and juvenile population counts over time — juveniles track
 adult breeding pulses. Right: lifespan distribution from
 plot_dead_agents(), showing that care-reared offspring reach later ages
@@ -991,7 +1001,7 @@ inclusive fitness when relatedness exceeds
 an extension of Hamilton’s rule operating at the family group level
 (Cockburn 1998).</p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span><span class="va">specs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">specs</span><span class="op">$</span><span class="va">cooperative_breeding</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
 <span><span class="va">specs</span><span class="op">$</span><span class="va">parental_care</span>        <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
@@ -1021,7 +1031,7 @@ an extension of Hamilton’s rule operating at the family group level
 <span></span>
 <span><span class="va">p1</span> <span class="op">|</span> <span class="va">p2</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_20_cooperative_breeding.png" alt="Left: mean helper tendency (0-1) rises over time as alleles favouring kin-directed helping spread. Right: active helpers per tick track the rise of the helping trait and population density." width="100%"><p class="caption">
+<img src="figures/showcase_20_cooperative_breeding.png" class="r-plt" alt="Left: mean helper tendency (0-1) rises over time as alleles favouring kin-directed helping spread. Right: active helpers per tick track the rise of the helping trait and population density." width="100%"><p class="caption">
 Left: mean helper tendency (0-1) rises over time as alleles favouring
 kin-directed helping spread. Right: active helpers per tick track the
 rise of the helping trait and population density.
@@ -1039,8 +1049,18 @@ via Rescorla-Wagner updating of <code>signal_memory</code>. Over time,
 selection drives toxicity upward while predator avoidance co-evolves,
 producing the classic Mullerian dynamics between defended and undefended
 forms (Mallet &amp; Joron 1999).</p>
+<p><strong>Batesian mode (0.3.0).</strong> Setting
+<code>specs$batesian_mimicry &lt;- TRUE</code> relaxes the avoidance
+rule so that palatable prey (toxicity = 0) whose signal matches a
+learned-aversive one ALSO escape attack — Batesian mimicry (Bates 1862).
+Predator “betrayal” decay (Rescorla-Wagner toward 0 when attacks on
+palatable mimics produce no toxin) prevents runaway cheating; the
+aversion memory fades as mimics proliferate, creating a self-regulating
+polymorphism. With the default <code>batesian_mimicry = FALSE</code>,
+the mimicry module is Mullerian-only — palatable prey gain no
+protection, matching the behaviour prior to 0.3.0.</p>
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span><span class="va">specs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">specs</span><span class="op">$</span><span class="va">mimicry</span>              <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
 <span><span class="va">specs</span><span class="op">$</span><span class="va">n_predators_init</span>     <span class="op">&lt;-</span> <span class="fl">5L</span></span>
@@ -1077,7 +1097,7 @@ forms (Mallet &amp; Joron 1999).</p>
 <span></span>
 <span><span class="va">p1</span> <span class="op">|</span> <span class="va">p2</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_21_mimicry.png" alt="Left: mean toxicity rises from its initial value (0.2, dashed) as costly undefended genotypes are purged. Right: attacks on toxic prey decline and avoided attacks rise as predator signal memory accumulates, illustrating the coevolution of defence and avoidance." width="100%"><p class="caption">
+<img src="figures/showcase_21_mimicry.png" class="r-plt" alt="Left: mean toxicity rises from its initial value (0.2, dashed) as costly undefended genotypes are purged. Right: attacks on toxic prey decline and avoided attacks rise as predator signal memory accumulates, illustrating the coevolution of defence and avoidance." width="100%"><p class="caption">
 Left: mean toxicity rises from its initial value (0.2, dashed) as costly
 undefended genotypes are purged. Right: attacks on toxic prey decline
 and avoided attacks rise as predator signal memory accumulates,
@@ -1098,7 +1118,7 @@ variable environments but may be costly when the environment is stable
 enough for a fixed genotype to suffice (DeWitt, Scheiner &amp; Wolpert
 1998).</p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span><span class="va">specs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">specs</span><span class="op">$</span><span class="va">phenotypic_plasticity</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
 <span><span class="va">specs</span><span class="op">$</span><span class="va">plasticity_init_mean</span>  <span class="op">&lt;-</span> <span class="fl">0.3</span></span>
@@ -1128,7 +1148,7 @@ enough for a fixed genotype to suffice (DeWitt, Scheiner &amp; Wolpert
 <span>       x <span class="op">=</span> <span class="st">"Tick"</span>, y <span class="op">=</span> <span class="st">"Mean plasticity (0-1)"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_22_plasticity.png" alt="Mean plasticity (±1 SD ribbon) over 300 ticks under moderate seasonal forcing. The dashed line marks the initial mean (0.3). Selection in a variable environment is expected to drive plasticity upward until the cost of maintaining plastic machinery equals the benefit of phenotypic adjustment." width="100%"><p class="caption">
+<img src="figures/showcase_22_plasticity.png" class="r-plt" alt="Mean plasticity (±1 SD ribbon) over 300 ticks under moderate seasonal forcing. The dashed line marks the initial mean (0.3). Selection in a variable environment is expected to drive plasticity upward until the cost of maintaining plastic machinery equals the benefit of phenotypic adjustment." width="100%"><p class="caption">
 Mean plasticity (±1 SD ribbon) over 300 ticks under moderate seasonal
 forcing. The dashed line marks the initial mean (0.3). Selection in a
 variable environment is expected to drive plasticity upward until the
@@ -1157,7 +1177,7 @@ operate simultaneously, and their relative contributions depend on the
 heritability of preference, the cost coefficient, and population
 size.</p>
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span><span class="va">specs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">specs</span><span class="op">$</span><span class="va">signal_dims</span>             <span class="op">&lt;-</span> <span class="fl">3L</span></span>
 <span><span class="va">specs</span><span class="op">$</span><span class="va">signal_cost</span>             <span class="op">&lt;-</span> <span class="fl">0.05</span></span>
@@ -1188,7 +1208,7 @@ size.</p>
 <span></span>
 <span><span class="va">p1</span> <span class="op">|</span> <span class="va">p2</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_signals_matechoice.png" alt="Left: mean signal magnitude over 400 ticks with three signal dimensions and a moderate cost (0.05). An initial rise reflects directional selection from mate preference; subsequent stabilisation occurs when signal costs balance preference-driven elaboration. Right: genetic diversity tracks the spread and fixation of signal alleles." width="100%"><p class="caption">
+<img src="figures/showcase_signals_matechoice.png" class="r-plt" alt="Left: mean signal magnitude over 400 ticks with three signal dimensions and a moderate cost (0.05). An initial rise reflects directional selection from mate preference; subsequent stabilisation occurs when signal costs balance preference-driven elaboration. Right: genetic diversity tracks the spread and fixation of signal alleles." width="100%"><p class="caption">
 Left: mean signal magnitude over 400 ticks with three signal dimensions
 and a moderate cost (0.05). An initial rise reflects directional
 selection from mate preference; subsequent stabilisation occurs when
@@ -1224,7 +1244,7 @@ complexity depends on whether selection sweeps a single winning strategy
 to fixation or maintains a portfolio of complementary escape
 behaviours.</p>
 <div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">make_specs</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">n_pred</span>, <span class="va">seed</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -1256,7 +1276,7 @@ behaviours.</p>
 <span>       x <span class="op">=</span> <span class="st">"Tick"</span>, y <span class="op">=</span> <span class="st">"Genetic diversity"</span>, colour <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_vadim_experiment.png" alt="Genetic diversity over 500 ticks with (red) and without (blue) predators. Predation typically reduces neutral diversity through selective sweeps while maintaining or elevating the frequency of escape-relevant neural phenotypes. The direction and magnitude of the difference vary with predator hunting strategy and prey population size." width="100%"><p class="caption">
+<img src="figures/showcase_vadim_experiment.png" class="r-plt" alt="Genetic diversity over 500 ticks with (red) and without (blue) predators. Predation typically reduces neutral diversity through selective sweeps while maintaining or elevating the frequency of escape-relevant neural phenotypes. The direction and magnitude of the difference vary with predator hunting strategy and prey population size." width="100%"><p class="caption">
 Genetic diversity over 500 ticks with (red) and without (blue)
 predators. Predation typically reduces neutral diversity through
 selective sweeps while maintaining or elevating the frequency of
@@ -1290,7 +1310,7 @@ sustain higher population turnover, while slow individuals accumulate
 energy reserves, age more slowly, and maintain a flatter mortality
 curve.</p>
 <div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">make_pace</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">mr</span>, <span class="va">seed</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -1333,7 +1353,7 @@ curve.</p>
 <span></span>
 <span><span class="va">p1</span> <span class="op">|</span> <span class="va">p2</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_pace_of_life.png" alt="Fast (orange) vs slow (blue) pace-of-life syndromes over 400 ticks. Left: slow-syndrome agents accumulate greater mean age as lower metabolic expenditure reduces starvation risk. Right: fast-syndrome agents produce more births per tick, sustaining population turnover at the cost of shorter individual lifespans (Stearns 1992)." width="100%"><p class="caption">
+<img src="figures/showcase_pace_of_life.png" class="r-plt" alt="Fast (orange) vs slow (blue) pace-of-life syndromes over 400 ticks. Left: slow-syndrome agents accumulate greater mean age as lower metabolic expenditure reduces starvation risk. Right: fast-syndrome agents produce more births per tick, sustaining population turnover at the cost of shorter individual lifespans (Stearns 1992)." width="100%"><p class="caption">
 Fast (orange) vs slow (blue) pace-of-life syndromes over 400 ticks.
 Left: slow-syndrome agents accumulate greater mean age as lower
 metabolic expenditure reduces starvation risk. Right: fast-syndrome
@@ -1363,7 +1383,7 @@ generate novel genotype combinations each generation, maintaining higher
 mean pairwise genome distance than asexual populations of the same size,
 where diversity erodes by genetic drift.</p>
 <div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">make_mating</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">ploidy</span>, <span class="va">seed</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -1395,7 +1415,7 @@ where diversity erodes by genetic drift.</p>
 <span>       x <span class="op">=</span> <span class="st">"Tick"</span>, y <span class="op">=</span> <span class="st">"Mean pairwise genome distance"</span>, colour <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_mating_systems.png" alt="Genetic diversity over 400 ticks under sexual (purple) vs asexual (green) reproduction. Recombination in diploid sexual populations continuously regenerates novel genotype combinations, sustaining higher diversity than the clonal asexual baseline where genetic drift erodes variation." width="100%"><p class="caption">
+<img src="figures/showcase_mating_systems.png" class="r-plt" alt="Genetic diversity over 400 ticks under sexual (purple) vs asexual (green) reproduction. Recombination in diploid sexual populations continuously regenerates novel genotype combinations, sustaining higher diversity than the clonal asexual baseline where genetic drift erodes variation." width="100%"><p class="caption">
 Genetic diversity over 400 ticks under sexual (purple) vs asexual
 (green) reproduction. Recombination in diploid sexual populations
 continuously regenerates novel genotype combinations, sustaining higher
@@ -1423,7 +1443,7 @@ Pairing this with a high <code>repro_cost</code> (energy transferred to
 the offspring at birth) creates the burst-and-die demographic profile
 characteristic of Pacific salmon or annual plants.</p>
 <div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">specs_sem</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">specs_sem</span><span class="op">$</span><span class="va">life_history</span>   <span class="op">&lt;-</span> <span class="st">"semelparous"</span></span>
@@ -1469,7 +1489,7 @@ characteristic of Pacific salmon or annual plants.</p>
 <span></span>
 <span><span class="va">p1</span> <span class="op">|</span> <span class="va">p2</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_life_history.png" alt="Semelparous (orange) vs iteroparous (green) life histories over 400 ticks. Left: semelparous populations show boom-bust dynamics as cohorts reproduce synchronously and die. Right: mean age is lower under semelparity because individuals die immediately after reproduction, whereas iteroparous agents accumulate age across multiple bouts." width="100%"><p class="caption">
+<img src="figures/showcase_life_history.png" class="r-plt" alt="Semelparous (orange) vs iteroparous (green) life histories over 400 ticks. Left: semelparous populations show boom-bust dynamics as cohorts reproduce synchronously and die. Right: mean age is lower under semelparity because individuals die immediately after reproduction, whereas iteroparous agents accumulate age across multiple bouts." width="100%"><p class="caption">
 Semelparous (orange) vs iteroparous (green) life histories over 400
 ticks. Left: semelparous populations show boom-bust dynamics as cohorts
 reproduce synchronously and die. Right: mean age is lower under
@@ -1498,7 +1518,7 @@ signature is a transient spike in genetic diversity immediately
 following a population crash — the period of maximum stress — followed
 by partial recovery as novel, potentially adaptive variants spread.</p>
 <div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">specs_hm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">specs_hm</span><span class="op">$</span><span class="va">stress_hypermutation</span>       <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
@@ -1541,7 +1561,7 @@ by partial recovery as novel, potentially adaptive variants spread.</p>
 <span></span>
 <span><span class="va">p1</span> <span class="op">|</span> <span class="va">p2</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_stress_hypermutation.png" alt="Stress hypermutation (pink) vs control (grey) over 400 ticks with scarce resources. Left: both conditions suffer population crashes under low grass availability. Right: genetic diversity spikes after crashes in the hypermutation condition as stressed individuals reproduce with elevated mutation rates, generating a burst of novel genotype combinations." width="100%"><p class="caption">
+<img src="figures/showcase_stress_hypermutation.png" class="r-plt" alt="Stress hypermutation (pink) vs control (grey) over 400 ticks with scarce resources. Left: both conditions suffer population crashes under low grass availability. Right: genetic diversity spikes after crashes in the hypermutation condition as stressed individuals reproduce with elevated mutation rates, generating a burst of novel genotype combinations." width="100%"><p class="caption">
 Stress hypermutation (pink) vs control (grey) over 400 ticks with scarce
 resources. Left: both conditions suffer population crashes under low
 grass availability. Right: genetic diversity spikes after crashes in the
@@ -1572,7 +1592,7 @@ creates detectable signatures in mean energy trajectories: post-crash
 recovery is faster when scavenging is enabled because survivors can
 subsist on the energy pulse released by the dying cohort.</p>
 <div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">specs_scav</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">specs_scav</span><span class="op">$</span><span class="va">scavenging</span>       <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
@@ -1614,7 +1634,7 @@ subsist on the energy pulse released by the dying cohort.</p>
 <span></span>
 <span><span class="va">p1</span> <span class="op">|</span> <span class="va">p2</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_scavenging.png" alt="Scavenging on (brown) vs off (grey) under scarce primary production (grass_rate = 0.15). Left: populations with scavenging recover more rapidly from crashes because survivors exploit the energy released by dying conspecifics. Right: mean energy is buffered by carrion pulses following mortality events (DeVault, Rhodes &amp; Shivik 2003)." width="100%"><p class="caption">
+<img src="figures/showcase_scavenging.png" class="r-plt" alt="Scavenging on (brown) vs off (grey) under scarce primary production (grass_rate = 0.15). Left: populations with scavenging recover more rapidly from crashes because survivors exploit the energy released by dying conspecifics. Right: mean energy is buffered by carrion pulses following mortality events (DeVault, Rhodes &amp; Shivik 2003)." width="100%"><p class="caption">
 Scavenging on (brown) vs off (grey) under scarce primary production
 (grass_rate = 0.15). Left: populations with scavenging recover more
 rapidly from crashes because survivors exploit the energy released by
@@ -1645,7 +1665,7 @@ favour larger clutches. Comparing evolved clutch-size trajectories
 against a fixed single-offspring baseline reveals the fitness landscape
 over reproductive allocation space.</p>
 <div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">specs_evo</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">specs_evo</span><span class="op">$</span><span class="va">clutch_size_evolution</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
@@ -1693,7 +1713,7 @@ over reproductive allocation space.</p>
 <span></span>
 <span><span class="va">p1</span> <span class="op">|</span> <span class="va">p2</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_clutch_size.png" alt="Evolving clutch size (blue, 1–5 range) vs fixed single offspring (grey) over 400 ticks. Left: populations with evolving clutch size reach higher peak densities when resources are abundant and contract more sharply under scarcity. Right: birth rate fluctuates with evolved clutch size, tracking the density-dependent optimum (MacArthur &amp; Wilson 1967; Smith &amp; Fretwell 1974)." width="100%"><p class="caption">
+<img src="figures/showcase_clutch_size.png" class="r-plt" alt="Evolving clutch size (blue, 1–5 range) vs fixed single offspring (grey) over 400 ticks. Left: populations with evolving clutch size reach higher peak densities when resources are abundant and contract more sharply under scarcity. Right: birth rate fluctuates with evolved clutch size, tracking the density-dependent optimum (MacArthur &amp; Wilson 1967; Smith &amp; Fretwell 1974)." width="100%"><p class="caption">
 Evolving clutch size (blue, 1–5 range) vs fixed single offspring (grey)
 over 400 ticks. Left: populations with evolving clutch size reach higher
 peak densities when resources are abundant and contract more sharply
@@ -1724,7 +1744,7 @@ correlation between mean energy at birth and inter-birth interval, and a
 negative correlation between litter size and mean offspring quality —
 the quantity-quality trade-off.</p>
 <div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">specs_inv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">specs_inv</span><span class="op">$</span><span class="va">parental_investment_evolution</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
@@ -1773,7 +1793,7 @@ the quantity-quality trade-off.</p>
 <span></span>
 <span><span class="va">p1</span> <span class="op">|</span> <span class="va">p2</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_parental_investment.png" alt="Parental investment evolution (pink) vs no investment evolution (grey) over 400 ticks. Left: investment evolution can elevate mean energy when selection favours quality over quantity, as higher energy offspring survive the early juvenile period more reliably. Right: birth rate is reduced when per-offspring investment rises, illustrating the quantity-quality trade-off (Trivers 1972)." width="100%"><p class="caption">
+<img src="figures/showcase_parental_investment.png" class="r-plt" alt="Parental investment evolution (pink) vs no investment evolution (grey) over 400 ticks. Left: investment evolution can elevate mean energy when selection favours quality over quantity, as higher energy offspring survive the early juvenile period more reliably. Right: birth rate is reduced when per-offspring investment rises, illustrating the quantity-quality trade-off (Trivers 1972)." width="100%"><p class="caption">
 Parental investment evolution (pink) vs no investment evolution (grey)
 over 400 ticks. Left: investment evolution can elevate mean energy when
 selection favours quality over quantity, as higher energy offspring
@@ -1810,7 +1830,7 @@ trajectory. High autocorrelation indicates that the mean is being
 consistently pulled in one direction by selection on heritable variation
 — the signature of a heritable response to selection.</p>
 <div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">specs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">specs</span><span class="op">$</span><span class="va">body_size_evolution</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
@@ -1845,7 +1865,7 @@ consistently pulled in one direction by selection on heritable variation
 <span></span>
 <span><span class="va">p1</span> <span class="op">|</span> <span class="va">p2</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_population_genetics.png" alt="Body size evolution over 500 ticks (blue, ±1 SD ribbon) alongside genetic diversity (red). The estimated narrow-sense heritability is shown in the panel title. Directional selection drives mean body size upward or downward depending on resource density; the ribbon width reflects standing genetic variation available for future selection (Fisher 1930; Lynch &amp; Walsh 1998)." width="100%"><p class="caption">
+<img src="figures/showcase_population_genetics.png" class="r-plt" alt="Body size evolution over 500 ticks (blue, ±1 SD ribbon) alongside genetic diversity (red). The estimated narrow-sense heritability is shown in the panel title. Directional selection drives mean body size upward or downward depending on resource density; the ribbon width reflects standing genetic variation available for future selection (Fisher 1930; Lynch &amp; Walsh 1998)." width="100%"><p class="caption">
 Body size evolution over 500 ticks (blue, ±1 SD ribbon) alongside
 genetic diversity (red). The estimated narrow-sense heritability is
 shown in the panel title. Directional selection drives mean body size
@@ -1876,7 +1896,7 @@ mutates a randomly selected elite, runs a short simulation, and places
 the result in the archive cell matching its mean behavioural descriptor
 value.</p>
 <div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">specs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">specs</span><span class="op">$</span><span class="va">n_agents_init</span> <span class="op">&lt;-</span> <span class="fl">50L</span></span>
@@ -1897,7 +1917,7 @@ value.</p>
 <span></span>
 <span><span class="va">result</span><span class="op">$</span><span class="va">map</span>   <span class="co"># ggplot2 heatmap of the archive</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_map_elites.png" alt="MAP-Elites archive after 200 iterations. Each cell shows the best genetic diversity score achieved for a given (genetic_diversity, n_agents) behavioural profile. Empty cells indicate unattainable or unexplored regions of the behavioural space. The heatmap reveals trade-offs: parameter configurations that maximise diversity often sustain lower population sizes (Mouret &amp; Clune 2015)." width="100%"><p class="caption">
+<img src="figures/showcase_map_elites.png" class="r-plt" alt="MAP-Elites archive after 200 iterations. Each cell shows the best genetic diversity score achieved for a given (genetic_diversity, n_agents) behavioural profile. Empty cells indicate unattainable or unexplored regions of the behavioural space. The heatmap reveals trade-offs: parameter configurations that maximise diversity often sustain lower population sizes (Mouret &amp; Clune 2015)." width="100%"><p class="caption">
 MAP-Elites archive after 200 iterations. Each cell shows the best
 genetic diversity score achieved for a given (genetic_diversity,
 n_agents) behavioural profile. Empty cells indicate unattainable or
@@ -1944,8 +1964,17 @@ already close to the optimal weight, reducing
 as the effective learned behaviour becomes genetically encoded. The
 trajectory of <code>mean_prior_sigma</code> is therefore a direct window
 onto the Baldwin Effect in action.</p>
+<p><strong>Caveat (0.3.0 audit finding).</strong> In clade’s default
+competitive foraging world, σ <em>rises</em> to the exploration ceiling
+— no canalization — because the optimum shifts with population density
+and there is no stable adaptive peak. The dedicated <a href="baldwin-effect.html">Baldwin Effect article</a> walks through five
+experiments establishing this, and documents a calibrated regime
+(<code>grass_rate ≈ 0.027</code>,
+<code>learning_rate_init_mean ≈ 0.007</code>) where canalization
+<em>does</em> emerge, discovered via CMA-ES auto-calibration
+(<code>dev/audit/calibration/</code>).</p>
 <div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">specs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">specs</span><span class="op">$</span><span class="va">brain_type</span>    <span class="op">&lt;-</span> <span class="st">"bnn"</span>   <span class="co"># explicit; "bnn" is already the default</span></span>
@@ -1969,7 +1998,7 @@ onto the Baldwin Effect in action.</p>
 <span>       x <span class="op">=</span> <span class="st">"Tick"</span>, y <span class="op">=</span> <span class="st">"Mean prior sigma"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_bnn_uncertainty.png" alt="Mean prior sigma (purple) over 600 ticks for BNN agents. The loess smoother reveals the long-run trend. A declining trajectory indicates that the population is genetically assimilating learned behaviours: agents whose prior means are already close to optimal require less within-lifetime adjustment, reducing the posterior variance and, over generations, the prior sigma inherited by their offspring (Baldwin 1896; Hinton &amp; Nowlan 1987)." width="100%"><p class="caption">
+<img src="figures/showcase_bnn_uncertainty.png" class="r-plt" alt="Mean prior sigma (purple) over 600 ticks for BNN agents. The loess smoother reveals the long-run trend. A declining trajectory indicates that the population is genetically assimilating learned behaviours: agents whose prior means are already close to optimal require less within-lifetime adjustment, reducing the posterior variance and, over generations, the prior sigma inherited by their offspring (Baldwin 1896; Hinton &amp; Nowlan 1987)." width="100%"><p class="caption">
 Mean prior sigma (purple) over 600 ticks for BNN agents. The loess
 smoother reveals the long-run trend. A declining trajectory indicates
 that the population is genetically assimilating learned behaviours:
@@ -2000,7 +2029,7 @@ shrubs as a high-value but spatially patchy resource) together with a
 sweep over <code>max_age</code>. At each lifespan, we record the mean
 evolved <code>learning_rate</code> after 400 ticks.</p>
 <div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">ages</span>   <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">20L</span>, <span class="fl">40L</span>, <span class="fl">80L</span>, <span class="fl">160L</span>, <span class="fl">300L</span><span class="op">)</span></span>
@@ -2052,7 +2081,7 @@ evolved <code>learning_rate</code> after 400 ticks.</p>
 <span>  <span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">13</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_cephalopod_paradox.png" alt="Evolved learning rate as a function of maximum lifespan (cephalopod paradox). With a complex landscape containing shrubs, agents are under selection to learn quickly enough to exploit the mid-layer resource before they die. Very short-lived agents evolve the fastest learning rates; very long-lived agents can afford slow incremental learning. The non-monotone or inverted relationship reverses the standard prediction of life-history theory (Liedtke &amp; Fromhage 2019)." width="100%"><p class="caption">
+<img src="figures/showcase_cephalopod_paradox.png" class="r-plt" alt="Evolved learning rate as a function of maximum lifespan (cephalopod paradox). With a complex landscape containing shrubs, agents are under selection to learn quickly enough to exploit the mid-layer resource before they die. Very short-lived agents evolve the fastest learning rates; very long-lived agents can afford slow incremental learning. The non-monotone or inverted relationship reverses the standard prediction of life-history theory (Liedtke &amp; Fromhage 2019)." width="100%"><p class="caption">
 Evolved learning rate as a function of maximum lifespan (cephalopod
 paradox). With a complex landscape containing shrubs, agents are under
 selection to learn quickly enough to exploit the mid-layer resource
@@ -2073,7 +2102,7 @@ carry two traits: <code>research_power</code> W (the probability that a
 given study tests a true hypothesis) and <code>research_effort</code> e
 (investment in methodological rigour). The false-positive rate per study
 is:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mo>=</mo><mfrac><mi>W</mi><mrow><mn>1</mn><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>W</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><mi>e</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex">\alpha = \frac{W}{1 + (1-W)\,e}</annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mo>=</mo><mfrac><mi>W</mi><mrow><mn>1</mn><mo>+</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>W</mi><mo stretchy="true" form="postfix">)</mo></mrow><mspace width="0.167em"></mspace><mi>e</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex">\alpha = \frac{W}{1 + (1-W)\,e}</annotation></semantics></math></p>
 <p>Each tick, labs produce a mix of true and false positives. Labs with
 more publications reproduce; low-effort labs publish more, so selection
 favours cutting corners. Even costly replication attempts slow but do
@@ -2082,7 +2111,7 @@ penalise the lab that published the original.</p>
 <p><code><a href="../reference/run_bad_science.html">run_bad_science()</a></code> is a self-contained pure-R simulation
 that requires no Julia session.</p>
 <div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span><span class="op">)</span></span>
 <span></span>
@@ -2122,7 +2151,7 @@ that requires no Julia session.</p>
 <span><span class="va">p1</span> <span class="op">/</span> <span class="va">p2</span> <span class="op">+</span> <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_layout.html" class="external-link">plot_layout</a></span><span class="op">(</span>guides <span class="op">=</span> <span class="st">"collect"</span><span class="op">)</span> <span class="op">&amp;</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_bad_science.png" alt="Evolution of bad science (Smaldino &amp; McElreath 2016). Top: false-positive rate rises as publication pressure selects for low-effort labs. Bottom: research effort declines in parallel. Higher replication rates slow deterioration but do not prevent it. No Julia session is required: run_bad_science() is a self-contained pure-R simulation." width="100%"><p class="caption">
+<img src="figures/showcase_bad_science.png" class="r-plt" alt="Evolution of bad science (Smaldino &amp; McElreath 2016). Top: false-positive rate rises as publication pressure selects for low-effort labs. Bottom: research effort declines in parallel. Higher replication rates slow deterioration but do not prevent it. No Julia session is required: run_bad_science() is a self-contained pure-R simulation." width="100%"><p class="caption">
 Evolution of bad science (Smaldino &amp; McElreath 2016). Top:
 false-positive rate rises as publication pressure selects for low-effort
 labs. Bottom: research effort declines in parallel. Higher replication
@@ -2153,7 +2182,7 @@ before the advantage emerges. With parental care, the provisioning
 energy buffer allows large-brained offspring to survive long enough for
 selection to favour the trait.</p>
 <div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">base</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -2194,7 +2223,7 @@ selection to favour the trait.</p>
 <span>       x <span class="op">=</span> <span class="st">"Tick"</span>, y <span class="op">=</span> <span class="st">"Mean brain size"</span>, colour <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_brain_size_evolution.png" alt="Parental provisioning hypothesis. Mean brain size drifts upward when parental care is present (blue): the provisioning energy buffer allows large-brained offspring to survive the bootstrapping period. Without parental care (red), the metabolic cost of a large brain eliminates high-brain-size phenotypes, keeping mean brain size at or below the reference (dashed). Based on van Schaik et al. (2023) PLoS Biology, Griesser et al. (2023) PNAS, and Song et al. (2025) PNAS." width="100%"><p class="caption">
+<img src="figures/showcase_brain_size_evolution.png" class="r-plt" alt="Parental provisioning hypothesis. Mean brain size drifts upward when parental care is present (blue): the provisioning energy buffer allows large-brained offspring to survive the bootstrapping period. Without parental care (red), the metabolic cost of a large brain eliminates high-brain-size phenotypes, keeping mean brain size at or below the reference (dashed). Based on van Schaik et al. (2023) PLoS Biology, Griesser et al. (2023) PNAS, and Song et al. (2025) PNAS." width="100%"><p class="caption">
 Parental provisioning hypothesis. Mean brain size drifts upward when
 parental care is present (blue): the provisioning energy buffer allows
 large-brained offspring to survive the bootstrapping period. Without
@@ -2222,7 +2251,7 @@ source:</p>
 <div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/source.html" class="external-link">source</a></span><span class="op">(</span><span class="st">"vignettes/generate_figures.R"</span><span class="op">)</span></span></code></pre></div>
 <p>This creates <code>man/figures/showcase_*.png</code>. Re-build the
-vignette with <code><a href="https://devtools.r-lib.org/reference/build_vignettes.html" class="external-link">devtools::build_vignettes()</a></code> to embed the
+vignette with <code>devtools::build_vignettes()</code> to embed the
 updated images.</p>
 <hr>
 </div>
@@ -2353,7 +2382,7 @@ breadth and interspecific competition: an inclusive-fitness approach.
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -30,7 +30,7 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../articles/getting-started.html">Get Started</a></li>
-<li class="nav-item dropdown">
+<li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-guides" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Guides</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-guides">
 <li><a class="dropdown-item" href="../articles/getting-started.html">Getting started</a></li>
@@ -129,7 +129,7 @@
 Nakagawa</h4>
             
       
-
+      <small class="dont-index">Source: <a href="https://github.com/itchyshin/clade/blob/scenario-audit-0.2.0/vignettes/baldwin-effect.Rmd" class="external-link"><code>vignettes/baldwin-effect.Rmd</code></a></small>
       <div class="d-none name"><code>baldwin-effect.Rmd</code></div>
     </div>
 
@@ -174,7 +174,7 @@ axis.</p>
 exploration, low σ = canalization) and <code>genetic_diversity</code>
 (mean pairwise genome distance).</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span><span class="op">)</span></span>
@@ -233,7 +233,7 @@ exploration, low σ = canalization) and <code>genetic_diversity</code>
 <span></span>
 <span><span class="va">pA</span> <span class="op">/</span> <span class="va">pB</span> <span class="op">+</span> <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_layout.html" class="external-link">plot_layout</a></span><span class="op">(</span>heights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_bnn_canalization_demo.png" alt="Top: mean BNN prior sigma over 1000 ticks. Baseline (blue dashed): sigma rises to the 0.5 exploration ceiling — no canalization in a dynamic foraging world. Epigenetics (orange): sigma declines toward zero as TEI propagates within-lifetime learning across generations. Bottom: genetic diversity (mean pairwise genome distance) rises in both conditions — epigenetic canalization of sigma does not cause a selective sweep of the genome; different genotypes can encode the same canalized behaviour." width="100%"><p class="caption">
+<img src="figures/showcase_bnn_canalization_demo.png" class="r-plt" alt="Top: mean BNN prior sigma over 1000 ticks. Baseline (blue dashed): sigma rises to the 0.5 exploration ceiling — no canalization in a dynamic foraging world. Epigenetics (orange): sigma declines toward zero as TEI propagates within-lifetime learning across generations. Bottom: genetic diversity (mean pairwise genome distance) rises in both conditions — epigenetic canalization of sigma does not cause a selective sweep of the genome; different genotypes can encode the same canalized behaviour." width="100%"><p class="caption">
 Top: mean BNN prior sigma over 1000 ticks. Baseline (blue dashed): sigma
 rises to the 0.5 exploration ceiling — no canalization in a dynamic
 foraging world. Epigenetics (orange): sigma declines toward zero as TEI
@@ -507,7 +507,7 @@ difficult, agents with high σ that can explore broadly have a strong
 survival advantage; tight priors are fatal. The bold row is the most
 canalization-favourable cell tested; it still reaches the ceiling.</p>
 <div class="figure">
-<img src="figures/showcase_bnn_exp1_stability.png" alt="Phase diagram of mean_prior_sigma slope (×10⁻⁴) across 9 resource-abundance × seasonality conditions. All cells are positive (red). The predicted canalization signal (green) does not appear in any cell." width="100%"><p class="caption">
+<img src="figures/showcase_bnn_exp1_stability.png" class="r-plt" alt="Phase diagram of mean_prior_sigma slope (×10⁻⁴) across 9 resource-abundance × seasonality conditions. All cells are positive (red). The predicted canalization signal (green) does not appear in any cell." width="100%"><p class="caption">
 Phase diagram of mean_prior_sigma slope (×10⁻⁴) across 9
 resource-abundance × seasonality conditions. All cells are positive
 (red). The predicted canalization signal (green) does not appear in any
@@ -565,7 +565,7 @@ is reached — regardless of whether canalization is occurring. If the
 ceiling parameter (<code>prior_sigma_max</code>) were raised, σ would
 continue rising.</p>
 <div class="figure">
-<img src="figures/showcase_bnn_exp2_runlength.png" alt="Sigma trajectories at 1000, 2000, and 5000 ticks (mean ± SE across 5 seeds). All runs reach the 0.5 ceiling; the slope decelerates 21-fold but never reverses. The dashed line marks the ceiling." width="100%"><p class="caption">
+<img src="figures/showcase_bnn_exp2_runlength.png" class="r-plt" alt="Sigma trajectories at 1000, 2000, and 5000 ticks (mean ± SE across 5 seeds). All runs reach the 0.5 ceiling; the slope decelerates 21-fold but never reverses. The dashed line marks the ceiling." width="100%"><p class="caption">
 Sigma trajectories at 1000, 2000, and 5000 ticks (mean ± SE across 5
 seeds). All runs reach the 0.5 ceiling; the slope decelerates 21-fold
 but never reverses. The dashed line marks the ceiling.
@@ -645,7 +645,7 @@ clearest evidence that exploration is genuinely the ESS in this world:
 it is favoured even when it is costly.</p></li>
 </ol>
 <div class="figure">
-<img src="figures/showcase_bnn_exp3_brains.png" alt="Left: sigma trajectories for BNN-only and BNN+RL are indistinguishable — RL does not affect sigma dynamics. Right: final mean energy by condition — BNN pays a 17% energy cost relative to ANN, yet sigma rises to ceiling in both BNN conditions." width="100%"><p class="caption">
+<img src="figures/showcase_bnn_exp3_brains.png" class="r-plt" alt="Left: sigma trajectories for BNN-only and BNN+RL are indistinguishable — RL does not affect sigma dynamics. Right: final mean energy by condition — BNN pays a 17% energy cost relative to ANN, yet sigma rises to ceiling in both BNN conditions." width="100%"><p class="caption">
 Left: sigma trajectories for BNN-only and BNN+RL are indistinguishable —
 RL does not affect sigma dynamics. Right: final mean energy by condition
 — BNN pays a 17% energy cost relative to ANN, yet sigma rises to ceiling
@@ -741,7 +741,7 @@ scarce-stable environment the effect is stronger: σ reaches only 0.140,
 a 72% reduction from the 0.5 ceiling and 65% below the baseline final
 value of 0.400.</p>
 <div class="figure">
-<img src="figures/showcase_bnn_exp4_social.png" alt="Final mean prior sigma by social module and environment. Epigenetics (red dot) is the only mechanism that substantially reduces sigma below the 0.5 ceiling (dashed line). All other modules are indistinguishable from the baseline in the stable environment and provide only moderate reductions in the scarce environment." width="100%"><p class="caption">
+<img src="figures/showcase_bnn_exp4_social.png" class="r-plt" alt="Final mean prior sigma by social module and environment. Epigenetics (red dot) is the only mechanism that substantially reduces sigma below the 0.5 ceiling (dashed line). All other modules are indistinguishable from the baseline in the stable environment and provide only moderate reductions in the scarce environment." width="100%"><p class="caption">
 Final mean prior sigma by social module and environment. Epigenetics
 (red dot) is the only mechanism that substantially reduces sigma below
 the 0.5 ceiling (dashed line). All other modules are indistinguishable
@@ -800,7 +800,7 @@ highest-scoring cells (highest genetic diversity) all had σ &gt;
 <p><strong>No low-σ + high-gd cell was found anywhere in the
 archive.</strong></p>
 <div class="figure">
-<img src="figures/showcase_bnn_exp5_mapelites.png" alt="MAP-Elites archive: each point is a filled cell (20 of 121 total), coloured by genetic diversity. Low sigma is only found at low genetic diversity (bottom-left region). The bottom-right quadrant — low sigma + high diversity, required for the Baldwin Effect proper — is empty." width="100%"><p class="caption">
+<img src="figures/showcase_bnn_exp5_mapelites.png" class="r-plt" alt="MAP-Elites archive: each point is a filled cell (20 of 121 total), coloured by genetic diversity. Low sigma is only found at low genetic diversity (bottom-left region). The bottom-right quadrant — low sigma + high diversity, required for the Baldwin Effect proper — is empty." width="100%"><p class="caption">
 MAP-Elites archive: each point is a filled cell (20 of 121 total),
 coloured by genetic diversity. Low sigma is only found at low genetic
 diversity (bottom-left region). The bottom-right quadrant — low sigma +
@@ -826,6 +826,49 @@ world in <code>clade</code> consistently selects for maintained
 exploration.</p>
 <hr>
 </div>
+</div>
+<div class="section level2">
+<h2 id="addendum-a-calibrated-regime-where-canalization-emerges">Addendum: a calibrated regime where canalization emerges<a class="anchor" aria-label="anchor" href="#addendum-a-calibrated-regime-where-canalization-emerges"></a>
+</h2>
+<p>After the five original experiments, we ran clade’s built-in CMA-ES
+search (<code><a href="../reference/search_cmaes.html">clade::search_cmaes</a></code>, driven by the harness under <a href="https://github.com/itchyshin/clade/tree/main/dev/audit/calibration" class="external-link"><code>dev/audit/calibration/</code></a>)
+against the objective “negative slope of <code>mean_prior_sigma</code>”
+— i.e. reward any parameter regime that makes σ <em>narrow</em>. Full
+writeup at <a href="https://github.com/itchyshin/clade/blob/main/dev/audit/calibration/RESULTS.md" class="external-link"><code>dev/audit/calibration/RESULTS.md</code></a>.</p>
+<p>The search found a regime that does produce canalization:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Parameter overrides discovered by CMA-ES.</span></span>
+<span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">brain_type</span>              <span class="op">&lt;-</span> <span class="st">"bnn"</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">n_agents_init</span>           <span class="op">&lt;-</span> <span class="fl">80L</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">max_ticks</span>               <span class="op">&lt;-</span> <span class="fl">400L</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">grass_rate</span>              <span class="op">&lt;-</span> <span class="fl">0.027</span>   <span class="co"># default 0.05 — scarcer resources</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">learning_rate_init_mean</span> <span class="op">&lt;-</span> <span class="fl">0.007</span>   <span class="co"># default 0.01 — slower RL update</span></span>
+<span><span class="co"># env &lt;- run_alife(s)   # uncomment to run the calibrated regime</span></span></code></pre></div>
+<p>The resulting σ trajectory has a small but consistently
+<strong>negative</strong> slope (the observable fitness ratio is 1.2×
+over the default baseline in the calibration report, a sign-flip from
+the exploration-dominated regime). Canalization is weaker than Hinton
+&amp; Nowlan’s prediction because even at these specs, the clade
+foraging world does not have a truly stable peak — it has a shifting
+optimum driven by population competition. But the result confirms that
+canalization <strong>is</strong> accessible; it just requires scarcer
+resources and slower within- lifetime learning than the displayed
+defaults.</p>
+<p>Biological reading: in environments where foraging is costly and
+learning is slow, selection favours agents whose genome already encodes
+a close-to-optimal policy. Agents with wider priors (high σ) waste
+energy sampling low-reward actions and are outcompeted. In the abundant
+/ fast-learning regime, high σ is protective because exploration finds
+good cells before starvation. The sign of selection on σ therefore
+hinges on the ratio of exploration cost to exploration benefit — exactly
+the Mayley (1996) framing.</p>
+<p>The five original experiments establish that at <em>commonly
+used</em> parameter defaults, canalization does not occur. The addendum
+establishes that canalization is not mechanistically impossible in clade
+— it just sits in a narrower parameter neighbourhood than the broader
+exploration regime.</p>
+<hr>
 </div>
 <div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
@@ -864,7 +907,7 @@ Learning</em> 8(3–4):229–256.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

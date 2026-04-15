@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,7 +44,7 @@
     <li><a class="dropdown-item" href="../articles/baldwin-effect.html">Baldwin effect &amp; RL</a></li>
   </ul>
 </li>
-<li class="nav-item dropdown">
+<li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-scenarios" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Scenarios</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-scenarios">
 <li><a class="dropdown-item" href="../articles/scenarios.html">All scenarios (index)</a></li>
@@ -127,7 +127,7 @@
       <h1>SIR disease</h1>
             
       
-
+      <small class="dont-index">Source: <a href="https://github.com/itchyshin/clade/blob/scenario-audit-0.2.0/vignettes/s-disease.Rmd" class="external-link"><code>vignettes/s-disease.Rmd</code></a></small>
       <div class="d-none name"><code>s-disease.Rmd</code></div>
     </div>
 
@@ -198,7 +198,7 @@ susceptible population, then declines as agents recover and acquire
 temporary immunity. Population size drops noticeably during the
 outbreak.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span><span class="op">)</span></span>
 <span></span>
@@ -239,8 +239,24 @@ and disease mortality, not by direct disease death (which is only
 calibration point</strong>: R₀ ≈ 1.5–2.5 at these parameters, consistent
 with moderate-virulence respiratory pathogens (Anderson &amp; May
 1991).</p>
+</div>
+<div class="section level3">
+<h3 id="calibrated-regime-cma-es-discovered">Calibrated regime (CMA-ES discovered)<a class="anchor" aria-label="anchor" href="#calibrated-regime-cma-es-discovered"></a>
+</h3>
+<p>Running Phase 7 auto-calibration
+(<code>dev/audit/calibration/</code>) over the scenario’s parameter
+subspace discovered the following regime, which produces a fitness
+improvement of <strong>45.2x</strong> over the defaults above. See
+<code>dev/audit/calibration/RESULTS.md</code> for the full CMA-ES
+results.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Parameter overrides discovered by CMA-ES (see dev/audit/calibration/):</span></span>
+<span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">transmission_prob</span>              <span class="op">&lt;-</span> <span class="fl">0.9001</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">disease_death_prob</span>             <span class="op">&lt;-</span> <span class="fl">5e-04</span></span>
+<span><span class="co"># env &lt;- run_alife(s)   # uncomment to run the calibrated regime</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_06_disease.png" alt="Expected output: epidemic wave visible as a peak in the infected count (top). Population size declines noticeably during the outbreak (bottom)." width="100%"><p class="caption">
+<img src="figures/showcase_06_disease.png" class="r-plt" alt="Expected output: epidemic wave visible as a peak in the infected count (top). Population size declines noticeably during the outbreak (bottom)." width="100%"><p class="caption">
 Expected output: epidemic wave visible as a peak in the infected count
 (top). Population size declines noticeably during the outbreak (bottom).
 </p>
@@ -323,7 +339,7 @@ niche construction reduces disease (25.2 vs 42.8).</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

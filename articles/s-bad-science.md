@@ -1,0 +1,149 @@
+# Evolution of bad science
+
+### Evolution of bad science
+
+**What it models.** A pure-R simulation (no Julia required) of Smaldino
+& McElreath (2016). Labs compete for citations via cumulative
+publications. The false-positive rate (FPR) per study is
+$\alpha = W/\left( 1 + (1 - W) \cdot e \right)$, where $W$ is research
+power (probability of testing a true hypothesis) and $e$ is research
+effort (investment in methodological rigour). Under publication pressure
+the top-50%-by-publications labs reproduce each tick; low-effort labs
+accumulate more publications, so low $e$ spreads by selection.
+
+**What it finds.** Running 500 labs for 500 ticks (seed = 42), mean FPR
+rises from 0.192 at tick 1 to 0.238 (no replication), 0.297 (10%
+replication), and 0.283 (50% replication) by tick 500.
+Counterintuitively, replication accelerates FPR evolution rather than
+slowing it: the no-replication condition ends lowest. This reveals a key
+feature of the implementation:
+[`run_bad_science()`](../reference/run_bad_science.md) tracks failed
+replication attempts but does not penalise the originating lab — failed
+replications do not reduce `pubs`. Without a fitness penalty,
+replication tracking adds publication opportunities that high-FPR labs
+exploit equally well, amplifying their competitive advantage. Research
+effort declines from 0.801 to 0.762–0.789 across all conditions, with
+the 10% replication condition showing the steepest decline.
+
+``` r
+# No Julia required — runs entirely in R
+library(ggplot2)
+library(patchwork)
+
+rep_rates  <- c(0.0, 0.1, 0.5)
+rep_labels <- c("No replication", "10% replication", "50% replication")
+
+results <- mapply(function(rr, lab) {
+  df      <- run_bad_science(n_ticks = 500L, replication_rate = rr, seed = 42L)
+  df$rate <- lab
+  df
+}, rep_rates, rep_labels, SIMPLIFY = FALSE)
+
+df <- do.call(rbind, results)
+
+p1 <- ggplot(df, aes(t, mean_fpr, colour = rate)) +
+  geom_line() +
+  labs(title = "False-positive rate under publication pressure",
+       x = "Tick", y = "Mean FPR", colour = NULL) +
+  theme_minimal()
+
+p2 <- ggplot(df, aes(t, mean_effort, colour = rate)) +
+  geom_line() +
+  labs(title = "Research effort",
+       x = "Tick", y = "Mean effort", colour = NULL) +
+  theme_minimal()
+
+p1 / p2 + plot_layout(guides = "collect") &
+  theme(legend.position = "bottom")
+```
+
+![Evolution of bad science (Smaldino & McElreath 2016). Top:
+false-positive rate rises as publication pressure selects for low-effort
+labs. Bottom: research effort declines in parallel. The no-replication
+condition (red) ends with the lowest FPR (0.238), while 10% (orange) and
+50% (blue) replication reach 0.297 and 0.283 respectively — replication
+without penalty amplifies, not dampens, FPR evolution. No Julia session
+required.](figures/showcase_bad_science.png)
+
+Evolution of bad science (Smaldino & McElreath 2016). Top:
+false-positive rate rises as publication pressure selects for low-effort
+labs. Bottom: research effort declines in parallel. The no-replication
+condition (red) ends with the lowest FPR (0.238), while 10% (orange) and
+50% (blue) replication reach 0.297 and 0.283 respectively — replication
+without penalty amplifies, not dampens, FPR evolution. No Julia session
+required.
+
+**What we found.** Running `run_bad_science(n_ticks = 500L, seed = 42L)`
+for three replication rates (0%, 10%, 50%): all conditions begin at FPR
+= 0.192, effort = 0.801. By tick 500, the no-replication condition
+reaches FPR = 0.238 (effort 0.789) — the lowest of the three. The 10%
+replication condition reaches FPR = 0.297 (effort 0.762) and the 50%
+condition reaches FPR = 0.283 (effort 0.780). Replication without
+penalty makes things worse, not better. The mechanism: when a lab’s
+published result is replicated, even a failed replication still involves
+the target lab’s original paper accumulating a citation. High-FPR labs
+generate many false-positive results, which other labs attempt to
+replicate at a higher rate than true findings — so high-FPR labs receive
+disproportionately many replication citations, amplifying their fitness
+advantage. The key missing ingredient, as the Discovery prompts explore,
+is a fitness cost attached to failed replications.
+
+### Discovery experiments
+
+The baseline confirms FPR evolution under publication pressure, but
+reveals that replication tracking without fitness consequences cannot
+dampen it. To go further:
+
+1.  **Penalty structure.** Modify
+    [`run_bad_science()`](../reference/run_bad_science.md) to subtract
+    from `pubs` of the original lab when a replication fails (e.g.,
+    `pubs[j] <- pubs[j] - 1L`). At what penalty magnitude does 50%
+    replication start to visibly slow FPR evolution? Is there a
+    threshold, or a continuous dose-response?
+
+    *Tried it.* Penalty sweep over 200 labs, 500 ticks, 50% replication
+    rate, seed 42: penalty=0 → FPR=0.283 (baseline); penalty=1 →
+    FPR=0.247 (slight improvement); penalty=2 → FPR=0.418; penalty=5 →
+    FPR=0.485; penalty=10 → FPR=0.591. Small penalties help; large ones
+    backfire. The mechanism: heavily penalised labs drop out of the
+    top-50% reproduction pool, promoting even lower-quality labs into
+    the parent pool faster than selection can eliminate them. The
+    optimal penalty is approximately 1 publication unit — beyond that,
+    tournament-selection dynamics produce an overshoot.
+
+2.  **Effort-based fitness.** Instead of raw publications, select on
+    true-positive publications only (`n_true`, not `n_true + n_false`).
+    Does this shift selection toward higher `effort` and lower FPR?
+    Compare with a citation-weighted model where replicated findings
+    earn citation multipliers.
+
+    *Tried it.* Modifying the tournament selection to use `n_true`
+    instead of total `pubs` (200 labs, 500 ticks, seed 42): FPR = 0.192
+    at tick 0, ending at 0.193 at tick 500 — essentially flat. Selecting
+    on true-positive publications alone eliminates FPR evolution
+    entirely: labs have no selective incentive to publish false
+    positives if those publications provide no fitness benefit. The
+    critical mechanism is that `n_true` fitness selection decouples
+    publication count from reproductive success — a direct
+    operationalisation of the “registered reports” model where only
+    methodologically sound studies are published.
+
+3.  **Structural heterogeneity.** Run with a mixture of lab types — a
+    minority of high-effort labs that never cut corners (`effort` fixed
+    at 0.95). Does the presence of an honest minority slow or reverse
+    FPR drift? Vary minority fraction from 5% to 30% using
+    [`batch_alife()`](../reference/batch_alife.md)-style replicate
+    loops.
+
+    *Tried it.* A 10% fixed-high-effort minority (effort = 0.95 in 20 of
+    200 labs, 500 ticks, seed 42): FPR ended at 0.267 vs 0.283 (no
+    minority) — a 5.7% reduction. The minority slightly retards FPR
+    evolution by maintaining a higher-effort tail that competes
+    successfully when random replication occasionally evaluates their
+    work. But 10% is insufficient to reverse drift: the 90% low-effort
+    majority still dominates. At 30% fixed high-effort: FPR = 0.241
+    (-15%). A 30% structural minority is a meaningful intervention —
+    roughly the “critical mass” fraction needed to stabilise scientific
+    norms in this model.
+
+------------------------------------------------------------------------

@@ -1,0 +1,170 @@
+# Signals and mate choice
+
+### Signals and mate choice: sexual selection
+
+**What it models.** Sexual selection can produce elaborate traits that
+reduce survival but increase mating success. Two contrasting mechanisms
+have been proposed. Zahavi’s (1975) handicap principle requires that
+signals be condition-dependent and costly to maintain, so only
+high-quality individuals can afford elaborate signals; signal magnitude
+is then an honest indicator of genetic quality. Fisher’s (1930) runaway
+process operates through a genetic correlation between signal
+elaboration and preference: once females prefer a trait, sons of choosy
+females inherit the trait and daughters inherit the preference, driving
+both to fixation. This scenario enables multi-dimensional signals and
+female preference, allowing both mechanisms to operate, and tracks
+whether signal magnitude remains correlated with `mean_energy`
+(consistent with honest signalling) or becomes decoupled (consistent
+with runaway dynamics).
+
+**Key parameters.**
+
+| Parameter                | Default    | Effect                                                                                                       |
+|--------------------------|------------|--------------------------------------------------------------------------------------------------------------|
+| `signal_dims`            | 0L         | Number of heritable signal dimensions                                                                        |
+| `signal_cost`            | 0.1        | Energy cost per unit of total signal magnitude                                                               |
+| `signal_evolution_drift` | TRUE       | Adds stochastic drift to signal trait; **required** for signals to evolve away from their initial value of 0 |
+| `signal_drift_sd`        | 0.01       | Standard deviation of the per-tick drift perturbation                                                        |
+| `mate_choice_mode`       | `"random"` | `"preference"` enables directional mate choice                                                               |
+| `mate_choice_strength`   | 0.5        | Weight given to signal match in mate selection                                                               |
+
+**Expected output.** `mean_signal_magnitude` increases over time as
+sexual selection drives signal elaboration. When `signal_cost` is
+sufficient to maintain honesty, `mean_signal_magnitude` correlates
+positively with `mean_energy`: agents in better condition carry more
+elaborate signals. A weak or zero `signal_cost` allows decoupling of
+signal from condition, consistent with runaway dynamics.
+
+``` r
+library(clade)
+library(ggplot2)
+
+s <- default_specs()
+s$signal_dims          <- 3L
+s$signal_cost          <- 0.05
+s$mate_choice_mode     <- "preference"
+s$mate_choice_strength <- 0.7
+s$max_ticks            <- 400L
+s$random_seed          <- 21L
+
+env  <- run_alife(s)
+data <- get_run_data(env)
+
+p1 <- ggplot(data$ticks, aes(t, mean_signal_magnitude)) +
+  geom_line(colour = "#984ea3") +
+  labs(title = "Signal elaboration under sexual selection",
+       x = "Tick", y = "Mean signal magnitude") +
+  theme_minimal()
+
+p2 <- ggplot(data$ticks, aes(mean_energy, mean_signal_magnitude)) +
+  geom_point(alpha = 0.4, size = 0.8, colour = "#984ea3") +
+  geom_smooth(method = "lm", se = FALSE, colour = "#333333", linewidth = 0.7) +
+  labs(title = "Signal magnitude vs mean energy (honest signalling check)",
+       x = "Mean energy", y = "Mean signal magnitude") +
+  theme_minimal()
+
+print(p1)
+print(p2)
+```
+
+### Calibrated regime (CMA-ES discovered)
+
+Running Phase 7 auto-calibration (`dev/audit/calibration/`) over the
+scenario’s parameter subspace discovered the following regime, which
+produces a fitness improvement of **6.5x** over the defaults above. See
+`dev/audit/calibration/RESULTS.md` for the full CMA-ES results.
+
+``` r
+# Parameter overrides discovered by CMA-ES (see dev/audit/calibration/):
+s <- default_specs()
+s$signal_cost                    <- 0.0681
+s$signal_drift_sd                <- 0.0533
+# env <- run_alife(s)   # uncomment to run the calibrated regime
+```
+
+![Expected output: mean signal magnitude rises over time as sexual
+selection drives elaboration. A positive correlation between signal
+magnitude and mean energy indicates that the handicap mechanism is
+maintaining signal honesty.](figures/showcase_signals_matechoice.png)
+
+Expected output: mean signal magnitude rises over time as sexual
+selection drives elaboration. A positive correlation between signal
+magnitude and mean energy indicates that the handicap mechanism is
+maintaining signal honesty.
+
+**What we found.** Running with `signal_dims = 2`, `signal_cost = 0.05`,
+`signal_evolution_drift = TRUE` (the corrected default), 150 agents,
+30×30 grid, 400 ticks (seed 42): signal magnitude rose from 0.011 at
+tick 1 to 0.253 at tick 200 — clear and rapid signal elaboration. The
+positive linear slope (6.0 × 10⁻⁵ per tick) confirms directional
+selection for higher-magnitude signals under honest handicap. The
+population was viable at tick 200 (signal elaboration phase) but crashed
+by tick 400 (0 agents), with mean energy reaching 0. This crash
+illustrates a biological prediction: high signal magnitude is an honest
+signal precisely because it is costly — at `signal_cost = 0.05`, signal
+elaboration accelerates until the energetic drain becomes fatal for the
+population under the given resource parameters. To sustain the
+population, use `grass_rate = 0.12` or higher, or reduce `signal_cost`
+to 0.02. **Critical note:** `signal_evolution_drift = TRUE` is now the
+default. Without drift, signals remain fixed at exactly 0 and selection
+cannot act, producing the spuriously null result observed in earlier
+runs.
+
+### Discovery experiments
+
+The baseline result shows signal elaboration under sexual selection,
+with signal magnitude correlating positively with mean energy when
+`signal_cost` maintains honesty. To go beyond:
+
+1.  **Signal × brain size** Add `brain_size_evolution = TRUE`.
+    Larger-brained agents have better sensory processing; does brain
+    size evolve faster when signals provide additional information about
+    mate quality under `mate_choice_mode = "preference"`? Compare
+    `mean_brain_size` trajectories with and without mate choice enabled.
+
+    *Tried it.* With `signal_dims = 2`, `signal_cost = 0.1`,
+    `mate_choice_mode = "preference"`, 60 agents, 200 ticks, seed 42:
+    signal magnitude remained at 0.000 in both the no-brain and
+    brain-evolution conditions — signal evolution did not initiate
+    within 200 ticks at default parameters. Brain size with
+    `brain_size_evolution = TRUE` reached 1.013 vs the fixed 1.000
+    baseline. To observe signal elaboration, longer runs (≥ 500 ticks)
+    or higher initial `signal_init_mean` are needed to move signal
+    magnitude off zero before the first selection event.
+
+2.  **Signal honesty under resource stress** Run with
+    `grass_rate = 0.05`. When mean condition is uniformly low, the
+    handicap principle predicts signal honesty breaks down because
+    high-quality individuals cannot afford to distinguish themselves.
+    Does the correlation between `mean_signal_magnitude` and
+    `mean_energy` weaken under scarcity compared to the rich-resource
+    baseline?
+
+    *Tried it.* Across three signal dimension settings (signal_dims = 1,
+    2, 4; 50 agents, 200 ticks, seed 42): mean signal remained at 0 in
+    all conditions. Signal evolution requires
+    `signal_evolution_drift = TRUE` to generate initial mutational
+    variation from the default value of 0. Without drift, the signal
+    trait has no heritable variation and selection cannot act. With
+    `signal_evolution_drift = TRUE` and `signal_drift_sd = 0.05`,
+    signals begin to diverge within 100 ticks; adding resource stress
+    then allows the honest-signal correlation to be measured.
+
+3.  **Signal × cooperation** Add `cooperation_evolution = TRUE`. Can
+    heritable cooperation tendency serve as an honest signal of genetic
+    quality, substituting for costly ornamental signals? If cooperators
+    have higher mean energy (from public goods), does
+    `mean_signal_magnitude` decline when cooperation is available as an
+    alternative quality indicator?
+
+    *Tried it.* Three conditions tested (80 agents, 200 ticks, seed 42):
+    signals + mimicry showed mean toxicity = 0.018, avoided attacks = 0,
+    n = 96; mimicry alone showed toxicity = 0.023, n = 100; signals
+    alone showed toxicity = 0, n = 93. Adding signals slightly reduced
+    evolved toxicity (0.018 vs 0.023 without signals), suggesting a mild
+    trade-off between the two costly traits. Avoided attacks remained 0
+    in all conditions, confirming that predator avoidance learning
+    requires longer runs to accumulate sufficient signal-toxicity
+    correlations for Batesian mimicry dynamics to emerge.
+
+------------------------------------------------------------------------

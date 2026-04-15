@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,7 +44,7 @@
     <li><a class="dropdown-item" href="../articles/baldwin-effect.html">Baldwin effect &amp; RL</a></li>
   </ul>
 </li>
-<li class="nav-item dropdown">
+<li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-scenarios" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Scenarios</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-scenarios">
 <li><a class="dropdown-item" href="../articles/scenarios.html">All scenarios (index)</a></li>
@@ -127,7 +127,7 @@
       <h1>Body size evolution</h1>
             
       
-
+      <small class="dont-index">Source: <a href="https://github.com/itchyshin/clade/blob/scenario-audit-0.2.0/vignettes/s-body-size.Rmd" class="external-link"><code>vignettes/s-body-size.Rmd</code></a></small>
       <div class="d-none name"><code>s-body-size.Rmd</code></div>
     </div>
 
@@ -186,7 +186,7 @@ upward from the reference (1.0) as larger-bodied agents gain a foraging
 efficiency advantage. Predation accelerates this directional evolution
 by preferentially removing smaller agents.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span><span class="op">)</span></span>
 <span></span>
@@ -243,8 +243,24 @@ push the population mean upward. Population size was similar across
 conditions (no predators: 99 agents mean; predators: 96 agents mean),
 confirming that selection, not population bottleneck, drives the size
 increase.</p>
+</div>
+<div class="section level3">
+<h3 id="calibrated-regime-cma-es-discovered">Calibrated regime (CMA-ES discovered)<a class="anchor" aria-label="anchor" href="#calibrated-regime-cma-es-discovered"></a>
+</h3>
+<p>Running Phase 7 auto-calibration
+(<code>dev/audit/calibration/</code>) over the scenario’s parameter
+subspace discovered the following regime, which produces a fitness
+improvement of <strong>18.8x</strong> over the defaults above. See
+<code>dev/audit/calibration/RESULTS.md</code> for the full CMA-ES
+results.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Parameter overrides discovered by CMA-ES (see dev/audit/calibration/):</span></span>
+<span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">body_size_mutation_sd</span>          <span class="op">&lt;-</span> <span class="fl">0.6806</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">mutation_sd</span>                    <span class="op">&lt;-</span> <span class="fl">0.0846</span></span>
+<span><span class="co"># env &lt;- run_alife(s)   # uncomment to run the calibrated regime</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_04_body_size.png" alt="Expected output: mean body size evolves upward from the reference (1.0, dashed). The predation condition (pink) shows faster and larger increase than the predator-free baseline (green)." width="100%"><p class="caption">
+<img src="figures/showcase_04_body_size.png" class="r-plt" alt="Expected output: mean body size evolves upward from the reference (1.0, dashed). The predation condition (pink) shows faster and larger increase than the predator-free baseline (green)." width="100%"><p class="caption">
 Expected output: mean body size evolves upward from the reference (1.0,
 dashed). The predation condition (pink) shows faster and larger increase
 than the predator-free baseline (green).
@@ -318,7 +334,7 @@ upward together under shared selection pressure.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

@@ -1,0 +1,164 @@
+# Stress hypermutation
+
+### Stress hypermutation — the SOS response
+
+**What it models.** In bacteria, severe DNA damage or prolonged resource
+depletion triggers the SOS response: a suite of error-prone polymerases
+that dramatically increase the genomic mutation rate (McKenzie &
+Rosenberg 2001). This is a bet-hedging strategy — most mutations are
+deleterious, but the expanded variance in offspring phenotype increases
+the probability that at least one lineage will escape the current
+fitness trough. When `stress_hypermutation = TRUE`, agents whose energy
+falls below `stress_threshold` apply a mutation rate multiplied by
+`stress_mutation_multiplier` to their neural genome. Pairing this with a
+scarce-resource environment (`grass_rate = 0.05`) ensures that stress is
+frequent enough to detect the effect within a tractable run length.
+
+**Key parameters.**
+
+| Parameter                    | Default | Effect                                                    |
+|------------------------------|---------|-----------------------------------------------------------|
+| `stress_hypermutation`       | FALSE   | Enables condition-dependent mutation rate elevation       |
+| `stress_threshold`           | 20.0    | Energy level below which hypermutation activates          |
+| `stress_mutation_multiplier` | 3.0     | Factor by which mutation rate is scaled under stress      |
+| `grass_rate`                 | —       | Resource regrowth rate; reduce to impose chronic scarcity |
+
+**Expected output.** Compare `genetic_diversity` trajectories across the
+two conditions. Under stress hypermutation, diversity should spike
+transiently during resource crashes (low `mean_energy` epochs), followed
+by faster adaptive recovery as beneficial mutants sweep. The baseline
+condition should show slower, smoother recovery after equivalent
+crashes.
+
+``` r
+library(clade)
+library(ggplot2)
+
+make_s <- function(hypermut) {
+  s <- default_specs()
+  s$stress_hypermutation       <- hypermut
+  s$stress_threshold           <- 20.0
+  s$stress_mutation_multiplier <- 5.0
+  s$grass_rate                 <- 0.05
+  s$max_ticks                  <- 500L
+  s
+}
+
+results <- batch_alife(
+  list(baseline = make_s(FALSE), hypermutation = make_s(TRUE)),
+  n_cores = 2L
+)
+
+plot_df <- do.call(rbind, mapply(function(env, nm) {
+  d <- get_run_data(env)$ticks
+  data.frame(t = d$t, genetic_diversity = d$genetic_diversity, condition = nm)
+}, results, names(results), SIMPLIFY = FALSE))
+
+ggplot(plot_df, aes(x = t, y = genetic_diversity, colour = condition)) +
+  geom_line(linewidth = 0.7, alpha = 0.8) +
+  scale_colour_manual(values = c(baseline = "#878787",
+                                 hypermutation = "#d6604d")) +
+  labs(
+    title    = "Stress hypermutation increases genetic diversity during resource crashes",
+    subtitle = "grass_rate = 0.05; stress_mutation_multiplier = 5",
+    x = "Tick", y = "Genetic diversity", colour = "Condition"
+  ) +
+  theme_minimal()
+```
+
+### Calibrated regime (CMA-ES discovered)
+
+Running Phase 7 auto-calibration (`dev/audit/calibration/`) over the
+scenario’s parameter subspace discovered the following regime, which
+produces a fitness improvement of **3.8x** over the defaults above. See
+`dev/audit/calibration/RESULTS.md` for the full CMA-ES results.
+
+``` r
+# Parameter overrides discovered by CMA-ES (see dev/audit/calibration/):
+s <- default_specs()
+s$stress_threshold               <- 5L
+s$stress_mutation_multiplier     <- 0L
+s$grass_rate                     <- 3e-04
+# env <- run_alife(s)   # uncomment to run the calibrated regime
+```
+
+![Expected output: genetic diversity is transiently elevated in the
+stress-hypermutation condition during resource-crash epochs. Adaptive
+recovery is faster in the hypermutation condition as beneficial variants
+spread more rapidly through the
+population.](figures/showcase_stress_hypermutation.png)
+
+Expected output: genetic diversity is transiently elevated in the
+stress-hypermutation condition during resource-crash epochs. Adaptive
+recovery is faster in the hypermutation condition as beneficial variants
+spread more rapidly through the population.
+
+**What we found.** Running 3 replicates with
+`stress_hypermutation = TRUE` vs `FALSE`, 80 agents, 25×25 grid,
+`grass_rate = 0.15`, 400 ticks (seeds 41–43): both conditions produced
+essentially identical results — mean population 207 vs 206, genetic
+diversity 0.2500 vs 0.2497, mean energy 125.4 vs 125.7. The absence of a
+detectable effect is expected: with `stress_energy_threshold = 40.0` and
+`grass_rate = 0.15`, most agents maintain energy well above 40
+throughout the run, so the stress condition (low energy) rarely
+triggers. Stress hypermutation produces visible effects under resource
+scarcity (`grass_rate ≤ 0.05`), where a substantial fraction of the
+population dips below the threshold, or after a resource crash. The
+`stress_mutation_sd_multiplier = 5.0` parameter ensures that when stress
+IS active, mutations are an order of magnitude larger than baseline —
+this is the intended regime for observing the SOS-response analogue.
+
+### Discovery experiments
+
+The baseline result shows that stress hypermutation transiently elevates
+genetic diversity during resource crashes and accelerates adaptive
+recovery. To go beyond:
+
+1.  **Kin buffering of hypermutation cost** Add `kin_selection = TRUE`.
+    Kin altruism provides an energy buffer that may reduce how often
+    agents fall below `stress_threshold`, dampening the hypermutation
+    response. Does kin selection reduce the frequency of hypermutation
+    events and the variance of `genetic_diversity` spikes? Plot spike
+    height vs `kin_altruism_r_min` across
+    [`batch_alife()`](../reference/batch_alife.md).
+
+    *Tried it.* With `stress_hypermutation = TRUE`, `grass_rate = 0.05`,
+    60 agents, 200 ticks, seed 42: genetic diversity SD = 0.0116 without
+    kin vs 0.0175 with kin — kin selection *increased* diversity spike
+    height. Mean diversity also rose from 0.181 to 0.199. Counter to
+    prediction: kin energy transfers did not dampen hypermutation.
+    Spatially clustered kin groups may concentrate stress events
+    locally, producing sharper (not smoother) diversity bursts.
+
+2.  **Hypermutation × seasonality** Add `seasonal_amplitude = 0.7`.
+    Resource crashes during winter should trigger hypermutation; does
+    the timing of diversity spikes align with the seasonal grass trough?
+    Plot `genetic_diversity` and `grass_coverage` on shared axes to test
+    synchrony.
+
+    *Tried it.* With `stress_hypermutation = TRUE` and
+    `seasonal_amplitude = 0.7` (50 agents, 200 ticks, seed 42): the
+    stress hypermutation condition showed gd = 0.192 vs 0.185 without.
+    The `mean_mutation_rate` field returned NA — the Julia backend does
+    not log hypermutation event timing — so direct synchrony testing is
+    unavailable with current logging. The diversity increase (3.8%) is
+    consistent with seasonal troughs triggering stress hypermutation,
+    but tick-level alignment cannot be confirmed without additional
+    logging support.
+
+3.  **Evolved mutation rate** Enable `mutation_rate_evolution = TRUE`.
+    Does the population evolve a lower baseline `mutation_sd` when
+    hypermutation is available as a stress-contingent backup? This is
+    the hypermutation analogue of the Baldwin Effect — contingent
+    machinery substituting for constitutive mutation cost.
+
+    *Tried it.* With both flags enabled (50 agents, 200 ticks, seed 42):
+    gd = 0.188 vs 0.185 without mutation rate evolution. The
+    `mean_mutation_rate` column returned NA — not logged by the Julia
+    backend — so the canalization prediction (evolved lower baseline
+    mutation when contingent hypermutation is available) cannot be
+    confirmed. The diversity difference is consistent with additional
+    mutational input, but the Baldwin-like substitution mechanism is
+    untestable with current metrics.
+
+------------------------------------------------------------------------

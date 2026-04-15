@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,7 +44,7 @@
     <li><a class="dropdown-item" href="../articles/baldwin-effect.html">Baldwin effect &amp; RL</a></li>
   </ul>
 </li>
-<li class="nav-item dropdown">
+<li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-scenarios" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Scenarios</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-scenarios">
 <li><a class="dropdown-item" href="../articles/scenarios.html">All scenarios (index)</a></li>
@@ -127,7 +127,7 @@
       <h1>Evolution of bad science</h1>
             
       
-
+      <small class="dont-index">Source: <a href="https://github.com/itchyshin/clade/blob/scenario-audit-0.2.0/vignettes/s-bad-science.Rmd" class="external-link"><code>vignettes/s-bad-science.Rmd</code></a></small>
       <div class="d-none name"><code>s-bad-science.Rmd</code></div>
     </div>
 
@@ -139,7 +139,7 @@
 <p><strong>What it models.</strong> A pure-R simulation (no Julia
 required) of Smaldino &amp; McElreath (2016). Labs compete for citations
 via cumulative publications. The false-positive rate (FPR) per study is
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mo>=</mo><mi>W</mi><mi>/</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>W</mi><mo stretchy="false" form="postfix">)</mo><mo>⋅</mo><mi>e</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\alpha = W / (1 + (1-W) \cdot e)</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mo>=</mo><mi>W</mi><mi>/</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>+</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>W</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>⋅</mo><mi>e</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\alpha = W / (1 + (1-W) \cdot e)</annotation></semantics></math>,
 where
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>W</mi><annotation encoding="application/x-tex">W</annotation></semantics></math>
 is research power (probability of testing a true hypothesis) and
@@ -193,7 +193,7 @@ decline.</p>
 <span><span class="va">p1</span> <span class="op">/</span> <span class="va">p2</span> <span class="op">+</span> <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_layout.html" class="external-link">plot_layout</a></span><span class="op">(</span>guides <span class="op">=</span> <span class="st">"collect"</span><span class="op">)</span> <span class="op">&amp;</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_bad_science.png" alt="Evolution of bad science (Smaldino &amp; McElreath 2016). Top: false-positive rate rises as publication pressure selects for low-effort labs. Bottom: research effort declines in parallel. The no-replication condition (red) ends with the lowest FPR (0.238), while 10% (orange) and 50% (blue) replication reach 0.297 and 0.283 respectively — replication without penalty amplifies, not dampens, FPR evolution. No Julia session required." width="100%"><p class="caption">
+<img src="figures/showcase_bad_science.png" class="r-plt" alt="Evolution of bad science (Smaldino &amp; McElreath 2016). Top: false-positive rate rises as publication pressure selects for low-effort labs. Bottom: research effort declines in parallel. The no-replication condition (red) ends with the lowest FPR (0.238), while 10% (orange) and 50% (blue) replication reach 0.297 and 0.283 respectively — replication without penalty amplifies, not dampens, FPR evolution. No Julia session required." width="100%"><p class="caption">
 Evolution of bad science (Smaldino &amp; McElreath 2016). Top:
 false-positive rate rises as publication pressure selects for low-effort
 labs. Bottom: research effort declines in parallel. The no-replication
@@ -292,7 +292,7 @@ model.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

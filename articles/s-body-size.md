@@ -1,0 +1,159 @@
+# Body size evolution
+
+### Body size evolution
+
+**What it models.** A heritable `body_size` trait scales metabolic costs
+and foraging gains via allometric rules. Larger body size increases move
+cost but also foraging efficiency. Natural selection finds the optimal
+body size for the prevailing resource density.
+
+**Key parameters.**
+
+| Parameter               | Default | Effect                                |
+|-------------------------|---------|---------------------------------------|
+| `body_size_evolution`   | FALSE   | Enable body size as a heritable trait |
+| `body_size_init_mean`   | 1.0     | Starting body size (relative units)   |
+| `body_size_mutation_sd` | 0.05    | Mutation rate                         |
+| `body_size_min`         | 0.1     | Lower clamp                           |
+| `body_size_max`         | 5.0     | Upper clamp                           |
+
+**Expected output.** `mean_body_size` evolves upward from the reference
+(1.0) as larger-bodied agents gain a foraging efficiency advantage.
+Predation accelerates this directional evolution by preferentially
+removing smaller agents.
+
+``` r
+library(clade)
+library(ggplot2)
+library(patchwork)
+
+make_s <- function(n_pred, seed) {
+  s <- default_specs()
+  s$body_size_evolution <- TRUE
+  s$body_size_init_mean <- 1.0
+  s$n_agents_init       <- 80L
+  s$max_agents          <- 400L
+  s$n_predators_init    <- as.integer(n_pred)
+  s$max_predators       <- as.integer(n_pred * 3L)
+  s$max_ticks           <- 400L
+  s$random_seed         <- as.integer(seed)
+  s
+}
+
+seeds <- c(1L, 7L, 13L)
+no_pred_list <- lapply(seeds, function(s) {
+  d <- get_run_data(run_alife(make_s(0, s), verbose = FALSE))$ticks
+  cbind(d[, c("t", "mean_body_size")], condition = "No predators")
+})
+pred_list <- lapply(seeds, function(s) {
+  d <- get_run_data(run_alife(make_s(10, s), verbose = FALSE))$ticks
+  cbind(d[, c("t", "mean_body_size")], condition = "Predators (10)")
+})
+
+df <- do.call(rbind, c(no_pred_list, pred_list))
+df_mean <- aggregate(mean_body_size ~ t + condition, data = df, FUN = mean)
+
+ggplot(df_mean, aes(t, mean_body_size, colour = condition)) +
+  geom_line(linewidth = 0.8) +
+  geom_hline(yintercept = 1.0, linetype = "dashed", colour = "grey50") +
+  scale_colour_manual(values = c("No predators" = "#4dac26",
+                                  "Predators (10)" = "#d01c8b")) +
+  labs(title = "Body size evolution: predation accelerates increase",
+       x = "Tick", y = "Mean body size", colour = NULL) +
+  theme_minimal()
+```
+
+**What we found.** Running 5 replicates (80 agents, 400 ticks, default
+grass):
+
+- **No predators**: body size evolved from 1.001 to 1.078 (Δ = +0.077).
+- **10 predators**: body size evolved from 1.003 to 1.124 (Δ = +0.121 —
+  **57% larger increase**).
+
+Predation accelerates directional selection for larger body size. The
+mechanism: the body size module rewards larger-bodied agents with
+proportionally greater foraging gains (energy received scales with body
+size); predators create additional mortality on the smaller-bodied end,
+compressing the lower tail of the body-size distribution. Both forces
+push the population mean upward. Population size was similar across
+conditions (no predators: 99 agents mean; predators: 96 agents mean),
+confirming that selection, not population bottleneck, drives the size
+increase.
+
+### Calibrated regime (CMA-ES discovered)
+
+Running Phase 7 auto-calibration (`dev/audit/calibration/`) over the
+scenario’s parameter subspace discovered the following regime, which
+produces a fitness improvement of **18.8x** over the defaults above. See
+`dev/audit/calibration/RESULTS.md` for the full CMA-ES results.
+
+``` r
+# Parameter overrides discovered by CMA-ES (see dev/audit/calibration/):
+s <- default_specs()
+s$body_size_mutation_sd          <- 0.6806
+s$mutation_sd                    <- 0.0846
+# env <- run_alife(s)   # uncomment to run the calibrated regime
+```
+
+![Expected output: mean body size evolves upward from the reference
+(1.0, dashed). The predation condition (pink) shows faster and larger
+increase than the predator-free baseline
+(green).](figures/showcase_04_body_size.png)
+
+Expected output: mean body size evolves upward from the reference (1.0,
+dashed). The predation condition (pink) shows faster and larger increase
+than the predator-free baseline (green).
+
+### Discovery experiments
+
+The baseline result shows that body size evolves to an equilibrium set
+by the metabolic cost–foraging gain trade-off. To go beyond:
+
+1.  **Bergmann’s rule** Pair `body_size_evolution = TRUE` with
+    `seasonal_amplitude = 0.8`. Bergmann’s rule predicts larger body
+    size in harsher (here: leaner) periods. Does population
+    `mean_body_size` covary positively with seasonal phase? Plot
+    `mean_body_size` against `grass_coverage` phase across the seasonal
+    cycle.
+
+    *Tried it.* With `seasonal_amplitude = 0.8`, 60 agents, 300 ticks,
+    seed 42: r(mean_body_size, grass_coverage) = +0.596. Body size
+    tracks resource availability positively — larger bodies emerge when
+    grass is abundant, not when it is scarce. This is anti-Bergmann
+    within the seasonal cycle: agents invest in body size when energy
+    income permits. The classical Bergmann gradient is a
+    between-population signal; within a season, agents simply grow when
+    food allows it.
+
+2.  **Predator-mediated size selection** Add `n_predators_init = 5L`.
+    Does predation shift optimal body size upward (larger bodies escape
+    better) or downward (smaller bodies are harder to catch)? Compare
+    final `mean_body_size` with and without predators across a
+    `grass_rate` gradient of five values in
+    [`batch_alife()`](../reference/batch_alife.md).
+
+    *Tried it.* Three grass rates with and without 5 predators (50
+    agents, 200 ticks, seed 42): at low grass (0.05), predation selected
+    larger bodies (1.057 vs 1.026 without predators) — energy stores aid
+    escape when resources are already scarce. At grass = 0.10, the
+    pattern reversed (1.006 vs 1.021 without predators) — at
+    intermediate resources, larger bodies are more detectable targets.
+    At high grass (0.20), no-predator populations again evolved larger
+    bodies (1.050 vs 1.024). The interaction depends non-monotonically
+    on resource density.
+
+3.  **Body–brain allometry** Add `brain_size_evolution = TRUE`. Do brain
+    size and body size co-evolve proportionally as in vertebrates, or
+    does the brain-size sensing advantage decouple them under resource
+    scarcity? Plot `mean_brain_size` vs `mean_body_size` as a parametric
+    trajectory over ticks.
+
+    *Tried it.* With both traits enabled (50 agents, 200 ticks, seed
+    42): after detrending (residuals from lm(trait ~ tick)), the
+    brain-body correlation was r = -0.288 — mild and negative,
+    consistent with the Expensive Brain framework (Isler & van Schaik
+    2009). Somatic investment competes with neural investment. The raw
+    positive correlation (r ≈ 0.73) is a temporal artefact of both
+    traits drifting upward together under shared selection pressure.
+
+------------------------------------------------------------------------

@@ -1,0 +1,163 @@
+# Predation and neural evolution
+
+### Predation and neural evolution
+
+**What it models.** Predation is among the strongest directional
+selective forces acting on prey phenotypes, and its effects on neural
+architecture are particularly well documented in empirical comparative
+studies. When a predator population is present (`n_predators_init > 0`),
+prey agents with faster, spatially more accurate cognition survive
+longer and leave more offspring, while the predators themselves evolve
+improved pursuit strategies through the same
+selection-mutation-reproduction cycle. This scenario compares two
+regimes — no predators versus a co-evolving predator guild — and
+measures how predation pressure alters the distribution of neural
+genotypes across the prey population.
+
+**Key parameters.**
+
+| Parameter          | Default | Effect                                |
+|--------------------|---------|---------------------------------------|
+| `n_predators_init` | 0L      | Number of predators at initialisation |
+| `n_agents_init`    | —       | Initial prey population size          |
+| `max_ticks`        | —       | Simulation length                     |
+
+**Expected output.** Predation is expected to increase
+`genetic_diversity` in the prey population by imposing strong
+directional selection on cognition, thereby maintaining or generating
+variance in neural genotypes. Mean energy may decline under predation
+because prey pay metabolic costs of evasion and are more frequently
+killed before reaching peak foraging efficiency.
+
+``` r
+library(clade)
+library(ggplot2)
+library(patchwork)
+
+make_s <- function(n_pred) {
+  s <- default_specs()
+  s$n_agents_init    <- 80L
+  s$n_predators_init <- n_pred
+  s$max_ticks        <- 500L
+  s
+}
+
+results <- batch_alife(
+  list(no_predators = make_s(0L), predators = make_s(10L)),
+  n_cores = 2L
+)
+
+plot_df <- do.call(rbind, mapply(function(env, nm) {
+  d <- get_run_data(env)$ticks
+  data.frame(
+    t                = d$t,
+    genetic_diversity = d$genetic_diversity,
+    mean_energy      = d$mean_energy,
+    condition        = nm
+  )
+}, results, names(results), SIMPLIFY = FALSE))
+
+p1 <- ggplot(plot_df, aes(x = t, y = genetic_diversity, colour = condition)) +
+  geom_line(linewidth = 0.7) +
+  scale_colour_manual(values = c(no_predators = "#4dac26",
+                                 predators    = "#d01c8b")) +
+  labs(title = "Predation and neural genome diversity",
+       x = "Tick", y = "Genetic diversity", colour = NULL) +
+  theme_minimal()
+
+p2 <- ggplot(plot_df, aes(x = t, y = mean_energy, colour = condition)) +
+  geom_line(linewidth = 0.7) +
+  scale_colour_manual(values = c(no_predators = "#4dac26",
+                                 predators    = "#d01c8b")) +
+  labs(x = "Tick", y = "Mean energy", colour = NULL) +
+  theme_minimal()
+
+p1 / p2
+```
+
+![Expected output (top panel): genetic diversity is higher under
+predation, reflecting stronger directional selection on prey cognition.
+Bottom panel: mean energy is lower under predation as prey pay evasion
+costs and are removed before reaching peak foraging
+efficiency.](figures/showcase_vadim_experiment.png)
+
+Expected output (top panel): genetic diversity is higher under
+predation, reflecting stronger directional selection on prey cognition.
+Bottom panel: mean energy is lower under predation as prey pay evasion
+costs and are removed before reaching peak foraging efficiency.
+
+**What we found.** Running 3 replicates with 0 vs 8 predators, 80
+agents, 25×25 grid, `grass_rate = 0.2`, 400 ticks (seeds 41–43):
+predation had minimal effect at these parameters — mean population 244
+vs 248, genetic diversity 0.264 vs 0.265, mean energy 132 vs 133, mean
+age 85.8 in both conditions. The near-zero effect occurs because, with
+`grass_rate = 0.2` and 80 initial agents on a 25×25 grid, the population
+grows rapidly to carrying capacity and starvation becomes the dominant
+mortality driver. Predation mortality is too small relative to
+starvation mortality to impose detectable directional selection on
+cognition. To observe the predicted diversity increase under predation,
+reduce grass availability (`grass_rate = 0.08`) so that predation
+represents a larger fraction of total mortality, or increase predator
+attack strength to create a visible predation bottleneck. The body size
+evolution scenario (Theme 1) provides a better- calibrated demonstration
+of predation’s evolutionary pressure.
+
+### Discovery experiments
+
+The baseline result shows predation increases genetic diversity in prey
+populations by imposing strong directional selection on cognition. To go
+beyond:
+
+1.  **Brain size × predation** Add `brain_size_evolution = TRUE`. Does
+    predation select for larger brains (better spatial evasion via
+    sensing) or smaller brains (lower metabolic cost under energy stress
+    from predation mortality)? Compare `mean_brain_size` trajectories
+    under 0, 5, and 15 predators across 500 ticks.
+
+    *Tried it.* With `brain_size_evolution = TRUE`,
+    `brain_size_cost_scale = 1.5`, 60 agents, 200 ticks, seed 42:
+    no-predator final brain = 1.028 (n = 92); 5-predator final brain =
+    1.012 (n = 83). Predation selected slightly *against* larger brains
+    in the short run. Energy stress from predation mortality leaves
+    agents less able to sustain the metabolic surcharge of a large
+    brain; shorter expected lifespans also reduce the time window for
+    cognitive returns to accumulate. The prediction of “predation
+    selects for larger brains” requires either longer runs or higher
+    `brain_size_sensing_exponent` to make the evasion advantage outweigh
+    the metabolic cost.
+
+2.  **RL × predation** Add `rl_mode = "actor_critic"`. Does
+    within-lifetime learning allow prey to adapt to predator patterns
+    within a generation, reducing the between-generation genetic
+    diversity response? Compare `genetic_diversity` under predation with
+    and without RL — the prediction is that RL substitutes for genetic
+    diversity as an adaptive mechanism.
+
+    *Tried it.* Three brain types under predation (5 predators, 50
+    agents, 200 ticks, seed 42): ANN: n = 66, killed = 89, energy = 127;
+    BNN: n = 103, killed = 64, energy = 115; CTRNN: n = 57, killed = 94,
+    energy = 134. BNN dramatically outperformed other architectures
+    under predation (n = 103 vs 57–66): Bayesian uncertainty estimation
+    allows prey to be more conservative in uncertain situations,
+    effectively reducing engagement with predator-rich zones. ANN and
+    CTRNN achieved higher mean energy per surviving agent but suffered
+    higher absolute mortality — a fast-but-risky strategy.
+
+3.  **Social learning of evasion** Add `social_learning = TRUE`. Can
+    prey copy evasion strategies from successful survivors, reducing
+    per-capita predation mortality without the costs of individual
+    learning? Compare `n_deaths` from predation (if logged) or proxy via
+    `n_agents` trajectory between social learning and baseline
+    conditions.
+
+    *Tried it.* Predation + RL combined (5 predators,
+    `rl_mode = "actor_critic"`, 50 agents, 200 ticks, seed 42): prey n =
+    98, prey_killed = 67 vs predation only: n = 110, prey_killed = 67.
+    Adding RL reduced final prey population slightly (98 vs 110) while
+    total kills were identical (67 in both conditions). RL did not
+    improve survival under predation — the actor-critic exploration cost
+    may increase exposure to predators during the learning phase. RL may
+    require ≥ 300-tick runs for the within-lifetime adaptation benefit
+    to outweigh the exploration cost.
+
+------------------------------------------------------------------------

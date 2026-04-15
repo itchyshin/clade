@@ -1,0 +1,269 @@
+# Getting started with clade: agent-based evolution in R
+
+## What clade is
+
+`clade` is an R package for agent-based simulation of evolution and
+foraging ecology. Digital organisms carry heritable neural-network
+genomes (haploid or diploid) and one of several brain types, and they
+evolve over generations through natural selection on behaviour, life
+history, and cognition. The package is designed for evolutionary
+biologists who want to run controlled *in silico* experiments without
+writing low-level simulation code.
+
+`clade` is the successor to the experimental `alifeR` package. Where
+`alifeR` embedded the simulation hot path in Rcpp, `clade` runs the
+entire simulation in Julia (via
+[JuliaConnectoR](https://CRAN.R-project.org/package=JuliaConnectoR)).
+The R–Julia boundary is crossed *once* per
+[`run_alife()`](../reference/run_alife.md) call, not once per tick. For
+200 agents and 1,000 ticks this is roughly 25× faster than the
+Rcpp-based alifeR backend, and it makes runs of 100,000 agents
+practical. The Julia backend also enables MAP-Elites quality-diversity
+search and derivative-free optimisation (CMA-ES), neither of which is
+feasible at this scale from an Rcpp simulator.
+
+This vignette is an orientation, not a reference. It introduces the
+workflow, the parameter list, the brain types, and the biological
+modules that can be toggled on or off. All code chunks below are shown
+but not evaluated, because the Julia backend is not available during
+package check or vignette build.
+
+## Installation
+
+`clade` is currently distributed from GitHub:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("itchyshin/clade")
+```
+
+You will also need a working Julia installation (≥ 1.9). On the first
+call to [`run_alife()`](../reference/run_alife.md), `clade` starts a
+Julia session, installs its own Julia dependencies into a private
+environment, and precompiles the simulation package. This first start-up
+takes a minute or two; subsequent runs in the same R session are
+immediate.
+
+## A minimal run
+
+The default configuration is a small grid world with a single brain type
+and the core ecological loop. Three calls are enough to produce a tidy
+result and a diagnostic plot:
+
+``` r
+library(clade)
+
+specs <- default_specs()
+
+# Modules are off by default; enable any combination independently, e.g.:
+# specs$disease <- TRUE
+# specs$body_size_evolution <- TRUE
+
+env  <- run_alife(specs)
+data <- get_run_data(env)
+
+plot_run(data)
+```
+
+[`get_run_data()`](../reference/get_run_data.md) returns a list with two
+tidy data frames:
+
+- `data$ticks` — one row per logged tick, with population-level
+  summaries (mean energy, mean body size, genetic diversity, grass
+  cover, and so on).
+- `data$deaths` — one row per agent death, with cause, age, energy, and
+  parental output.
+
+These are the canonical inputs to every analysis function in the
+package.
+
+## Parameter overview
+
+[`default_specs()`](../reference/default_specs.md) returns a long named
+list. The parameters that most strongly shape the run are summarised
+below. All others are documented in
+[`?default_specs`](../reference/default_specs.md).
+
+| Parameter               | Default  | What it controls                                                           |
+|-------------------------|----------|----------------------------------------------------------------------------|
+| `brain_type`            | `"bnn"`  | The cognitive architecture used by every agent (see next section).         |
+| `ploidy`                | `2L`     | Diploid (`2L`) or haploid (`1L`) genomes.                                  |
+| `max_ticks`             | `500L`   | Length of the simulation in time steps.                                    |
+| `n_agents_init`         | `50L`    | Number of founders.                                                        |
+| `disease`               | `FALSE`  | Toggles the SIR disease module.                                            |
+| `kin_selection`         | `FALSE`  | Toggles pedigree-based altruism toward Moore-neighbourhood relatives.      |
+| `cooperation_evolution` | `FALSE`  | Toggles the evolution of an inheritable cooperation propensity.            |
+| `niche_construction`    | `FALSE`  | Toggles shelter-building and its protective and grass-suppressing effects. |
+| `social_learning`       | `FALSE`  | Toggles output-layer copying from successful neighbours.                   |
+| `rl_mode`               | `"none"` | Within-lifetime reinforcement learning (`"actor_critic"` or `"none"`).     |
+
+Each module can be toggled independently, and the simulation will warn
+if two modules with conflicting assumptions are active.
+
+## Brain types
+
+Every agent runs the same architecture, set by `specs$brain_type`. The
+choice changes both how agents make decisions and what kind of
+plasticity is available.
+
+| Brain type      | Description                                                                                                          |
+|-----------------|----------------------------------------------------------------------------------------------------------------------|
+| `"bnn"`         | A Bayesian neural network with a Gaussian prior over weights; `prior_sigma` evolves under selection (Neal 1996).     |
+| `"ann"`         | A standard multilayer perceptron with feed-forward computation and weight inheritance.                               |
+| `"ctrnn"`       | A continuous-time recurrent network with leaky integrator neurons; supports dynamical behaviour (Beer 1995).         |
+| `"grn"`         | A gene regulatory network whose nodes are genes and whose interactions evolve via mutation of the regulatory matrix. |
+| `"transformer"` | A small attention-based architecture with a fixed history window, useful for sequence-dependent foraging.            |
+| `"synthesis"`   | Symbolic rule synthesis: agents carry an evolved program of if-then rules rather than weights.                       |
+| `"random"`      | Uniformly random action selection; useful as a null model baseline.                                                  |
+
+`"bnn"` is the default because it admits an evolvable prior width and so
+captures Baldwin-style learning–evolution interactions (Baldwin 1896,
+Mouret & Clune 2015) cleanly.
+
+## Biological modules
+
+Modules are toggled through `specs`. They are all off by default, so the
+core simulation is a clean baseline of foraging, reproduction, and
+death.
+
+| Module                  | Spec field                                         | One-line description                                                                                                                                                                                                                                                   |
+|-------------------------|----------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Body size evolution     | `body_size_evolution`                              | Heritable body size scales metabolic cost, foraging gain, and energy storage (Kleiber 1947).                                                                                                                                                                           |
+| Natal dispersal         | `dispersal_evolution`                              | Heritable tendency to move away from birthplace each tick, reducing kin competition.                                                                                                                                                                                   |
+| Group defense           | `group_defense`                                    | Agents in the same cell share an anti-predator benefit that scales with local group size.                                                                                                                                                                              |
+| Habitat preference      | `habitat_preference_evolution`                     | Heritable preference for particular terrain or grass-density zones.                                                                                                                                                                                                    |
+| Seasonal dynamics       | `seasonal_amplitude`                               | Grass productivity cycles sinusoidally, imposing periodic resource bottlenecks.                                                                                                                                                                                        |
+| Signals and mate choice | `signal_dims`                                      | Agents evolve a multi-dimensional signal; receivers apply a heritable preference at mating.                                                                                                                                                                            |
+| Speciation              | `speciation`                                       | Reproductive isolation emerges when mate-preference divergence exceeds a threshold.                                                                                                                                                                                    |
+| Predators               | `n_predators_init`                                 | Evolving predator agents pursue prey; predator numbers are set at initialisation.                                                                                                                                                                                      |
+| Parental care           | `parental_care`                                    | Offspring are carried until graduation; parent pays a per-tick care cost.                                                                                                                                                                                              |
+| Cooperative breeding    | `cooperative_breeding`                             | Non-breeding helpers contribute energy to raise offspring in the same cell.                                                                                                                                                                                            |
+| Mimicry and toxicity    | `mimicry` (+ `batesian_mimicry`)                   | Heritable toxicity deters predators via Rescorla–Wagner avoidance learning. With `batesian_mimicry = TRUE`, palatable mimics exploit the learned aversion (Bates 1862) with predator-betrayal decay.                                                                   |
+| Phenotypic plasticity   | `phenotypic_plasticity`                            | Within-lifetime weight adjustment in response to experienced environments.                                                                                                                                                                                             |
+| Niche construction      | `niche_construction` (+ `shelter_occupancy_bonus`) | Agents build shelters that protect against predators and slow grass regrowth on the cell. With `shelter_occupancy_bonus > 0`: occupants of sheltered cells receive an energy subsidy proportional to shelter depth — heritable niche effect (Odling-Smee et al. 2003). |
+| Scavenging              | `scavenging`                                       | Agents may consume carrion left behind by recently dead conspecifics.                                                                                                                                                                                                  |
+| Disease (SIR)           | `disease`                                          | Susceptible–infected–recovered transmission with energy costs and recovered immunity.                                                                                                                                                                                  |
+| Kin selection           | `kin_selection`                                    | Pedigree-based altruistic energy transfer to related neighbours (Hamilton 1964).                                                                                                                                                                                       |
+| Cooperation (PGG)       | `cooperation_evolution`                            | An inheritable cooperation trait that scales the propensity to share with conspecifics.                                                                                                                                                                                |
+| Within-lifetime RL      | `rl_mode`                                          | REINFORCE-with-baseline updates to the output layer at runtime.                                                                                                                                                                                                        |
+| Social learning         | `social_learning`                                  | Periodic copying of output-layer weights from successful Moore-neighbourhood teachers.                                                                                                                                                                                 |
+| Epigenetic inheritance  | `epigenetics`                                      | Lamarckian-style transmission of within-lifetime weight changes (Jablonka & Lamb 2005).                                                                                                                                                                                |
+| Clutch size evolution   | `clutch_size_evolution`                            | Heritable clutch size evolves under the life-history trade-off between offspring number and cost.                                                                                                                                                                      |
+| Parental investment     | `parental_investment_evolution`                    | Heritable per-offspring energy allocation evolves jointly with clutch size.                                                                                                                                                                                            |
+| Stress hypermutation    | `stress_hypermutation`                             | Mutation rate increases when agent energy falls below a threshold, accelerating escape from traps.                                                                                                                                                                     |
+
+A typical experimental design fixes the brain type and toggles one
+module at a time, comparing the resulting
+[`get_run_data()`](../reference/get_run_data.md) outputs across
+conditions.
+
+## Example: body size evolution
+
+When `body_size_evolution = TRUE`, agents evolve a heritable body size
+trait. Larger agents eat more per grass cell but pay a higher metabolic
+surcharge; smaller agents eat less but are cheaper to run. Reference
+size 1.0 has no metabolic correction. The trait is inherited via the
+genome and bounded by `body_size_min` (default 0.3) and `body_size_max`
+(default 3.0).
+
+``` r
+specs                       <- default_specs()
+specs$body_size_evolution   <- TRUE
+specs$body_size_init_mean   <- 1.0
+specs$body_size_mutation_sd <- 0.08
+
+env  <- run_alife(specs)
+data <- get_run_data(env)
+
+# Time series of mean and SD of body size
+head(data$ticks[, c("t", "n_agents", "mean_body_size", "sd_body_size")])
+```
+
+## Example: natal dispersal
+
+When `dispersal_evolution = TRUE`, agents evolve a heritable probability
+of taking one step away from their birthplace each tick. Dispersal
+reduces inbreeding and kin competition at the cost of `dispersal_cost`
+energy.
+
+``` r
+specs                    <- default_specs()
+specs$dispersal_evolution <- TRUE
+specs$dispersal_init_mean <- 0.2
+
+env  <- run_alife(specs)
+data <- get_run_data(env)
+
+# Total dispersal events
+sum(data$ticks$n_dispersal_events)
+```
+
+## Example: disease dynamics
+
+To produce an SIR-style epidemic in the population, set the `disease`
+flag and use the dedicated plotting helper:
+
+``` r
+specs          <- default_specs()
+specs$disease  <- TRUE
+env            <- run_alife(specs)
+data           <- get_run_data(env)
+
+plot_disease_dynamics(data)
+```
+
+[`plot_disease_dynamics()`](../reference/plot_disease_dynamics.md) reads
+the `n_infected` and `n_new_infections` columns from `data$ticks` and
+overlays the susceptible, infected, and recovered classes through time.
+The transmission probability, infectious period, and immune duration are
+all controlled through
+[`default_specs()`](../reference/default_specs.md).
+
+## Performance note
+
+`clade` crosses the R–Julia boundary exactly **once per
+[`run_alife()`](../reference/run_alife.md) call**, regardless of the
+number of ticks or the number of agents. The entire tick loop, sensing,
+neural network forward pass, action selection, movement, eating,
+reproduction, and death runs inside a single Julia process. For 200
+agents and 1,000 ticks this is roughly 25× faster than the Rcpp-based
+`alifeR` backend, and it scales smoothly to populations of ~100,000
+agents on a workstation.
+
+The first call in an R session pays a one-off start-up cost (~30–60 s)
+for Julia compilation. Subsequent calls reuse the warm Julia session and
+return results immediately.
+
+## Where to go next
+
+The showcase vignette works through a richer set of experiments —
+combining multiple modules, comparing brain types, and reading the
+outputs with the analysis helpers:
+
+``` r
+vignette("showcase", package = "clade")
+```
+
+For full parameter documentation, see
+[`?default_specs`](../reference/default_specs.md). Each module’s
+parameters are grouped in that help page under the module name.
+
+## References
+
+- Baldwin, J.M. (1896) A new factor in evolution. *American Naturalist*
+  30(354): 441–451.
+- Beer, R.D. (1995) On the dynamics of small continuous-time recurrent
+  neural networks. *Adaptive Behavior* 3(4): 469–509.
+- Falconer, D.S. & Mackay, T.F.C. (1996) *Introduction to Quantitative
+  Genetics*, 4th ed. Longman, Harlow.
+- Hamilton, W.D. (1964) The genetical evolution of social behaviour.
+  *Journal of Theoretical Biology* 7(1): 1–52.
+- Jablonka, E. & Lamb, M.J. (2005) *Evolution in Four Dimensions*. MIT
+  Press, Cambridge, MA.
+- Kermack, W.O. & McKendrick, A.G. (1927) A contribution to the
+  mathematical theory of epidemics. *Proceedings of the Royal Society A*
+  115(772): 700–721.
+- Mouret, J.-B. & Clune, J. (2015) Illuminating search spaces by mapping
+  elites. *arXiv:1504.04909*.
+- Neal, R.M. (1996) *Bayesian Learning for Neural Networks*. Springer,
+  New York.

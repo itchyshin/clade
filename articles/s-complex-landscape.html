@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,7 +44,7 @@
     <li><a class="dropdown-item" href="../articles/baldwin-effect.html">Baldwin effect &amp; RL</a></li>
   </ul>
 </li>
-<li class="nav-item dropdown">
+<li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-scenarios" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Scenarios</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-scenarios">
 <li><a class="dropdown-item" href="../articles/scenarios.html">All scenarios (index)</a></li>
@@ -127,7 +127,7 @@
       <h1>Complex landscape</h1>
             
       
-
+      <small class="dont-index">Source: <a href="https://github.com/itchyshin/clade/blob/scenario-audit-0.2.0/vignettes/s-complex-landscape.Rmd" class="external-link"><code>vignettes/s-complex-landscape.Rmd</code></a></small>
       <div class="d-none name"><code>s-complex-landscape.Rmd</code></div>
     </div>
 
@@ -225,8 +225,25 @@ combinations that produce strong wing-size evolution with CMA-ES:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tuned</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tune_complex_landscape.html">tune_complex_landscape</a></span><span class="op">(</span><span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span>, n_iterations <span class="op">=</span> <span class="fl">80L</span><span class="op">)</span></span>
 <span><span class="va">tuned</span><span class="op">$</span><span class="va">specs</span>   <span class="co"># optimal landscape parameters</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="calibrated-regime-cma-es-discovered">Calibrated regime (CMA-ES discovered)<a class="anchor" aria-label="anchor" href="#calibrated-regime-cma-es-discovered"></a>
+</h3>
+<p>Running Phase 7 auto-calibration
+(<code>dev/audit/calibration/</code>) over the scenario’s parameter
+subspace discovered the following regime, which produces a fitness
+improvement of <strong>8.9x</strong> over the defaults above. See
+<code>dev/audit/calibration/RESULTS.md</code> for the full CMA-ES
+results.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Parameter overrides discovered by CMA-ES (see dev/audit/calibration/):</span></span>
+<span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">canopy_threshold</span>               <span class="op">&lt;-</span> <span class="fl">0.039</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">wing_size_init_mean</span>            <span class="op">&lt;-</span> <span class="fl">10.27</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">canopy_energy</span>                  <span class="op">&lt;-</span> <span class="fl">7421L</span></span>
+<span><span class="co"># env &lt;- run_alife(s)   # uncomment to run the calibrated regime</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_16_habitat_preference.png" alt="Expected output: agents stratify across ground, shrub, and canopy layers as wing size evolves past the canopy threshold." width="100%"><p class="caption">
+<img src="figures/showcase_16_habitat_preference.png" class="r-plt" alt="Expected output: agents stratify across ground, shrub, and canopy layers as wing size evolves past the canopy threshold." width="100%"><p class="caption">
 Expected output: agents stratify across ground, shrub, and canopy layers
 as wing size evolves past the canopy threshold.
 </p>
@@ -321,7 +338,7 @@ across all grass rates.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

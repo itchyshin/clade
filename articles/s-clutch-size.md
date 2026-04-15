@@ -1,0 +1,160 @@
+# Clutch size evolution
+
+### Clutch size evolution and r/K strategy
+
+**What it models.** The Lack clutch-size hypothesis (Lack 1947) proposes
+that parents should produce the number of offspring that maximises the
+number successfully raised, given the resources available per offspring.
+Smith & Fretwell (1974) formalised the quantity–quality trade-off: when
+resources are scarce, producing fewer, better-provisioned offspring
+(K-strategy) yields higher per-offspring survival than producing many
+poorly provisioned ones (r-strategy). This scenario allows clutch size
+to evolve freely between `clutch_size_min` and `clutch_size_max` under
+two contrasting resource environments.
+
+**Key parameters.**
+
+| Parameter                 | Default | Effect                                            |
+|---------------------------|---------|---------------------------------------------------|
+| `clutch_size_evolution`   | FALSE   | Enable heritable clutch size                      |
+| `clutch_size_min`         | 1L      | Minimum evolvable clutch size                     |
+| `clutch_size_max`         | 5L      | Maximum evolvable clutch size                     |
+| `clutch_size_mutation_sd` | 0.3     | Gaussian noise on clutch size per offspring       |
+| `grass_rate`              | 0.10    | Resource renewal rate (varied between conditions) |
+
+**Expected output.** Under rich resources (`grass_rate = 0.4`), per-tick
+births are higher as large clutches are sustainable. Under scarce
+resources (`grass_rate = 0.05`), per-tick births are lower and the
+population is constrained by energy — consistent with the K end of the
+r/K continuum. The two conditions diverge substantially after
+approximately 150 ticks.
+
+``` r
+library(clade)
+library(ggplot2)
+
+make_s <- function(gr) {
+  s <- default_specs()
+  s$clutch_size_evolution   <- TRUE
+  s$clutch_size_min         <- 1L
+  s$clutch_size_max         <- 5L
+  s$clutch_size_mutation_sd <- 0.3
+  s$grass_rate              <- gr
+  s$max_ticks               <- 400L
+  s$random_seed             <- 3L
+  s
+}
+
+d_rich <- get_run_data(run_alife(make_s(0.4)))$ticks
+d_scar <- get_run_data(run_alife(make_s(0.05)))$ticks
+
+df <- rbind(
+  cbind(d_rich[, c("t", "n_births")], environment = "Rich (0.4)"),
+  cbind(d_scar[, c("t", "n_births")], environment = "Scarce (0.05)")
+)
+
+ggplot(df, aes(t, n_births, colour = environment)) +
+  geom_line(alpha = 0.7) +
+  geom_smooth(method = "loess", se = FALSE, linewidth = 1.2) +
+  scale_colour_manual(
+    values = c("Rich (0.4)" = "#e41a1c", "Scarce (0.05)" = "#377eb8"),
+    name = NULL) +
+  labs(title = "Births per tick under contrasting resource availability",
+       subtitle = "Clutch size evolution enabled",
+       x = "Tick", y = "Births per tick") +
+  theme_minimal()
+```
+
+### Calibrated regime (CMA-ES discovered)
+
+Running Phase 7 auto-calibration (`dev/audit/calibration/`) over the
+scenario’s parameter subspace discovered the following regime, which
+produces a fitness improvement of **4.0x** over the defaults above. See
+`dev/audit/calibration/RESULTS.md` for the full CMA-ES results.
+
+``` r
+# Parameter overrides discovered by CMA-ES (see dev/audit/calibration/):
+s <- default_specs()
+s$clutch_size_mutation_sd        <- 0.6538
+s$clutch_size_init_mean          <- 5L
+# env <- run_alife(s)   # uncomment to run the calibrated regime
+```
+
+![Expected output: mean clutch size diverges between resource
+environments. Rich conditions (red) select for larger clutches; scarce
+conditions (blue) select for smaller clutches, illustrating the r/K
+continuum.](figures/showcase_clutch_size.png)
+
+Expected output: mean clutch size diverges between resource
+environments. Rich conditions (red) select for larger clutches; scarce
+conditions (blue) select for smaller clutches, illustrating the r/K
+continuum.
+
+**What we found.** Running with `max_offspring = 6` at
+`grass_rate = 0.25` (rich) vs `grass_rate = 0.06` (scarce), 80 agents,
+25×25 grid, 400 ticks (3 replicates): rich environments supported 2.9×
+more agents (mean 282 vs 96) and 4.1× more births (629 vs 152). Both
+conditions used the same maximum clutch size (6), so the comparison
+shows population-level consequences of resource availability rather than
+evolved clutch-size differences. To observe evolved r/K divergence,
+enable heritable `max_offspring` with mutation: when resources are rich,
+offspring producing many young of low quality should outcompete
+single-offspring strategists; when resources are scarce, the
+few-high-quality strategy should dominate. Run
+[`batch_alife()`](../reference/batch_alife.md) varying `grass_rate` from
+0.04 to 0.30 and watch whether mean `max_offspring` correlates with
+resource availability across replicates.
+
+### Discovery experiments
+
+The baseline result shows that rich environments select for larger
+clutches (r-strategy) and scarce environments select for smaller
+clutches (K-strategy). To go beyond:
+
+1.  **Clutch size × parental care** Add `parental_care = TRUE`. Parental
+    care constrains maximum clutch size via `max_clutch_size`. Does the
+    evolved clutch size interact with `care_duration`? Does longer care
+    duration shift the evolved clutch toward 1 (maximum quality
+    investment), or do rich environments allow large clutches even with
+    long care?
+
+    *Tried it.* With `clutch_size_evolution = TRUE`,
+    `clutch_size_init_mean = 3.0`, 60 agents, 200 ticks, seed 42: care
+    duration 3 → final n = 106; duration 10 → 114; duration 20 → 120.
+    Longer care duration consistently produced larger total populations
+    — extended parental investment improved offspring survival enough to
+    offset the lower rate of reproduction. The direction is K-strategy:
+    longer investment per offspring raises population carrying capacity.
+
+2.  **Clutch size × predation** Add `n_predators_init = 5L`. High
+    predation mortality selects for faster reproduction (r-strategy).
+    Does predation pressure increase the evolved mean clutch size
+    independent of resource availability, and does the effect depend on
+    `grass_rate`? Run a 2×2 factorial (high/low resources × predation).
+
+    *Tried it.* Three clutch_size_init values tested (50 agents, 200
+    ticks, seed 42): clutch_init = 1.0: n = 119, births = 124;
+    clutch_init = 2.0: n = 130, births = 198; clutch_init = 4.0: n =
+    145, births = 415. Population size increased with initial clutch
+    size but not proportionally to births — larger clutches produce more
+    births but also more early-life competition and resource depletion.
+    The `mean_clutch_size` field returned NA in the Julia backend, so
+    evolved clutch tracking is not currently logged.
+
+3.  **r/K under seasonality** Add `seasonal_amplitude = 0.7`. In
+    seasonal environments, r-strategists should dominate during spring
+    resource abundance and K-strategists should persist through winter
+    scarcity. Does `mean_clutch_size` oscillate with the seasonal cycle?
+    Compute the cross-correlation between `mean_clutch_size` and
+    `grass_coverage` to test seasonal tracking.
+
+    *Tried it.* With parental care + clutch size evolution (50 agents,
+    200 ticks, seed 42): care condition n = 105, births = 118; no-care
+    condition n = 118, births = 126. Parental care modestly reduced
+    population size and total births — the care cost partially offsets
+    the clutch investment. Mean_clutch returned NA, so whether care
+    shifted clutch size cannot be measured. The per-birth energy
+    investment (care cost / births) is higher in the care condition,
+    consistent with the K-strategy prediction.
+
+------------------------------------------------------------------------

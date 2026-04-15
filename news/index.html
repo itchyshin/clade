@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -98,9 +98,121 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Changelog</h1>
-
+      <small>Source: <a href="https://github.com/itchyshin/clade/blob/scenario-audit-0.2.0/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.0" id="clade-030">clade 0.3.0<a class="anchor" aria-label="anchor" href="#clade-030"></a></h2>
+<div class="section level3">
+<h3 id="new-observables-0-3-0">New observables<a class="anchor" aria-label="anchor" href="#new-observables-0-3-0"></a></h3>
+<ul><li>
+<strong><code>n_shelter_occupied</code></strong> (new column in <code>get_run_data()$ticks</code>). Counts agents sitting on a sheltered cell at each tick. Paired with <code>shelter_occupancy_bonus</code>, this gives a direct per-tick scalar for the aggregate energy transfer from ancestors’ niche constructions to extant descendants — the Odling-Smee, Laland &amp; Feldman (2003) heritable-niche effect as a single log column.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="coverage-0-3-0">Coverage<a class="anchor" aria-label="anchor" href="#coverage-0-3-0"></a></h3>
+<ul><li>
+<strong><code>tests/testthat/test-mimicry-batesian.R</code></strong> — 11 direction-only assertions for the Batesian-mode code path plus a regression guard on the <code>toxicity_cost_per_tick = 2.0</code> default.</li>
+<li>
+<strong><code>tests/testthat/test-niche-heritable.R</code></strong> — 7 assertions covering <code>shelter_occupancy_bonus</code> default (0), presence of <code>n_shelter_occupied</code> in log, bounded by agent count, zero when <code>niche_construction = FALSE</code>, and directional check that the occupancy bonus does not reduce mean_energy.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="continuous-integration-0-3-0">Continuous integration<a class="anchor" aria-label="anchor" href="#continuous-integration-0-3-0"></a></h3>
+<ul><li>
+<code>.github/workflows/R-CMD-check.yaml</code> runs <code>R CMD check</code> on every push and PR to main/master. Tests and vignettes are skipped (require Julia, not on GH runners); the check still catches package-level issues (namespace, docs, DESCRIPTION).</li>
+<li>
+<code>.github/workflows/pkgdown.yaml</code> builds and deploys the pkgdown site on push to main/master and on release publication.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="code-quality-0-3-0">Code quality<a class="anchor" aria-label="anchor" href="#code-quality-0-3-0"></a></h3>
+<ul><li>
+<code>R/visualization.R</code>: extracted <code>.plot_empty(message)</code> helper, replaced nine duplicated “theme_void with annotation” fallback blocks. File is ~40 lines shorter; behavior byte-identical.</li>
+<li>
+<code>inst/julia/src/reproduce.jl</code>: dropped a stale “Phase 2 stub” remark that referred to graduate_offspring!() before it was wired up in commit 7ad2b1d.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="docs--post-release-refresh-0-3-0">Docs — post-release refresh<a class="anchor" aria-label="anchor" href="#docs--post-release-refresh-0-3-0"></a></h3>
+<ul><li>
+<code>vignettes/showcase.Rmd</code>: Baldwin section gains the honest “σ rises at defaults; CMA-ES finds a narrowing regime” caveat; Mimicry and Niche sections document the new 0.3.0 flags.</li>
+<li>
+<code>vignettes/introduction.Rmd</code>, <code>vignettes/scenarios.Rmd</code>: gallery tables surface <code>batesian_mimicry</code> and <code>shelter_occupancy_bonus</code>.</li>
+<li>
+<code>vignettes/s-mimicry.Rmd</code>, <code>vignettes/s-niche.Rmd</code>: Key-parameters tables gain the new flags; What-we-found sections refreshed to describe the current (post-0.3.0) kernel rather than the pre-fix state.</li>
+<li>
+<code>vignettes/s-parental-care.Rmd</code>, <code>s-parental-investment.Rmd</code>: re-measured at displayed specs with the fixed graduation pathway; What-we-found quotes updated from “n_juveniles = 0 throughout” to the actual current trajectories.</li>
+<li>
+<code>vignettes/baldwin-effect.Rmd</code>: Addendum section documents the CMA-ES-discovered regime where canalization emerges (grass_rate 0.027, learning_rate_init_mean 0.007).</li>
+<li>
+<code>vignettes/figures/showcase_bnn_canalization_demo.png</code>: previously orphaned (no generator produced it); now emitted by <code>gen_fixed_patch_fig.R</code> under both its original filename and the canalization alias, keeping both Baldwin articles in sync with live kernel biology.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="new-biological-mechanisms-0-3-0">New biological mechanisms<a class="anchor" aria-label="anchor" href="#new-biological-mechanisms-0-3-0"></a></h3>
+<ul><li>
+<strong>Batesian mimicry</strong> (<code>specs$batesian_mimicry = TRUE</code>). A palatable mimic (toxicity = 0) whose signal matches a toxic model species now benefits from the predator’s learned aversion — the predator avoids the mimic alongside true toxic prey. Repeated attacks on palatable mimics decay the predator’s aversion memory (Rescorla-Wagner toward 0), reproducing the Bates–Wallace predator discrimination-learning cycle. Default <code>FALSE</code> — existing runs are byte-identical. Reference: Bates (1862) <em>Trans. Linn. Soc.</em> 23:495–566; Ruxton, Sherratt &amp; Speed (2004) <em>Avoiding Attack</em>.</li>
+<li>
+<strong>Heritable niche-construction benefit</strong> (<code>specs$shelter_occupancy_bonus &gt; 0</code>). Agents occupying a sheltered cell receive <code>bonus × depth</code> energy per tick, the Odling-Smee, Laland &amp; Feldman (2003) heritable-environment effect. Existing <code>niche_construction</code> semantics (grass suppression + persistence + decay) are unchanged; the new parameter is additive and defaults to 0 (no behavior change).</li>
+</ul></div>
+<div class="section level3">
+<h3 id="ecology-corrections-0-3-0">Ecology corrections<a class="anchor" aria-label="anchor" href="#ecology-corrections-0-3-0"></a></h3>
+<ul><li>
+<code>R/run.R</code> <code><a href="../reference/dot-validate_specs.html">.validate_specs()</a></code> now warns when <code>spatial_sorting = TRUE</code> combined with <code>toroidal = TRUE</code>. Shine et al. (2011) invasion-front dynamics require a bounded grid; on a torus the population centroid wraps and the “front” concept is geometrically ill-posed.</li>
+<li>
+<code>toxicity_cost_per_tick</code> default raised <code>0.5 → 2.0</code>. The prior default equalled <code>idle_cost</code>, making toxicity effectively free (Zahavi 1975 handicap principle violated). 2.0 makes a maximally-toxic agent pay ~4× the idle baseline per tick.</li>
+<li>
+<code>inst/julia/src/modules/disease.jl</code> docstring now documents that transmission is <strong>density-dependent</strong> (per-neighbour contact, not <code>β · S · I / N</code> frequency-dependent SIR) and that <code>disease_duration</code> is a deterministic recovery period (delta-distribution, not exponential). Includes the mean-field <code>R0 ≈ transmission_prob × 8 × disease_duration</code> approximation.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="cma-es-auto-calibration-harness-0-3-0">CMA-ES auto-calibration harness<a class="anchor" aria-label="anchor" href="#cma-es-auto-calibration-harness-0-3-0"></a></h3>
+<ul><li>New <code>dev/audit/calibration/</code> harness drives <code><a href="../reference/search_cmaes.html">search_cmaes()</a></code> over each scenario’s parameter subspace, with a per-scenario fitness function encoding the biological claim. Parallel launcher (<code>run_all.sh</code>) runs 31 scenarios concurrently.</li>
+<li>Full Phase 7 results in <a href="dev/audit/calibration/RESULTS.html"><code>dev/audit/calibration/RESULTS.md</code></a>. Headline discoveries: a regime where the <strong>Baldwin effect does emerge</strong> (<code>grass_rate ≈ 0.027</code>, <code>learning_rate_init_mean ≈ 0.007</code>) in the otherwise non-canalising foraging world; a regime where speciation fires (<code>mutation_sd ≈ 1.31</code>); the cephalopod paradox (Liedtke &amp; Fromhage 2019) reproduced at short max_age with high learning rate.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="scenario-audit-0-3-0">Scenario audit<a class="anchor" aria-label="anchor" href="#scenario-audit-0-3-0"></a></h3>
+<p>A systematic end-to-end audit of the 35 scenario vignettes under <code>vignettes/s-*.Rmd</code> was performed. Each vignette’s displayed code was run against the live Julia kernel, the oracle metric trajectory inspected, and the outcome classified. Full audit machinery ships under <code>dev/audit/</code> so this can be rerun. Final state: 30 scenarios OK, 2 aggregate galleries (s-cross-module, s-module-comparison) by design without a direction oracle, 2 search-only scenarios (s-bad-science, s-map-elites) by design without trajectory output, and 1 documented limitation (s-stress-hypermutation, flat mutation rate at displayed defaults).</p>
+</div>
+<div class="section level3">
+<h3 id="julia-kernel-0-3-0">Julia kernel<a class="anchor" aria-label="anchor" href="#julia-kernel-0-3-0"></a></h3>
+<ul><li>
+<strong>BNN REINFORCE score function fixed.</strong> The previous update rule was <code>mu[i] += lr * advantage * sigma[i]</code>, which is not the score function of the Gaussian policy. The new rule <code>mu[i] += lr * advantage * (w_sample[i] - mu[i]) / sigma[i]^2</code> matches the exact score from Williams (1992) and Blundell et al. (2015) §3.2. A new <code>last_sample::Vector{Float32}</code> field on <code>BNNBrain</code> caches the Thompson-sampled weights from <code>forward()</code> for use by <code>bnn_update!</code>. This is likely the main reason earlier runs showed no Baldwin-effect sigma narrowing even in favourable regimes.</li>
+<li>
+<strong>Parliament-of-genes penalty logic fixed</strong> in <code>modules/kin.jl</code>. The counter previously included cooperators across all neighbours; now it counts cooperative kin separately, and the penalty fires when cooperative relatives outnumber non-cooperative relatives — consistent with Haig (2000) intragenomic conflict suppression.</li>
+<li>
+<strong>Predator dedicated sensory architecture.</strong> <code>seed_predators!</code> now builds a predator-specific brain architecture <code>[15, hidden..., 5]</code> so the brain’s <code>n_inputs</code> matches the 15-element predator sense vector. Previously predators used the prey’s architecture (dynamic size depending on <code>input_radius</code> and active sensory modules), producing a silent dimension mismatch whenever those defaults changed.</li>
+<li>
+<strong>Mutation-rate evolution uses per-agent trait.</strong> When <code>mutation_rate_evolution = TRUE</code>, <code>reproduce.jl</code> now reads <code>parent.mutation_sd</code> as the base mutation rate for meiosis. Previously the global <code>specs["mutation_sd"]</code> was used unconditionally, so the evolved trait never propagated. The stress-hypermutation multiplier continues to apply on top.</li>
+<li>
+<strong>Parental-care graduation pathway wired up.</strong> <code>reproduce.jl:126-131</code> was a Phase 2 stub that pushed offspring straight into <code>env.agents</code> even when <code>parental_care = TRUE</code>. Offspring now enter the parent’s <code>carried_offspring</code> brood (with <code>care_load += 1</code>), age there via <code>age_juveniles!</code>, are fed via <code>feed_offspring!</code>, and graduate to the main agent pool via <code>graduate_offspring!</code> when they reach <code>juvenile_independence_age</code> or <code>juvenile_independence_energy</code>. Before the fix, <code>n_juveniles</code> was always 0 in <code>s-parental-care</code> and <code>s-parental-investment</code>; after, typical runs log hundreds of carried juveniles.</li>
+<li>
+<strong><code>randperm</code> now imported in <code>Clade.jl</code>.</strong> Latent bug that only surfaced after the parental-care fix enabled the <code>graduate_offspring!</code> code path: <code>randperm</code> was referenced in <code>modules/parental_care.jl:153</code> but not imported in the <code>using Random</code> line.</li>
+<li>
+<strong>Include-order fix</strong> (<code>inst/julia/src/brains/ann.jl</code> → <code>bnn.jl</code>). The <code>_quantize_brain_weights!(::BNNBrain, ...)</code> method was defined in <code>ann.jl</code> before <code>bnn.jl</code> was loaded; on Julia 1.12 this aborts module load with <code>UndefVarError: BNNBrain</code>. The method now lives in <code>bnn.jl</code> alongside the type, matching the method’s dispatch target.</li>
+<li>
+<strong>Manifest regenerated</strong> for Julia ≥ 1.11 compatibility (previously pinned to Statistics 1.10 which doesn’t ship with 1.12). Project.toml is unchanged.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="vignettes-0-3-0">Vignettes<a class="anchor" aria-label="anchor" href="#vignettes-0-3-0"></a></h3>
+<ul><li>
+<strong><code>s-pop-genetics.Rmd</code> chunk rewrite.</strong> The displayed code called <code>h2$ci</code> and <code>plot(h2)</code>, neither of which <code><a href="../reference/estimate_heritability.html">estimate_heritability()</a></code> returns. The chunk now shows the lag-1 autocorrelation proxy (what the function actually computes) and plots the mean trajectory that the proxy is derived from, with a note pointing to <code><a href="../reference/heritability_estimate.html">heritability_estimate()</a></code> for the parent-offspring-regression route.</li>
+<li>
+<strong><code>DESCRIPTION</code></strong>: <code>tidyr</code> added to <code>Suggests</code> because <code>vignettes/s-kitchen-sink.Rmd</code> and <code>vignettes/s-seasonal.Rmd</code> call <code><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html" class="external-link">tidyr::pivot_longer()</a></code>.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="infrastructure-under-devaudit-0-3-0">Infrastructure (under <code>dev/audit/</code>)<a class="anchor" aria-label="anchor" href="#infrastructure-under-devaudit-0-3-0"></a></h3>
+<ul><li>Rmd parser (<code>parse_rmd.R</code>) extracts displayed chunks, figure refs, and “What we found” prose from every scenario.</li>
+<li>Scenario oracle (<code>scenario_oracle.R</code>) maps vignettes to expected module flags and a direction-only signal oracle. Each entry carries a comment documenting <em>why</em> the oracle is phrased as it is, grounded in the vignette’s own reported findings (several vignettes document honest negative results and the oracle matches them).</li>
+<li>Serial driver (<code>run_audit.R</code>) runs all scenarios in one warm Julia session — parallel forks deadlock JuliaConnectoR’s socket; sequential is reliable and completes in ~5–7 min.</li>
+<li>Text-drift scanner (<code>text_drift_scan.R</code>) catches displayed-vs-prose numeric drift without running the simulation.</li>
+<li>Consolidation survey (<code>consolidation_report.md</code>) enumerates ~550 lines of refactor opportunities across <code>R/</code> and <code>inst/julia/src/modules/</code>; scheduled for 0.3.0.</li>
+<li>
+<code>tests/testthat/test-scenario-signals.R</code> asserts direction-only signals for every scenario with an oracle, robust to seed noise.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="known-limitations-surfaced-by-the-audit-0-3-0">Known limitations surfaced by the audit<a class="anchor" aria-label="anchor" href="#known-limitations-surfaced-by-the-audit-0-3-0"></a></h3>
+<p>These are documented in each vignette’s “What we found” section and are intentionally preserved rather than papered over:</p>
+<ul><li>BNN prior sigma rises rather than narrows in a competitive foraging world (s-baldwin). The Baldwin effect as formalised by Hinton &amp; Nowlan (1987) requires a stable global fitness peak; clade’s default world does not provide one. The vignette’s 45-run 3×3 factorial plus run-length experiments (500/1000/2000/5000 ticks) establish this rigorously.</li>
+<li>
+<code>stress_hypermutation</code> scales <code>specs["mutation_sd"]</code> transiently at reproduction rather than mutating the per-agent <code>ag.mutation_sd</code> field, so the logged <code>mean_mutation_rate</code> stays flat even when the mechanism fires. The observable signal is a transient rise in <code>genetic_diversity</code> during resource crashes.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.1.1" id="clade-011-development">clade 0.1.1 (development)<a class="anchor" aria-label="anchor" href="#clade-011-development"></a></h2>
 <div class="section level3">
@@ -116,14 +228,16 @@
 </ul></div>
 <div class="section level3">
 <h3 id="new-features-0-1-1">New features<a class="anchor" aria-label="anchor" href="#new-features-0-1-1"></a></h3>
-<ul><li>
-<strong>Non-toroidal grid</strong> (<code>toroidal = FALSE</code>): all Julia modules now use a <code>wrap_or_clamp()</code> helper that either wraps (toroidal) or clamps to the grid boundary (linear). Required for spatial sorting and invasion-front experiments with a defined front.</li>
-<li>
-<strong>Carrion as pathogen reservoir</strong> (<code>carrion_transmission_prob</code>): when <code>scavenging = TRUE</code> and <code>disease = TRUE</code>, agents that die while infected deposit a flagged carcass; any agent that scavenges from it becomes infected with probability <code>carrion_transmission_prob</code> (default 0.0 — off for backwards compatibility).</li>
-<li>
-<strong><code><a href="../reference/batch_seeds.html">batch_seeds()</a></code></strong>: convenience wrapper around <code><a href="../reference/batch_alife.html">batch_alife()</a></code> that takes a single specs object and a vector of seeds and returns a named list of results.</li>
-<li>
-<strong><code><a href="../reference/quick_specs.html">quick_specs()</a></code> / <code><a href="../reference/full_specs.html">full_specs()</a></code></strong>: preset specs for fast exploratory runs (50 agents, 200 ticks, 20×20 grid) and publication-quality runs (200 agents, 1000 ticks, 30×30 grid).</li>
+<ul><li><p><strong>Lamarckian evolution</strong> (<code>lamarckian = TRUE</code>): when <code>rl_mode</code> is not <code>"none"</code>, the within-lifetime RL-updated brain weights are written back to the parent’s genome before meiosis so offspring inherit the learned solution directly. Implemented in <code>inst/julia/src/modules/lamarckian.jl</code>. Distinct from the epigenetics module (which inherits methylation marks, not weight values) and from the Baldwin Effect (which leaves the genome unchanged). References: Baldwin (1896); Weismann (1892); Jablonka &amp; Lamb (2005).</p></li>
+<li><p><strong>Discrete / quantized ANN weights</strong> (<code>ann_weight_values</code>): when set to a numeric vector (e.g. <code>c(-1, 0, 1)</code> for ternary weights), every synaptic weight and bias is snapped to the nearest allowed value after genome expression. Applies to <code>"ann"</code> and <code>"bnn"</code> brain types. Biologically motivated by evidence that biological synapses operate in discrete strength states (Bhumbra &amp; Bhatt 2020). Enables symbolic formula distillation from evolved ANNs (as in the original MATLAB <code>alife2025usra</code> codebase).</p></li>
+<li><p><strong>ANN weight regularisation</strong> (<code>ann_regularization</code>): per-tick energy penalty for brain weight complexity. Two modes: <code>"weight_magnitude"</code> (L1 penalty, drives weights toward zero) and <code>"weight_count"</code> (L0-like penalty, fixed cost per active synapse). Scaled by <code>ann_regularization_lambda</code> (default 0.001). The mean weight magnitude is now logged in every run as <code>mean_ann_weight_magnitude</code>. References: Laughlin et al. (1998); Attwell &amp; Laughlin (2001).</p></li>
+<li><p><strong>Native Julia test directory</strong> (<code>inst/julia/test/</code>): unit tests for quantization, regularisation, and Lamarckian logic that can be run directly in Julia without the R side. Run with <code>julia --project=inst/julia inst/julia/test/runtests.jl</code>.</p></li>
+<li><p><strong>Module triage script</strong> (<code>inst/scripts/triage_modules.R</code>): runs each module in isolation for 300 ticks and reports whether a key biological signal is detected (<code>[OK]</code>), absent (<code>[FLAT]</code>), or crashing (<code>[ERR]</code>). Run with <code>Rscript inst/scripts/triage_modules.R</code>.</p></li>
+<li><p><strong><code>expect_evolution()</code> test helper</strong> (in <code>tests/testthat/helper.R</code>): asserts that a logged trait moves directionally over a simulation run. Also consolidates the duplicated <code>skip_no_julia()</code> definition into <code>helper.R</code> so individual test files no longer need to re-define it.</p></li>
+<li><p><strong>Non-toroidal grid</strong> (<code>toroidal = FALSE</code>): all Julia modules now use a <code>wrap_or_clamp()</code> helper that either wraps (toroidal) or clamps to the grid boundary (linear). Required for spatial sorting and invasion-front experiments with a defined front.</p></li>
+<li><p><strong>Carrion as pathogen reservoir</strong> (<code>carrion_transmission_prob</code>): when <code>scavenging = TRUE</code> and <code>disease = TRUE</code>, agents that die while infected deposit a flagged carcass; any agent that scavenges from it becomes infected with probability <code>carrion_transmission_prob</code> (default 0.0 — off for backwards compatibility).</p></li>
+<li><p><strong><code><a href="../reference/batch_seeds.html">batch_seeds()</a></code></strong>: convenience wrapper around <code><a href="../reference/batch_alife.html">batch_alife()</a></code> that takes a single specs object and a vector of seeds and returns a named list of results.</p></li>
+<li><p><strong><code><a href="../reference/quick_specs.html">quick_specs()</a></code> / <code><a href="../reference/full_specs.html">full_specs()</a></code></strong>: preset specs for fast exploratory runs (50 agents, 200 ticks, 20×20 grid) and publication-quality runs (200 agents, 1000 ticks, 30×30 grid).</p></li>
 </ul></div>
 <div class="section level3">
 <h3 id="logging-additions-0-1-1">Logging additions<a class="anchor" aria-label="anchor" href="#logging-additions-0-1-1"></a></h3>
@@ -235,7 +349,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

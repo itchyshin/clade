@@ -1,0 +1,435 @@
+# clade
+
+[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![License:
+MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![pkgdown](https://img.shields.io/badge/docs-pkgdown-blue.svg)](https://itchyshin.github.io/clade/)
+
+**Agent-based evolutionary simulation with a Julia backend and R
+interface.**
+
+`clade` runs populations of digital organisms on a renewable resource
+grid. Each agent carries a heritable neural-network genome; natural
+selection acts on brain weights, life-history traits, and — with
+optional modules — body size, dispersal tendency, wing morphology,
+cooperative behaviour, and more.
+
+The simulation kernel is written in Julia for performance. R is the
+interface: you set parameters, call
+[`run_alife()`](reference/run_alife.md) once, and receive the full
+simulation environment back for analysis and visualisation. The R–Julia
+boundary is crossed **once per run**, not once per tick, so large
+populations and long simulations stay fast.
+
+------------------------------------------------------------------------
+
+## Installation
+
+### R package
+
+``` r
+# From GitHub (development version)
+remotes::install_github("itchyshin/clade")
+```
+
+### Julia
+
+clade requires Julia ≥ 1.9. The easiest way to install it is via
+[juliaup](https://github.com/JuliaLang/juliaup):
+
+``` bash
+curl -fsSL https://install.julialang.org | sh
+```
+
+Or download directly from
+[julialang.org/downloads](https://julialang.org/downloads/).
+
+### First-run compilation
+
+On the first call to [`run_alife()`](reference/run_alife.md), Julia
+compiles the simulation kernel. This takes **60–90 seconds** and is
+cached for all subsequent runs in the same Julia environment.
+
+------------------------------------------------------------------------
+
+## Quick start
+
+``` r
+library(clade)
+
+# Confirm Julia is ready (compiles kernel on first call — ~60-90 s once)
+julia_is_ready()
+
+# Set up a baseline run
+specs <- default_specs()
+specs$n_agents_init <- 40L
+specs$max_ticks     <- 300L
+
+# Run the simulation
+env  <- run_alife(specs)
+
+# Extract and plot results
+data <- get_run_data(env)
+plot_run(data)   # population, energy, genetic diversity dashboard
+```
+
+------------------------------------------------------------------------
+
+## Biological modules
+
+All modules are disabled by default and enabled with a single flag in
+the specs list. Modules can be freely combined.
+
+| Module                        | Flag(s)                                                        | What it models                                                                                                                                                                                    |
+|-------------------------------|----------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Baseline                      | —                                                              | Foraging and neural evolution on a toroidal grass grid                                                                                                                                            |
+| Body size                     | `body_size_evolution`                                          | Metabolic scaling (approximate Kleiber); size-foraging trade-off                                                                                                                                  |
+| Brain size                    | `brain_size_evolution`                                         | Cognitive-bonus × metabolic-cost; bootstrapping under `parental_care`                                                                                                                             |
+| Clutch size                   | `clutch_size_evolution`                                        | r/K-style trade-off between clutch count and offspring quality                                                                                                                                    |
+| Complex landscape             | `complex_landscape`                                            | 3-layer forest (grass / shrubs / canopy); wing-size evolves for canopy access                                                                                                                     |
+| Cooperation                   | `cooperation_evolution`                                        | Public-goods games with helper-tendency evolution                                                                                                                                                 |
+| Cooperative breeding          | `cooperative_breeding`                                         | Helpers at the nest (Emlen 1982)                                                                                                                                                                  |
+| Dispersal                     | `dispersal_evolution`                                          | Heritable dispersal tendency                                                                                                                                                                      |
+| Habitat preference            | `habitat_preference_evolution`                                 | Agents move toward preferred grass density                                                                                                                                                        |
+| IFfolk + parliament           | `iffolk_selection`, `parliament_suppression`                   | Inclusive-fitness transfers + intragenomic-conflict suppression (Haig 2000; Fromhage & Jennions 2019)                                                                                             |
+| Kin selection                 | `kin_selection`                                                | Hamilton’s rule, pedigree-based relatedness (r = 0.5 / 0.25 / 0)                                                                                                                                  |
+| Life history / pace of life   | `metabolic_rate_evolution`, `aging_rate_evolution`             | Metabolic rate ↔︎ lifespan trade-off                                                                                                                                                               |
+| Mating systems                | `ploidy = 2`, `mate_choice`                                    | Haploid / diploid; signal-preference assortative mating                                                                                                                                           |
+| Mimicry                       | `mimicry`                                                      | Predator learning + warning colouration (currently Müllerian; Batesian disabled by design)                                                                                                        |
+| Mutation-rate evolution       | `mutation_rate_evolution`                                      | Per-agent heritable `mutation_sd`                                                                                                                                                                 |
+| Niche construction            | `niche_construction`                                           | Shelter-building modifies the selection environment (local public good). With `shelter_occupancy_bonus > 0`: shelters confer a heritable metabolic benefit to occupants (Odling-Smee et al. 2003) |
+| Batesian mimicry              | `mimicry` + `batesian_mimicry`                                 | Palatable mimics (`toxicity = 0`) exploit a predator’s aversion for a shared signal; predator-betrayal decay prevents runaway cheating (Bates 1862)                                               |
+| Parental care                 | `parental_care`                                                | Obligate altriciality — offspring carried, fed, and graduated                                                                                                                                     |
+| Parental investment           | `parental_investment_evolution`                                | Evolved male / offspring-quality investment                                                                                                                                                       |
+| Phenotypic plasticity         | `phenotypic_plasticity`                                        | Environment-dependent reproduction threshold                                                                                                                                                      |
+| Predation                     | `predators`, `n_predators_init > 0`                            | Co-evolving predator guild with dedicated 15-input sensory brain                                                                                                                                  |
+| Predator group defence        | `group_defense`                                                | Coordinated anti-predator behaviour                                                                                                                                                               |
+| Scavenging                    | `scavenging`                                                   | Carcass consumption; decay-based carcass lifetime                                                                                                                                                 |
+| Seasonal dynamics             | `seasonal_amplitude > 0`, `winter_death_prob`                  | Resource oscillation + winter mortality                                                                                                                                                           |
+| SIR disease                   | `disease`                                                      | Susceptible–Infected–Recovered epidemic dynamics                                                                                                                                                  |
+| Signals / sexual selection    | `signal_mating`, `signal_evolution_drift`                      | Signal-preference coevolution (Fisher 1915; Kirkpatrick & Ryan 1991)                                                                                                                              |
+| Social learning               | `social_learning`                                              | Copy successful neighbours’ brain weights                                                                                                                                                         |
+| Spatial sorting               | `spatial_sorting` + `dispersal_evolution` + `toroidal = FALSE` | Invasion-front dispersal assortment (Shine et al. 2011; needs bounded grid)                                                                                                                       |
+| Speciation                    | `speciation`                                                   | Genome-distance clustering + reproductive isolation                                                                                                                                               |
+| Stress hypermutation          | `stress_hypermutation`                                         | SOS-style mutation-rate spike below `stress_threshold`                                                                                                                                            |
+| Transgenerational epigenetics | `epigenetics`                                                  | Methylation inheritance on BNN sigma (Jablonka & Lamb 2005)                                                                                                                                       |
+| Within-lifetime RL            | `rl_mode = "actor_critic"`                                     | REINFORCE score-function update on BNN posterior (Williams 1992; Blundell et al. 2015)                                                                                                            |
+| Lamarckian inheritance        | `lamarckian = TRUE`                                            | RL-learned weights written back to genome before meiosis                                                                                                                                          |
+| Quantised weights             | `ann_weight_values`                                            | Snap weights to a discrete set (e.g. ternary) after expression                                                                                                                                    |
+
+See
+[`vignettes/parameter-reference.Rmd`](vignettes/parameter-reference.Rmd)
+for the complete parameter list.
+
+------------------------------------------------------------------------
+
+## Brain architectures
+
+The `brain_type` parameter selects the neural architecture. All types
+share the same R interface; only the forward pass and learning dynamics
+differ.
+
+| Type            | Description                                                             |
+|-----------------|-------------------------------------------------------------------------|
+| `"bnn"`         | Bayesian neural network — learns a distribution over weights (default)  |
+| `"ann"`         | Standard multilayer perceptron                                          |
+| `"ctrnn"`       | Continuous-time recurrent network; suited for temporally extended tasks |
+| `"grn"`         | Gene regulatory network topology; sparse and biologically motivated     |
+| `"transformer"` | Self-attention architecture; highest capacity, slowest                  |
+| `"synthesis"`   | Symbolic rule extraction from evolved weights                           |
+
+------------------------------------------------------------------------
+
+## Documentation
+
+Full documentation is available at
+**<https://itchyshin.github.io/clade/>**.
+
+| Article                                                                                    | Contents                                                                               |
+|--------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------|
+| [Getting Started](https://itchyshin.github.io/clade/articles/getting-started.html)         | Installation, first run, extracting results, batch runs                                |
+| [Biological Scenarios](https://itchyshin.github.io/clade/articles/scenarios.html)          | Code and expected outputs for every module                                             |
+| [Custom Modules](https://itchyshin.github.io/clade/articles/custom-modules.html)           | Write your own per-tick hooks with [`register_module()`](reference/register_module.md) |
+| [Parameter Reference](https://itchyshin.github.io/clade/articles/parameter-reference.html) | Every parameter in [`default_specs()`](reference/default_specs.md), grouped by theme   |
+| [Diversity Search](https://itchyshin.github.io/clade/articles/diversity-search.html)       | CMA-ES, MAP-Elites, viability mapping, and scenario-specific tuning                    |
+| [Showcase](https://itchyshin.github.io/clade/articles/showcase.html)                       | Figures from all simulation scenarios                                                  |
+
+------------------------------------------------------------------------
+
+## Citation
+
+If you use clade in published work, please cite:
+
+``` bibtex
+@misc{clade2026,
+  author  = {Nakagawa, Shinichi},
+  title   = {clade: Agent-based evolutionary simulation with a Julia backend},
+  year    = {2026},
+  note    = {R package version 0.3.0},
+  url     = {https://github.com/itchyshin/clade}
+}
+```
+
+------------------------------------------------------------------------
+
+## License
+
+MIT — see [LICENSE](LICENSE).
+
+# Package index
+
+## Running simulations
+
+Entry points for running and batching evolutionary simulations.
+
+- [`run_alife()`](run_alife.md) : Run an evolutionary simulation
+- [`run_clade()`](run_clade.md) : Synonym for run_alife()
+- [`batch_alife()`](batch_alife.md) : Run multiple simulations in
+  parallel
+- [`batch_seeds()`](batch_seeds.md) : Run one specs object with multiple
+  random seeds
+- [`default_specs()`](default_specs.md) : Default simulation parameters
+  for clade
+- [`quick_specs()`](quick_specs.md) : Quick preset specs for fast
+  exploratory runs
+- [`full_specs()`](full_specs.md) : Full preset specs for
+  publication-quality runs
+- [`load_specs()`](load_specs.md) : Load simulation specs from a JSON
+  file
+
+## Results & visualisation
+
+Extract tidy output and produce plots.
+
+- [`clade-visualization`](clade-visualization.md) : Visualisation layer
+  for clade simulation output
+- [`get_run_data()`](get_run_data.md) : Extract simulation results as
+  tidy data frames
+- [`get_genome_data()`](get_genome_data.md) : Extract per-tick genome
+  data (allele frequencies, diversity, FST)
+- [`plot_run()`](plot_run.md) : Dashboard plot summarising a clade
+  simulation run
+- [`plot_environment()`](plot_environment.md) : Plot the current state
+  of a clade environment
+- [`plot_diversity()`](plot_diversity.md) : Plot genetic diversity over
+  the run
+- [`plot_signal_evolution()`](plot_signal_evolution.md) : Plot signal
+  evolution (Phase 2 placeholder)
+- [`plot_disease_dynamics()`](plot_disease_dynamics.md) : Plot disease
+  dynamics over time
+- [`plot_body_size_evolution()`](plot_body_size_evolution.md) : Plot
+  body-size evolution over time
+- [`plot_dispersal_events()`](plot_dispersal_events.md) : Plot natal
+  dispersal events over time
+- [`plot_kin_network()`](plot_kin_network.md) : Plot kin network (Phase
+  2 placeholder)
+- [`plot_dead_agents()`](plot_dead_agents.md) : Plot lifetime statistics
+  of dead agents
+- [`plot_genome_diversity()`](plot_genome_diversity.md) : Plot genetic
+  diversity over time
+- [`plot_tsne_genomes()`](plot_tsne_genomes.md) : Plot genome PCA to
+  reveal population genetic structure
+- [`plot_weight_heatmap()`](plot_weight_heatmap.md) : Visualise a neural
+  genome as a weight heatmap
+- [`plot_module_metrics()`](plot_module_metrics.md) : Plot
+  module-specific metrics from a clade simulation run
+- [`visualize_progress()`](visualize_progress.md) : Render the full
+  simulation dashboard
+
+## Parameter search
+
+Automated tools for finding parameter combinations that produce target
+evolutionary outcomes.
+
+- [`search_map_elites()`](search_map_elites.md) : MAP-Elites
+  quality-diversity search over simulation parameters
+- [`search_cmaes()`](search_cmaes.md) : CMA-ES optimisation over
+  simulation parameters
+- [`search_gradient()`](search_gradient.md) : Finite-difference gradient
+  ascent over simulation parameters
+- [`search_random()`](search_random.md) : Stochastic parameter sweep for
+  evolutionary outcome discovery
+- [`search_viability()`](search_viability.md) : Grid-search parameter
+  viability: which combinations allow population survival?
+
+## Scenario objectives
+
+Pre-built objective functions for the complex landscape, spatial
+sorting, and IFfolk modules. Pass to
+[`search_cmaes()`](../reference/search_cmaes.md) or write your own with
+the same signature.
+
+- [`objective_complex_landscape()`](objective_complex_landscape.md) :
+  Objective function for the complex landscape scenario
+- [`objective_spatial_sorting()`](objective_spatial_sorting.md) :
+  Objective function for the spatial sorting scenario
+- [`objective_iffolk()`](objective_iffolk.md) : Objective function for
+  the IFfolk inclusive fitness scenario
+
+## Convenience tuning wrappers
+
+Pre-configured [`search_cmaes()`](../reference/search_cmaes.md) /
+[`search_map_elites()`](../reference/search_map_elites.md) calls for
+each major module. Use these instead of wiring up objectives and
+parameter lists manually.
+
+- [`tune_complex_landscape()`](tune_complex_landscape.md) : Tune
+  parameters for the complex landscape module
+- [`tune_spatial_sorting()`](tune_spatial_sorting.md) : Tune parameters
+  for the spatial sorting module
+- [`tune_iffolk()`](tune_iffolk.md) : Tune parameters for the IFfolk
+  inclusive fitness module
+
+## Custom modules
+
+Register user-defined hook functions that run at each tick.
+
+- [`register_module()`](register_module.md) : Register a custom module
+  function
+- [`list_modules()`](list_modules.md) : List registered custom modules
+- [`clear_modules()`](clear_modules.md) : Remove all registered custom
+  modules
+
+## Pure-R scenarios
+
+Scenarios that run entirely in R (no Julia required).
+
+- [`run_bad_science()`](run_bad_science.md) : Simulate the evolution of
+  scientific practice
+
+## Population genetics & analysis
+
+Estimate heritability, relatedness, LD, and genome diversity.
+
+- [`estimate_heritability()`](estimate_heritability.md) : Estimate
+  narrow-sense heritability from a logged trait time-series
+- [`heritability_estimate()`](heritability_estimate.md) : Estimate
+  narrow-sense heritability from parent-offspring data
+- [`compare_conditions()`](compare_conditions.md) : Compare evolutionary
+  outcomes across simulation conditions
+- [`compute_relatedness()`](compute_relatedness.md) : Compute
+  pedigree-based relatedness between two agents
+- [`compute_ld()`](compute_ld.md) : Compute linkage disequilibrium from
+  a logged genome time-series
+- [`genome_distance()`](genome_distance.md) : Compute normalised
+  Euclidean genome distance between two agents
+- [`diversity_landscape()`](diversity_landscape.md) : Visualise the
+  multi-trait diversity landscape
+- [`species_tree()`](species_tree.md) : Reconstruct a species tree from
+  a logged simulation
+
+## Map generation
+
+Create structured landscape maps for the simulation grid.
+
+- [`generate_map()`](generate_map.md) : Generate a procedural habitat
+  map
+- [`prepare_map()`](prepare_map.md) : Validate and resize a habitat map
+- [`load_map()`](load_map.md) : Load a bundled or saved habitat map
+- [`plot_map()`](plot_map.md) : Plot the spatial distribution of agents
+  on the grid
+
+## Agent internals
+
+Inspect individual agent brains, weights, and actions.
+
+- [`inspect_brain()`](inspect_brain.md) : Inspect the brain structure of
+  a single agent
+- [`get_brain_weights()`](get_brain_weights.md) : Extract weight values
+  from an agent's brain
+- [`sense_env()`](sense_env.md) : Build the sensory input vector for an
+  agent
+- [`take_action()`](take_action.md) : Choose an action for an agent
+  given its sensory input
+
+## Julia session management
+
+Check Julia availability and version.
+
+- [`julia_is_ready()`](julia_is_ready.md) : Check whether the Julia
+  session is active
+- [`julia_version()`](julia_version.md) : Report the Julia version used
+  by clade
+
+## Inspection utilities
+
+Pretty-print specs, summarise environments.
+
+- [`print_specs()`](print_specs.md) : Pretty-print all simulation
+  parameters
+
+# Articles
+
+### Overview
+
+- [Biological Scenarios: A Discovery Guide](scenarios.md):
+- [Getting Started with clade](getting-started.md):
+- [Getting started with clade: agent-based evolution in
+  R](introduction.md):
+- [Parameter Reference](parameter-reference.md):
+- [Custom Modules: Extending clade with Per-Tick
+  Hooks](custom-modules.md):
+- [Genetic Diversity Search in clade](diversity-search.md):
+
+### Theme 1 — How do traits evolve?
+
+- [Baseline world](s-baseline.md):
+- [Population genetics and heritability](s-pop-genetics.md):
+- [Body size evolution](s-body-size.md):
+- [Brain size evolution](s-brain-size.md):
+- [Stress hypermutation](s-stress-hypermutation.md):
+
+### Theme 2 — Ecology and adaptive landscapes
+
+- [Complex landscape](s-complex-landscape.md):
+- [Dispersal, IFD and spatial sorting](s-dispersal-ifd.md):
+- [Niche construction](s-niche.md):
+- [Seasonal dynamics](s-seasonal.md):
+- [Scavenging and carrion dynamics](s-scavenging.md):
+
+### Theme 3 — Social evolution
+
+- [Kin selection](s-kin.md):
+- [Cooperative breeding and public goods](s-cooperation.md):
+- [Signals and mate choice](s-signals.md):
+- [Speciation and genetic divergence](s-speciation.md):
+
+### Theme 4 — Life history strategies
+
+- [Parental care](s-parental-care.md):
+- [Mating systems](s-mating-systems.md):
+- [Life history strategies](s-life-history.md):
+- [Clutch size evolution](s-clutch-size.md):
+- [Parental investment](s-parental-investment.md):
+- [Pace-of-life syndromes](s-pace-of-life.md):
+
+### Theme 5 — Species interactions and arms races
+
+- [Predator-prey dynamics](s-predator-prey.md):
+- [Group defense](s-group-defense.md):
+- [Mimicry and toxicity](s-mimicry.md):
+- [SIR disease](s-disease.md):
+- [Predation and neural evolution](s-predation-neural.md):
+
+### Theme 6 — Learning, plasticity, and cognition
+
+- [Within-lifetime reinforcement learning](s-rl.md):
+- [Social learning](s-social-learning.md):
+- [Phenotypic plasticity](s-plasticity.md):
+- [BNN uncertainty canalization and the Baldwin Effect](s-baldwin.md):
+- [The cephalopod paradox](s-cephalopod.md):
+
+### Theme 7 — Discovery experiments
+
+- [Module comparison](s-module-comparison.md):
+- [MAP-Elites diversity search](s-map-elites.md):
+- [Kitchen-sink run](s-kitchen-sink.md):
+- [Evolution of bad science](s-bad-science.md):
+- [Cross-module discovery gallery](s-cross-module.md):
+
+### Gallery
+
+- [Simulating evolution: a showcase of clade](showcase.md):
+- [The Baldwin Effect: within-lifetime learning accelerating
+  evolution](baldwin-effect.md):

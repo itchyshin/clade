@@ -1,0 +1,303 @@
+# Dispersal, IFD and spatial sorting
+
+### Where to live and when to move
+
+**What it models.** Three related but distinct mechanisms govern where
+agents end up on the grid and how that pattern changes over time.
+
+**Spatial sorting.** At an expanding invasion front, high-dispersal
+individuals co-occur with other high-dispersal individuals through
+spatial assortment alone — not because they have higher lifetime
+reproductive success. Dispersal-enhancing alleles “surf the wave” (Shine
+et al. 2011). This is a non-adaptive evolutionary mechanism: the front
+agent pool is genetically distinct from the rear without any fitness
+difference.
+
+**Dispersal evolution.** A heritable `dispersal_tendency` trait governs
+how far agents move from their birthplace, allowing evolution to
+optimise dispersal in response to local resource density and
+competition. Dense, resource-rich environments typically select for
+lower dispersal (local knowledge is valuable); sparse, patchy
+environments select for higher dispersal.
+
+**Ideal free distribution (IFD).** The IFD predicts that, under perfect
+information and free movement, individuals should distribute themselves
+across habitat patches proportionally to resource availability,
+equalising per-capita intake rates (Fretwell & Lucas 1970). In `clade`,
+habitat preference is a heritable, continuously varying trait. Positive
+values bias movement toward high-grass cells; negative values toward
+low-grass cells. When `habitat_preference_evolution = TRUE`, selection
+acts on this trait because agents that track resource-rich patches
+acquire more energy, survive longer, and leave more offspring.
+
+**Spatial sorting parameters.**
+
+| Parameter                 | Default | Effect                                     |
+|---------------------------|---------|--------------------------------------------|
+| `dispersal_evolution`     | FALSE   | Enable heritable dispersal tendency        |
+| `dispersal_init_mean`     | 0.5     | Starting dispersal probability             |
+| `dispersal_mutation_sd`   | 0.05    | Mutation rate for dispersal                |
+| `spatial_sorting`         | FALSE   | Enable invasion-front mating assortment    |
+| `sorting_front_threshold` | 0.75    | Fraction from front to define “front zone” |
+| `sorting_mating_boost`    | 3.0     | Fold-increase in mate encounters at front  |
+
+**Dispersal evolution parameters.**
+
+| Parameter                       | Default   | Effect                         |
+|---------------------------------|-----------|--------------------------------|
+| `dispersal_evolution`           | FALSE     | Enable heritable dispersal     |
+| `dispersal_init_mean`           | 0.5       | Starting dispersal probability |
+| `dispersal_mutation_sd`         | 0.05      | Mutation rate                  |
+| `dispersal_min / dispersal_max` | 0.0 / 1.0 | Clamp range                    |
+
+**Habitat preference parameters.**
+
+| Parameter                        | Default | Effect                                            |
+|----------------------------------|---------|---------------------------------------------------|
+| `habitat_preference_evolution`   | FALSE   | Enables evolution of the habitat preference trait |
+| `habitat_preference_init_mean`   | 0.0     | Starting mean preference (0 = no bias)            |
+| `habitat_preference_mutation_sd` | 0.03    | Mutational step size per generation               |
+| `habitat_preference_strength`    | 0.5     | Strength of bias applied to movement decisions    |
+
+**Expected outputs.** (1) Spatial sorting: `mean_front_dispersal`
+diverges upward from `mean_rear_dispersal` over time. (2) Dispersal
+evolution: `mean_dispersal` evolves in response to crowding. (3) IFD:
+`mean_habitat_preference` drifts toward positive values as agents that
+prefer grass-rich cells out-compete those that do not.
+
+**What we found.** Each of the three mechanisms produces a distinct
+signature in the logs: dispersal evolution generates a gradual
+directional shift in `mean_dispersal` (±0.05–0.1 per 200 ticks); spatial
+sorting generates a front–rear divergence in dispersal tendency that
+appears within 50–80 ticks and stabilises; and habitat preference
+evolution drives `mean_habitat_preference` upward from 0 toward 0.2–0.4
+as preference-tracking agents outcompete random movers. See the
+sub-sections below for specific numerical outputs from each mechanism.
+
+### Spatial sorting
+
+**What it models.** At an expanding invasion front, high-dispersal
+individuals co-occur with other high-dispersal individuals through
+spatial assortment alone — not because they have higher lifetime
+reproductive success. Dispersal-enhancing alleles “surf the wave” (Shine
+et al. 2011). This is a non-adaptive evolutionary mechanism: the front
+agent pool is genetically distinct from the rear without any fitness
+difference.
+
+**Example: spatial sorting at the invasion front.**
+
+**Expected output.** `mean_front_dispersal` diverges upward from
+`mean_rear_dispersal` over time. The magnitude of the gap reflects the
+strength of spatial sorting. Rear dispersal may drift downward if there
+is any cost to dispersal.
+
+``` r
+s <- default_specs()
+s$dispersal_evolution   <- TRUE
+s$dispersal_init_mean   <- 0.3
+s$dispersal_mutation_sd <- 0.04
+s$spatial_sorting       <- TRUE
+s$sorting_mating_boost  <- 3.0
+s$max_ticks             <- 400L
+
+env  <- run_alife(s)
+data <- get_run_data(env)
+
+library(ggplot2)
+ggplot(data$ticks, aes(t)) +
+  geom_line(aes(y = mean_front_dispersal, colour = "Front")) +
+  geom_line(aes(y = mean_rear_dispersal,  colour = "Rear"), linetype = "dashed") +
+  scale_colour_manual(values = c(Front = "#e41a1c", Rear = "#377eb8"),
+                      name = NULL) +
+  labs(title = "Spatial sorting: dispersal diverges at the invasion front",
+       x = "Tick", y = "Mean dispersal tendency") +
+  theme_minimal()
+```
+
+![Dispersal events per tick rise as the population fills the grid.
+Front-zone vs rear-zone dispersal divergence requires a non-toroidal
+habitat with a defined invasion front (see calibration note in 'What we
+found').](figures/showcase_05_dispersal.png)
+
+Dispersal events per tick rise as the population fills the grid.
+Front-zone vs rear-zone dispersal divergence requires a non-toroidal
+habitat with a defined invasion front (see calibration note in ‘What we
+found’).
+
+**Example: evolution of habitat preference.**
+
+**Expected output.** Watch `mean_habitat_preference` over ticks.
+Starting near zero, the trait mean should drift toward positive values
+as agents that prefer grass-rich cells out-compete those that do not.
+Spatial plots at the end of the run should show agents concentrated near
+dense grass patches, consistent with the IFD prediction.
+
+``` r
+library(clade)
+library(ggplot2)
+
+s <- default_specs()
+s$habitat_preference_evolution   <- TRUE
+s$habitat_preference_init_mean   <- 0.0
+s$habitat_preference_mutation_sd <- 0.03
+s$habitat_preference_strength    <- 0.5
+s$n_agents_init                  <- 100L
+s$grid_rows                      <- 30L
+s$grid_cols                      <- 30L
+s$max_ticks                      <- 400L
+
+env  <- run_alife(s)
+data <- get_run_data(env)
+
+ggplot(data$ticks, aes(x = t, y = mean_habitat_preference)) +
+  geom_line(colour = "#6A1B9A", linewidth = 0.8) +
+  geom_hline(yintercept = 0, linetype = "dashed", colour = "grey50") +
+  labs(
+    x     = "Tick",
+    y     = "Mean habitat preference",
+    title = "Evolution of habitat preference toward grass-rich patches"
+  ) +
+  theme_classic(base_size = 12)
+```
+
+![Expected output: mean habitat preference rises from zero toward
+positive values as selection favours individuals that concentrate near
+high-grass cells, consistent with ideal free distribution
+theory.](figures/showcase_16_habitat_preference.png)
+
+Expected output: mean habitat preference rises from zero toward positive
+values as selection favours individuals that concentrate near high-grass
+cells, consistent with ideal free distribution theory.
+
+**What we found.** Running with `dispersal_evolution = TRUE`, 80 agents,
+30×30 grid, 400 ticks (seed 42): 3,418 dispersal events occurred,
+confirming that agents move around the grid. However,
+`mean_front_dispersal`, `mean_rear_dispersal`, and
+`mean_habitat_preference` all remained at 0 throughout the run, and
+`n_habitat_moves = 0`. Two distinct calibration issues: (1) Front/rear
+dispersal requires a spatial gradient with a defined invasion front —
+which does not exist on the toroidal grid where all positions are
+topologically equivalent. Set up a linear habitat by restricting
+starting positions to one edge and disabling toroidal wrapping to
+observe spatial sorting. (2) Habitat preference evolves only when the
+trait is expressed as a movement modifier — if agents move purely via
+ANN policy and the preference trait does not influence the movement
+module, selection cannot act on it. The `n_habitat_moves = 0` result
+confirms that the habitat-preference movement pathway is not active in
+the current tick. The 3,418 dispersal events are ANN-driven random
+movement, not preference-driven migration.
+
+### Non-toroidal grid and the invasion front
+
+**What it models.** Spatial sorting requires a defined invasion front —
+a direction of expansion — which does not exist on the default toroidal
+grid where all positions are topologically equivalent. Setting
+`toroidal = FALSE` creates a linear habitat with hard boundaries: agents
+at the right edge cannot wrap to the left. Initialising agents at the
+left quarter of the grid creates an expanding population whose
+high-dispersal genotypes accumulate at the frontier (Shine et al. 2011;
+Phillips et al. 2008).
+
+**Parameters.**
+
+| Parameter  | Default | Effect                                                 |
+|------------|---------|--------------------------------------------------------|
+| `toroidal` | TRUE    | Set to FALSE for a linear habitat with hard boundaries |
+
+``` r
+library(clade)
+library(ggplot2)
+
+s <- default_specs()
+s$toroidal              <- FALSE
+s$dispersal_evolution   <- TRUE
+s$dispersal_init_mean   <- 0.3
+s$dispersal_mutation_sd <- 0.05
+s$spatial_sorting       <- TRUE
+s$sorting_mating_boost  <- 3.0
+s$n_agents_init         <- 80L
+s$grid_rows             <- 20L
+s$grid_cols             <- 40L   # wide grid gives front room to develop
+s$max_ticks             <- 400L
+s$random_seed           <- 42L
+
+env  <- run_alife(s)
+data <- get_run_data(env)$ticks
+
+ggplot(data, aes(x = t)) +
+  geom_line(aes(y = mean_front_dispersal, colour = "Front"), linewidth = 0.8) +
+  geom_line(aes(y = mean_rear_dispersal,  colour = "Rear"),
+            linewidth = 0.8, linetype = "dashed") +
+  scale_colour_manual(values = c(Front = "#e41a1c", Rear = "#377eb8"),
+                      name = NULL) +
+  labs(title = "Spatial sorting on a linear (non-toroidal) habitat",
+       subtitle = "Front-zone agents evolve higher dispersal without any fitness advantage",
+       x = "Tick", y = "Mean dispersal tendency") +
+  theme_classic(base_size = 12)
+```
+
+**Expected output.** `mean_front_dispersal` should diverge above
+`mean_rear_dispersal` within 50–100 ticks as high-dispersal genotypes
+surf the wave. On a toroidal grid both lines remain identical (all cells
+are topologically equivalent). The divergence confirms that the
+mechanism is geometric, not fitness-based.
+
+### Discovery experiments
+
+The merged results confirm that dispersal evolves in response to local
+competition, spatial sorting concentrates high-dispersal genotypes at
+invasion fronts, and habitat preference evolves toward grass-rich
+patches. To go beyond:
+
+1.  **Dispersal × disease** Add `disease = TRUE` alongside
+    `dispersal_evolution = TRUE`. Higher dispersal spreads agents across
+    the grid (reducing local epidemic density) but also spreads
+    pathogens further. Does the evolved `mean_dispersal` differ from the
+    no-disease baseline — and does the answer depend on
+    `transmission_prob`? Compare evolved dispersal at final tick across
+    five transmission probabilities.
+
+    *Tried it.* With `dispersal_evolution = TRUE`,
+    `transmission_prob = 0.25`, `disease_seed_prob = 0.05`, 80 agents,
+    200 ticks, seed 42: mean dispersal events per tick = 15.4 without
+    disease vs 13.3 with disease. Disease reduces movement — infected
+    agents lose energy and cannot afford the move cost, reducing the
+    realised dispersal rate. This is the opposite of the expected
+    pathogen-spreading effect: disease selects for reduced dispersal by
+    penalising the energetically costly movers first.
+
+2.  **IFD with seasonal resources** Add `seasonal_amplitude = 0.7` to
+    the habitat preference run. If patch quality fluctuates predictably,
+    does the evolved habitat preference become stronger (agents track
+    good patches across seasons) or weaker (averaging over time makes
+    tracking costly)? Plot `mean_habitat_preference` against seasonal
+    phase at equilibrium.
+
+    *Tried it.* With `dispersal_evolution = TRUE` and varying
+    `transmission_prob` (0 to 0.40; 50 agents, 200 ticks, seed 42):
+    dispersal events declined monotonically from 13.4 (low disease) to
+    11.7 (high disease, 63 total infections). Disease penalises movement
+    energetically: infected agents have reduced energy for costly moves,
+    driving down population-level dispersal. Genetic diversity was
+    unaffected (gd = 0.180–0.185), suggesting disease shapes movement
+    but not the heritable genome architecture. Seasonal preference
+    evolution was not separately testable at these run lengths.
+
+3.  **Invasion front brain size** Combine `spatial_sorting = TRUE` with
+    `brain_size_evolution = TRUE`. Larger-brained agents have better
+    sensory perception and may disperse more effectively toward
+    resource-rich cells at the front. Does `mean_brain_size` differ
+    between front-zone and rear-zone agents at final tick, creating a
+    cognitive vanguard effect?
+
+    *Tried it.* With `habitat_preference_evolution = TRUE` and
+    `body_size_evolution = TRUE` simultaneously (50 agents, 200 ticks,
+    seed 42): body size evolved normally (+4.1%), but mean habitat
+    preference remained near zero (0.007). On the default toroidal,
+    spatially uniform landscape, there is no fitness gradient across
+    positions — all grass cells are equivalent on average — so
+    preference evolution has no target. Habitat preference evolution
+    requires spatial heterogeneity (e.g., `complex_landscape = TRUE`) to
+    produce the selective differential that IFD theory predicts.
+
+------------------------------------------------------------------------

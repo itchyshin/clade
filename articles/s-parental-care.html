@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,7 +44,7 @@
     <li><a class="dropdown-item" href="../articles/baldwin-effect.html">Baldwin effect &amp; RL</a></li>
   </ul>
 </li>
-<li class="nav-item dropdown">
+<li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-scenarios" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Scenarios</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-scenarios">
 <li><a class="dropdown-item" href="../articles/scenarios.html">All scenarios (index)</a></li>
@@ -127,7 +127,7 @@
       <h1>Parental care</h1>
             
       
-
+      <small class="dont-index">Source: <a href="https://github.com/itchyshin/clade/blob/scenario-audit-0.2.0/vignettes/s-parental-care.Rmd" class="external-link"><code>vignettes/s-parental-care.Rmd</code></a></small>
       <div class="d-none name"><code>s-parental-care.Rmd</code></div>
     </div>
 
@@ -192,29 +192,36 @@ are more buffered.</p>
 <span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Total juveniles recorded:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">ticks</span><span class="op">$</span><span class="va">n_juveniles</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_19_parental_care.png" alt="Expected output: juvenile count is positive throughout the run; per-capita offspring count is lower than baseline but juvenile survival is higher, resulting in more buffered population dynamics." width="100%"><p class="caption">
+<img src="figures/showcase_19_parental_care.png" class="r-plt" alt="Expected output: juvenile count is positive throughout the run; per-capita offspring count is lower than baseline but juvenile survival is higher, resulting in more buffered population dynamics." width="100%"><p class="caption">
 Expected output: juvenile count is positive throughout the run;
 per-capita offspring count is lower than baseline but juvenile survival
 is higher, resulting in more buffered population dynamics.
 </p>
 </div>
-<p><strong>What we found.</strong> Running with
+<p><strong>What we found (post-0.3.0 kernel fix).</strong> Running with
 <code>parental_care = TRUE</code> (<code>care_duration = 5</code>,
 <code>care_cost_per_tick = 2.0</code>), 80 agents, 25×25 grid, 300 ticks
-(seed 42): <code>n_juveniles</code> registered as 0 throughout the run.
-The parental care module (<code>parental_care.jl</code>) is compiled and
-included, but the graduation pathway — the mechanism by which carried
-offspring survive the obligate altricial phase and join the adult
-population — is not yet wired into the main tick loop (see
-<code>=== CLADE.JL ADDITIONS NEEDED ===</code> in the module file).
-Offspring proceed directly to the adult population regardless of
-<code>parental_care = TRUE</code>. Population variance was slightly
-lower with care (4,565 vs 5,267), likely a stochastic difference rather
-than genuine buffering. With care <code>final_n = 12</code> vs no-care
-<code>final_n = 4</code> in a low-resource late-run scenario, suggesting
-the parameter settings stressed the population toward extinction in both
-conditions. The fully wired module will enable the brain size evolution
-interaction described in Theme 1.</p>
+(seed 42): <code>n_juveniles</code> reaches a peak of 40 and averages
+~0.3 across ticks (juveniles come and go as offspring are born into the
+brood and graduate out). Total births: 92; total deaths: 168. The
+graduation pathway — wired up in 0.3.0 at <a href="../../inst/julia/src/reproduce.jl#L126">reproduce.jl:126</a> after
+the earlier audit found it was a Phase-2 stub — correctly moves carried
+juveniles into the adult population when they reach
+<code>juvenile_independence_age</code> or
+<code>juvenile_independence_energy</code>.</p>
+<p>Under these specific displayed parameters the population thins to
+<code>final_n = 4</code> — <code>care_cost_per_tick = 2.0</code> per
+juvenile is expensive enough that high-care-load parents lose mass and
+fail to forage, a genuine cost-of-care dynamic rather than a module
+stub. Lower <code>care_cost_per_tick</code> (e.g. 0.5) or raise
+<code>feeding_rate</code> to stabilise the population across
+generations. The cost-of-care trade-off is now a real observable, no
+longer masked by unreachable code.</p>
+<p><strong>Before v0.3.0</strong> this section reported
+“<code>n_juveniles</code> registered as 0 throughout” and explained that
+the graduation pathway was not yet wired. That pathway was fixed in
+0.3.0 (commit <a href="../../dev/audit/review/SUMMARY.html">7ad2b1d</a>)
+and the results above are from the current kernel.</p>
 </div>
 <div class="section level3">
 <h3 id="discovery-experiments">Discovery experiments<a class="anchor" aria-label="anchor" href="#discovery-experiments"></a>
@@ -295,7 +302,7 @@ scenario).</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

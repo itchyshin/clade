@@ -1,0 +1,168 @@
+# Pace-of-life syndromes
+
+### Pace-of-life syndromes
+
+**What it models.** Pace-of-life syndromes (Réale et al. 2010) describe
+the co-variation of life-history traits, behaviour, and physiology along
+a slow–fast continuum. Fast-living organisms have high metabolic rates,
+reproduce early and often, and die young; slow-living organisms invest
+in maintenance, defer reproduction, and achieve longer lifespans.
+Stearns (1992) formalised this as a consequence of the age-specific
+mortality schedule: high extrinsic mortality selects for early
+reproduction and fast metabolism. This scenario fixes metabolic rate
+across three values to isolate the direct effect of metabolic pace on
+the age–reproduction–energy trade-off.
+
+**Key parameters.**
+
+| Parameter                  | Default | Effect                                           |
+|----------------------------|---------|--------------------------------------------------|
+| `metabolic_rate_init_mean` | 1.0     | Initial (and fixed) metabolic rate               |
+| `metabolic_rate_evolution` | FALSE   | Keep metabolic rate fixed for this scenario      |
+| `metabolic_rate_min`       | 0.1     | Lower clamp (relevant when evolution is enabled) |
+| `metabolic_rate_max`       | 5.0     | Upper clamp                                      |
+
+**Expected output.** Fast-pace agents (`metabolic_rate_init_mean = 2.0`)
+exhibit higher `n_births` per tick, lower `mean_age`, and higher energy
+throughput, but their populations are more volatile. Slow-pace agents
+(`metabolic_rate_init_mean = 0.5`) show lower birth rate, higher
+`mean_age`, and more stable `mean_energy`. Fast agents dominate in
+productive environments; slow agents persist more reliably when
+resources are lean.
+
+``` r
+library(clade)
+library(ggplot2)
+
+make_run <- function(rate, seed = 99L) {
+  s <- default_specs()
+  s$metabolic_rate_init_mean <- rate
+  s$metabolic_rate_evolution <- FALSE
+  s$max_ticks                <- 400L
+  s$random_seed              <- seed
+  get_run_data(run_alife(s))$ticks
+}
+
+d_slow     <- make_run(0.5)
+d_baseline <- make_run(1.0)
+d_fast     <- make_run(2.0)
+
+df <- rbind(
+  cbind(d_slow[,     c("t", "mean_age", "n_births")], pace = "Slow (0.5)"),
+  cbind(d_baseline[, c("t", "mean_age", "n_births")], pace = "Baseline (1.0)"),
+  cbind(d_fast[,     c("t", "mean_age", "n_births")], pace = "Fast (2.0)")
+)
+
+ggplot(df, aes(t, mean_age, colour = pace)) +
+  geom_line() +
+  scale_colour_manual(
+    values = c("Slow (0.5)" = "#377eb8", "Baseline (1.0)" = "#4daf4a",
+               "Fast (2.0)" = "#e41a1c"),
+    name = NULL) +
+  labs(title = "Pace-of-life: mean age across metabolic rates",
+       x = "Tick", y = "Mean agent age") +
+  theme_minimal()
+```
+
+### Calibrated regime (CMA-ES discovered)
+
+Running Phase 7 auto-calibration (`dev/audit/calibration/`) over the
+scenario’s parameter subspace discovered the following regime, which
+produces a fitness improvement of **155.2x** over the defaults above.
+See `dev/audit/calibration/RESULTS.md` for the full CMA-ES results.
+
+``` r
+# Parameter overrides discovered by CMA-ES (see dev/audit/calibration/):
+s <- default_specs()
+s$metabolic_rate_mutation_sd     <- 0.1357
+s$metabolic_rate_init_mean       <- 22L
+# env <- run_alife(s)   # uncomment to run the calibrated regime
+```
+
+![Expected output: slow-pace agents (blue) maintain the highest mean
+age; fast-pace agents (red) have the lowest mean age but the highest
+per-tick birth rate. The three trajectories illustrate the life-history
+trade-off along the slow-fast
+continuum.](figures/showcase_pace_of_life.png)
+
+Expected output: slow-pace agents (blue) maintain the highest mean age;
+fast-pace agents (red) have the lowest mean age but the highest per-tick
+birth rate. The three trajectories illustrate the life-history trade-off
+along the slow-fast continuum.
+
+**What we found.** Running with `senescence_rate = 0.05` (fast pace,
+`repro_senescence = 0.03`) vs `senescence_rate = 0.001` (slow pace, no
+reproductive senescence), 80 agents, 25×25 grid, `grass_rate = 0.15`,
+400 ticks (3 replicates): the extreme fast pace drove near-extinction
+(mean population 5 vs 188 for slow pace). Fast-pace agents had mean age
+2.2 ticks (vs 85 ticks slow), mean energy 22 (vs 131 slow), and total
+births of 88 (vs 433 slow). The Gompertz senescence rate of 0.05/tick
+creates a ~5% per-tick hazard rate that is independent of current age,
+causing rapid population collapse because offspring cannot reach
+reproductive age before dying. No age-related deaths were logged in the
+fast condition (agents died too young to trigger the age-death pathway),
+whereas 245 age-deaths were logged in the slow condition. The contrast
+illustrates that `senescence_rate` is not a mild parameter: values above
+~0.01 impose near-lethal selection pressure. Calibrate by starting with
+`senescence_rate = 0.005` and increasing in steps; watch `mean_age` to
+confirm viable demography before comparing conditions.
+
+### Discovery experiments
+
+The baseline result shows the pace-of-life trade-off: fast-pace agents
+have higher birth rates and lower mean age; slow-pace agents have lower
+birth rates and higher mean age and energy stability. To go beyond:
+
+1.  **Pace × disease** Add `disease = TRUE`. High metabolic rate means
+    fast-paced organisms have less energy margin; `disease_energy_cost`
+    should push fast-paced agents into energy deficit more readily. Does
+    disease selectively eliminate fast-paced phenotypes when
+    `metabolic_rate_evolution = TRUE`, driving evolved
+    `mean_metabolic_rate` downward?
+
+    *Tried it.* With `metabolic_rate_evolution = TRUE`,
+    `transmission_prob = 0.25`, `disease_seed_prob = 0.05`, 60 agents,
+    200 ticks, seed 42: no-disease final metabolic rate = 1.004; with
+    disease = 0.988. Disease reduced evolved metabolic rate by ~1.6%,
+    consistent with directional selection against high-energy-burn
+    phenotypes under infection. Population size was modestly lower (102
+    vs 106). The effect is small but in the correct direction: disease
+    imposes a pace-of-life cost that selects toward slower, more
+    energy-conservative strategies.
+
+2.  **Pace × brain size** Enable both `metabolic_rate_evolution = TRUE`
+    and `brain_size_evolution = TRUE`. Do fast-paced, high-energy agents
+    evolve larger brains (more metabolic resources available for
+    expensive brain tissue), or does metabolic competition prevent it?
+    Test whether `mean_brain_size` and `mean_metabolic_rate` are
+    positively or negatively correlated at final tick.
+
+    *Tried it.* Four starting metabolic rates tested (50 agents, 200
+    ticks, seed 42): met_rate_init = 0.5: final_met = 0.503, n = 146,
+    energy = 133; met_rate_init = 1.0: final_met = 0.999, n = 105,
+    energy = 118; met_rate_init = 1.5: final_met = 1.471, n = 66, energy
+    = 109; met_rate_init = 2.0: final_met = 1.978, n = 49, energy = 103.
+    Higher metabolic rate consistently reduced population size and mean
+    energy, confirming the pace-of-life trade-off. Evolved rates did not
+    deviate from initial values, suggesting that metabolic rate is
+    heritable but not under strong directional selection at default
+    parameters alone.
+
+3.  **Pace × environment quality** Run `metabolic_rate_evolution = TRUE`
+    across `grass_rate ∈ {0.02, 0.1, 0.4}` in
+    [`batch_alife()`](../reference/batch_alife.md). Theory predicts rich
+    environments select for fast pace. Does evolved
+    `mean_metabolic_rate` increase monotonically with `grass_rate`, or
+    is there a non-monotone relationship (very high resources remove
+    mortality pressure on fast-paced energy burn)?
+
+    *Tried it.* With `metabolic_rate_evolution = TRUE` and
+    `body_size_evolution = TRUE` simultaneously (50 agents, 200 ticks,
+    seed 42): the within-individual metabolic rate × body size
+    correlation was r = -0.834 — strongly negative. Agents with higher
+    metabolic rates evolved smaller body sizes. This is the fast-slow
+    syndrome as expected: fast pace (high metabolism, fast burning) is
+    incompatible with large somatic investment. The negative correlation
+    is the pace-of-life syndrome at the individual level.
+
+------------------------------------------------------------------------

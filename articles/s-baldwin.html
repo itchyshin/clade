@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,7 +44,7 @@
     <li><a class="dropdown-item" href="../articles/baldwin-effect.html">Baldwin effect &amp; RL</a></li>
   </ul>
 </li>
-<li class="nav-item dropdown">
+<li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-scenarios" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Scenarios</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-scenarios">
 <li><a class="dropdown-item" href="../articles/scenarios.html">All scenarios (index)</a></li>
@@ -127,7 +127,7 @@
       <h1>BNN uncertainty canalization and the Baldwin Effect</h1>
             
       
-
+      <small class="dont-index">Source: <a href="https://github.com/itchyshin/clade/blob/scenario-audit-0.2.0/vignettes/s-baldwin.Rmd" class="external-link"><code>vignettes/s-baldwin.Rmd</code></a></small>
       <div class="d-none name"><code>s-baldwin.Rmd</code></div>
     </div>
 
@@ -244,7 +244,7 @@ in <code>data$ticks</code>. The column should decline from approximately
 0.3 (broad, flexible priors) toward 0.05 (narrow, assimilated priors) as
 selection repeatedly rewards the same weight configurations.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -265,8 +265,24 @@ selection repeatedly rewards the same weight configurations.</p>
 <span>    x <span class="op">=</span> <span class="st">"Tick"</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="st">"Mean prior "</span> <span class="op">*</span> <span class="va">sigma</span><span class="op">)</span></span>
 <span>  <span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="calibrated-regime-cma-es-discovered">Calibrated regime (CMA-ES discovered)<a class="anchor" aria-label="anchor" href="#calibrated-regime-cma-es-discovered"></a>
+</h3>
+<p>Running Phase 7 auto-calibration
+(<code>dev/audit/calibration/</code>) over the scenario’s parameter
+subspace discovered the following regime, which produces a fitness
+improvement of <strong>1.2x</strong> over the defaults above. See
+<code>dev/audit/calibration/RESULTS.md</code> for the full CMA-ES
+results.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Parameter overrides discovered by CMA-ES (see dev/audit/calibration/):</span></span>
+<span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">grass_rate</span>                     <span class="op">&lt;-</span> <span class="fl">0.0266</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">learning_rate_init_mean</span>        <span class="op">&lt;-</span> <span class="fl">0.007</span></span>
+<span><span class="co"># env &lt;- run_alife(s)   # uncomment to run the calibrated regime</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_bnn_uncertainty.png" alt="BNN prior sigma trajectory. Declining sigma indicates canalization (Baldwin Effect); rising sigma indicates selection for maintained behavioural flexibility." width="100%"><p class="caption">
+<img src="figures/showcase_bnn_uncertainty.png" class="r-plt" alt="BNN prior sigma trajectory. Declining sigma indicates canalization (Baldwin Effect); rising sigma indicates selection for maintained behavioural flexibility." width="100%"><p class="caption">
 BNN prior sigma trajectory. Declining sigma indicates canalization
 (Baldwin Effect); rising sigma indicates selection for maintained
 behavioural flexibility.
@@ -305,8 +321,8 @@ learn (high σ) as the evolutionarily stable strategy.</p>
 determine whether canalization occurs? The theory predicts it should:
 stable, resource-rich environments provide consistent fitness gradients
 that canalization can track; variable or scarce environments do not.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span><span class="op">)</span></span>
 <span></span>
@@ -450,7 +466,7 @@ canalization-favourable condition tested. Even here, σ rose to ceiling.
 Experiment 2 tests whether longer runs (2000–5000 ticks) change this
 outcome.</p>
 <div class="figure">
-<img src="figures/showcase_bnn_exp1_stability.png" alt="Phase diagram of sigma slope across 9 resource × seasonality conditions. All cells are positive (red) — exploration is selected in every environment tested. The shallowest slope (bottom-right, bold row) still reaches the sigma ceiling." width="100%"><p class="caption">
+<img src="figures/showcase_bnn_exp1_stability.png" class="r-plt" alt="Phase diagram of sigma slope across 9 resource × seasonality conditions. All cells are positive (red) — exploration is selected in every environment tested. The shallowest slope (bottom-right, bold row) still reaches the sigma ceiling." width="100%"><p class="caption">
 Phase diagram of sigma slope across 9 resource × seasonality conditions.
 All cells are positive (red) — exploration is selected in every
 environment tested. The shallowest slope (bottom-right, bold row) still
@@ -465,8 +481,8 @@ reaches the sigma ceiling.
 <p><strong>Question.</strong> The baseline sigma plateaus at 0.5 within
 300 ticks. Is this because canalization never occurs, or because 600
 ticks is too few generations?</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Use the most canalization-favourable condition from Experiment 1</span></span>
@@ -541,7 +557,7 @@ emerge because exploration is genuinely the ESS in a competitive
 foraging world — the fitness landscape has no stable peak for
 canalization to track.</p>
 <div class="figure">
-<img src="figures/showcase_bnn_exp2_runlength.png" alt="Sigma trajectories at 1000, 2000, and 5000 ticks (mean +/- SE, 5 seeds). All runs hit the 0.5 ceiling; the slope decelerates 21-fold but never reverses. This is ceiling saturation, not canalization." width="100%"><p class="caption">
+<img src="figures/showcase_bnn_exp2_runlength.png" class="r-plt" alt="Sigma trajectories at 1000, 2000, and 5000 ticks (mean +/- SE, 5 seeds). All runs hit the 0.5 ceiling; the slope decelerates 21-fold but never reverses. This is ceiling saturation, not canalization." width="100%"><p class="caption">
 Sigma trajectories at 1000, 2000, and 5000 ticks (mean +/- SE, 5 seeds).
 All runs hit the 0.5 ceiling; the slope decelerates 21-fold but never
 reverses. This is ceiling saturation, not canalization.
@@ -555,8 +571,8 @@ reverses. This is ceiling saturation, not canalization.
 <p><strong>Question.</strong> Does the Baldwin Effect require the BNN
 specifically, or does it emerge with any within-lifetime adaptation
 mechanism?</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Best canalization-favourable environment from Experiment 1</span></span>
@@ -651,7 +667,7 @@ exploration is the ESS: even when it is costly, it is preferred over
 genetic assimilation.</p></li>
 </ol>
 <div class="figure">
-<img src="figures/showcase_bnn_exp3_brains.png" alt="Left: sigma trajectories for BNN-only and BNN+RL (seed 1). The two curves are indistinguishable — RL does not alter sigma dynamics. Right: final mean energy by condition. BNN agents pay a 17% energy cost relative to ANN agents yet the exploration ESS persists." width="100%"><p class="caption">
+<img src="figures/showcase_bnn_exp3_brains.png" class="r-plt" alt="Left: sigma trajectories for BNN-only and BNN+RL (seed 1). The two curves are indistinguishable — RL does not alter sigma dynamics. Right: final mean energy by condition. BNN agents pay a 17% energy cost relative to ANN agents yet the exploration ESS persists." width="100%"><p class="caption">
 Left: sigma trajectories for BNN-only and BNN+RL (seed 1). The two
 curves are indistinguishable — RL does not alter sigma dynamics. Right:
 final mean energy by condition. BNN agents pay a 17% energy cost
@@ -675,8 +691,8 @@ the energy risk of uncertain decisions is partially insured by
 relatives. Social insurance maintains cognitive flexibility. This is a
 novel interaction: <strong>social buffering retards the Baldwin
 Effect</strong>.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">base_s</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
@@ -804,7 +820,7 @@ effect observed across all 4 experiments. Social learning was predicted
 to accelerate canalization; it had no significant effect in the stable
 environment.</p>
 <div class="figure">
-<img src="figures/showcase_bnn_exp4_social.png" alt="Final mean sigma by social module, faceted by environment. Epigenetics (red) is the only mechanism that substantially reduces sigma — 32% below ceiling in stable-abundant conditions, 72% below ceiling in scarce-stable conditions. All other modules remain at or near the 0.5 ceiling (dashed line)." width="100%"><p class="caption">
+<img src="figures/showcase_bnn_exp4_social.png" class="r-plt" alt="Final mean sigma by social module, faceted by environment. Epigenetics (red) is the only mechanism that substantially reduces sigma — 32% below ceiling in stable-abundant conditions, 72% below ceiling in scarce-stable conditions. All other modules remain at or near the 0.5 ceiling (dashed line)." width="100%"><p class="caption">
 Final mean sigma by social module, faceted by environment. Epigenetics
 (red) is the only mechanism that substantially reduces sigma — 32% below
 ceiling in stable-abundant conditions, 72% below ceiling in
@@ -830,7 +846,7 @@ even in otherwise heterogeneous environments. Does
 <code>mean_prior_sigma</code> decline faster under predation than in the
 baseline?</p></li>
 <li><p><strong>Spatial heterogeneity versus temporal
-variability.</strong> Use <code>complex_landscape = TRUE</code> to
+variability.</strong> Use <code>complex_landscape    = TRUE</code> to
 create spatially patchy but temporally stable resources. Does spatial
 heterogeneity (which creates locally optimal strategies) prevent
 canalization the same way that temporal variability does, or is it less
@@ -838,7 +854,7 @@ disruptive because local specialists can coexist?</p></li>
 <li>
 <p><strong>MAP-Elites to discover canalization-compatible
 phenotypes.</strong> Use <code><a href="../reference/search_map_elites.html">search_map_elites()</a></code> with
-<code>archive_dims = list(mean_prior_sigma = seq(0, 0.5, by=0.05), genetic_diversity = seq(0, 0.5, by=0.05))</code>
+<code>archive_dims = list(mean_prior_sigma = seq(0, 0.5, by=0.05),    genetic_diversity = seq(0, 0.5, by=0.05))</code>
 to systematically search the parameter space for conditions that produce
 low-sigma (canalized) genomes. Does low sigma coexist with high genetic
 diversity (Baldwin Effect proper) or require drift-to-fixation
@@ -868,7 +884,7 @@ populations.</p>
 </li>
 </ol>
 <div class="figure">
-<img src="figures/showcase_bnn_exp5_mapelites.png" alt="MAP-Elites archive: each point is a filled cell (20 of 121 total). Low sigma is only found with low genetic diversity — consistent with drift to fixation, not with the Baldwin Effect, which requires low sigma coexisting with high diversity. No cells appear in the low-sigma + high-diversity quadrant (bottom-right of the dashed reference lines)." width="100%"><p class="caption">
+<img src="figures/showcase_bnn_exp5_mapelites.png" class="r-plt" alt="MAP-Elites archive: each point is a filled cell (20 of 121 total). Low sigma is only found with low genetic diversity — consistent with drift to fixation, not with the Baldwin Effect, which requires low sigma coexisting with high diversity. No cells appear in the low-sigma + high-diversity quadrant (bottom-right of the dashed reference lines)." width="100%"><p class="caption">
 MAP-Elites archive: each point is a filled cell (20 of 121 total). Low
 sigma is only found with low genetic diversity — consistent with drift
 to fixation, not with the Baldwin Effect, which requires low sigma
@@ -905,7 +921,7 @@ inheritance of acquired characters. <em>Nature</em> 150:563–565.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

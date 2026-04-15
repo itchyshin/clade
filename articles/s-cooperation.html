@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,7 +44,7 @@
     <li><a class="dropdown-item" href="../articles/baldwin-effect.html">Baldwin effect &amp; RL</a></li>
   </ul>
 </li>
-<li class="nav-item dropdown">
+<li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-scenarios" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Scenarios</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-scenarios">
 <li><a class="dropdown-item" href="../articles/scenarios.html">All scenarios (index)</a></li>
@@ -127,7 +127,7 @@
       <h1>Cooperative breeding and public goods</h1>
             
       
-
+      <small class="dont-index">Source: <a href="https://github.com/itchyshin/clade/blob/scenario-audit-0.2.0/vignettes/s-cooperation.Rmd" class="external-link"><code>vignettes/s-cooperation.Rmd</code></a></small>
       <div class="d-none name"><code>s-cooperation.Rmd</code></div>
     </div>
 
@@ -194,7 +194,7 @@ falls depends on the interaction between the multiplier (group-level
 benefit) and free-rider invasion (individual-level selection for low
 tendency).</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span><span class="op">)</span></span>
 <span></span>
@@ -267,7 +267,7 @@ selection for defection creates tension. To see the trajectory resolve:
 increase simulation length (1000+ ticks) or reduce the multiplier toward
 the threshold (multiplier ≈ 2.0 = group size 2).</p>
 <div class="figure">
-<img src="figures/showcase_08_cooperation.png" alt="Expected output: population with cooperation (green) rises to near the max_agents ceiling while the baseline (pink) stabilises at a lower level. Cooperation level drifts slightly downward, showing free-rider invasion alongside the group-level benefit." width="100%"><p class="caption">
+<img src="figures/showcase_08_cooperation.png" class="r-plt" alt="Expected output: population with cooperation (green) rises to near the max_agents ceiling while the baseline (pink) stabilises at a lower level. Cooperation level drifts slightly downward, showing free-rider invasion alongside the group-level benefit." width="100%"><p class="caption">
 Expected output: population with cooperation (green) rises to near the
 max_agents ceiling while the baseline (pink) stabilises at a lower
 level. Cooperation level drifts slightly downward, showing free-rider
@@ -349,7 +349,7 @@ for population size.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

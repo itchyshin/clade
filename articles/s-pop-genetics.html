@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,7 +44,7 @@
     <li><a class="dropdown-item" href="../articles/baldwin-effect.html">Baldwin effect &amp; RL</a></li>
   </ul>
 </li>
-<li class="nav-item dropdown">
+<li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-scenarios" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Scenarios</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-scenarios">
 <li><a class="dropdown-item" href="../articles/scenarios.html">All scenarios (index)</a></li>
@@ -127,7 +127,7 @@
       <h1>Population genetics and heritability</h1>
             
       
-
+      <small class="dont-index">Source: <a href="https://github.com/itchyshin/clade/blob/scenario-audit-0.2.0/vignettes/s-pop-genetics.Rmd" class="external-link"><code>vignettes/s-pop-genetics.Rmd</code></a></small>
       <div class="d-none name"><code>s-pop-genetics.Rmd</code></div>
     </div>
 
@@ -181,7 +181,7 @@ decline in later ticks. The 95% confidence interval from the regression
 should exclude zero. h² for <code>energy</code> is expected to be lower,
 because energy is heavily influenced by the local environment.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">s</span><span class="op">$</span><span class="va">body_size_evolution</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
@@ -190,18 +190,25 @@ because energy is heavily influenced by the local environment.</p>
 <span><span class="va">env</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span>
 <span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">h2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/estimate_heritability.html">estimate_heritability</a></span><span class="op">(</span><span class="va">data</span>, trait <span class="op">=</span> <span class="st">"body_size"</span><span class="op">)</span></span>
+<span><span class="co"># `estimate_heritability()` returns a lag-1 autocorrelation proxy for</span></span>
+<span><span class="co"># narrow-sense heritability on the population mean trajectory. For the</span></span>
+<span><span class="co"># parent-offspring regression itself, use `heritability_estimate()` on</span></span>
+<span><span class="co"># `env$deaths`, which requires a trait column logged at death.</span></span>
+<span><span class="va">h2_proxy</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/estimate_heritability.html">estimate_heritability</a></span><span class="op">(</span><span class="va">data</span>, trait <span class="op">=</span> <span class="st">"body_size"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Heritability proxy (lag-1 autocorrelation) for body_size:"</span>,</span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">h2_proxy</span><span class="op">$</span><span class="va">h2</span>, <span class="fl">3</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"n ="</span>, <span class="va">h2_proxy</span><span class="op">$</span><span class="va">n</span>, <span class="st">"  method ="</span>, <span class="va">h2_proxy</span><span class="op">$</span><span class="va">method</span>, <span class="st">"\n"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Heritability h\u00b2:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">h2</span><span class="op">$</span><span class="va">h2</span>, <span class="fl">3</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"95% CI: ["</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">h2</span><span class="op">$</span><span class="va">ci</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="fl">3</span><span class="op">)</span>, <span class="st">","</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">h2</span><span class="op">$</span><span class="va">ci</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, <span class="fl">3</span><span class="op">)</span>, <span class="st">"]\n"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">h2</span><span class="op">)</span>  <span class="co"># parent-offspring regression scatter with fitted line</span></span></code></pre></div>
+<span><span class="co"># Mean trajectory — the quantity the proxy is computed on.</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">ticks</span><span class="op">$</span><span class="va">t</span>, <span class="va">data</span><span class="op">$</span><span class="va">ticks</span><span class="op">$</span><span class="va">mean_body_size</span>, type <span class="op">=</span> <span class="st">"l"</span>,</span>
+<span>     xlab <span class="op">=</span> <span class="st">"Tick"</span>, ylab <span class="op">=</span> <span class="st">"Mean body size"</span>,</span>
+<span>     main <span class="op">=</span> <span class="st">"Body size evolution (proxy for heritable response)"</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_population_genetics.png" alt="Expected output: parent-offspring regression for body size with a positive slope (h² = 0.3-0.7). Each point is one offspring plotted against its mid-parent value. The shaded band is the 95% confidence interval on the regression line." width="100%"><p class="caption">
-Expected output: parent-offspring regression for body size with a
-positive slope (h² = 0.3-0.7). Each point is one offspring plotted
-against its mid-parent value. The shaded band is the 95% confidence
-interval on the regression line.
+<img src="figures/showcase_population_genetics.png" class="r-plt" alt="The mean body-size trajectory whose lag-1 autocorrelation proxies narrow-sense heritability. A high lag-1 value (&gt;0.9) is consistent with strong parent-offspring resemblance; it is not a direct replacement for a parent-offspring regression slope." width="100%"><p class="caption">
+The mean body-size trajectory whose lag-1 autocorrelation proxies
+narrow-sense heritability. A high lag-1 value (&gt;0.9) is consistent
+with strong parent-offspring resemblance; it is not a direct replacement
+for a parent-offspring regression slope.
 </p>
 </div>
 <p><strong>What we found.</strong> Running with
@@ -288,7 +295,7 @@ advantage.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

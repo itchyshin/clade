@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,7 +44,7 @@
     <li><a class="dropdown-item" href="../articles/baldwin-effect.html">Baldwin effect &amp; RL</a></li>
   </ul>
 </li>
-<li class="nav-item dropdown">
+<li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-scenarios" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Scenarios</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-scenarios">
 <li><a class="dropdown-item" href="../articles/scenarios.html">All scenarios (index)</a></li>
@@ -127,7 +127,7 @@
       <h1>Seasonal dynamics</h1>
             
       
-
+      <small class="dont-index">Source: <a href="https://github.com/itchyshin/clade/blob/scenario-audit-0.2.0/vignettes/s-seasonal.Rmd" class="external-link"><code>vignettes/s-seasonal.Rmd</code></a></small>
       <div class="d-none name"><code>s-seasonal.Rmd</code></div>
     </div>
 
@@ -189,7 +189,7 @@ producing recurrent crashes in winter and recoveries in spring. Multiple
 complete cycles should be visible over 500 ticks given
 <code>season_length = 100</code>.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyr.tidyverse.org" class="external-link">tidyr</a></span><span class="op">)</span></span>
 <span></span>
@@ -244,7 +244,7 @@ some ticks and the mean dropped to only 35 — parameter calibration
 matters substantially for observing smooth seasonal cycles rather than
 extinction dynamics.</p>
 <div class="figure">
-<img src="figures/showcase_17_seasons.png" alt="Expected output: population size (blue) tracks scaled grass productivity (green) with a short lag, producing recurrent winter crashes and spring recoveries over approximately five complete cycles." width="100%"><p class="caption">
+<img src="figures/showcase_17_seasons.png" class="r-plt" alt="Expected output: population size (blue) tracks scaled grass productivity (green) with a short lag, producing recurrent winter crashes and spring recoveries over approximately five complete cycles." width="100%"><p class="caption">
 Expected output: population size (blue) tracks scaled grass productivity
 (green) with a short lag, producing recurrent winter crashes and spring
 recoveries over approximately five complete cycles.
@@ -323,7 +323,7 @@ environments.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

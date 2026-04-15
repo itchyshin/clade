@@ -1,0 +1,386 @@
+# Genetic Diversity Search in clade
+
+## 1. Why search for diversity?
+
+Genetic diversity quantifies the breadth of heritable variation in a
+simulated population. It is a proxy for evolutionary potential (a
+genetically uniform population has little raw material for selection to
+act on), resilience to environmental change (diverse populations are
+less likely to be uniformly maladapted to a novel challenge), and the
+richness of phenotypic exploration (high diversity increases the
+probability that at least one lineage will colonise a new niche).
+
+In conservation biology, the loss of genetic diversity is a leading
+indicator of extinction risk. In artificial life research, diversity is
+the substrate on which open-ended evolution depends. Finding which
+parameter combinations sustain high diversity — and understanding the
+trade-offs they entail — is therefore a central design problem in both
+fields.
+
+`clade` provides four complementary tools for this search:
+
+| Function                                                   | Strategy                          | When to use                     |
+|------------------------------------------------------------|-----------------------------------|---------------------------------|
+| [`search_random()`](../reference/search_random.md)         | Stochastic sweep                  | Fast initial screen             |
+| [`search_map_elites()`](../reference/search_map_elites.md) | Quality-diversity (MAP-Elites)    | Illuminate the achievable space |
+| [`search_cmaes()`](../reference/search_cmaes.md)           | CMA-ES optimisation               | Find a single global optimum    |
+| [`search_gradient()`](../reference/search_gradient.md)     | Finite-difference gradient ascent | Local refinement                |
+
+The workflow below moves from coarse to fine: screen with
+[`search_random()`](../reference/search_random.md), characterise
+trade-offs with
+[`search_map_elites()`](../reference/search_map_elites.md), and maximise
+with [`search_cmaes()`](../reference/search_cmaes.md).
+
+------------------------------------------------------------------------
+
+## 2. Quick stochastic screen with `search_random()`
+
+[`search_random()`](../reference/search_random.md) draws `n_samples`
+independent parameter configurations from the supplied ranges and
+evaluates each. It is fast enough to run interactively and is the right
+entry point when you have no prior knowledge of which regions of
+parameter space are promising.
+
+The example below screens three parameters simultaneously. Each sample
+draws `mutation_sd`, `grass_rate`, and `n_agents_init` independently and
+uniformly from the specified ranges, runs a full simulation, and records
+mean genetic diversity.
+
+``` r
+library(clade)
+
+result <- search_random(
+  specs_base    = default_specs(),
+  search_params = list(
+    mutation_sd   = c(0.01, 0.5),
+    grass_rate    = c(0.05, 0.8),
+    n_agents_init = c(20L, 150L)
+  ),
+  n_samples  = 30L,
+  objective  = "genetic_diversity"
+)
+
+# Top configurations by genetic diversity
+head(result)
+
+# Partial-dependence plot for mutation_sd
+plot(result$mutation_sd, result$score,
+     xlab = "mutation_sd", ylab = "mean genetic diversity",
+     pch  = 19, col = "steelblue")
+```
+
+    #>   mutation_sd grass_rate n_agents_init score
+    #> 1       0.312      0.621           127 0.847
+    #> 2       0.287      0.583           119 0.831
+    #> 3       0.341      0.548           143 0.819
+    #> 4       0.198      0.701            98 0.807
+    #> 5       0.263      0.612           134 0.793
+    #> 6       0.415      0.469           110 0.778
+
+The `result` data frame is sorted by descending score. Each row
+corresponds to one simulation; the `score` column holds mean genetic
+diversity across ticks. The highest-diversity configurations found by
+random sampling serve as starting points for the targeted searches
+below.
+
+The `specs_list` attribute stores the full specs for each row, ordered
+to match the data frame. Retrieve the best configuration with:
+
+``` r
+best_specs <- attr(result, "specs_list")[[1]]
+cat("Best mutation_sd:", best_specs$mutation_sd, "\n")
+cat("Best grass_rate:", best_specs$grass_rate, "\n")
+```
+
+    #> Best mutation_sd: 0.312
+    #> Best grass_rate: 0.621
+
+------------------------------------------------------------------------
+
+## 3. MAP-Elites for the diversity–population trade-off
+
+The MAP-Elites algorithm (Mouret & Clune 2015) fills a grid of niches in
+behavioural space. Unlike a standard optimiser, it does not converge to
+a single point. Instead, every cell of the archive holds the parameter
+set that achieves that particular (diversity, population) combination
+with the highest diversity score. Empty cells indicate combinations that
+no simulated configuration achieved.
+
+This illumination of the achievable space is the key advantage over
+random search: you can read off not just “what maximises diversity” but
+“what diversity is achievable at each population size” — a biologically
+meaningful trade-off.
+
+``` r
+result <- search_map_elites(
+  specs_base   = default_specs(),
+  archive_dims = list(
+    genetic_diversity = seq(0, 1, by = 0.1),
+    n_agents          = seq(0, 200, by = 20)
+  ),
+  n_iterations = 300L,
+  objective    = "genetic_diversity",
+  verbose      = FALSE
+)
+
+# Archive heatmap: x = genetic_diversity niche, y = n_agents niche,
+# fill = objective score (NA = empty cell)
+result$map
+```
+
+Interpreting the heatmap:
+
+- **Filled cells** show achievable (diversity, population) pairs. The
+  colour encodes the objective score: brighter means higher diversity
+  within that niche.
+- **Empty cells** (shown in grey) are combinations that no parameter set
+  produced. If high-diversity, large-population cells are empty, that
+  combination may be intrinsically unattainable under the chosen model.
+- **The archive** itself (`result$archive`) is a list of length equal to
+  the number of cells. Non-null elements contain `$specs`, `$score`, and
+  `$behavioural_descriptor`.
+
+``` r
+# Extract all non-empty cells and compare their mutation_sd
+non_empty <- Filter(Negate(is.null), result$archive)
+cat("Filled cells:", length(non_empty), "\n")
+cat("mutation_sd range in archive:",
+    range(sapply(non_empty, function(x) x$specs$mutation_sd)), "\n")
+```
+
+    #> Filled cells: 47
+    #> mutation_sd range in archive: 0.0312 0.4871
+
+------------------------------------------------------------------------
+
+## 4. CMA-ES for maximum diversity
+
+[`search_cmaes()`](../reference/search_cmaes.md) implements a pure-R
+CMA-ES (Hansen 2006) — no external packages required. It finds the
+single parameter set that maximises the objective. Use it when you want
+one best answer rather than a map of trade-offs.
+
+``` r
+result <- search_cmaes(
+  specs_base = default_specs(),
+  params     = c("mutation_sd", "grass_rate", "crossover_rate"),
+  objective  = "genetic_diversity",
+  n_iterations = 20L,
+  popsize    = 10L
+)
+
+cat("Best diversity:", result$score, "\n")
+cat("Best params:\n")
+print(result$specs[c("mutation_sd", "grass_rate", "crossover_rate")])
+```
+
+    #> Best diversity: 0.863
+    #> Best params:
+    #>   mutation_sd grass_rate crossover_rate
+    #>         0.301      0.621          0.142
+
+**When to use CMA-ES vs MAP-Elites:**
+
+- Use [`search_cmaes()`](../reference/search_cmaes.md) when you want the
+  highest possible diversity and do not care about the population-size
+  cost. It converges to a single point.
+- Use [`search_map_elites()`](../reference/search_map_elites.md) when
+  you want to understand how diversity scales with other outcomes
+  (population size, speciation, cooperation level). It reveals the full
+  Pareto-like frontier of achievable outcomes.
+- CMA-ES is faster per run for a single-objective answer; MAP-Elites is
+  more informative per compute budget for multi-objective insight.
+
+### Scenario auto-calibration harness (0.3.0)
+
+A per-scenario CMA-ES harness ships under
+[`dev/audit/calibration/`](https://github.com/itchyshin/clade/tree/main/dev/audit/calibration).
+Each `s-*.Rmd` scenario has a fitness function encoding its biological
+claim (e.g. “negative slope of `mean_prior_sigma`” for the Baldwin
+effect, “late `n_altruistic_acts` per tick” for kin selection). Running
+`bash dev/audit/calibration/run_all.sh` launches all 31 in parallel
+(xargs -P 16) and writes per-scenario JSON with the best-discovered
+specs. Results are summarised in
+[`dev/audit/calibration/RESULTS.md`](https://github.com/itchyshin/clade/blob/main/dev/audit/calibration/RESULTS.md)
+— scenarios with meaningful improvement get a “Calibrated regime (CMA-ES
+discovered)” subsection in their vignette.
+
+------------------------------------------------------------------------
+
+## 5. Custom diversity objective function
+
+All four search functions accept a custom `objective` function in place
+of a column name. The function receives the `env` object returned by
+[`run_alife()`](../reference/run_alife.md) and must return a numeric
+scalar.
+
+The example below defines an objective that rewards both diversity and
+sustained population size. Runs that go extinct (mean population below
+10) receive a score of zero regardless of their transient diversity,
+preventing the optimiser from finding parameters that briefly achieve
+high diversity before collapse.
+
+``` r
+custom_obj <- function(env) {
+  d   <- get_run_data(env)$ticks
+  div <- mean(d$genetic_diversity, na.rm = TRUE)
+  pop <- mean(d$n_agents,          na.rm = TRUE)
+  if (pop < 10) return(0)      # discard runs that go near-extinct
+  div * log1p(pop / 50)        # reward diversity weighted by log-population
+}
+
+result <- search_random(
+  specs_base    = default_specs(),
+  search_params = list(
+    mutation_sd = c(0.01, 0.4),
+    grass_rate  = c(0.1,  0.7)
+  ),
+  n_samples = 20L,
+  objective = custom_obj
+)
+
+head(result)
+```
+
+The same `custom_obj` function can be passed to
+[`search_map_elites()`](../reference/search_map_elites.md),
+[`search_cmaes()`](../reference/search_cmaes.md), or
+[`search_gradient()`](../reference/search_gradient.md) without
+modification.
+
+------------------------------------------------------------------------
+
+## 6. Why not Zygote.jl (Julia autodiff)?
+
+Zygote.jl computes exact gradients by tracing Julia code. It requires
+every operation in the forward pass to be differentiable.
+[`run_alife()`](../reference/run_alife.md) contains discrete events that
+are not differentiable:
+
+- Agent death (Bernoulli draw — discontinuous in energy)
+- Agent birth (conditional on `energy >= min_repro_energy`)
+- `argmax` over brain outputs (non-differentiable everywhere)
+- Stochastic mating (Categorical sample)
+
+Autodiff through any of these operations would either fail at trace time
+or silently produce a zero gradient. The correct optimisers for this
+class of stochastic discrete-event simulation are:
+
+| Method                         | Implementation                                             | When               |
+|--------------------------------|------------------------------------------------------------|--------------------|
+| CMA-ES (derivative-free)       | [`search_cmaes()`](../reference/search_cmaes.md) (pure R)  | 5–30 parameters    |
+| MAP-Elites (quality-diversity) | [`search_map_elites()`](../reference/search_map_elites.md) | Explore trade-offs |
+| Finite-difference gradient     | [`search_gradient()`](../reference/search_gradient.md)     | Local refinement   |
+
+``` r
+# CMA-ES does not require differentiability.
+# It treats run_alife() as a black box and estimates curvature from
+# population statistics alone.
+result <- search_cmaes(
+  default_specs(),
+  params       = c("grass_rate", "mutation_sd"),
+  objective    = "genetic_diversity",
+  n_iterations = 50L
+)
+```
+
+------------------------------------------------------------------------
+
+## 7. Finding viable parameters for the complex landscape
+
+Not all parameter combinations allow organisms to survive. Before
+running CMA-ES it is worth mapping the *viable region* — the set of
+landscape densities and energy values where the population does not go
+extinct. [`search_viability()`](../reference/search_viability.md) does
+this in a single call.
+
+``` r
+library(clade)
+
+# Step 1: identify which shrub/canopy density combinations are viable
+s <- default_specs()
+s$complex_landscape <- TRUE
+
+vmap <- search_viability(
+  s,
+  param_x = "shrub_density",  values_x = seq(0.1, 0.6, by = 0.1),
+  param_y = "canopy_density", values_y = seq(0.05, 0.35, by = 0.1),
+  n_reps  = 3L
+)
+
+vmap$map     # ggplot2 heatmap: green = viable, red = extinct
+vmap$data    # data frame with viability, mean_final_pop per cell
+```
+
+Once the viable region is identified, run CMA-ES inside it using the
+scenario-specific objective:
+
+``` r
+# Step 2: CMA-ES within the viable region (set sensible starting values from
+# Step 1 first, or let tune_complex_landscape() handle defaults)
+tuned <- tune_complex_landscape(default_specs(), n_iterations = 80L)
+tuned$specs          # optimal parameter set
+tuned$history$sigma  # step-size decay — smaller sigma = converged
+```
+
+[`tune_complex_landscape()`](../reference/tune_complex_landscape.md)
+pre-configures five landscape parameters (`shrub_density`,
+`canopy_density`, `shrub_energy`, `canopy_energy`, `shrub_growth_rate`)
+and uses
+[`objective_complex_landscape()`](../reference/objective_complex_landscape.md),
+which measures the joint increase in wing size, niche diversity, and
+survival.
+
+------------------------------------------------------------------------
+
+## 8. Calibrating IFfolk inclusive fitness
+
+The same workflow applies to the IFfolk module. First map which transfer
+rates and parliament costs allow helper tendency to evolve at all:
+
+``` r
+s <- default_specs()
+s$iffolk_selection    <- TRUE
+s$cooperative_breeding <- TRUE
+
+vmap_iff <- search_viability(
+  s,
+  param_x  = "iffolk_transfer",   values_x = seq(1, 6, by = 1),
+  param_y  = "parliament_cost",   values_y = seq(0.1, 0.8, by = 0.2),
+  n_reps   = 3L,
+  objective = "mean_helper_tendency"  # also report evolutionary outcome
+)
+
+vmap_iff$map   # heatmap coloured by viability
+```
+
+Then optimise with [`tune_iffolk()`](../reference/tune_iffolk.md):
+
+``` r
+tuned_iff <- tune_iffolk(default_specs(), n_iterations = 80L)
+tuned_iff$specs$iffolk_transfer   # optimal transfer amount
+```
+
+[`objective_iffolk()`](../reference/objective_iffolk.md) fits a linear
+regression to `mean_helper_tendency` over time and rewards upward trends
+(slope x 1000) plus a per-agent transfer bonus. This is much more
+sensitive than simply maximising mean helper tendency at the final tick.
+
+------------------------------------------------------------------------
+
+## References
+
+Mouret, J.-B. & Clune, J. (2015) Illuminating search spaces by mapping
+elites. *arXiv:1504.04909*.
+
+Hansen, N. & Ostermeier, A. (2001) Completely derandomized
+self-adaptation in evolution strategies. *Evolutionary Computation*
+9(2):159-195.
+
+Fromhage, L. & Jennions, M.D. (2019) The evolution of mutualism from
+reciprocal altruism by a selection regime shift. *Nature Communications*
+10:1294.
+
+Frankham, R., Ballou, J.D. & Briscoe, D.A. (2010) *Introduction to
+Conservation Genetics*, 2nd edn. Cambridge University Press.

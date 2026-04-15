@@ -1,0 +1,40 @@
+# Plot signal evolution (Phase 2 placeholder)
+
+Placeholder returning a ggplot with a note that signal evolution
+plotting is scheduled for Phase 2. Kept here so downstream code can rely
+on a stable API while the feature is implemented.
+
+## Usage
+
+``` r
+plot_signal_evolution(run_data)
+```
+
+## Arguments
+
+- run_data:
+
+  A list returned by [`get_run_data()`](get_run_data.md). Currently
+  unused.
+
+## Value
+
+A
+[`ggplot2::ggplot()`](https://ggplot2.tidyverse.org/reference/ggplot.html)
+object with a single annotation.
+
+## Details
+
+Plot signal evolution (Phase 2 placeholder)
+
+## See also
+
+[`plot_run()`](plot_run.md)
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+plot_signal_evolution(get_run_data(run_clade(default_specs())))
+} # }
+```

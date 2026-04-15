@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,7 +44,7 @@
     <li><a class="dropdown-item" href="../articles/baldwin-effect.html">Baldwin effect &amp; RL</a></li>
   </ul>
 </li>
-<li class="nav-item dropdown">
+<li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-scenarios" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Scenarios</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-scenarios">
 <li><a class="dropdown-item" href="../articles/scenarios.html">All scenarios (index)</a></li>
@@ -127,7 +127,7 @@
       <h1>Niche construction</h1>
             
       
-
+      <small class="dont-index">Source: <a href="https://github.com/itchyshin/clade/blob/scenario-audit-0.2.0/vignettes/s-niche.Rmd" class="external-link"><code>vignettes/s-niche.Rmd</code></a></small>
       <div class="d-none name"><code>s-niche.Rmd</code></div>
     </div>
 
@@ -144,6 +144,11 @@ engineering: organisms that modify their selective environment
 (Odling-Smee et al. 2003).</p>
 <p><strong>Key parameters.</strong></p>
 <table class="table">
+<colgroup>
+<col width="33%">
+<col width="33%">
+<col width="33%">
+</colgroup>
 <thead><tr class="header">
 <th>Parameter</th>
 <th>Default</th>
@@ -175,6 +180,14 @@ engineering: organisms that modify their selective environment
 <td>0.02</td>
 <td>Fraction of shelters lost per tick</td>
 </tr>
+<tr class="even">
+<td><code>shelter_occupancy_bonus</code></td>
+<td>0.0</td>
+<td>When &gt; 0, agents occupying a sheltered cell receive
+<code>bonus × depth</code> energy per tick — the heritable
+niche-construction effect (Odling-Smee et al. 2003). Added in
+v0.3.0.</td>
+</tr>
 </tbody>
 </table>
 <p><strong>Expected output.</strong> <code>n_shelters_built</code> is
@@ -189,8 +202,24 @@ may be larger than baseline due to shelter protection.</p>
 <span><span class="va">env</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span>
 <span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Total shelters built:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">ticks</span><span class="op">$</span><span class="va">n_shelters_built</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="calibrated-regime-cma-es-discovered">Calibrated regime (CMA-ES discovered)<a class="anchor" aria-label="anchor" href="#calibrated-regime-cma-es-discovered"></a>
+</h3>
+<p>Running Phase 7 auto-calibration
+(<code>dev/audit/calibration/</code>) over the scenario’s parameter
+subspace discovered the following regime, which produces a fitness
+improvement of <strong>4.9x</strong> over the defaults above. See
+<code>dev/audit/calibration/RESULTS.md</code> for the full CMA-ES
+results.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Parameter overrides discovered by CMA-ES (see dev/audit/calibration/):</span></span>
+<span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">shelter_decay_prob</span>             <span class="op">&lt;-</span> <span class="fl">0.0624</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">grass_rate</span>                     <span class="op">&lt;-</span> <span class="fl">1</span></span>
+<span><span class="co"># env &lt;- run_alife(s)   # uncomment to run the calibrated regime</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_09_niche.png" alt="Expected output: shelter density builds up over time; predator kill rate is lower in sheltered cells, sustaining a larger population than an equivalent run without niche construction." width="100%"><p class="caption">
+<img src="figures/showcase_09_niche.png" class="r-plt" alt="Expected output: shelter density builds up over time; predator kill rate is lower in sheltered cells, sustaining a larger population than an equivalent run without niche construction." width="100%"><p class="caption">
 Expected output: shelter density builds up over time; predator kill rate
 is lower in sheltered cells, sustaining a larger population than an
 equivalent run without niche construction.
@@ -199,18 +228,25 @@ equivalent run without niche construction.
 <p><strong>What we found.</strong> Running 3 replicates with 100 agents,
 15 predators, 30×30 grid, 400 ticks (seeds 41–43): agents built a mean
 of ~29,800 shelter units per run, but the sheltered population was
-slightly smaller than baseline (mean 377 vs 407 agents). The explanation
-is in the implementation: <code>niche_attack_multiplier()</code> — the
-function that reduces predator damage in sheltered cells — is defined
-but not yet wired into the predator attack roll. What <em>is</em> active
-is grass-growth suppression: shelters slow regrowth on occupied cells,
-reducing per-cell food availability. Under heavy predation pressure,
-this grass-suppression effect slightly disadvantaged shelter-building
-populations. Ecosystem engineering in clade thus has a double-edged
-signature: organisms modify the resource landscape even before the
-protective benefit of engineering emerges — a prediction consistent with
+slightly smaller than baseline (mean 377 vs 407 agents). The pattern is
+explained by the module’s mechanics: shelters suppress grass regrowth on
+their cell (a cost to the occupant), while the predator-damage-reduction
+effect requires <code>niche_attack_multiplier()</code> to be wired into
+the predator attack roll — currently only grass suppression and the
+0.3.0 <code>shelter_occupancy_bonus</code> energy subsidy are active.
+Ecosystem engineering in clade thus has a double-edged signature:
+organisms modify the resource landscape even before the protective
+benefit of engineering fully emerges — a prediction consistent with
 Odling-Smee et al. (2003) on niche construction costs preceding
 benefits.</p>
+<p><strong>Heritable benefit (0.3.0 new).</strong> Setting
+<code>s$shelter_occupancy_bonus &lt;- 0.3</code> delivers
+<code>bonus × shelter_depth</code> energy per tick to any agent sitting
+on a sheltered cell. Over generations, descendants of shelter builders
+who stay near ancestral constructions accumulate an energetic advantage
+— the Odling-Smee-Laland-Feldman (2003) heritable niche-construction
+feedback materialised. The new <code>n_shelter_occupied</code> log
+column (added in 0.3.0) tracks the number of beneficiaries per tick.</p>
 </div>
 <div class="section level3">
 <h3 id="discovery-experiments">Discovery experiments<a class="anchor" aria-label="anchor" href="#discovery-experiments"></a>
@@ -281,7 +317,7 @@ but shelter count is the clearest evidence of the interaction.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

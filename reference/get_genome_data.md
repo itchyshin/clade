@@ -1,0 +1,57 @@
+# Extract per-tick genome data (allele frequencies, diversity, FST)
+
+Returns genome-level statistics logged when `specs$log_genomes = TRUE`.
+These include per-tick allele frequency vectors, mean heterozygosity,
+linkage disequilibrium, and (when `speciation = TRUE`) per-species FST.
+
+## Usage
+
+``` r
+get_genome_data(env)
+```
+
+## Arguments
+
+- env:
+
+  An environment list returned by [`run_alife()`](run_alife.md).
+
+## Value
+
+A list with components:
+
+- `$genomes`:
+
+  A list of matrices (one per logged tick). Each matrix has one row per
+  agent and one column per genome position. `NULL` when
+  `specs$log_genomes = FALSE`.
+
+- `$heterozygosity`:
+
+  Numeric vector of mean per-locus heterozygosity across ticks.
+
+- `$fst`:
+
+  Numeric vector of per-tick FST (Weir & Cockerham 1984) between
+  species. `NA` when `speciation = FALSE`.
+
+## References
+
+Weir, B.S. & Cockerham, C.C. (1984) Estimating F-statistics for the
+analysis of population structure. *Evolution* 38(6):1358-1370.
+
+## See also
+
+[`get_run_data()`](get_run_data.md), [`run_alife()`](run_alife.md)
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+specs <- default_specs()
+specs$log_genomes <- TRUE
+env  <- run_alife(specs)
+gdat <- get_genome_data(env)
+plot(gdat$heterozygosity, type = "l", xlab = "Tick", ylab = "Heterozygosity")
+} # }
+```

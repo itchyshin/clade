@@ -11,7 +11,7 @@ parameters differ from the defaults."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -102,7 +102,7 @@ parameters differ from the defaults."></head><body>
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Pretty-print all simulation parameters</h1>
-
+      <small class="dont-index">Source: <a href="https://github.com/itchyshin/clade/blob/scenario-audit-0.2.0/R/utils.R" class="external-link"><code>R/utils.R</code></a></small>
       <div class="d-none name"><code>print_specs.Rd</code></div>
     </div>
 
@@ -140,7 +140,7 @@ Default <code>FALSE</code>.</p></dd>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">print_specs</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -- clade specs (221 parameters) --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -- clade specs (232 parameters) --</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Grid &amp; population</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     grid_rows                              30</span>
@@ -294,6 +294,8 @@ Default <code>FALSE</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     transformer_history                    8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     transformer_heads                      2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     synthesis_max_rules                    10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     ann_regularization                     none</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     ann_regularization_lambda              0.001</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     brain_energy_mode                      activity</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     brain_energy_base                      0.001</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     brain_energy_activity                  0.5</span>
@@ -307,6 +309,7 @@ Default <code>FALSE</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     learning_rate_min                      0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     learning_rate_max                      0.5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     plasticity_cost                        0.05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     lamarckian                             FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     epigenetics                            FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     epigenetic_learning_coupling           0.1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     epigenetic_inheritance                 0.5</span>
@@ -378,7 +381,8 @@ Default <code>FALSE</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     predator_energy_gain                   30</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     predator_min_repro_age                 5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     predator_mutation_sd                   0.1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     toxicity_cost_per_tick                 0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     batesian_mimicry                       FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     toxicity_cost_per_tick                 2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     signal_memory_rate                     0.3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     avoid_threshold                        0.5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     toxicity_mutation_sd                   0.05</span>
@@ -386,6 +390,7 @@ Default <code>FALSE</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     plasticity_min                         0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     plasticity_max                         1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     shelter_decay_prob                     0.05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     shelter_occupancy_bonus                0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     scavenging                             FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     carrion_fraction                       0.5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     carrion_decay_rate                     0.1</span>
@@ -409,12 +414,17 @@ Default <code>FALSE</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     wall_clusters                          TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     world_evolution                        FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     world_mutation_sd                      0.02</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     fixed_patch                            FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     fixed_patch_value                      5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     fixed_patch_x                          NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     fixed_patch_y                          NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     fixed_patch_radius                     0</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">s</span><span class="op">$</span><span class="va">kin_selection</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="va">s</span><span class="op">$</span><span class="va">complex_landscape</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="fu">print_specs</span><span class="op">(</span><span class="va">s</span>, diff_only <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -- clade specs (221 parameters) [diff only] --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -- clade specs (232 parameters) [diff only] --</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Kin selection</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     kin_selection                          TRUE *</span>
@@ -433,7 +443,7 @@ Default <code>FALSE</code>.</p></dd>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

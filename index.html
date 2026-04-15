@@ -24,7 +24,7 @@
 
     <a class="navbar-brand me-2" href="index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -138,7 +138,7 @@
 </h3>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># From GitHub (development version)</span></span>
-<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"itchyshin/clade"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"itchyshin/clade"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="julia">Julia<a class="anchor" aria-label="anchor" href="#julia"></a>
@@ -158,7 +158,7 @@
 <h2 id="quick-start">Quick start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
 </h2>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Confirm Julia is ready (compiles kernel on first call — ~60-90 s once)</span></span>
 <span><span class="fu"><a href="reference/julia_is_ready.html">julia_is_ready</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -186,86 +186,204 @@
 <col width="33%">
 <col width="33%">
 </colgroup>
-<thead><tr>
+<thead><tr class="header">
 <th>Module</th>
-<th>Flag</th>
+<th>Flag(s)</th>
 <th>What it models</th>
 </tr></thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td>Baseline</td>
 <td>—</td>
 <td>Foraging and neural evolution on a toroidal grass grid</td>
 </tr>
-<tr>
-<td>Complex landscape</td>
-<td><code>complex_landscape</code></td>
-<td>3-layer forest; wing size evolves for canopy access</td>
-</tr>
-<tr>
-<td>Spatial sorting</td>
-<td>
-<code>spatial_sorting</code> + <code>dispersal_evolution</code>
-</td>
-<td>Invasion-front dispersal assortment (Shine et al. 2011)</td>
-</tr>
-<tr>
-<td>IFfolk + parliament</td>
-<td><code>iffolk_selection</code></td>
-<td>Inclusive fitness transfers + defector suppression</td>
-</tr>
-<tr>
-<td>Kin selection</td>
-<td><code>kin_selection</code></td>
-<td>Hamilton’s rule, pedigree-based relatedness</td>
-</tr>
-<tr>
-<td>SIR disease</td>
-<td><code>disease</code></td>
-<td>Susceptible-Infected-Recovered epidemic dynamics</td>
-</tr>
-<tr>
-<td>Niche construction</td>
-<td><code>niche_construction</code></td>
-<td>Shelter building modifies the selection environment</td>
-</tr>
-<tr>
+<tr class="even">
 <td>Body size</td>
 <td><code>body_size_evolution</code></td>
-<td>Allometric metabolic scaling</td>
+<td>Metabolic scaling (approximate Kleiber); size-foraging trade-off</td>
 </tr>
-<tr>
+<tr class="odd">
+<td>Brain size</td>
+<td><code>brain_size_evolution</code></td>
+<td>Cognitive-bonus × metabolic-cost; bootstrapping under <code>parental_care</code>
+</td>
+</tr>
+<tr class="even">
+<td>Clutch size</td>
+<td><code>clutch_size_evolution</code></td>
+<td>r/K-style trade-off between clutch count and offspring quality</td>
+</tr>
+<tr class="odd">
+<td>Complex landscape</td>
+<td><code>complex_landscape</code></td>
+<td>3-layer forest (grass / shrubs / canopy); wing-size evolves for canopy access</td>
+</tr>
+<tr class="even">
+<td>Cooperation</td>
+<td><code>cooperation_evolution</code></td>
+<td>Public-goods games with helper-tendency evolution</td>
+</tr>
+<tr class="odd">
+<td>Cooperative breeding</td>
+<td><code>cooperative_breeding</code></td>
+<td>Helpers at the nest (Emlen 1982)</td>
+</tr>
+<tr class="even">
 <td>Dispersal</td>
 <td><code>dispersal_evolution</code></td>
 <td>Heritable dispersal tendency</td>
 </tr>
-<tr>
+<tr class="odd">
+<td>Habitat preference</td>
+<td><code>habitat_preference_evolution</code></td>
+<td>Agents move toward preferred grass density</td>
+</tr>
+<tr class="even">
+<td>IFfolk + parliament</td>
+<td>
+<code>iffolk_selection</code>, <code>parliament_suppression</code>
+</td>
+<td>Inclusive-fitness transfers + intragenomic-conflict suppression (Haig 2000; Fromhage &amp; Jennions 2019)</td>
+</tr>
+<tr class="odd">
+<td>Kin selection</td>
+<td><code>kin_selection</code></td>
+<td>Hamilton’s rule, pedigree-based relatedness (r = 0.5 / 0.25 / 0)</td>
+</tr>
+<tr class="even">
+<td>Life history / pace of life</td>
+<td>
+<code>metabolic_rate_evolution</code>, <code>aging_rate_evolution</code>
+</td>
+<td>Metabolic rate ↔︎ lifespan trade-off</td>
+</tr>
+<tr class="odd">
+<td>Mating systems</td>
+<td>
+<code>ploidy = 2</code>, <code>mate_choice</code>
+</td>
+<td>Haploid / diploid; signal-preference assortative mating</td>
+</tr>
+<tr class="even">
+<td>Mimicry</td>
+<td><code>mimicry</code></td>
+<td>Predator learning + warning colouration (currently Müllerian; Batesian disabled by design)</td>
+</tr>
+<tr class="odd">
+<td>Mutation-rate evolution</td>
+<td><code>mutation_rate_evolution</code></td>
+<td>Per-agent heritable <code>mutation_sd</code>
+</td>
+</tr>
+<tr class="even">
+<td>Niche construction</td>
+<td><code>niche_construction</code></td>
+<td>Shelter-building modifies the selection environment (local public good). With <code>shelter_occupancy_bonus &gt; 0</code>: shelters confer a heritable metabolic benefit to occupants (Odling-Smee et al. 2003)</td>
+</tr>
+<tr class="odd">
+<td>Batesian mimicry</td>
+<td>
+<code>mimicry</code> + <code>batesian_mimicry</code>
+</td>
+<td>Palatable mimics (<code>toxicity = 0</code>) exploit a predator’s aversion for a shared signal; predator-betrayal decay prevents runaway cheating (Bates 1862)</td>
+</tr>
+<tr class="even">
+<td>Parental care</td>
+<td><code>parental_care</code></td>
+<td>Obligate altriciality — offspring carried, fed, and graduated</td>
+</tr>
+<tr class="odd">
+<td>Parental investment</td>
+<td><code>parental_investment_evolution</code></td>
+<td>Evolved male / offspring-quality investment</td>
+</tr>
+<tr class="even">
+<td>Phenotypic plasticity</td>
+<td><code>phenotypic_plasticity</code></td>
+<td>Environment-dependent reproduction threshold</td>
+</tr>
+<tr class="odd">
+<td>Predation</td>
+<td>
+<code>predators</code>, <code>n_predators_init &gt; 0</code>
+</td>
+<td>Co-evolving predator guild with dedicated 15-input sensory brain</td>
+</tr>
+<tr class="even">
+<td>Predator group defence</td>
+<td><code>group_defense</code></td>
+<td>Coordinated anti-predator behaviour</td>
+</tr>
+<tr class="odd">
+<td>Scavenging</td>
+<td><code>scavenging</code></td>
+<td>Carcass consumption; decay-based carcass lifetime</td>
+</tr>
+<tr class="even">
+<td>Seasonal dynamics</td>
+<td>
+<code>seasonal_amplitude &gt; 0</code>, <code>winter_death_prob</code>
+</td>
+<td>Resource oscillation + winter mortality</td>
+</tr>
+<tr class="odd">
+<td>SIR disease</td>
+<td><code>disease</code></td>
+<td>Susceptible–Infected–Recovered epidemic dynamics</td>
+</tr>
+<tr class="even">
+<td>Signals / sexual selection</td>
+<td>
+<code>signal_mating</code>, <code>signal_evolution_drift</code>
+</td>
+<td>Signal-preference coevolution (Fisher 1915; Kirkpatrick &amp; Ryan 1991)</td>
+</tr>
+<tr class="odd">
 <td>Social learning</td>
 <td><code>social_learning</code></td>
 <td>Copy successful neighbours’ brain weights</td>
 </tr>
-<tr>
-<td>Parental care</td>
-<td><code>parental_care</code></td>
-<td>Carried offspring, obligate altriciality</td>
+<tr class="even">
+<td>Spatial sorting</td>
+<td>
+<code>spatial_sorting</code> + <code>dispersal_evolution</code> + <code>toroidal = FALSE</code>
+</td>
+<td>Invasion-front dispersal assortment (Shine et al. 2011; needs bounded grid)</td>
 </tr>
-<tr>
-<td>Mimicry / toxicity</td>
-<td><code>mimicry</code></td>
-<td>Predator learning + warning colouration</td>
+<tr class="odd">
+<td>Speciation</td>
+<td><code>speciation</code></td>
+<td>Genome-distance clustering + reproductive isolation</td>
 </tr>
-<tr>
+<tr class="even">
+<td>Stress hypermutation</td>
+<td><code>stress_hypermutation</code></td>
+<td>SOS-style mutation-rate spike below <code>stress_threshold</code>
+</td>
+</tr>
+<tr class="odd">
+<td>Transgenerational epigenetics</td>
+<td><code>epigenetics</code></td>
+<td>Methylation inheritance on BNN sigma (Jablonka &amp; Lamb 2005)</td>
+</tr>
+<tr class="even">
 <td>Within-lifetime RL</td>
 <td><code>rl_mode = "actor_critic"</code></td>
-<td>REINFORCE-with-baseline; Baldwin effect</td>
+<td>REINFORCE score-function update on BNN posterior (Williams 1992; Blundell et al. 2015)</td>
 </tr>
-<tr>
-<td>Phenotypic plasticity</td>
-<td><code>phenotypic_plasticity</code></td>
-<td>Heritable sensory gain</td>
+<tr class="odd">
+<td>Lamarckian inheritance</td>
+<td><code>lamarckian = TRUE</code></td>
+<td>RL-learned weights written back to genome before meiosis</td>
+</tr>
+<tr class="even">
+<td>Quantised weights</td>
+<td><code>ann_weight_values</code></td>
+<td>Snap weights to a discrete set (e.g. ternary) after expression</td>
 </tr>
 </tbody>
 </table>
+<p>See <a href="vignettes/parameter-reference.Rmd"><code>vignettes/parameter-reference.Rmd</code></a> for the complete parameter list.</p>
 <hr>
 </div>
 <div class="section level2">
@@ -277,32 +395,32 @@
 <col width="50%">
 <col width="50%">
 </colgroup>
-<thead><tr>
+<thead><tr class="header">
 <th>Type</th>
 <th>Description</th>
 </tr></thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td><code>"bnn"</code></td>
 <td>Bayesian neural network — learns a distribution over weights (default)</td>
 </tr>
-<tr>
+<tr class="even">
 <td><code>"ann"</code></td>
 <td>Standard multilayer perceptron</td>
 </tr>
-<tr>
+<tr class="odd">
 <td><code>"ctrnn"</code></td>
 <td>Continuous-time recurrent network; suited for temporally extended tasks</td>
 </tr>
-<tr>
+<tr class="even">
 <td><code>"grn"</code></td>
 <td>Gene regulatory network topology; sparse and biologically motivated</td>
 </tr>
-<tr>
+<tr class="odd">
 <td><code>"transformer"</code></td>
 <td>Self-attention architecture; highest capacity, slowest</td>
 </tr>
-<tr>
+<tr class="even">
 <td><code>"synthesis"</code></td>
 <td>Symbolic rule extraction from evolved weights</td>
 </tr>
@@ -319,33 +437,33 @@
 <col width="50%">
 <col width="50%">
 </colgroup>
-<thead><tr>
+<thead><tr class="header">
 <th>Article</th>
 <th>Contents</th>
 </tr></thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td><a href="https://itchyshin.github.io/clade/articles/getting-started.html" class="external-link">Getting Started</a></td>
 <td>Installation, first run, extracting results, batch runs</td>
 </tr>
-<tr>
+<tr class="even">
 <td><a href="https://itchyshin.github.io/clade/articles/scenarios.html" class="external-link">Biological Scenarios</a></td>
 <td>Code and expected outputs for every module</td>
 </tr>
-<tr>
+<tr class="odd">
 <td><a href="https://itchyshin.github.io/clade/articles/custom-modules.html" class="external-link">Custom Modules</a></td>
 <td>Write your own per-tick hooks with <code><a href="reference/register_module.html">register_module()</a></code>
 </td>
 </tr>
-<tr>
+<tr class="even">
 <td><a href="https://itchyshin.github.io/clade/articles/parameter-reference.html" class="external-link">Parameter Reference</a></td>
 <td>Every parameter in <code><a href="reference/default_specs.html">default_specs()</a></code>, grouped by theme</td>
 </tr>
-<tr>
+<tr class="odd">
 <td><a href="https://itchyshin.github.io/clade/articles/diversity-search.html" class="external-link">Diversity Search</a></td>
 <td>CMA-ES, MAP-Elites, viability mapping, and scenario-specific tuning</td>
 </tr>
-<tr>
+<tr class="even">
 <td><a href="https://itchyshin.github.io/clade/articles/showcase.html" class="external-link">Showcase</a></td>
 <td>Figures from all simulation scenarios</td>
 </tr>
@@ -361,8 +479,9 @@
 <span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  <span class="dt">author</span>  = {Nakagawa, Shinichi},</span>
 <span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  <span class="dt">title</span>   = {clade: Agent-based evolutionary simulation with a Julia backend},</span>
 <span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>  <span class="dt">year</span>    = {2026},</span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>  <span class="dt">url</span>     = {https://github.com/itchyshin/clade}</span>
-<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>}</span></code></pre></div>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>  <span class="dt">note</span>    = {R package version 0.3.0},</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>  <span class="dt">url</span>     = {https://github.com/itchyshin/clade}</span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>}</span></code></pre></div>
 <hr>
 </div>
 <div class="section level2">
@@ -371,7 +490,15 @@
 <p>MIT — see <a href="LICENSE">LICENSE</a>.</p>
 </div>
 </div>
-  </main><aside class="col-md-3"><div class="license">
+  </main><aside class="col-md-3"><div class="links">
+<h2 data-toc-skip>Links</h2>
+<ul class="list-unstyled">
+<li><a href="https://github.com/itchyshin/clade/" class="external-link">Browse source code</a></li>
+<li><a href="https://github.com/itchyshin/clade/issues" class="external-link">Report a bug</a></li>
+</ul>
+</div>
+
+<div class="license">
 <h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
 <li><a href="LICENSE.html">Full license</a></li>
@@ -405,7 +532,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

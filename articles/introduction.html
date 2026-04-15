@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -30,7 +30,7 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../articles/getting-started.html">Get Started</a></li>
-<li class="nav-item dropdown">
+<li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-guides" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Guides</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-guides">
 <li><a class="dropdown-item" href="../articles/getting-started.html">Getting started</a></li>
@@ -129,7 +129,7 @@
 Nakagawa</h4>
             
       
-
+      <small class="dont-index">Source: <a href="https://github.com/itchyshin/clade/blob/scenario-audit-0.2.0/vignettes/introduction.Rmd" class="external-link"><code>vignettes/introduction.Rmd</code></a></small>
       <div class="d-none name"><code>introduction.Rmd</code></div>
     </div>
 
@@ -168,7 +168,7 @@ package check or vignette build.</p>
 <p><code>clade</code> is currently distributed from GitHub:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"itchyshin/clade"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"itchyshin/clade"</span><span class="op">)</span></span></code></pre></div>
 <p>You will also need a working Julia installation (≥ 1.9). On the first
 call to <code><a href="../reference/run_alife.html">run_alife()</a></code>, <code>clade</code> starts a Julia
 session, installs its own Julia dependencies into a private environment,
@@ -182,7 +182,7 @@ minute or two; subsequent runs in the same R session are immediate.</p>
 type and the core ecological loop. Three calls are enough to produce a
 tidy result and a diagnostic plot:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">specs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
@@ -422,9 +422,12 @@ same cell.</td>
 </tr>
 <tr class="odd">
 <td>Mimicry and toxicity</td>
-<td><code>mimicry</code></td>
+<td>
+<code>mimicry</code> (+ <code>batesian_mimicry</code>)</td>
 <td>Heritable toxicity deters predators via Rescorla–Wagner avoidance
-learning.</td>
+learning. With <code>batesian_mimicry = TRUE</code>, palatable mimics
+exploit the learned aversion (Bates 1862) with predator-betrayal
+decay.</td>
 </tr>
 <tr class="even">
 <td>Phenotypic plasticity</td>
@@ -434,9 +437,13 @@ environments.</td>
 </tr>
 <tr class="odd">
 <td>Niche construction</td>
-<td><code>niche_construction</code></td>
+<td>
+<code>niche_construction</code> (+
+<code>shelter_occupancy_bonus</code>)</td>
 <td>Agents build shelters that protect against predators and slow grass
-regrowth on the cell.</td>
+regrowth on the cell. With <code>shelter_occupancy_bonus &gt; 0</code>:
+occupants of sheltered cells receive an energy subsidy proportional to
+shelter depth — heritable niche effect (Odling-Smee et al. 2003).</td>
 </tr>
 <tr class="even">
 <td>Scavenging</td>
@@ -622,7 +629,7 @@ Springer, New York.</li>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

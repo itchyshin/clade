@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,7 +44,7 @@
     <li><a class="dropdown-item" href="../articles/baldwin-effect.html">Baldwin effect &amp; RL</a></li>
   </ul>
 </li>
-<li class="nav-item dropdown">
+<li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-scenarios" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Scenarios</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-scenarios">
 <li><a class="dropdown-item" href="../articles/scenarios.html">All scenarios (index)</a></li>
@@ -127,7 +127,7 @@
       <h1>Biological Scenarios: A Discovery Guide</h1>
             
       
-
+      <small class="dont-index">Source: <a href="https://github.com/itchyshin/clade/blob/scenario-audit-0.2.0/vignettes/scenarios.Rmd" class="external-link"><code>vignettes/scenarios.Rmd</code></a></small>
       <div class="d-none name"><code>scenarios.Rmd</code></div>
     </div>
 
@@ -221,8 +221,11 @@ sorting</a></td>
 </tr>
 <tr class="odd">
 <td><a href="s-niche.html">Niche construction</a></td>
-<td><code>niche_construction</code></td>
-<td>Shelter building and grass-growth suppression</td>
+<td>
+<code>niche_construction</code> (+
+<code>shelter_occupancy_bonus</code>)</td>
+<td>Shelter building, grass-growth suppression; heritable occupancy
+benefit (Odling-Smee 2003)</td>
 </tr>
 <tr class="even">
 <td><a href="s-seasonal.html">Seasonal dynamics</a></td>
@@ -366,9 +369,10 @@ divergence</a></td>
 <tr class="odd">
 <td><a href="s-mimicry.html">Mimicry &amp; toxicity</a></td>
 <td>
-<code>mimicry</code>, <code>toxicity</code>
-</td>
-<td>Batesian/Müllerian mimicry coevolution</td>
+<code>mimicry</code> (+ <code>batesian_mimicry</code>)</td>
+<td>Müllerian aposematism by default;
+<code>batesian_mimicry = TRUE</code> enables palatable mimics exploiting
+learned aversion (Bates 1862) with predator-betrayal decay</td>
 </tr>
 <tr class="even">
 <td><a href="s-disease.html">SIR disease</a></td>
@@ -500,7 +504,7 @@ that go beyond the baseline, with “Tried it.” results for experiment
 specs is at <a href="parameter-reference.html">Parameter
 reference</a>.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clade</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="../reference/julia_is_ready.html">julia_is_ready</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
 <span>  <span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span>
@@ -518,7 +522,7 @@ reference</a>.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>
