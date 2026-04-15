@@ -72,15 +72,22 @@ FIG("09_niche")
 **What we found.** Running 3 replicates with 100 agents, 15 predators, 30×30 grid,
 400 ticks (seeds 41–43): agents built a mean of ~29,800 shelter units per run, but
 the sheltered population was slightly smaller than baseline (mean 377 vs 407 agents).
-The explanation is in the implementation: `niche_attack_multiplier()` — the function
-that reduces predator damage in sheltered cells — is defined but not yet wired into
-the predator attack roll. What *is* active is grass-growth suppression: shelters slow
-regrowth on occupied cells, reducing per-cell food availability. Under heavy predation
-pressure, this grass-suppression effect slightly disadvantaged shelter-building
-populations. Ecosystem engineering in clade thus has a double-edged signature:
+The pattern is explained by the module's mechanics: shelters suppress grass regrowth
+on their cell (a cost to the occupant), while the predator-damage-reduction effect
+requires `niche_attack_multiplier()` to be wired into the predator attack roll —
+currently only grass suppression and the 0.3.0 `shelter_occupancy_bonus` energy
+subsidy are active. Ecosystem engineering in clade thus has a double-edged signature:
 organisms modify the resource landscape even before the protective benefit of
-engineering emerges — a prediction consistent with Odling-Smee et al. (2003) on
+engineering fully emerges — a prediction consistent with Odling-Smee et al. (2003) on
 niche construction costs preceding benefits.
+
+**Heritable benefit (0.3.0 new).** Setting `s$shelter_occupancy_bonus <- 0.3`
+delivers `bonus × shelter_depth` energy per tick to any agent sitting on a
+sheltered cell. Over generations, descendants of shelter builders who stay
+near ancestral constructions accumulate an energetic advantage — the
+Odling-Smee-Laland-Feldman (2003) heritable niche-construction feedback
+materialised. The new `n_shelter_occupied` log column (added in 0.3.0)
+tracks the number of beneficiaries per tick.
 
 ### Discovery experiments
 

@@ -70,18 +70,31 @@ s$signal_memory_rate             <- 0.2991
 FIG("21_mimicry")
 ```
 
-**What we found.** Running with `mimicry = TRUE`, 8 predators, 100 agents, 30×30 grid,
-`toxicity_init_mean = 0.1`, 400 ticks (seed 42): `mean_toxicity` showed no directional
-evolution (0.1018 at ticks 1–50; 0.1002 at ticks 350–400) and `n_avoided_attacks = 0`
-throughout the run. The reason is architectural: `should_avoid_prey()` — the predator
-avoidance function — is implemented and correct but is not yet wired into the predator
-attack loop in `tick_predators.jl`. As a result, predators attack regardless of toxicity,
-so high-toxicity agents gain no survival advantage, and selection keeps toxicity near its
-initial mean. The one active mimicry effect is `apply_toxicity_costs!`, which deducts
-`toxicity_cost_per_tick × toxicity` per tick from all live agents; with the default cost
-of 0.5 and initial toxicity of 0.1, this is 0.05 energy/tick — negligible at current
-energy budgets. Full coevolutionary dynamics will emerge once the avoidance call site is
-integrated into the predator tick.
+**What we found (post-0.3.0 kernel).** Running with `mimicry = TRUE`,
+2 predators, 80 agents, default grid, `toxicity_init_mean = 0.1`, 400 ticks
+(seed 42): `mean_toxicity` *declined* from 0.101 to 0.047 across the run, the
+*opposite* of the naive expectation. `n_avoided_attacks` stayed at 0 and
+`n_toxic_attacks` stayed at 0 — at this low predation density the
+predators don't encounter enough toxic prey for Rescorla-Wagner learning to
+exceed `avoid_threshold`, so no avoidance fires. `should_avoid_prey()` IS
+correctly wired into `tick_predators.jl` (the architectural stub described
+here before 0.3.0 was fixed), but without effective predator pressure
+toxicity is pure cost: `toxicity_cost_per_tick = 2.0` (raised from 0.5 in
+0.3.0 for Zahavi-handicap honesty) deducts 0.2 energy/tick at init toxicity
+and more as agents drift toward it, so selection purges toxicity.
+
+**To see aposematism evolve, raise predation density** (e.g.
+`n_predators_init = 6L` and `predator_attack_strength = 60`) or reduce
+`toxicity_cost_per_tick` back toward 0.5. The CMA-ES-discovered regime
+in the Calibrated regime section above keeps the cost low (0.28) and
+tunes `toxin_dose` to yield a 21× fitness improvement — consistent
+with the biological requirement that the handicap cost must be less
+than the survival payoff for aposematism to evolve (Zahavi 1975,
+Ruxton, Sherratt & Speed 2004).
+
+**Batesian mode (0.3.0 new).** Set `s$batesian_mimicry <- TRUE` to let
+palatable mimics (toxicity = 0) share in learned aversion (Bates 1862).
+Predator-betrayal decay then regulates the mimic frequency.
 
 ### Discovery experiments
 
