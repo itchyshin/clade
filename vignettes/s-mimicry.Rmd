@@ -35,9 +35,16 @@ prey that resemble toxic prey are also avoided (Batesian mimicry).
 | `toxin_dose` | 2.0 | Damage dealt to attacker per toxicity unit |
 | `signal_memory` | 20 | Predator memory window for learning |
 
-**Expected output.** `mean_toxicity` evolves upward under predator pressure.
-`n_avoided_attacks` increases as predators learn. `n_toxic_attacks` may peak
-and then decline as predators avoid toxic prey.
+**Expected output at displayed defaults.** With only 5 predators and
+`toxicity_cost_per_tick = 2.0` (raised in 0.3.0 for Zahavi-handicap
+honesty), predator encounter density is too low for avoidance learning to
+exceed `avoid_threshold` within 300 ticks — predators attack indiscriminately.
+The per-tick toxicity cost is then pure loss, so selection purges toxicity:
+`mean_toxicity` declines from the init value toward zero. To observe the
+classical upward-evolution signature (Müllerian aposematism), either (a)
+raise `n_predators_init` to 10–15L and extend `max_ticks` to ≥ 1000, or (b)
+use the **Calibrated regime** below, which CMA-ES discovered by dropping the
+toxicity cost and tuning the `toxin_dose` / `signal_memory_rate` pair.
 
 ```{r mimicry}
 s <- default_specs()
