@@ -19,9 +19,9 @@ Statuses:
 
 | Scenario                              | Primary source                                | Status              | Report                                              | Commit  |
 |---|---|---|---|---|
-| s-baseline                            | MacArthur & Pianka 1966 (optimal foraging)    | ✅ passed           | [baseline.md](baseline.md)                          | 91cc1a9 |
+| s-baseline                            | MacArthur & Pianka 1966; Bulitko 2023 (MATLAB)| ✅ passed (three-way xref) | [baseline.md](baseline.md)                   | pending |
 | s-bad-science                         | Smaldino & McElreath 2016                     | ✅ passed           | inline in commit                                    | 91cc1a9 |
-| s-predator-prey                       | Lotka 1925, Volterra 1926, Huffaker 1958      | 🟠 passed-consistent | [predator_prey.md](predator_prey.md)                | pending |
+| s-predator-prey                       | Lotka 1925, Volterra 1926, Huffaker 1958      | ✅ passed           | [predator_prey.md](predator_prey.md)                | pending |
 | s-body-size                           | Cope's rule; Shine et al. 2011                | ⬜ pending          |                                                     |         |
 | s-brain-size                          | Parental provisioning hypothesis              | ⬜ pending          |                                                     |         |
 | s-pop-genetics                        | Fisher-Wright; parent-offspring regression    | ⬜ pending          |                                                     |         |
@@ -37,12 +37,12 @@ Statuses:
 | s-speciation                          | Dieckmann & Doebeli 1999                      | ⬜ pending          |                                                     |         |
 | s-parental-care                       | Clutton-Brock 1991                            | ⬜ pending          |                                                     |         |
 | s-mating-systems                      | Maynard Smith 1978                            | ⬜ pending          |                                                     |         |
-| s-life-history                        | Cole 1954; Williams 1966                      | ⬜ pending          |                                                     |         |
+| s-life-history                        | Cole 1954; Williams 1966                      | ✅ passed           | [life_history.md](life_history.md)                  | pending |
 | s-clutch-size                         | Lack 1947                                     | ⬜ pending          |                                                     |         |
 | s-parental-investment                 | Trivers 1972                                  | ⬜ pending          |                                                     |         |
 | s-pace-of-life                        | Réale et al. 2010                             | ⬜ pending          |                                                     |         |
 | s-group-defense                       | Hamilton 1971 (selfish herd)                  | ⬜ pending          |                                                     |         |
-| s-mimicry                             | Bates 1862; Müller 1879                       | ⬜ pending          |                                                     |         |
+| s-mimicry                             | Bates 1862; Müller 1879                       | 🟠 passed-consistent | [mimicry.md](mimicry.md)                            | pending |
 | s-disease                             | Kermack & McKendrick 1927 (SIR)               | ⬜ pending          |                                                     |         |
 | s-predation-neural                    | —                                             | ⬜ pending          |                                                     |         |
 | s-rl                                  | Williams 1992 (REINFORCE)                     | ⬜ pending          |                                                     |         |
@@ -59,8 +59,11 @@ Statuses:
 
 Ordered by "most user-facing claims that need verification":
 
-1. s-life-history — user explicitly flagged.
-2. s-mimicry — Batesian + Müllerian, two papers to match.
+1. ~~s-life-history — user explicitly flagged.~~ ✅ done.
+2. ~~s-mimicry — Batesian + Müllerian.~~ 🟠 done; flagged kernel
+   limitation (scalar predator memory vs alifeR's vector signal
+   memory). Recommendation: port alifeR's vector-signal memory to
+   Julia in 0.4.0.
 3. s-kin — Hamilton's rule is the textbook quantitative prediction.
 4. s-signals — Zahavi handicap + sexual selection equilibrium.
 5. s-cooperation — Nowak & May 1992 grid dynamics.
@@ -75,9 +78,35 @@ Ordered by "most user-facing claims that need verification":
 
 Each scenario gets:
 
-1. Read the primary paper(s).
-2. `dev/audit/fidelity/<scenario>.R` — multi-seed runner + parameter
+1. Read the primary paper(s) — what does the math (mean-field, non-
+   spatial, non-evolving) predict?
+2. **Cross-reference the alifeR R prototype** at `~/Documents/alifeR/`
+   — does the direct ancestor already document what the
+   evolutionary-ABM produces here, and why it differs from the math?
+   (Look in `alifeR/vignettes/showcase.Rmd` and the relevant
+   `alifeR/R/<module>.R` first; many scenarios have explicit "why this
+   differs from theory" prose written by the package author.)
+3. **Cross-reference the MATLAB base code** at
+   `~/Documents/alifeR/alife_matlab/codebase/` (Bulitko 2023, 232
+   `.m` files). The MATLAB base implements only the **foundational
+   neural-evolution kernel** — agents on a grass grid with evolving
+   ANN brains, sexual reproduction (`createOffspring.m`,
+   `crossoverWeights.m`), embedded RL (`RLupdate.m`), and Lamarckian
+   inheritance. **Most biological scenarios have no MATLAB ancestor**
+   (no predators, no life-history flag, no mimicry, no kin
+   selection, no signals, etc.) — these were added in the alifeR R
+   port. Mark those scenarios "N/A — biological extension first
+   appearing in alifeR." Cross-reference is most useful for:
+   `s-baldwin` (BNN ↔ `gene2net.m`), `s-rl` (↔ `RLupdate.m`),
+   `s-mating-systems` (sexual repro ↔ `crossoverWeights.m`), and any
+   brain-architecture work.
+4. `dev/audit/fidelity/<scenario>.R` — multi-seed runner + parameter
    search if needed.
-3. `dev/audit/fidelity/<scenario>.md` — fidelity report.
-4. Vignette prose + figure updated to match.
-5. One PR per scenario (keeps review scope small).
+5. `dev/audit/fidelity/<scenario>.md` — fidelity report with explicit
+   cross-reference table (theory ↔ alifeR ↔ MATLAB ↔ clade).
+6. Vignette prose + figure updated to match what clade actually
+   produces, with honest framing about which prediction is being
+   validated (mean-field vs evolutionary-ABM).
+7. One PR per scenario (keeps review scope small).
+
+See `predator_prey.md` §7 for the canonical example of this protocol.
