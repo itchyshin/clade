@@ -194,6 +194,7 @@ Enable with `niche_construction = TRUE`.
 | `shelter_min_energy` | 40.0 | Minimum donor energy to build |
 | `shelter_max_depth` | 5 | Maximum shelter units per cell |
 | `shelter_decay_rate` | 0.02 | Fraction of shelters lost per tick |
+| `shelter_occupancy_bonus` | 0.0 | (0.3.0) When > 0, agents on a shelter cell receive `bonus × depth` energy per tick — the Odling-Smee, Laland & Feldman (2003) heritable-niche effect |
 
 ---
 
@@ -238,8 +239,10 @@ Enable with `mimicry = TRUE`.
 
 | Parameter | Default | Description |
 |---|---|---|
-| `mimicry` | FALSE | Enable toxicity and predator learning |
+| `mimicry` | FALSE | Enable toxicity and predator learning (Müllerian by default) |
+| `batesian_mimicry` | FALSE | (0.3.0) Enable Batesian mimicry: palatable prey (toxicity = 0) exploit learned aversion; predator-betrayal decay prevents runaway cheating (Bates 1862) |
 | `toxicity_init_mean` | 0.0 | Starting toxicity |
+| `toxicity_cost_per_tick` | 2.0 | Per-tick energy cost for toxicity > 0 (raised from 0.5 in 0.3.0 for Zahavi-handicap honesty) |
 | `toxin_dose` | 2.0 | Damage per toxicity unit per attack |
 | `signal_memory` | 20 | Predator memory window (Rescorla-Wagner) |
 
