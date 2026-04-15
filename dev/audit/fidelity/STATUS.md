@@ -23,7 +23,7 @@ Statuses:
 | s-bad-science                         | Smaldino & McElreath 2016                     | ✅ passed           | inline in commit                                    | 91cc1a9 |
 | s-predator-prey                       | Lotka 1925, Volterra 1926, Huffaker 1958      | ✅ passed           | [predator_prey.md](predator_prey.md)                | pending |
 | s-body-size                           | Cope's rule; Shine et al. 2011                | 🟠 passed-consistent | [body_size.md](body_size.md)                        | pending |
-| s-brain-size                          | Parental provisioning hypothesis              | ⬜ pending          |                                                     |         |
+| s-brain-size                          | Parental provisioning hypothesis              | 🟠 passed-consistent | [brain_size.md](brain_size.md)                      | pending |
 | s-pop-genetics                        | Fisher-Wright; parent-offspring regression    | ⬜ pending          |                                                     |         |
 | s-stress-hypermutation                | Rosenberg 2001; Foster 2007                   | ⬜ pending          |                                                     |         |
 | s-complex-landscape                   | —                                             | ⬜ pending          |                                                     |         |
@@ -35,8 +35,8 @@ Statuses:
 | s-cooperation                         | Nowak & May 1992                              | ✅ passed           | [cooperation.md](cooperation.md)                    | pending |
 | s-signals                             | Zahavi 1975; Iwasa & Pomiankowski 1994        | ✅ passed           | [signals.md](signals.md)                            | pending |
 | s-speciation                          | Dieckmann & Doebeli 1999                      | ✅ passed           | [speciation.md](speciation.md)                      | pending |
-| s-parental-care                       | Clutton-Brock 1991                            | ⬜ pending          |                                                     |         |
-| s-mating-systems                      | Maynard Smith 1978                            | ⬜ pending          |                                                     |         |
+| s-parental-care                       | Clutton-Brock 1991                            | ✅ passed           | [parental_care.md](parental_care.md)                | pending |
+| s-mating-systems                      | Maynard Smith 1978                            | 🟠 passed-consistent | [mating_systems.md](mating_systems.md)              | pending |
 | s-life-history                        | Cole 1954; Williams 1966                      | ✅ passed           | [life_history.md](life_history.md)                  | pending |
 | s-clutch-size                         | Lack 1947; r/K (MacArthur & Wilson 1967)      | ✅ passed           | [clutch_size.md](clutch_size.md)                    | pending |
 | s-parental-investment                 | Trivers 1972                                  | 🟠 passed-consistent | [parental_investment.md](parental_investment.md)    | pending |
@@ -47,8 +47,8 @@ Statuses:
 | s-predation-neural                    | —                                             | ⬜ pending          |                                                     |         |
 | s-rl                                  | Williams 1992 (REINFORCE)                     | ⬜ pending          |                                                     |         |
 | s-social-learning                     | Boyd & Richerson 1985                         | ⬜ pending          |                                                     |         |
-| s-plasticity                          | Pigliucci 2001                                | ⬜ pending          |                                                     |         |
-| s-baldwin                             | Hinton & Nowlan 1987                          | ⬜ pending          |                                                     |         |
+| s-plasticity                          | Pigliucci 2001                                | 🟠 passed-consistent | [plasticity.md](plasticity.md)                      | pending |
+| s-baldwin                             | Hinton & Nowlan 1987                          | 🔴 contradicts       | [baldwin.md](baldwin.md)                            | pending |
 | s-cephalopod                          | —                                             | ⬜ pending          |                                                     |         |
 | s-module-comparison                   | —                                             | ⚪ N/A              |                                                     |         |
 | s-map-elites                          | Mouret & Clune 2015                           | ⬜ pending          |                                                     |         |
