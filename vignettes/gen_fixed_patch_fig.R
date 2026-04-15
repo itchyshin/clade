@@ -148,10 +148,16 @@ p <- pA / pB +
   )
 
 # ── Save ──────────────────────────────────────────────────────────────────────
-outname <- "showcase_bnn_fixed_patch_demo.png"
-ggsave(file.path("inst/figures",      outname), p,
-       width = 8, height = 6, dpi = 150)
-ggsave(file.path("vignettes/figures", outname), p,
-       width = 8, height = 6, dpi = 150)
-message("Saved: ", outname)
+# The figure tells the same 2-condition Baldwin-vs-epigenetics story
+# that `baldwin-effect.Rmd` invokes as `FIG("bnn_canalization_demo")`.
+# Save under both filenames so both vignettes stay in sync with the
+# regenerated kernel.
+for (outname in c("showcase_bnn_fixed_patch_demo.png",
+                  "showcase_bnn_canalization_demo.png")) {
+  ggsave(file.path("inst/figures",      outname), p,
+         width = 8, height = 6, dpi = 150)
+  ggsave(file.path("vignettes/figures", outname), p,
+         width = 8, height = 6, dpi = 150)
+  message("Saved: ", outname)
+}
 message("Done.")

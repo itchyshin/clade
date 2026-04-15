@@ -467,6 +467,55 @@ selects for maintained exploration.
 
 ---
 
+## Addendum: a calibrated regime where canalization emerges
+
+After the five original experiments, we ran clade's built-in CMA-ES
+search (`clade::search_cmaes`, driven by the harness under
+[`dev/audit/calibration/`](https://github.com/itchyshin/clade/tree/main/dev/audit/calibration))
+against the objective "negative slope of `mean_prior_sigma`" — i.e.
+reward any parameter regime that makes σ *narrow*. Full writeup at
+[`dev/audit/calibration/RESULTS.md`](https://github.com/itchyshin/clade/blob/main/dev/audit/calibration/RESULTS.md).
+
+The search found a regime that does produce canalization:
+
+```{r baldwin-calibrated, eval=FALSE}
+# Parameter overrides discovered by CMA-ES.
+s <- default_specs()
+s$brain_type              <- "bnn"
+s$n_agents_init           <- 80L
+s$max_ticks               <- 400L
+s$grass_rate              <- 0.027   # default 0.05 — scarcer resources
+s$learning_rate_init_mean <- 0.007   # default 0.01 — slower RL update
+# env <- run_alife(s)   # uncomment to run the calibrated regime
+```
+
+The resulting σ trajectory has a small but consistently **negative**
+slope (the observable fitness ratio is 1.2× over the default baseline
+in the calibration report, a sign-flip from the exploration-dominated
+regime). Canalization is weaker than Hinton & Nowlan's prediction
+because even at these specs, the clade foraging world does not have a
+truly stable peak — it has a shifting optimum driven by population
+competition. But the result confirms that canalization **is**
+accessible; it just requires scarcer resources and slower within-
+lifetime learning than the displayed defaults.
+
+Biological reading: in environments where foraging is costly and
+learning is slow, selection favours agents whose genome already
+encodes a close-to-optimal policy. Agents with wider priors (high σ)
+waste energy sampling low-reward actions and are outcompeted. In the
+abundant / fast-learning regime, high σ is protective because
+exploration finds good cells before starvation. The sign of selection
+on σ therefore hinges on the ratio of exploration cost to exploration
+benefit — exactly the Mayley (1996) framing.
+
+The five original experiments establish that at *commonly used*
+parameter defaults, canalization does not occur. The addendum
+establishes that canalization is not mechanistically impossible in
+clade — it just sits in a narrower parameter neighbourhood than the
+broader exploration regime.
+
+---
+
 ## References
 
 Baldwin, J.M. (1896) A new factor in evolution. *American Naturalist*

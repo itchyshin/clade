@@ -44,7 +44,7 @@ below maps all 35 scenarios to their biological theme.
 |---|---|---|
 | [Complex landscape](s-complex-landscape.html) | `complex_landscape` | Canopy/shrub/ground habitat partitioning |
 | [Dispersal, IFD & spatial sorting](s-dispersal-ifd.html) | `dispersal_evolution`, `spatial_sorting` | Evolved dispersal and habitat matching |
-| [Niche construction](s-niche.html) | `niche_construction` | Shelter building and grass-growth suppression |
+| [Niche construction](s-niche.html) | `niche_construction` (+ `shelter_occupancy_bonus`) | Shelter building, grass-growth suppression; heritable occupancy benefit (Odling-Smee 2003) |
 | [Seasonal dynamics](s-seasonal.html) | `seasonal_amplitude` | Resource cycles and life history buffering |
 | [Scavenging & carrion](s-scavenging.html) | `scavenging` | Energy recycling from dead agents |
 
@@ -86,7 +86,7 @@ below maps all 35 scenarios to their biological theme.
 |---|---|---|
 | [Predator-prey dynamics](s-predator-prey.html) | `n_predators_init` | Lotka-Volterra cycles in discrete space |
 | [Group defense](s-group-defense.html) | `group_defense` | Dilution of risk and vigilance |
-| [Mimicry & toxicity](s-mimicry.html) | `mimicry`, `toxicity` | Batesian/Müllerian mimicry coevolution |
+| [Mimicry & toxicity](s-mimicry.html) | `mimicry` (+ `batesian_mimicry`) | Müllerian aposematism by default; `batesian_mimicry = TRUE` enables palatable mimics exploiting learned aversion (Bates 1862) with predator-betrayal decay |
 | [SIR disease](s-disease.html) | `disease` | Epidemic dynamics and immune evolution |
 | [Predation & neural evolution](s-predation-neural.html) | `n_predators_init`, `brain_type` | Cognitive arms races |
 

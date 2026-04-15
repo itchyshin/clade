@@ -28,8 +28,10 @@ prey that resemble toxic prey are also avoided (Batesian mimicry).
 
 | Parameter | Default | Effect |
 |---|---|---|
-| `mimicry` | FALSE | Enable toxicity / predator learning |
+| `mimicry` | FALSE | Enable toxicity / predator learning (Müllerian by default) |
+| `batesian_mimicry` | FALSE | Enable Batesian mimicry: palatable prey (toxicity = 0) exploit learned signal aversion; predator-betrayal decay prevents runaway cheating (Bates 1862) |
 | `toxicity_init_mean` | 0.0 | Starting toxicity (0 = non-toxic) |
+| `toxicity_cost_per_tick` | 2.0 | Per-tick energy cost paid by agents with toxicity > 0 (Zahavi handicap; raised from 0.5 in v0.3.0) |
 | `toxin_dose` | 2.0 | Damage dealt to attacker per toxicity unit |
 | `signal_memory` | 20 | Predator memory window for learning |
 

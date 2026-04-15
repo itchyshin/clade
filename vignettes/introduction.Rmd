@@ -144,9 +144,9 @@ core simulation is a clean baseline of foraging, reproduction, and death.
 | Predators                 | `n_predators_init`                | Evolving predator agents pursue prey; predator numbers are set at initialisation.                |
 | Parental care             | `parental_care`                   | Offspring are carried until graduation; parent pays a per-tick care cost.                        |
 | Cooperative breeding      | `cooperative_breeding`            | Non-breeding helpers contribute energy to raise offspring in the same cell.                      |
-| Mimicry and toxicity      | `mimicry`                         | Heritable toxicity deters predators via Rescorla–Wagner avoidance learning.                      |
+| Mimicry and toxicity      | `mimicry` (+ `batesian_mimicry`)  | Heritable toxicity deters predators via Rescorla–Wagner avoidance learning. With `batesian_mimicry = TRUE`, palatable mimics exploit the learned aversion (Bates 1862) with predator-betrayal decay. |
 | Phenotypic plasticity     | `phenotypic_plasticity`           | Within-lifetime weight adjustment in response to experienced environments.                       |
-| Niche construction        | `niche_construction`              | Agents build shelters that protect against predators and slow grass regrowth on the cell.        |
+| Niche construction        | `niche_construction` (+ `shelter_occupancy_bonus`) | Agents build shelters that protect against predators and slow grass regrowth on the cell. With `shelter_occupancy_bonus > 0`: occupants of sheltered cells receive an energy subsidy proportional to shelter depth — heritable niche effect (Odling-Smee et al. 2003). |
 | Scavenging                | `scavenging`                      | Agents may consume carrion left behind by recently dead conspecifics.                            |
 | Disease (SIR)             | `disease`                         | Susceptible–infected–recovered transmission with energy costs and recovered immunity.            |
 | Kin selection             | `kin_selection`                   | Pedigree-based altruistic energy transfer to related neighbours (Hamilton 1964).                 |
