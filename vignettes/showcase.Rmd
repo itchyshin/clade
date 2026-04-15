@@ -399,6 +399,16 @@ several ticks before decaying stochastically. Shelter building is an extended
 phenotype that modifies the selective environment for subsequent generations
 (Odling-Smee, Laland & Feldman 2003).
 
+**Heritable niche benefit (0.3.0).** By default `shelter_occupancy_bonus = 0`,
+so the module is a local public good only — shelters persist beyond the
+builder's lifetime but confer no direct benefit to subsequent occupants.
+Set `specs$shelter_occupancy_bonus <- 0.1` (or similar) to enable the
+heritable niche-construction effect proper: agents occupying a sheltered cell
+receive `bonus × depth` energy per tick. Descendants of shelter-builders who
+cluster near ancestral constructions then out-compete lineages that disperse
+into unsheltered terrain — the Odling-Smee et al. (2003) eco-evolutionary
+feedback.
+
 ```{r niche-run, eval=FALSE}
 niche <- default_specs()
 niche$grid_rows          <- 30L; niche$grid_cols     <- 30L
@@ -865,6 +875,15 @@ with toxicity via Rescorla-Wagner updating of `signal_memory`. Over time,
 selection drives toxicity upward while predator avoidance co-evolves, producing
 the classic Mullerian dynamics between defended and undefended forms (Mallet &
 Joron 1999).
+
+**Batesian mode (0.3.0).** Setting `specs$batesian_mimicry <- TRUE` relaxes the
+avoidance rule so that palatable prey (toxicity = 0) whose signal matches a
+learned-aversive one ALSO escape attack — Batesian mimicry (Bates 1862).
+Predator "betrayal" decay (Rescorla-Wagner toward 0 when attacks on palatable
+mimics produce no toxin) prevents runaway cheating; the aversion memory fades
+as mimics proliferate, creating a self-regulating polymorphism. With the
+default `batesian_mimicry = FALSE`, the mimicry module is Mullerian-only —
+palatable prey gain no protection, matching the behaviour prior to 0.3.0.
 
 ```{r sec-21-code, eval=FALSE}
 library(clade)
@@ -1703,6 +1722,15 @@ favours those whose prior mean is already close to the optimal weight, reducing
 $\sigma$ as the effective learned behaviour becomes genetically encoded. The
 trajectory of `mean_prior_sigma` is therefore a direct window onto the Baldwin
 Effect in action.
+
+**Caveat (0.3.0 audit finding).** In clade's default competitive foraging
+world, σ *rises* to the exploration ceiling — no canalization — because the
+optimum shifts with population density and there is no stable adaptive peak.
+The dedicated
+[Baldwin Effect article](baldwin-effect.html) walks through five experiments
+establishing this, and documents a calibrated regime (`grass_rate ≈ 0.027`,
+`learning_rate_init_mean ≈ 0.007`) where canalization *does* emerge,
+discovered via CMA-ES auto-calibration (`dev/audit/calibration/`).
 
 ```{r sec-34-code, eval=FALSE}
 library(clade)
