@@ -23,11 +23,12 @@ Genetic diversity is maintained: neither fixation nor unbounded growth.
 library(clade)
 
 s <- default_specs()
-s$grid_rows     <- 20L
-s$grid_cols     <- 20L
-s$n_agents_init <- 40L
-s$max_ticks     <- 300L
-s$random_seed   <- 1L
+s$grid_rows     <- 30L
+s$grid_cols     <- 30L
+s$n_agents_init <- 100L
+s$max_ticks     <- 500L
+s$grass_rate    <- 0.15
+s$random_seed   <- 42L
 
 env  <- run_alife(s)
 data <- get_run_data(env)
@@ -42,18 +43,23 @@ Expected output: six-panel run summary showing population dynamics, mean
 energy, genetic diversity, births/deaths, grass coverage, and BNN sigma.
 
 **What we found.** Running 100 agents on a 30×30 grid for 500 ticks
-(seed 42), `grass_rate = 0.15`: population ranged from 155 to 401 (mean
-285), showing density-dependent regulation against a carrying capacity
-of ~400 imposed by the energy budget. Mean energy rose from 115 (early)
-to 131 (late) as foraging strategies improved under selection. Genetic
-diversity increased from 0.17 at tick 50 to 0.39 at tick 450, reflecting
-divergence of neural genome lineages rather than selective sweep toward
-a single optimum: the spatial structure of the resource landscape
-supports multiple foraging strategies simultaneously. Total births =
-727, deaths = 591 over 500 ticks, a persistent turnover of ~1.5
-generations per 100 ticks. Grass coverage was stable at 0.39–0.41,
-slightly below the maximum reachable without grazing, indicating active
-consumption.
+(seed 42), `grass_rate = 0.15`: population ranged from 143 to 402 (mean
+283), showing density-dependent regulation against a carrying capacity
+of ~400 imposed by the energy budget. Mean energy was stable near 130
+throughout the run (129.6 at tick 50, 130.6 at tick 450) — foraging is
+already near-optimal in the default parameterisation, so there is little
+room for selection to raise mean energy within 500 ticks. Genetic
+diversity increased from 0.178 at tick 50 to 0.386 at tick 450,
+reflecting divergence of neural genome lineages rather than selective
+sweep toward a single optimum: the spatial structure of the resource
+landscape supports multiple foraging strategies simultaneously. Total
+births = 727, deaths = 587 over 500 ticks, a persistent turnover of ~1.5
+generations per 100 ticks. Grass coverage oscillated in 0.23–0.52 as
+agents grazed down and resources regrew, consistent with active
+consumer–resource dynamics. Verified over 10 seeds in
+`dev/audit/fidelity/baseline.md`; running the displayed code (a single
+seed) is sufficient to reproduce the trends though not the exact
+numbers.
 
 ### Discovery experiments
 

@@ -1,0 +1,92 @@
+# clade: Agent-Based Evolutionary Simulation with Julia Backend
+
+`clade` provides agent-based simulations of evolution, foraging ecology,
+and social behaviour. The R layer is an interface; the per-tick
+simulation kernel runs in Julia via
+[JuliaConnectoR](https://rdrr.io/pkg/JuliaConnectoR/man/juliaEval.html),
+so the R↔Julia boundary is crossed exactly once per
+[`run_alife()`](run_alife.md) call.
+
+## Details
+
+### Getting started
+
+    specs <- default_specs()
+    specs$n_agents_init <- 40L
+    specs$max_ticks     <- 300L
+    env  <- run_alife(specs)
+    data <- get_run_data(env)
+    plot_run(data)
+
+First call to [`run_alife()`](run_alife.md) precompiles the Julia kernel
+(~10–90 s, once per Julia session).
+
+### Key entry points
+
+- [`default_specs()`](default_specs.md) — canonical parameter list;
+  modify and pass to [`run_alife()`](run_alife.md).
+
+- [`run_alife()`](run_alife.md) / [`run_clade()`](run_clade.md) — run a
+  single simulation.
+
+- [`batch_alife()`](batch_alife.md) — run many specs lists (parallel via
+  [parallel::mclapply](https://rdrr.io/r/parallel/mclapply.html)).
+
+- [`get_run_data()`](get_run_data.md) — extract `$ticks` and `$deaths`
+  data frames from an env.
+
+- [`plot_run()`](plot_run.md) — population / energy / diversity
+  dashboard.
+
+- [`search_cmaes()`](search_cmaes.md) /
+  [`search_map_elites()`](search_map_elites.md) /
+  [`search_gradient()`](search_gradient.md) — parameter search driven by
+  a user-supplied fitness function.
+
+- [`register_module()`](register_module.md) — attach a custom per-tick R
+  hook (rarely needed — most modules live on the Julia side).
+
+### Biological modules
+
+All modules are disabled by default and enabled with a single flag in
+the specs list. See the `README.md` module table and
+[vignettes/parameter-reference.Rmd](../doc/parameter-reference.md) for
+the full list with defaults and expected effects.
+
+### Brain architectures
+
+Set `specs$brain_type`:
+
+- `"bnn"` (default) — Bayesian neural network with Thompson-sampled
+  weights and REINFORCE posterior updates (Williams 1992; Blundell et
+  al. 2015).
+
+- `"ann"` — standard multilayer perceptron.
+
+- `"ctrnn"` — continuous-time recurrent network (Beer 1995).
+
+- `"grn"` — sparse gene-regulatory network topology.
+
+- `"transformer"` — self-attention (highest capacity, slowest).
+
+- `"synthesis"` — symbolic rule extraction from evolved weights.
+
+### Citation
+
+Nakagawa, S. (2026). clade: Agent-based evolutionary simulation with a
+Julia backend. R package version 0.3.0.
+<https://github.com/itchyshin/clade>
+
+## See also
+
+Useful links:
+
+- <https://itchyshin.github.io/clade/>
+
+- <https://github.com/itchyshin/clade>
+
+- Report bugs at <https://github.com/itchyshin/clade/issues>
+
+## Author
+
+**Maintainer**: Shinichi Nakagawa <s.nakagawa@unsw.edu.au>

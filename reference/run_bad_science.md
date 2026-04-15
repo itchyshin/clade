@@ -2,9 +2,11 @@
 
 Implements the agent-based model from Smaldino & McElreath (2016).
 "Labs" (agent groups) have heritable `research_power` (W; the
-probability that a given study tests a true hypothesis) and
-`research_effort` (e; investment in methodological rigour). The
-false-positive rate per study is
+probability of detecting a real effect when the hypothesis under test is
+true) and `research_effort` (e; methodological rigour, which lowers the
+per-test false-positive rate). Each tick, a lab tests
+`n_studies_per_tick` hypotheses, each of which is a priori true with
+probability `base_rate_true` (b). Pub counts are
 
 ## Usage
 
@@ -14,6 +16,9 @@ run_bad_science(
   n_ticks = 500L,
   n_studies_per_tick = 5L,
   replication_rate = 0,
+  replication_penalty = 5,
+  alpha_base = 0.5,
+  base_rate_true = 0.3,
   research_power_init_mean = 0.3,
   research_effort_init_mean = 0.8,
   mutation_sd = 0.05,
@@ -38,10 +43,30 @@ run_bad_science(
 - replication_rate:
 
   Numeric in \[0, 1\]; probability per tick that a lab attempts to
-  replicate one of a random neighbour's published findings. Replication
-  does not penalise false positives; it only tracks `failed_reps`
-  (attempts that fail because the original was a false positive).
-  Default 0.
+  replicate one of a random neighbour's published findings. A failed
+  replication (original was a false positive) debits the original lab's
+  publication count by `replication_penalty`. Default 0.
+
+- replication_penalty:
+
+  Numeric \\\geq 0\\; publication credits subtracted from the original
+  lab when a replication attempt fails. Set to 0 to recover the
+  "replication without cost" behaviour. Default 5.
+
+- alpha_base:
+
+  Numeric in (0, 1\]; per-test false-positive rate at zero effort. FPR
+  at effort `e` is `alpha_base * (1 - e)`. Default 0.5, matching
+  Smaldino & McElreath's \\\alpha_0\\.
+
+- base_rate_true:
+
+  Numeric in (0, 1); prior probability that a tested hypothesis is
+  genuinely true. Default 0.3. Higher values mean a larger share of
+  publications are true positives, which sharpens replication's ability
+  to discriminate low-effort labs; very low values (\< 0.15) swamp
+  replication's signal because almost every publication is a false
+  positive regardless of effort.
 
 - research_power_init_mean:
 
@@ -90,13 +115,19 @@ A data frame with one row per tick and columns:
 
 ## Details
 
-alpha = W / (1 + (1 - W) \* e)
+true positives ~ Binomial(n_studies \* b, W) false positives ~
+Binomial(n_studies \* (1 - b), alpha(e))
 
-Each tick, each lab produces `n_studies_per_tick` studies yielding some
-mix of true positives (probability W) and false positives (probability
-alpha among studies that did not find a true effect). Labs with more
-publications reproduce at higher rates. Optional replication attempts
-slow but do not stop the deterioration of research standards.
+with `alpha(e) = alpha_base * (1 - e)`. The per-test FPR depends on
+effort only, **not** on W, matching Smaldino & McElreath's formulation.
+Labs with more publications reproduce at higher rates. If
+`replication_rate > 0`, each lab has that probability per tick of
+replicating a random peer's random finding; a failed replication
+(original was a false positive, which happens with probability
+`alpha(1-b) / (Wb + alpha(1-b))`) debits the original lab's publication
+count by `replication_penalty`. With a large enough penalty, replication
+culture selects against low-effort labs and slows or reverses the
+evolution of high FPR.
 
 ## References
 

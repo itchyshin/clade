@@ -136,31 +136,37 @@
 <h3 id="evolution-of-bad-science">Evolution of bad science<a class="anchor" aria-label="anchor" href="#evolution-of-bad-science"></a>
 </h3>
 <p><strong>What it models.</strong> A pure-R simulation (no Julia
-required) of Smaldino &amp; McElreath (2016). Labs compete for citations
-via cumulative publications. The false-positive rate (FPR) per study is
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mo>=</mo><mi>W</mi><mi>/</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>+</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>W</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>⋅</mo><mi>e</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\alpha = W / (1 + (1-W) \cdot e)</annotation></semantics></math>,
-where
+required) of Smaldino &amp; McElreath (2016). Each of
+<code>n_labs</code> labs has two heritable traits: research power
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>W</mi><annotation encoding="application/x-tex">W</annotation></semantics></math>
-is research power (probability of testing a true hypothesis) and
+(probability of detecting a true effect when the hypothesis under test
+is real) and research effort
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>e</mi><annotation encoding="application/x-tex">e</annotation></semantics></math>
-is research effort (investment in methodological rigour). Under
-publication pressure the top-50%-by-publications labs reproduce each
-tick; low-effort labs accumulate more publications, so low
+(methodological rigour). Each tick, a lab tests
+<code>n_studies_per_tick</code> hypotheses, each a priori true with
+probability <code>base_rate_true</code>
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math>).
+The per-test false-positive rate is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>e</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><msub><mi>α</mi><mtext mathvariant="normal">base</mtext></msub><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>e</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\alpha(e) = \alpha_{\text{base}} (1 - e)</annotation></semantics></math>
+— it depends on effort only, not on
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>W</mi><annotation encoding="application/x-tex">W</annotation></semantics></math>,
+matching Smaldino &amp; McElreath’s formulation. Under publication
+pressure the top-50%-by-publications labs reproduce each tick;
+low-effort labs accumulate more publications via false positives, so low
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>e</mi><annotation encoding="application/x-tex">e</annotation></semantics></math>
 spreads by selection.</p>
-<p><strong>What it finds.</strong> Running 500 labs for 500 ticks (seed
-= 42), mean FPR rises from 0.192 at tick 1 to 0.238 (no replication),
-0.297 (10% replication), and 0.283 (50% replication) by tick 500.
-Counterintuitively, replication accelerates FPR evolution rather than
-slowing it: the no-replication condition ends lowest. This reveals a key
-feature of the implementation: <code><a href="../reference/run_bad_science.html">run_bad_science()</a></code> tracks
-failed replication attempts but does not penalise the originating lab —
-failed replications do not reduce <code>pubs</code>. Without a fitness
-penalty, replication tracking adds publication opportunities that
-high-FPR labs exploit equally well, amplifying their competitive
-advantage. Research effort declines from 0.801 to 0.762–0.789 across all
-conditions, with the 10% replication condition showing the steepest
-decline.</p>
+<p>If <code>replication_rate &gt; 0</code>, each lab has that
+probability per tick of replicating a random peer’s random finding. A
+failed replication (original was a false positive, with probability
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>b</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>/</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>W</mi><mi>b</mi><mo>+</mo><mi>α</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>b</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\alpha(1-b) / (Wb + \alpha(1-b))</annotation></semantics></math>)
+debits the original lab’s publication count by
+<code>replication_penalty</code> (default 5), operationalising the
+reputational cost of published-then-overturned findings.</p>
+<p><strong>What S&amp;M 2016 predicted.</strong> (i) Without
+replication, effort declines and FPR rises over ~100–400 generations.
+(ii) Replication slows this decay as its rate increases, but does not
+fully reverse it at realistic rates. (iii) Structural reform of
+incentives (not just more replication) is needed to fix the problem.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># No Julia required — runs entirely in R</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
@@ -192,74 +198,96 @@ decline.</p>
 <span><span class="va">p1</span> <span class="op">/</span> <span class="va">p2</span> <span class="op">+</span> <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_layout.html" class="external-link">plot_layout</a></span><span class="op">(</span>guides <span class="op">=</span> <span class="st">"collect"</span><span class="op">)</span> <span class="op">&amp;</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_bad_science.png" class="r-plt" alt="Evolution of bad science (Smaldino &amp; McElreath 2016). Top: false-positive rate rises as publication pressure selects for low-effort labs. Bottom: research effort declines in parallel. The no-replication condition (red) ends with the lowest FPR (0.238), while 10% (orange) and 50% (blue) replication reach 0.297 and 0.283 respectively — replication without penalty amplifies, not dampens, FPR evolution. No Julia session required." width="100%"><p class="caption">
-Evolution of bad science (Smaldino &amp; McElreath 2016). Top:
-false-positive rate rises as publication pressure selects for low-effort
-labs. Bottom: research effort declines in parallel. The no-replication
-condition (red) ends with the lowest FPR (0.238), while 10% (orange) and
-50% (blue) replication reach 0.297 and 0.283 respectively — replication
-without penalty amplifies, not dampens, FPR evolution. No Julia session
-required.
+<img src="figures/showcase_bad_science.png" class="r-plt" alt="Evolution of bad science with replication penalty (mean of 10 seeds). Top: false-positive rate. Bottom: research effort. No-replication (red): FPR rises from 0.10 to 0.147, effort falls to 0.71 — the canonical S&amp;M result. 50% replication (blue): FPR stabilises near 0.10, effort holds at 0.81 — replication culture selects against low-effort labs. 10% replication (orange): FPR overshoots to 0.18 — weak replication is worse than none, a finding of this model not reported by S&amp;M. No Julia session required." width="100%"><p class="caption">
+Evolution of bad science with replication penalty (mean of 10 seeds).
+Top: false-positive rate. Bottom: research effort. No-replication (red):
+FPR rises from 0.10 to 0.147, effort falls to 0.71 — the canonical
+S&amp;M result. 50% replication (blue): FPR stabilises near 0.10, effort
+holds at 0.81 — replication culture selects against low-effort labs. 10%
+replication (orange): FPR overshoots to 0.18 — weak replication is worse
+than none, a finding of this model not reported by S&amp;M. No Julia
+session required.
 </p>
 </div>
 <p><strong>What we found.</strong> Running
-<code>run_bad_science(n_ticks = 500L, seed = 42L)</code> for three
-replication rates (0%, 10%, 50%): all conditions begin at FPR = 0.192,
-effort = 0.801. By tick 500, the no-replication condition reaches FPR =
-0.238 (effort 0.789) — the lowest of the three. The 10% replication
-condition reaches FPR = 0.297 (effort 0.762) and the 50% condition
-reaches FPR = 0.283 (effort 0.780). Replication without penalty makes
-things worse, not better. The mechanism: when a lab’s published result
-is replicated, even a failed replication still involves the target lab’s
-original paper accumulating a citation. High-FPR labs generate many
-false-positive results, which other labs attempt to replicate at a
-higher rate than true findings — so high-FPR labs receive
-disproportionately many replication citations, amplifying their fitness
-advantage. The key missing ingredient, as the Discovery prompts explore,
-is a fitness cost attached to failed replications.</p>
+<code>run_bad_science(n_ticks = 500L, replication_rate = rr)</code>
+across 10 seeds (<code>seed = 1..10</code>) for three replication rates,
+all conditions start at FPR = 0.100, effort = 0.801:</p>
+<table class="table">
+<thead><tr class="header">
+<th>Replication rate</th>
+<th>Mean FPR (tick 500)</th>
+<th>Mean effort (tick 500)</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>0.0 (none)</td>
+<td><strong>0.147 ± 0.016</strong></td>
+<td>0.706 ± 0.031</td>
+</tr>
+<tr class="even">
+<td>0.1 (weak)</td>
+<td><strong>0.179 ± 0.028</strong></td>
+<td>0.642 ± 0.056</td>
+</tr>
+<tr class="odd">
+<td>0.5 (strong)</td>
+<td><strong>0.096 ± 0.058</strong></td>
+<td>0.808 ± 0.117</td>
+</tr>
+</tbody>
+</table>
+<p>Three take-aways:</p>
+<ol style="list-style-type: decimal">
+<li>
+<strong>Bad science evolves when unchecked</strong> (rr = 0): effort
+erodes, FPR rises — reproducing S&amp;M’s main finding.</li>
+<li>
+<strong>Strong replication works</strong> (rr = 0.5): FPR stays at
+baseline levels, effort holds near its initial value. Replication
+culture can discipline research norms when the penalty is real and
+sampling is frequent.</li>
+<li>
+<strong>Weak replication is worse than none</strong> (rr = 0.1): FPR
+overshoots no-replication. This is a finding of this model that S&amp;M
+did not report — possibly because our discrete-time sampling introduces
+noise that, at low replication rates, pushes selection below the
+threshold needed to discriminate effort. It is listed as discovery
+experiment 1 below.</li>
+</ol>
 </div>
 <div class="section level3">
 <h3 id="discovery-experiments">Discovery experiments<a class="anchor" aria-label="anchor" href="#discovery-experiments"></a>
 </h3>
-<p>The baseline confirms FPR evolution under publication pressure, but
-reveals that replication tracking without fitness consequences cannot
-dampen it. To go further:</p>
+<p>The baseline reproduces S&amp;M 2016 qualitatively: bad science
+evolves when unchecked, strong replication disciplines it. Open
+questions to explore:</p>
 <ol style="list-style-type: decimal">
-<li>
-<p><strong>Penalty structure.</strong> Modify
-<code><a href="../reference/run_bad_science.html">run_bad_science()</a></code> to subtract from <code>pubs</code> of the
-original lab when a replication fails (e.g.,
-<code>pubs[j] &lt;- pubs[j] - 1L</code>). At what penalty magnitude does
-50% replication start to visibly slow FPR evolution? Is there a
-threshold, or a continuous dose-response?</p>
-<p><em>Tried it.</em> Penalty sweep over 200 labs, 500 ticks, 50%
-replication rate, seed 42: penalty=0 → FPR=0.283 (baseline); penalty=1 →
-FPR=0.247 (slight improvement); penalty=2 → FPR=0.418; penalty=5 →
-FPR=0.485; penalty=10 → FPR=0.591. Small penalties help; large ones
-backfire. The mechanism: heavily penalised labs drop out of the top-50%
-reproduction pool, promoting even lower-quality labs into the parent
-pool faster than selection can eliminate them. The optimal penalty is
-approximately 1 publication unit — beyond that, tournament-selection
-dynamics produce an overshoot.</p>
-</li>
-<li>
-<p><strong>Effort-based fitness.</strong> Instead of raw
-publications, select on true-positive publications only
-(<code>n_true</code>, not <code>n_true + n_false</code>). Does this
-shift selection toward higher <code>effort</code> and lower FPR? Compare
-with a citation-weighted model where replicated findings earn citation
-multipliers.</p>
-<p><em>Tried it.</em> Modifying the tournament selection to use
-<code>n_true</code> instead of total <code>pubs</code> (200 labs, 500
-ticks, seed 42): FPR = 0.192 at tick 0, ending at 0.193 at tick 500 —
-essentially flat. Selecting on true-positive publications alone
-eliminates FPR evolution entirely: labs have no selective incentive to
-publish false positives if those publications provide no fitness
-benefit. The critical mechanism is that <code>n_true</code> fitness
-selection decouples publication count from reproductive success — a
-direct operationalisation of the “registered reports” model where only
-methodologically sound studies are published.</p>
-</li>
+<li><p><strong>The weak-replication penalty.</strong> Our 10%
+replication-rate condition has FPR higher than the no-replication
+control — weak replication is worse than none. Is this an artefact of
+discrete-time sampling (each tick is a Bernoulli draw on whether any
+replication happens), or does it persist under continuous-time
+formulations? Sweep <code>replication_rate</code> from 0.02 to 0.5 in
+0.02 steps at <code>replication_penalty = 5</code> and look for the
+crossover.</p></li>
+<li><p><strong>Penalty magnitude.</strong> The replication penalty is a
+single scalar. Sweep it from 0 to 20 at fixed
+<code>replication_rate = 0.5</code> to locate the dose- response curve.
+Is there a threshold below which replication has no effect, or is it
+continuous? Smaldino’s original paper treats penalty as tied to the
+reputation cost of a retraction — what magnitude corresponds to typical
+academic retractions?</p></li>
+<li><p><strong>Structural reform: <code>base_rate_true</code>.</strong>
+Replication fails more often when more published findings are true
+positives. Raising <code>base_rate_true</code> from 0.3 to 0.7
+(simulating a field that pre-registers hypotheses and tests only
+well-motivated ones) should make replication far more effective because
+failed-replication probability now discriminates low- from high-effort
+labs more sharply. Verify by sweeping
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math>
+at fixed <code>replication_rate = 0.1</code> — does weak replication
+start to help once hypothesis prevalence is high enough?</p></li>
 <li>
 <p><strong>Structural heterogeneity.</strong> Run with a mixture of
 lab types — a minority of high-effort labs that never cut corners

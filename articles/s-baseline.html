@@ -177,11 +177,12 @@ fixation nor unbounded growth.</p>
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">s</span><span class="op">$</span><span class="va">grid_rows</span>     <span class="op">&lt;-</span> <span class="fl">20L</span></span>
-<span><span class="va">s</span><span class="op">$</span><span class="va">grid_cols</span>     <span class="op">&lt;-</span> <span class="fl">20L</span></span>
-<span><span class="va">s</span><span class="op">$</span><span class="va">n_agents_init</span> <span class="op">&lt;-</span> <span class="fl">40L</span></span>
-<span><span class="va">s</span><span class="op">$</span><span class="va">max_ticks</span>     <span class="op">&lt;-</span> <span class="fl">300L</span></span>
-<span><span class="va">s</span><span class="op">$</span><span class="va">random_seed</span>   <span class="op">&lt;-</span> <span class="fl">1L</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">grid_rows</span>     <span class="op">&lt;-</span> <span class="fl">30L</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">grid_cols</span>     <span class="op">&lt;-</span> <span class="fl">30L</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">n_agents_init</span> <span class="op">&lt;-</span> <span class="fl">100L</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">max_ticks</span>     <span class="op">&lt;-</span> <span class="fl">500L</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">grass_rate</span>    <span class="op">&lt;-</span> <span class="fl">0.15</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">random_seed</span>   <span class="op">&lt;-</span> <span class="fl">42L</span></span>
 <span></span>
 <span><span class="va">env</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span>
 <span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env</span><span class="op">)</span></span>
@@ -194,17 +195,22 @@ energy, genetic diversity, births/deaths, grass coverage, and BNN sigma.
 </div>
 <p><strong>What we found.</strong> Running 100 agents on a 30×30 grid
 for 500 ticks (seed 42), <code>grass_rate = 0.15</code>: population
-ranged from 155 to 401 (mean 285), showing density-dependent regulation
+ranged from 143 to 402 (mean 283), showing density-dependent regulation
 against a carrying capacity of ~400 imposed by the energy budget. Mean
-energy rose from 115 (early) to 131 (late) as foraging strategies
-improved under selection. Genetic diversity increased from 0.17 at tick
-50 to 0.39 at tick 450, reflecting divergence of neural genome lineages
+energy was stable near 130 throughout the run (129.6 at tick 50, 130.6
+at tick 450) — foraging is already near-optimal in the default
+parameterisation, so there is little room for selection to raise mean
+energy within 500 ticks. Genetic diversity increased from 0.178 at tick
+50 to 0.386 at tick 450, reflecting divergence of neural genome lineages
 rather than selective sweep toward a single optimum: the spatial
 structure of the resource landscape supports multiple foraging
-strategies simultaneously. Total births = 727, deaths = 591 over 500
+strategies simultaneously. Total births = 727, deaths = 587 over 500
 ticks, a persistent turnover of ~1.5 generations per 100 ticks. Grass
-coverage was stable at 0.39–0.41, slightly below the maximum reachable
-without grazing, indicating active consumption.</p>
+coverage oscillated in 0.23–0.52 as agents grazed down and resources
+regrew, consistent with active consumer–resource dynamics. Verified over
+10 seeds in <code>dev/audit/fidelity/baseline.md</code>; running the
+displayed code (a single seed) is sufficient to reproduce the trends
+though not the exact numbers.</p>
 </div>
 <div class="section level3">
 <h3 id="discovery-experiments">Discovery experiments<a class="anchor" aria-label="anchor" href="#discovery-experiments"></a>
