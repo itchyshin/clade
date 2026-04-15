@@ -15,6 +15,8 @@ Description: Agent-based simulation of evolution and foraging ecology.
     Provides MAP-Elites, CMA-ES (pure R, no external dependencies), and
     finite-difference gradient parameter search.
 License: MIT + file LICENSE
+URL: https://itchyshin.github.io/clade/, https://github.com/itchyshin/clade
+BugReports: https://github.com/itchyshin/clade/issues
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
