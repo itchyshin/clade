@@ -35,7 +35,7 @@ sends specs in and receives the full environment back.
 
 ```{r install-clade, eval=FALSE}
 # From GitHub (development version)
-remotes::install_github("shinichi-nakagawa/clade")
+remotes::install_github("itchyshin/clade")
 
 # Or from CRAN when released
 # install.packages("clade")

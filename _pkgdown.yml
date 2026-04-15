@@ -127,7 +127,7 @@ navbar:
           href: articles/s-cross-module.html
     github:
       icon: fa-github
-      href: https://github.com/shinichi-nakagawa/clade
+      href: https://github.com/itchyshin/clade
 
 articles:
   - title: "Overview"
