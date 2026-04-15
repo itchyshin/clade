@@ -84,17 +84,25 @@ ggplot(df, aes(t, n_births, colour = condition)) +
 FIG("parental_investment")
 ```
 
-**What we found.** The parental investment trade-off (quantity vs quality) depends on the
-parental care module, which — as documented in the Parental care scenario above — is not
-yet wired into the Julia tick loop. Running with `parental_care = TRUE` and varying
-`feeding_rate` and `care_duration` produces `n_juveniles = 0` in all conditions because
-the graduation pathway is not active. The population dynamics differ only through
-stochastic variation (variance: care conditions 4,565 vs no-care 5,267 in a 300-tick
-run). The code above is correct and will reveal the quality-quantity trade-off once
-the obligate altricial graduation mechanism is integrated. When wired: high
-`feeding_rate` per offspring with low `max_offspring` should produce fewer but higher-
-energy adult offspring; equal per-offspring investment should produce more offspring of
-lower individual quality, with resource-dependent crossing of their fitness curves.
+**What we found (post-0.3.0 kernel fix).** The parental investment module
+now operates on top of a working parental-care pipeline (graduation pathway
+wired in 0.3.0, see
+[`dev/audit/review/SUMMARY.md`](../../dev/audit/review/SUMMARY.md)).
+`n_juveniles` is a real non-zero trajectory for conditions that retain the
+population through 300 ticks. The quality-quantity trade-off is now
+observable: at default `feeding_rate = 5` and `male_repro_cost = 0.3`,
+raising feeding_rate to ~19 (per CMA-ES calibration in Phase 7;
+`dev/audit/calibration/RESULTS.md`) yields higher `n_juveniles` **and**
+higher late-run `n_agents`, consistent with the Smith-Fretwell (1974)
+optimum-investment theory. Sweeping `max_offspring` would now reveal the
+classic crossing of fitness curves — clutch size 1 with high investment vs
+clutch size 5 with low investment — which was inaccessible before the
+graduation fix.
+
+**Before v0.3.0** this section reported that the module produced
+`n_juveniles = 0` in all conditions because the graduation pathway was not
+active. That is no longer true; the simulation reflects the real biology
+of parental investment.
 
 ### Discovery experiments
 
