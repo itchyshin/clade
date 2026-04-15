@@ -69,18 +69,28 @@ p2 <- ggplot(data$ticks, aes(t, n_agents)) +
 p1 / p2
 ```
 
-**What we found.** Running this code (100 agents, `transmission_prob = 0.20`,
-`disease_seed_prob = 0.05`, seed 42): the epidemic peaks at tick 10 with 19
-infected agents (19% prevalence). The wave resolves by tick 50 as agents
-recover and acquire immunity (`immune_duration = 20` ticks). Total new
-infections over 300 ticks: 161. Mean agent energy drops only marginally during
-the epidemic (93.8 before vs 92.7 at peak) because the default
-`disease_energy_cost = 5.0` is partially offset by reduced competition for
-grass when infected agents move less. Final population at tick 300: 58 agents —
-a 42% decline driven by compounded starvation and disease mortality, not by
-direct disease death (which is only `disease_death_prob = 0.01` per tick).
-**Key empirical calibration point**: R₀ ≈ 1.5–2.5 at these parameters,
-consistent with moderate-virulence respiratory pathogens (Anderson & May 1991).
+**What we found (2026-04-15 audit).** 5-seed run at
+`transmission_prob = 0.20`, 120 agents init, 300 ticks. Full
+protocol: [dev/audit/fidelity/disease.md](../dev/audit/fidelity/disease.md).
+
+| Metric | Value |
+|---|---|
+| Peak infected | 75.0 ± 9.5 |
+| Total new infections | 918.8 ± 33.5 |
+
+**Transmission sweep (6 levels × 3 seeds):** Spearman ρ between
+`transmission_prob` and peak = **1.00** — perfectly monotone
+dose-response. Threshold behaviour visible: at `tr = 0.02` the
+pathogen fades (peak ≈ seed count = 6); at `tr = 0.10` the
+epidemic ignites (peak = 27); above `tr = 0.20` the outbreak
+saturates toward the population size.
+
+**Endemic, not closed-SIR.** Unlike the textbook bell-shaped
+Kermack-McKendrick curve (closed population, permanent immunity),
+clade's disease dynamics become *endemic* because births
+replenish susceptibles and immunity wanes after
+`immune_duration = 20` ticks. This is biologically correct for an
+open population.
 
 
 ### Calibrated regime (CMA-ES discovered)

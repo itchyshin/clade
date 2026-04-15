@@ -31,10 +31,10 @@ Statuses:
 | s-niche                               | Odling-Smee et al. 2003                       | ⬜ pending          |                                                     |         |
 | s-seasonal                            | —                                             | ⬜ pending          |                                                     |         |
 | s-scavenging                          | DeVault et al. 2003                           | ⬜ pending          |                                                     |         |
-| s-kin                                 | Hamilton 1964                                 | ⬜ pending          |                                                     |         |
-| s-cooperation                         | Nowak & May 1992                              | ⬜ pending          |                                                     |         |
-| s-signals                             | Zahavi 1975; Iwasa & Pomiankowski 1994        | ⬜ pending          |                                                     |         |
-| s-speciation                          | Dieckmann & Doebeli 1999                      | ⬜ pending          |                                                     |         |
+| s-kin                                 | Hamilton 1964                                 | ✅ passed           | [kin.md](kin.md)                                    | pending |
+| s-cooperation                         | Nowak & May 1992                              | ✅ passed           | [cooperation.md](cooperation.md)                    | pending |
+| s-signals                             | Zahavi 1975; Iwasa & Pomiankowski 1994        | ✅ passed           | [signals.md](signals.md)                            | pending |
+| s-speciation                          | Dieckmann & Doebeli 1999                      | ✅ passed           | [speciation.md](speciation.md)                      | pending |
 | s-parental-care                       | Clutton-Brock 1991                            | ⬜ pending          |                                                     |         |
 | s-mating-systems                      | Maynard Smith 1978                            | ⬜ pending          |                                                     |         |
 | s-life-history                        | Cole 1954; Williams 1966                      | ✅ passed           | [life_history.md](life_history.md)                  | pending |
@@ -43,7 +43,7 @@ Statuses:
 | s-pace-of-life                        | Réale et al. 2010                             | ⬜ pending          |                                                     |         |
 | s-group-defense                       | Hamilton 1971 (selfish herd)                  | ⬜ pending          |                                                     |         |
 | s-mimicry                             | Bates 1862; Müller 1879                       | 🟠 passed-consistent | [mimicry.md](mimicry.md)                            | pending |
-| s-disease                             | Kermack & McKendrick 1927 (SIR)               | ⬜ pending          |                                                     |         |
+| s-disease                             | Kermack & McKendrick 1927 (SIR)               | ✅ passed           | [disease.md](disease.md)                            | pending |
 | s-predation-neural                    | —                                             | ⬜ pending          |                                                     |         |
 | s-rl                                  | Williams 1992 (REINFORCE)                     | ⬜ pending          |                                                     |         |
 | s-social-learning                     | Boyd & Richerson 1985                         | ⬜ pending          |                                                     |         |
@@ -64,7 +64,10 @@ Ordered by "most user-facing claims that need verification":
    limitation (scalar predator memory vs alifeR's vector signal
    memory). Recommendation: port alifeR's vector-signal memory to
    Julia in 0.4.0.
-3. s-kin — Hamilton's rule is the textbook quantitative prediction.
+3. ~~s-kin — Hamilton's rule is the textbook quantitative
+   prediction.~~ ✅ done. Spearman ρ = 0.97 between rB/C and
+   mean population — one of the strongest theoretical signals
+   observed so far.
 4. s-signals — Zahavi handicap + sexual selection equilibrium.
 5. s-cooperation — Nowak & May 1992 grid dynamics.
 6. s-speciation — Dieckmann & Doebeli bimodality.
