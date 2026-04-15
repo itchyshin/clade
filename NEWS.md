@@ -1,5 +1,67 @@
 # clade 0.3.0
 
+## New observables
+
+- **`n_shelter_occupied`** (new column in `get_run_data()$ticks`).
+  Counts agents sitting on a sheltered cell at each tick. Paired with
+  `shelter_occupancy_bonus`, this gives a direct per-tick scalar for
+  the aggregate energy transfer from ancestors' niche constructions
+  to extant descendants — the Odling-Smee, Laland & Feldman (2003)
+  heritable-niche effect as a single log column.
+
+## Coverage
+
+- **`tests/testthat/test-mimicry-batesian.R`** — 11 direction-only
+  assertions for the Batesian-mode code path plus a regression guard
+  on the `toxicity_cost_per_tick = 2.0` default.
+- **`tests/testthat/test-niche-heritable.R`** — 7 assertions covering
+  `shelter_occupancy_bonus` default (0), presence of
+  `n_shelter_occupied` in log, bounded by agent count, zero when
+  `niche_construction = FALSE`, and directional check that the
+  occupancy bonus does not reduce mean_energy.
+
+## Continuous integration
+
+- `.github/workflows/R-CMD-check.yaml` runs `R CMD check` on every
+  push and PR to main/master. Tests and vignettes are skipped
+  (require Julia, not on GH runners); the check still catches
+  package-level issues (namespace, docs, DESCRIPTION).
+- `.github/workflows/pkgdown.yaml` builds and deploys the pkgdown
+  site on push to main/master and on release publication.
+
+## Code quality
+
+- `R/visualization.R`: extracted `.plot_empty(message)` helper,
+  replaced nine duplicated "theme_void with annotation" fallback
+  blocks. File is ~40 lines shorter; behavior byte-identical.
+- `inst/julia/src/reproduce.jl`: dropped a stale "Phase 2 stub"
+  remark that referred to graduate_offspring!() before it was
+  wired up in commit 7ad2b1d.
+
+## Docs — post-release refresh
+
+- `vignettes/showcase.Rmd`: Baldwin section gains the honest
+  "σ rises at defaults; CMA-ES finds a narrowing regime" caveat;
+  Mimicry and Niche sections document the new 0.3.0 flags.
+- `vignettes/introduction.Rmd`, `vignettes/scenarios.Rmd`: gallery
+  tables surface `batesian_mimicry` and `shelter_occupancy_bonus`.
+- `vignettes/s-mimicry.Rmd`, `vignettes/s-niche.Rmd`: Key-parameters
+  tables gain the new flags; What-we-found sections refreshed to
+  describe the current (post-0.3.0) kernel rather than the
+  pre-fix state.
+- `vignettes/s-parental-care.Rmd`, `s-parental-investment.Rmd`:
+  re-measured at displayed specs with the fixed graduation
+  pathway; What-we-found quotes updated from "n_juveniles = 0
+  throughout" to the actual current trajectories.
+- `vignettes/baldwin-effect.Rmd`: Addendum section documents the
+  CMA-ES-discovered regime where canalization emerges
+  (grass_rate 0.027, learning_rate_init_mean 0.007).
+- `vignettes/figures/showcase_bnn_canalization_demo.png`:
+  previously orphaned (no generator produced it); now emitted by
+  `gen_fixed_patch_fig.R` under both its original filename and the
+  canalization alias, keeping both Baldwin articles in sync with
+  live kernel biology.
+
 ## New biological mechanisms
 
 - **Batesian mimicry** (`specs$batesian_mimicry = TRUE`). A palatable
