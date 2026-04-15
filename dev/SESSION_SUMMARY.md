@@ -6,7 +6,7 @@ to verify before pushing.
 
 ## Headline
 
-Branch `scenario-audit-0.2.0` now carries **37 commits** on top of
+Branch `scenario-audit-0.2.0` now carries **41 commits** on top of
 `main`, all atop the 0.3.0 release baseline. The audit stayed at
 **31/31 OK** through every round; no regressions. `devtools::check()`:
 **0 errors / 0 warnings / 0 notes**. Pkgdown site: 44 articles + 69
@@ -101,14 +101,23 @@ Both test files pass on a warm Julia session.
 ## Branch state summary
 
 ```
-37 commits on scenario-audit-0.2.0
+41 commits on scenario-audit-0.2.0
 0 errors / 0 warnings / 0 notes from devtools::check()
 31/31 OK scenarios preserved
 pkgdown site builds cleanly (44 articles + 69 reference pages)
 CI workflows ready to activate on push
 ```
 
-### Commits this session (above the 0.3.0 release baseline)
+### Additional late-session commits (above 37)
+
+```
+7b7923f build: add URL and BugReports to DESCRIPTION
+e0ce5f2 tests(config): exclude fixed_patch_x/y from the no-NA-defaults check
+bdf399b tests: 13-module integration smoke test
+2fdd561 docs: update session summary with final 37-commit state
+```
+
+### Full commits this session (above the 0.3.0 release baseline)
 
 ```
 16c3e00 build: ignore .github/ in the R package build
