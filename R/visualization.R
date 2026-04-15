@@ -42,6 +42,16 @@ NULL
   invisible(TRUE)
 }
 
+# -- plot-empty fallback ------------------------------------------------------
+# Many plot_* functions return a "nothing to show" placeholder when the
+# relevant module was disabled or the metric is all-zero. Centralised here
+# so the exact style stays consistent and the fallback string is one line.
+.plot_empty <- function(message = "No data to plot") {
+  ggplot2::ggplot() +
+    ggplot2::annotate("text", x = 0.5, y = 0.5, label = message) +
+    ggplot2::theme_void()
+}
+
 # -- plot_run() ----------------------------------------------------------------
 
 #' Dashboard plot summarising a clade simulation run
@@ -84,14 +94,7 @@ plot_run <- function(run_data, ...) {
 
   # Filter out unlogged rows (t == 0) in case max_ticks > actual length
   if ("t" %in% names(d)) d <- d[d$t > 0L, , drop = FALSE]
-  if (nrow(d) == 0L) {
-    return(
-      ggplot2::ggplot() +
-        ggplot2::annotate("text", x = 0.5, y = 0.5,
-                          label = "No logged ticks") +
-        ggplot2::theme_void()
-    )
-  }
+  if (nrow(d) == 0L) return(.plot_empty("No logged ticks"))
 
   # 1. Population size
   p_pop <- ggplot2::ggplot(d, ggplot2::aes(x = .data$t, y = .data$n_agents)) +
@@ -173,10 +176,7 @@ plot_run <- function(run_data, ...) {
                     x = "Tick", y = "Body size") +
       .clade_theme()
   } else {
-    p_sixth <- ggplot2::ggplot() +
-      ggplot2::annotate("text", x = 0.5, y = 0.5,
-                        label = "No sixth-panel data") +
-      ggplot2::theme_void()
+    p_sixth <- .plot_empty("No sixth-panel data")
   }
 
   patchwork::wrap_plots(
@@ -610,14 +610,7 @@ plot_genome_diversity <- function(run_data) {
   d <- run_data$ticks
   if ("t" %in% names(d)) d <- d[d$t > 0L, , drop = FALSE]
 
-  if (nrow(d) == 0L) {
-    return(
-      ggplot2::ggplot() +
-        ggplot2::annotate("text", x = 0.5, y = 0.5,
-                          label = "No diversity data logged") +
-        ggplot2::theme_void()
-    )
-  }
+  if (nrow(d) == 0L) return(.plot_empty("No diversity data logged"))
 
   p <- ggplot2::ggplot(
     d, ggplot2::aes(x = .data$t, y = .data$genetic_diversity)
@@ -679,14 +672,7 @@ plot_disease_dynamics <- function(run_data) {
   has_cols <- all(c("n_infected", "n_new_infections") %in% names(d))
   if (!has_cols || nrow(d) == 0L ||
       (all(d$n_infected == 0L) && all(d$n_new_infections == 0L))) {
-    return(
-      ggplot2::ggplot() +
-        ggplot2::annotate(
-          "text", x = 0.5, y = 0.5,
-          label = "Disease module inactive (all zeros)"
-        ) +
-        ggplot2::theme_void()
-    )
+    return(.plot_empty("Disease module inactive (all zeros)"))
   }
 
   long <- data.frame(
@@ -737,12 +723,7 @@ plot_disease_dynamics <- function(run_data) {
 #' @seealso [plot_run()]
 #' @export
 plot_signal_evolution <- function(run_data) {
-  ggplot2::ggplot() +
-    ggplot2::annotate(
-      "text", x = 0.5, y = 0.5,
-      label = "Signal evolution: Phase 2"
-    ) +
-    ggplot2::theme_void()
+  .plot_empty("Signal evolution: Phase 2")
 }
 
 # -- plot_kin_network() --------------------------------------------------------
@@ -767,12 +748,7 @@ plot_signal_evolution <- function(run_data) {
 #' @seealso [plot_run()]
 #' @export
 plot_kin_network <- function(run_data) {
-  ggplot2::ggplot() +
-    ggplot2::annotate(
-      "text", x = 0.5, y = 0.5,
-      label = "Kin network: requires igraph (Phase 2)"
-    ) +
-    ggplot2::theme_void()
+  .plot_empty("Kin network: requires igraph (Phase 2)")
 }
 
 # -- plot_dead_agents() --------------------------------------------------------
@@ -1246,13 +1222,7 @@ visualize_progress <- function(env, run_data = NULL, title = NULL) {
 
   # -- Top-right: diversity ---------------------------------------------------
   p_div_obj <- plot_diversity(run_data)
-  p_div <- if (is.null(p_div_obj)) {
-    ggplot2::ggplot() +
-      ggplot2::annotate("text", x = 0.5, y = 0.5, label = "No diversity data") +
-      ggplot2::theme_void()
-  } else {
-    p_div_obj
-  }
+  p_div <- if (is.null(p_div_obj)) .plot_empty("No diversity data") else p_div_obj
 
   # -- Bottom-left: deaths scatter --------------------------------------------
   if (!is.null(d) && nrow(d) > 0L) {
@@ -1291,9 +1261,7 @@ visualize_progress <- function(env, run_data = NULL, title = NULL) {
                     x = "Age at death", y = "Count") +
       .clade_theme()
   } else {
-    blank <- ggplot2::ggplot() +
-      ggplot2::annotate("text", x = 0.5, y = 0.5, label = "No deaths yet") +
-      ggplot2::theme_void()
+    blank     <- .plot_empty("No deaths yet")
     p_scatter <- blank
     p_hist    <- blank
   }
@@ -1384,14 +1352,8 @@ plot_module_metrics <- function(run_data) {
   d <- run_data$ticks
   if ("t" %in% names(d)) d <- d[d$t > 0L, , drop = FALSE]
 
-  if (nrow(d) == 0L) {
-    return(
-      ggplot2::ggplot() +
-        ggplot2::annotate("text", x = 0.5, y = 0.5,
-                          label = "No module-specific metrics to display") +
-        ggplot2::theme_void()
-    )
-  }
+  if (nrow(d) == 0L)
+    return(.plot_empty("No module-specific metrics to display"))
 
   panels <- list()
 
@@ -1524,14 +1486,8 @@ plot_module_metrics <- function(run_data) {
 
   # -- Assemble ------------------------------------------------------------------
   n_panels <- length(panels)
-  if (n_panels < 2L) {
-    return(
-      ggplot2::ggplot() +
-        ggplot2::annotate("text", x = 0.5, y = 0.5,
-                          label = "No module-specific metrics to display") +
-        ggplot2::theme_void()
-    )
-  }
+  if (n_panels < 2L)
+    return(.plot_empty("No module-specific metrics to display"))
 
   patchwork::wrap_plots(panels, ncol = min(3L, n_panels))
 }
