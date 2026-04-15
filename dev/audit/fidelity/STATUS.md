@@ -24,12 +24,12 @@ Statuses:
 | s-predator-prey                       | Lotka 1925, Volterra 1926, Huffaker 1958      | ✅ passed           | [predator_prey.md](predator_prey.md)                | pending |
 | s-body-size                           | Cope's rule; Shine et al. 2011                | 🟠 passed-consistent | [body_size.md](body_size.md)                        | pending |
 | s-brain-size                          | Parental provisioning hypothesis              | 🟠 passed-consistent | [brain_size.md](brain_size.md)                      | pending |
-| s-pop-genetics                        | Fisher-Wright; parent-offspring regression    | ⬜ pending          |                                                     |         |
+| s-pop-genetics                        | Fisher-Wright; parent-offspring regression    | ✅ passed           | [pop_genetics.md](pop_genetics.md)                  | pending |
 | s-stress-hypermutation                | Rosenberg 2001; Foster 2007                   | ✅ passed           | [stress_hypermutation.md](stress_hypermutation.md)  | pending |
-| s-complex-landscape                   | —                                             | ⬜ pending          |                                                     |         |
+| s-complex-landscape                   | Multi-layer habitat                           | ✅ passed           | [complex_landscape.md](complex_landscape.md)        | pending |
 | s-dispersal-ifd                       | Fretwell & Lucas 1970; Shine et al. 2011      | 🟠 passed-consistent | [dispersal_ifd.md](dispersal_ifd.md)                | pending |
 | s-niche                               | Odling-Smee et al. 2003                       | ✅ passed           | [niche.md](niche.md)                                | pending |
-| s-seasonal                            | —                                             | ⬜ pending          |                                                     |         |
+| s-seasonal                            | Sinusoidal resource variation                 | ✅ passed           | [seasonal.md](seasonal.md)                          | pending |
 | s-scavenging                          | DeVault et al. 2003                           | ✅ passed           | [scavenging.md](scavenging.md)                      | pending |
 | s-kin                                 | Hamilton 1964                                 | ✅ passed           | [kin.md](kin.md)                                    | pending |
 | s-cooperation                         | Nowak & May 1992                              | ✅ passed           | [cooperation.md](cooperation.md)                    | pending |
@@ -44,14 +44,14 @@ Statuses:
 | s-group-defense                       | Hamilton 1971 (selfish herd)                  | 🟠 passed-consistent | [group_defense.md](group_defense.md)                | pending |
 | s-mimicry                             | Bates 1862; Müller 1879                       | 🟠 passed-consistent | [mimicry.md](mimicry.md)                            | pending |
 | s-disease                             | Kermack & McKendrick 1927 (SIR)               | ✅ passed           | [disease.md](disease.md)                            | pending |
-| s-predation-neural                    | —                                             | ⬜ pending          |                                                     |         |
-| s-rl                                  | Williams 1992 (REINFORCE)                     | ⬜ pending          |                                                     |         |
+| s-predation-neural                    | —                                             | ⚪ N/A              | demo-only; no fidelity claim                        |         |
+| s-rl                                  | Williams 1992 (REINFORCE)                     | 🟠 passed-consistent | [rl.md](rl.md)                                      | pending |
 | s-social-learning                     | Boyd & Richerson 1985                         | ✅ passed (ANN)      | [social_learning.md](social_learning.md)            | pending |
 | s-plasticity                          | Pigliucci 2001                                | 🟠 passed-consistent | [plasticity.md](plasticity.md)                      | pending |
 | s-baldwin                             | Hinton & Nowlan 1987                          | 🔴 contradicts       | [baldwin.md](baldwin.md)                            | pending |
-| s-cephalopod                          | —                                             | ⬜ pending          |                                                     |         |
+| s-cephalopod                          | —                                             | ⚪ N/A              | demo-only; no fidelity claim                        |         |
 | s-module-comparison                   | —                                             | ⚪ N/A              |                                                     |         |
-| s-map-elites                          | Mouret & Clune 2015                           | ⬜ pending          |                                                     |         |
+| s-map-elites                          | Mouret & Clune 2015                           | 🟠 passed-consistent | [map_elites.md](map_elites.md)                      | pending |
 | s-kitchen-sink                        | —                                             | ⚪ N/A              |                                                     |         |
 | s-cross-module                        | —                                             | ⚪ N/A              |                                                     |         |
 
