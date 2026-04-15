@@ -46,6 +46,10 @@ Pass the result to \code{\link[=prepare_map]{prepare_map()}} to validate dimensi
 \details{
 Types \code{"random_cluster"} and \code{"gaussian_field"} use the \code{NLMR} package
 when installed; otherwise a pure-R Gaussian-smoothed fallback is used.
+\code{NLMR} was removed from CRAN; install from
+\href{https://github.com/ropensci/NLMR}{ropensci/NLMR} (e.g.
+\code{remotes::install_github("ropensci/NLMR")}) if you want the higher-quality
+neutral-landscape generators.
 }
 \examples{
 map <- generate_map("random_cluster", grid_rows = 20L, grid_cols = 20L,

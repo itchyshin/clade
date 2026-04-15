@@ -34,12 +34,16 @@ dir.create("inst/figures", showWarnings = FALSE, recursive = TRUE)
 message("─── clade showcase figure generation ───────────────────────────────")
 
 # ── Section 1: Core world ─────────────────────────────────────────────────────
+# Parameters match the displayed code in vignettes/s-baseline.Rmd and the
+# "What we found" prose so a reader running the chunk sees the same dynamics
+# this figure records.
 message("[1/12] Core world…")
 base <- default_specs()
-base$grid_rows     <- 40L
-base$grid_cols     <- 40L
-base$n_agents_init <- 30L
+base$grid_rows     <- 30L
+base$grid_cols     <- 30L
+base$n_agents_init <- 100L
 base$max_ticks     <- 500L
+base$grass_rate    <- 0.15
 base$random_seed   <- 42L
 env  <- run_alife(base, verbose = FALSE)
 data <- get_run_data(env)
@@ -361,17 +365,28 @@ p_ceph <- ggplot(agg_ceph, aes(max_age, mean_learning)) +
 .save(p_ceph, "cephalopod_paradox", w = 8, h = 4.5)
 
 # ── Section 36: Evolution of bad science ─────────────────────────────────────
-message("[36] Evolution of bad science…")
+# Uses 10 seeds per condition because the 10%-replication result is close to
+# the no-replication baseline and needs multi-seed averaging to be meaningful.
+message("[36] Evolution of bad science (10 seeds × 3 conditions)…")
 rep_rates  <- c(0.0, 0.1, 0.5)
 rep_labels <- c("No replication", "10% replication", "50% replication")
+bs_seeds   <- 1L:10L
 
-bs_results <- mapply(function(rr, lab) {
-  df      <- run_bad_science(n_ticks = 500L, replication_rate = rr, seed = 42L)
-  df$rate <- lab
-  df
-}, rep_rates, rep_labels, SIMPLIFY = FALSE)
+bs_results <- do.call(rbind, lapply(seq_along(rep_rates), function(k) {
+  rr  <- rep_rates[k]
+  lab <- rep_labels[k]
+  do.call(rbind, lapply(bs_seeds, function(sd) {
+    df      <- run_bad_science(n_ticks = 500L, replication_rate = rr, seed = sd)
+    df$rate <- lab
+    df$seed <- sd
+    df
+  }))
+}))
 
-df_bs   <- do.call(rbind, bs_results)
+df_bs <- aggregate(
+  cbind(mean_fpr, mean_effort) ~ t + rate,
+  data = bs_results, FUN = mean
+)
 df_bs$rate <- factor(df_bs$rate, levels = rev(rep_labels))
 bs_cols <- c("No replication"  = "#d73027",
              "10% replication" = "#fc8d59",
