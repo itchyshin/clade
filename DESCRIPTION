@@ -31,7 +31,6 @@ Suggests:
     JuliaConnectoR (>= 0.9.0),
     jsonlite,
     knitr,
-    NLMR,
     rmarkdown,
     terra,
     testthat (>= 3.0.0),

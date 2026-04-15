@@ -94,6 +94,10 @@
 #'
 #' Types `"random_cluster"` and `"gaussian_field"` use the `NLMR` package
 #' when installed; otherwise a pure-R Gaussian-smoothed fallback is used.
+#' `NLMR` was removed from CRAN; install from
+#' [ropensci/NLMR](https://github.com/ropensci/NLMR) (e.g.
+#' `remotes::install_github("ropensci/NLMR")`) if you want the higher-quality
+#' neutral-landscape generators.
 #'
 #' @param type Character; one of `"open"`, `"patchy"`, `"random_cluster"`,
 #'   `"gaussian_field"`, `"corridors"`. Default `"random_cluster"`.
