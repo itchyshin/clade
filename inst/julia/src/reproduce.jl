@@ -21,7 +21,7 @@ according to the reproduction rules in specs.
 
 When `parental_care = TRUE`: offspring are added to `parent.carried_offspring`
 rather than `env.agents`. They join `env.agents` after `care_duration` ticks
-via `graduate_offspring!()` (in modules/parental_care.jl; Phase 2 stub here).
+via `graduate_offspring!()` (in modules/parental_care.jl).
 """
 
 """
