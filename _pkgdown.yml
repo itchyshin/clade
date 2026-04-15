@@ -34,8 +34,6 @@ navbar:
           href: articles/diversity-search.html
         - text: "---"
         - text: "Gallery"
-        - text: "Full showcase"
-          href: articles/showcase.html
         - text: "Baldwin effect & RL"
           href: articles/baldwin-effect.html
     scenarios:
@@ -129,7 +127,7 @@ navbar:
           href: articles/s-cross-module.html
     github:
       icon: fa-github
-      href: https://github.com/shinichi-nakagawa/clade
+      href: https://github.com/itchyshin/clade
 
 articles:
   - title: "Overview"
@@ -208,7 +206,6 @@ articles:
   - title: "Gallery"
     navbar: "Gallery"
     contents:
-      - showcase
       - baldwin-effect
 
 reference:
