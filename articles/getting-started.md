@@ -20,7 +20,7 @@ the full environment back.
 
 ``` r
 # From GitHub (development version)
-remotes::install_github("shinichi-nakagawa/clade")
+remotes::install_github("itchyshin/clade")
 
 # Or from CRAN when released
 # install.packages("clade")
@@ -220,9 +220,6 @@ sapply(results, function(env) {
 - **Custom modules**: see
   [`vignette("custom-modules")`](../articles/custom-modules.md) to write
   your own per-tick hooks.
-- **Full showcase**: see
-  [`vignette("showcase")`](../articles/showcase.md) for figures from all
-  36 scenarios.
 - **Audit harness** (0.3.0): `dev/audit/run_audit.R` runs all 35
   vignette scenarios against the live kernel and confirms each produces
   the signal its “What we found” prose claims.

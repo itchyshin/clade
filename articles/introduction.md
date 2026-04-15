@@ -236,13 +236,11 @@ return results immediately.
 
 ## Where to go next
 
-The showcase vignette works through a richer set of experiments —
-combining multiple modules, comparing brain types, and reading the
-outputs with the analysis helpers:
-
-``` r
-vignette("showcase", package = "clade")
-```
+For a richer set of experiments — combining multiple modules, comparing
+brain types, and reading the outputs with the analysis helpers — see the
+[scenario discovery guide](scenarios.md). Each of the 35 scenarios has
+its own page with runnable code, expected dynamics, and discovery
+experiments.
 
 For full parameter documentation, see
 [`?default_specs`](../reference/default_specs.md). Each module’s

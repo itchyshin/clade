@@ -69,6 +69,5 @@
 
 ### Gallery
 
-- [Simulating evolution: a showcase of clade](showcase.md):
 - [The Baldwin Effect: within-lifetime learning accelerating
   evolution](baldwin-effect.md):
