@@ -243,8 +243,6 @@ sapply(results, function(env) {
   `dev/audit/calibration/RESULTS.md`.
 - **Custom modules**: see `vignette("custom-modules")` to write your own
   per-tick hooks.
-- **Full showcase**: see `vignette("showcase")` for figures from all 36
-  scenarios.
 - **Audit harness** (0.3.0): `dev/audit/run_audit.R` runs all 35
   vignette scenarios against the live kernel and confirms each
   produces the signal its "What we found" prose claims.

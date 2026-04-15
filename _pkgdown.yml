@@ -34,8 +34,6 @@ navbar:
           href: articles/diversity-search.html
         - text: "---"
         - text: "Gallery"
-        - text: "Full showcase"
-          href: articles/showcase.html
         - text: "Baldwin effect & RL"
           href: articles/baldwin-effect.html
     scenarios:
@@ -208,7 +206,6 @@ articles:
   - title: "Gallery"
     navbar: "Gallery"
     contents:
-      - showcase
       - baldwin-effect
 
 reference:

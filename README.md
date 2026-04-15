@@ -143,7 +143,6 @@ Full documentation is available at **<https://itchyshin.github.io/clade/>**.
 | [Custom Modules](https://itchyshin.github.io/clade/articles/custom-modules.html) | Write your own per-tick hooks with `register_module()` |
 | [Parameter Reference](https://itchyshin.github.io/clade/articles/parameter-reference.html) | Every parameter in `default_specs()`, grouped by theme |
 | [Diversity Search](https://itchyshin.github.io/clade/articles/diversity-search.html) | CMA-ES, MAP-Elites, viability mapping, and scenario-specific tuning |
-| [Showcase](https://itchyshin.github.io/clade/articles/showcase.html) | Figures from all simulation scenarios |
 
 ---
 
