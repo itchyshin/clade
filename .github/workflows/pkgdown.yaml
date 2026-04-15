@@ -2,7 +2,7 @@
 # "Pages -> Source: GitHub Actions".
 on:
   push:
-    branches: [main, master, scenario-audit-0.2.0]
+    branches: [main, master]
   release:
     types: [published]
   workflow_dispatch:
