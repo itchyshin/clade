@@ -6,9 +6,11 @@ to verify before pushing.
 
 ## Headline
 
-Branch `scenario-audit-0.2.0` now carries **33+ commits** on top of
+Branch `scenario-audit-0.2.0` now carries **37 commits** on top of
 `main`, all atop the 0.3.0 release baseline. The audit stayed at
-**31/31 OK** through every round; no regressions.
+**31/31 OK** through every round; no regressions. `devtools::check()`:
+**0 errors / 0 warnings / 0 notes**. Pkgdown site: 44 articles + 69
+reference pages render cleanly.
 
 ## What got done this session (on top of 0.3.0 release)
 
@@ -99,11 +101,34 @@ Both test files pass on a warm Julia session.
 ## Branch state summary
 
 ```
-33 commits on scenario-audit-0.2.0
+37 commits on scenario-audit-0.2.0
 0 errors / 0 warnings / 0 notes from devtools::check()
 31/31 OK scenarios preserved
 pkgdown site builds cleanly (44 articles + 69 reference pages)
 CI workflows ready to activate on push
+```
+
+### Commits this session (above the 0.3.0 release baseline)
+
+```
+16c3e00 build: ignore .github/ in the R package build
+91c93ac docs(getting-started): surface 0.3.0 audit + calibration harnesses
+1d49658 docs(diversity-search): surface the 0.3.0 scenario auto-calibration harness
+bd93f31 docs(parameter-reference): add 0.3.0 flags
+6271944 docs: session summary for user hand-off
+e023bea docs(s-mimicry): honest expected-output for 0.3.0 handicap cost
+09e6513 docs: permanent REVIEW.md under dev/audit/
+ebcc65a docs(NEWS): add post-release 0.3.0 additions
+8f6256c docs(kernel): drop "Phase 2 stub" remark in reproduce.jl
+5785294 docs: refresh mimicry and niche What-we-found for 0.3.0
+9100191 docs: refresh parental-care and parental-investment "What we found"
+5ad354f ci: add GitHub Actions for R-CMD-check and pkgdown
+71b8d91 refactor: extract .plot_empty() helper in visualization.R
+b9d4e02 tests: heritable-niche coverage
+746f236 tests: Batesian mimicry coverage
+695b75a logging: add n_shelter_occupied
+599abad docs: sweep showcase.Rmd for 0.3.0 features + Baldwin honesty
+0682d94 docs: sync guides with 0.3.0 features + regenerate Baldwin canalization PNG
 ```
 
 ## How to verify / push
