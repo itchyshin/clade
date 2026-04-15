@@ -46,6 +46,11 @@ jobs:
         with:
           upload-snapshots: true
           # Skip vignettes + heavy tests — they require Julia, which we
-          # don't install in CI.
-          args: 'c("--no-manual", "--as-cran", "--no-vignettes", "--no-tests")'
+          # don't install in CI. `--ignore-vignettes` suppresses the
+          # "vignettes without output" warnings that --no-build-vignettes
+          # otherwise triggers. `error-on: error` lets those warnings be
+          # warnings (CI doesn't fail on a missing Julia-dependent
+          # vignette render).
+          args: 'c("--no-manual", "--as-cran", "--no-vignettes", "--no-tests", "--ignore-vignettes")'
           build_args: 'c("--no-manual", "--no-build-vignettes")'
+          error-on: '"error"'
