@@ -99,16 +99,28 @@ s$clutch_size_init_mean          <- 5L
 FIG("clutch_size")
 ```
 
-**What we found.** Running with `max_offspring = 6` at `grass_rate = 0.25` (rich) vs
-`grass_rate = 0.06` (scarce), 80 agents, 25×25 grid, 400 ticks (3 replicates): rich
-environments supported 2.9× more agents (mean 282 vs 96) and 4.1× more births (629 vs
-152). Both conditions used the same maximum clutch size (6), so the comparison shows
-population-level consequences of resource availability rather than evolved clutch-size
-differences. To observe evolved r/K divergence, enable heritable `max_offspring` with
-mutation: when resources are rich, offspring producing many young of low quality should
-outcompete single-offspring strategists; when resources are scarce, the few-high-quality
-strategy should dominate. Run `batch_alife()` varying `grass_rate` from 0.04 to 0.30 and
-watch whether mean `max_offspring` correlates with resource availability across replicates.
+**What we found (2026-04-15 audit).** Grass sweep × 3 seeds × 600
+ticks reveals a **non-monotone, bell-shaped r/K response** — the
+richest theoretical signature in this scenario. Full protocol:
+[dev/audit/fidelity/clutch_size.md](../dev/audit/fidelity/clutch_size.md).
+
+| `grass_rate` | evolved clutch | mean n_agents |
+|---|---|---|
+| 0.05 | 1.56 | 166 |
+| 0.10 | 1.86 | 315 |
+| 0.15 | **2.32 (peak)** | 447 |
+| 0.20 | 1.44 | 500 (cap) |
+| 0.30 | 1.14 | 500 (cap) |
+| 0.40 | 1.12 | 500 (cap) |
+
+Below the carrying-capacity cap (grass ≤ 0.15), clutch size rises
+monotonically with resources — the **r-selection arm of Lack's
+prediction**. Above, the population saturates at `max_agents = 500`
+and K-selection takes over: single-offspring strategists out-
+compete multi-offspring ones, driving evolved clutch to the lower
+bound. Both arms match MacArthur-Wilson r/K theory; only the naive
+monotone Lack prediction misses the density-dependent regime
+shift.
 
 ### Discovery experiments
 

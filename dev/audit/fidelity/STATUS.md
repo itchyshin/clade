@@ -22,12 +22,12 @@ Statuses:
 | s-baseline                            | MacArthur & Pianka 1966; Bulitko 2023 (MATLAB)| ✅ passed (three-way xref) | [baseline.md](baseline.md)                   | pending |
 | s-bad-science                         | Smaldino & McElreath 2016                     | ✅ passed           | inline in commit                                    | 91cc1a9 |
 | s-predator-prey                       | Lotka 1925, Volterra 1926, Huffaker 1958      | ✅ passed           | [predator_prey.md](predator_prey.md)                | pending |
-| s-body-size                           | Cope's rule; Shine et al. 2011                | ⬜ pending          |                                                     |         |
+| s-body-size                           | Cope's rule; Shine et al. 2011                | 🟠 passed-consistent | [body_size.md](body_size.md)                        | pending |
 | s-brain-size                          | Parental provisioning hypothesis              | ⬜ pending          |                                                     |         |
 | s-pop-genetics                        | Fisher-Wright; parent-offspring regression    | ⬜ pending          |                                                     |         |
 | s-stress-hypermutation                | Rosenberg 2001; Foster 2007                   | ⬜ pending          |                                                     |         |
 | s-complex-landscape                   | —                                             | ⬜ pending          |                                                     |         |
-| s-dispersal-ifd                       | Fretwell & Lucas 1970; Shine et al. 2011      | ⬜ pending          |                                                     |         |
+| s-dispersal-ifd                       | Fretwell & Lucas 1970; Shine et al. 2011      | 🟠 passed-consistent | [dispersal_ifd.md](dispersal_ifd.md)                | pending |
 | s-niche                               | Odling-Smee et al. 2003                       | ⬜ pending          |                                                     |         |
 | s-seasonal                            | —                                             | ⬜ pending          |                                                     |         |
 | s-scavenging                          | DeVault et al. 2003                           | ⬜ pending          |                                                     |         |
@@ -38,9 +38,9 @@ Statuses:
 | s-parental-care                       | Clutton-Brock 1991                            | ⬜ pending          |                                                     |         |
 | s-mating-systems                      | Maynard Smith 1978                            | ⬜ pending          |                                                     |         |
 | s-life-history                        | Cole 1954; Williams 1966                      | ✅ passed           | [life_history.md](life_history.md)                  | pending |
-| s-clutch-size                         | Lack 1947                                     | ⬜ pending          |                                                     |         |
-| s-parental-investment                 | Trivers 1972                                  | ⬜ pending          |                                                     |         |
-| s-pace-of-life                        | Réale et al. 2010                             | ⬜ pending          |                                                     |         |
+| s-clutch-size                         | Lack 1947; r/K (MacArthur & Wilson 1967)      | ✅ passed           | [clutch_size.md](clutch_size.md)                    | pending |
+| s-parental-investment                 | Trivers 1972                                  | 🟠 passed-consistent | [parental_investment.md](parental_investment.md)    | pending |
+| s-pace-of-life                        | Réale et al. 2010                             | 🟠 passed-consistent | [pace_of_life.md](pace_of_life.md)                  | pending |
 | s-group-defense                       | Hamilton 1971 (selfish herd)                  | ⬜ pending          |                                                     |         |
 | s-mimicry                             | Bates 1862; Müller 1879                       | 🟠 passed-consistent | [mimicry.md](mimicry.md)                            | pending |
 | s-disease                             | Kermack & McKendrick 1927 (SIR)               | ✅ passed           | [disease.md](disease.md)                            | pending |
