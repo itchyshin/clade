@@ -65,21 +65,48 @@ test_that("run_bad_science n_labs >= 2 is required", {
   expect_error(run_bad_science(n_labs = 1L))
 })
 
-test_that("run_bad_science with high replication_rate deteriorates slower", {
-  # With replication rate 0.5 vs 0, mean_effort at tick 200 should be higher
-  # (slower deterioration) with high replication
-  set.seed(42L)
-  r_no_rep  <- run_bad_science(n_labs = 200L, n_ticks = 300L,
-                                replication_rate = 0.0, seed = 42L)
-  r_rep     <- run_bad_science(n_labs = 200L, n_ticks = 300L,
-                                replication_rate = 0.5, seed = 42L)
-  # Not guaranteed every seed but should hold most of the time
-  # Use weak test: high replication FPR growth is bounded
-  fpr_growth_no_rep <- r_no_rep$mean_fpr[300] - r_no_rep$mean_fpr[1]
-  fpr_growth_rep    <- r_rep$mean_fpr[300]    - r_rep$mean_fpr[1]
-  # Both should increase; no_rep may increase at least as fast
-  expect_true(fpr_growth_no_rep >= 0)
-  expect_true(fpr_growth_rep    >= 0)
+test_that("strong replication + penalty lowers final FPR vs no replication", {
+  # Across 5 seeds, mean FPR at tick 500 under rr=0.5 + penalty=5 must be
+  # lower than mean FPR under rr=0. This is the S&M 2016 qualitative claim
+  # and the reason replication_penalty exists.
+  seeds <- 1L:5L
+  fpr_no_rep <- sapply(seeds, function(s) {
+    run_bad_science(n_ticks = 500L, replication_rate = 0,
+                    seed = s)$mean_fpr[500]
+  })
+  fpr_strong <- sapply(seeds, function(s) {
+    run_bad_science(n_ticks = 500L, replication_rate = 0.5,
+                    replication_penalty = 5, seed = s)$mean_fpr[500]
+  })
+  expect_lt(mean(fpr_strong), mean(fpr_no_rep))
+})
+
+test_that("replication_penalty = 0 silences the replication mechanism", {
+  # With zero penalty, replication_rate = 0 and 0.5 should produce
+  # statistically indistinguishable FPR trajectories.
+  seeds <- 1L:5L
+  fpr_no_rep <- sapply(seeds, function(s) {
+    run_bad_science(n_ticks = 500L, replication_rate = 0,
+                    seed = s)$mean_fpr[500]
+  })
+  fpr_rep_nopen <- sapply(seeds, function(s) {
+    run_bad_science(n_ticks = 500L, replication_rate = 0.5,
+                    replication_penalty = 0, seed = s)$mean_fpr[500]
+  })
+  expect_lt(abs(mean(fpr_rep_nopen) - mean(fpr_no_rep)),
+            sd(fpr_no_rep) + sd(fpr_rep_nopen))
+})
+
+test_that("alpha depends on effort only, not on research_power", {
+  # Freeze traits via mutation_sd = 0; tick 1 mean_fpr should equal
+  # alpha_base * (1 - mean_effort) regardless of research_power.
+  df <- run_bad_science(n_ticks = 100L,
+                        research_power_init_mean  = 0.9,
+                        research_effort_init_mean = 0.5,
+                        mutation_sd               = 0,
+                        replication_rate          = 0,
+                        seed                      = 1L)
+  expect_equal(df$mean_fpr[1], 0.25, tolerance = 0.02)
 })
 
 test_that("run_bad_science mean_power stays in (0, 1)", {
