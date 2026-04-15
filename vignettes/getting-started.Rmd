@@ -236,7 +236,15 @@ sapply(results, function(env) {
   modules with code and expected outputs.
 - **Parameter search**: see `vignette("diversity-search")` for CMA-ES,
   MAP-Elites, and the viability mapping workflow.
+- **Auto-calibration** (0.3.0): each scenario has a per-vignette CMA-ES
+  harness at `dev/audit/calibration/` that discovers the regime where
+  its claimed biology emerges. Run with
+  `bash dev/audit/calibration/run_all.sh`; results in
+  `dev/audit/calibration/RESULTS.md`.
 - **Custom modules**: see `vignette("custom-modules")` to write your own
   per-tick hooks.
 - **Full showcase**: see `vignette("showcase")` for figures from all 36
   scenarios.
+- **Audit harness** (0.3.0): `dev/audit/run_audit.R` runs all 35
+  vignette scenarios against the live kernel and confirms each
+  produces the signal its "What we found" prose claims.
