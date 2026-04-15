@@ -7,7 +7,7 @@
 ## Citation
 
 Source:
-[`inst/CITATION`](https://github.com/itchyshin/clade/blob/scenario-audit-0.2.0/inst/CITATION)
+[`inst/CITATION`](https://github.com/itchyshin/clade/blob/main/inst/CITATION)
 
 Nakagawa, S. (2026). clade: Agent-based evolutionary simulation with a
 Julia backend. R package version 0.3.0.
