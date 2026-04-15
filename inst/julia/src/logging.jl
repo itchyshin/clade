@@ -50,6 +50,7 @@ function _init_progress(specs::Dict{String,Any}, n_ticks::Int)::Dict{String,Vect
         "n_new_infections"       => copy(iz),
         "n_altruistic_acts"      => copy(iz),
         "n_shelters_built"       => copy(iz),
+        "n_shelter_occupied"     => copy(iz),
         "n_cooperation_acts"     => copy(iz),
         "n_dispersal_events"     => copy(iz),
         "n_habitat_moves"        => copy(iz),
@@ -172,6 +173,20 @@ function log_tick!(env::Environment)
     p["n_new_infections"][t]       = Int(env.n_new_infections)
     p["n_altruistic_acts"][t]      = Int(env.n_altruistic_acts)
     p["n_shelters_built"][t]       = Int(env.n_shelters_built)
+    # Count agents currently sitting on a sheltered cell (depth > 0).
+    # This is the natural observable for heritable niche construction
+    # (Odling-Smee et al. 2003): shelters persist beyond their builders,
+    # and descendant lineages that locate to sheltered cells reap the
+    # cumulative benefit. When shelter_occupancy_bonus > 0 (see
+    # modules/niche.jl apply_shelter_occupancy_benefit!) this metric
+    # directly tracks the number of beneficiaries per tick.
+    n_occ = 0
+    if Bool(get(env.specs, "niche_construction", false))
+        for ag in ags
+            env.shelter_map[Int(ag.x), Int(ag.y)] > 0 && (n_occ += 1)
+        end
+    end
+    p["n_shelter_occupied"][t] = n_occ
     p["n_cooperation_acts"][t]     = Int(env.n_cooperation_acts)
     p["n_dispersal_events"][t]     = Int(env.n_dispersal_events)
     p["n_habitat_moves"][t]        = Int(env.n_habitat_moves)

@@ -141,7 +141,20 @@ function should_avoid_prey(pred::Agent, prey::Agent, env::Environment)::Bool
     Bool(get(env.specs, "mimicry", false)) || return false
 
     avoid_threshold = Float64(get(env.specs, "avoid_threshold", 0.5))
-    pred.value_estimate >= Float32(avoid_threshold) && prey.toxicity > 0.0f0
+    learned = pred.value_estimate >= Float32(avoid_threshold)
+
+    # Mullerian (default): avoidance fires only for actually-toxic prey.
+    # Batesian: avoidance fires for ANY prey whose signal has been learned,
+    # regardless of the prey's own toxicity. This lets palatable mimics
+    # exploit the predator's aversion memory built up against toxic
+    # model species sharing the same signal (Bates 1862). See
+    # apply_predator_toxin! for the "predator betrayal" decay that
+    # prevents runaway cheating.
+    if Bool(get(env.specs, "batesian_mimicry", false))
+        learned
+    else
+        learned && prey.toxicity > 0.0f0
+    end
 end
 
 # === CLADE.JL ADDITIONS NEEDED ===

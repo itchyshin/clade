@@ -83,6 +83,21 @@ ggplot(lr_df, aes(x = max_age, y = mean_lr_final)) +
   theme_minimal()
 ```
 
+
+### Calibrated regime (CMA-ES discovered)
+
+Running Phase 7 auto-calibration (`dev/audit/calibration/`) over the
+scenario's parameter subspace discovered the following regime, which
+produces a fitness improvement of **40.1x** over the defaults above. See
+`dev/audit/calibration/RESULTS.md` for the full CMA-ES results.
+
+```{r cephalopod-calibrated, eval=FALSE}
+# Parameter overrides discovered by CMA-ES (see dev/audit/calibration/):
+s <- default_specs()
+s$learning_rate_init_mean        <- 0.4745
+s$mutation_sd                    <- 0.0068
+# env <- run_alife(s)   # uncomment to run the calibrated regime
+```
 ```{r fig-cephalopod, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: evolved learning rate is highest under the shortest lifespan (max_age = 20) and declines as lifespan increases, consistent with the cephalopod paradox. Genetic evolution substitutes for within-lifetime learning when the payback period is long enough."}
 FIG("cephalopod_paradox")
 ```

@@ -53,18 +53,28 @@ cat("Total juveniles recorded:", sum(data$ticks$n_juveniles, na.rm = TRUE), "\n"
 FIG("19_parental_care")
 ```
 
-**What we found.** Running with `parental_care = TRUE` (`care_duration = 5`,
-`care_cost_per_tick = 2.0`), 80 agents, 25×25 grid, 300 ticks (seed 42): `n_juveniles`
-registered as 0 throughout the run. The parental care module (`parental_care.jl`) is
-compiled and included, but the graduation pathway — the mechanism by which carried
-offspring survive the obligate altricial phase and join the adult population — is not
-yet wired into the main tick loop (see `=== CLADE.JL ADDITIONS NEEDED ===` in the
-module file). Offspring proceed directly to the adult population regardless of
-`parental_care = TRUE`. Population variance was slightly lower with care (4,565 vs
-5,267), likely a stochastic difference rather than genuine buffering. With care
-`final_n = 12` vs no-care `final_n = 4` in a low-resource late-run scenario, suggesting
-the parameter settings stressed the population toward extinction in both conditions. The
-fully wired module will enable the brain size evolution interaction described in Theme 1.
+**What we found (post-0.3.0 kernel fix).** Running with `parental_care = TRUE`
+(`care_duration = 5`, `care_cost_per_tick = 2.0`), 80 agents, 25×25 grid, 300
+ticks (seed 42): `n_juveniles` reaches a peak of 40 and averages ~0.3 across
+ticks (juveniles come and go as offspring are born into the brood and graduate
+out). Total births: 92; total deaths: 168. The graduation pathway — wired up
+in 0.3.0 at [reproduce.jl:126](../../inst/julia/src/reproduce.jl#L126) after
+the earlier audit found it was a Phase-2 stub — correctly moves carried
+juveniles into the adult population when they reach
+`juvenile_independence_age` or `juvenile_independence_energy`.
+
+Under these specific displayed parameters the population thins to `final_n = 4`
+— `care_cost_per_tick = 2.0` per juvenile is expensive enough that
+high-care-load parents lose mass and fail to forage, a genuine cost-of-care
+dynamic rather than a module stub. Lower `care_cost_per_tick` (e.g. 0.5) or
+raise `feeding_rate` to stabilise the population across generations. The
+cost-of-care trade-off is now a real observable, no longer masked by
+unreachable code.
+
+**Before v0.3.0** this section reported "`n_juveniles` registered as 0
+throughout" and explained that the graduation pathway was not yet wired.
+That pathway was fixed in 0.3.0 (commit [7ad2b1d](../../dev/audit/review/SUMMARY.md))
+and the results above are from the current kernel.
 
 ### Discovery experiments
 

@@ -93,6 +93,21 @@ size was similar across conditions (no predators: 99 agents mean; predators: 96
 agents mean), confirming that selection, not population bottleneck, drives the
 size increase.
 
+
+### Calibrated regime (CMA-ES discovered)
+
+Running Phase 7 auto-calibration (`dev/audit/calibration/`) over the
+scenario's parameter subspace discovered the following regime, which
+produces a fitness improvement of **18.8x** over the defaults above. See
+`dev/audit/calibration/RESULTS.md` for the full CMA-ES results.
+
+```{r body-size-calibrated, eval=FALSE}
+# Parameter overrides discovered by CMA-ES (see dev/audit/calibration/):
+s <- default_specs()
+s$body_size_mutation_sd          <- 0.6806
+s$mutation_sd                    <- 0.0846
+# env <- run_alife(s)   # uncomment to run the calibrated regime
+```
 ```{r fig-body-size, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: mean body size evolves upward from the reference (1.0, dashed). The predation condition (pink) shows faster and larger increase than the predator-free baseline (green)."}
 FIG("04_body_size")
 ```

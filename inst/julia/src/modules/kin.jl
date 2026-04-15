@@ -195,10 +195,10 @@ function apply_iffolk!(env::Environment)
         xi, yi = Int(donor.x), Int(donor.y)
 
         # Collect relatives within radius (Manhattan scanning)
-        best_target     = nothing
-        best_r          = 0.0f0
-        n_cooperators   = 0
-        n_relatives     = 0
+        best_target        = nothing
+        best_r             = 0.0f0
+        n_coop_relatives   = 0
+        n_relatives        = 0
 
         for dx in -radius:radius, dy in -radius:radius
             (dx == 0 && dy == 0) && continue
@@ -213,6 +213,11 @@ function apply_iffolk!(env::Environment)
             r = compute_relatedness(donor, nb)
             if r >= r_min
                 n_relatives += 1
+                # Count cooperative KIN (not all neighbours) — the parliament
+                # of genes (Haig 2000) suppresses selfish alleles when the
+                # organism's kin network is cooperative, not when unrelated
+                # neighbours happen to be.
+                nb.helper_tendency > coop_thr && (n_coop_relatives += 1)
                 # Prefer most energy-depleted relative
                 if nb.energy < donor.energy * 0.7f0
                     if isnothing(best_target) || nb.energy < best_target.energy
@@ -221,8 +226,6 @@ function apply_iffolk!(env::Environment)
                     end
                 end
             end
-            # Count cooperators for parliament
-            nb.helper_tendency > coop_thr && (n_cooperators += 1)
         end
 
         # Energy transfer
@@ -233,10 +236,13 @@ function apply_iffolk!(env::Environment)
             n_transfers += 1
         end
 
-        # Parliament of genes: penalise defectors surrounded by cooperators
+        # Parliament of genes: penalise defectors whose kin network is
+        # cooperative (Haig 2000). The penalty fires when cooperative
+        # relatives outnumber non-cooperative relatives, i.e. the donor's
+        # own genes would gain inclusive-fitness benefit from cooperating.
         if parliament && donor.helper_tendency < 0.0f0 &&
-           n_cooperators > 0 && n_relatives > 0 &&
-           n_cooperators >= n_relatives ÷ 2
+           n_relatives > 0 &&
+           n_coop_relatives > n_relatives - n_coop_relatives
             donor.energy -= parl_cost
         end
     end

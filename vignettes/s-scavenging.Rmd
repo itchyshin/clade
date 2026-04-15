@@ -85,6 +85,21 @@ ggplot(dat, aes(x = t, y = mean_energy, colour = condition)) +
   theme_classic(base_size = 12)
 ```
 
+
+### Calibrated regime (CMA-ES discovered)
+
+Running Phase 7 auto-calibration (`dev/audit/calibration/`) over the
+scenario's parameter subspace discovered the following regime, which
+produces a fitness improvement of **12.0x** over the defaults above. See
+`dev/audit/calibration/RESULTS.md` for the full CMA-ES results.
+
+```{r scavenging-calibrated, eval=FALSE}
+# Parameter overrides discovered by CMA-ES (see dev/audit/calibration/):
+s <- default_specs()
+s$grass_rate                     <- 1
+s$idle_cost                      <- 1.528
+# env <- run_alife(s)   # uncomment to run the calibrated regime
+```
 ```{r fig-scavenging, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: scavengers (orange) maintain higher mean energy than non-scavengers (red) under identical low-grass conditions, with carrion providing a density-dependent buffer against starvation."}
 FIG("scavenging")
 ```

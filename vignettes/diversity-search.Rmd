@@ -201,6 +201,20 @@ print(result$specs[c("mutation_sd", "grass_rate", "crossover_rate")])
 - CMA-ES is faster per run for a single-objective answer; MAP-Elites is more
   informative per compute budget for multi-objective insight.
 
+### Scenario auto-calibration harness (0.3.0)
+
+A per-scenario CMA-ES harness ships under
+[`dev/audit/calibration/`](https://github.com/itchyshin/clade/tree/main/dev/audit/calibration).
+Each `s-*.Rmd` scenario has a fitness function encoding its biological
+claim (e.g. "negative slope of `mean_prior_sigma`" for the Baldwin
+effect, "late `n_altruistic_acts` per tick" for kin selection). Running
+`bash dev/audit/calibration/run_all.sh` launches all 31 in parallel
+(xargs -P 16) and writes per-scenario JSON with the best-discovered
+specs. Results are summarised in
+[`dev/audit/calibration/RESULTS.md`](https://github.com/itchyshin/clade/blob/main/dev/audit/calibration/RESULTS.md)
+— scenarios with meaningful improvement get a "Calibrated regime
+(CMA-ES discovered)" subsection in their vignette.
+
 ---
 
 ## 5. Custom diversity objective function

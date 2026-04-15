@@ -111,7 +111,35 @@ per tick before `tick_agents!`. Both sub-steps are no-ops when
 """
 function apply_niche_construction!(env::Environment)
     apply_shelter_building!(env)
+    apply_shelter_occupancy_benefit!(env)
     decay_shelters!(env)
+end
+
+"""
+    apply_shelter_occupancy_benefit!(env::Environment)
+
+Heritable niche-construction effect (Odling-Smee, Laland & Feldman 2003):
+agents occupying a sheltered cell receive an energy subsidy
+`shelter_occupancy_bonus * depth` per tick, representing the metabolic
+benefit of ancestral construction (wind-break, thermal buffer, predator
+concealment). Default bonus is 0 — behavior matches the pre-0.2 local-
+public-good semantics. Set `specs["shelter_occupancy_bonus"]` > 0 to
+enable heritable niche dynamics where offspring reap what ancestors
+built.
+
+No-op when `niche_construction == false` or the bonus is zero.
+"""
+function apply_shelter_occupancy_benefit!(env::Environment)
+    Bool(get(env.specs, "niche_construction", false)) || return
+    bonus = Float32(get(env.specs, "shelter_occupancy_bonus", 0.0))
+    bonus > 0.0f0 || return
+
+    @inbounds for ag in env.agents
+        ag.alive || continue
+        d = env.shelter_map[Int(ag.x), Int(ag.y)]
+        d > 0 && (ag.energy += bonus * Float32(d))
+    end
+    nothing
 end
 
 """

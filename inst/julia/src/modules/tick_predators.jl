@@ -63,13 +63,20 @@ function seed_predators!(env::Environment)
     cols        = size(env.grass, 2)
     init_energy = Float32(get(specs, "predator_energy_init", 150.0))
 
+    # Predators use a dedicated 15-input sensory vector (see
+    # `_sense_predator`). Build a predator-specific architecture so the
+    # brain's `n_inputs == 15`, not the prey's `_compute_n_inputs(specs)`
+    # which varies with input_radius and active sensory modules. Without
+    # this override, the predator brain reads prey-sense slots for its
+    # own inputs (silent size mismatch).
+    prey_arch   = _build_arch(specs)
+    hidden_arch = length(prey_arch) > 2 ? prey_arch[2:end-1] : Int32[]
+    pred_arch   = Int32[Int32(15); hidden_arch; Int32(5)]
+
     for _ in 1:n
         env.next_id += Int64(1)
 
-        # Build genome and brain using the same architecture as prey so that
-        # predators can evolve within the same parameter space.
-        arch = _build_arch(specs)
-        g    = make_genome(specs, arch, env.rng)
+        g    = make_genome(specs, pred_arch, env.rng)
         br   = make_brain(g, specs)
 
         px = Int32(rand(env.rng, 1:rows))
@@ -325,6 +332,14 @@ function _accumulate_attack!(pred::Agent, attack_str::Float32,
     # Mimicry: toxic prey damages predator and updates memory
     if prey.toxicity > 0.0f0
         env.n_toxic_attacks += Int32(1)
+        apply_predator_toxin!(pred, prey, env)
+    elseif Bool(get(env.specs, "batesian_mimicry", false)) &&
+           Bool(get(env.specs, "mimicry", false))
+        # Batesian: predator attacks a palatable mimic and receives no
+        # toxin. Learning still runs (prey.toxicity = 0), which decays
+        # the aversion memory toward zero — the "predator betrayal"
+        # mechanism that stops mimics exploiting the learned signal
+        # indefinitely.
         apply_predator_toxin!(pred, prey, env)
     end
 end

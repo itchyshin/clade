@@ -1008,7 +1008,8 @@ default_specs <- function() {
 
     # ── Mimicry / toxicity ─────────────────────────────────────────────────
     mimicry                    = FALSE,
-    toxicity_cost_per_tick     = 0.5,
+    batesian_mimicry           = FALSE,
+    toxicity_cost_per_tick     = 2.0,
     toxin_dose                 = 30.0,
     signal_memory_rate         = 0.3,
     avoid_threshold            = 0.5,
@@ -1029,6 +1030,7 @@ default_specs <- function() {
     shelter_max_depth          = 5L,
     shelter_min_energy         = 80.0,
     shelter_decay_prob         = 0.05,
+    shelter_occupancy_bonus    = 0.0,   # >0 to enable heritable niche benefit
 
     # ── Scavenging ─────────────────────────────────────────────────────────
     scavenging                 = FALSE,

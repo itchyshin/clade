@@ -78,6 +78,21 @@ ggplot(df, aes(t, mean_age, colour = pace)) +
   theme_minimal()
 ```
 
+
+### Calibrated regime (CMA-ES discovered)
+
+Running Phase 7 auto-calibration (`dev/audit/calibration/`) over the
+scenario's parameter subspace discovered the following regime, which
+produces a fitness improvement of **155.2x** over the defaults above. See
+`dev/audit/calibration/RESULTS.md` for the full CMA-ES results.
+
+```{r pace-of-life-calibrated, eval=FALSE}
+# Parameter overrides discovered by CMA-ES (see dev/audit/calibration/):
+s <- default_specs()
+s$metabolic_rate_mutation_sd     <- 0.1357
+s$metabolic_rate_init_mean       <- 22L
+# env <- run_alife(s)   # uncomment to run the calibrated regime
+```
 ```{r fig-pace-of-life, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: slow-pace agents (blue) maintain the highest mean age; fast-pace agents (red) have the lowest mean age but the highest per-tick birth rate. The three trajectories illustrate the life-history trade-off along the slow-fast continuum."}
 FIG("pace_of_life")
 ```

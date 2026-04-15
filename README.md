@@ -75,22 +75,44 @@ plot_run(data)   # population, energy, genetic diversity dashboard
 All modules are disabled by default and enabled with a single flag in the specs
 list. Modules can be freely combined.
 
-| Module | Flag | What it models |
+| Module | Flag(s) | What it models |
 |---|---|---|
 | Baseline | — | Foraging and neural evolution on a toroidal grass grid |
-| Complex landscape | `complex_landscape` | 3-layer forest; wing size evolves for canopy access |
-| Spatial sorting | `spatial_sorting` + `dispersal_evolution` | Invasion-front dispersal assortment (Shine et al. 2011) |
-| IFfolk + parliament | `iffolk_selection` | Inclusive fitness transfers + defector suppression |
-| Kin selection | `kin_selection` | Hamilton's rule, pedigree-based relatedness |
-| SIR disease | `disease` | Susceptible-Infected-Recovered epidemic dynamics |
-| Niche construction | `niche_construction` | Shelter building modifies the selection environment |
-| Body size | `body_size_evolution` | Allometric metabolic scaling |
+| Body size | `body_size_evolution` | Metabolic scaling (approximate Kleiber); size-foraging trade-off |
+| Brain size | `brain_size_evolution` | Cognitive-bonus × metabolic-cost; bootstrapping under `parental_care` |
+| Clutch size | `clutch_size_evolution` | r/K-style trade-off between clutch count and offspring quality |
+| Complex landscape | `complex_landscape` | 3-layer forest (grass / shrubs / canopy); wing-size evolves for canopy access |
+| Cooperation | `cooperation_evolution` | Public-goods games with helper-tendency evolution |
+| Cooperative breeding | `cooperative_breeding` | Helpers at the nest (Emlen 1982) |
 | Dispersal | `dispersal_evolution` | Heritable dispersal tendency |
+| Habitat preference | `habitat_preference_evolution` | Agents move toward preferred grass density |
+| IFfolk + parliament | `iffolk_selection`, `parliament_suppression` | Inclusive-fitness transfers + intragenomic-conflict suppression (Haig 2000; Fromhage & Jennions 2019) |
+| Kin selection | `kin_selection` | Hamilton's rule, pedigree-based relatedness (r = 0.5 / 0.25 / 0) |
+| Life history / pace of life | `metabolic_rate_evolution`, `aging_rate_evolution` | Metabolic rate ↔ lifespan trade-off |
+| Mating systems | `ploidy = 2`, `mate_choice` | Haploid / diploid; signal-preference assortative mating |
+| Mimicry | `mimicry` | Predator learning + warning colouration (currently Müllerian; Batesian disabled by design) |
+| Mutation-rate evolution | `mutation_rate_evolution` | Per-agent heritable `mutation_sd` |
+| Niche construction | `niche_construction` | Shelter-building modifies the selection environment (local public good). With `shelter_occupancy_bonus > 0`: shelters confer a heritable metabolic benefit to occupants (Odling-Smee et al. 2003) |
+| Batesian mimicry | `mimicry` + `batesian_mimicry` | Palatable mimics (`toxicity = 0`) exploit a predator's aversion for a shared signal; predator-betrayal decay prevents runaway cheating (Bates 1862) |
+| Parental care | `parental_care` | Obligate altriciality — offspring carried, fed, and graduated |
+| Parental investment | `parental_investment_evolution` | Evolved male / offspring-quality investment |
+| Phenotypic plasticity | `phenotypic_plasticity` | Environment-dependent reproduction threshold |
+| Predation | `predators`, `n_predators_init > 0` | Co-evolving predator guild with dedicated 15-input sensory brain |
+| Predator group defence | `group_defense` | Coordinated anti-predator behaviour |
+| Scavenging | `scavenging` | Carcass consumption; decay-based carcass lifetime |
+| Seasonal dynamics | `seasonal_amplitude > 0`, `winter_death_prob` | Resource oscillation + winter mortality |
+| SIR disease | `disease` | Susceptible–Infected–Recovered epidemic dynamics |
+| Signals / sexual selection | `signal_mating`, `signal_evolution_drift` | Signal-preference coevolution (Fisher 1915; Kirkpatrick & Ryan 1991) |
 | Social learning | `social_learning` | Copy successful neighbours' brain weights |
-| Parental care | `parental_care` | Carried offspring, obligate altriciality |
-| Mimicry / toxicity | `mimicry` | Predator learning + warning colouration |
-| Within-lifetime RL | `rl_mode = "actor_critic"` | REINFORCE-with-baseline; Baldwin effect |
-| Phenotypic plasticity | `phenotypic_plasticity` | Heritable sensory gain |
+| Spatial sorting | `spatial_sorting` + `dispersal_evolution` + `toroidal = FALSE` | Invasion-front dispersal assortment (Shine et al. 2011; needs bounded grid) |
+| Speciation | `speciation` | Genome-distance clustering + reproductive isolation |
+| Stress hypermutation | `stress_hypermutation` | SOS-style mutation-rate spike below `stress_threshold` |
+| Transgenerational epigenetics | `epigenetics` | Methylation inheritance on BNN sigma (Jablonka & Lamb 2005) |
+| Within-lifetime RL | `rl_mode = "actor_critic"` | REINFORCE score-function update on BNN posterior (Williams 1992; Blundell et al. 2015) |
+| Lamarckian inheritance | `lamarckian = TRUE` | RL-learned weights written back to genome before meiosis |
+| Quantised weights | `ann_weight_values` | Snap weights to a discrete set (e.g. ternary) after expression |
+
+See [`vignettes/parameter-reference.Rmd`](vignettes/parameter-reference.Rmd) for the complete parameter list.
 
 ---
 
@@ -134,6 +156,7 @@ If you use clade in published work, please cite:
   author  = {Nakagawa, Shinichi},
   title   = {clade: Agent-based evolutionary simulation with a Julia backend},
   year    = {2026},
+  note    = {R package version 0.3.0},
   url     = {https://github.com/itchyshin/clade}
 }
 ```

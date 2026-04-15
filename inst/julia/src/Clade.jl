@@ -33,7 +33,7 @@ of each tick in `remove_dead!()`. This is the same pattern used in alifeR
 """
 module Clade
 
-using Random: Xoshiro, seed!, default_rng
+using Random: Xoshiro, seed!, default_rng, randperm
 using Statistics: mean, std
 using LinearAlgebra: norm
 
@@ -704,13 +704,25 @@ function _agents_to_records(agents::Vector{Agent})
             immune_strength= Float64(ag.immune_strength),
             cooperation_level = Float64(ag.cooperation_level),
             metabolic_rate = Float64(ag.metabolic_rate),
+            aging_rate     = Float64(ag.aging_rate),
+            repro_threshold= Float64(ag.repro_threshold),
+            mutation_sd    = Float64(ag.mutation_sd),
+            learning_rate  = Float64(ag.learning_rate),
+            toxicity       = Float64(ag.toxicity),
+            habitat_preference = Float64(ag.habitat_preference),
+            plasticity     = Float64(ag.plasticity),
+            signal         = Float64.(ag.signal),
+            preference     = Float64.(ag.preference),
             num_offspring  = Int(ag.num_offspring),
             species_id     = Int(ag.species_id),
             wing_size      = Float64(ag.wing_size),
             niche_layer    = Int(ag.niche_layer),
             dispersal_tendency = Float64(ag.dispersal_tendency),
             helper_tendency    = Float64(ag.helper_tendency),
-            brain_size         = Float64(ag.brain_size)
+            brain_size         = Float64(ag.brain_size),
+            infected       = ag.infected,
+            immune         = ag.immune,
+            care_load      = Int(ag.care_load)
         )
     end
 end

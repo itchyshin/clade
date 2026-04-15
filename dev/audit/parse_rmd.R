@@ -127,7 +127,11 @@ audit_parse_rmd <- function(path) {
   sub('^"(.*)"$', "\\1", x)
 }
 
-`%||%` <- function(a, b) if (is.null(a) || is.na(a)) b else a
+`%||%` <- function(a, b) {
+  if (is.null(a)) return(b)
+  if (length(a) == 1L && is.na(a)) return(b)
+  a
+}
 
 .extract_fig_refs <- function(chunks) {
   refs <- list()

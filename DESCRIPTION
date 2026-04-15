@@ -1,6 +1,6 @@
 Package: clade
 Title: Agent-Based Evolutionary Simulation with Julia Backend
-Version: 0.1.1
+Version: 0.3.0
 Authors@R:
     person("Shinichi", "Nakagawa", role = c("aut", "cre"),
            email = "s.nakagawa@unsw.edu.au")
@@ -15,9 +15,11 @@ Description: Agent-based simulation of evolution and foraging ecology.
     Provides MAP-Elites, CMA-ES (pure R, no external dependencies), and
     finite-difference gradient parameter search.
 License: MIT + file LICENSE
+URL: https://itchyshin.github.io/clade/, https://github.com/itchyshin/clade
+BugReports: https://github.com/itchyshin/clade/issues
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Depends:
     R (>= 4.1.0)
 Imports:
@@ -32,6 +34,7 @@ Suggests:
     NLMR,
     rmarkdown,
     terra,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    tidyr
 Config/testthat/edition: 3
 VignetteBuilder: knitr

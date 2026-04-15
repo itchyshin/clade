@@ -1,3 +1,230 @@
+# clade 0.3.0
+
+## New observables
+
+- **`n_shelter_occupied`** (new column in `get_run_data()$ticks`).
+  Counts agents sitting on a sheltered cell at each tick. Paired with
+  `shelter_occupancy_bonus`, this gives a direct per-tick scalar for
+  the aggregate energy transfer from ancestors' niche constructions
+  to extant descendants — the Odling-Smee, Laland & Feldman (2003)
+  heritable-niche effect as a single log column.
+
+## Coverage
+
+- **`tests/testthat/test-mimicry-batesian.R`** — 11 direction-only
+  assertions for the Batesian-mode code path plus a regression guard
+  on the `toxicity_cost_per_tick = 2.0` default.
+- **`tests/testthat/test-niche-heritable.R`** — 7 assertions covering
+  `shelter_occupancy_bonus` default (0), presence of
+  `n_shelter_occupied` in log, bounded by agent count, zero when
+  `niche_construction = FALSE`, and directional check that the
+  occupancy bonus does not reduce mean_energy.
+
+## Continuous integration
+
+- `.github/workflows/R-CMD-check.yaml` runs `R CMD check` on every
+  push and PR to main/master. Tests and vignettes are skipped
+  (require Julia, not on GH runners); the check still catches
+  package-level issues (namespace, docs, DESCRIPTION).
+- `.github/workflows/pkgdown.yaml` builds and deploys the pkgdown
+  site on push to main/master and on release publication.
+
+## Code quality
+
+- `R/visualization.R`: extracted `.plot_empty(message)` helper,
+  replaced nine duplicated "theme_void with annotation" fallback
+  blocks. File is ~40 lines shorter; behavior byte-identical.
+- `inst/julia/src/reproduce.jl`: dropped a stale "Phase 2 stub"
+  remark that referred to graduate_offspring!() before it was
+  wired up in commit 7ad2b1d.
+
+## Docs — post-release refresh
+
+- `vignettes/showcase.Rmd`: Baldwin section gains the honest
+  "σ rises at defaults; CMA-ES finds a narrowing regime" caveat;
+  Mimicry and Niche sections document the new 0.3.0 flags.
+- `vignettes/introduction.Rmd`, `vignettes/scenarios.Rmd`: gallery
+  tables surface `batesian_mimicry` and `shelter_occupancy_bonus`.
+- `vignettes/s-mimicry.Rmd`, `vignettes/s-niche.Rmd`: Key-parameters
+  tables gain the new flags; What-we-found sections refreshed to
+  describe the current (post-0.3.0) kernel rather than the
+  pre-fix state.
+- `vignettes/s-parental-care.Rmd`, `s-parental-investment.Rmd`:
+  re-measured at displayed specs with the fixed graduation
+  pathway; What-we-found quotes updated from "n_juveniles = 0
+  throughout" to the actual current trajectories.
+- `vignettes/baldwin-effect.Rmd`: Addendum section documents the
+  CMA-ES-discovered regime where canalization emerges
+  (grass_rate 0.027, learning_rate_init_mean 0.007).
+- `vignettes/figures/showcase_bnn_canalization_demo.png`:
+  previously orphaned (no generator produced it); now emitted by
+  `gen_fixed_patch_fig.R` under both its original filename and the
+  canalization alias, keeping both Baldwin articles in sync with
+  live kernel biology.
+
+## New biological mechanisms
+
+- **Batesian mimicry** (`specs$batesian_mimicry = TRUE`). A palatable
+  mimic (toxicity = 0) whose signal matches a toxic model species
+  now benefits from the predator's learned aversion — the predator
+  avoids the mimic alongside true toxic prey. Repeated attacks on
+  palatable mimics decay the predator's aversion memory
+  (Rescorla-Wagner toward 0), reproducing the Bates–Wallace predator
+  discrimination-learning cycle. Default `FALSE` — existing runs are
+  byte-identical. Reference: Bates (1862) *Trans. Linn. Soc.*
+  23:495–566; Ruxton, Sherratt & Speed (2004) *Avoiding Attack*.
+- **Heritable niche-construction benefit**
+  (`specs$shelter_occupancy_bonus > 0`). Agents occupying a
+  sheltered cell receive `bonus × depth` energy per tick, the
+  Odling-Smee, Laland & Feldman (2003) heritable-environment
+  effect. Existing `niche_construction` semantics (grass
+  suppression + persistence + decay) are unchanged; the new
+  parameter is additive and defaults to 0 (no behavior change).
+
+## Ecology corrections
+
+- `R/run.R` `.validate_specs()` now warns when
+  `spatial_sorting = TRUE` combined with `toroidal = TRUE`.
+  Shine et al. (2011) invasion-front dynamics require a bounded
+  grid; on a torus the population centroid wraps and the "front"
+  concept is geometrically ill-posed.
+- `toxicity_cost_per_tick` default raised `0.5 → 2.0`. The prior
+  default equalled `idle_cost`, making toxicity effectively free
+  (Zahavi 1975 handicap principle violated). 2.0 makes a
+  maximally-toxic agent pay ~4× the idle baseline per tick.
+- `inst/julia/src/modules/disease.jl` docstring now documents that
+  transmission is **density-dependent** (per-neighbour contact, not
+  `β · S · I / N` frequency-dependent SIR) and that
+  `disease_duration` is a deterministic recovery period
+  (delta-distribution, not exponential). Includes the mean-field
+  `R0 ≈ transmission_prob × 8 × disease_duration` approximation.
+
+## CMA-ES auto-calibration harness
+
+- New `dev/audit/calibration/` harness drives
+  `search_cmaes()` over each scenario's parameter subspace, with a
+  per-scenario fitness function encoding the biological claim.
+  Parallel launcher (`run_all.sh`) runs 31 scenarios concurrently.
+- Full Phase 7 results in
+  [`dev/audit/calibration/RESULTS.md`](dev/audit/calibration/RESULTS.md).
+  Headline discoveries: a regime where the **Baldwin effect does
+  emerge** (`grass_rate ≈ 0.027`, `learning_rate_init_mean ≈ 0.007`)
+  in the otherwise non-canalising foraging world; a regime where
+  speciation fires (`mutation_sd ≈ 1.31`); the cephalopod paradox
+  (Liedtke & Fromhage 2019) reproduced at short max_age with high
+  learning rate.
+
+## Scenario audit
+
+A systematic end-to-end audit of the 35 scenario vignettes under
+`vignettes/s-*.Rmd` was performed. Each vignette's displayed code was run
+against the live Julia kernel, the oracle metric trajectory inspected, and the
+outcome classified. Full audit machinery ships under `dev/audit/` so this can
+be rerun. Final state: 30 scenarios OK, 2 aggregate galleries (s-cross-module,
+s-module-comparison) by design without a direction oracle, 2 search-only
+scenarios (s-bad-science, s-map-elites) by design without trajectory output,
+and 1 documented limitation (s-stress-hypermutation, flat mutation rate at
+displayed defaults).
+
+## Julia kernel
+
+- **BNN REINFORCE score function fixed.** The previous update rule was
+  `mu[i] += lr * advantage * sigma[i]`, which is not the score function of
+  the Gaussian policy. The new rule
+  `mu[i] += lr * advantage * (w_sample[i] - mu[i]) / sigma[i]^2` matches
+  the exact score from Williams (1992) and Blundell et al. (2015) §3.2.
+  A new `last_sample::Vector{Float32}` field on `BNNBrain` caches the
+  Thompson-sampled weights from `forward()` for use by `bnn_update!`.
+  This is likely the main reason earlier runs showed no Baldwin-effect
+  sigma narrowing even in favourable regimes.
+- **Parliament-of-genes penalty logic fixed** in `modules/kin.jl`. The
+  counter previously included cooperators across all neighbours; now it
+  counts cooperative kin separately, and the penalty fires when
+  cooperative relatives outnumber non-cooperative relatives — consistent
+  with Haig (2000) intragenomic conflict suppression.
+- **Predator dedicated sensory architecture.** `seed_predators!` now
+  builds a predator-specific brain architecture `[15, hidden..., 5]` so
+  the brain's `n_inputs` matches the 15-element predator sense vector.
+  Previously predators used the prey's architecture (dynamic size
+  depending on `input_radius` and active sensory modules), producing a
+  silent dimension mismatch whenever those defaults changed.
+- **Mutation-rate evolution uses per-agent trait.** When
+  `mutation_rate_evolution = TRUE`, `reproduce.jl` now reads
+  `parent.mutation_sd` as the base mutation rate for meiosis. Previously
+  the global `specs["mutation_sd"]` was used unconditionally, so the
+  evolved trait never propagated. The stress-hypermutation multiplier
+  continues to apply on top.
+- **Parental-care graduation pathway wired up.** `reproduce.jl:126-131` was a
+  Phase 2 stub that pushed offspring straight into `env.agents` even when
+  `parental_care = TRUE`. Offspring now enter the parent's
+  `carried_offspring` brood (with `care_load += 1`), age there via
+  `age_juveniles!`, are fed via `feed_offspring!`, and graduate to the
+  main agent pool via `graduate_offspring!` when they reach
+  `juvenile_independence_age` or `juvenile_independence_energy`.
+  Before the fix, `n_juveniles` was always 0 in `s-parental-care` and
+  `s-parental-investment`; after, typical runs log hundreds of carried
+  juveniles.
+- **`randperm` now imported in `Clade.jl`.** Latent bug that only surfaced
+  after the parental-care fix enabled the `graduate_offspring!` code path:
+  `randperm` was referenced in `modules/parental_care.jl:153` but not
+  imported in the `using Random` line.
+- **Include-order fix** (`inst/julia/src/brains/ann.jl` → `bnn.jl`). The
+  `_quantize_brain_weights!(::BNNBrain, ...)` method was defined in `ann.jl`
+  before `bnn.jl` was loaded; on Julia 1.12 this aborts module load with
+  `UndefVarError: BNNBrain`. The method now lives in `bnn.jl` alongside the
+  type, matching the method's dispatch target.
+- **Manifest regenerated** for Julia ≥ 1.11 compatibility (previously pinned
+  to Statistics 1.10 which doesn't ship with 1.12). Project.toml is
+  unchanged.
+
+## Vignettes
+
+- **`s-pop-genetics.Rmd` chunk rewrite.** The displayed code called
+  `h2$ci` and `plot(h2)`, neither of which
+  `estimate_heritability()` returns. The chunk now shows the lag-1
+  autocorrelation proxy (what the function actually computes) and plots the
+  mean trajectory that the proxy is derived from, with a note pointing to
+  `heritability_estimate()` for the parent-offspring-regression route.
+- **`DESCRIPTION`**: `tidyr` added to `Suggests` because
+  `vignettes/s-kitchen-sink.Rmd` and `vignettes/s-seasonal.Rmd` call
+  `tidyr::pivot_longer()`.
+
+## Infrastructure (under `dev/audit/`)
+
+- Rmd parser (`parse_rmd.R`) extracts displayed chunks, figure refs, and
+  "What we found" prose from every scenario.
+- Scenario oracle (`scenario_oracle.R`) maps vignettes to expected module
+  flags and a direction-only signal oracle. Each entry carries a comment
+  documenting *why* the oracle is phrased as it is, grounded in the
+  vignette's own reported findings (several vignettes document honest
+  negative results and the oracle matches them).
+- Serial driver (`run_audit.R`) runs all scenarios in one warm Julia session
+  — parallel forks deadlock JuliaConnectoR's socket; sequential is reliable
+  and completes in ~5–7 min.
+- Text-drift scanner (`text_drift_scan.R`) catches displayed-vs-prose
+  numeric drift without running the simulation.
+- Consolidation survey (`consolidation_report.md`) enumerates ~550 lines of
+  refactor opportunities across `R/` and `inst/julia/src/modules/`; scheduled
+  for 0.3.0.
+- `tests/testthat/test-scenario-signals.R` asserts direction-only signals
+  for every scenario with an oracle, robust to seed noise.
+
+## Known limitations surfaced by the audit
+
+These are documented in each vignette's "What we found" section and are
+intentionally preserved rather than papered over:
+
+- BNN prior sigma rises rather than narrows in a competitive foraging world
+  (s-baldwin). The Baldwin effect as formalised by Hinton & Nowlan (1987)
+  requires a stable global fitness peak; clade's default world does not
+  provide one. The vignette's 45-run 3×3 factorial plus run-length
+  experiments (500/1000/2000/5000 ticks) establish this rigorously.
+- `stress_hypermutation` scales `specs["mutation_sd"]` transiently at
+  reproduction rather than mutating the per-agent `ag.mutation_sd` field,
+  so the logged `mean_mutation_rate` stays flat even when the mechanism
+  fires. The observable signal is a transient rise in `genetic_diversity`
+  during resource crashes.
+
 # clade 0.1.1 (development)
 
 ## Bug fixes

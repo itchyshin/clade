@@ -75,8 +75,12 @@ test_that("no unintentional NA values in default_specs()", {
   # random_seed = NA_integer_ is intentional — excluded.
   # world_params_to_evolve = character(0) is length 0, not NA — harmless,
   # but we exclude it too so the vapply stays length-1 safe.
+  # fixed_patch_x / fixed_patch_y = NA_integer_ by design: they MUST be
+  # set by the user before enabling fixed_patch, so NA-by-default is a
+  # signal of "unconfigured", not a bug.
   s        <- default_specs()
-  s_check  <- s[!names(s) %in% c("random_seed", "world_params_to_evolve")]
+  s_check  <- s[!names(s) %in% c("random_seed", "world_params_to_evolve",
+                                  "fixed_patch_x", "fixed_patch_y")]
   na_flags <- vapply(
     s_check,
     function(x) length(x) == 1L && is.na(x),

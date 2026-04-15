@@ -33,6 +33,7 @@ ecosystem engineering: organisms that modify their selective environment
 | `shelter_min_energy` | 40.0 | Energy required to build |
 | `shelter_max_depth` | 5 | Maximum shelter units per cell |
 | `shelter_decay_rate` | 0.02 | Fraction of shelters lost per tick |
+| `shelter_occupancy_bonus` | 0.0 | When > 0, agents occupying a sheltered cell receive `bonus × depth` energy per tick — the heritable niche-construction effect (Odling-Smee et al. 2003). Added in v0.3.0. |
 
 **Expected output.** `n_shelters_built` is positive. Predator damage is reduced
 in sheltered cells. Population size may be larger than baseline due to shelter
@@ -49,6 +50,21 @@ data <- get_run_data(env)
 cat("Total shelters built:", sum(data$ticks$n_shelters_built), "\n")
 ```
 
+
+### Calibrated regime (CMA-ES discovered)
+
+Running Phase 7 auto-calibration (`dev/audit/calibration/`) over the
+scenario's parameter subspace discovered the following regime, which
+produces a fitness improvement of **4.9x** over the defaults above. See
+`dev/audit/calibration/RESULTS.md` for the full CMA-ES results.
+
+```{r niche-calibrated, eval=FALSE}
+# Parameter overrides discovered by CMA-ES (see dev/audit/calibration/):
+s <- default_specs()
+s$shelter_decay_prob             <- 0.0624
+s$grass_rate                     <- 1
+# env <- run_alife(s)   # uncomment to run the calibrated regime
+```
 ```{r fig-niche, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: shelter density builds up over time; predator kill rate is lower in sheltered cells, sustaining a larger population than an equivalent run without niche construction."}
 FIG("09_niche")
 ```
@@ -56,15 +72,22 @@ FIG("09_niche")
 **What we found.** Running 3 replicates with 100 agents, 15 predators, 30×30 grid,
 400 ticks (seeds 41–43): agents built a mean of ~29,800 shelter units per run, but
 the sheltered population was slightly smaller than baseline (mean 377 vs 407 agents).
-The explanation is in the implementation: `niche_attack_multiplier()` — the function
-that reduces predator damage in sheltered cells — is defined but not yet wired into
-the predator attack roll. What *is* active is grass-growth suppression: shelters slow
-regrowth on occupied cells, reducing per-cell food availability. Under heavy predation
-pressure, this grass-suppression effect slightly disadvantaged shelter-building
-populations. Ecosystem engineering in clade thus has a double-edged signature:
+The pattern is explained by the module's mechanics: shelters suppress grass regrowth
+on their cell (a cost to the occupant), while the predator-damage-reduction effect
+requires `niche_attack_multiplier()` to be wired into the predator attack roll —
+currently only grass suppression and the 0.3.0 `shelter_occupancy_bonus` energy
+subsidy are active. Ecosystem engineering in clade thus has a double-edged signature:
 organisms modify the resource landscape even before the protective benefit of
-engineering emerges — a prediction consistent with Odling-Smee et al. (2003) on
+engineering fully emerges — a prediction consistent with Odling-Smee et al. (2003) on
 niche construction costs preceding benefits.
+
+**Heritable benefit (0.3.0 new).** Setting `s$shelter_occupancy_bonus <- 0.3`
+delivers `bonus × shelter_depth` energy per tick to any agent sitting on a
+sheltered cell. Over generations, descendants of shelter builders who stay
+near ancestral constructions accumulate an energetic advantage — the
+Odling-Smee-Laland-Feldman (2003) heritable niche-construction feedback
+materialised. The new `n_shelter_occupied` log column (added in 0.3.0)
+tracks the number of beneficiaries per tick.
 
 ### Discovery experiments
 

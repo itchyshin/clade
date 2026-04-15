@@ -1,0 +1,33 @@
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+Starting Julia session...
+Condition 1: BNN baseline (grass_rate=0.10, n=150, 3000 ticks)...
+clade: starting Julia session...
+Starting Julia ...
+clade: Julia 1.12.6 ready.
+clade: 150 agents, 3000 ticks, brain=bnn, ploidy=2
+  n range: 20–281 | final sigma: 0.500
+Condition 2 seed 1/5...
+  seed 1: n range 0–75 | final sigma 0.500 | CRASH tick 994
+Condition 2 seed 2/5...
+  seed 2: n range 0–75 | final sigma 0.500 | CRASH tick 1968
+Condition 2 seed 3/5...
+  seed 3: n range 0–75 | final sigma 0.500 | CRASH tick 2930
+Condition 2 seed 4/5...
+  seed 4: n range 2–75 | final sigma 0.500 | survived
+Condition 2 seed 5/5...
+  seed 5: n range 1–75 | final sigma 0.500 | survived
+
+2/5 seeds survived.
+Best seed: final sigma=0.500, n range 2–75
+Saved: showcase_bnn_hn_demo.png
+Done.

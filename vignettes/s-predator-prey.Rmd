@@ -73,6 +73,21 @@ ggplot(data$ticks, aes(x = t)) +
   theme_classic(base_size = 12)
 ```
 
+
+### Calibrated regime (CMA-ES discovered)
+
+Running Phase 7 auto-calibration (`dev/audit/calibration/`) over the
+scenario's parameter subspace discovered the following regime, which
+produces a fitness improvement of **3.1x** over the defaults above. See
+`dev/audit/calibration/RESULTS.md` for the full CMA-ES results.
+
+```{r predator-prey-calibrated, eval=FALSE}
+# Parameter overrides discovered by CMA-ES (see dev/audit/calibration/):
+s <- default_specs()
+s$predator_attack_strength       <- 1L
+s$grass_rate                     <- 4.22e-06
+# env <- run_alife(s)   # uncomment to run the calibrated regime
+```
 ```{r fig-predators, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: prey and predator populations oscillate with predator peaks lagging prey peaks by approximately 30 ticks, consistent with Lotka-Volterra dynamics."}
 FIG("14_predators")
 ```

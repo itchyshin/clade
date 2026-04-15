@@ -71,6 +71,21 @@ ggplot(data$ticks, aes(t, n_species)) +
   theme_minimal()
 ```
 
+
+### Calibrated regime (CMA-ES discovered)
+
+Running Phase 7 auto-calibration (`dev/audit/calibration/`) over the
+scenario's parameter subspace discovered the following regime, which
+produces a fitness improvement of **189.1x** over the defaults above. See
+`dev/audit/calibration/RESULTS.md` for the full CMA-ES results.
+
+```{r speciation-calibrated, eval=FALSE}
+# Parameter overrides discovered by CMA-ES (see dev/audit/calibration/):
+s <- default_specs()
+s$isolation_threshold            <- 0.5127
+s$mutation_sd                    <- 1.31
+# env <- run_alife(s)   # uncomment to run the calibrated regime
+```
 ```{r fig-18-speciation, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: n_species rises from 1 to 2-4 as genome divergence accumulates beyond the isolation threshold. Each step in the staircase represents a speciation event."}
 FIG("18_speciation")
 ```

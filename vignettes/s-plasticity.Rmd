@@ -47,6 +47,22 @@ data <- get_run_data(env)
 cat("Final plasticity:", tail(data$ticks$mean_plasticity, 1L), "\n")
 ```
 
+
+### Calibrated regime (CMA-ES discovered)
+
+Running Phase 7 auto-calibration (`dev/audit/calibration/`) over the
+scenario's parameter subspace discovered the following regime, which
+produces a fitness improvement of **38.1x** over the defaults above. See
+`dev/audit/calibration/RESULTS.md` for the full CMA-ES results.
+
+```{r plasticity-calibrated, eval=FALSE}
+# Parameter overrides discovered by CMA-ES (see dev/audit/calibration/):
+s <- default_specs()
+s$plasticity_init_mean           <- 0.6972
+s$plasticity_mutation_sd         <- 0.1405
+s$grass_rate                     <- 0.0264
+# env <- run_alife(s)   # uncomment to run the calibrated regime
+```
 ```{r fig-plasticity, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: mean plasticity evolves over time. In stable environments it typically decreases; in seasonally varying environments it is maintained at intermediate values."}
 FIG("22_plasticity")
 ```
