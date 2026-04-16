@@ -145,7 +145,7 @@
 </h1></div>
 <p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="Lifecycle: experimental"></a> <a href="https://opensource.org/licenses/MIT" class="external-link"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a> <a href="https://itchyshin.github.io/clade/" class="external-link"><img src="https://img.shields.io/badge/docs-pkgdown-blue.svg" alt="pkgdown"></a></p>
 <p><strong>Agent-based evolutionary simulation with a Julia backend and R interface.</strong></p>
-<p><code>clade</code> runs populations of digital organisms on a renewable resource grid. Each agent carries a heritable neural-network genome; natural selection acts on brain weights, life-history traits, and — with optional modules — body size, dispersal tendency, wing morphology, cooperative behaviour, and more.</p>
+<p><code>clade</code> runs populations of digital organisms on a renewable resource grid. Each agent carries a heritable neural-network genome; natural selection acts on brain weights, life-history traits, and — with 30+ optional modules — body size, dispersal tendency, mimicry, coevolving parasites, parental care, cooperative breeding, disease, and more. Every biological scenario is backed by a <a href="dev/audit/fidelity/DASHBOARD.html">multi-seed fidelity audit</a> against the primary literature (22 of 30 auditable scenarios pass; 5 have direction-correct but magnitude-limited signals; 0 contradict theory).</p>
 <p>The simulation kernel is written in Julia for performance. R is the interface: you set parameters, call <code><a href="reference/run_alife.html">run_alife()</a></code> once, and receive the full simulation environment back for analysis and visualisation. The R–Julia boundary is crossed <strong>once per run</strong>, not once per tick, so large populations and long simulations stay fast.</p>
 <hr>
 <div class="section level2">
@@ -285,7 +285,8 @@
 <tr class="even">
 <td>Mimicry</td>
 <td><code>mimicry</code></td>
-<td>Predator learning + warning colouration (currently Müllerian; Batesian disabled by design)</td>
+<td>Predator signal-vector memory + delta-rule Rescorla-Wagner + aposematic pleiotropy (<code>signal_toxicity_coupling</code>). Müllerian by default; Batesian via <code>batesian_mimicry = TRUE</code>
+</td>
 </tr>
 <tr class="odd">
 <td>Mutation-rate evolution</td>
@@ -299,16 +300,14 @@
 <td>Shelter-building modifies the selection environment (local public good). With <code>shelter_occupancy_bonus &gt; 0</code>: shelters confer a heritable metabolic benefit to occupants (Odling-Smee et al. 2003)</td>
 </tr>
 <tr class="odd">
-<td>Batesian mimicry</td>
-<td>
-<code>mimicry</code> + <code>batesian_mimicry</code>
-</td>
-<td>Palatable mimics (<code>toxicity = 0</code>) exploit a predator’s aversion for a shared signal; predator-betrayal decay prevents runaway cheating (Bates 1862)</td>
-</tr>
-<tr class="even">
 <td>Parental care</td>
 <td><code>parental_care</code></td>
 <td>Obligate altriciality — offspring carried, fed, and graduated</td>
+</tr>
+<tr class="even">
+<td>Neonatal foraging deficit</td>
+<td><code>neonatal_foraging_deficit &gt; 0</code></td>
+<td>Young agents can’t forage at adult efficiency; parental care bridges the gap (Aiello &amp; Wheeler 1995; Isler &amp; van Schaik 2009)</td>
 </tr>
 <tr class="odd">
 <td>Parental investment</td>
@@ -385,16 +384,21 @@
 <td>Methylation inheritance on BNN sigma (Jablonka &amp; Lamb 2005)</td>
 </tr>
 <tr class="even">
-<td>Within-lifetime RL</td>
-<td><code>rl_mode = "actor_critic"</code></td>
-<td>REINFORCE score-function update on BNN posterior (Williams 1992; Blundell et al. 2015)</td>
+<td>Coevolving parasites</td>
+<td><code>coevolving_parasites</code></td>
+<td>Hamilton 1980 Red Queen. Continuous-trait (signal centroid tracking) and discrete-allele (Hamming haplotype matching with Mendelian inheritance) modes</td>
 </tr>
 <tr class="odd">
+<td>Within-lifetime RL</td>
+<td><code>rl_mode = "actor_critic"</code></td>
+<td>REINFORCE score-function update on BNN posterior (Williams 1992; Blundell et al. 2015). Use <code>bnn_sample_freq = 5</code> with BNN brains.</td>
+</tr>
+<tr class="even">
 <td>Lamarckian inheritance</td>
 <td><code>lamarckian = TRUE</code></td>
 <td>RL-learned weights written back to genome before meiosis</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Quantised weights</td>
 <td><code>ann_weight_values</code></td>
 <td>Snap weights to a discrete set (e.g. ternary) after expression</td>
@@ -447,6 +451,34 @@
 <hr>
 </div>
 <div class="section level2">
+<h2 id="fidelity-audit">Fidelity audit<a class="anchor" aria-label="anchor" href="#fidelity-audit"></a>
+</h2>
+<p>Every biological scenario is backed by a multi-seed fidelity audit that cross-references the primary literature, the alifeR R prototype, and (where applicable) the MATLAB ancestor codebase. Current ledger (as of 0.5.4):</p>
+<table class="table">
+<thead><tr class="header">
+<th>Status</th>
+<th>Count</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>✅ Passed</td>
+<td>
+<strong>22</strong> of 30 auditable scenarios</td>
+</tr>
+<tr class="even">
+<td>🟠 Passed-consistent (direction correct, magnitude limited)</td>
+<td><strong>5</strong></td>
+</tr>
+<tr class="odd">
+<td>🔴 Contradicts</td>
+<td><strong>0</strong></td>
+</tr>
+</tbody>
+</table>
+<p>The five 🟠 scenarios (dispersal-IFD, mating-systems, mimicry, plasticity, Baldwin effect) have honestly-documented kernel or ecology limitations. All audit reports, runners, and figures live under <a href="dev/audit/fidelity/"><code>dev/audit/fidelity/</code></a>. See the <a href="dev/audit/fidelity/DASHBOARD.html">audit dashboard</a> for the full ledger with evidence strength, honest nulls, and retractions.</p>
+<hr>
+</div>
+<div class="section level2">
 <h2 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
 </h2>
 <p>Full documentation is available at <strong><a href="https://itchyshin.github.io/clade/" class="external-link uri">https://itchyshin.github.io/clade/</a></strong>.</p>
@@ -493,7 +525,7 @@
 <span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  <span class="dt">author</span>  = {Nakagawa, Shinichi},</span>
 <span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  <span class="dt">title</span>   = {clade: Agent-based evolutionary simulation with a Julia backend},</span>
 <span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>  <span class="dt">year</span>    = {2026},</span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>  <span class="dt">note</span>    = {R package version 0.3.0},</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>  <span class="dt">note</span>    = {R package version 0.5.4},</span>
 <span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>  <span class="dt">url</span>     = {https://github.com/itchyshin/clade}</span>
 <span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>}</span></code></pre></div>
 <hr>

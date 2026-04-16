@@ -11,9 +11,13 @@ interface.**
 
 `clade` runs populations of digital organisms on a renewable resource
 grid. Each agent carries a heritable neural-network genome; natural
-selection acts on brain weights, life-history traits, and — with
-optional modules — body size, dispersal tendency, wing morphology,
-cooperative behaviour, and more.
+selection acts on brain weights, life-history traits, and — with 30+
+optional modules — body size, dispersal tendency, mimicry, coevolving
+parasites, parental care, cooperative breeding, disease, and more. Every
+biological scenario is backed by a [multi-seed fidelity
+audit](dev/audit/fidelity/DASHBOARD.md) against the primary literature
+(22 of 30 auditable scenarios pass; 5 have direction-correct but
+magnitude-limited signals; 0 contradict theory).
 
 The simulation kernel is written in Julia for performance. R is the
 interface: you set parameters, call
@@ -96,11 +100,11 @@ the specs list. Modules can be freely combined.
 | Kin selection                 | `kin_selection`                                                | Hamilton’s rule, pedigree-based relatedness (r = 0.5 / 0.25 / 0)                                                                                                                                  |
 | Life history / pace of life   | `metabolic_rate_evolution`, `aging_rate_evolution`             | Metabolic rate ↔︎ lifespan trade-off                                                                                                                                                               |
 | Mating systems                | `ploidy = 2`, `mate_choice`                                    | Haploid / diploid; signal-preference assortative mating                                                                                                                                           |
-| Mimicry                       | `mimicry`                                                      | Predator learning + warning colouration (currently Müllerian; Batesian disabled by design)                                                                                                        |
+| Mimicry                       | `mimicry`                                                      | Predator signal-vector memory + delta-rule Rescorla-Wagner + aposematic pleiotropy (`signal_toxicity_coupling`). Müllerian by default; Batesian via `batesian_mimicry = TRUE`                     |
 | Mutation-rate evolution       | `mutation_rate_evolution`                                      | Per-agent heritable `mutation_sd`                                                                                                                                                                 |
 | Niche construction            | `niche_construction`                                           | Shelter-building modifies the selection environment (local public good). With `shelter_occupancy_bonus > 0`: shelters confer a heritable metabolic benefit to occupants (Odling-Smee et al. 2003) |
-| Batesian mimicry              | `mimicry` + `batesian_mimicry`                                 | Palatable mimics (`toxicity = 0`) exploit a predator’s aversion for a shared signal; predator-betrayal decay prevents runaway cheating (Bates 1862)                                               |
 | Parental care                 | `parental_care`                                                | Obligate altriciality — offspring carried, fed, and graduated                                                                                                                                     |
+| Neonatal foraging deficit     | `neonatal_foraging_deficit > 0`                                | Young agents can’t forage at adult efficiency; parental care bridges the gap (Aiello & Wheeler 1995; Isler & van Schaik 2009)                                                                     |
 | Parental investment           | `parental_investment_evolution`                                | Evolved male / offspring-quality investment                                                                                                                                                       |
 | Phenotypic plasticity         | `phenotypic_plasticity`                                        | Environment-dependent reproduction threshold                                                                                                                                                      |
 | Predation                     | `predators`, `n_predators_init > 0`                            | Co-evolving predator guild with dedicated 15-input sensory brain                                                                                                                                  |
@@ -114,7 +118,8 @@ the specs list. Modules can be freely combined.
 | Speciation                    | `speciation`                                                   | Genome-distance clustering + reproductive isolation                                                                                                                                               |
 | Stress hypermutation          | `stress_hypermutation`                                         | SOS-style mutation-rate spike below `stress_threshold`                                                                                                                                            |
 | Transgenerational epigenetics | `epigenetics`                                                  | Methylation inheritance on BNN sigma (Jablonka & Lamb 2005)                                                                                                                                       |
-| Within-lifetime RL            | `rl_mode = "actor_critic"`                                     | REINFORCE score-function update on BNN posterior (Williams 1992; Blundell et al. 2015)                                                                                                            |
+| Coevolving parasites          | `coevolving_parasites`                                         | Hamilton 1980 Red Queen. Continuous-trait (signal centroid tracking) and discrete-allele (Hamming haplotype matching with Mendelian inheritance) modes                                            |
+| Within-lifetime RL            | `rl_mode = "actor_critic"`                                     | REINFORCE score-function update on BNN posterior (Williams 1992; Blundell et al. 2015). Use `bnn_sample_freq = 5` with BNN brains.                                                                |
 | Lamarckian inheritance        | `lamarckian = TRUE`                                            | RL-learned weights written back to genome before meiosis                                                                                                                                          |
 | Quantised weights             | `ann_weight_values`                                            | Snap weights to a discrete set (e.g. ternary) after expression                                                                                                                                    |
 
@@ -138,6 +143,28 @@ differ.
 | `"grn"`         | Gene regulatory network topology; sparse and biologically motivated     |
 | `"transformer"` | Self-attention architecture; highest capacity, slowest                  |
 | `"synthesis"`   | Symbolic rule extraction from evolved weights                           |
+
+------------------------------------------------------------------------
+
+## Fidelity audit
+
+Every biological scenario is backed by a multi-seed fidelity audit that
+cross-references the primary literature, the alifeR R prototype, and
+(where applicable) the MATLAB ancestor codebase. Current ledger (as of
+0.5.4):
+
+| Status                                                      | Count                            |
+|-------------------------------------------------------------|----------------------------------|
+| ✅ Passed                                                   | **22** of 30 auditable scenarios |
+| 🟠 Passed-consistent (direction correct, magnitude limited) | **5**                            |
+| 🔴 Contradicts                                              | **0**                            |
+
+The five 🟠 scenarios (dispersal-IFD, mating-systems, mimicry,
+plasticity, Baldwin effect) have honestly-documented kernel or ecology
+limitations. All audit reports, runners, and figures live under
+[`dev/audit/fidelity/`](dev/audit/fidelity/). See the [audit
+dashboard](dev/audit/fidelity/DASHBOARD.md) for the full ledger with
+evidence strength, honest nulls, and retractions.
 
 ------------------------------------------------------------------------
 
@@ -165,7 +192,7 @@ If you use clade in published work, please cite:
   author  = {Nakagawa, Shinichi},
   title   = {clade: Agent-based evolutionary simulation with a Julia backend},
   year    = {2026},
-  note    = {R package version 0.3.0},
+  note    = {R package version 0.5.4},
   url     = {https://github.com/itchyshin/clade}
 }
 ```
