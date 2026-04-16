@@ -67,20 +67,40 @@ s$grass_rate                     <- 0.0264
 FIG("22_plasticity")
 ```
 
-**What we found (2026-04-15 audit, 4 seeds × 500 ticks).** Full
+**What we found (updated 2026-04-16, 0.4.2 audit).** Full
 protocol: [dev/audit/fidelity/plasticity.md](../dev/audit/fidelity/plasticity.md).
+
+At pre-0.4.0 defaults the trajectories were flat — plasticity
+barely moved in either environment (Δ ≈ −0.001/−0.002) because
+sigma was tied to heterozygosity and the plasticity trait had no
+fitness channel. Two kernel fixes across 0.4.0/0.4.1 addressed
+that:
+
+1. **0.4.0 Tier 5A** — `bnn_sigma_source = "trait"` couples BNN
+   prior width directly to the `TRAIT_PLASTICITY` gene.
+2. **0.4.1 Tier 5C** — `brain_energy_sigma_scale > 0` adds a
+   log-scaled metabolic cost to sigma, creating the selection
+   gradient DeWitt-Scheiner predict.
+
+Post-fix (4 seeds × 1500 ticks under the 0.4.2 audit with
+`brain_energy_sigma_scale = 0.05`):
 
 | Condition | init → final | Δ |
 |---|---|---|
-| Stable | 0.300 → 0.298 | −0.001 |
-| Seasonal (amp=0.7) | 0.300 → 0.299 | −0.002 |
+| Stable | 0.301 → 0.304 | +0.003 |
+| Seasonal (amp=0.7) | 0.301 → 0.306 | +0.005 |
 
-Both trajectories are flat — plasticity barely moves from its
-init value in either environment. The DeWitt-Scheiner prediction
-(seasonal maintains higher plasticity than stable) is not
-reproducible at default couplings; the plasticity trait doesn't
-create a strong enough fitness differential to drive selection.
-Flagged 🟠 passed-consistent.
+**Direction correct (P1 PASS)**: seasonal env maintains higher
+plasticity than stable — the DeWitt-Scheiner contrast. Magnitude
+is modest (Δdelta = +0.002) at current parameters. The full
+Hinton-Nowlan prediction (stable *canalises* downward) is not
+reproduced — both envs drift slightly upward — because clade's
+sigma also mediates behavioural variance, so selection against
+noisy actions competes with selection against learning width
+regardless of environmental stability. Stays 🟠 with direction
+correct, magnitude small. See `dev/audit/fidelity/plasticity.md`
+and the s-baldwin vignette for the shared kernel-limitation
+caveat.
 
 ### Discovery experiments
 
