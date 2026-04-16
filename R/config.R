@@ -601,6 +601,42 @@
 #'     `mimicry = TRUE` and `signal_dims > 0`. Added 0.4.4.}
 #' }
 #'
+#' ## Coevolving parasites (Hamilton 1980 Red Queen, 0.5.0 / 0.5.1)
+#' \describe{
+#'   \item{`coevolving_parasites`}{Logical. Enable genotype-matched
+#'     virulence module (default `FALSE`). Reference: Hamilton, W.D.
+#'     (1980) Sex versus non-sex versus parasite. *Oikos* 35:282--290.}
+#'   \item{`parasite_match_mode`}{Character. One of `"auto"` (default),
+#'     `"continuous"`, or `"discrete"`. Continuous mode (0.5.0) uses
+#'     Euclidean distance on the `signal` vector and tracks the host
+#'     population centroid with lag — a mean-tracking variant that
+#'     does NOT reproduce the canonical Red Queen. Discrete mode
+#'     (0.5.1) uses Hamming distance on a binary-allele
+#'     `parasite_haplotype` trait with Mendelian inheritance — this
+#'     is the canonical Hamilton mechanism. `"auto"` picks discrete
+#'     when `n_parasite_loci > 0`, else continuous.}
+#'   \item{`parasite_virulence_rate`}{Numeric in \[0, 1\]. Rate at which
+#'     the collective parasite genotype tracks the host majority each
+#'     tick (default 0.1 ≈ 10-tick lag).}
+#'   \item{`parasite_pressure`}{Numeric. Maximum per-tick energy drain
+#'     from parasite infection, applied to hosts exactly matching the
+#'     parasite haplotype (default 0.5).}
+#'   \item{`parasite_distance_scale`}{Numeric. Continuous-mode Gaussian
+#'     falloff scale (default 1.0; ignored in discrete mode).}
+#'   \item{`n_parasite_loci`}{Integer. Number of binary loci in the
+#'     heritable `parasite_haplotype` trait (default 0 = continuous
+#'     mode only). When > 0, each agent carries a
+#'     `Vector{Int32}` of this length, inherited Mendelian-style for
+#'     diploid, clonal + per-locus mutation for haploid. 0.5.1.}
+#'   \item{`parasite_mutation_rate`}{Numeric in \[0, 1\]. Per-locus
+#'     mutation rate (allele flip) during inheritance (default 0.01).}
+#'   \item{`parasite_discrete_exponent`}{Numeric. Exponent controlling
+#'     Hamming-distance falloff: `penalty = pressure × ((n_loci −
+#'     hamming) / n_loci)^exp` (default 4.0). Higher exponents
+#'     concentrate pressure on near-matching hosts and let mismatched
+#'     hosts escape cleanly.}
+#' }
+#'
 #' ## Mimicry and toxicity
 #' \describe{
 #'   \item{`mimicry`}{Logical. Enable heritable toxicity trait and predator
@@ -1091,6 +1127,25 @@ default_specs <- function() {
     # aposematic dynamics to close the feedback loop. Active only
     # when `mimicry = TRUE` and `signal_dims > 0`.
     signal_toxicity_coupling   = 0.0,
+
+    # 0.5.0 / 0.5.1: Hamilton 1980 Red Queen coevolving-parasite module.
+    # Two matching modes (see `parasite_match_mode`):
+    #   "continuous" — Euclidean distance on signal vector (0.5.0;
+    #     mean-tracking; does NOT produce the canonical Red Queen)
+    #   "discrete"   — Hamming distance on binary haplotype (0.5.1;
+    #     requires n_parasite_loci > 0; reproduces Hamilton's canonical
+    #     mechanism because sex with Mendelian recombination produces
+    #     genuinely novel haplotypes)
+    #   "auto"       — pick discrete if n_parasite_loci > 0, else continuous
+    coevolving_parasites       = FALSE,
+    parasite_match_mode        = "auto",
+    parasite_virulence_rate    = 0.1,
+    parasite_pressure          = 0.5,
+    parasite_distance_scale    = 1.0,
+    # Discrete-mode (0.5.1) parameters
+    n_parasite_loci            = 0L,
+    parasite_mutation_rate     = 0.01,
+    parasite_discrete_exponent = 4.0,
 
     # ── Speciation (genome-distance clustering) ────────────────────────────
     speciation                 = FALSE,
