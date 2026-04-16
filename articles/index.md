@@ -3,13 +3,24 @@
 ### Overview
 
 - [Biological Scenarios: A Discovery Guide](scenarios.md):
-- [Getting Started with clade](getting-started.md):
-- [Getting started with clade: agent-based evolution in
-  R](introduction.md):
+- [Getting started with clade](getting-started.md):
 - [Parameter Reference](parameter-reference.md):
 - [Custom Modules: Extending clade with Per-Tick
   Hooks](custom-modules.md):
-- [Genetic Diversity Search in clade](diversity-search.md):
+
+### Parameter search
+
+Automated tools for finding parameter combinations that produce target
+evolutionary outcomes. Start with the introduction for when/why/which
+algorithm; then pick the agent-level or environment-level guide
+depending on what you’re tuning; or go straight to the algorithm
+reference.
+
+- [Parameter search — introduction](ps-introduction.md):
+- [Parameter search — agent-level parameters](ps-agent-parameters.md):
+- [Parameter search — environment-level
+  parameters](ps-environment-parameters.md):
+- [Parameter search — algorithms](ps-algorithms.md):
 
 ### Kernel as biology
 
@@ -73,6 +84,8 @@ realistic.
 - [Social learning](s-social-learning.md):
 - [Phenotypic plasticity](s-plasticity.md):
 - [BNN uncertainty canalization and the Baldwin Effect](s-baldwin.md):
+- [The Baldwin Effect: within-lifetime learning accelerating
+  evolution](baldwin-effect.md):
 - [The cephalopod paradox](s-cephalopod.md):
 
 ### Theme 7 — Discovery experiments
@@ -82,8 +95,3 @@ realistic.
 - [Kitchen-sink run](s-kitchen-sink.md):
 - [Evolution of bad science](s-bad-science.md):
 - [Cross-module discovery gallery](s-cross-module.md):
-
-### Gallery
-
-- [The Baldwin Effect: within-lifetime learning accelerating
-  evolution](baldwin-effect.md):

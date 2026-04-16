@@ -1,0 +1,208 @@
+# Parameter search — introduction
+
+## Why search the parameter space at all?
+
+`clade` exposes roughly 90 parameters (see
+[`vignette("parameter-reference")`](../articles/parameter-reference.md)).
+Even if most of them are at a biologically defensible default, any
+serious experiment asks a question of the form *which parameter
+combination produces outcome X?* — and “outcome X” is rarely a single
+parameter turned up.
+
+Examples that motivate searching:
+
+- **Discovery experiments.** “What grass-renewal rate × metabolic-rate
+  combination produces the largest sustained population?”
+- **Scenario calibration.** “At what `toxin_dose × avoid_threshold` does
+  Müllerian aposematism actually evolve, rather than drift?”
+- **Regime mapping.** “Where is the viable region for the
+  complex-landscape module — which `shrub_density × canopy_density`
+  combinations avoid population collapse?”
+- **Trade-off visualisation.** “What is the achievable set of (genetic
+  diversity, population size) pairs? Is high diversity at low population
+  size the only option, or can both be large simultaneously?”
+
+Each of these questions maps to a different search algorithm. A single
+“tune this” button would be the wrong tool for most of them.
+
+------------------------------------------------------------------------
+
+## The four tools at a glance
+
+| Function            | Strategy                                        | When                                                                |
+|:--------------------|:------------------------------------------------|:--------------------------------------------------------------------|
+| search_random()     | Stochastic sweep                                | Fast initial screen — before you know what to tune                  |
+| search_map_elites() | Quality-diversity archive (Mouret & Clune 2015) | Illuminate the achievable behavioural space, not a single optimum   |
+| search_cmaes()      | CMA-ES optimisation (Hansen 2006)               | Find the single best parameter combination for one scalar objective |
+| search_viability()  | Rectangular viability map                       | Identify which parameter region keeps the population alive at all   |
+| search_gradient()   | Finite-difference gradient ascent               | Local refinement of an already-good parameter set                   |
+
+`clade` parameter search functions at a glance.
+
+A typical workflow moves from coarse to fine:
+
+1.  **[`search_viability()`](../reference/search_viability.md)** — if
+    you are not sure the default region even sustains life, map it
+    first.
+2.  **[`search_random()`](../reference/search_random.md)** — a cheap
+    30-run sweep to find roughly productive regions of parameter space.
+3.  **[`search_map_elites()`](../reference/search_map_elites.md)** —
+    illuminate the trade-offs among the top candidates from step 2.
+4.  **[`search_cmaes()`](../reference/search_cmaes.md)** — zoom into the
+    cell you care about most and find the single best point.
+5.  **[`search_gradient()`](../reference/search_gradient.md)** —
+    optional final-tick refinement if the objective surface is smooth
+    near the optimum.
+
+Most users will live in steps 2 and 3. The others are specialist tools.
+
+------------------------------------------------------------------------
+
+## What gets searched: agent vs environment parameters
+
+A parameter in [`default_specs()`](../reference/default_specs.md) is
+usually one of two kinds, and the two kinds imply different experimental
+designs and different choices of search method. We dedicate a vignette
+to each:
+
+- **[Agent-level parameters](ps-agent-parameters.md)** — anything that
+  varies per organism or per species: heritable traits (`body_size_*`,
+  `metabolic_rate_*`, `brain_size_*`), brain architecture (`brain_type`,
+  `bnn_sigma_*`, `rl_mode`), life-history (`max_age`, `senescence_rate`,
+  `life_history`), reproduction (`repro_cost_*`, `offspring_energy_*`,
+  `clutch_size_*`, `female_investment`), mutation (`mutation_sd`,
+  `stress_mutation_multiplier`), signals and mate choice (`signal_dims`,
+  `mate_choice_*`), social behaviours (`kin_altruism_*`, `iffolk_*`,
+  `parliament_*`, `cooperation_*`).
+- **[Environment-level parameters](ps-environment-parameters.md)** —
+  anything about the world: grid and population bookkeeping
+  (`grid_rows`, `grid_cols`, `toroidal`, `n_agents_init`, `max_agents`,
+  `max_ticks`), resources (`grass_rate`, `grass_max`, `eat_gain`,
+  `max_bite`), temporal and spatial structure (`seasonal_amplitude`,
+  `season_length`, `complex_landscape`, `fixed_patch`), external forces
+  (`n_predators_init`
+  - predator params, `disease` + disease params).
+
+The two categories overlap at their edges: predators, disease, and niche
+construction all sit where agents and world meet. In those cases we flag
+the fuzzy parameter on *both* pages with a cross-link rather than pick a
+side.
+
+------------------------------------------------------------------------
+
+## Designing an objective function
+
+Every search function accepts either a column name (from
+`get_run_data()$ticks`) or a custom function that takes the run
+environment and returns a scalar. The custom function form is the
+important one: it is what separates a valid scientific search from a
+fitness-hacking exercise.
+
+Good objective functions for clade typically have three properties.
+
+**1. They measure the biology you actually claim.** If the scenario’s
+biological claim is “Hamilton’s rule predicts population rises with
+*rB/C*”, the objective should be the Spearman correlation between `rB/C`
+and `mean_n_agents` across a *grid* of `B` and `C` values — not the
+population size at a single parameter point. This guards against
+Goodhart’s law, which the earlier CMA-ES-calibrated regimes in some
+scenario vignettes fell victim to.
+
+**2. They penalise degenerate outcomes.** A run that goes extinct on
+tick 50 should not be rewarded for its transient high diversity. The
+canonical pattern is:
+
+``` r
+custom_obj <- function(env) {
+  d   <- get_run_data(env)$ticks
+  div <- mean(d$genetic_diversity, na.rm = TRUE)
+  pop <- mean(d$n_agents,          na.rm = TRUE)
+  if (pop < 10) return(0)      # discard runs that go near-extinct
+  div * log1p(pop / 50)        # reward diversity weighted by log-population
+}
+```
+
+This penalises extinction, smooths the score surface, and keeps the
+optimiser out of the “high-diversity-just-before-collapse” trap.
+
+**3. They are insensitive to run length when it should be.** If you want
+“equilibrium diversity”, average over the second half of the run rather
+than the whole run — the first half is dominated by initial-condition
+transients.
+
+The same `custom_obj` can be passed unchanged to
+[`search_random()`](ps-algorithms.html#random-search),
+[`search_map_elites()`](ps-algorithms.html#map-elites),
+[`search_cmaes()`](ps-algorithms.html#cma-es), or
+[`search_gradient()`](ps-algorithms.html#gradient-ascent).
+
+------------------------------------------------------------------------
+
+## Why not autodiff?
+
+Julia has excellent automatic differentiation (Zygote.jl, Enzyme.jl). It
+is tempting to ask whether `clade`’s simulator could be differentiated
+end-to-end and optimised with gradient descent. It cannot, for good
+biological reasons. [`run_alife()`](../reference/run_alife.md) contains
+several operations that are not differentiable:
+
+- **Agent death** is a threshold event: `energy < starvation_threshold`
+  triggers removal. The gradient of a Bernoulli draw w.r.t. energy is
+  zero almost everywhere.
+- **Reproduction** is conditional on `energy >= min_repro_energy` —
+  another threshold.
+- **Action selection** uses `argmax` over the brain’s output logits.
+  `argmax` has zero gradient w.r.t. the logits almost everywhere.
+- **Mating** is a categorical sample, again a zero-gradient operation.
+
+Autodiff through these either fails at trace time or silently produces a
+zero gradient. The correct optimisers here are **derivative-free** —
+CMA-ES, MAP-Elites, random sampling — which treat
+[`run_alife()`](../reference/run_alife.md) as a black box and estimate
+curvature from population statistics alone.
+
+------------------------------------------------------------------------
+
+## Compute budget
+
+A practical constraint: each [`run_alife()`](../reference/run_alife.md)
+call takes roughly 5–30 seconds on a modern machine (default grid, 500
+ticks). A typical search therefore involves ~300 runs and costs tens of
+minutes to an hour. Two ways to multiply throughput:
+
+- Use `n_cores > 1` in any of the search functions. clade will fan the
+  inner simulations across R workers.
+- Use a smaller `max_ticks` during search (300–500) and re-run the
+  winning candidate at full length (1,000+) to confirm the signal is not
+  transient. This typically doubles effective throughput.
+
+Avoid running CMA-ES or MAP-Elites at `max_ticks > 1000` until you know
+the winning region; the coarse-to-fine workflow above is cheaper.
+
+------------------------------------------------------------------------
+
+## Where to go next
+
+- **[Agent parameters](ps-agent-parameters.md)** — canonical list,
+  search examples per module.
+- **[Environment parameters](ps-environment-parameters.md)** — grid,
+  grass, seasonality, landscape, external forces.
+- **[Algorithms](ps-algorithms.md)** — CMA-ES, MAP-Elites, viability,
+  gradient: how each works and when each shines, with full working code.
+- **Scenario auto-calibration harness.** A per-scenario CMA-ES harness
+  ships under
+  [`dev/audit/calibration/`](https://github.com/itchyshin/clade/tree/main/dev/audit/calibration).
+  See
+  [`RESULTS.md`](https://github.com/itchyshin/clade/blob/main/dev/audit/calibration/RESULTS.md)
+  for what was discovered and what was retracted after the 0.4.0
+  fidelity audit.
+
+------------------------------------------------------------------------
+
+## References
+
+- Hansen, N. & Ostermeier, A. (2001) Completely derandomized
+  self-adaptation in evolution strategies. *Evolutionary Computation*
+  9(2):159–195.
+- Mouret, J.-B. & Clune, J. (2015) Illuminating search spaces by mapping
+  elites. *arXiv:1504.04909*.

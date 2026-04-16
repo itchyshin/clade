@@ -4,9 +4,7 @@ pkgdown_sha: ~
 articles:
   baldwin-effect: baldwin-effect.html
   custom-modules: custom-modules.html
-  diversity-search: diversity-search.html
   getting-started: getting-started.html
-  introduction: introduction.html
   k-clade-main: k-clade-main.html
   k-death: k-death.html
   k-genome: k-genome.html
@@ -15,6 +13,10 @@ articles:
   k-sense: k-sense.html
   k-tick: k-tick.html
   parameter-reference: parameter-reference.html
+  ps-agent-parameters: ps-agent-parameters.html
+  ps-algorithms: ps-algorithms.html
+  ps-environment-parameters: ps-environment-parameters.html
+  ps-introduction: ps-introduction.html
   s-bad-science: s-bad-science.html
   s-baldwin: s-baldwin.html
   s-baseline: s-baseline.html
@@ -51,4 +53,4 @@ articles:
   s-speciation: s-speciation.html
   s-stress-hypermutation: s-stress-hypermutation.html
   scenarios: scenarios.html
-last_built: 2026-04-16T11:47Z
+last_built: 2026-04-16T12:25Z

@@ -19,13 +19,16 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-guides" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Guides</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-guides"><li><a class="dropdown-item" href="../articles/getting-started.html">Getting started</a></li>
-    <li><a class="dropdown-item" href="../articles/introduction.html">Introduction</a></li>
     <li><a class="dropdown-item" href="../articles/parameter-reference.html">Parameter reference</a></li>
     <li><a class="dropdown-item" href="../articles/custom-modules.html">Custom modules API</a></li>
-    <li><a class="dropdown-item" href="../articles/diversity-search.html">Parameter search (CMA-ES, MAP-Elites)</a></li>
+  </ul></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-parameter-search" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Parameter search</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-parameter-search"><li><a class="dropdown-item" href="../articles/ps-introduction.html">Introduction</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Gallery</h6></li>
-    <li><a class="dropdown-item" href="../articles/baldwin-effect.html">Baldwin effect &amp; RL</a></li>
+    <li><a class="dropdown-item" href="../articles/ps-agent-parameters.html">Agent-level parameters</a></li>
+    <li><a class="dropdown-item" href="../articles/ps-environment-parameters.html">Environment-level parameters</a></li>
+    <li><a class="dropdown-item" href="../articles/ps-algorithms.html">Algorithms (CMA-ES, MAP-Elites, viability)</a></li>
   </ul></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-kernel-as-biology" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Kernel as biology</button>
@@ -82,6 +85,7 @@
     <li><a class="dropdown-item" href="../articles/s-social-learning.html">Social learning</a></li>
     <li><a class="dropdown-item" href="../articles/s-plasticity.html">Phenotypic plasticity</a></li>
     <li><a class="dropdown-item" href="../articles/s-baldwin.html">BNN uncertainty canalization</a></li>
+    <li><a class="dropdown-item" href="../articles/baldwin-effect.html">Baldwin effect — long-form</a></li>
     <li><a class="dropdown-item" href="../articles/s-cephalopod.html">Cephalopod paradox</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Theme 7 — Discovery</h6></li>
@@ -116,15 +120,24 @@
 
       <dl><dt><a href="scenarios.html">Biological Scenarios: A Discovery Guide</a></dt>
         <dd>
-        </dd><dt><a href="getting-started.html">Getting Started with clade</a></dt>
-        <dd>
-        </dd><dt><a href="introduction.html">Getting started with clade: agent-based evolution in R</a></dt>
+        </dd><dt><a href="getting-started.html">Getting started with clade</a></dt>
         <dd>
         </dd><dt><a href="parameter-reference.html">Parameter Reference</a></dt>
         <dd>
         </dd><dt><a href="custom-modules.html">Custom Modules: Extending clade with Per-Tick Hooks</a></dt>
         <dd>
-        </dd><dt><a href="diversity-search.html">Genetic Diversity Search in clade</a></dt>
+      </dd></dl></div>
+    <div class="section ">
+      <h3>Parameter search</h3>
+      <div class="section-desc"><p>Automated tools for finding parameter combinations that produce target evolutionary outcomes. Start with the introduction for when/why/which algorithm; then pick the agent-level or environment-level guide depending on what you’re tuning; or go straight to the algorithm reference.</p></div>
+
+      <dl><dt><a href="ps-introduction.html">Parameter search — introduction</a></dt>
+        <dd>
+        </dd><dt><a href="ps-agent-parameters.html">Parameter search — agent-level parameters</a></dt>
+        <dd>
+        </dd><dt><a href="ps-environment-parameters.html">Parameter search — environment-level parameters</a></dt>
+        <dd>
+        </dd><dt><a href="ps-algorithms.html">Parameter search — algorithms</a></dt>
         <dd>
       </dd></dl></div>
     <div class="section ">
@@ -233,6 +246,8 @@
         <dd>
         </dd><dt><a href="s-baldwin.html">BNN uncertainty canalization and the Baldwin Effect</a></dt>
         <dd>
+        </dd><dt><a href="baldwin-effect.html">The Baldwin Effect: within-lifetime learning accelerating evolution</a></dt>
+        <dd>
         </dd><dt><a href="s-cephalopod.html">The cephalopod paradox</a></dt>
         <dd>
       </dd></dl></div>
@@ -249,13 +264,6 @@
         </dd><dt><a href="s-bad-science.html">Evolution of bad science</a></dt>
         <dd>
         </dd><dt><a href="s-cross-module.html">Cross-module discovery gallery</a></dt>
-        <dd>
-      </dd></dl></div>
-    <div class="section ">
-      <h3>Gallery</h3>
-      <div class="section-desc"></div>
-
-      <dl><dt><a href="baldwin-effect.html">The Baldwin Effect: within-lifetime learning accelerating evolution</a></dt>
         <dd>
       </dd></dl></div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

@@ -5,10 +5,8 @@
 <url><loc>/LICENSE.html</loc></url>
 <url><loc>/articles/baldwin-effect.html</loc></url>
 <url><loc>/articles/custom-modules.html</loc></url>
-<url><loc>/articles/diversity-search.html</loc></url>
 <url><loc>/articles/getting-started.html</loc></url>
 <url><loc>/articles/index.html</loc></url>
-<url><loc>/articles/introduction.html</loc></url>
 <url><loc>/articles/k-README.html</loc></url>
 <url><loc>/articles/k-clade-main.html</loc></url>
 <url><loc>/articles/k-death.html</loc></url>
@@ -17,6 +15,10 @@
 <url><loc>/articles/k-sense.html</loc></url>
 <url><loc>/articles/k-tick.html</loc></url>
 <url><loc>/articles/parameter-reference.html</loc></url>
+<url><loc>/articles/ps-agent-parameters.html</loc></url>
+<url><loc>/articles/ps-algorithms.html</loc></url>
+<url><loc>/articles/ps-environment-parameters.html</loc></url>
+<url><loc>/articles/ps-introduction.html</loc></url>
 <url><loc>/articles/s-bad-science.html</loc></url>
 <url><loc>/articles/s-baldwin.html</loc></url>
 <url><loc>/articles/s-baseline.html</loc></url>
