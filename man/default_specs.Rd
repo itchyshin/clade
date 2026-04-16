@@ -15,7 +15,844 @@ defaults. Every parameter is documented below. Pass a modified copy to
 \code{\link[=run_alife]{run_alife()}} or \code{\link[=search_map_elites]{search_map_elites()}}.
 }
 \details{
+\subsection{Grid and population}{
 
+\describe{
+\item{\code{grid_rows}}{Integer. Number of rows in the toroidal grid (default 30).}
+\item{\code{grid_cols}}{Integer. Number of columns in the toroidal grid (default 30).}
+\item{\code{n_agents_init}}{Integer. Number of agents at tick 0 (default 50).}
+\item{\code{max_agents}}{Integer. Hard cap on live agents; new offspring are
+rejected if this is exceeded (default 500).}
+\item{\code{max_ticks}}{Integer. Simulation length in ticks (default 500).}
+}
+}
+
+\subsection{Energy and metabolism}{
+
+\describe{
+\item{\code{energy_init}}{Numeric. Energy each agent starts with (default 100).}
+\item{\code{energy_max}}{Numeric. Maximum energy an agent can hold (default 200).}
+\item{\code{move_cost}}{Numeric. Energy deducted per move action (default 1).}
+\item{\code{idle_cost}}{Numeric. Energy deducted when agent does not move
+(default 0.5).}
+\item{\code{eat_gain}}{Numeric. Energy gained per unit of grass consumed
+(default 5).}
+\item{\code{max_bite}}{Numeric. \strong{0.4.0.} Maximum grass units extracted from
+a cell per tick (default 2.0). Implements \emph{handling time}: a rich cell
+cannot be stripped in one step, and multiple agents can graze the same
+cell across ticks. Restores the alifeR / MATLAB ancestor's \code{maxbite}
+semantics. Per-tick energy income is bounded at \code{max_bite * eat_gain}.}
+\item{\code{min_repro_energy}}{Numeric. Minimum energy required to attempt
+reproduction (default 120).}
+\item{\code{repro_cost_mode}}{Character. \strong{0.4.0.} \code{"proportional"} (default)
+deducts \code{repro_cost_fraction * parent_energy} per offspring;
+\code{"fixed"} deducts a constant \code{repro_cost}. Proportional cost
+implements Smith & Fretwell (1974) parental investment: parents in
+better condition have more to invest. Fixed mode preserved for
+reproducibility of pre-0.4.0 runs.}
+\item{\code{repro_cost}}{Numeric. Energy deducted from parent per offspring
+when \code{repro_cost_mode = "fixed"} (default 30, ignored when mode is
+\code{"proportional"}).}
+\item{\code{repro_cost_fraction}}{Numeric in (0, 1). \strong{0.4.0.} Fraction of
+parent energy paid per offspring when
+\code{repro_cost_mode = "proportional"} (default 0.5).}
+\item{\code{offspring_energy_mode}}{Character. \strong{0.4.0.} \code{"proportional"}
+(default) sets newborn energy to
+\code{offspring_energy_fraction * cost_paid} (Smith & Fretwell quality-
+quantity); \code{"fixed"} sets newborn energy to constant
+\code{offspring_energy} (legacy).}
+\item{\code{offspring_energy}}{Numeric. Energy given to each new offspring
+when \code{offspring_energy_mode = "fixed"} (default 60).}
+\item{\code{offspring_energy_fraction}}{Numeric in (0, 1). \strong{0.4.0.}
+Fraction of \code{cost_paid} allocated to each offspring when
+\code{offspring_energy_mode = "proportional"} (default 0.25).}
+\item{\code{starvation_threshold}}{Numeric. Agent dies when energy falls below
+this value (default 0).}
+}
+}
+
+\subsection{Grass dynamics}{
+
+\describe{
+\item{\code{grass_init_prob}}{Numeric in [0, 1]. Probability each cell starts
+with grass (default 0.5).}
+\item{\code{grass_rate}}{Numeric in [0, 1]. Per-tick probability that an empty
+cell grows grass (default 0.05).}
+\item{\code{grass_max}}{Numeric. Maximum grass units per cell (default 5).}
+}
+}
+
+\subsection{Brain architecture}{
+
+The brain type controls how agents map sensory inputs to action decisions.
+All types are heritable and evolvable. See the references in each entry for
+the primary literature.
+
+\describe{
+\item{\code{brain_type}}{Character. One of \code{"bnn"} (default), \code{"ann"},
+\code{"ctrnn"}, \code{"grn"}, \code{"transformer"}, \code{"synthesis"}, or \code{"random"}.
+BNN = Bayesian neural network (Neal 1996; Blundell et al. 2015);
+ANN = multilayer perceptron (Rumelhart et al. 1986);
+CTRNN = continuous-time recurrent network (Beer 1995);
+GRN = gene regulatory network (Kauffman 1993);
+transformer = attention over sensory history (Vaswani et al. 2017);
+synthesis = evolved symbolic IF-THEN rules (Koza 1992);
+random = null baseline. See \code{vignette("custom-modules")} for
+architecture details.}
+\item{\code{hidden_layers}}{Integer vector. Hidden layer widths for \code{"ann"} and
+\code{"bnn"} (default \code{c(8L)}; gives one hidden layer of 8 units). Set to
+\code{c(16L, 8L)} for two hidden layers.}
+\item{\code{input_radius}}{Integer. Radius of the Moore neighbourhood used when
+building each agent's sensory input vector (default \code{1L}). Radius 1 gives
+the standard 8-cell neighbourhood; radius 2 extends to the 24-cell
+neighbourhood. Increasing this value expands the input vector and the
+brain's first-layer width accordingly.}
+\item{\code{n_genes}}{Integer. Number of genes for \code{"grn"} brain type
+(default 20L). Includes sensory input genes and action output genes.}
+\item{\code{transformer_history}}{Integer. Number of past sensory inputs the
+transformer attends over (default 8L).}
+\item{\code{transformer_heads}}{Integer. Number of attention heads (default 2L).}
+\item{\code{synthesis_max_rules}}{Integer. Maximum number of IF-THEN rules
+per agent (default 10L).}
+\item{\code{ann_weight_values}}{Numeric vector or \code{NULL}. When not \code{NULL},
+every synaptic weight and bias is snapped to the nearest value in this
+set immediately after genome expression (before the first forward pass
+each generation). Use \code{c(-1, 0, 1)} for ternary weights or \code{c(-1, 1)}
+for binary weights. Applies to \code{"ann"} and \code{"bnn"} brain types.
+Biologically motivated by evidence that biological synapses operate in
+a small number of discrete strength states (Bhumbra & Bhatt 2020).
+Also enables symbolic formula distillation from evolved ANNs (as in
+the original MATLAB alife2025usra codebase). Default \code{NULL} = continuous
+weights.}
+\item{\code{ann_regularization}}{Character. Energy penalty on brain weight
+complexity: \code{"none"} (default), \code{"weight_magnitude"} (L1: deduct
+\verb{lambda * sum(|w|)} per tick), or \code{"weight_count"} (L0-like: deduct
+\code{lambda * n_active_weights} per tick). References: Laughlin et al.
+(1998) \emph{Nature Neuroscience} 1:36--41; Attwell & Laughlin (2001)
+\emph{J. Cerebral Blood Flow and Metabolism} 21:1133--1145.}
+\item{\code{ann_regularization_lambda}}{Numeric. Scale factor for the
+regularisation penalty (default 0.001). Too large a value will cause
+all weights to collapse to zero within a few ticks.}
+}
+}
+
+\subsection{Brain energy cost}{
+
+Brain energy cost models the metabolic cost of neural computation, as in
+the Polyworld simulation (Yaeger 1994).
+
+\describe{
+\item{\code{brain_energy_mode}}{Character. One of \code{"none"} (no cost),
+\code{"size"} (proportional to synapse count), \code{"activity"} (default;
+base + activity-scaled cost), or \code{"prediction_error"} (BNN-only;
+KL divergence between prior and posterior). Reference: Yaeger
+(1994) PolyWorld, in \emph{Artificial Life III}, pp 263--298.}
+\item{\code{brain_energy_base}}{Numeric. Fixed cost per synaptic weight per
+tick (default 0.001).}
+\item{\code{brain_energy_activity}}{Numeric. Scaling factor on mean absolute
+activation when \code{brain_energy_mode = "activity"} (default 0.5).}
+\item{\code{brain_energy_size_exponent}}{Numeric. Exponent applied to the
+brain-size term of the metabolic cost: \code{size_cost = base * n_weights^exp}
+(default 1.0 = linear, legacy). Set to 1.5 for
+Kleiber-style super-linear scaling (Isler & van Schaik 2009
+expensive-brain hypothesis) so large brains carry disproportionate
+metabolic weight — sharpens the parental-provisioning selection
+gradient at the default \code{brain_energy_base} without needing a
+scenario-specific override (0.4.3).}
+}
+}
+
+\subsection{Genome and ploidy}{
+
+clade supports diploid (default) and haploid life cycles. The diploid path
+implements full Mendelian genetics with independent assortment and
+recombination.
+
+\describe{
+\item{\code{ploidy}}{Integer. \code{1L} = haploid; \code{2L} = diploid (default).
+In the diploid case every heritable trait (brain weights, body size,
+immune strength, cooperation level, etc.) has two alleles -- one
+maternal, one paternal. The expressed phenotype is computed by
+\code{dominance_model} at birth and does not change within a lifetime.}
+\item{\code{n_chromosomes}}{Integer. Number of chromosome pairs (default 1L).
+When \verb{> 1}, chromosomes assort independently at meiosis (each pair
+segregates with probability 0.5). The brain genome is split evenly
+across chromosome pairs.}
+\item{\code{crossover_rate}}{Numeric. Expected number of crossover events per
+chromosome pair per meiosis (Poisson distributed; default 1.0). Set to
+0 to disable recombination.}
+\item{\code{dominance_model}}{Character. How maternal and paternal alleles
+combine: \code{"additive"} (default; mean of two alleles), \code{"dominant"}
+(random allele at each locus), or \code{"codominant"} (both expressed;
+reported separately in \code{get_genome_data()}). Reference:
+Charlesworth & Charlesworth (2010) \emph{Elements of Evolutionary
+Genetics}, Chapter 5.}
+}
+}
+
+\subsection{Mutation}{
+
+\describe{
+\item{\code{mutation_sd}}{Numeric. Standard deviation of Gaussian noise added
+to each brain weight at reproduction (default 0.1).}
+\item{\code{mutation_rate_evolution}}{Logical. If \code{TRUE}, \code{mutation_sd} is
+itself a heritable diploid trait that evolves (default \code{FALSE}).
+Reference: Sniegowski, Gerrish & Lenski (1997) Evolution of high
+mutation rates in experimental populations of \emph{E. coli}, \emph{Nature}
+387:703--705.}
+\item{\code{mutation_sd_init_mean}}{Numeric. Initial mean of the \code{mutation_sd}
+distribution when \code{mutation_rate_evolution = TRUE} (default 0.1).}
+\item{\code{mutation_sd_min}}{Numeric. Minimum allowed \code{mutation_sd}
+(default 0.001).}
+\item{\code{mutation_sd_max}}{Numeric. Maximum allowed \code{mutation_sd}
+(default 1.0).}
+}
+}
+
+\subsection{Learning and plasticity}{
+
+Within-lifetime learning modifies the brain without altering the genome.
+When \code{learning_rate_evolution = TRUE}, the learning rate is itself a
+heritable diploid trait; variation in \code{learning_rate} across the population
+then allows the Baldwin Effect (Baldwin 1896) to be observed: genomes that
+encode pre-adapted solutions outcompete those relying on learning.
+
+\describe{
+\item{\code{rl_mode}}{Character. Reinforcement learning update rule:
+\code{"none"} (default), \code{"actor_critic"} (REINFORCE with baseline,
+Williams 1992; reward = energy delta, applied to output weights),
+or \code{"hebbian"} (Hebbian potentiation, Hebb 1949; co-active neurons
+are strengthened). Use \code{bnn_sample_freq = 5} with BNN brains so
+REINFORCE gradients accumulate across ticks.}
+\item{\code{learning_rate}}{Numeric. Step size for within-lifetime weight
+updates (default 0.01).}
+\item{\code{learning_rate_evolution}}{Logical. If \code{TRUE}, \code{learning_rate} is a
+heritable diploid trait (default \code{FALSE}). Enables study of the Baldwin
+Effect (Baldwin 1896, Hinton & Nowlan 1987).
+References: Baldwin (1896) \emph{American Naturalist} 30:441--451;
+Hinton & Nowlan (1987) \emph{Complex
+Systems} 1(3):495--502.
+}
+\item{\code{learning_rate_init_mean}}{Numeric. Initial mean of the
+\code{learning_rate} distribution when \code{learning_rate_evolution = TRUE}
+(default 0.01).}
+\item{\code{learning_rate_min}}{Numeric. Minimum allowed \code{learning_rate}
+(default 0.0).}
+\item{\code{learning_rate_max}}{Numeric. Maximum allowed \code{learning_rate}
+(default 0.5).}
+\item{\code{plasticity_cost}}{Numeric. Energy cost per unit of absolute weight
+change per tick (default 0.05). Implements the metabolic cost of
+synaptic plasticity.
+Reference: Laughlin, de Ruyter van Steveninck & Anderson (1998)
+The metabolic cost of neural information, \emph{Nature Neuroscience}
+1(1):36--41.}
+\item{\code{rl_update_freq}}{Integer. Apply RL update every this many ticks
+(default 1L).}
+\item{\code{lamarckian}}{Logical. If \code{TRUE} and \code{rl_mode} is not \code{"none"},
+the within-lifetime RL-updated brain weights are written back to the
+parent's genome before meiosis. Offspring therefore directly inherit the
+learned solution rather than rediscovering it from the unmodified
+starting genome (Darwinian path). This is \strong{distinct} from
+\code{epigenetics}: epigenetics inherits methylation marks that record
+\emph{which} loci should be canalized; Lamarckian inheritance copies the
+actual learned \emph{weight values} into the heritable material.
+Both can be active simultaneously (default \code{FALSE}).
+Reference: Baldwin (1896) \emph{American Naturalist} 30:441--451;
+Weismann (1892) \emph{Das Keimplasma}; Jablonka & Lamb (2005) \emph{Evolution
+in Four Dimensions}, MIT Press.}
+}
+}
+
+\subsection{Epigenetics and transgenerational inheritance}{
+
+When \code{epigenetics = TRUE}, each agent carries a methylome: a Boolean vector
+of the same length as the genome. Each element records whether the
+corresponding locus is methylated. Within lifetime, learning events can
+methylate loci (epigenetic_learning_coupling). At reproduction, a fraction
+of the parent's methylation pattern is inherited by offspring
+(epigenetic_inheritance). For BNN brains, methylation at locus i shrinks
+the prior sigma_i (canalization -- the agent becomes less plastic at that
+weight). This implements transgenerational epigenetic inheritance (TEI) as
+described by Jablonka & Lamb (2005).
+
+\describe{
+\item{\code{epigenetics}}{Logical. Enable epigenetic methylation and TEI
+(default \code{FALSE}).
+Reference: Jablonka & Lamb (2005) \emph{Evolution in Four Dimensions},
+MIT Press.}
+\item{\code{epigenetic_learning_coupling}}{Numeric in [0, 1]. Probability that
+a within-lifetime learning event methylates the corresponding locus
+(default 0.10).}
+\item{\code{epigenetic_inheritance}}{Numeric in [0, 1]. Fraction of the
+parent's methylation marks inherited by each offspring (default 0.50).
+The remaining marks are reset (demethylated) in the offspring.}
+\item{\code{epigenetic_effect_size}}{Numeric. Factor by which methylation
+reduces prior sigma (for BNN) or mutational variance at the locus
+(for other brain types) (default 0.20).}
+\item{\code{methylation_rate}}{Numeric. Spontaneous methylation probability
+per locus per tick (default 0.001).}
+\item{\code{demethylation_rate}}{Numeric. Spontaneous demethylation probability
+per methylated locus per tick (default 0.002).}
+}
+}
+
+\subsection{Predators}{
+
+\describe{
+\item{\code{n_predators_init}}{Integer. Number of predators at tick 0
+(default 0L). Predators have evolving brains (\code{"ann"} by default) and
+co-evolve with prey.}
+\item{\code{predator_energy_init}}{Numeric. Starting energy for predators
+(default 150).}
+\item{\code{predator_attack_cost}}{Numeric. Energy deducted from predator per
+attack attempt (default 2).}
+\item{\code{predator_kill_gain}}{Numeric. Energy predator gains per successful
+kill (default 50).}
+\item{\code{predator_mutation_sd}}{Numeric. Mutation SD for predator brain
+weights (default 0.1).}
+\item{\code{max_predators}}{Integer. Hard cap on predator population
+(default 20L).}
+\item{\code{predator_sense_graded}}{Logical. If \code{TRUE} (default, 0.4.2),
+prey's predator sensory input at distance \code{d} is \code{1/(d+1)} (closer
+predators produce a stronger signal). If \code{FALSE}, falls back to
+the pre-0.4.2 binary presence signal. No effect when
+\code{n_predators_init = 0}.}
+}
+}
+
+\subsection{Life history}{
+
+\describe{
+\item{\code{life_history}}{Character. \code{"iteroparous"} (default) or
+\code{"semelparous"}. Semelparous agents die immediately after reproducing.
+Reference: Stearns (1992) \emph{The Evolution of Life Histories}, Oxford UP.}
+\item{\code{max_age}}{Integer. Maximum lifespan in ticks; agents die at this
+age regardless of energy (default 200L). The hard cap applies only
+when \code{senescence_rate == 0}; when Gompertz senescence is active,
+late-life mortality is governed by the stochastic curve instead
+(0.4.2 behaviour). Set to \code{Inf} to disable.}
+\item{\code{senescence_rate}}{Numeric in [0, 1]. Gompertz mortality rate;
+per-tick death probability scales as exp(senescence_rate * age)
+(default 0 = no senescence). When > 0, supersedes the \code{max_age}
+hard cap (0.4.2).
+Reference: Gompertz (1825) On the nature of the function expressive of
+the law of human mortality, \emph{Philosophical Transactions of the Royal
+Society} 115:513--583.}
+\item{\code{repro_senescence}}{Numeric in [0, 1]. Per-tick decline in
+reproduction probability with age (default 0 = no reproductive
+senescence).}
+\item{\code{life_history_evolution}}{Logical. If \code{TRUE}, \code{max_age} and
+\code{senescence_rate} are heritable diploid traits (default \code{FALSE}).}
+\item{\code{allee_threshold}}{Integer. Minimum local density for reproduction
+(default 0L = Allee effects off). When > 0, agents require at least
+this many conspecifics in their Moore neighbourhood to reproduce.
+Reference: Allee (1931) \emph{Animal Aggregations}, University of Chicago
+Press.}
+}
+}
+
+\subsection{Body size evolution}{
+
+\describe{
+\item{\code{body_size_evolution}}{Logical. Enable heritable body size trait
+(default \code{FALSE}). Body size scales metabolic costs (larger = more
+expensive), foraging capacity (larger = more grass per tick), and energy
+storage (larger = higher cap). Reference size is 1.0 (no effect).
+Reference: Kleiber, M. (1947) Body size and metabolic rate,
+\emph{Physiological Reviews} 27(4):511--541.}
+\item{\code{body_size_init_mean}}{Numeric. Initial mean body size (default 1.0).}
+\item{\code{body_size_mutation_sd}}{Numeric. Mutation SD for body size
+(default 0.08).}
+\item{\code{body_size_min}}{Numeric. Minimum body size (default 0.3).}
+\item{\code{body_size_max}}{Numeric. Maximum body size (default 3.0).}
+}
+}
+
+\subsection{Brain size evolution}{
+
+\describe{
+\item{\code{brain_size_evolution}}{Logical. Enable heritable brain size trait
+(default \code{FALSE}). Implements the parental provisioning hypothesis: brain
+size is metabolically costly (expensive brain hypothesis) yet confers a
+cognitive foraging advantage. The bootstrapping problem — large-brained
+offspring pay the metabolic cost from birth before their cognitive
+advantage can offset it — means brain size can only evolve when parental
+provisioning (\code{parental_care = TRUE}) buffers the infancy energy deficit.
+References: van Schaik et al. (2023) \emph{PLoS Biology} 21(5):e3002064;
+Griesser et al. (2023) \emph{PNAS} 120(31):e2301005120;
+Song et al. (2025) \emph{PNAS} 122(8):e2412783122.}
+\item{\code{brain_size_init_mean}}{Numeric. Initial mean brain size (default 1.0,
+reference = no effect).}
+\item{\code{brain_size_mutation_sd}}{Numeric. Mutation SD for brain size
+(default 0.05).}
+\item{\code{brain_size_min}}{Numeric. Minimum brain size (default 0.1).}
+\item{\code{brain_size_max}}{Numeric. Maximum brain size (default 3.0).}
+\item{\code{brain_size_cost_scale}}{Numeric. Multiplier on the metabolic
+surcharge per unit of \code{brain_size - 1.0}. Higher values steepen the
+cost curve and make the bootstrapping problem harder (default 1.0).}
+\item{\code{brain_size_sensing_exponent}}{Numeric. Power applied to
+\code{brain_size} when scaling grass sensing inputs. \code{brain_size^exponent}
+determines the sensing multiplier. Exponent 0 = no sensing effect;
+exponent 1.0 = linear scaling; default 0.3 gives a gentle sublinear
+boost (e.g. \code{brain_size = 2.0} → 1.23× multiplier). No effect when
+\code{brain_size_evolution = FALSE}.}
+}
+}
+
+\subsection{Metabolic rate evolution}{
+
+\describe{
+\item{\code{metabolic_rate_evolution}}{Logical. Enable heritable metabolic rate
+(default \code{FALSE}). Scales \code{move_cost} and \code{idle_cost}.}
+\item{\code{metabolic_rate_init_mean}}{Numeric. Initial mean metabolic rate
+(default 1.0).}
+\item{\code{metabolic_rate_mutation_sd}}{Numeric. Mutation SD (default 0.05).}
+\item{\code{metabolic_rate_min}}{Numeric. Minimum (default 0.1).}
+\item{\code{metabolic_rate_max}}{Numeric. Maximum (default 5.0).}
+}
+}
+
+\subsection{Aging rate evolution}{
+
+\describe{
+\item{\code{aging_rate_evolution}}{Logical. Enable heritable aging rate
+(default \code{FALSE}). Scales the Gompertz senescence exponent.}
+\item{\code{aging_rate_init_mean}}{Numeric. Initial mean aging rate
+(default 1.0).}
+\item{\code{aging_rate_mutation_sd}}{Numeric. Mutation SD (default 0.05).}
+\item{\code{aging_rate_min}}{Numeric. Minimum (default 0.01).}
+\item{\code{aging_rate_max}}{Numeric. Maximum (default 10.0).}
+}
+}
+
+\subsection{Immune system evolution}{
+
+\describe{
+\item{\code{immune_evolution}}{Logical. Enable heritable immune strength trait
+(default \code{FALSE}).}
+\item{\code{immune_strength_init_mean}}{Numeric. Initial mean (default 0.3).}
+\item{\code{immune_strength_mutation_sd}}{Numeric. Mutation SD (default 0.05).}
+\item{\code{immune_strength_min}}{Numeric. Minimum (default 0.0).}
+\item{\code{immune_strength_max}}{Numeric. Maximum (default 1.0).}
+}
+}
+
+\subsection{Disease (SIR model)}{
+
+\describe{
+\item{\code{disease}}{Logical. Enable SIR disease dynamics (default \code{FALSE}).
+Reference: Kermack & McKendrick (1927) Contributions to the mathematical
+theory of epidemics, \emph{Proceedings of the Royal Society A}
+115(772):700--721.}
+\item{\code{disease_seed_prob}}{Numeric in [0, 1]. Probability each agent is
+initially infected at tick 1 (default 0.01).}
+\item{\code{transmission_prob}}{Numeric in [0, 1]. Probability of transmission
+to a susceptible neighbour per infected-susceptible adjacent pair per
+tick (default 0.1). Effective transmission = transmission_prob *
+(1 - receiver's immune_strength).}
+\item{\code{disease_duration}}{Integer. Ticks an agent remains infectious
+(default 10L).}
+\item{\code{immune_duration}}{Integer. Ticks of immunity after recovery
+(default 20L). After this, agent returns to Susceptible.}
+\item{\code{disease_energy_cost}}{Numeric. Energy deducted per tick while
+infected (default 5).}
+\item{\code{disease_death_prob}}{Numeric in [0, 1]. Per-tick probability of
+death while infected (default 0.02). Scaled by (1 - immune_strength)
+if \code{immune_evolution = TRUE}.}
+}
+}
+
+\subsection{Kin selection}{
+
+\describe{
+\item{\code{kin_selection}}{Logical. Enable kin altruism (default \code{FALSE}).
+Reference: Hamilton (1964) The genetical evolution of social behaviour
+I & II, \emph{Journal of Theoretical Biology} 7:1--52.}
+\item{\code{kin_altruism_cost}}{Numeric. Energy transferred from donor
+(default 2.0). Hamilton's rule requires benefit * r > cost.}
+\item{\code{kin_altruism_benefit}}{Numeric. Energy received by recipient
+(default 10.0).}
+\item{\code{kin_altruism_r_min}}{Numeric. Minimum pedigree relatedness r
+required to trigger altruism (default 0.25 = half-siblings).}
+\item{\code{kin_altruism_min_donor_energy}}{Numeric. Donor must have at least
+this energy to donate (default 50).}
+}
+}
+
+\subsection{Cooperation (public goods game)}{
+
+\describe{
+\item{\code{cooperation_evolution}}{Logical. Enable heritable cooperation level
+(default \code{FALSE}). Uses a spatial public goods game (Nowak & May 1992).
+Reference: Nowak & May (1992) Evolutionary games and spatial chaos,
+\emph{Nature} 359:826--829.}
+\item{\code{cooperation_multiplier}}{Numeric. Payoff multiplier M in the public
+goods game (default 2.0). Each cooperator pays cost C; the group
+receives M * sum(contributions) / n_local. For cooperation to be
+selectively favoured, M must exceed group size.}
+\item{\code{cooperation_init_mean}}{Numeric. Initial mean cooperation level
+(default 0.5).}
+\item{\code{cooperation_mutation_sd}}{Numeric. Mutation SD (default 0.05).}
+\item{\code{cooperation_cost}}{Numeric. Per-tick energy cost paid by cooperator
+(default 1.0).}
+}
+}
+
+\subsection{Dispersal evolution}{
+
+\describe{
+\item{\code{dispersal_evolution}}{Logical. Enable heritable natal dispersal
+(default \code{FALSE}). Each agent carries a \code{dispersal_tendency} trait
+(per-tick probability of moving away from birthplace). Reduces inbreeding
+and kin competition. Reference: Ronce, O. (2007) How does it feel to be
+like a rolling stone? \emph{Annual Review of Ecology, Evolution, and
+Systematics} 38:231--253.}
+\item{\code{dispersal_cost}}{Numeric. Energy cost per dispersal step
+(default 2.0). Agents with energy <= 2 x dispersal_cost do not disperse.}
+\item{\code{dispersal_init_mean}}{Numeric. Initial mean dispersal tendency
+(default 0.1).}
+\item{\code{dispersal_mutation_sd}}{Numeric. Mutation SD for dispersal tendency
+(default 0.02).}
+\item{\code{dispersal_min}}{Numeric. Minimum dispersal tendency (default 0.0).}
+\item{\code{dispersal_max}}{Numeric. Maximum dispersal tendency (default 0.5).}
+}
+}
+
+\subsection{Parental care}{
+
+\describe{
+\item{\code{parental_care}}{Logical. Enable altricial parental care
+(default \code{FALSE}). Offspring remain with parent until graduation.}
+\item{\code{care_duration}}{Integer. Ticks offspring remain in parental care
+(default 5L).}
+\item{\code{care_cost_per_offspring}}{Numeric. Energy cost per carried
+offspring per tick (default 2.0).}
+\item{\code{max_clutch_size}}{Integer. Maximum offspring per reproductive
+event (default 1L).}
+\item{\code{neonatal_foraging_deficit}}{Numeric in [0, 1]. Reduction in
+foraging efficiency (effective \code{max_bite}) for newborns during
+their first \code{neonatal_deficit_duration} ticks of life (default
+0.0). Creates the selection gradient for parental provisioning
+— unprovisioned newborns can't forage effectively, provisioned
+ones are fed by the parent via \code{feeding_rate}. Reference:
+Aiello & Wheeler (1995); Isler & van Schaik (2009) expensive
+brain hypothesis.}
+\item{\code{neonatal_deficit_duration}}{Integer. How many ticks the
+neonatal foraging deficit applies for (default 10L).}
+}
+}
+
+\subsection{Signal evolution and mate choice}{
+
+\describe{
+\item{\code{signal_dims}}{Integer. Number of signal dimensions (default 0L = off).
+When > 0, each agent evolves a heritable signal vector and a preference
+vector; mates are chosen by proximity of signal to preference.}
+\item{\code{signal_cost}}{Numeric. Energy cost per unit of signal magnitude
+per tick (default 0.1). Models honest signalling costs (Zahavi 1975).
+Reference: Zahavi (1975) Mate selection -- a selection for a handicap,
+\emph{Journal of Theoretical Biology} 53(1):205--214.}
+\item{\code{signal_toxicity_coupling}}{Numeric in [0, 1]. Strength of
+aposematic pleiotropy between the first signal dimension and the
+heritable \code{toxicity} trait. At 0 (default) signal and toxicity
+evolve independently; at 1, \code{signal[1]} is locked to each agent's
+toxicity value so predators can learn a reliable honest
+aposematic signal. Required to close the Bates (1862) /
+Müller (1879) feedback loop in clade. Active only when
+\code{mimicry = TRUE} and \code{signal_dims > 0}. Added 0.4.4.}
+}
+}
+
+\subsection{Coevolving parasites (Hamilton 1980 Red Queen, 0.5.0 / 0.5.1)}{
+
+\describe{
+\item{\code{coevolving_parasites}}{Logical. Enable genotype-matched
+virulence module (default \code{FALSE}). Reference: Hamilton, W.D.
+(1980) Sex versus non-sex versus parasite. \emph{Oikos} 35:282--290.}
+\item{\code{parasite_match_mode}}{Character. One of \code{"auto"} (default),
+\code{"continuous"}, or \code{"discrete"}. Continuous mode (0.5.0) uses
+Euclidean distance on the \code{signal} vector and tracks the host
+population centroid with lag — a mean-tracking variant that
+does NOT reproduce the canonical Red Queen. Discrete mode
+(0.5.1) uses Hamming distance on a binary-allele
+\code{parasite_haplotype} trait with Mendelian inheritance — this
+is the canonical Hamilton mechanism. \code{"auto"} picks discrete
+when \code{n_parasite_loci > 0}, else continuous.}
+\item{\code{parasite_virulence_rate}}{Numeric in [0, 1]. Rate at which
+the collective parasite genotype tracks the host majority each
+tick (default 0.1 ≈ 10-tick lag).}
+\item{\code{parasite_pressure}}{Numeric. Maximum per-tick energy drain
+from parasite infection, applied to hosts exactly matching the
+parasite haplotype (default 0.5).}
+\item{\code{parasite_distance_scale}}{Numeric. Continuous-mode Gaussian
+falloff scale (default 1.0; ignored in discrete mode).}
+\item{\code{n_parasite_loci}}{Integer. Number of binary loci in the
+heritable \code{parasite_haplotype} trait (default 0 = continuous
+mode only). When > 0, each agent carries a
+\verb{Vector\{Int32\}} of this length, inherited Mendelian-style for
+diploid, clonal + per-locus mutation for haploid. 0.5.1.}
+\item{\code{parasite_mutation_rate}}{Numeric in [0, 1]. Per-locus
+mutation rate (allele flip) during inheritance (default 0.01).}
+\item{\code{parasite_discrete_exponent}}{Numeric. Exponent controlling
+Hamming-distance falloff: \code{penalty = pressure * ((n_loci - hamming) / n_loci)^exp}
+(default 4.0). Higher exponents
+concentrate pressure on near-matching hosts and let mismatched
+hosts escape cleanly.}
+}
+}
+
+\subsection{Mimicry and toxicity}{
+
+\describe{
+\item{\code{mimicry}}{Logical. Enable heritable toxicity trait and predator
+signal learning (default \code{FALSE}). Implements Mullerian and Batesian
+mimicry via Rescorla-Wagner learning in predators.
+Reference: Rescorla & Wagner (1972) A theory of Pavlovian conditioning,
+in \emph{Classical Conditioning II}, Appleton-Century-Crofts, pp 64--99.}
+}
+}
+
+\subsection{Niche construction}{
+
+\describe{
+\item{\code{niche_construction}}{Logical. Enable shelter building (default
+\code{FALSE}). Shelters reduce predation and slow grass regrowth.
+Reference: Odling-Smee, Laland & Feldman (2003) \emph{Niche Construction:
+The Neglected Process in Evolution}, Princeton UP.}
+\item{\code{shelter_build_prob}}{Numeric in [0, 1]. Probability of building a
+shelter unit per tick when eligible (default 0.1).}
+\item{\code{shelter_max_depth}}{Integer. Maximum shelter depth per cell
+(default 5L).}
+\item{\code{shelter_min_energy}}{Numeric. Minimum energy required to build
+(default 80).}
+\item{\code{shelter_decay_prob}}{Numeric in [0, 1]. Per-tick probability that
+each shelter unit decays (default 0.05).}
+}
+}
+
+\subsection{Scavenging}{
+
+\describe{
+\item{\code{scavenging}}{Logical. Enable carrion dynamics (default \code{FALSE}).
+Dead agents deposit body mass as carrion; scavengers consume it.}
+\item{\code{carrion_fraction}}{Numeric in [0, 1]. Fraction of energy_init
+deposited as carrion upon agent death (default 0.5). Uses energy_init
+not agent$energy at death, because body mass does not change with
+starvation.}
+\item{\code{carrion_decay_rate}}{Numeric in [0, 1]. Per-tick fraction of
+carrion that decomposes (default 0.1).}
+\item{\code{carrion_eat_gain}}{Numeric. Energy gained per unit of carrion
+consumed (default 3).}
+}
+}
+
+\subsection{Group defense (dilution effect)}{
+
+\describe{
+\item{\code{group_defense}}{Logical. Enable dilution-effect predator avoidance
+(default \code{FALSE}). Per-agent predation probability decreases with local
+group size.
+Reference: Foster & Treherne (1981) Evidence for the dilution effect in
+the selfish herd from fish predation on a marine insect,
+\emph{Nature} 293:466--467.}
+}
+}
+
+\subsection{Habitat preference (ideal free distribution)}{
+
+\describe{
+\item{\code{habitat_preference_evolution}}{Logical. Enable heritable habitat
+preference (default \code{FALSE}). Preference encodes optimal local grass
+density; agents are attracted to cells matching their preference.
+Reference: Fretwell & Lucas (1970) On territorial behavior and other
+factors influencing habitat distribution in birds,
+\emph{Acta Biotheoretica} 19(1):16--36.}
+}
+}
+
+\subsection{Seasonal dynamics}{
+
+\describe{
+\item{\code{seasonal_amplitude}}{Numeric. Amplitude of sinusoidal grass_rate
+modulation (default 0 = off). grass_rate_t = grass_rate *
+(1 + seasonal_amplitude * sin(2 * pi * t / seasonal_period)).}
+\item{\code{seasonal_period}}{Integer. Period of seasonal cycle in ticks
+(default 100L).}
+}
+}
+
+\subsection{Speciation (genome clustering)}{
+
+\describe{
+\item{\code{speciation}}{Logical. Enable reproductive isolation based on genome
+distance (default \code{FALSE}). Agents only mate with conspecifics
+(genome distance < isolation_threshold).
+Reference: Gavrilets (2004) \emph{Fitness Landscapes and the Origin of
+Species}, Princeton UP.}
+\item{\code{isolation_threshold}}{Numeric. Maximum genome distance for
+successful mating (default 0.45). Species are inferred by hierarchical
+clustering of genome distances at each logging tick.}
+}
+}
+
+\subsection{Social learning}{
+
+\describe{
+\item{\code{social_learning}}{Logical. Enable copying of output-layer weights
+from successful neighbours (default \code{FALSE}). Implements prestige bias.
+Reference: Laland (2004) Social learning strategies,
+\emph{Learning and Behavior} 32(1):4--14.}
+\item{\code{social_learning_freq}}{Integer. Apply social learning every this
+many ticks (default 10L).}
+\item{\code{social_learning_rate}}{Numeric. Fraction of neighbour weights
+copied (default 0.1).}
+}
+}
+
+\subsection{World evolution (parameter co-evolution)}{
+
+When \code{world_evolution = TRUE}, the environment parameters listed in
+\code{world_params_to_evolve} are treated as evolvable quantities that change
+via random drift each tick, allowing the environment to co-evolve with
+agents. This extends the MAP-Elites search into a joint agent-environment
+space.
+
+\describe{
+\item{\code{world_evolution}}{Logical. Enable world parameter evolution
+(default \code{FALSE}).}
+\item{\code{world_mutation_sd}}{Numeric. Standard deviation of Gaussian
+perturbations to world parameters per tick (default 0.02).}
+\item{\code{world_params_to_evolve}}{Character vector. Names of parameters in
+\code{default_specs()} to treat as evolvable. Example:
+\code{c("grass_rate", "disease_death_prob")}. Defaults to
+\code{character(0)} (none).}
+}
+}
+
+\subsection{Complex multi-resource landscape (Tier 1)}{
+
+Adds shrub and canopy resource layers on top of ground grass.
+Canopy access requires \code{wing_size >= canopy_threshold} (heritable).
+Designed to break the standard brain-size x longevity correlation.
+Reference: Liedtke & Fromhage (2019); Isbell (2006).
+\describe{
+\item{\code{complex_landscape}}{Logical. Enable multi-layer resources
+(default \code{FALSE}).}
+\item{\code{shrub_density}}{Numeric in [0, 1]. Initial fraction of cells
+with shrub resource (default 0.3).}
+\item{\code{shrub_growth_rate}}{Numeric. Per-tick fractional regrowth of
+shrubs (default 0.03).}
+\item{\code{shrub_energy}}{Numeric. Maximum energy a shrub cell provides
+(default 20.0).}
+\item{\code{canopy_density}}{Numeric in [0, 1]. Initial canopy coverage
+(default 0.15; trees are sparse).}
+\item{\code{canopy_growth_rate}}{Numeric. Per-tick fractional regrowth of
+canopy (default 0.005; trees grow slowly).}
+\item{\code{canopy_energy}}{Numeric. Maximum energy a canopy cell provides
+(default 50.0; high energy density for aerial specialists).}
+\item{\code{canopy_threshold}}{Numeric. Minimum \code{wing_size} needed for
+canopy access (default 0.6).}
+\item{\code{wing_size_init_mean}}{Numeric. Initial mean \code{wing_size} (default
+0.0; ground-bound founders).}
+\item{\code{wing_size_mutation_sd}}{Numeric. Mutation SD for \code{wing_size}
+(default 0.05).}
+\item{\code{wing_size_min}}{Numeric. Minimum wing size (default 0.0).}
+\item{\code{wing_size_max}}{Numeric. Maximum wing size (default 1.0).}
+}
+}
+
+\subsection{Spatial sorting (Tier 2a)}{
+
+Implements assortative mating at the invasion range front, causing
+dispersal-enhancing alleles to accumulate at the frontier without requiring
+any fitness advantage over sedentary conspecifics.
+Reference: Shine et al. (2011) An evolutionary process that assembles
+phenotypes through space rather than through time. \emph{PNAS} 108:5708--5711.
+Requires \code{dispersal_evolution = TRUE} to have effect.
+\describe{
+\item{\code{spatial_sorting}}{Logical. Enable range-front mate preference
+for high-dispersal partners (default \code{FALSE}).}
+\item{\code{sorting_front_threshold}}{Numeric in [0, 1]. Fraction of maximum
+range radius that defines "the front" (default 0.75; outermost 25\%).}
+\item{\code{sorting_mating_boost}}{Numeric. Multiplier applied to
+\code{dispersal_tendency} when scoring mates at the front (default 3.0).}
+}
+}
+
+\subsection{IFfolk inclusive fitness (Tier 2b)}{
+
+IFfolk = own offspring + sum(r x relative's offspring). Agents transfer
+energy to energy-depleted kin. Optional parliament suppression penalises
+defectors in cooperative populations.
+Reference: Fromhage & Jennions (2019) The strategic reference gene.
+\emph{Proc R Soc B} 286:20190459. doi:10.1098/rspb.2019.0459
+\describe{
+\item{\code{iffolk_selection}}{Logical. Enable IFfolk energy transfers
+(default \code{FALSE}).}
+\item{\code{iffolk_r_min}}{Numeric. Minimum relatedness coefficient for a
+relative to count (default 0.125 = cousin).}
+\item{\code{iffolk_radius}}{Integer. Spatial search radius for relatives in
+grid cells (default 5L).}
+\item{\code{iffolk_transfer}}{Numeric. Maximum energy transferred per
+altruistic act (default 3.0).}
+\item{\code{iffolk_min_energy}}{Numeric. Minimum donor energy required to
+transfer (default 60.0).}
+\item{\code{parliament_suppression}}{Logical. Enable parliament-of-genes
+penalty for defectors (negative \code{helper_tendency}) when surrounded
+by cooperators (default \code{FALSE}).}
+\item{\code{parliament_cost}}{Numeric. Energy cost per tick for defectors
+in cooperative neighbourhoods (default 0.5).}
+}
+}
+
+\subsection{Fixed patch (stable fitness peak — Baldwin Effect demonstration)}{
+
+Places one or more grid cells whose grass value is reset to
+\code{fixed_patch_value} after every \verb{grow_grass!} call, creating a permanent
+high-value resource that never depletes. This gives natural selection a
+\emph{stable fitness peak}: agents whose genome encodes a fixed policy of
+navigating to the patch always outperform agents that must re-discover it
+by exploration each lifetime. The result is genetic assimilation of the
+patch-navigation strategy — the computational Baldwin Effect as described
+by Hinton \& Nowlan (1987).
+
+Without this module, the foraging fitness landscape shifts continuously
+(stochastic grass, population density feedbacks) and exploration remains
+the evolutionarily stable strategy (\code{mean_prior_sigma} rises to ceiling).
+
+Reference: Hinton, G.E. \& Nowlan, S.J. (1987) How learning can guide
+evolution. \emph{Complex Systems} 1(3):495--502.
+\describe{
+\item{\code{fixed_patch}}{Logical. Enable the stable resource patch
+(default \code{FALSE}).}
+\item{\code{fixed_patch_value}}{Numeric. Grass value maintained at patch
+cells each tick (default \code{5.0}, equal to \code{grass_max}). Values above
+\code{grass_max} are permitted — the cap in \verb{grow_grass!} does not apply
+because the patch uses direct assignment.}
+\item{\code{fixed_patch_x}}{Integer or \code{NA_integer_}. Column index of the
+patch centre (1-indexed). \code{NA_integer_} resolves to the grid centre
+column (default).}
+\item{\code{fixed_patch_y}}{Integer or \code{NA_integer_}. Row index of the
+patch centre (1-indexed). \code{NA_integer_} resolves to the grid centre
+row (default).}
+\item{\code{fixed_patch_radius}}{Integer. Chebyshev radius of the patch:
+\code{0L} = single cell; \code{1L} = 3×3 block; \code{2L} = 5×5 block
+(default \code{0L}).}
+}
+}
+
+\subsection{Logging}{
+
+\describe{
+\item{\code{log_freq}}{Integer. Log population-level statistics every this many
+ticks (default 1L; set higher to reduce memory use in long runs).}
+\item{\code{log_genomes}}{Logical. Log flattened genome vectors to
+\code{get_genome_data()$genomes} at each log tick (default \code{FALSE};
+memory intensive for large populations).}
+\item{\code{random_seed}}{Integer or \code{NA_integer_}. Seed for Julia's RNG.
+\code{NA_integer_} uses a random seed (default).}
+}
+}
 }
 \examples{
 specs <- default_specs()
