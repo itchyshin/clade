@@ -68,8 +68,12 @@ one_run <- function(n_predators, toxin_dose, toxicity_cost, seed,
   s$toxicity_init_mean     <- toxicity_init
   s$toxin_dose             <- toxin_dose
   s$toxicity_cost_per_tick <- toxicity_cost
-  s$signal_memory_rate     <- 0.3
-  s$avoid_threshold        <- 0.3
+  # 0.4.0 Tier 4: enable signal vectors so vector predator memory activates.
+  s$signal_dims            <- 3L
+  s$signal_evolution_drift <- TRUE
+  s$signal_drift_sd        <- 0.05
+  s$signal_memory_rate     <- 0.5
+  s$avoid_threshold        <- 0.1   # lower threshold so avoidance fires
   s$n_predators_init       <- as.integer(n_predators)
   s$predator_attack_strength <- 60
   s$predator_min_repro_energy <- 50

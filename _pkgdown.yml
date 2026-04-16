@@ -13,7 +13,7 @@ home:
 
 navbar:
   structure:
-    left:  [intro, articles, scenarios, reference, news]
+    left:  [intro, articles, kernel, scenarios, reference, news]
     right: [github]
   components:
     intro:
@@ -36,6 +36,24 @@ navbar:
         - text: "Gallery"
         - text: "Baldwin effect & RL"
           href: articles/baldwin-effect.html
+    kernel:
+      text: "Kernel as biology"
+      menu:
+        - text: "Overview & reading guide"
+          href: articles/k-README.html
+        - text: "---"
+        - text: "tick.jl — one tick in the life of an agent"
+          href: articles/k-tick.html
+        - text: "Clade.jl — the main loop, in biological order"
+          href: articles/k-clade-main.html
+        - text: "sense.jl — what an agent perceives"
+          href: articles/k-sense.html
+        - text: "reproduce.jl — birth, inheritance, parental cost"
+          href: articles/k-reproduce.html
+        - text: "death.jl — when agents die and why"
+          href: articles/k-death.html
+        - text: "genome.jl — meiosis, traits, inheritance"
+          href: articles/k-genome.html
     scenarios:
       text: "Scenarios"
       menu:
@@ -139,6 +157,23 @@ articles:
       - parameter-reference
       - custom-modules
       - diversity-search
+
+  - title: "Kernel as biology"
+    desc: >
+      Side-by-side reading of the simulation kernel — Julia code on the
+      left, plain-English explanation and biological rationale on the
+      right. Read these to understand the rules of the simulation as
+      biology, spot inconsistencies, and find places where the model
+      could be more realistic.
+    navbar: ~
+    contents:
+      - k-README
+      - k-tick
+      - k-clade-main
+      - k-sense
+      - k-reproduce
+      - k-death
+      - k-genome
 
   - title: "Theme 1 — How do traits evolve?"
     navbar: ~

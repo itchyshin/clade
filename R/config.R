@@ -24,12 +24,35 @@
 #'     (default 0.5).}
 #'   \item{`eat_gain`}{Numeric. Energy gained per unit of grass consumed
 #'     (default 5).}
+#'   \item{`max_bite`}{Numeric. **0.4.0.** Maximum grass units extracted from
+#'     a cell per tick (default 2.0). Implements *handling time*: a rich cell
+#'     cannot be stripped in one step, and multiple agents can graze the same
+#'     cell across ticks. Restores the alifeR / MATLAB ancestor's `maxbite`
+#'     semantics. Per-tick energy income is bounded at `max_bite * eat_gain`.}
 #'   \item{`min_repro_energy`}{Numeric. Minimum energy required to attempt
 #'     reproduction (default 120).}
-#'   \item{`repro_cost`}{Numeric. Energy deducted from parent at reproduction
-#'     (default 30).}
+#'   \item{`repro_cost_mode`}{Character. **0.4.0.** `"proportional"` (default)
+#'     deducts `repro_cost_fraction * parent_energy` per offspring;
+#'     `"fixed"` deducts a constant `repro_cost`. Proportional cost
+#'     implements Smith & Fretwell (1974) parental investment: parents in
+#'     better condition have more to invest. Fixed mode preserved for
+#'     reproducibility of pre-0.4.0 runs.}
+#'   \item{`repro_cost`}{Numeric. Energy deducted from parent per offspring
+#'     when `repro_cost_mode = "fixed"` (default 30, ignored when mode is
+#'     `"proportional"`).}
+#'   \item{`repro_cost_fraction`}{Numeric in (0, 1). **0.4.0.** Fraction of
+#'     parent energy paid per offspring when
+#'     `repro_cost_mode = "proportional"` (default 0.5).}
+#'   \item{`offspring_energy_mode`}{Character. **0.4.0.** `"proportional"`
+#'     (default) sets newborn energy to
+#'     `offspring_energy_fraction * cost_paid` (Smith & Fretwell quality-
+#'     quantity); `"fixed"` sets newborn energy to constant
+#'     `offspring_energy` (legacy).}
 #'   \item{`offspring_energy`}{Numeric. Energy given to each new offspring
-#'     (default 60).}
+#'     when `offspring_energy_mode = "fixed"` (default 60).}
+#'   \item{`offspring_energy_fraction`}{Numeric in (0, 1). **0.4.0.**
+#'     Fraction of `cost_paid` allocated to each offspring when
+#'     `offspring_energy_mode = "proportional"` (default 0.25).}
 #'   \item{`starvation_threshold`}{Numeric. Agent dies when energy falls below
 #'     this value (default 0).}
 #' }
@@ -795,15 +818,21 @@ default_specs <- function() {
     max_ticks              = 500L,
 
     # ── Energy and metabolism ──────────────────────────────────────────────
-    energy_init            = 100.0,
-    energy_max             = 200.0,
-    move_cost              = 1.0,
-    idle_cost              = 0.5,
-    eat_gain               = 5.0,
-    min_repro_energy       = 120.0,
-    repro_cost             = 30.0,
-    offspring_energy       = 60.0,
-    starvation_threshold   = 0.0,
+    energy_init                 = 100.0,
+    energy_max                  = 200.0,
+    move_cost                   = 1.0,
+    idle_cost                   = 0.5,
+    eat_gain                    = 5.0,
+    max_bite                    = 2.0,           # 0.4.0: handling time
+    min_repro_energy            = 120.0,
+    repro_cost_mode             = "proportional",# 0.4.0: Smith-Fretwell default
+    repro_cost                  = 30.0,          # used if mode = "fixed"
+    repro_cost_fraction         = 0.5,           # 0.4.0: fraction of parent energy
+    offspring_energy_mode       = "proportional",# 0.4.0
+    offspring_energy            = 60.0,          # used if mode = "fixed"
+    offspring_energy_fraction   = 0.25,          # 0.4.0: fraction of cost_paid
+    starvation_threshold        = 0.0,
+    max_age_scales_with_metabolism = FALSE,      # 0.4.0 Tier 2: Réale 2010 pace-of-life
 
     # ── Grass ──────────────────────────────────────────────────────────────
     grass_init_prob        = 0.5,
@@ -831,6 +860,17 @@ default_specs <- function() {
     brain_energy_mode      = "activity",
     brain_energy_base      = 0.001,
     brain_energy_activity  = 0.5,
+
+    # ── BNN brain ──────────────────────────────────────────────────────────
+    bnn_sigma_init    = 0.5,                 # haploid default & "fixed" mode
+    bnn_sigma_min     = 0.01,                # floor for all modes
+    bnn_sigma_source  = "heterozygosity",    # 0.4.0 Tier 5A: "heterozygosity"
+                                             # (legacy), "fixed", or "trait"
+    bnn_sample_freq   = 1L,                  # 0.4.0 Tier 5B: resample every
+                                             # N forward calls; 1 = legacy
+                                             # per-tick sampling. Higher values
+                                             # let RL/social-learning updates
+                                             # accumulate before washout.
 
     # ── Genome and ploidy ──────────────────────────────────────────────────
     ploidy                 = 2L,

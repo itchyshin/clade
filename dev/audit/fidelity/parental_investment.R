@@ -48,15 +48,20 @@ results <- lapply(fi_grid, function(fi) {
 })
 df <- do.call(rbind, results)
 
-# Predictions:
-# Higher fi -> fewer births (P1: negative rho)
-# Higher fi -> more juveniles per birth (quality) (P2: ratio rises?)
-rho_births <- suppressWarnings(cor(df$fi, df$mean_births, method = "spearman"))
-cat(sprintf("\nP1 Spearman(fi, mean_births) = %.2f (expect negative): %s\n",
-            rho_births, if (rho_births < -0.3) "PASS" else "WEAK"))
+# Predictions (0.4.0 Tier 3):
+#   P1. Higher fi -> larger offspring -> longer-graduating juveniles
+#       -> mean n_juveniles DROPS (Trivers' quality-quantity).
+#   P2. Higher fi -> higher mean_energy because offspring graduate
+#       better-provisioned and contribute more to the adult pool.
+rho_juv <- suppressWarnings(cor(df$fi, df$mean_juv, method = "spearman"))
+cat(sprintf("\nP1 Spearman(fi, mean_juveniles) = %.2f (Trivers: negative): %s\n",
+            rho_juv, if (rho_juv < -0.5) "PASS" else "WEAK"))
 rho_energy <- suppressWarnings(cor(df$fi, df$mean_energy, method = "spearman"))
-cat(sprintf("P2 Spearman(fi, mean_energy) = %.2f (Trivers allows either sign)\n",
+cat(sprintf("P2 Spearman(fi, mean_energy) = %.2f (positive expected)\n",
             rho_energy))
+rho_births <- suppressWarnings(cor(df$fi, df$mean_births, method = "spearman"))
+cat(sprintf("P3 Spearman(fi, mean_births) = %.2f (Trivers allows either)\n",
+            rho_births))
 
 saveRDS(df, "dev/audit/fidelity/parental_investment_results.rds")
 

@@ -20,10 +20,31 @@ idle    5      stay in place
 energy -= move_cost * metabolic_rate   (if moved)
        or idle_cost * metabolic_rate   (if idle)
 energy -= brain_energy_cost(brain, logits)
-energy += eat_gain * grass[x, y]       (grass fully consumed each tick)
+bite    = min(grass[x, y], max_bite)   (handling-time-limited intake)
+energy += eat_gain * bite              (grass[x, y] -= bite)
 
 Grass at the agent's new cell is consumed regardless of action (even idle),
 consistent with alifeR's "eat where you stand" rule.
+
+## Handling time (0.4.0 kernel change)
+
+Prior to 0.4.0, `eat_gain * grass[x, y]` was added in one tick and the cell
+was zeroed — agents stripped a cell entirely in a single step. Real animals
+have *handling time*: a cow doesn't eat a square metre of grass in one bite.
+Both the MATLAB ancestor (Bulitko 2023) and the alifeR R port enforce a
+per-tick `maxbite` cap. The 0.4.0 kernel restores this: each tick an agent
+can extract at most `max_bite` units of grass from its current cell.
+
+Biological consequences:
+1. A grass-rich cell can sustain multiple grazing visits (or multiple
+   simultaneous grazers) instead of being depleted by the first agent.
+2. Per-tick energy intake is bounded — agents cannot accumulate huge
+   energy windfalls from finding one rich cell, which previously distorted
+   reproduction timing and selection differentials.
+3. The per-tick gain:cost ratio drops from ~25:1 (max meal vs metabolic
+   cost) to ~5:1, much closer to vertebrate energetics.
+
+See `dev/docs/kernel-0.4.0.md` for the full audit trail and citations.
 """
 
 """
@@ -41,6 +62,10 @@ function tick_agents!(env::Environment)
     move_cost  = Float32(get(specs, "move_cost",  1.0))
     idle_cost  = Float32(get(specs, "idle_cost",  0.5))
     eat_gain   = Float32(get(specs, "eat_gain",   5.0))
+    max_bite   = Float32(get(specs, "max_bite",   2.0))   # 0.4.0: handling time
+    # 0.4.0 Tier 5B: BNN sample cadence — cache weight sample for N forward
+    # calls instead of resampling every tick. Freq = 1 is legacy default.
+    _bnn_set_freq(Int(get(specs, "bnn_sample_freq", 1)))
     e_mode     = get(specs, "brain_energy_mode", "activity")
     e_base     = Float32(get(specs, "brain_energy_base",     0.001))
     e_act      = Float32(get(specs, "brain_energy_activity", 0.5))
@@ -83,9 +108,14 @@ function tick_agents!(env::Environment)
         ag.y = Int32(y)
 
         # ── Eat ───────────────────────────────────────────────────────────
+        # 0.4.0: handling-time-limited intake. An agent extracts at most
+        # `max_bite` units of grass from the cell per tick. Multiple ticks
+        # (or multiple agents on consecutive ticks) are needed to deplete
+        # a rich cell. Restores alifeR / MATLAB-Bulitko `maxbite` semantics.
         if env.grass[x, y] > 0.0f0
-            ag.energy    += eat_gain * env.grass[x, y]
-            env.grass[x, y] = 0.0f0
+            bite             = min(env.grass[x, y], max_bite)
+            ag.energy       += eat_gain * bite
+            env.grass[x, y] -= bite
         end
         eat_layered!(ag, env)   # complex landscape: shrub/canopy supplements
         ag.energy = min(ag.energy, Float32(get(specs, "energy_max", 200.0)))

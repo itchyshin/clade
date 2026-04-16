@@ -99,6 +99,14 @@ mutable struct BNNBrain <: AbstractBrain
                                     # REINFORCE score w.r.t. the Gaussian
                                     # policy. Initialised empty; populated
                                     # by the first forward pass.
+    # 0.4.0 Tier 5B: sampling cadence. Count of forward calls since
+    # the last resample. When this reaches `bnn_sample_freq`, the
+    # next forward() draws a fresh sample; otherwise reuses
+    # last_sample. Per-tick resampling (freq = 1, legacy default)
+    # washes out within-lifetime learning updates because each tick's
+    # sample comes from a wide posterior; higher freq lets RL/social-
+    # copying accumulate before resampling.
+    ticks_since_sample ::Int32
 end
 
 n_inputs(b::BNNBrain)  = Int(b.arch[1])
@@ -124,20 +132,47 @@ function make_bnn_brain(g::DiploidGenome, specs::Dict{String,Any})::BNNBrain
     # Prior mean: additive expression
     mu = express_weights(g, "additive")
 
-    # Prior sigma: from heterozygosity (diploid) or fixed init (haploid)
-    sigma_init = Float32(get(specs, "bnn_sigma_init", 0.5))
-    if is_haploid(g)
-        sigma = fill(sigma_init, n)
-    else
-        # Half-difference of alleles as prior width
-        # Large allele difference → broad prior → plastic agent
-        sigma = abs.(g.maternal_weights .- g.paternal_weights) .* 0.5f0
-        # Ensure sigma > 0 even for identical alleles (minimum sigma floor)
-        sigma_min = Float32(get(specs, "bnn_sigma_min", 0.01))
-        sigma .= max.(sigma, sigma_min)
+    # 0.4.0 Tier 5A: sigma source is configurable.
+    #   "heterozygosity" (default, legacy) — sigma = |mat - pat| / 2
+    #   "fixed"                            — sigma = bnn_sigma_init for all
+    #                                        weights, regardless of genome
+    #   "trait"                            — sigma = TRAIT_PLASTICITY value
+    #                                        from the genome. Requires
+    #                                        phenotypic_plasticity = TRUE so
+    #                                        the trait is evolved rather than
+    #                                        pinned at 0.
+    # The `"heterozygosity"` mode couples BNN width to genetic variance,
+    # which makes sigma rise (not fall) under neutral mutation — the root
+    # cause of the s-baldwin 🔴 verdict pre-0.4.0. The `"fixed"` and
+    # `"trait"` modes decouple sigma from heterozygosity so Baldwin
+    # canalization can be observed.
+    sigma_source = String(get(specs, "bnn_sigma_source", "heterozygosity"))
+    sigma_init   = Float32(get(specs, "bnn_sigma_init", 0.5))
+    sigma_min    = Float32(get(specs, "bnn_sigma_min",  0.01))
+
+    sigma = if sigma_source == "fixed"
+        fill(sigma_init, n)
+    elseif sigma_source == "trait"
+        # TRAIT_PLASTICITY is index 10 in the scalar-traits vector
+        # (see types.jl TRAIT_* constants). When phenotypic_plasticity
+        # is off, the trait value is 0 → fall back to sigma_min.
+        plast = is_haploid(g) ?
+            g.maternal_traits[TRAIT_PLASTICITY] :
+            0.5f0 * (g.maternal_traits[TRAIT_PLASTICITY] +
+                     g.paternal_traits[TRAIT_PLASTICITY])
+        fill(max(plast, sigma_min), n)
+    else   # "heterozygosity" (default legacy)
+        if is_haploid(g)
+            fill(sigma_init, n)
+        else
+            s = abs.(g.maternal_weights .- g.paternal_weights) .* 0.5f0
+            s .= max.(s, sigma_min)
+            s
+        end
     end
 
-    BNNBrain(mu, sigma, g.architecture, Float32[])
+    # ticks_since_sample starts high so the first forward() resamples.
+    BNNBrain(mu, sigma, g.architecture, Float32[], Int32(typemax(Int32)))
 end
 
 # ── Forward pass (Thompson sampling) ──────────────────────────────────────────
@@ -157,15 +192,37 @@ Reference: Thompson, W.R. (1933) On the likelihood that one unknown probability
 exceeds another in view of the evidence of two samples. Biometrika 25:285–294.
 """
 function forward(brain::BNNBrain, input::Vector{Float32})::Vector{Float32}
-    # Sample weight vector from posterior and cache it so bnn_update!
-    # can compute the true score function w.r.t. the Gaussian policy.
-    w_sample = brain.mu .+ brain.sigma .* Float32.(randn(length(brain.mu)))
-    brain.last_sample = w_sample
+    # 0.4.0 Tier 5B: sample weights only every `sample_freq` forward calls.
+    # With freq = 1 (legacy default), resample every tick — fresh Thompson
+    # sampling each time. With freq > 1, cache the sample for that many
+    # calls, allowing within-lifetime learning updates (RL, social copying)
+    # to accumulate in mu/sigma before the next resample. Freq passed via
+    # env specs at construction; read once per call via a module-level
+    # hook (kept simple: check the sample_freq spec each call, default 1).
+    # Reuse cached sample if available and we haven't hit the resample
+    # boundary yet. ticks_since_sample starts at typemax(Int32) so the
+    # first call always resamples.
+    sample_freq = Int32(get(_bnn_freq_cache, :freq, Int32(1)))
+
+    if isempty(brain.last_sample) ||
+       length(brain.last_sample) != length(brain.mu) ||
+       brain.ticks_since_sample >= sample_freq
+        w_sample = brain.mu .+ brain.sigma .* Float32.(randn(length(brain.mu)))
+        brain.last_sample = w_sample
+        brain.ticks_since_sample = Int32(0)
+    else
+        brain.ticks_since_sample += Int32(1)
+    end
 
     # Run sampled ANN forward (reuse ANNBrain infrastructure)
-    sampled_ann = make_ann_brain(w_sample, brain.arch)
+    sampled_ann = make_ann_brain(brain.last_sample, brain.arch)
     forward(sampled_ann, input)
 end
+
+# Tiny module-level cache to avoid plumbing `specs` through every forward
+# call. Set once per tick_agents! entry via `_bnn_set_freq`.
+const _bnn_freq_cache = Dict{Symbol,Int32}()
+_bnn_set_freq(f::Integer) = (_bnn_freq_cache[:freq] = Int32(max(f, 1)); nothing)
 
 # ── Within-lifetime learning (REINFORCE update on posterior) ──────────────────
 
@@ -223,7 +280,8 @@ Return a new BNNBrain with Gaussian perturbations to mu. Sigma is not mutated
 """
 function mutate(brain::BNNBrain, mutation_sd::Float32, rng)::BNNBrain
     new_mu = brain.mu .+ Float32.(mutation_sd .* randn(rng, length(brain.mu)))
-    BNNBrain(new_mu, copy(brain.sigma), brain.arch, Float32[])
+    BNNBrain(new_mu, copy(brain.sigma), brain.arch, Float32[],
+             Int32(typemax(Int32)))
 end
 
 # ── Crossover ──────────────────────────────────────────────────────────────────
@@ -241,7 +299,7 @@ function crossover(b1::BNNBrain, b2::BNNBrain,
                     crossover_points::Vector{Int}, rng)::BNNBrain
     new_mu    = _crossover_vectors(b1.mu, b2.mu, crossover_points)
     new_sigma = _crossover_vectors(b1.sigma, b2.sigma, crossover_points)
-    BNNBrain(new_mu, new_sigma, b1.arch, Float32[])
+    BNNBrain(new_mu, new_sigma, b1.arch, Float32[], Int32(typemax(Int32)))
 end
 
 # ── Serialisation ──────────────────────────────────────────────────────────────

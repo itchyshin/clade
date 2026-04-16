@@ -39,8 +39,8 @@ Statuses:
 | s-mating-systems                      | Maynard Smith 1978                            | 🟠 passed-consistent | [mating_systems.md](mating_systems.md)              | pending |
 | s-life-history                        | Cole 1954; Williams 1966                      | ✅ passed           | [life_history.md](life_history.md)                  | pending |
 | s-clutch-size                         | Lack 1947; r/K (MacArthur & Wilson 1967)      | ✅ passed           | [clutch_size.md](clutch_size.md)                    | pending |
-| s-parental-investment                 | Trivers 1972                                  | 🟠 passed-consistent | [parental_investment.md](parental_investment.md)    | pending |
-| s-pace-of-life                        | Réale et al. 2010                             | 🟠 passed-consistent | [pace_of_life.md](pace_of_life.md)                  | pending |
+| s-parental-investment                 | Trivers 1972                                  | ✅ passed (0.4.0 Tier 3) | [parental_investment.md](parental_investment.md) | 9b21f66 |
+| s-pace-of-life                        | Réale et al. 2010                             | ✅ passed (0.4.0 Tier 2) | [pace_of_life.md](pace_of_life.md)               | 9b21f66 |
 | s-group-defense                       | Hamilton 1971 (selfish herd)                  | 🟠 passed-consistent | [group_defense.md](group_defense.md)                | pending |
 | s-mimicry                             | Bates 1862; Müller 1879                       | 🟠 passed-consistent | [mimicry.md](mimicry.md)                            | pending |
 | s-disease                             | Kermack & McKendrick 1927 (SIR)               | ✅ passed           | [disease.md](disease.md)                            | pending |
