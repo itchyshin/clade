@@ -107,36 +107,58 @@ function apply_predator_toxin!(pred::Agent, prey::Agent, env::Environment)
 
     lr = Float32(get(env.specs, "signal_memory_rate", 0.3))
 
-    # 0.4.0 Tier 4: vector signal memory (when prey carry signal vectors).
-    # The predator's `preference` field is repurposed as signal memory:
-    # after a successful attack on a toxic prey, the memory shifts toward
-    # the prey's signal vector (Rescorla-Wagner update). Avoidance then
-    # fires when dot(memory, prey_signal) > avoid_threshold — signal-
-    # specific learning, the mechanism Bates 1862 / Müller 1879 actually
-    # described. Restores alifeR's vector memory model.
+    # 0.4.0 Tier 4 + 0.4.4: vector signal memory via the dedicated
+    # `signal_memory` field on Agent. After a successful attack on a
+    # toxic prey, the predator's memory shifts toward the prey's signal
+    # vector (Rescorla-Wagner update). Avoidance then fires when
+    # dot(memory, prey_signal) > avoid_threshold — signal-specific
+    # learning, the mechanism Bates 1862 / Müller 1879 described.
+    # Restores alifeR's vector memory model.
+    #
+    # 0.4.4 refactor: moved from `pred.preference` (overloaded with
+    # prey mate-choice preference) to a dedicated `signal_memory` field
+    # on the Agent struct. Predators don't use mate-choice preference
+    # so the old overloading was harmless but semantically muddled.
     sdims = length(prey.signal)
-    if sdims > 0 && prey.toxicity > 0.0f0
-        # Initialise/resize predator memory if needed
-        if length(pred.preference) != sdims
-            resize!(pred.preference, sdims)
-            fill!(pred.preference, 0.0f0)
+    if sdims > 0
+        # 0.4.4: proper Rescorla-Wagner delta rule. The predator learns
+        # weights `memory` that *predict* prey toxicity from the signal
+        # vector via a linear model: predicted_tox = dot(memory, signal).
+        # Update is Widrow-Hoff / delta rule:
+        #   memory += lr * (tox - dot(memory, signal)) * signal
+        # — memory shifts proportional to signal to reduce prediction
+        # error against the actual toxin payload (tox ∈ [0,1]).
+        # This gives:
+        #   - Reinforcement on toxic prey (positive tox): memory grows
+        #     toward signal if prediction was too low.
+        #   - Extinction on non-toxic prey (tox=0): memory decays toward
+        #     zero if prediction was positive — the Batesian breakdown
+        #     channel.
+        #   - Correct scaling: at convergence, dot(memory, signal) == tox
+        #     so the "avoid" decision can use the predicted toxicity
+        #     directly against `avoid_threshold`.
+        # Pre-0.4.4 used `lambda = signal × tox` which squashes memory
+        # magnitude when signal happens to co-vary with tox — a bug
+        # exposed when `signal_toxicity_coupling > 0` was introduced.
+        if length(pred.signal_memory) != sdims
+            resize!(pred.signal_memory, sdims)
+            fill!(pred.signal_memory, 0.0f0)
         end
+        predicted = 0.0f0
         @inbounds for i in 1:sdims
-            pred.preference[i] = (1.0f0 - lr) * pred.preference[i] +
-                                  lr * prey.signal[i]
+            predicted += pred.signal_memory[i] * prey.signal[i]
         end
-        # Also update the scalar memory (legacy) for non-signal scenarios
-        pred.value_estimate = Float32(
-            (1.0 - Float64(lr)) * Float64(pred.value_estimate) +
-            Float64(lr) * Float64(prey.toxicity)
-        )
-    else
-        # No signal channel: fall back to scalar toxicity memory (legacy).
-        pred.value_estimate = Float32(
-            (1.0 - Float64(lr)) * Float64(pred.value_estimate) +
-            Float64(lr) * Float64(prey.toxicity)
-        )
+        err = prey.toxicity - predicted
+        @inbounds for i in 1:sdims
+            pred.signal_memory[i] += lr * err * prey.signal[i]
+        end
     end
+    # Always update the scalar toxicity memory (legacy) — used in
+    # non-signal scenarios AND as a fallback signal-agnostic trigger.
+    pred.value_estimate = Float32(
+        (1.0 - Float64(lr)) * Float64(pred.value_estimate) +
+        Float64(lr) * Float64(prey.toxicity)
+    )
     nothing
 end
 
@@ -177,13 +199,15 @@ function should_avoid_prey(pred::Agent, prey::Agent, env::Environment)::Bool
     # textbook Bates/Müller mechanism: predators learn to avoid specific
     # warning patterns, not generic recent toxicity exposure.
     sdims = length(prey.signal)
-    signal_match = if sdims > 0 && length(pred.preference) == sdims
-        # dot(mem, sig) > threshold
-        s = 0.0f0
+    signal_match = if sdims > 0 && length(pred.signal_memory) == sdims
+        # Predicted toxicity = dot(memory, signal). At RW convergence,
+        # this equals the actual toxicity (0.4.4 delta-rule update). The
+        # predator avoids when predicted toxicity exceeds the threshold.
+        predicted = 0.0f0
         @inbounds for i in 1:sdims
-            s += pred.preference[i] * prey.signal[i]
+            predicted += pred.signal_memory[i] * prey.signal[i]
         end
-        s >= avoid_threshold
+        predicted >= avoid_threshold
     else
         false
     end

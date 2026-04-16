@@ -188,6 +188,9 @@ in hot-path code when the corresponding module is disabled.
 ## Signal evolution
 - `signal::Vector{Float32}` — heritable signal vector (length = signal_dims).
 - `preference::Vector{Float32}` — mate preference vector.
+- `signal_memory::Vector{Float32}` — predator's Rescorla-Wagner-updated
+  memory of signals associated with toxic prey. Length = signal_dims;
+  empty on prey. 0.4.4.
 
 ## Mimicry / toxicity
 - `toxicity::Float32` — heritable toxicity level (0 = non-toxic, 1 = maximally
@@ -260,6 +263,12 @@ mutable struct Agent
 
     # Mimicry
     toxicity        ::Float32
+    # Predator's vector-signal memory (0.4.4): length = signal_dims.
+    # Used only by predators under mimicry with signal_dims > 0; empty for
+    # prey. Updated Rescorla-Wagner-style toward prey.signal after each
+    # successful attack on toxic prey; consulted by should_avoid_prey via
+    # dot-product against the target's signal.
+    signal_memory   ::Vector{Float32}
 
     # Disease
     infected        ::Bool

@@ -361,6 +361,7 @@ function run_clade(specs::Dict{String,Any})
         apply_toxicity_costs!(env)        # mimicry: per-tick toxicity energy cost
         apply_signal_costs!(env)          # signal evolution: per-tick signal cost
         apply_signal_evolution!(env)      # signal drift mutation (when enabled)
+        apply_signal_toxicity_pleiotropy!(env)  # 0.4.4: aposematic coupling
 
         # ── Optional modules ─────────────────────────────────────────────
         # (each is a no-op when its flag is false)
@@ -625,8 +626,10 @@ function _make_founder_agent(id::Int64, g::DiploidGenome, brain::AbstractBrain,
         body_size, immune_str, coop, disp, metab, aging, repro_th, mut_sd, lr,
         # Signal
         zeros(Float32, sig_dims), zeros(Float32, sig_dims),
-        # Mimicry / toxicity (heritable)
+        # Mimicry / toxicity (heritable) + predator signal memory (0.4.4)
         tox,
+        Float32[],   # signal_memory: empty for founders, populated by predators on attacks
+
         # Disease
         false, false, Int32(0), Int32(0),
         # Parental care
