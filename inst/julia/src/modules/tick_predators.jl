@@ -102,9 +102,11 @@ function seed_predators!(env::Environment)
             0.01f0,  # learning_rate
             # Signal (predators carry no signal)
             Float32[], Float32[],
-            # Mimicry (toxicity) + signal_memory (0.4.4): lazily sized by attack path
+            # Mimicry (toxicity) + signal_memory (0.4.4) + parasite_haplotype (0.5.1):
+            # all lazily sized; predators don't participate in the Red Queen module
             0.0f0,
             Float32[],
+            Int32[],
             # Disease
             false, false, Int32(0), Int32(0),
             # Parental care
@@ -434,10 +436,12 @@ function _predator_reproduction!(env::Environment)
             pred.repro_threshold, pred.mutation_sd, pred.learning_rate,
             # Signal
             Float32[], Float32[],
-            # Mimicry + signal_memory (0.4.4): offspring inherits nothing;
-            # predator learning starts fresh each generation
+            # Mimicry + signal_memory (0.4.4) + parasite_haplotype (0.5.1):
+            # offspring predators carry nothing; they learn fresh each
+            # generation and are exempt from the Red Queen module.
             0.0f0,
             Float32[],
+            Int32[],
             # Disease
             false, false, Int32(0), Int32(0),
             # Parental care

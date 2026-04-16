@@ -61,6 +61,35 @@ No-op when `coevolving_parasites = false` or `signal_dims == 0`.
 """
 function apply_coevolving_parasites!(env::Environment)
     Bool(get(env.specs, "coevolving_parasites", false)) || return
+
+    # 0.5.1: choose matching mode. "discrete" uses Hamming distance over
+    # a discrete-allele haplotype (Hamilton 1980 canonical Red Queen);
+    # "continuous" uses Euclidean distance over the signal vector
+    # (0.5.0 mean-tracking variant). Default "auto" picks discrete when
+    # `n_parasite_loci > 0`, else continuous.
+    mode = get(env.specs, "parasite_match_mode", "auto")::String
+    n_loci = Int(get(env.specs, "n_parasite_loci", 0))
+    if mode == "auto"
+        mode = n_loci > 0 ? "discrete" : "continuous"
+    end
+
+    if mode == "discrete"
+        _apply_parasites_discrete!(env, n_loci)
+    else
+        _apply_parasites_continuous!(env)
+    end
+    nothing
+end
+
+"""
+    _apply_parasites_continuous!(env)
+
+0.5.0 mean-tracking variant. Kept for backward compatibility and for
+scenarios exploring continuous-trait parasite pressure (which selects
+against genetic convergence but does *not* reproduce Hamilton's
+canonical Red Queen).
+"""
+function _apply_parasites_continuous!(env::Environment)
     sdims = Int(get(env.specs, "signal_dims", 0))
     sdims > 0 || return
 
@@ -69,8 +98,6 @@ function apply_coevolving_parasites!(env::Environment)
     scale    = Float32(get(env.specs, "parasite_distance_scale", 1.0))
     scale_sq = max(scale * scale, 1.0f-4)
 
-    # Lazy-init the parasite optimum cached on env.specs (avoids
-    # modifying the Environment struct). Length tracks signal_dims.
     opt = get!(env.specs, "_parasite_optimum",
                zeros(Float32, sdims))::Vector{Float32}
     if length(opt) != sdims
@@ -78,8 +105,6 @@ function apply_coevolving_parasites!(env::Environment)
         fill!(opt, 0.0f0)
     end
 
-    # 1. Compute host signal centroid over live prey agents with
-    #    signal vectors. Predators (empty signal) are excluded.
     n_hosts  = 0
     centroid = zeros(Float32, sdims)
     @inbounds for ag in env.agents
@@ -95,12 +120,10 @@ function apply_coevolving_parasites!(env::Environment)
         centroid[i] /= Float32(n_hosts)
     end
 
-    # 2. Adapt parasite optimum toward centroid (exponential tracking).
     @inbounds for i in 1:sdims
         opt[i] = (1.0f0 - rate) * opt[i] + rate * centroid[i]
     end
 
-    # 3–4. Apply Gaussian-falloff infection cost per host.
     @inbounds for ag in env.agents
         ag.alive || continue
         length(ag.signal) == sdims || continue
@@ -110,6 +133,84 @@ function apply_coevolving_parasites!(env::Environment)
             d_sq += diff * diff
         end
         penalty = pressure * exp(-d_sq / scale_sq)
+        ag.energy -= penalty
+    end
+    nothing
+end
+
+"""
+    _apply_parasites_discrete!(env, n_loci)
+
+0.5.1 Hamilton 1980 canonical Red Queen. Parasite carries a discrete
+binary haplotype that tracks the most-common host allele at each locus
+(majority vote with lag). Host infection penalty drops off with
+Hamming distance between host and parasite haplotype:
+
+    penalty = pressure * ((n_loci - hamming) / n_loci)^k
+
+Hosts matching the parasite haplotype exactly pay `pressure`; hosts
+entirely mismatched pay 0. Exponent `k = parasite_discrete_exponent`
+(default 4.0) sharpens the falloff so rare haplotypes escape cleanly.
+
+The key biological insight: under Mendelian inheritance with free
+recombination, sexual offspring inherit each locus independently from
+either parent. If parents differ at some loci, offspring haplotypes
+are genuinely *novel combinations* that the parasite haven't tracked.
+Asexual clones carry identical haplotypes generation after generation,
+so parasites lock onto them.
+"""
+function _apply_parasites_discrete!(env::Environment, n_loci::Int)
+    n_loci > 0 || return
+    rate     = Float32(get(env.specs, "parasite_virulence_rate", 0.1))
+    pressure = Float32(get(env.specs, "parasite_pressure",       0.5))
+    k_exp    = Float32(get(env.specs, "parasite_discrete_exponent", 4.0))
+
+    # Parasite haplotype cached on env.specs. Length tracks n_loci.
+    par_hap = get!(env.specs, "_parasite_haplotype",
+                   zeros(Int32, n_loci))::Vector{Int32}
+    if length(par_hap) != n_loci
+        resize!(par_hap, n_loci)
+        fill!(par_hap, Int32(0))
+    end
+
+    # 1. Compute per-locus host allele frequency (proportion = 1).
+    n_hosts = 0
+    freq1   = zeros(Float32, n_loci)
+    @inbounds for ag in env.agents
+        ag.alive || continue
+        length(ag.parasite_haplotype) == n_loci || continue
+        for i in 1:n_loci
+            ag.parasite_haplotype[i] == Int32(1) && (freq1[i] += 1.0f0)
+        end
+        n_hosts += 1
+    end
+    n_hosts == 0 && return
+    @inbounds for i in 1:n_loci
+        freq1[i] /= Float32(n_hosts)
+    end
+
+    # 2. Adapt parasite haplotype with lag: each locus shifts toward the
+    #    majority allele with probability `rate`. Implemented as a soft
+    #    Bernoulli update: draw a new allele from Bernoulli(freq1) and
+    #    replace the parasite locus with probability `rate`.
+    rng = env.rng
+    @inbounds for i in 1:n_loci
+        if rand(rng) < rate
+            par_hap[i] = rand(rng) < freq1[i] ? Int32(1) : Int32(0)
+        end
+    end
+
+    # 3. Apply Hamming-distance penalty per host.
+    n_loci_f = Float32(n_loci)
+    @inbounds for ag in env.agents
+        ag.alive || continue
+        length(ag.parasite_haplotype) == n_loci || continue
+        hamming = 0
+        for i in 1:n_loci
+            ag.parasite_haplotype[i] != par_hap[i] && (hamming += 1)
+        end
+        match_frac = Float32(n_loci - hamming) / n_loci_f
+        penalty    = pressure * match_frac ^ k_exp
         ag.energy -= penalty
     end
     nothing

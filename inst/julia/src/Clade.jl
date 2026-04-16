@@ -560,6 +560,19 @@ function _compute_n_inputs(specs::Dict{String,Any})::Int32
 end
 
 """
+    _init_parasite_haplotype(specs, rng) -> Vector{Int32}
+
+0.5.1: initialise a random binary haplotype for the discrete-locus
+Red Queen module. Returns an empty vector when `n_parasite_loci == 0`
+(default), so all legacy scenarios are unaffected.
+"""
+function _init_parasite_haplotype(specs::Dict{String,Any}, rng)::Vector{Int32}
+    n_loci = Int(get(specs, "n_parasite_loci", 0))
+    n_loci == 0 && return Int32[]
+    Int32[rand(rng, 0:1) for _ in 1:n_loci]
+end
+
+"""
     _make_founder_agent(id, g, brain, specs, rng) -> Agent
 
 Construct a founder agent (no parents). Position is assigned uniformly at
@@ -631,6 +644,7 @@ function _make_founder_agent(id::Int64, g::DiploidGenome, brain::AbstractBrain,
         # Mimicry / toxicity (heritable) + predator signal memory (0.4.4)
         tox,
         Float32[],   # signal_memory: empty for founders, populated by predators on attacks
+        _init_parasite_haplotype(specs, rng),  # 0.5.1: discrete haplotype for Red Queen
 
         # Disease
         false, false, Int32(0), Int32(0),

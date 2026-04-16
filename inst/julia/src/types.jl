@@ -191,6 +191,11 @@ in hot-path code when the corresponding module is disabled.
 - `signal_memory::Vector{Float32}` — predator's Rescorla-Wagner-updated
   memory of signals associated with toxic prey. Length = signal_dims;
   empty on prey. 0.4.4.
+- `parasite_haplotype::Vector{Int32}` — heritable discrete-locus
+  haplotype for the Hamilton 1980 Red Queen module. Length =
+  `n_parasite_loci` (empty when 0). Each locus takes binary values
+  {0, 1}. Inherited Mendelian-style for diploid, clonal+mutation for
+  haploid. 0.5.1.
 
 ## Mimicry / toxicity
 - `toxicity::Float32` — heritable toxicity level (0 = non-toxic, 1 = maximally
@@ -269,6 +274,12 @@ mutable struct Agent
     # successful attack on toxic prey; consulted by should_avoid_prey via
     # dot-product against the target's signal.
     signal_memory   ::Vector{Float32}
+
+    # Heritable discrete-locus haplotype (0.5.1) for the Hamilton 1980
+    # Red Queen module. Length = specs["n_parasite_loci"] (empty when 0).
+    # Each locus ∈ {0, 1}. Inherited via Mendelian segregation at diploid
+    # reproduction, clonal + per-locus mutation at haploid reproduction.
+    parasite_haplotype ::Vector{Int32}
 
     # Disease
     infected        ::Bool

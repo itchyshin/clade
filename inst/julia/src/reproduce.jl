@@ -287,6 +287,52 @@ function _count_neighbours(ag::Agent, env::Environment)::Int
 end
 
 """
+    _inherit_parasite_haplotype(parent, specs, rng; mate=nothing) -> Vector{Int32}
+
+0.5.1: inherit a discrete-locus haplotype for the Red Queen module.
+
+- When `n_parasite_loci == 0`: return empty vector (module off).
+- Haploid (no mate): clone parent's haplotype, then flip each locus with
+  probability `parasite_mutation_rate` (default 0.01).
+- Diploid (mate provided): Mendelian segregation with free recombination —
+  each locus inherits independently from parent or mate with 50/50
+  probability, then mutation at rate `parasite_mutation_rate`.
+
+The free-recombination / two-parent combination is what produces the
+novel haplotypes Hamilton's Red Queen invokes.
+"""
+function _inherit_parasite_haplotype(parent::Agent, specs::Dict{String,Any},
+                                       rng;
+                                       mate::Union{Agent,Nothing} = nothing)::Vector{Int32}
+    n_loci = Int(get(specs, "n_parasite_loci", 0))
+    n_loci == 0 && return Int32[]
+
+    # Defensive resizing if parent haplotype length doesn't match (scenario
+    # change mid-run). Fall back to random initialisation.
+    parent_hap = length(parent.parasite_haplotype) == n_loci ?
+                 parent.parasite_haplotype :
+                 Int32[rand(rng, 0:1) for _ in 1:n_loci]
+    mate_hap = if mate !== nothing && length(mate.parasite_haplotype) == n_loci
+        mate.parasite_haplotype
+    else
+        parent_hap
+    end
+
+    μ = Float32(get(specs, "parasite_mutation_rate", 0.01))
+    offspring = Vector{Int32}(undef, n_loci)
+    @inbounds for i in 1:n_loci
+        # Mendelian recombination: each locus independently from parent or mate
+        allele = rand(rng, Bool) ? parent_hap[i] : mate_hap[i]
+        # Per-locus mutation (flip)
+        if μ > 0.0f0 && rand(rng) < μ
+            allele = Int32(1 - allele)
+        end
+        offspring[i] = allele
+    end
+    offspring
+end
+
+"""
     _make_offspring(id, genome, brain, parent, mate, energy, specs, rng) -> Agent
 
 Construct one offspring agent. Position is chosen from the empty cells
@@ -353,6 +399,7 @@ function _make_offspring(id::Int64, g::DiploidGenome, brain::AbstractBrain,
         zeros(Float32, sig_dims), zeros(Float32, sig_dims),
         toxicity,       # toxicity (heritable via TRAIT_TOXICITY)
         Float32[],      # signal_memory (0.4.4): empty for prey offspring
+        _inherit_parasite_haplotype(parent, specs, rng; mate = mate),  # 0.5.1
         false, false, Int32(0), Int32(0),   # disease
         Any[], Int32(0),                    # parental care
         0.0f0, energy,                      # RL
