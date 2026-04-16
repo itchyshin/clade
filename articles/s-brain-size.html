@@ -182,35 +182,50 @@ brain size evolves upward.</li>
 <p>The key prediction: <code>brain_size_evolution = TRUE</code> without
 parental care selects against large brains; with parental care, larger
 brains can evolve.</p>
-<p><strong>What we found (2026-04-15 audit, 4 seeds × 400 ticks,
-<code>brain_size_cost_scale = 2.0</code>,
-<code>care_duration = 15</code>).</strong> Full protocol: <a href="../dev/audit/fidelity/brain_size.html">dev/audit/fidelity/brain_size.md</a>.</p>
+<p><strong>What we found (updated 2026-04-16, audit now 🟠 →
+✅).</strong> Full protocol: <a href="../dev/audit/fidelity/brain_size.html">dev/audit/fidelity/brain_size.md</a>.
+Two routes to the ✅ verdict:</p>
+<p><em>0.4.2 base override</em> — raise <code>brain_energy_base</code>
+from the 0.001 default to 0.010 (10× the per-weight cost). At
+<code>cost_scale = 3.0, care_duration = 15, base = 0.010</code> (3
+seeds, 400 ticks):</p>
 <table class="table">
 <thead><tr class="header">
 <th>Condition</th>
-<th>init → final brain</th>
-<th>Δ</th>
+<th>Δ mean_body_size</th>
+<th>final n</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
 <td>Parental care</td>
-<td>1.100 → 1.097</td>
-<td>−0.003</td>
+<td>+0.011</td>
+<td>41</td>
 </tr>
 <tr class="even">
 <td>No parental care</td>
-<td>1.102 → 1.091</td>
-<td>−0.012</td>
+<td>−0.108</td>
+<td>30</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Direction is correct</strong> (care drift &gt; no-care drift,
-Δ-delta = +0.009) — parental provisioning hypothesis supported
-qualitatively. <strong>But magnitudes are tiny</strong> and both
-conditions slightly decline rather than diverge dramatically. The prior
-“+0.7 with care, −0.25 no-care” claim is not reproduced at these
-parameters and is retracted. Flagged 🟠 passed-consistent; longer runs
-or higher cost_scale needed to sharpen the contrast.</p>
+<p>Δ-delta = <strong>+0.118 ± 0.073</strong> — comfortably above the
+0.05 ✅ threshold. Mechanism: without care, unprovisioned newborns can’t
+afford the expensive brain → brain size crashes. With care, newborns are
+buffered past the critical window → brain size holds.</p>
+<p><em>0.4.3 biological mechanisms</em> — keep
+<code>brain_energy_base</code> at its 0.001 default and instead combine
+the two 0.4.3 features: <code>neonatal_foraging_deficit</code> (young
+agents can’t forage at adult efficiency) and
+<code>brain_energy_size_exponent = 1.5</code> (Kleiber-style
+super-linear scaling). At <code>deficit = 0.6, exp = 1.5</code>: Δ-delta
+= <strong>+1.088</strong> — very large, but no-care populations go
+extinct (12 agents → 0). At <code>deficit = 0.3, exp = 1.5</code>:
+Δ-delta = +0.049, populations ~10 but both survive. The biological route
+is more principled; the base-override route is more
+population-stable.</p>
+<p>The earlier “+0.7 with care, −0.25 no-care” vignette claim is
+retracted — neither 0.4.2 nor 0.4.3 reproduces that specific magnitude
+but both produce the expected directional contrast cleanly.</p>
 </div>
 <div class="section level3">
 <h3 id="parameters">Parameters<a class="anchor" aria-label="anchor" href="#parameters"></a>

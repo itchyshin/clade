@@ -18,13 +18,13 @@ body size for the prevailing resource density.
 | `body_size_max`         | 5.0     | Upper clamp                           |
 
 **Expected output.** `mean_body_size` evolves upward from the reference
-(1.0) as larger-bodied agents gain a foraging efficiency advantage
-(Cope’s rule direction). Because clade’s sensing model makes larger
-agents *more* detectable, predation acts as size-dependent culling at
-the top of the distribution and *slows* the upward drift — the opposite
-of Shine et al.’s (2011) cane-toad case, where large bodies aid escape.
-Both directions are biologically attested; clade implements the
-detectability variant.
+(1.0) as larger-bodied agents gain a foraging-efficiency advantage
+(Cope’s rule direction). At 16 seeds, **predation does not modulate this
+drift in either direction** — neither the Shine et al. (2011)
+large-escape nor the Brooks & Dodson (1965) size-detectability signal
+reaches 2×SE significance. clade produces the Cope direction robustly
+but does not reproduce any particular predator-mediated size-selection
+variant at default parameters.
 
 ``` r
 library(clade)
@@ -62,34 +62,45 @@ ggplot(df_mean, aes(t, mean_body_size, colour = condition)) +
   geom_hline(yintercept = 1.0, linetype = "dashed", colour = "grey50") +
   scale_colour_manual(values = c("No predators" = "#4dac26",
                                   "Predators (10)" = "#d01c8b")) +
-  labs(title = "Body size evolution: predation culls the large tail",
-       subtitle = "Size-dependent detectability slows Cope-direction drift",
+  labs(title = "Body size evolution: Cope's rule (predation direction null at 16 seeds)",
+       subtitle = "Upward drift in both conditions; predation effect not statistically supported",
        x = "Tick", y = "Mean body size", colour = NULL) +
   theme_minimal()
 ```
 
-**What we found (2026-04-15 audit, 5 seeds × 600 ticks).** Full
-protocol:
+**What we found (updated 2026-04-16, 0.5.2 audit: 16 seeds × 2 sensing
+modes × 2 predator levels = 64 runs × 600 ticks).** Full protocol:
 [dev/audit/fidelity/body_size.md](../dev/audit/fidelity/body_size.md).
 
-| Condition    | final body size | Δ from init                     |
-|--------------|-----------------|---------------------------------|
-| No predators | 1.126 ± 0.029   | **+0.128** (Cope direction ✓)   |
-| 10 predators | 1.103 ± 0.023   | **+0.105** (slower, not faster) |
+| graded predator sensing | n_pred | Δ mean_body_size | 1×SE   |
+|-------------------------|--------|------------------|--------|
+| FALSE (legacy binary)   | 0      | +0.0870          | 0.0070 |
+| FALSE                   | 10     | +0.0963          | 0.0118 |
+| TRUE (0.4.2 default)    | 0      | +0.1074          | 0.0060 |
+| TRUE                    | 10     | +0.1110          | 0.0099 |
 
-**Cope’s rule direction (P1) PASS** — body size drifts upward by ~13%
-over 600 ticks without predators.
+**Cope’s rule direction (P1) PASS robustly** — upward drift of 9–11% in
+both sensing modes with SE ~0.6–0.7%. Cope’s rule is statistically clean
+in clade.
 
-**Size-dependent predation direction (P2) PASS (reframed).** The audit
-found predation *slows* the upward drift (Δ ratio 0.81), not accelerates
-it. This is a consistent size-dependent-detectability signal: larger
-agents project a larger sensing footprint, so predators preferentially
-cull the top of the size distribution. That direction is biologically
-attested (e.g. visual-predator fisheries literature, bird-watched fish
-schools) and is the opposite of Shine et al.’s (2011) cane-toad case,
-where large body size aids escape. Both are real predator–prey regimes;
-clade implements the detectability variant. The vignette’s earlier “+57%
-larger increase under predation” framing was retracted.
+**Size-dependent predation direction (P2) NULL** — neither sensing mode
+produces a 2×SE-significant predator-vs-control difference:
+
+- Binary: Δ(with-pred) − Δ(no-pred) = +0.009 ± 0.014 (flat)
+- Graded: Δ(with-pred) − Δ(no-pred) = +0.004 ± 0.012 (flat)
+
+Both the earlier “detectability” (0.4.1, ratio 0.81) and “Shine
+acceleration” (0.4.3, ratio 1.08) interpretations were 5-seed noise. At
+16 seeds neither direction is supported, so P2 is retracted. The earlier
+“+57% larger increase under predation” framing and the later
+“predation-slows-drift detectability” framing are both superseded by
+this null.
+
+**Secondary observation.** The 0.4.2 graded predator sensing produces a
+*larger* Cope drift (+0.107) than legacy binary sensing (+0.087) — an
+SE-bounded real effect. Finer threat information → more efficient
+foraging → support for larger bodies. Side benefit of the 0.4.2 sensing
+polish.
 
 ### Calibrated regime (CMA-ES discovered)
 

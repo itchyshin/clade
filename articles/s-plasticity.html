@@ -228,8 +228,25 @@ environments it typically decreases; in seasonally varying environments
 it is maintained at intermediate values.
 </p>
 </div>
-<p><strong>What we found (2026-04-15 audit, 4 seeds × 500
-ticks).</strong> Full protocol: <a href="../dev/audit/fidelity/plasticity.html">dev/audit/fidelity/plasticity.md</a>.</p>
+<p><strong>What we found (updated 2026-04-16, 0.4.2 audit).</strong>
+Full protocol: <a href="../dev/audit/fidelity/plasticity.html">dev/audit/fidelity/plasticity.md</a>.</p>
+<p>At pre-0.4.0 defaults the trajectories were flat — plasticity barely
+moved in either environment (Δ ≈ −0.001/−0.002) because sigma was tied
+to heterozygosity and the plasticity trait had no fitness channel. Two
+kernel fixes across 0.4.0/0.4.1 addressed that:</p>
+<ol style="list-style-type: decimal">
+<li>
+<strong>0.4.0 Tier 5A</strong> —
+<code>bnn_sigma_source = "trait"</code> couples BNN prior width directly
+to the <code>TRAIT_PLASTICITY</code> gene.</li>
+<li>
+<strong>0.4.1 Tier 5C</strong> —
+<code>brain_energy_sigma_scale &gt; 0</code> adds a log-scaled metabolic
+cost to sigma, creating the selection gradient DeWitt-Scheiner
+predict.</li>
+</ol>
+<p>Post-fix (4 seeds × 1500 ticks under the 0.4.2 audit with
+<code>brain_energy_sigma_scale = 0.05</code>):</p>
 <table class="table">
 <thead><tr class="header">
 <th>Condition</th>
@@ -239,21 +256,26 @@ ticks).</strong> Full protocol: <a href="../dev/audit/fidelity/plasticity.html">
 <tbody>
 <tr class="odd">
 <td>Stable</td>
-<td>0.300 → 0.298</td>
-<td>−0.001</td>
+<td>0.301 → 0.304</td>
+<td>+0.003</td>
 </tr>
 <tr class="even">
 <td>Seasonal (amp=0.7)</td>
-<td>0.300 → 0.299</td>
-<td>−0.002</td>
+<td>0.301 → 0.306</td>
+<td>+0.005</td>
 </tr>
 </tbody>
 </table>
-<p>Both trajectories are flat — plasticity barely moves from its init
-value in either environment. The DeWitt-Scheiner prediction (seasonal
-maintains higher plasticity than stable) is not reproducible at default
-couplings; the plasticity trait doesn’t create a strong enough fitness
-differential to drive selection. Flagged 🟠 passed-consistent.</p>
+<p><strong>Direction correct (P1 PASS)</strong>: seasonal env maintains
+higher plasticity than stable — the DeWitt-Scheiner contrast. Magnitude
+is modest (Δdelta = +0.002) at current parameters. The full
+Hinton-Nowlan prediction (stable <em>canalises</em> downward) is not
+reproduced — both envs drift slightly upward — because clade’s sigma
+also mediates behavioural variance, so selection against noisy actions
+competes with selection against learning width regardless of
+environmental stability. Stays 🟠 with direction correct, magnitude
+small. See <code>dev/audit/fidelity/plasticity.md</code> and the
+s-baldwin vignette for the shared kernel-limitation caveat.</p>
 </div>
 <div class="section level3">
 <h3 id="discovery-experiments">Discovery experiments<a class="anchor" aria-label="anchor" href="#discovery-experiments"></a>

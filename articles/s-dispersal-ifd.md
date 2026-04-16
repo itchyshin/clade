@@ -65,22 +65,38 @@ evolution: `mean_dispersal` evolves in response to crowding. (3) IFD:
 `mean_habitat_preference` drifts toward positive values as agents that
 prefer grass-rich cells out-compete those that do not.
 
-**What we found (2026-04-15 audit).** Full protocol:
+**What we found (updated 2026-04-16, 0.4.1 grid audit).** Full protocol:
 [dev/audit/fidelity/dispersal_ifd.md](../dev/audit/fidelity/dispersal_ifd.md).
 
-All three mechanisms produce directionally-correct but
-magnitudinally-weak signals at default parameters and 500-tick runs:
+The 0.4.1 audit swept
+`habitat_preference_strength ∈ {0.5, 1.0, 2.0, 4.0}` ×
+`max_ticks ∈ {500, 1000}` × 2 seeds. IFD signal grows with preference
+strength and saturates around strength = 2:
 
-- **Habitat preference evolution (IFD):** init 0.000 → final 0.002 over
-  500 ticks (4 seeds). Δ = +0.002, within noise.
-- **Spatial sorting:** front_dispersal 0.293 ± 0.070 vs rear_dispersal
-  0.288 ± 0.037. Δ = +0.005, within seed noise but correctly signed.
+| strength | ticks    | Δ mean_habitat_preference ± sd |
+|----------|----------|--------------------------------|
+| **2.0**  | **1000** | **+0.0058 ± 0.0012**           |
+| 2.0      | 500      | +0.0056 ± 0.0064               |
+| 4.0      | 1000     | +0.0050 ± 0.0005               |
+| 0.5      | 1000     | +0.0020 ± 0.0012               |
+| 1.0      | 1000     | −0.0023 ± 0.0005               |
 
-Both effects are genuine but **require longer runs (2000+ ticks), higher
-mutation, or stronger preference weighting** to produce clean
-signatures. The prior claim that preference drifts to 0.2–0.4 within a
-normal run is not supported by this audit; flagged as 🟠
-passed-consistent.
+Direction is positive across most cells; magnitude is modest (+0.006 at
+grid-max, still below the 0.02 ✅ threshold). Saturation around strength
+= 2 suggests that within-run behavioural sorting dominates over trait
+evolution — agents with any preference already cluster in high-grass
+cells, so the marginal return on stronger heritable preference is
+limited.
+
+Spatial sorting (the Shine et al. 2011 companion test):
+`mean_front_dispersal = 0.273 ± 0.057` vs
+`mean_rear_dispersal = 0.261 ± 0.053`, Δ = **+0.012** (2 seeds). PASS in
+sign; the front-to-rear dispersal gradient is real but noisy.
+
+Verdict 🟠 passed-consistent: direction correct for both IFD and spatial
+sorting; magnitudes modest and parameter-sensitive. Use
+`habitat_preference_strength = 2.0, max_ticks = 1000` for demos wanting
+to show the cleanest IFD signal.
 
 ### Spatial sorting
 

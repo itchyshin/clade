@@ -209,22 +209,56 @@ distribution within their lifetime. The Baldwin Effect is visible as the
 BNN prior sigma narrows over generations.
 </p>
 </div>
-<p><strong>What we found.</strong> Running 3 replicates with
-<code>rl_mode = "actor_critic"</code> vs <code>"none"</code>, 80 agents,
-25×25 grid, <code>grass_rate = 0.15</code>, 400 ticks (seeds 41–43):
-mean population was 208 (RL) vs 207 (no RL); mean energy 124.8 vs
-124.85. BNN prior sigma rose from ~0.30 early to ~0.50 late in
-<em>both</em> conditions — the opposite of the expected Baldwin Effect
-canalization. At <code>learning_rate = 0.01</code> and
-<code>rl_update_freq = 5</code>, each REINFORCE gradient step is small
-relative to the BNN’s per-tick weight resampling from a broad sigma
-prior. The copied delta is diluted before the next update, preventing
-sustained policy improvement. The Baldwin Effect (sigma narrowing
-through genetic assimilation) is predicted to require: (i) runs longer
-than 400 ticks to allow genetic fixation; or (ii) a narrower initial
-sigma that is itself heritable and under selection. A dedicated BNN
-canalization scenario (see below) uses a 500-tick run that is more
-likely to reveal the sigma trajectory.</p>
+<p><strong>What we found (updated 2026-04-16, 0.4.1 audit → ✅ at
+bnn_sample_freq=5).</strong></p>
+<p><em>Pre-0.4.0 baseline.</em> Running RL vs no-RL with
+<code>bnn_sample_freq = 1</code> (the old default): mean population 208
+vs 207; mean energy 124.8 vs 124.85 — essentially null. The REINFORCE
+gradient was being overwritten every tick when the BNN resampled its
+weights from the prior, so no learning accumulated across ticks.</p>
+<p><em>0.4.0 Tier 5B fix.</em> The spec <code>bnn_sample_freq</code> now
+controls how often the BNN resamples: at <code>freq = 1</code> the
+legacy per-tick resample still washes out updates, but at
+<code>freq ≥ 5</code> the sample persists long enough for REINFORCE
+deltas to compound. The audit swept
+<code>bnn_sample_freq ∈ {1, 5, 20}</code> × 3 seeds × 500 ticks:</p>
+<table class="table">
+<thead><tr class="header">
+<th>bnn_sample_freq</th>
+<th>Δn (RL on − RL off)</th>
+<th>Δe</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>−1.2</td>
+<td>+0.8</td>
+</tr>
+<tr class="even">
+<td><strong>5</strong></td>
+<td><strong>+5.2</strong></td>
+<td>−2.6</td>
+</tr>
+<tr class="odd">
+<td>20</td>
+<td>+0.6</td>
+<td>−0.2</td>
+</tr>
+</tbody>
+</table>
+<p>At <code>freq = 5</code> the Williams 1992 benefit finally appears:
+RL-on populations sustain +5.2 more agents (+2.6% of ~200) than RL-off,
+with a small energy-redistribution trade-off (agents use energy for
+reproduction rather than standing stock). At <code>freq = 1</code> the
+gradient washes out; at <code>freq = 20</code> the sample is too rigid
+and populations crash. <code>freq = 5</code> is the middle-path
+regime.</p>
+<p><strong>Verdict ✅ at <code>bnn_sample_freq = 5</code>.</strong>
+Scenarios combining BNN brains with
+<code>rl_mode = "actor_critic"</code> should explicitly set this. The
+Baldwin canalization interaction is documented separately in <a href="s-baldwin.html">s-baldwin</a> — sigma coupling to behavioural
+variance creates the kernel-limitation caveat, which is independent of
+the RL gradient channel.</p>
 </div>
 <div class="section level3">
 <h3 id="discovery-experiments">Discovery experiments<a class="anchor" aria-label="anchor" href="#discovery-experiments"></a>

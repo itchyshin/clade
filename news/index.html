@@ -116,6 +116,91 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.5.2" id="clade-052-2026-04-16">clade 0.5.2 (2026-04-16)<a class="anchor" aria-label="anchor" href="#clade-052-2026-04-16"></a></h2>
+<div class="section level3">
+<h3 id="audit-s-body-size-p2-direction-resolved-0-5-2">Audit: s-body-size P2 direction resolved<a class="anchor" aria-label="anchor" href="#audit-s-body-size-p2-direction-resolved-0-5-2"></a></h3>
+<p>16-seed × 2-sensing-mode × 2-predator-level factorial replaces the earlier 5-seed audits. <strong>P1 (Cope direction) robust</strong> at +9–11% upward drift (SE ≤ 0.7% of the effect). <strong>P2 (predation direction) NULL</strong> in both sensing modes — neither the Shine-acceleration (0.4.3 framing) nor the Brooks-Dodson-detectability (0.4.1 framing) is statistically supported at default parameters. Both direction claims retracted.</p>
+<p>Side finding: the 0.4.2 graded predator sensing produces a larger Cope drift (+0.107) than legacy binary sensing (+0.087), an SE-bounded real effect from finer threat information improving foraging efficiency.</p>
+<p>No kernel changes.</p>
+<hr></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.5.1" id="clade-051-2026-04-16">clade 0.5.1 (2026-04-16)<a class="anchor" aria-label="anchor" href="#clade-051-2026-04-16"></a></h2>
+<div class="section level3">
+<h3 id="kernel-discrete-allele-red-queen-hamilton-canonical-0-5-1">Kernel: discrete-allele Red Queen (Hamilton 1980 canonical)<a class="anchor" aria-label="anchor" href="#kernel-discrete-allele-red-queen-hamilton-canonical-0-5-1"></a></h3>
+<p>0.5.0’s continuous-trait parasite module did NOT produce Hamilton’s canonical Red Queen — sex offspring as midpoints of parents cluster near the parasite optimum, so sex is <em>more</em> exposed. 0.5.1 adds the discrete-allele variant that reproduces the textbook effect.</p>
+<p><strong>New Agent field</strong> <code>parasite_haplotype::Vector{Int32}</code> (heritable binary haplotype of length <code>n_parasite_loci</code>). Mendelian inheritance with free recombination: diploid offspring inherit each locus independently from either parent, producing genuinely novel haplotype combinations. Haploid clone + per-locus mutation.</p>
+<p><strong>Hamming-distance matching</strong> in the parasite module: per-host penalty <code>= pressure × ((n_loci − hamming) / n_loci)^exponent</code>. Hosts exactly matching the parasite haplotype pay full pressure; mismatched hosts escape cleanly.</p>
+<p><strong>New specs</strong>: <code>n_parasite_loci</code> (default 0L), <code>parasite_match_mode</code> (<code>"auto"</code> / <code>"continuous"</code> / <code>"discrete"</code>), <code>parasite_mutation_rate</code> (0.01), <code>parasite_discrete_exponent</code> (4.0).</p>
+</div>
+<div class="section level3">
+<h3 id="audit-first-sex--asex-observation-in-clade-0-5-1">Audit: first sex &gt; asex observation in clade<a class="anchor" aria-label="anchor" href="#audit-first-sex--asex-observation-in-clade-0-5-1"></a></h3>
+<p>Tuning grid found regimes with Δn up to +7.7 at <code>n_loci = 16, pressure = 2.0, exponent = 6, mutation = 0.02</code>. At audit-default parameters (3 seeds × 500 ticks): Δn = +1.1 under the <code>parasite_discrete</code> condition. P2 PASS (canonical Red Queen direction). P3 PASS (continuous-trait parasites disfavour sex, as predicted from 0.5.0).</p>
+<p>s-mating-systems stays 🟠 (magnitude modest) but direction now matches Hamilton 1980.</p>
+<hr></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.5.0" id="clade-050-2026-04-16">clade 0.5.0 (2026-04-16)<a class="anchor" aria-label="anchor" href="#clade-050-2026-04-16"></a></h2>
+<div class="section level3">
+<h3 id="kernel-coevolving-parasite-module-continuous-trait-0-5-0">Kernel: coevolving parasite module (continuous-trait)<a class="anchor" aria-label="anchor" href="#kernel-coevolving-parasite-module-continuous-trait-0-5-0"></a></h3>
+<p>New <code>inst/julia/src/modules/coevolving_parasite.jl</code>. Collective parasite “population” represented as a single virulence-genotype vector that tracks the host signal centroid with lag. Per-host Gaussian-falloff energy penalty based on Euclidean distance to the parasite optimum.</p>
+<p><strong>New specs</strong>: <code>coevolving_parasites</code> (default FALSE), <code>parasite_virulence_rate</code> (0.1), <code>parasite_pressure</code> (0.5), <code>parasite_distance_scale</code> (1.0). Opt-in; no-op unless <code>signal_dims &gt; 0</code>.</p>
+</div>
+<div class="section level3">
+<h3 id="honest-finding-documented-0-5-0">Honest finding documented<a class="anchor" aria-label="anchor" href="#honest-finding-documented-0-5-0"></a></h3>
+<p>Continuous-trait parasites do NOT produce Hamilton’s canonical Red Queen. Under continuous matching, sex offspring (midpoint of parents) sit closer to the population centroid than asex clones, so sex is <em>more</em> exposed. Audit verdict: Δn = −2.5 under <code>parasite_continuous</code>. The mechanism nevertheless models a real biological phenomenon — parasites selecting against genetic convergence — and the scaffolding set up for 0.5.1 to implement Hamilton’s discrete-allele variant.</p>
+<hr></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.4.4" id="clade-044-2026-04-16">clade 0.4.4 (2026-04-16)<a class="anchor" aria-label="anchor" href="#clade-044-2026-04-16"></a></h2>
+<div class="section level3">
+<h3 id="kernel-vector-signal-predator-memory-batesmüller-canonical-0-4-4">Kernel: vector-signal predator memory (Bates/Müller canonical)<a class="anchor" aria-label="anchor" href="#kernel-vector-signal-predator-memory-batesm%C3%BCller-canonical-0-4-4"></a></h3>
+<p><strong>Dedicated <code>signal_memory::Vector{Float32}</code> field on Agent</strong> replaces 0.4.0 Tier 4’s overloading of <code>preference</code> (which is meant for prey mate-choice). Cleaner semantics; same mechanism.</p>
+<p><strong>Delta-rule Rescorla-Wagner update</strong> in <code>apply_predator_toxin!</code>. The predator learns a linear model that <em>predicts</em> toxicity from the signal vector:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>memory <span class="sc">+</span><span class="er">=</span> lr × (tox − <span class="fu">dot</span>(memory, signal)) × signal</span></code></pre></div>
+<p>This is the Widrow-Hoff rule, standard for supervised linear regression. Symmetric (reinforcement on toxic prey, extinction on non-toxic prey) → enables Batesian breakdown when palatable mimics outnumber toxic models.</p>
+<p><strong>Avoidance uses predicted toxicity</strong>: <code>avoid if dot(memory, signal) &gt;= avoid_threshold</code>.</p>
+<p><strong>Aposematic pleiotropy</strong> — new spec <code>signal_toxicity_coupling ∈ [0, 1]</code>. When &gt; 0, each agent’s <code>signal[1]</code> is pulled toward its own toxicity each tick — the honest-signal mechanism theory requires.</p>
+</div>
+<div class="section level3">
+<h3 id="audit-fixes-0-4-4">Audit fixes<a class="anchor" aria-label="anchor" href="#audit-fixes-0-4-4"></a></h3>
+<ul><li>Counter-summation bug in <code>dev/audit/fidelity/mimicry.R</code>: <code>tail(d$n_avoided_attacks, 1L)</code> replaced by <code>sum(...)</code> — per-tick counters reset each tick, so tail was spuriously 0.</li>
+<li>s-mimicry P3 (learning fires) FAIL → PASS (12–28 avoidances / 600 ticks).</li>
+<li>P4 (dose-response) FAIL → PASS (Spearman ρ = +0.40).</li>
+<li>P5 (pleiotropy direction, new) PASS (ρ = +1.0).</li>
+<li>Magnitudes still parameter-sensitive; s-mimicry stays 🟠 with substantially richer kernel semantics.</li>
+</ul><hr></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.4.3" id="clade-043-2026-04-16">clade 0.4.3 (2026-04-16)<a class="anchor" aria-label="anchor" href="#clade-043-2026-04-16"></a></h2>
+<div class="section level3">
+<h3 id="kernel-expensive-brain-mechanisms-0-4-3">Kernel: expensive-brain mechanisms<a class="anchor" aria-label="anchor" href="#kernel-expensive-brain-mechanisms-0-4-3"></a></h3>
+<p>Two opt-in features implementing the biological mechanisms Aiello &amp; Wheeler (1995) and Isler &amp; van Schaik (2009) invoke for parental-provisioning scenarios, letting s-brain-size reach ✅ at the default <code>brain_energy_base</code> without scenario-specific overrides.</p>
+<ul><li>
+<strong>Neonatal foraging deficit</strong> (<code>neonatal_foraging_deficit</code>, <code>neonatal_deficit_duration</code> in <code>R/config.R</code>). During the first <code>neonatal_deficit_duration</code> ticks of life, effective <code>max_bite</code> is scaled by <code>(1 - deficit)</code>. Parental care bypasses via the existing <code>feeding_rate</code> channel.</li>
+<li>
+<strong>Super-linear brain-size cost</strong> (<code>brain_energy_size_exponent</code>). <code>size_cost = base × n_weights^exponent</code>. Default 1.0 (linear, legacy); 1.5 gives Kleiber-style scaling.</li>
+</ul><p>Both default-off. s-brain-size ✅ via two routes: 0.4.2 base override (stable populations) OR 0.4.3 biological mechanisms (principled, with population trade-off).</p>
+<hr></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.4.2" id="clade-042-2026-04-16">clade 0.4.2 (2026-04-16)<a class="anchor" aria-label="anchor" href="#clade-042-2026-04-16"></a></h2>
+<div class="section level3">
+<h3 id="kernel-sense--death-polish-0-4-2">Kernel: sense + death polish<a class="anchor" aria-label="anchor" href="#kernel-sense--death-polish-0-4-2"></a></h3>
+<p>Three small fixes flagged in the 0.4.1 kernel-as-biology docs:</p>
+<ul><li>
+<strong>Graded predator-distance signal.</strong> <code>_pred_dist</code> now actually returns <code>1/(d+1)</code> as its docstring claimed. New spec <code>predator_sense_graded = TRUE</code> (default); legacy binary available via <code>= FALSE</code>.</li>
+<li>
+<strong>Signal sensory inputs clamped to [0, 1]</strong> so the signal channel matches the convention of the other sensory inputs.</li>
+<li>
+<strong><code>max_age</code> cap deferred to Gompertz senescence</strong> when <code>senescence_rate &gt; 0</code>, so the hard cap doesn’t mask age-dependent mortality. Legacy default (<code>senescence_rate = 0</code>) unchanged.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="audit-reruns-0-4-2">Audit reruns<a class="anchor" aria-label="anchor" href="#audit-reruns-0-4-2"></a></h3>
+<p>1500-tick reruns of s-baldwin and s-plasticity under 0.4.1 Tier 5A+5C mechanisms. s-plasticity: seasonal &gt; stable direction confirmed. s-baldwin: canonical direction reversal from pre-0.4.0 🔴 confirmed at short timescales, disappears at equilibrium — sigma also mediates behavioural variance, so seasonal stress amplifies the selection against wide posteriors. Stays 🟠 (kernel-limited).</p>
+<hr></div>
+</div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.0" id="clade-030">clade 0.3.0<a class="anchor" aria-label="anchor" href="#clade-030"></a></h2>
 <div class="section level3">
 <h3 id="new-observables-0-3-0">New observables<a class="anchor" aria-label="anchor" href="#new-observables-0-3-0"></a></h3>

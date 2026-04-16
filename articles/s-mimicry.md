@@ -71,29 +71,56 @@ Expected output: mean toxicity rises under predator pressure; avoided
 attacks increase as predators learn to avoid toxic prey; toxic attack
 rate declines.
 
-**What we found (2026-04-15 audit).** Across 5 seeds and four regimes
-spanning `n_predators_init ∈ {0, 8, 15}`,
-`toxin_dose ∈ {10, 30, 60, 100, 200}`, and
-`toxicity_cost ∈ {0.0, 0.2, 0.5, 1.0, 2.0}`, mean toxicity remained
-essentially locked at its initial value (every regime within ±0.02 of
-`toxicity_init_mean`). Cumulative counters across 600 ticks: 15–67 toxic
-attacks vs 700+ total kills (2.5–10% rate, much lower than the ~50%
-expected if predators attacked toxic and non-toxic prey indiscriminately
-at population proportions); 0–9 avoidance events total (avoidance
-learning essentially never fires).
+**What we found (updated 2026-04-16, audit 🟠 with 0.4.4 kernel
+fixes).** Two audit iterations materially changed the picture:
 
-**Diagnosis.** The mechanism is wired correctly per the kernel’s own
-simplified semantics: toxic prey damage attacking predators, predator
-memory updates after toxic encounters, avoidance can trigger above
-threshold. But the scalar-memory simplification relative to alifeR (see
-“Why dynamics are flat” above) prevents the signal-specific learning
-loop that produces textbook aposematism. Consequence: textbook
-Bates/Müller dynamics cannot be reproduced at any tested parameter
-setting until the kernel ports alifeR’s vector-signal predator memory.
+*Pre-0.4.0 (scalar-only predator memory)*: 15–67 toxic attacks vs ~700
+total attacks (2.5–10%), 0–9 avoidance events total across 600 ticks;
+mean toxicity essentially locked at its init value. The scalar memory
+was wired correctly but never crossed threshold because it averaged over
+`prey.toxicity` (not `prey.signal`), so signal-specific learning
+couldn’t occur.
 
-**Batesian mode (0.3.0 new).** Set `s$batesian_mimicry <- TRUE` to let
-palatable mimics (toxicity = 0) share in learned aversion (Bates 1862).
-Predator-betrayal decay then regulates the mimic frequency.
+*0.4.0 Tier 4 + 0.4.4 refactor (vector-signal memory + delta-rule
+Rescorla-Wagner + aposematic pleiotropy)*. The kernel now:
+
+1.  Stores a dedicated `signal_memory::Vector{Float32}` field on each
+    predator — a linear model that *predicts* toxicity from the signal
+    vector.
+2.  Updates memory with the symmetric Widrow-Hoff delta rule:
+    `memory += lr × (tox − dot(memory, signal)) × signal`. Reinforcement
+    on toxic prey, extinction on non-toxic prey → Batesian breakdown
+    when palatable mimics outnumber models.
+3.  Supports optional aposematic pleiotropy
+    (`signal_toxicity_coupling > 0`): signal\[1\] tracks toxicity so
+    predators can learn an honest warning signal.
+
+Post-fix measurements (5 seeds × 600 ticks, `signal_dims = 3`, audit
+measurement bug also fixed — per-tick counters now summed cumulatively,
+not sampled at the last tick):
+
+- **P3 FAIL → PASS**: 12–28 cumulative avoidance events (up from the
+  spurious 0 reported under the measurement bug).
+- **P4 FAIL → PASS**: Spearman ρ(toxin_dose, final toxicity) = +0.40 —
+  the expected positive dose-response.
+- **P5 PASS (new)**: pleiotropy sweep over
+  `signal_toxicity_coupling ∈ {0, 0.3, 0.6, 1.0}` shows monotone
+  direction (ρ = +1.0).
+- **P2** (treatment \> control) remains direction-sensitive in the
+  ±0.002 noise band — toxicity magnitude evolution is still small
+  because the ecological parameters (predator encounter rate vs toxicity
+  cost) don’t give a strong selection differential.
+
+Verdict: 🟠 with substantially richer kernel semantics. The machinery is
+now theoretically aligned with Bates (1862) / Müller (1879); magnitude
+of upward toxicity evolution is limited by ecology, not the
+predator-learning channel.
+
+**Batesian mode.** Set `s$batesian_mimicry <- TRUE` to let palatable
+mimics (toxicity = 0) share in learned aversion. Under the 0.4.4 delta
+rule, non-toxic encounters now drive memory extinction, so mimic
+frequency regulates itself (Batesian breakdown when mimics outnumber
+models).
 
 ### Discovery experiments
 

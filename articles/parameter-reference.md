@@ -65,6 +65,24 @@ print_specs(s, diff_only = TRUE)
 | `n_inputs`      | auto       | integer                                      | Sensory input vector size (set by `create_environment()`) |
 | `n_outputs`     | 4          | integer                                      | Action output size (N/E/S/W)                              |
 
+### BNN-specific controls (0.4.0+)
+
+| Parameter          | Default            | Description                                                                                                                                                                                                                                                   |
+|--------------------|--------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `bnn_sigma_source` | `"heterozygosity"` | (0.4.0 Tier 5A) Source of BNN posterior width: `"heterozygosity"` (legacy; derived from parental allele difference), `"fixed"` (constant `bnn_sigma_init`), or `"trait"` (evolvable via `TRAIT_PLASTICITY`). Required for s-baldwin / s-plasticity scenarios. |
+| `bnn_sigma_init`   | 0.5                | Initial sigma for haploid and fixed modes                                                                                                                                                                                                                     |
+| `bnn_sample_freq`  | 1                  | (0.4.0 Tier 5B) Resample BNN weights every N forward passes. `1` = resample every tick (legacy); `5` lets REINFORCE gradients accumulate (required for the 0.4.1 s-rl ✅ verdict).                                                                            |
+
+### Brain metabolic cost
+
+| Parameter                    | Default      | Description                                                                                                                                                                         |
+|------------------------------|--------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `brain_energy_mode`          | `"activity"` | `"none"`, `"size"`, `"activity"`, `"prediction_error"`                                                                                                                              |
+| `brain_energy_base`          | 0.001        | Fixed cost per synaptic weight per tick. Scale up (e.g. 0.010) to expose the parental-provisioning signal (see s-brain-size).                                                       |
+| `brain_energy_activity`      | 0.5          | Scaling on mean absolute activation                                                                                                                                                 |
+| `brain_energy_sigma_scale`   | 0.0          | (0.4.1 Tier 5C) Log-scaled information cost on BNN posterior width. Set 0.005–0.1 for Baldwin-canalisation scenarios.                                                               |
+| `brain_energy_size_exponent` | 1.0          | (0.4.3) Exponent on the brain-size term: `size_cost = base × n_weights^exp`. `1.0` = linear (legacy); `1.5` = Kleiber-style super-linear (Isler & van Schaik 2009 expensive-brain). |
+
 The six brain types differ in expressive power and computational cost:
 
 - **bnn** (Bayesian neural network): default; learns a distribution over
@@ -167,13 +185,14 @@ Enable with `disease = TRUE`.
 
 Enable with `n_predators_init > 0`.
 
-| Parameter                   | Default | Description                     |
-|-----------------------------|---------|---------------------------------|
-| `n_predators_init`          | 0       | Starting predator count         |
-| `predator_energy_init`      | 60.0    | Starting energy for predators   |
-| `predator_attack_strength`  | 10.0    | Damage dealt to prey per attack |
-| `predator_min_repro_energy` | 100.0   | Predator reproduction threshold |
-| `predator_max_agents`       | 50      | Predator population cap         |
+| Parameter                   | Default | Description                                                                                                                                                |
+|-----------------------------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `n_predators_init`          | 0       | Starting predator count                                                                                                                                    |
+| `predator_energy_init`      | 60.0    | Starting energy for predators                                                                                                                              |
+| `predator_attack_strength`  | 10.0    | Damage dealt to prey per attack                                                                                                                            |
+| `predator_min_repro_energy` | 100.0   | Predator reproduction threshold                                                                                                                            |
+| `predator_max_agents`       | 50      | Predator population cap                                                                                                                                    |
+| `predator_sense_graded`     | TRUE    | (0.4.2) When TRUE, prey’s predator sensory input at distance `d` is `1/(d+1)` (graded threat-level). FALSE falls back to pre-0.4.2 binary presence signal. |
 
 ------------------------------------------------------------------------
 
@@ -231,14 +250,54 @@ Enable with `social_learning = TRUE`.
 
 Enable with `mimicry = TRUE`.
 
-| Parameter                | Default | Description                                                                                                                                             |
-|--------------------------|---------|---------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `mimicry`                | FALSE   | Enable toxicity and predator learning (Müllerian by default)                                                                                            |
-| `batesian_mimicry`       | FALSE   | (0.3.0) Enable Batesian mimicry: palatable prey (toxicity = 0) exploit learned aversion; predator-betrayal decay prevents runaway cheating (Bates 1862) |
-| `toxicity_init_mean`     | 0.0     | Starting toxicity                                                                                                                                       |
-| `toxicity_cost_per_tick` | 2.0     | Per-tick energy cost for toxicity \> 0 (raised from 0.5 in 0.3.0 for Zahavi-handicap honesty)                                                           |
-| `toxin_dose`             | 2.0     | Damage per toxicity unit per attack                                                                                                                     |
-| `signal_memory`          | 20      | Predator memory window (Rescorla-Wagner)                                                                                                                |
+| Parameter                  | Default | Description                                                                                                                                                                                                          |
+|----------------------------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `mimicry`                  | FALSE   | Enable toxicity and predator learning (Müllerian by default)                                                                                                                                                         |
+| `batesian_mimicry`         | FALSE   | (0.3.0) Enable Batesian mimicry: palatable prey (toxicity = 0) exploit learned aversion; predator-betrayal decay prevents runaway cheating (Bates 1862)                                                              |
+| `toxicity_init_mean`       | 0.0     | Starting toxicity                                                                                                                                                                                                    |
+| `toxicity_cost_per_tick`   | 2.0     | Per-tick energy cost for toxicity \> 0 (raised from 0.5 in 0.3.0 for Zahavi-handicap honesty)                                                                                                                        |
+| `toxin_dose`               | 2.0     | Damage per toxicity unit per attack                                                                                                                                                                                  |
+| `signal_memory`            | 20      | Predator memory window (Rescorla-Wagner)                                                                                                                                                                             |
+| `signal_toxicity_coupling` | 0.0     | (0.4.4) Aposematic pleiotropy: when \> 0, each agent’s `signal[1]` is pulled toward its own `toxicity` each tick. Set to 1.0 for fully honest signal. Required for Bates/Müller dynamics to close the feedback loop. |
+
+As of 0.4.4 the predator memory is a full **vector** stored in
+`signal_memory::Vector{Float32}` on the Agent struct (length =
+`signal_dims`), updated via the Widrow-Hoff delta rule
+`memory += lr × (toxicity − dot(memory, signal)) × signal`. The
+avoidance check uses the predicted toxicity `dot(memory, signal)`
+directly. This restores alifeR’s signal-specific learning and produces
+textbook Batesian/Müllerian dynamics under the right ecological
+parameters.
+
+------------------------------------------------------------------------
+
+## Coevolving parasites (0.5.0 / 0.5.1, Hamilton 1980 Red Queen)
+
+Enable with `coevolving_parasites = TRUE` AND either `signal_dims > 0`
+(continuous mode) or `n_parasite_loci > 0` (discrete mode).
+
+| Parameter                    | Default  | Description                                                                                                                 |
+|------------------------------|----------|-----------------------------------------------------------------------------------------------------------------------------|
+| `coevolving_parasites`       | FALSE    | Enable genotype-matched parasite pressure                                                                                   |
+| `parasite_match_mode`        | `"auto"` | `"auto"` / `"continuous"` / `"discrete"`. Auto picks discrete when `n_parasite_loci > 0`, else continuous.                  |
+| `parasite_virulence_rate`    | 0.1      | Rate at which the parasite genotype tracks the host majority                                                                |
+| `parasite_pressure`          | 0.5      | Maximum per-tick energy drain at full genotype match                                                                        |
+| `parasite_distance_scale`    | 1.0      | Continuous-mode Gaussian falloff scale                                                                                      |
+| `n_parasite_loci`            | 0        | (0.5.1) Number of binary loci in the discrete-mode `parasite_haplotype` trait. Set 8–16 for Hamilton’s canonical mechanism. |
+| `parasite_mutation_rate`     | 0.01     | Per-locus allele-flip rate during inheritance                                                                               |
+| `parasite_discrete_exponent` | 4.0      | Hamming-distance falloff sharpness; 4–6 produces cleanly frequency-dependent selection                                      |
+
+**Continuous mode (0.5.0)** uses Euclidean distance on the signal vector
+and tracks the population centroid. Sex offspring cluster closer to the
+centroid than asex clones, so sex is *more* exposed — this does NOT
+reproduce Hamilton’s canonical Red Queen.
+
+**Discrete mode (0.5.1)** uses Hamming distance on a binary-allele
+haplotype with Mendelian inheritance (each locus inherited independently
+from either parent). Recombination produces novel haplotype combinations
+that escape the current parasite genotype. This is the canonical
+Hamilton mechanism and is the first regime in which clade shows sex \>
+asex.
 
 ------------------------------------------------------------------------
 
@@ -246,12 +305,14 @@ Enable with `mimicry = TRUE`.
 
 Enable with `parental_care = TRUE`.
 
-| Parameter              | Default | Description                              |
-|------------------------|---------|------------------------------------------|
-| `parental_care`        | FALSE   | Enable carried offspring                 |
-| `care_duration`        | 5       | Ticks offspring are carried              |
-| `care_energy_cost`     | 2.0     | Parent energy cost per juvenile per tick |
-| `juvenile_energy_gain` | 3.0     | Energy transferred to juvenile per tick  |
+| Parameter                   | Default | Description                                                                                                                                                                                                                                           |
+|-----------------------------|---------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `parental_care`             | FALSE   | Enable carried offspring                                                                                                                                                                                                                              |
+| `care_duration`             | 5       | Ticks offspring are carried                                                                                                                                                                                                                           |
+| `care_energy_cost`          | 2.0     | Parent energy cost per juvenile per tick                                                                                                                                                                                                              |
+| `juvenile_energy_gain`      | 3.0     | Energy transferred to juvenile per tick                                                                                                                                                                                                               |
+| `neonatal_foraging_deficit` | 0.0     | (0.4.3) Reduction in effective `max_bite` for newborns during their first `neonatal_deficit_duration` ticks. Set 0.3–0.6 to create the expensive-brain selection pressure for parental provisioning (Aiello & Wheeler 1995; Isler & van Schaik 2009). |
+| `neonatal_deficit_duration` | 10      | (0.4.3) How many ticks the neonatal deficit applies for                                                                                                                                                                                               |
 
 ------------------------------------------------------------------------
 

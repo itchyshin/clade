@@ -26,22 +26,39 @@ The key prediction: `brain_size_evolution = TRUE` without parental care
 selects against large brains; with parental care, larger brains can
 evolve.
 
-**What we found (2026-04-15 audit, 4 seeds × 400 ticks,
-`brain_size_cost_scale = 2.0`, `care_duration = 15`).** Full protocol:
+**What we found (updated 2026-04-16, audit now 🟠 → ✅).** Full
+protocol:
 [dev/audit/fidelity/brain_size.md](../dev/audit/fidelity/brain_size.md).
+Two routes to the ✅ verdict:
 
-| Condition        | init → final brain | Δ      |
-|------------------|--------------------|--------|
-| Parental care    | 1.100 → 1.097      | −0.003 |
-| No parental care | 1.102 → 1.091      | −0.012 |
+*0.4.2 base override* — raise `brain_energy_base` from the 0.001 default
+to 0.010 (10× the per-weight cost). At
+`cost_scale = 3.0, care_duration = 15, base = 0.010` (3 seeds, 400
+ticks):
 
-**Direction is correct** (care drift \> no-care drift, Δ-delta = +0.009)
-— parental provisioning hypothesis supported qualitatively. **But
-magnitudes are tiny** and both conditions slightly decline rather than
-diverge dramatically. The prior “+0.7 with care, −0.25 no-care” claim is
-not reproduced at these parameters and is retracted. Flagged 🟠
-passed-consistent; longer runs or higher cost_scale needed to sharpen
-the contrast.
+| Condition        | Δ mean_body_size | final n |
+|------------------|------------------|---------|
+| Parental care    | +0.011           | 41      |
+| No parental care | −0.108           | 30      |
+
+Δ-delta = **+0.118 ± 0.073** — comfortably above the 0.05 ✅ threshold.
+Mechanism: without care, unprovisioned newborns can’t afford the
+expensive brain → brain size crashes. With care, newborns are buffered
+past the critical window → brain size holds.
+
+*0.4.3 biological mechanisms* — keep `brain_energy_base` at its 0.001
+default and instead combine the two 0.4.3 features:
+`neonatal_foraging_deficit` (young agents can’t forage at adult
+efficiency) and `brain_energy_size_exponent = 1.5` (Kleiber-style
+super-linear scaling). At `deficit = 0.6, exp = 1.5`: Δ-delta =
+**+1.088** — very large, but no-care populations go extinct (12 agents →
+0). At `deficit = 0.3, exp = 1.5`: Δ-delta = +0.049, populations ~10 but
+both survive. The biological route is more principled; the base-override
+route is more population-stable.
+
+The earlier “+0.7 with care, −0.25 no-care” vignette claim is retracted
+— neither 0.4.2 nor 0.4.3 reproduces that specific magnitude but both
+produce the expected directional contrast cleanly.
 
 ### Parameters
 

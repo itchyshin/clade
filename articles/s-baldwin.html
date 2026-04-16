@@ -314,30 +314,65 @@ BNN prior sigma trajectory. Declining sigma indicates canalization
 behavioural flexibility.
 </p>
 </div>
-<p><strong>What we found.</strong> Running with
-<code>brain_type = "bnn"</code>, 80 agents, 25×25 grid,
-<code>grass_rate = 0.15</code>, 600 ticks (seed 42):
-<code>mean_prior_sigma</code> rose monotonically from 0.30 at ticks 1–50
-to 0.50 (the maximum ceiling) by tick 300, where it remained for the
-rest of the run. Sigma moved <em>upward</em>, not downward — the
-opposite of Baldwin Effect canalization.</p>
-<p>This result is not a failure of the implementation. It is a
-theoretically coherent finding: in a spatially heterogeneous environment
-with no single optimal foraging policy, maintaining exploration is
-adaptively superior to fixing any particular strategy. The fitness
-landscape is not stable enough for canalization to proceed. Canalization
-requires a fitness landscape with a stable global optimum — a condition
-that a dynamic foraging world with population competition does not
-provide at short run lengths.</p>
-<p><strong>Theoretical interpretation.</strong> Mayley (1996) showed
-that the Baldwin Effect operates fastest when (1) the fitness landscape
-has a single sharp peak, (2) mutational variance is sufficient for
-selection to find it, and (3) generation times are long enough for
-selection to act. In a competitive foraging world with spatial
-heterogeneity and stochastic resource patches, condition (1) fails: the
-optimal foraging strategy shifts continuously with population density
-and grass distribution. Selection therefore maintains the ability to
-learn (high σ) as the evolutionarily stable strategy.</p>
+<p><strong>What we found (updated 2026-04-16, audit 🔴 → 🟠
+kernel-limited).</strong></p>
+<p>The pre-0.4.0 audit showed <code>mean_prior_sigma</code> rising
+monotonically from ~0.3 to the 0.5 cap in both stable and seasonal
+environments — the <em>opposite</em> of the canonical Baldwin
+canalization. That was traced to the legacy
+<code>bnn_sigma_source = "heterozygosity"</code> coupling, which
+prevented selection from touching sigma. Two 0.4.x kernel changes
+addressed that:</p>
+<ol style="list-style-type: decimal">
+<li>
+<strong>0.4.0 Tier 5A</strong> —
+<code>bnn_sigma_source = "trait"</code>: sigma tracks a dedicated
+heritable <code>TRAIT_PLASTICITY</code> gene, so selection can reduce
+it.</li>
+<li>
+<strong>0.4.1 Tier 5C</strong> —
+<code>brain_energy_sigma_scale &gt; 0</code>: a log-scaled information
+cost on sigma creates the selection gradient Hinton &amp; Nowlan (1987)
+call for.</li>
+</ol>
+<p>At 600 ticks with these flags on, the <strong>canonical direction
+appears transiently</strong>: stable Δ = −0.004, seasonal Δ = +0.003
+(Δ-delta = +0.007 in the Hinton-Nowlan direction). However, the 0.4.2
+1500-tick sweep shows this is a <strong>transient on the way to
+equilibrium, not a stable selection outcome</strong>:</p>
+<table class="table">
+<thead><tr class="header">
+<th>sigma_scale</th>
+<th>env</th>
+<th>600-tick Δ</th>
+<th>1500-tick Δ</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>0.05</td>
+<td>stable</td>
+<td><strong>−0.004</strong></td>
+<td>+0.001</td>
+</tr>
+<tr class="even">
+<td>0.05</td>
+<td>seasonal</td>
+<td><strong>+0.003</strong></td>
+<td>−0.004</td>
+</tr>
+</tbody>
+</table>
+<p>At equilibrium the direction reverses: seasonal ends up with
+<em>lower</em> sigma than stable. The underlying reason is a kernel
+limitation — sigma in clade mediates <em>both</em> learning capacity AND
+behavioural variance (noisy actions). Seasonal stress kills agents
+during lean phases; those kills favour lower-sigma (more deterministic)
+phenotypes regardless of the Hinton-Nowlan learning-cost term. 0.4.3+
+backlog: decouple sigma from behavioural variance so the canonical
+prediction can be tested without the foraging-efficiency confounder.</p>
+<p><strong>Current verdict</strong> is 🟠 passed-consistent
+(kernel-limited): direction reversal from the pre-0.4.0 🔴 confirmed at
+short timescales, caveated at equilibrium.</p>
 <hr>
 </div>
 <div class="section level3">

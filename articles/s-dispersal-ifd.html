@@ -296,23 +296,61 @@ energy, survive longer, and leave more offspring.</p>
 <code>mean_dispersal</code> evolves in response to crowding. (3) IFD:
 <code>mean_habitat_preference</code> drifts toward positive values as
 agents that prefer grass-rich cells out-compete those that do not.</p>
-<p><strong>What we found (2026-04-15 audit).</strong> Full protocol: <a href="../dev/audit/fidelity/dispersal_ifd.html">dev/audit/fidelity/dispersal_ifd.md</a>.</p>
-<p>All three mechanisms produce directionally-correct but
-magnitudinally-weak signals at default parameters and 500-tick runs:</p>
-<ul>
-<li>
-<strong>Habitat preference evolution (IFD):</strong> init 0.000 →
-final 0.002 over 500 ticks (4 seeds). Δ = +0.002, within noise.</li>
-<li>
-<strong>Spatial sorting:</strong> front_dispersal 0.293 ± 0.070 vs
-rear_dispersal 0.288 ± 0.037. Δ = +0.005, within seed noise but
-correctly signed.</li>
-</ul>
-<p>Both effects are genuine but <strong>require longer runs (2000+
-ticks), higher mutation, or stronger preference weighting</strong> to
-produce clean signatures. The prior claim that preference drifts to
-0.2–0.4 within a normal run is not supported by this audit; flagged as
-🟠 passed-consistent.</p>
+<p><strong>What we found (updated 2026-04-16, 0.4.1 grid
+audit).</strong> Full protocol: <a href="../dev/audit/fidelity/dispersal_ifd.html">dev/audit/fidelity/dispersal_ifd.md</a>.</p>
+<p>The 0.4.1 audit swept
+<code>habitat_preference_strength ∈ {0.5, 1.0, 2.0, 4.0}</code> ×
+<code>max_ticks ∈ {500, 1000}</code> × 2 seeds. IFD signal grows with
+preference strength and saturates around strength = 2:</p>
+<table class="table">
+<thead><tr class="header">
+<th>strength</th>
+<th>ticks</th>
+<th>Δ mean_habitat_preference ± sd</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><strong>2.0</strong></td>
+<td><strong>1000</strong></td>
+<td><strong>+0.0058 ± 0.0012</strong></td>
+</tr>
+<tr class="even">
+<td>2.0</td>
+<td>500</td>
+<td>+0.0056 ± 0.0064</td>
+</tr>
+<tr class="odd">
+<td>4.0</td>
+<td>1000</td>
+<td>+0.0050 ± 0.0005</td>
+</tr>
+<tr class="even">
+<td>0.5</td>
+<td>1000</td>
+<td>+0.0020 ± 0.0012</td>
+</tr>
+<tr class="odd">
+<td>1.0</td>
+<td>1000</td>
+<td>−0.0023 ± 0.0005</td>
+</tr>
+</tbody>
+</table>
+<p>Direction is positive across most cells; magnitude is modest (+0.006
+at grid-max, still below the 0.02 ✅ threshold). Saturation around
+strength = 2 suggests that within-run behavioural sorting dominates over
+trait evolution — agents with any preference already cluster in
+high-grass cells, so the marginal return on stronger heritable
+preference is limited.</p>
+<p>Spatial sorting (the Shine et al. 2011 companion test):
+<code>mean_front_dispersal = 0.273 ± 0.057</code> vs
+<code>mean_rear_dispersal = 0.261 ± 0.053</code>, Δ =
+<strong>+0.012</strong> (2 seeds). PASS in sign; the front-to-rear
+dispersal gradient is real but noisy.</p>
+<p>Verdict 🟠 passed-consistent: direction correct for both IFD and
+spatial sorting; magnitudes modest and parameter-sensitive. Use
+<code>habitat_preference_strength = 2.0, max_ticks = 1000</code> for
+demos wanting to show the cleanest IFD signal.</p>
 </div>
 <div class="section level3">
 <h3 id="spatial-sorting">Spatial sorting<a class="anchor" aria-label="anchor" href="#spatial-sorting"></a>

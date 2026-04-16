@@ -381,6 +381,97 @@ parameters differ from defaults in a given specs list.</p>
 </tr>
 </tbody>
 </table>
+<div class="section level3">
+<h3 id="bnn-specific-controls-0-4-0">BNN-specific controls (0.4.0+)<a class="anchor" aria-label="anchor" href="#bnn-specific-controls-0-4-0"></a>
+</h3>
+<table class="table">
+<colgroup>
+<col width="33%">
+<col width="33%">
+<col width="33%">
+</colgroup>
+<thead><tr class="header">
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code>bnn_sigma_source</code></td>
+<td><code>"heterozygosity"</code></td>
+<td>(0.4.0 Tier 5A) Source of BNN posterior width:
+<code>"heterozygosity"</code> (legacy; derived from parental allele
+difference), <code>"fixed"</code> (constant
+<code>bnn_sigma_init</code>), or <code>"trait"</code> (evolvable via
+<code>TRAIT_PLASTICITY</code>). Required for s-baldwin / s-plasticity
+scenarios.</td>
+</tr>
+<tr class="even">
+<td><code>bnn_sigma_init</code></td>
+<td>0.5</td>
+<td>Initial sigma for haploid and fixed modes</td>
+</tr>
+<tr class="odd">
+<td><code>bnn_sample_freq</code></td>
+<td>1</td>
+<td>(0.4.0 Tier 5B) Resample BNN weights every N forward passes.
+<code>1</code> = resample every tick (legacy); <code>5</code> lets
+REINFORCE gradients accumulate (required for the 0.4.1 s-rl ✅
+verdict).</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level3">
+<h3 id="brain-metabolic-cost">Brain metabolic cost<a class="anchor" aria-label="anchor" href="#brain-metabolic-cost"></a>
+</h3>
+<table class="table">
+<colgroup>
+<col width="33%">
+<col width="33%">
+<col width="33%">
+</colgroup>
+<thead><tr class="header">
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code>brain_energy_mode</code></td>
+<td><code>"activity"</code></td>
+<td>
+<code>"none"</code>, <code>"size"</code>, <code>"activity"</code>,
+<code>"prediction_error"</code>
+</td>
+</tr>
+<tr class="even">
+<td><code>brain_energy_base</code></td>
+<td>0.001</td>
+<td>Fixed cost per synaptic weight per tick. Scale up (e.g. 0.010) to
+expose the parental-provisioning signal (see s-brain-size).</td>
+</tr>
+<tr class="odd">
+<td><code>brain_energy_activity</code></td>
+<td>0.5</td>
+<td>Scaling on mean absolute activation</td>
+</tr>
+<tr class="even">
+<td><code>brain_energy_sigma_scale</code></td>
+<td>0.0</td>
+<td>(0.4.1 Tier 5C) Log-scaled information cost on BNN posterior width.
+Set 0.005–0.1 for Baldwin-canalisation scenarios.</td>
+</tr>
+<tr class="odd">
+<td><code>brain_energy_size_exponent</code></td>
+<td>1.0</td>
+<td>(0.4.3) Exponent on the brain-size term:
+<code>size_cost = base × n_weights^exp</code>. <code>1.0</code> = linear
+(legacy); <code>1.5</code> = Kleiber-style super-linear (Isler &amp; van
+Schaik 2009 expensive-brain).</td>
+</tr>
+</tbody>
+</table>
 <p>The six brain types differ in expressive power and computational
 cost:</p>
 <ul>
@@ -403,6 +494,7 @@ capacity, slowest.</li>
 weights.</li>
 </ul>
 <hr>
+</div>
 </div>
 <div class="section level2">
 <h2 id="reproduction-and-genetics">Reproduction and genetics<a class="anchor" aria-label="anchor" href="#reproduction-and-genetics"></a>
@@ -728,6 +820,13 @@ weights.</li>
 <td>50</td>
 <td>Predator population cap</td>
 </tr>
+<tr class="even">
+<td><code>predator_sense_graded</code></td>
+<td>TRUE</td>
+<td>(0.4.2) When TRUE, prey’s predator sensory input at distance
+<code>d</code> is <code>1/(d+1)</code> (graded threat-level). FALSE
+falls back to pre-0.4.2 binary presence signal.</td>
+</tr>
 </tbody>
 </table>
 <hr>
@@ -939,8 +1038,103 @@ for Zahavi-handicap honesty)</td>
 <td>20</td>
 <td>Predator memory window (Rescorla-Wagner)</td>
 </tr>
+<tr class="odd">
+<td><code>signal_toxicity_coupling</code></td>
+<td>0.0</td>
+<td>(0.4.4) Aposematic pleiotropy: when &gt; 0, each agent’s
+<code>signal[1]</code> is pulled toward its own <code>toxicity</code>
+each tick. Set to 1.0 for fully honest signal. Required for Bates/Müller
+dynamics to close the feedback loop.</td>
+</tr>
 </tbody>
 </table>
+<p>As of 0.4.4 the predator memory is a full <strong>vector</strong>
+stored in <code>signal_memory::Vector{Float32}</code> on the Agent
+struct (length = <code>signal_dims</code>), updated via the Widrow-Hoff
+delta rule
+<code>memory += lr × (toxicity − dot(memory, signal)) × signal</code>.
+The avoidance check uses the predicted toxicity
+<code>dot(memory, signal)</code> directly. This restores alifeR’s
+signal-specific learning and produces textbook Batesian/Müllerian
+dynamics under the right ecological parameters.</p>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="coevolving-parasites-0-5-0-0-5-1-hamilton-1980-red-queen">Coevolving parasites (0.5.0 / 0.5.1, Hamilton 1980 Red Queen)<a class="anchor" aria-label="anchor" href="#coevolving-parasites-0-5-0-0-5-1-hamilton-1980-red-queen"></a>
+</h2>
+<p>Enable with <code>coevolving_parasites = TRUE</code> AND either
+<code>signal_dims &gt; 0</code> (continuous mode) or
+<code>n_parasite_loci &gt; 0</code> (discrete mode).</p>
+<table class="table">
+<colgroup>
+<col width="33%">
+<col width="33%">
+<col width="33%">
+</colgroup>
+<thead><tr class="header">
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code>coevolving_parasites</code></td>
+<td>FALSE</td>
+<td>Enable genotype-matched parasite pressure</td>
+</tr>
+<tr class="even">
+<td><code>parasite_match_mode</code></td>
+<td><code>"auto"</code></td>
+<td>
+<code>"auto"</code> / <code>"continuous"</code> /
+<code>"discrete"</code>. Auto picks discrete when
+<code>n_parasite_loci &gt; 0</code>, else continuous.</td>
+</tr>
+<tr class="odd">
+<td><code>parasite_virulence_rate</code></td>
+<td>0.1</td>
+<td>Rate at which the parasite genotype tracks the host majority</td>
+</tr>
+<tr class="even">
+<td><code>parasite_pressure</code></td>
+<td>0.5</td>
+<td>Maximum per-tick energy drain at full genotype match</td>
+</tr>
+<tr class="odd">
+<td><code>parasite_distance_scale</code></td>
+<td>1.0</td>
+<td>Continuous-mode Gaussian falloff scale</td>
+</tr>
+<tr class="even">
+<td><code>n_parasite_loci</code></td>
+<td>0</td>
+<td>(0.5.1) Number of binary loci in the discrete-mode
+<code>parasite_haplotype</code> trait. Set 8–16 for Hamilton’s canonical
+mechanism.</td>
+</tr>
+<tr class="odd">
+<td><code>parasite_mutation_rate</code></td>
+<td>0.01</td>
+<td>Per-locus allele-flip rate during inheritance</td>
+</tr>
+<tr class="even">
+<td><code>parasite_discrete_exponent</code></td>
+<td>4.0</td>
+<td>Hamming-distance falloff sharpness; 4–6 produces cleanly
+frequency-dependent selection</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Continuous mode (0.5.0)</strong> uses Euclidean distance on
+the signal vector and tracks the population centroid. Sex offspring
+cluster closer to the centroid than asex clones, so sex is <em>more</em>
+exposed — this does NOT reproduce Hamilton’s canonical Red Queen.</p>
+<p><strong>Discrete mode (0.5.1)</strong> uses Hamming distance on a
+binary-allele haplotype with Mendelian inheritance (each locus inherited
+independently from either parent). Recombination produces novel
+haplotype combinations that escape the current parasite genotype. This
+is the canonical Hamilton mechanism and is the first regime in which
+clade shows sex &gt; asex.</p>
 <hr>
 </div>
 <div class="section level2">
@@ -978,6 +1172,20 @@ for Zahavi-handicap honesty)</td>
 <td><code>juvenile_energy_gain</code></td>
 <td>3.0</td>
 <td>Energy transferred to juvenile per tick</td>
+</tr>
+<tr class="odd">
+<td><code>neonatal_foraging_deficit</code></td>
+<td>0.0</td>
+<td>(0.4.3) Reduction in effective <code>max_bite</code> for newborns
+during their first <code>neonatal_deficit_duration</code> ticks. Set
+0.3–0.6 to create the expensive-brain selection pressure for parental
+provisioning (Aiello &amp; Wheeler 1995; Isler &amp; van Schaik
+2009).</td>
+</tr>
+<tr class="even">
+<td><code>neonatal_deficit_duration</code></td>
+<td>10</td>
+<td>(0.4.3) How many ticks the neonatal deficit applies for</td>
 </tr>
 </tbody>
 </table>
