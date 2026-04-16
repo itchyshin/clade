@@ -1,5 +1,15 @@
 # Scenario: Pace-of-life syndromes (Réale et al. 2010)
 
+> **Update 0.4.0 (commit 9b21f66) — promoted to ✅ passed.** With
+> `max_age_scales_with_metabolism = TRUE` (Tier 2 kernel change),
+> Spearman(metabolic_rate, mean_age) = **−1.00** across the 5-rate
+> sweep. mr=0.5 → mean_age 235; mr=3.0 → mean_age 33. Réale 2010
+> pace-of-life signature recovered cleanly. Pre-0.4.0 results below
+> retained for context.
+
+---
+
+
 ## 1. Theory
 - **Primary source.** Réale, D. et al. (2010) *Phil. Trans. R. Soc.
   B* 365:4051–4063. Stearns (1992) *The Evolution of Life

@@ -105,10 +105,38 @@ function apply_predator_toxin!(pred::Agent, prey::Agent, env::Environment)
     toxin_damage = Float32(get(env.specs, "toxin_dose", 30.0)) * prey.toxicity
     pred.energy -= toxin_damage
 
-    lr = Float64(get(env.specs, "signal_memory_rate", 0.3))
-    pred.value_estimate = Float32(
-        (1.0 - lr) * Float64(pred.value_estimate) + lr * Float64(prey.toxicity)
-    )
+    lr = Float32(get(env.specs, "signal_memory_rate", 0.3))
+
+    # 0.4.0 Tier 4: vector signal memory (when prey carry signal vectors).
+    # The predator's `preference` field is repurposed as signal memory:
+    # after a successful attack on a toxic prey, the memory shifts toward
+    # the prey's signal vector (Rescorla-Wagner update). Avoidance then
+    # fires when dot(memory, prey_signal) > avoid_threshold — signal-
+    # specific learning, the mechanism Bates 1862 / Müller 1879 actually
+    # described. Restores alifeR's vector memory model.
+    sdims = length(prey.signal)
+    if sdims > 0 && prey.toxicity > 0.0f0
+        # Initialise/resize predator memory if needed
+        if length(pred.preference) != sdims
+            resize!(pred.preference, sdims)
+            fill!(pred.preference, 0.0f0)
+        end
+        @inbounds for i in 1:sdims
+            pred.preference[i] = (1.0f0 - lr) * pred.preference[i] +
+                                  lr * prey.signal[i]
+        end
+        # Also update the scalar memory (legacy) for non-signal scenarios
+        pred.value_estimate = Float32(
+            (1.0 - Float64(lr)) * Float64(pred.value_estimate) +
+            Float64(lr) * Float64(prey.toxicity)
+        )
+    else
+        # No signal channel: fall back to scalar toxicity memory (legacy).
+        pred.value_estimate = Float32(
+            (1.0 - Float64(lr)) * Float64(pred.value_estimate) +
+            Float64(lr) * Float64(prey.toxicity)
+        )
+    end
     nothing
 end
 
@@ -140,16 +168,36 @@ the predator tick loop.
 function should_avoid_prey(pred::Agent, prey::Agent, env::Environment)::Bool
     Bool(get(env.specs, "mimicry", false)) || return false
 
-    avoid_threshold = Float64(get(env.specs, "avoid_threshold", 0.5))
-    learned = pred.value_estimate >= Float32(avoid_threshold)
+    avoid_threshold = Float32(get(env.specs, "avoid_threshold", 0.5))
+
+    # 0.4.0 Tier 4: signal-specific avoidance via vector memory.
+    # When prey carry signal vectors AND the predator has accumulated a
+    # signal memory (preference vector), avoidance fires based on the
+    # dot product between memory and the prey's signal. This is the
+    # textbook Bates/Müller mechanism: predators learn to avoid specific
+    # warning patterns, not generic recent toxicity exposure.
+    sdims = length(prey.signal)
+    signal_match = if sdims > 0 && length(pred.preference) == sdims
+        # dot(mem, sig) > threshold
+        s = 0.0f0
+        @inbounds for i in 1:sdims
+            s += pred.preference[i] * prey.signal[i]
+        end
+        s >= avoid_threshold
+    else
+        false
+    end
+
+    # Legacy scalar-memory gate (still active so non-signal scenarios work).
+    scalar_match = pred.value_estimate >= avoid_threshold
+
+    learned = signal_match || scalar_match
 
     # Mullerian (default): avoidance fires only for actually-toxic prey.
-    # Batesian: avoidance fires for ANY prey whose signal has been learned,
-    # regardless of the prey's own toxicity. This lets palatable mimics
-    # exploit the predator's aversion memory built up against toxic
-    # model species sharing the same signal (Bates 1862). See
-    # apply_predator_toxin! for the "predator betrayal" decay that
-    # prevents runaway cheating.
+    # Batesian: avoidance fires for ANY prey whose signal has been
+    # learned, regardless of the prey's own toxicity. This lets palatable
+    # mimics exploit the predator's aversion memory built up against
+    # toxic model species sharing the same signal (Bates 1862).
     if Bool(get(env.specs, "batesian_mimicry", false))
         learned
     else

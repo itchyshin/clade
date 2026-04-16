@@ -1,5 +1,17 @@
 # Scenario: Parental investment (Trivers 1972)
 
+> **Update 0.4.0 (commit 9b21f66) — promoted to ✅ passed.** Tier 3
+> kernel change: `female_investment` now (a) splits parental cost
+> by `fi vs (1-fi)` between mother and mate and (b) scales offspring
+> birth energy by `2 × fi`. With `parental_investment_evolution =
+> TRUE`, Spearman(fi, n_juveniles) = **−1.00** across fi ∈ {0.3,
+> 0.5, 0.7, 0.9}: higher female investment → fewer (but better-
+> provisioned) juveniles, exactly Trivers' quality-quantity
+> prediction. Pre-0.4.0 results below retained for context.
+
+---
+
+
 ## 1. Theory
 - **Primary source.** Trivers, R.L. (1972) Parental investment and
   sexual selection. In Campbell (ed.) *Sexual Selection and the
