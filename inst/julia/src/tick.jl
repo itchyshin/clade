@@ -63,12 +63,21 @@ function tick_agents!(env::Environment)
     idle_cost  = Float32(get(specs, "idle_cost",  0.5))
     eat_gain   = Float32(get(specs, "eat_gain",   5.0))
     max_bite   = Float32(get(specs, "max_bite",   2.0))   # 0.4.0: handling time
+    # 0.4.3: neonatal foraging deficit. Newborn agents can't forage at adult
+    # efficiency — they're still motor-learning. During the first
+    # `neonatal_deficit_duration` ticks of life, their effective max_bite is
+    # scaled by `(1 - neonatal_foraging_deficit)`. Parental care (feeding_rate)
+    # naturally compensates: provisioned newborns eat from the parent instead.
+    # Default 0 preserves legacy behaviour.
+    neo_deficit = Float32(get(specs, "neonatal_foraging_deficit", 0.0))
+    neo_window  = Int32(get(specs, "neonatal_deficit_duration", 10))
     # 0.4.0 Tier 5B: BNN sample cadence — cache weight sample for N forward
     # calls instead of resampling every tick. Freq = 1 is legacy default.
     _bnn_set_freq(Int(get(specs, "bnn_sample_freq", 1)))
     e_mode     = get(specs, "brain_energy_mode", "activity")
     e_base     = Float32(get(specs, "brain_energy_base",     0.001))
     e_act      = Float32(get(specs, "brain_energy_activity", 0.5))
+    e_size_exp = Float32(get(specs, "brain_energy_size_exponent", 1.0))
     # 0.4.1 Tier 5C: energetic cost of behavioural uncertainty (BNN sigma).
     # Default 0 preserves legacy behaviour. A positive value penalises
     # maintaining wide posterior weight distributions, which is the
@@ -122,7 +131,16 @@ function tick_agents!(env::Environment)
         # (or multiple agents on consecutive ticks) are needed to deplete
         # a rich cell. Restores alifeR / MATLAB-Bulitko `maxbite` semantics.
         if env.grass[x, y] > 0.0f0
-            bite             = min(env.grass[x, y], max_bite)
+            # 0.4.3: neonatal foraging deficit — young agents forage less
+            # efficiently for the first `neo_window` ticks of life. Parental
+            # care separately feeds provisioned offspring via feeding_rate,
+            # so only unprovisioned newborns suffer the full deficit.
+            eff_max_bite = if neo_deficit > 0.0f0 && ag.age <= neo_window
+                max_bite * (1.0f0 - neo_deficit)
+            else
+                max_bite
+            end
+            bite             = min(env.grass[x, y], eff_max_bite)
             ag.energy       += eat_gain * bite
             env.grass[x, y] -= bite
         end
@@ -132,7 +150,7 @@ function tick_agents!(env::Environment)
         # ── Brain energy cost ─────────────────────────────────────────────
         ag.energy -= _brain_energy_cost(ag.brain, logits,
                                           e_mode, e_base, e_act,
-                                          e_sigma, sigma_min)
+                                          e_sigma, sigma_min, e_size_exp)
     end
 
     # Rebuild agent map after all moves
@@ -143,7 +161,7 @@ end
 
 """
     _brain_energy_cost(brain, logits, mode, base, act_scale,
-                        sigma_scale = 0, sigma_min = 0.01) -> Float32
+                        sigma_scale = 0, sigma_min = 0.01, size_exp = 1.0) -> Float32
 
 Compute the metabolic cost of neural computation.
 
@@ -180,9 +198,16 @@ function _brain_energy_cost(brain::AbstractBrain,
                               base::Float32,
                               act_scale::Float32,
                               sigma_scale::Float32 = 0.0f0,
-                              sigma_min::Float32 = 0.01f0)::Float32
+                              sigma_min::Float32 = 0.01f0,
+                              size_exp::Float32 = 1.0f0)::Float32
     mode == "none" && return 0.0f0
-    size_cost = base * Float32(brain_size(brain))
+    # 0.4.3: super-linear size scaling via `brain_energy_size_exponent`.
+    # `size_exp = 1.0` is the legacy default; `1.5` implements Kleiber-style
+    # expensive-brain amplification (Isler & van Schaik 2009) so that large
+    # brains carry disproportionate metabolic weight — the gradient needed
+    # for parental-provisioning scenarios to express at the default base.
+    n_weights = Float32(brain_size(brain))
+    size_cost = base * (size_exp == 1.0f0 ? n_weights : n_weights ^ size_exp)
 
     # 0.4.1 Tier 5C: information-theoretic sigma cost for BNN brains.
     sigma_cost = 0.0f0

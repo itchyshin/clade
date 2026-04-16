@@ -19,9 +19,15 @@
   0.05 ✅ threshold.
 - **0.4.2 sweep**: fix the best 0.4.1 cell (cost_scale=3.0,
   care_duration=15) and sweep `brain_energy_base ∈ {0.001, 0.005,
-  0.010}`. Tests whether the kernel-as-biology doc's diagnosis —
-  "brain-energy cost too shallow at default 0.001" — actually
-  explains the pre-0.4.2 magnitude limit.
+  0.010}`. ✅ at base=0.010 (Δdelta = +0.118). Scenario-specific
+  override, not the default.
+- **0.4.3 sweep**: test whether the two new 0.4.3 biological
+  mechanisms — `neonatal_foraging_deficit` (young agents can't
+  forage efficiently without parental help) and
+  `brain_energy_size_exponent` (super-linear Kleiber-style brain
+  cost) — produce the parental-provisioning signal at the DEFAULT
+  `brain_energy_base = 0.001`. Grid: deficit ∈ {0, 0.3, 0.6} ×
+  size_exp ∈ {1.0, 1.5} × 3 seeds.
 
 ## 4. Observed dynamics
 
@@ -34,26 +40,51 @@
 | **0.010** | **+0.011** | **−0.108** | **+0.118** | **41** | **30** |
 
 At `brain_energy_base = 0.010` (10× the default) the parental
-provisioning signal emerges sharply: Δdelta = +0.118 ± 0.073,
-well above the 0.05 ✅ threshold.
+provisioning signal emerges sharply: Δdelta = +0.118 ± 0.073.
+
+### 0.4.3 biological-mechanism sweep (default base=0.001)
+
+| deficit | size_exp | care Δ | no-care Δ | **Δdelta** | care n | no-care n |
+|---|---|---|---|---|---|---|
+| 0.0 | 1.0 (legacy) | +0.000 | −0.027 | +0.027 | 174 | 155 |
+| 0.3 | 1.0 | −0.010 | −0.006 | −0.003 | 176 | 155 |
+| 0.6 | 1.0 | −0.009 | −0.020 | +0.011 | 175 | 149 |
+| 0.0 | 1.5 | −0.041 | −0.022 | −0.019 | 11 | 9 |
+| 0.3 | 1.5 | −0.033 | −0.082 | **+0.049** | 13 | 8 |
+| **0.6** | **1.5** | −0.013 | **−1.101** | **+1.088** | 12 | **0 (extinct)** |
+
+Three ✅-grade regimes are now available:
+
+- **0.4.2 base override**: `brain_energy_base=0.010` → Δdelta=+0.118,
+  populations ~35 in both conditions. Clean ✅.
+- **0.4.3 combined mechanisms (moderate)**: deficit=0.3 + exp=1.5 →
+  Δdelta=+0.049 at default base. Populations small (~10) but both
+  survive.
+- **0.4.3 combined mechanisms (strong)**: deficit=0.6 + exp=1.5 →
+  Δdelta=+1.088 at default base. No-care population goes extinct;
+  signal emerges through population collapse rather than brain
+  evolution. Useful as a "parental care is necessary" demonstration
+  rather than a gradient-selection signal.
 
 ### Mechanism
 
-At `brain_energy_base = 0.010` the cost per synaptic weight is
-~10× higher than default. Unprovisioned newborns can't afford the
-brain cost — they starve and brain size **crashes** (Δ = −0.108).
-With parental care (feeding_rate=3.0 for 15 ticks), newborns are
-buffered past the critical window, survive, and brain size *rises*
-slightly (Δ = +0.011). The parental-provisioning channel matters
-most when the metabolic gradient is steep; at default
-`brain_energy_base = 0.001`, it's too shallow for the care
-intervention to produce a visible shift.
+Two orthogonal routes to the signal:
 
-Population cost: at base=0.010 final n drops from ~160 (default) to
-~35. The signal is real but comes at the price of a smaller
-population under the heavier metabolic load. This is biologically
-sensible — expensive brains are only maintained in high-provision
-regimes (van Schaik et al. 2023).
+1. **0.4.2 base override**: raise the metabolic cost per synaptic
+   weight. Unprovisioned newborns can't afford the brain → brain
+   size crashes. Care buffers → brain size holds. The classic
+   cost-vs-benefit framing of the expensive-brain hypothesis.
+2. **0.4.3 biological mechanisms**: leave `brain_energy_base` at
+   its default and instead add (a) a foraging handicap for
+   newborns (they haven't learned to forage yet) and (b) a
+   super-linear cost on brain size. The combination produces the
+   same parental-provisioning gradient but with explicit reference
+   to the biological mechanisms Aiello & Wheeler (1995) and Isler
+   & van Schaik (2009) identify.
+
+The 0.4.3 route is the more biologically principled one, at the
+price of population fragility at strong settings. The 0.4.2 route
+is more stable for vignette demos.
 
 ## 5. Verdict
 - [x] **Matches theory (✅) at elevated `brain_energy_base`.** At

@@ -204,6 +204,14 @@
 #'     tick (default 0.001).}
 #'   \item{`brain_energy_activity`}{Numeric. Scaling factor on mean absolute
 #'     activation when `brain_energy_mode = "activity"` (default 0.5).}
+#'   \item{`brain_energy_size_exponent`}{Numeric. Exponent applied to the
+#'     brain-size term of the metabolic cost: `size_cost = base *
+#'     n_weights^exp` (default 1.0 = linear, legacy). Set to 1.5 for
+#'     Kleiber-style super-linear scaling (Isler & van Schaik 2009
+#'     expensive-brain hypothesis) so large brains carry disproportionate
+#'     metabolic weight — sharpens the parental-provisioning selection
+#'     gradient at the default `brain_energy_base` without needing a
+#'     scenario-specific override (0.4.3).}
 #' }
 #'
 #' ## Genome and ploidy
@@ -562,6 +570,16 @@
 #'     offspring per tick (default 2.0).}
 #'   \item{`max_clutch_size`}{Integer. Maximum offspring per reproductive
 #'     event (default 1L).}
+#'   \item{`neonatal_foraging_deficit`}{Numeric in \[0, 1\]. Reduction in
+#'     foraging efficiency (effective `max_bite`) for newborns during
+#'     their first `neonatal_deficit_duration` ticks of life (default
+#'     0.0). Creates the selection gradient for parental provisioning
+#'     — unprovisioned newborns can't forage effectively, provisioned
+#'     ones are fed by the parent via `feeding_rate`. Reference:
+#'     Aiello & Wheeler (1995); Isler & van Schaik (2009) expensive
+#'     brain hypothesis.}
+#'   \item{`neonatal_deficit_duration`}{Integer. How many ticks the
+#'     neonatal foraging deficit applies for (default 10L).}
 #' }
 #'
 #' ## Signal evolution and mate choice
@@ -874,6 +892,12 @@ default_specs <- function() {
                                        # Default 0 preserves legacy. Set
                                        # to ~0.005–0.05 for Baldwin
                                        # canalisation scenarios.
+    brain_energy_size_exponent = 1.0,  # 0.4.3: super-linear brain-size
+                                       # cost. 1.0 = linear (legacy);
+                                       # 1.5 = Kleiber-style expensive-
+                                       # brain amplification (Isler &
+                                       # van Schaik 2009). Applied as
+                                       # size_cost = base * n_weights^exp.
 
     # ── BNN brain ──────────────────────────────────────────────────────────
     bnn_sigma_init    = 0.5,                 # haploid default & "fixed" mode
@@ -1026,6 +1050,15 @@ default_specs <- function() {
     juvenile_independence_age  = 10L,
     juvenile_independence_energy = 50.0,
     max_clutch_size            = 1L,
+    # 0.4.3: neonatal foraging deficit — young agents can't forage at
+    # adult efficiency. During the first `neonatal_deficit_duration`
+    # ticks of life, their effective max_bite is scaled by
+    # `1 - neonatal_foraging_deficit`. Default 0.0 preserves legacy
+    # behaviour; set 0.3–0.6 to create the selection pressure for
+    # parental provisioning that the expensive-brain hypothesis
+    # (Aiello & Wheeler 1995; Isler & van Schaik 2009) identifies.
+    neonatal_foraging_deficit   = 0.0,
+    neonatal_deficit_duration   = 10L,
 
     # ── Cooperative breeding ───────────────────────────────────────────────
     cooperative_breeding       = FALSE,
