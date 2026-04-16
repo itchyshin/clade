@@ -1,0 +1,451 @@
+# `genome.jl` — meiosis, traits, and inheritance
+
+This is the biggest file in the kernel (~540 lines). It implements
+the **genetic layer** of the simulation — the structures and
+operations that determine how heritable information passes from
+parents to offspring.
+
+clade's genome model is unusually elaborate for an evolutionary ABM:
+it implements proper diploid meiosis with chromosomes, recombination,
+independent assortment, mutation, and configurable dominance. This is
+the most "intentional improvement vs alifeR" change documented in the
+baseline three-way audit — alifeR used flat-weight inheritance, while
+clade does textbook Mendelian-Morgan genetics.
+
+Because the file is long, this document walks the **conceptual
+structure** rather than line-by-line. The kernel-0.4.0 changelog
+describes any future edits in detail.
+
+Source file: [`inst/julia/src/genome.jl`](../../../inst/julia/src/genome.jl)
+(~540 lines).
+
+---
+
+## 1. The `DiploidGenome` struct — what an agent inherits
+
+(Defined in [`types.jl`](../../../inst/julia/src/types.jl), reproduced
+conceptually here.)
+
+```julia
+struct DiploidGenome
+    maternal_weights ::Vector{Float32}   # one set of brain weights from mother
+    paternal_weights ::Vector{Float32}   # one set from father (empty if haploid)
+    maternal_traits  ::Vector{Float32}   # 15 scalar traits from mother
+    paternal_traits  ::Vector{Float32}   # 15 from father (empty if haploid)
+    architecture     ::Tuple             # ANN structure (input, hidden, output sizes)
+    n_chromosomes    ::Int               # how many separately-recombining segments
+end
+```
+
+**What this says.** Each agent has a genome consisting of two
+"strands" of brain weights and two strands of scalar traits, plus
+metadata (network architecture, chromosome count). For haploid agents
+(`ploidy = 1`), the paternal strands are empty — agents inherit one
+strand from one parent.
+
+**Biology.** This is a **diploid genome** in its standard biological
+form. The maternal/paternal split is the central object of Mendelian
+genetics. Two strands per locus → two alleles → potential for
+heterozygosity, dominance, and recombination.
+
+The 15 scalar traits are heritable phenotypic traits independent of
+the brain — body size, metabolic rate, aging rate, cooperation level,
+dispersal tendency, mutation rate, plasticity, etc. These give clade
+a richer genome than just "brain weights" — biological scenarios that
+need a heritable life-history trait have one to evolve.
+
+The `n_chromosomes` parameter sets how many independently-recombining
+segments the brain genome is split into. With `n_chromosomes = 1`,
+all weights recombine together (low effective recombination). With
+`n_chromosomes = 16`, weights group into 16 unlinked clusters. This
+gives the user control over the **genetic architecture** of the brain.
+
+---
+
+## 2. Trait initialisation — drawing the founding population's genes
+
+```julia
+t[TRAIT_BODY_SIZE] = specs["body_size_evolution"] ?
+    sample(specs["body_size_init_mean"],
+           specs["body_size_mutation_sd"],
+           specs["body_size_min"], specs["body_size_max"]) : 1.0f0
+
+t[TRAIT_METABOLIC_RATE] = specs["metabolic_rate_evolution"] ?
+    sample(specs["metabolic_rate_init_mean"], ...) : 1.0f0
+
+# ... 13 more traits, same pattern ...
+```
+
+**What this says.** For each of 15 traits, check whether its evolution
+flag is on. If on, sample an initial value from a truncated normal
+(mean = init, sd = mutation_sd, clamped to [min, max]). If off, use a
+fixed default value (often 1.0 or 0.0).
+
+**Biology.** This is **founder population sampling**. The initial
+agents have heritable variation in any traits the user has activated;
+unused traits are at their "biologically neutral" default (e.g.,
+metabolic rate 1.0 = baseline, body size 1.0 = reference, cooperation
+0.0 = no cooperation).
+
+The truncated normal is a standard model for biological trait
+distributions — most traits cluster around a mean, with some spread,
+and have biological min/max bounds (you can't have negative body
+size).
+
+**Audit findings.** Two scenarios flagged this layer:
+
+- **s-mutation-rate** (no audit yet): the `TRAIT_MUTATION_SD` field is
+  evolvable when `mutation_rate_evolution = TRUE`, allowing
+  populations to evolve their own mutation rate (Sniegowski et al.
+  1997).
+- **s-toxicity** (in mimicry audit): `TRAIT_TOXICITY` was found to be
+  surprisingly insensitive to selection at default parameters —
+  related to the scalar predator memory issue, not to this trait
+  initialisation.
+
+---
+
+## 3. Meiosis — making a gamete
+
+```julia
+function meiosis(parent::DiploidGenome, specs, rng)::Vector{Float32}
+    if is_haploid(parent)
+        return _mutate_weights(copy(parent.maternal_weights), specs, rng)
+    end
+
+    n       = length(parent.maternal_weights)
+    gamete  = Vector{Float32}(undef, n)
+    nc      = Int(parent.n_chromosomes)
+    seg_len = div(n, nc)
+
+    λ = Float64(get(specs, "crossover_rate", 1.0))
+
+    for c in 1:nc
+        lo = (c - 1) * seg_len + 1
+        hi = c == nc ? n : c * seg_len
+
+        # Choose starting strand by independent assortment
+        using_mat = rand(rng) < 0.5
+
+        # Sample crossover positions (Poisson number)
+        k = _rpois(rng, λ)
+        xpts = sort!(rand(rng, lo:hi, k))
+
+        pos = lo
+        for xp in xpts
+            src = using_mat ? parent.maternal_weights : parent.paternal_weights
+            gamete[pos:xp] .= src[pos:xp]
+            pos = xp + 1
+            using_mat = !using_mat
+        end
+        # Fill remainder of segment
+        src = using_mat ? parent.maternal_weights : parent.paternal_weights
+        gamete[pos:hi] .= src[pos:hi]
+    end
+
+    _mutate_weights(gamete, specs, rng)
+end
+```
+
+**What this says.** For a haploid parent: copy its single strand of
+weights, mutate it, return. For a diploid parent: for each of the
+`n_chromosomes` chunks of weights:
+
+1. Flip a coin to decide which strand (maternal or paternal) to start
+   from — this is **independent assortment** (Mendel's second law).
+2. Sample a Poisson number of crossover positions.
+3. Walk through the chromosome, switching strands at each crossover.
+4. After all chromosomes are assembled, mutate the whole gamete with
+   Gaussian noise.
+
+**Biology.** This is **textbook diploid meiosis** (Charlesworth &
+Charlesworth 2010, Chapter 5). The three classical steps:
+
+1. **Independent assortment** — each chromosome chooses a parent
+   strand independently. This is what Mendel discovered in pea
+   plants (his second law).
+2. **Recombination / crossover** — within a chromosome, the gamete
+   alternates between the two parental strands at random crossover
+   points. This is what shuffles linked genes within a generation.
+   The Poisson model with rate `crossover_rate` is the standard
+   continuous-time approximation.
+3. **Mutation** — after recombination, Gaussian noise is added to
+   every weight. This generates the new variation that natural
+   selection acts on.
+
+This is the most **biologically realistic** part of the kernel and a
+clade-specific improvement over alifeR (which used flat-weight
+crossover with no chromosome structure).
+
+**Audit findings.** s-pop-genetics ✅ — heritability proxy (lag-1
+autocorrelation of mean body_size) is 0.992, which is exactly what a
+working Mendelian inheritance system should produce.
+
+**Variants worth considering.**
+
+1. **Sex chromosomes** — currently no sex-linked inheritance. Adding a
+   "sex chromosome" (one copy in males, two in females, with hemizygous
+   expression) would let clade test sex-linked trait scenarios.
+2. **Variable crossover rate** — currently constant per simulation.
+   Real species have variable recombination rates; a heritable
+   `crossover_rate` trait would be a small extension.
+3. **Inversions** — large structural rearrangements that suppress
+   recombination locally. Important for many real-species scenarios
+   (e.g., supergenes). Not implemented.
+
+---
+
+## 4. Trait inheritance — separate logic for scalar traits
+
+```julia
+function meiosis_traits(parent, specs, rng)::Vector{Float32}
+    if is_haploid(parent)
+        return _mutate_traits(copy(parent.maternal_traits), specs, rng)
+    end
+
+    # Each trait inherits from a randomly chosen parent allele
+    gamete = Vector{Float32}(undef, N_SCALAR_TRAITS)
+    for i in 1:N_SCALAR_TRAITS
+        gamete[i] = rand(rng) < 0.5 ?
+                    parent.maternal_traits[i] : parent.paternal_traits[i]
+    end
+    _mutate_traits(gamete, specs, rng)
+end
+```
+
+**What this says.** For scalar traits (body size, metabolic rate, etc.),
+inheritance is simpler: each trait independently chooses one of the
+two parent alleles, then gets mutated. No chromosomes, no
+recombination — each trait is its own unlinked locus.
+
+**Biology.** The 15 scalar traits are treated as **15 independent
+loci**. This is a simplification — in real organisms many traits share
+chromosomes (and so are linked, recombining together). For clade's
+purposes (testing single-trait evolutionary predictions), unlinked
+inheritance is cleaner because each trait can evolve independently
+without genetic correlations from linkage.
+
+The simplification is biologically defensible because the scalar
+traits are *interpretable* (each maps to a specific phenotype
+documented in `vignettes/parameter-reference.Rmd`). If they were
+linked, evolutionary correlations would be confounded.
+
+**Variants worth considering.**
+
+- **Linkage groups** for traits — bundle related traits (e.g.,
+  metabolic_rate + aging_rate as a "pace-of-life chromosome") so they
+  evolve in correlated fashion. Would let clade test whether
+  pace-of-life *syndromes* (Réale 2010) emerge from genetic
+  architecture.
+
+---
+
+## 5. Phenotype expression — genotype to phenotype
+
+```julia
+function express_weights(g::DiploidGenome, dominance_model::String, rng)
+    if is_haploid(g) || dominance_model == "dominant"
+        if is_haploid(g)
+            return copy(g.maternal_weights)
+        end
+        # Dominant: random allele per weight
+        n = length(g.maternal_weights)
+        result = Vector{Float32}(undef, n)
+        for i in 1:n
+            result[i] = rand(rng) < 0.5 ?
+                        g.maternal_weights[i] : g.paternal_weights[i]
+        end
+        return result
+    end
+    # Additive (default): midpoint of maternal and paternal
+    return (g.maternal_weights .+ g.paternal_weights) ./ 2.0f0
+end
+```
+
+**What this says.** Convert a diploid genome (two strands) into a
+single phenotype (one set of weights actually used by the brain).
+Three modes:
+
+- **Haploid** — phenotype is just the maternal strand (no choice
+  needed).
+- **Dominant** — for each weight, randomly pick maternal or paternal.
+  Implements the random-allele-expression interpretation of
+  dominance.
+- **Additive** (default) — phenotype is the average of maternal and
+  paternal. Implements the codominant / additive model standard in
+  quantitative genetics.
+
+**Biology.** **Dominance** is one of the central concepts of
+Mendelian genetics. In real organisms:
+
+- Some traits are dominant/recessive (one allele's phenotype
+  dominates).
+- Some are codominant (both alleles contribute, additive in the
+  phenotype).
+- Some are intermediate (incomplete dominance).
+
+clade lets the user pick the model. Default `"additive"` is the
+quantitative-genetics standard for traits with many small contributing
+loci (Falconer & Mackay 1996). Brain weights are explicitly
+quantitative — additive is the right default.
+
+The BNN brain has a **special interpretation** of the diploid genome:
+the maternal and paternal weights are interpreted as "two estimates
+of the optimal weight", and the BNN sigma (uncertainty) is computed
+from their *difference* (heterozygosity). This couples genetic
+diversity to behavioural flexibility.
+
+**Audit findings.** This BNN-sigma-from-heterozygosity coupling is
+the root cause of the 🔴 Baldwin scenario failure. Tier 5 backlog:
+decouple sigma from heterozygosity, allow it to evolve as its own
+trait. (The additive expression for ANN/CTRNN/GRN brains works
+correctly.)
+
+---
+
+## 6. Mutation — adding variation
+
+```julia
+function _mutate_weights(w::Vector{Float32}, specs, rng)
+    sd = Float32(get(specs, "mutation_sd", 0.1))
+    sd > 0.0f0 || return w
+    @inbounds for i in eachindex(w)
+        w[i] += sd * randn(rng)
+    end
+    w
+end
+```
+
+**What this says.** Add Gaussian noise to every weight in the gamete,
+with standard deviation `mutation_sd`. If `mutation_sd = 0`, do
+nothing.
+
+**Biology.** **Per-locus Gaussian mutation** — the standard
+quantitative-genetics model. Each generation, every weight is
+independently perturbed by a small random amount. The cumulative
+effect over many generations is what gives selection raw material to
+work with.
+
+The mutation rate `mutation_sd` controls evolvability:
+
+- Too low → no variation, evolution stalls.
+- Too high → variation overwhelms selection, drift dominates.
+
+Real organisms have evolved mutation rates calibrated to their
+environments. clade's `mutation_rate_evolution` flag lets this rate
+itself become a heritable trait (Sniegowski et al. 1997).
+
+The mutation function is also where stress hypermutation (Rosenberg
+2001) plugs in — the calling code in `reproduce.jl` temporarily
+increases `mutation_sd` for stressed parents before invoking meiosis.
+
+**Audit findings.** s-stress-hypermutation ✅ — hypermutation raises
+diversity (+0.003) under scarcity, as predicted.
+
+---
+
+## 7. Genome distance — measuring divergence
+
+```julia
+function genome_distance(g1::DiploidGenome, g2::DiploidGenome,
+                          dominance_model::String = "additive")::Float32
+    p1 = express_weights(g1, dominance_model, default_rng())
+    p2 = express_weights(g2, dominance_model, default_rng())
+    n  = max(length(p1), length(p2))
+    n == 0 && return 0.0f0
+    sqrt(sum(abs2, p1 .- p2)) / sqrt(Float32(n))
+end
+```
+
+**What this says.** Compute the normalised Euclidean distance between
+two agents' expressed weight phenotypes. Used by:
+
+- **Speciation** module (reproductive isolation when distance >
+  threshold).
+- Diversity tracking for `genetic_diversity` reporting.
+- Social learning (preferentially copy from genetically similar
+  individuals — or distant ones, depending on the parameter).
+
+**Biology.** **Genetic distance** is the foundational metric for
+population genetics. There are many measures (Nei's distance, Fst,
+Wright's, etc.); clade uses Euclidean on expressed weights, which is
+appropriate for quantitative-trait genomes (Lynch & Walsh 1998).
+
+The `1/sqrt(n)` normalisation makes the distance comparable across
+networks of different sizes — important when `hidden_layers` varies
+across runs.
+
+**Audit findings.** s-speciation ✅ used this distance metric to test
+whether speciation fires. Confirmed monotone scaling: lower
+isolation_threshold → more species (ρ = -0.97). Caveat noted: at high
+mutation rates, the algorithm produces many singleton "species" because
+every distinct genome becomes its own cluster. Worth a future
+hierarchical-clustering improvement.
+
+---
+
+## What this file *doesn't* do
+
+- **Brain construction.** That's in `brains/*.jl`. The genome
+  contains weights; the brain *interprets* them. Different brain
+  types decode the same weight vector differently (an ANN reads
+  them as point estimates, a BNN reads them as posterior means).
+- **Selection.** Selection is the result of differential survival
+  and reproduction, not a separate module. Genomes that produce
+  better foragers leave more copies; genomes that don't, vanish.
+- **Lamarckian write-back.** That's in `reproduce.jl` and a separate
+  helper file.
+
+---
+
+## Reading guide for biologists who want to spot bugs
+
+1. **Is meiosis correct?** Yes — independent assortment
+   (Mendel's 2nd law) per chromosome, Poisson-distributed
+   recombination per chromosome, then per-locus Gaussian mutation.
+   This is the textbook model.
+2. **Is dominance modelled?** Yes — additive (default), dominant
+   (random allele expression), codominant (additive at phenotype
+   level). No incomplete-dominance mode but it would be additive
+   with a tunable midpoint.
+3. **Are scalar traits inherited correctly?** Each trait inherits
+   from one parent allele independently — fine for unlinked loci.
+   No chromosomal linkage between scalar traits.
+4. **What about epigenetic inheritance?** Not in this file. The
+   `epigenetics.jl` module handles methylation marks separately from
+   the genetic code.
+5. **What about sex chromosomes?** Not implemented. All loci are
+   autosomal. Adding sex-linked inheritance would be a meaningful
+   extension.
+
+---
+
+## Citations referenced in this document
+
+- Charlesworth, B. & Charlesworth, D. (2010) *Elements of
+  Evolutionary Genetics.* Roberts & Company.
+- Falconer, D.S. & Mackay, T.F.C. (1996) *Introduction to
+  Quantitative Genetics.* Longman.
+- Lynch, M. & Walsh, B. (1998) *Genetics and Analysis of
+  Quantitative Traits.* Sinauer.
+- Réale, D. et al. (2010) Personality and the emergence of the
+  pace-of-life syndrome concept. *Phil. Trans. R. Soc. B*
+  365:4051-4063.
+- Rosenberg, S.M. (2001) Evolving responsively: adaptive mutation.
+  *Nat. Rev. Genet.* 2:504-515.
+- Sniegowski, P.D., Gerrish, P.J., Lenski, R.E. (1997) Evolution
+  of high mutation rates in experimental populations of E. coli.
+  *Nature* 387:703-705.
+
+---
+
+*Companion documents:*
+
+- [`README.md`](README.md) — Reading guide.
+- [`tick.md`](tick.md), [`clade-main.md`](clade-main.md),
+  [`sense.md`](sense.md), [`reproduce.md`](reproduce.md),
+  [`death.md`](death.md).
+
+The kernel-as-biology series is now complete for the six core files.
+Module-level documentation (predators, disease, kin altruism,
+mimicry, etc.) would be a natural follow-up.
