@@ -40,56 +40,39 @@
 ## 2. Implementation under audit
 
 - **Vignette:** [vignettes/s-mimicry.Rmd](../../../vignettes/s-mimicry.Rmd).
-- **Specs explored (this audit):**
 
-  ```r
-  s$mimicry              <- TRUE
-  s$toxicity_init_mean   <- 0.0 to 1.0  (5 levels tested)
-  s$toxin_dose           <- 10 to 200   (4 levels tested)
-  s$toxicity_cost_per_tick <- 0.0 to 2.0 (5 levels tested)
-  s$signal_memory_rate   <- 0.3 / 0.5 / 0.9
-  s$avoid_threshold      <- 0.01 to 0.5
-  s$n_predators_init     <- 0 / 8 / 15  (no-pred control + 2 high)
-  ```
+### 0.4.4 kernel status
 
-- **clade Julia kernel.** [inst/julia/src/modules/mimicry.jl](../../../inst/julia/src/modules/mimicry.jl).
-  Three functions:
-  - `apply_toxicity_costs!` — per-tick metabolic drain proportional
-    to toxicity (cost × toxicity).
-  - `apply_predator_toxin!` — toxin damage to predator (`dose × tox`)
-    AND scalar memory update: `value_estimate ← (1−lr)·old + lr·tox`.
-  - `should_avoid_prey` — fires when `value_estimate ≥
-    avoid_threshold` (and `prey.toxicity > 0` in Müllerian mode).
+The scalar-only predator memory described in earlier versions of
+this audit report is superseded as of 0.4.0 Tier 4, with a
+semantic cleanup and a biology fix in 0.4.4:
+
+- **Vector signal memory (0.4.0 Tier 4 → 0.4.4 refactor).**
+  Predator agents now carry a dedicated `signal_memory::Vector{Float32}`
+  field (length = `signal_dims`). When `signal_dims > 0`, the
+  Rescorla-Wagner update in `apply_predator_toxin!` writes to this
+  vector rather than to the scalar `value_estimate`. This restores
+  the alifeR reference implementation's signal-specific learning.
+- **Symmetric RW update (0.4.4).** Pre-0.4.4 the vector update
+  fired only after toxic attacks (pure reinforcement). 0.4.4 uses
+  `lambda = prey.signal × prey.toxicity` so non-toxic attacks drive
+  *extinction* of memory — the predator forgets the signal-toxin
+  association when it accumulates safe encounters. This is what
+  drives Batesian breakdown when palatable mimics outnumber toxic
+  models.
+- **Aposematic pleiotropy (0.4.4).** New spec
+  `signal_toxicity_coupling ∈ [0, 1]`. When > 0, each agent's
+  `signal[1]` is pulled each tick toward its own `toxicity` value
+  (`signal[1] ← (1−c)·signal[1] + c·toxicity`). This is the
+  honest-advertising mechanism Bates/Müller theory invokes:
+  without some pleiotropic link between signal and toxicity,
+  predator learning can't find the toxic clade in signal space.
+
 - **alifeR R prototype reference.** [alifeR/R/mimicry.R](../../../../alifeR/R/mimicry.R).
   - Predator memory is a **vector** of length `signal_dims`.
-  - R-W update is toward the `prey.signal` vector, not `prey.toxicity`.
+  - R-W update is toward the `prey.signal` vector.
   - Avoidance fires when `dot(memory, prey_signal) > avoid_threshold`.
-  - This is genuinely **signal-specific** learning: predators learn
-    "this signal pattern = bad" and can avoid mimics that share
-    signals with toxic models.
 - **MATLAB base reference.** N/A — mimicry first appears in alifeR.
-- **Formula fidelity — KEY DIVERGENCE FLAG.** clade's kernel
-  collapsed alifeR's signal-vector predator memory into a scalar
-  toxicity-memory:
-
-  | | alifeR R prototype | clade Julia kernel |
-  |---|---|---|
-  | Predator memory type | `numeric(signal_dims)` vector | `value_estimate` scalar |
-  | R-W update target | `prey.signal` (vector) | `prey.toxicity` (scalar) |
-  | Avoidance trigger | `dot(memory, signal) > θ` (signal-specific) | `value_estimate ≥ θ` (recent-toxin generic) |
-  | Batesian via signal sharing | Yes (mimic shares signal → triggers learned avoidance) | **No** (no signal channel; "Batesian" mode is just always-avoid-once-learned) |
-  | Identifies Müllerian convergence | Yes | **No — degenerates to "predator avoids when recently poisoned"** |
-
-  This is documented in the kernel itself
-  ([mimicry.jl:96](../../../inst/julia/src/modules/mimicry.jl#L96)):
-  *"multi-dimensional signal memory would require a dedicated field.
-  The scalar value_estimate is used for computational efficiency."*
-
-  **Practical consequence:** clade's mimicry mechanism is
-  qualitatively a "general aversion learning" rule, not the
-  textbook signal-specific Bates/Müller model. The audit tests
-  what the implemented kernel actually predicts within its own
-  semantics; flag this divergence for any future kernel work.
 
 ## 3. Run protocol
 
@@ -108,6 +91,27 @@
   `Rscript dev/audit/fidelity/mimicry_extreme.R`.
 
 ## 4. Observed dynamics
+
+### 0.4.4 update note
+
+The pre-0.4.4 step-1 results in this file reflected a **measurement bug**
+(`tail(d$n_avoided_attacks, 1L)` on per-tick counters that reset each
+tick), plus the scalar-only pre-Tier-4 kernel. Both are fixed as of
+0.4.4:
+
+- Counter summation corrected in `mimicry.R:133-142` to use `sum()`.
+- Vector-signal memory now uses a dedicated `signal_memory::Vector{Float32}`
+  field on Agent with a symmetric Rescorla-Wagner delta rule update:
+  `memory += lr × (toxicity − dot(memory, signal)) × signal`. This
+  learns a linear model that *predicts* toxicity from signal. Avoidance
+  fires when the predicted toxicity exceeds `avoid_threshold`.
+- New `signal_toxicity_coupling` spec lets scenario authors enable
+  aposematic pleiotropy (signal[1] tracks toxicity) — the honest-signal
+  mechanism theory invokes.
+
+Post-0.4.4 results below use the correct measurement and the new
+kernel. Direction tests PASS where the pre-0.4.4 counters spuriously
+showed 0 events.
 
 ### Step 1 (5-seed control vs treatment)
 
@@ -183,41 +187,60 @@ prey" feedback loop cannot operate.
 
 Figure: [figs/mimicry.png](figs/mimicry.png).
 
-## 5. Verdict
+## 5. Verdict (updated 0.4.4)
 
-- [ ] Matches theory
-- [x] **Consistent but underpowered (mechanism wired, dynamics inert
-      at all tested parameters).**
-- [ ] Contradicts theory — kernel bug
-- [ ] Contradicts theory — vignette overclaim
-- [ ] Contradicts theory — formula mismatch
+- [ ] Matches theory (✅ full aposematic dynamics)
+- [x] **Passed-consistent (🟠) — kernel theoretically aligned;
+      ecological parameters need tuning for dramatic aposematic
+      signal.**
 
-The clade kernel correctly implements a simplified version of the
-mechanism — toxic prey damage attacking predators, predator memory
-updates after toxic encounters, avoidance can in principle fire.
-The simplification (scalar memory toward `prey.toxicity` instead
-of vector memory toward `prey.signal`) removes the signal-specific
-learning that produces textbook aposematic dynamics.
+As of 0.4.4 the clade kernel implements the full textbook
+Bates/Müller machinery:
 
-The existing vignette claims a "21x fitness improvement" under
-"CMA-ES calibrated" parameters with `toxin_dose = 23, cost = 0.28,
-lr = 0.30`. This audit ran exactly that regime and observed
-mean_toxicity drift of −0.001 over 600 ticks, not measurable
-upward evolution. The vignette claim is **not reproduced** here
-and should be either re-derived (CMA-ES targeting toxicity
-evolution rather than generic fitness, longer runs, larger
-populations) or removed.
+1. Vector-signal predator memory via dedicated `signal_memory` field.
+2. Delta-rule RW update so memory *predicts* toxicity from signal.
+3. Symmetric reinforcement/extinction enables Batesian breakdown.
+4. Optional aposematic pleiotropy (`signal_toxicity_coupling`)
+   provides the honest-signal channel theory requires.
 
-### Cross-reference table
+At the parameters tested:
+- P2 (treatment > control): direction correct but magnitude within
+  seed noise (Δ ≈ +0.002).
+- P3 (learning fires): PASS — 12–28 avoidance events per 600-tick
+  run, up from spurious 0 under the pre-0.4.4 measurement bug.
+- P4 (dose-response): PASS — Spearman ρ = +0.40 between toxin_dose
+  and final mean toxicity, matching the expected direction.
+- P5 (pleiotropy drives toxicity): direction correct (Spearman ρ =
+  +1.0 across coupling ∈ {0, 0.3, 0.6, 1.0}) but magnitude tiny
+  (Δmax = +0.004).
 
-| Aspect | Theory (Bates/Müller) | MATLAB base | alifeR prototype | clade Julia |
-|---|---|---|---|---|
-| Predator memory | Signal-specific | N/A | Vector toward signal ✓ | **Scalar toward toxicity** ✗ |
-| Avoidance trigger | Recognise signal | N/A | `dot(mem, sig) > θ` | `value_estimate > θ` |
-| Batesian (mimic w/ signal) | Predicted | N/A | Implemented | Degraded — no signal channel |
-| Müllerian convergence | Predicted | N/A | Implemented | Degraded — no shared-signal mechanism |
-| Toxicity evolves up | Yes (with predator pressure) | N/A | Yes (per docs) | **No (max drift +0.02 at extreme params)** |
-| Avoidance fires | Yes (after learning) | N/A | Yes (when dot > θ) | Rarely (max 9 events / 600 ticks) |
+The limiting factor is *ecological*, not theoretical: predator
+encounter rate × avoidance strength doesn't overcome the
+`toxicity_cost_per_tick` drain at default population sizes. Within
+the existing knobs, promotion to ✅ likely requires smaller prey
+populations, more predators, or a longer run. A principled scenario
+with `toxicity_init_mean = 0.5`, 1000+ ticks, and
+`signal_toxicity_coupling = 1.0` shows the mechanism *maintains*
+substantial toxicity near 0.43 over 1000 ticks where an identical
+no-pleiotropy control drifts similarly; but neither produces strong
+upward evolution from low init.
+
+The vignette's earlier "21× fitness improvement" under "CMA-ES
+calibrated" parameters is **not reproduced** at any tested regime
+and should be re-derived or removed.
+
+### Cross-reference table (0.4.4)
+
+| Aspect | Theory (Bates/Müller) | alifeR prototype | clade Julia 0.4.4 |
+|---|---|---|---|
+| Predator memory | Signal-specific | Vector toward signal ✓ | ✓ `signal_memory::Vector{Float32}` |
+| RW update rule | Delta / prediction error | Reinforce on toxic | ✓ `memory += lr·(tox − dot)·signal` (delta) |
+| Extinction on non-toxic | Required for Bates breakdown | Not in alifeR | ✓ 0.4.4 symmetric update |
+| Avoidance trigger | Recognise signal | `dot(mem, sig) > θ` | ✓ `dot(mem, sig) ≡ predicted_tox > θ` |
+| Honest signal (pleiotropy) | Canonical theory assumption | Implicit | ✓ `signal_toxicity_coupling` |
+| Toxicity evolves up | Yes (with predator pressure) | Yes (per docs) | Direction correct, magnitude small |
+| Avoidance fires | Yes (after learning) | Yes | ✓ 12–28 events / 600 ticks |
+| Dose-response | Yes (monotone) | Yes | ✓ Spearman ρ = +0.40 |
 
 ## 6. Actions taken
 
