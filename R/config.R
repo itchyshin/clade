@@ -75,68 +75,14 @@
 #' \describe{
 #'   \item{`brain_type`}{Character. One of `"bnn"` (default), `"ann"`,
 #'     `"ctrnn"`, `"grn"`, `"transformer"`, `"synthesis"`, or `"random"`.
-#'
-#'     * `"bnn"` -- **Bayesian Neural Network** (default). Each synaptic weight
-#'       is a probability distribution (mean mu, standard deviation sigma)
-#'       rather than a fixed value. The genome encodes the prior (mu, sigma);
-#'       within lifetime, experience updates the posterior via approximate
-#'       Bayesian inference (sigma shrinks as the agent becomes more certain).
-#'       Exploration is automatic: high sigma = uncertain = explore. Diploid
-#'       genomes connect naturally: heterozygosity at a locus sets the prior
-#'       width for that weight. Implemented via Turing.jl.
-#'       References: Neal (1996) *Bayesian Learning for Neural Networks*,
-#'       Springer; Blundell et al. (2015) Weight Uncertainty in Neural
-#'       Networks, *ICML* pp 1613--1622.
-#'
-#'     * `"ann"` -- **Multilayer Perceptron**. Standard feedforward network with
-#'       fixed weights. Architecture set by `hidden_layers`. Compatible with
-#'       the `alifeR` ANN format.
-#'       Reference: Rumelhart, Hinton & Williams (1986) Learning
-#'       representations by back-propagating errors, *Nature* 323:533--536.
-#'
-#'     * `"ctrnn"` -- **Continuous-Time Recurrent Neural Network**. Each neuron
-#'       i has an internal state y_i governed by the ODE:
-#'       tau_i * dy_i/dt = -y_i + sum_j(w_ij * sigma(y_j + theta_j)) + I_i.
-#'       Produces temporal dynamics, rhythmic behaviour, and autonomous
-#'       initiation. Genome encodes tau (time constants), W (weights), and
-#'       theta (biases).
-#'       Reference: Beer (1995) On the dynamics of small continuous-time
-#'       recurrent neural networks, *Adaptive Behavior* 3(4):469--509.
-#'
-#'     * `"grn"` -- **Gene Regulatory Network**. The genome IS the brain;
-#'       no separate neural network. Each locus represents a gene whose
-#'       expression level is regulated by other genes. Some genes receive
-#'       sensory input; others produce action output. Behaviour emerges from
-#'       ~15-30 gene interaction dynamics simulated each tick. Maximally
-#'       biologically minimal. When `ploidy = 2`, each regulatory link has
-#'       two alleles and methylation directly suppresses gene expression.
-#'       References: Kauffman (1993) *The Origins of Order*, Oxford UP;
-#'       Watson & Szathmary (2016) How can evolution learn?, *Trends in
-#'       Ecology and Evolution* 31(2):147--157.
-#'
-#'     * `"transformer"` -- **Attention-Based Transformer**. Attends over a
-#'       rolling window of the last `transformer_history` sensory inputs.
-#'       Genome encodes query/key/value projection weights and feed-forward
-#'       layers. Enables agents to integrate temporal context without explicit
-#'       memory parameters.
-#'       Reference: Vaswani et al. (2017) Attention is all you need,
-#'       *NeurIPS* 30.
-#'
-#'     * `"synthesis"` -- **Formal / Symbolic Rule Synthesis**. The agent's
-#'       brain is an evolved symbolic program: a set of IF-THEN rules of the
-#'       form (IF condition_1 AND condition_2 THEN action). Rules are encoded
-#'       as a structured list. Evolution proceeds by rule mutation
-#'       (add/remove/modify a rule) and rule-set crossover (swap rule subsets
-#'       between parents). Behaviour is interpretable and human-readable.
-#'       Reference: Angeline, Saunders & Pollack (1994) An evolutionary
-#'       algorithm that constructs recurrent neural networks, *IEEE
-#'       Transactions on Neural Networks* 5(1):54--65; see also Koza (1992)
-#'       *Genetic Programming*, MIT Press.
-#'
-#'     * `"random"` -- Null brain. Chooses actions uniformly at random.
-#'       Used as a baseline to confirm that evolved behaviour outperforms
-#'       chance.
-#'   }
+#'     BNN = Bayesian neural network (Neal 1996; Blundell et al. 2015);
+#'     ANN = multilayer perceptron (Rumelhart et al. 1986);
+#'     CTRNN = continuous-time recurrent network (Beer 1995);
+#'     GRN = gene regulatory network (Kauffman 1993);
+#'     transformer = attention over sensory history (Vaswani et al. 2017);
+#'     synthesis = evolved symbolic IF-THEN rules (Koza 1992);
+#'     random = null baseline. See `vignette("custom-modules")` for
+#'     architecture details.}
 #'   \item{`hidden_layers`}{Integer vector. Hidden layer widths for `"ann"` and
 #'     `"bnn"` (default `c(8L)`; gives one hidden layer of 8 units). Set to
 #'     `c(16L, 8L)` for two hidden layers.}
@@ -162,17 +108,12 @@
 #'     Also enables symbolic formula distillation from evolved ANNs (as in
 #'     the original MATLAB alife2025usra codebase). Default `NULL` = continuous
 #'     weights.}
-#'   \item{`ann_regularization`}{Character. Energy penalty applied to brain
-#'     weight complexity each tick. One of:
-#'     * `"none"` (default) — no penalty.
-#'     * `"weight_magnitude"` — deduct `lambda * sum(|w|)` per agent per tick
-#'       (L1 regularisation; drives weights toward zero, producing sparse brains).
-#'     * `"weight_count"` — deduct `lambda * n_active_weights` per agent
-#'       (L0-like; fixed cost per active synapse, stronger pressure for binary
-#'       connectivity patterns).
-#'     References: Laughlin, de Ruyter van Steveninck & Anderson (1998)
-#'     *Nature Neuroscience* 1:36–41; Attwell & Laughlin (2001)
-#'     *J. Cerebral Blood Flow and Metabolism* 21:1133–1145.}
+#'   \item{`ann_regularization`}{Character. Energy penalty on brain weight
+#'     complexity: `"none"` (default), `"weight_magnitude"` (L1: deduct
+#'     `lambda * sum(|w|)` per tick), or `"weight_count"` (L0-like: deduct
+#'     `lambda * n_active_weights` per tick). References: Laughlin et al.
+#'     (1998) *Nature Neuroscience* 1:36--41; Attwell & Laughlin (2001)
+#'     *J. Cerebral Blood Flow and Metabolism* 21:1133--1145.}
 #'   \item{`ann_regularization_lambda`}{Numeric. Scale factor for the
 #'     regularisation penalty (default 0.001). Too large a value will cause
 #'     all weights to collapse to zero within a few ticks.}
@@ -189,9 +130,8 @@
 #'
 #'     * `"none"` -- no brain energy cost.
 #'     * `"size"` -- cost proportional to number of synaptic weights.
-#'     * `"activity"` -- cost = `brain_energy_base * n_weights +
-#'       brain_energy_activity * mean(|activations|)`. Larger and more active
-#'       brains are more costly.
+#'     * `"activity"` -- cost = `brain_energy_base * n_weights + brain_energy_activity * mean(|activations|)`.
+#'       Larger and more active brains are more costly.
 #'     * `"prediction_error"` -- BNN-only; cost proportional to KL divergence
 #'       between prior and posterior (measures how much the agent had to
 #'       update its beliefs).
@@ -205,8 +145,8 @@
 #'   \item{`brain_energy_activity`}{Numeric. Scaling factor on mean absolute
 #'     activation when `brain_energy_mode = "activity"` (default 0.5).}
 #'   \item{`brain_energy_size_exponent`}{Numeric. Exponent applied to the
-#'     brain-size term of the metabolic cost: `size_cost = base *
-#'     n_weights^exp` (default 1.0 = linear, legacy). Set to 1.5 for
+#'     brain-size term of the metabolic cost: `size_cost = base * n_weights^exp`
+#'     (default 1.0 = linear, legacy). Set to 1.5 for
 #'     Kleiber-style super-linear scaling (Isler & van Schaik 2009
 #'     expensive-brain hypothesis) so large brains carry disproportionate
 #'     metabolic weight — sharpens the parental-provisioning selection
@@ -631,8 +571,8 @@
 #'   \item{`parasite_mutation_rate`}{Numeric in \[0, 1\]. Per-locus
 #'     mutation rate (allele flip) during inheritance (default 0.01).}
 #'   \item{`parasite_discrete_exponent`}{Numeric. Exponent controlling
-#'     Hamming-distance falloff: `penalty = pressure × ((n_loci −
-#'     hamming) / n_loci)^exp` (default 4.0). Higher exponents
+#'     Hamming-distance falloff: `penalty = pressure * ((n_loci - hamming) / n_loci)^exp`
+#'     (default 4.0). Higher exponents
 #'     concentrate pressure on near-matching hosts and let mismatched
 #'     hosts escape cleanly.}
 #' }
