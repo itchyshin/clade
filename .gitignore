@@ -4,10 +4,11 @@
 .Ruserdata
 *.Rcheck/
 *.tar.gz
-docs/
+/docs/
 /doc/
 /Meta/
 vignettes/*.html
 Rplots.pdf
 dev/audit/pkgdown_build.log
 dev/audit/pkgdown_final.log
+.claude/
