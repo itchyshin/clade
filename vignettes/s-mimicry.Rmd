@@ -35,16 +35,25 @@ prey that resemble toxic prey are also avoided (Batesian mimicry).
 | `toxin_dose` | 2.0 | Damage dealt to attacker per toxicity unit |
 | `signal_memory` | 20 | Predator memory window for learning |
 
-**Expected output at displayed defaults.** With only 5 predators and
-`toxicity_cost_per_tick = 2.0` (raised in 0.3.0 for Zahavi-handicap
-honesty), predator encounter density is too low for avoidance learning to
-exceed `avoid_threshold` within 300 ticks — predators attack indiscriminately.
-The per-tick toxicity cost is then pure loss, so selection purges toxicity:
-`mean_toxicity` declines from the init value toward zero. To observe the
-classical upward-evolution signature (Müllerian aposematism), either (a)
-raise `n_predators_init` to 10–15L and extend `max_ticks` to ≥ 1000, or (b)
-use the **Calibrated regime** below, which CMA-ES discovered by dropping the
-toxicity cost and tuning the `toxin_dose` / `signal_memory_rate` pair.
+**Expected output (audited 2026-04-15).** Across multi-seed runs at
+ten different parameter regimes — from defaults to extreme cost = 0,
+dose = 200, predator-saturated runs — `mean_toxicity` does not
+measurably evolve in either direction. Maximum observed drift was
++0.02 (init = 0, no cost, 600 ticks). See the [mimicry fidelity
+report](../dev/audit/fidelity/mimicry.md) for the full evidence.
+
+**Why dynamics are flat: a kernel-level simplification.** clade's
+predator memory is a **scalar** (`pred.value_estimate`) updated
+toward `prey.toxicity` directly, while alifeR's R prototype uses a
+**signal vector** updated toward `prey.signal`. The scalar
+simplification removes signal-specific learning — predators cannot
+recognise warning *patterns*, only their general aversion level —
+which is the mechanism Bates (1862) and Müller (1879) actually
+described. Predators therefore rarely learn to avoid toxic prey
+(max 9 avoidance events / 600 ticks at extreme settings), and
+without selective avoidance, toxic prey gain no measurable survival
+advantage. Restoring signal-vector predator memory is on the 0.4.0
+backlog.
 
 ```{r mimicry}
 s <- default_specs()
@@ -58,46 +67,41 @@ data <- get_run_data(env)
 ```
 
 
-### Calibrated regime (CMA-ES discovered)
+### Calibrated regime (formerly CMA-ES discovered — claim retracted)
 
-Running Phase 7 auto-calibration (`dev/audit/calibration/`) over the
-scenario's parameter subspace discovered the following regime, which
-produces a fitness improvement of **21.0x** over the defaults above. See
-`dev/audit/calibration/RESULTS.md` for the full CMA-ES results.
-
-```{r mimicry-calibrated, eval=FALSE}
-# Parameter overrides discovered by CMA-ES (see dev/audit/calibration/):
-s <- default_specs()
-s$toxin_dose                     <- 23L
-s$toxicity_cost_per_tick         <- 0.2776
-s$signal_memory_rate             <- 0.2991
-# env <- run_alife(s)   # uncomment to run the calibrated regime
-```
+A previous version of this vignette claimed a 21× fitness
+improvement under `toxin_dose = 23, toxicity_cost = 0.28,
+signal_memory_rate = 0.30`. The 2026-04-15 fidelity audit ran
+exactly this regime and observed no measurable upward toxicity
+evolution (mean drift = −0.001 over 600 ticks). The CMA-ES result
+likely optimised a generic fitness signal that is not specific to
+toxicity evolution. Claim retracted; awaiting kernel improvement
+(signal-vector predator memory) before re-tuning. See
+[mimicry fidelity report §5](../dev/audit/fidelity/mimicry.md#5-verdict).
 ```{r fig-mimicry, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: mean toxicity rises under predator pressure; avoided attacks increase as predators learn to avoid toxic prey; toxic attack rate declines."}
 FIG("21_mimicry")
 ```
 
-**What we found (post-0.3.0 kernel).** Running with `mimicry = TRUE`,
-2 predators, 80 agents, default grid, `toxicity_init_mean = 0.1`, 400 ticks
-(seed 42): `mean_toxicity` *declined* from 0.101 to 0.047 across the run, the
-*opposite* of the naive expectation. `n_avoided_attacks` stayed at 0 and
-`n_toxic_attacks` stayed at 0 — at this low predation density the
-predators don't encounter enough toxic prey for Rescorla-Wagner learning to
-exceed `avoid_threshold`, so no avoidance fires. `should_avoid_prey()` IS
-correctly wired into `tick_predators.jl` (the architectural stub described
-here before 0.3.0 was fixed), but without effective predator pressure
-toxicity is pure cost: `toxicity_cost_per_tick = 2.0` (raised from 0.5 in
-0.3.0 for Zahavi-handicap honesty) deducts 0.2 energy/tick at init toxicity
-and more as agents drift toward it, so selection purges toxicity.
+**What we found (2026-04-15 audit).** Across 5 seeds and four
+regimes spanning `n_predators_init ∈ {0, 8, 15}`, `toxin_dose ∈ {10,
+30, 60, 100, 200}`, and `toxicity_cost ∈ {0.0, 0.2, 0.5, 1.0, 2.0}`,
+mean toxicity remained essentially locked at its initial value
+(every regime within ±0.02 of `toxicity_init_mean`). Cumulative
+counters across 600 ticks: 15–67 toxic attacks vs 700+ total kills
+(2.5–10% rate, much lower than the ~50% expected if predators
+attacked toxic and non-toxic prey indiscriminately at population
+proportions); 0–9 avoidance events total (avoidance learning
+essentially never fires).
 
-**To see aposematism evolve, raise predation density** (e.g.
-`n_predators_init = 6L` and `predator_attack_strength = 60`) or reduce
-`toxicity_cost_per_tick` back toward 0.5. The CMA-ES-discovered regime
-in the Calibrated regime section above keeps the cost low (0.28) and
-tunes `toxin_dose` to yield a 21× fitness improvement — consistent
-with the biological requirement that the handicap cost must be less
-than the survival payoff for aposematism to evolve (Zahavi 1975,
-Ruxton, Sherratt & Speed 2004).
+**Diagnosis.** The mechanism is wired correctly per the kernel's
+own simplified semantics: toxic prey damage attacking predators,
+predator memory updates after toxic encounters, avoidance can
+trigger above threshold. But the scalar-memory simplification
+relative to alifeR (see "Why dynamics are flat" above) prevents
+the signal-specific learning loop that produces textbook
+aposematism. Consequence: textbook Bates/Müller dynamics cannot
+be reproduced at any tested parameter setting until the kernel
+ports alifeR's vector-signal predator memory.
 
 **Batesian mode (0.3.0 new).** Set `s$batesian_mimicry <- TRUE` to let
 palatable mimics (toxicity = 0) share in learned aversion (Bates 1862).
