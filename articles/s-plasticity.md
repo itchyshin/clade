@@ -57,21 +57,20 @@ Expected output: mean plasticity evolves over time. In stable
 environments it typically decreases; in seasonally varying environments
 it is maintained at intermediate values.
 
-**What we found.** Running with `phenotypic_plasticity = TRUE`,
-`plasticity_init_mean = 0.3` (the corrected default), 80 agents, 25×25
-grid, 400 ticks (seed 42): mean plasticity started at 0.010 at tick 1,
-rose to 0.015 at tick 200, and reached 0.018 at tick 400. The linear
-slope (2.6 × 10⁻⁵ per tick) was positive — a weak but consistent upward
-trend. Population was viable throughout (47 agents at tick 400). The
-magnitude is low relative to the `plasticity_init_mean = 0.3` because
-the genome initialization places agents near the lower tail of the
-heritable distribution and selection pressure on plasticity is mild in a
-uniform foraging world: the benefit of phenotypic adjustment (better
-sensory responsiveness to local grass density) is real but small when
-resources are spatially homogeneous. To observe stronger plasticity
-evolution, test with `complex_landscape = TRUE` (spatially heterogeneous
-patches that reward responsive foragers) or with an abrupt mid-run
-environmental shift (`grass_rate` halved at tick 200).
+**What we found (2026-04-15 audit, 4 seeds × 500 ticks).** Full
+protocol:
+[dev/audit/fidelity/plasticity.md](../dev/audit/fidelity/plasticity.md).
+
+| Condition          | init → final  | Δ      |
+|--------------------|---------------|--------|
+| Stable             | 0.300 → 0.298 | −0.001 |
+| Seasonal (amp=0.7) | 0.300 → 0.299 | −0.002 |
+
+Both trajectories are flat — plasticity barely moves from its init value
+in either environment. The DeWitt-Scheiner prediction (seasonal
+maintains higher plasticity than stable) is not reproducible at default
+couplings; the plasticity trait doesn’t create a strong enough fitness
+differential to drive selection. Flagged 🟠 passed-consistent.
 
 ### Discovery experiments
 

@@ -43,6 +43,19 @@
     <li><a class="dropdown-item" href="../articles/baldwin-effect.html">Baldwin effect &amp; RL</a></li>
   </ul>
 </li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-kernel-as-biology" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Kernel as biology</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-kernel-as-biology">
+<li><a class="dropdown-item" href="../articles/k-README.html">Overview &amp; reading guide</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/k-tick.html">tick.jl — one tick in the life of an agent</a></li>
+    <li><a class="dropdown-item" href="../articles/k-clade-main.html">Clade.jl — the main loop, in biological order</a></li>
+    <li><a class="dropdown-item" href="../articles/k-sense.html">sense.jl — what an agent perceives</a></li>
+    <li><a class="dropdown-item" href="../articles/k-reproduce.html">reproduce.jl — birth, inheritance, parental cost</a></li>
+    <li><a class="dropdown-item" href="../articles/k-death.html">death.jl — when agents die and why</a></li>
+    <li><a class="dropdown-item" href="../articles/k-genome.html">genome.jl — meiosis, traits, inheritance</a></li>
+  </ul>
+</li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-scenarios" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Scenarios</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-scenarios">
@@ -189,6 +202,14 @@ rate, higher <code>mean_age</code>, and more stable
 <code>mean_energy</code>. Fast agents dominate in productive
 environments; slow agents persist more reliably when resources are
 lean.</p>
+<p><strong>Audit caveat (2026-04-15).</strong> In the 5-level sweep
+(rates 0.5 to 3.0), all metrics are flat: mean_age ≈ 98, n_agents ≈ 258,
+births ≈ 1.44, variance ≈ 1300, regardless of
+<code>metabolic_rate</code>. Cause: clade’s always-on
+<code>max_age = 200</code> dominates the age schedule — agents die at
+the cap before metabolic-rate differences can accumulate. Enabling
+Gompertz senescence or removing the age cap would be needed to reproduce
+the Réale et al. pace-of-life divergence. See <a href="../dev/audit/fidelity/pace_of_life.html">dev/audit/fidelity/pace_of_life.md</a>.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>

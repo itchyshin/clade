@@ -371,6 +371,22 @@ Pretty-print specs, summarise environments.
   Hooks](custom-modules.md):
 - [Genetic Diversity Search in clade](diversity-search.md):
 
+### Kernel as biology
+
+Side-by-side reading of the simulation kernel — Julia code on the left,
+plain-English explanation and biological rationale on the right. Read
+these to understand the rules of the simulation as biology, spot
+inconsistencies, and find places where the model could be more
+realistic.
+
+- [Kernel as biology — overview](k-README.md):
+- [tick.jl — one tick in the life of an agent](k-tick.md):
+- [Clade.jl — the main loop, in biological order](k-clade-main.md):
+- [sense.jl — what an agent perceives](k-sense.md):
+- [reproduce.jl — birth, inheritance, parental cost](k-reproduce.md):
+- [death.jl — when agents die and why](k-death.md):
+- [genome.jl — meiosis, traits, inheritance](k-genome.md):
+
 ### Theme 1 — How do traits evolve?
 
 - [Baseline world](s-baseline.md):

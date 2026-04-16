@@ -32,7 +32,7 @@ Invisibly, the `specs` list (for piping).
 
 ``` r
 print_specs()
-#> -- clade specs (232 parameters) --
+#> -- clade specs (242 parameters) --
 #> 
 #>   Grid & population
 #>     grid_rows                              30
@@ -181,6 +181,12 @@ print_specs()
 #> 
 #>   Other
 #>     toroidal                               TRUE
+#>     max_bite                               2
+#>     repro_cost_mode                        proportional
+#>     repro_cost_fraction                    0.5
+#>     offspring_energy_mode                  proportional
+#>     offspring_energy_fraction              0.25
+#>     max_age_scales_with_metabolism         FALSE
 #>     input_radius                           1
 #>     n_genes                                20
 #>     transformer_history                    8
@@ -191,6 +197,10 @@ print_specs()
 #>     brain_energy_mode                      activity
 #>     brain_energy_base                      0.001
 #>     brain_energy_activity                  0.5
+#>     bnn_sigma_init                         0.5
+#>     bnn_sigma_min                          0.01
+#>     bnn_sigma_source                       heterozygosity
+#>     bnn_sample_freq                        1
 #>     n_chromosomes                          1
 #>     dominance_model                        additive
 #>     mutation_rate_evolution                FALSE
@@ -316,7 +326,7 @@ s <- default_specs()
 s$kin_selection <- TRUE
 s$complex_landscape <- TRUE
 print_specs(s, diff_only = TRUE)
-#> -- clade specs (232 parameters) [diff only] --
+#> -- clade specs (242 parameters) [diff only] --
 #> 
 #>   Kin selection
 #>     kin_selection                          TRUE *

@@ -73,21 +73,26 @@ Expected output: genetic diversity is higher and more variable in the
 sexual (diploid) condition. The asexual population converges to lower
 diversity more rapidly, illustrating the recombination advantage of sex.
 
-**What we found.** Running 3 replicates with `sexual_repro = FALSE`
-(haploid asexual) vs `sexual_repro = TRUE` (diploid sexual), 80 agents,
-25×25 grid, `grass_rate = 0.15`, 400 ticks (seeds 41–43): the two mating
-systems performed nearly identically — asexual mean population 211 vs
-sexual 209; mean energy 124.3 vs 124.5; late genetic diversity 0.340 vs
-0.339. Neither condition produced near-extinction events. The two
-diverged slightly in early diversity (asexual 0.181 early vs sexual
-0.165), with asexual populations slightly more diverse in the first 50
-ticks (because haploid genomes express all mutations immediately without
-recessive masking) but converging to the same late diversity. In a
-stable foraging environment, sexual recombination’s shuffling of
-existing variants provides no detectable advantage. The theoretical
-advantage of sex — greater adaptive flexibility under novel selection —
-requires testing under dynamic perturbation (e.g., episodic disease or
-seasonal crashes) where recombinants fill new adaptive peaks.
+**What we found (2026-04-15 audit, 4 seeds × 500 ticks).** Full
+protocol:
+[dev/audit/fidelity/mating_systems.md](../dev/audit/fidelity/mating_systems.md).
+
+| Condition               | genetic diversity | mean n_agents |
+|-------------------------|-------------------|---------------|
+| Haploid asexual         | 0.314 ± 0.003     | 288           |
+| Diploid sexual (xo=0.1) | 0.308 ± 0.002     | 286           |
+
+In a stable foraging environment, the theoretical recombination
+advantage of sex is **not reproduced** — haploid asex maintains
+marginally *higher* diversity (Δ = −0.005, reversed direction but
+small). Haploids expose all mutations immediately without recessive
+masking, which gives them slightly higher standing phenotypic variation
+at equilibrium.
+
+The Maynard Smith Red-Queen prediction — sex out-competes asex under
+fluctuating selection (parasites, seasons) — is not tested here and
+would require combining `ploidy = 2` with `disease = TRUE` or
+`seasonal_amplitude > 0` to detect.
 
 ### Discovery experiments
 

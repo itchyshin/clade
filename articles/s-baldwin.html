@@ -43,6 +43,19 @@
     <li><a class="dropdown-item" href="../articles/baldwin-effect.html">Baldwin effect &amp; RL</a></li>
   </ul>
 </li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-kernel-as-biology" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Kernel as biology</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-kernel-as-biology">
+<li><a class="dropdown-item" href="../articles/k-README.html">Overview &amp; reading guide</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/k-tick.html">tick.jl — one tick in the life of an agent</a></li>
+    <li><a class="dropdown-item" href="../articles/k-clade-main.html">Clade.jl — the main loop, in biological order</a></li>
+    <li><a class="dropdown-item" href="../articles/k-sense.html">sense.jl — what an agent perceives</a></li>
+    <li><a class="dropdown-item" href="../articles/k-reproduce.html">reproduce.jl — birth, inheritance, parental cost</a></li>
+    <li><a class="dropdown-item" href="../articles/k-death.html">death.jl — when agents die and why</a></li>
+    <li><a class="dropdown-item" href="../articles/k-genome.html">genome.jl — meiosis, traits, inheritance</a></li>
+  </ul>
+</li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-scenarios" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Scenarios</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-scenarios">
@@ -238,10 +251,18 @@ tests</td>
 <div class="section level3">
 <h3 id="baseline-does-the-baldwin-effect-occur-in-a-foraging-world">Baseline: does the Baldwin Effect occur in a foraging world?<a class="anchor" aria-label="anchor" href="#baseline-does-the-baldwin-effect-occur-in-a-foraging-world"></a>
 </h3>
-<p><strong>Expected output.</strong> Track <code>mean_prior_sigma</code>
-in <code>data$ticks</code>. The column should decline from approximately
-0.3 (broad, flexible priors) toward 0.05 (narrow, assimilated priors) as
-selection repeatedly rewards the same weight configurations.</p>
+<p><strong>Expected output (theoretical).</strong> Over evolutionary
+time, the prior σ should decline as selection canalizes learned
+behaviour.</p>
+<p><strong>Audit caveat (2026-04-15).</strong> The 4-seed × 800-tick
+audit found that σ <em>rises</em> from ~0.19 to the cap of 0.50 in both
+stable and seasonal environments — the opposite of the Baldwin
+prediction. Root cause: clade’s σ is derived from per-locus
+heterozygosity (|maternal − paternal|), which accumulates under neutral
+mutation regardless of selection pressure. Without a kernel change to
+decouple σ from heterozygosity or add an explicit cost on uncertainty,
+the Baldwin canalization cannot be observed at default parameters. See
+<a href="../dev/audit/fidelity/baldwin.html">dev/audit/fidelity/baldwin.md</a>.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>

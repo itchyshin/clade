@@ -43,6 +43,19 @@
     <li><a class="dropdown-item" href="../articles/baldwin-effect.html">Baldwin effect &amp; RL</a></li>
   </ul>
 </li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-kernel-as-biology" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Kernel as biology</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-kernel-as-biology">
+<li><a class="dropdown-item" href="../articles/k-README.html">Overview &amp; reading guide</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/k-tick.html">tick.jl — one tick in the life of an agent</a></li>
+    <li><a class="dropdown-item" href="../articles/k-clade-main.html">Clade.jl — the main loop, in biological order</a></li>
+    <li><a class="dropdown-item" href="../articles/k-sense.html">sense.jl — what an agent perceives</a></li>
+    <li><a class="dropdown-item" href="../articles/k-reproduce.html">reproduce.jl — birth, inheritance, parental cost</a></li>
+    <li><a class="dropdown-item" href="../articles/k-death.html">death.jl — when agents die and why</a></li>
+    <li><a class="dropdown-item" href="../articles/k-genome.html">genome.jl — meiosis, traits, inheritance</a></li>
+  </ul>
+</li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-scenarios" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Scenarios</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-scenarios">
@@ -258,25 +271,48 @@ magnitude and mean energy indicates that the handicap mechanism is
 maintaining signal honesty.
 </p>
 </div>
-<p><strong>What we found.</strong> Running with
-<code>signal_dims = 2</code>, <code>signal_cost = 0.05</code>,
-<code>signal_evolution_drift = TRUE</code> (the corrected default), 150
-agents, 30×30 grid, 400 ticks (seed 42): signal magnitude rose from
-0.011 at tick 1 to 0.253 at tick 200 — clear and rapid signal
-elaboration. The positive linear slope (6.0 × 10⁻⁵ per tick) confirms
-directional selection for higher-magnitude signals under honest
-handicap. The population was viable at tick 200 (signal elaboration
-phase) but crashed by tick 400 (0 agents), with mean energy reaching 0.
-This crash illustrates a biological prediction: high signal magnitude is
-an honest signal precisely because it is costly — at
-<code>signal_cost = 0.05</code>, signal elaboration accelerates until
-the energetic drain becomes fatal for the population under the given
-resource parameters. To sustain the population, use
-<code>grass_rate = 0.12</code> or higher, or reduce
-<code>signal_cost</code> to 0.02. <strong>Critical note:</strong>
-<code>signal_evolution_drift = TRUE</code> is now the default. Without
-drift, signals remain fixed at exactly 0 and selection cannot act,
-producing the spuriously null result observed in earlier runs.</p>
+<p><strong>What we found (2026-04-15 audit).</strong> 5-seed multi-seed
+run at <code>signal_dims = 3</code>, <code>signal_cost = 0.05</code>,
+<code>mate_choice_mode = "preference"</code>, 120 agents, 500 ticks.
+Full protocol: <a href="../dev/audit/fidelity/signals.html">dev/audit/fidelity/signals.md</a>.</p>
+<table class="table">
+<thead><tr class="header">
+<th>Condition</th>
+<th>final signal</th>
+<th>final n_agents</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>Signals off</td>
+<td>0.000</td>
+<td>247</td>
+</tr>
+<tr class="even">
+<td>On, random mate choice</td>
+<td>1.017</td>
+<td>~210</td>
+</tr>
+<tr class="odd">
+<td>On, preference mate choice</td>
+<td>1.032</td>
+<td>210</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Zahavi honesty test.</strong> Within-run Spearman correlation
+between <code>mean_energy</code> and <code>mean_signal_magnitude</code>
+averaged <strong>ρ = 0.25</strong> across 5 seeds — <strong>positive and
+consistent with Zahavi handicap</strong> (better-conditioned agents
+carry more elaborate signals).</p>
+<p><strong>Cost sweep</strong> (3 seeds × 5 values of
+<code>signal_cost</code>): signal magnitude is <strong>flat at ~1.0
+across the entire range from 0.0 to 0.20</strong>. Cost does affect
+population size (247 → 197), but not equilibrium signal magnitude. This
+is a clade-specific finding: drift determines signal stationary
+distribution, while cost manifests as demographic attrition rather than
+signal reduction. For strict textbook Zahavi dynamics (cost reduces
+signal magnitude) a kernel extension with heritable individual-level
+preferences would be needed.</p>
 </div>
 <div class="section level3">
 <h3 id="discovery-experiments">Discovery experiments<a class="anchor" aria-label="anchor" href="#discovery-experiments"></a>

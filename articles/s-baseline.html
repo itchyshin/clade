@@ -43,6 +43,19 @@
     <li><a class="dropdown-item" href="../articles/baldwin-effect.html">Baldwin effect &amp; RL</a></li>
   </ul>
 </li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-kernel-as-biology" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Kernel as biology</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-kernel-as-biology">
+<li><a class="dropdown-item" href="../articles/k-README.html">Overview &amp; reading guide</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/k-tick.html">tick.jl — one tick in the life of an agent</a></li>
+    <li><a class="dropdown-item" href="../articles/k-clade-main.html">Clade.jl — the main loop, in biological order</a></li>
+    <li><a class="dropdown-item" href="../articles/k-sense.html">sense.jl — what an agent perceives</a></li>
+    <li><a class="dropdown-item" href="../articles/k-reproduce.html">reproduce.jl — birth, inheritance, parental cost</a></li>
+    <li><a class="dropdown-item" href="../articles/k-death.html">death.jl — when agents die and why</a></li>
+    <li><a class="dropdown-item" href="../articles/k-genome.html">genome.jl — meiosis, traits, inheritance</a></li>
+  </ul>
+</li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-scenarios" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Scenarios</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-scenarios">
@@ -193,24 +206,77 @@ Expected output: six-panel run summary showing population dynamics, mean
 energy, genetic diversity, births/deaths, grass coverage, and BNN sigma.
 </p>
 </div>
-<p><strong>What we found.</strong> Running 100 agents on a 30×30 grid
-for 500 ticks (seed 42), <code>grass_rate = 0.15</code>: population
-ranged from 143 to 402 (mean 283), showing density-dependent regulation
-against a carrying capacity of ~400 imposed by the energy budget. Mean
-energy was stable near 130 throughout the run (129.6 at tick 50, 130.6
-at tick 450) — foraging is already near-optimal in the default
-parameterisation, so there is little room for selection to raise mean
-energy within 500 ticks. Genetic diversity increased from 0.178 at tick
-50 to 0.386 at tick 450, reflecting divergence of neural genome lineages
-rather than selective sweep toward a single optimum: the spatial
-structure of the resource landscape supports multiple foraging
-strategies simultaneously. Total births = 727, deaths = 587 over 500
-ticks, a persistent turnover of ~1.5 generations per 100 ticks. Grass
-coverage oscillated in 0.23–0.52 as agents grazed down and resources
-regrew, consistent with active consumer–resource dynamics. Verified over
-10 seeds in <code>dev/audit/fidelity/baseline.md</code>; running the
-displayed code (a single seed) is sufficient to reproduce the trends
-though not the exact numbers.</p>
+<p><strong>What we found (10-seed audit, 2026-04-15).</strong> Running
+10 seeds × 500 ticks at 100 agents init, 30×30 grid,
+<code>grass_rate = 0.15</code>:</p>
+<table class="table">
+<colgroup>
+<col width="33%">
+<col width="33%">
+<col width="33%">
+</colgroup>
+<thead><tr class="header">
+<th>Metric</th>
+<th>Mean ± SD</th>
+<th>Notes</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code>n_agents</code></td>
+<td>256.9 ± 3.5</td>
+<td>Strong carrying capacity</td>
+</tr>
+<tr class="even">
+<td><code>mean_energy</code></td>
+<td>129.2 ± 1.1</td>
+<td>65% of <code>energy_max = 200</code>
+</td>
+</tr>
+<tr class="odd">
+<td><code>mean_age</code></td>
+<td>98.3 ± 0.3</td>
+<td>Steady-state age structure</td>
+</tr>
+<tr class="even">
+<td><code>genetic_diversity</code></td>
+<td>0.341 ± 0.002</td>
+<td>Rises 0.07 → 0.34 (mutation outpaces selection)</td>
+</tr>
+<tr class="odd">
+<td><code>mean_ann_weight_magnitude</code></td>
+<td>27.3 ± 0.2</td>
+<td>Init ~5 → evolved 27</td>
+</tr>
+<tr class="even">
+<td>
+<code>n_births</code> per tick</td>
+<td>1.43 ± 0.03</td>
+<td>Balanced against ~1.43 deaths</td>
+</tr>
+<tr class="odd">
+<td>
+<code>n_starvations</code> per tick</td>
+<td>0.003</td>
+<td>Negligible</td>
+</tr>
+<tr class="even">
+<td><code>grass_coverage</code></td>
+<td>0.385 ± 0.006</td>
+<td>Active grazing equilibrium</td>
+</tr>
+</tbody>
+</table>
+<p>Seed-to-seed variability is &lt; 2% on every metric — the baseline is
+exceptionally reproducible.</p>
+<p><strong>Kernel lineage note.</strong> clade’s baseline kernel has
+diverged substantially from its MATLAB ancestor (Bulitko 2023, <a href="https://github.com/itchyshin/alifeR/tree/main/alife_matlab" class="external-link">alifeR/alife_matlab/codebase/alife.m</a>)
+and from the alifeR R port. Intentional improvements include diploid
+genomes with full meiosis, a Bayesian-NN default brain, input
+normalisation to [0,1], and scalar trait evolution. A handful of
+undocumented changes (eating semantics, grass-to-energy ratio, always-on
+age cap, fixed repro cost) are worth flagging for 0.4.0 review. The full
+three-way diff is in <a href="../dev/audit/fidelity/baseline.html">dev/audit/fidelity/baseline.md</a>
+§3 and §6.</p>
 </div>
 <div class="section level3">
 <h3 id="discovery-experiments">Discovery experiments<a class="anchor" aria-label="anchor" href="#discovery-experiments"></a>

@@ -92,23 +92,30 @@ selection drives elaboration. A positive correlation between signal
 magnitude and mean energy indicates that the handicap mechanism is
 maintaining signal honesty.
 
-**What we found.** Running with `signal_dims = 2`, `signal_cost = 0.05`,
-`signal_evolution_drift = TRUE` (the corrected default), 150 agents,
-30×30 grid, 400 ticks (seed 42): signal magnitude rose from 0.011 at
-tick 1 to 0.253 at tick 200 — clear and rapid signal elaboration. The
-positive linear slope (6.0 × 10⁻⁵ per tick) confirms directional
-selection for higher-magnitude signals under honest handicap. The
-population was viable at tick 200 (signal elaboration phase) but crashed
-by tick 400 (0 agents), with mean energy reaching 0. This crash
-illustrates a biological prediction: high signal magnitude is an honest
-signal precisely because it is costly — at `signal_cost = 0.05`, signal
-elaboration accelerates until the energetic drain becomes fatal for the
-population under the given resource parameters. To sustain the
-population, use `grass_rate = 0.12` or higher, or reduce `signal_cost`
-to 0.02. **Critical note:** `signal_evolution_drift = TRUE` is now the
-default. Without drift, signals remain fixed at exactly 0 and selection
-cannot act, producing the spuriously null result observed in earlier
-runs.
+**What we found (2026-04-15 audit).** 5-seed multi-seed run at
+`signal_dims = 3`, `signal_cost = 0.05`,
+`mate_choice_mode = "preference"`, 120 agents, 500 ticks. Full protocol:
+[dev/audit/fidelity/signals.md](../dev/audit/fidelity/signals.md).
+
+| Condition                  | final signal | final n_agents |
+|----------------------------|--------------|----------------|
+| Signals off                | 0.000        | 247            |
+| On, random mate choice     | 1.017        | ~210           |
+| On, preference mate choice | 1.032        | 210            |
+
+**Zahavi honesty test.** Within-run Spearman correlation between
+`mean_energy` and `mean_signal_magnitude` averaged **ρ = 0.25** across 5
+seeds — **positive and consistent with Zahavi handicap**
+(better-conditioned agents carry more elaborate signals).
+
+**Cost sweep** (3 seeds × 5 values of `signal_cost`): signal magnitude
+is **flat at ~1.0 across the entire range from 0.0 to 0.20**. Cost does
+affect population size (247 → 197), but not equilibrium signal
+magnitude. This is a clade-specific finding: drift determines signal
+stationary distribution, while cost manifests as demographic attrition
+rather than signal reduction. For strict textbook Zahavi dynamics (cost
+reduces signal magnitude) a kernel extension with heritable
+individual-level preferences would be needed.
 
 ### Discovery experiments
 

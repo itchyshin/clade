@@ -43,6 +43,19 @@
     <li><a class="dropdown-item" href="../articles/baldwin-effect.html">Baldwin effect &amp; RL</a></li>
   </ul>
 </li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-kernel-as-biology" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Kernel as biology</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-kernel-as-biology">
+<li><a class="dropdown-item" href="../articles/k-README.html">Overview &amp; reading guide</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/k-tick.html">tick.jl — one tick in the life of an agent</a></li>
+    <li><a class="dropdown-item" href="../articles/k-clade-main.html">Clade.jl — the main loop, in biological order</a></li>
+    <li><a class="dropdown-item" href="../articles/k-sense.html">sense.jl — what an agent perceives</a></li>
+    <li><a class="dropdown-item" href="../articles/k-reproduce.html">reproduce.jl — birth, inheritance, parental cost</a></li>
+    <li><a class="dropdown-item" href="../articles/k-death.html">death.jl — when agents die and why</a></li>
+    <li><a class="dropdown-item" href="../articles/k-genome.html">genome.jl — meiosis, traits, inheritance</a></li>
+  </ul>
+</li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-scenarios" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Scenarios</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-scenarios">
@@ -229,25 +242,20 @@ offspring at lower individual quality, illustrating the quality-quantity
 trade-off.
 </p>
 </div>
-<p><strong>What we found (post-0.3.0 kernel fix).</strong> The parental
-investment module now operates on top of a working parental-care
-pipeline (graduation pathway wired in 0.3.0, see <a href="../../dev/audit/review/SUMMARY.html"><code>dev/audit/review/SUMMARY.md</code></a>).
-<code>n_juveniles</code> is a real non-zero trajectory for conditions
-that retain the population through 300 ticks. The quality-quantity
-trade-off is now observable: at default <code>feeding_rate = 5</code>
-and <code>male_repro_cost = 0.3</code>, raising feeding_rate to ~19 (per
-CMA-ES calibration in Phase 7;
-<code>dev/audit/calibration/RESULTS.md</code>) yields higher
-<code>n_juveniles</code> <strong>and</strong> higher late-run
-<code>n_agents</code>, consistent with the Smith-Fretwell (1974)
-optimum-investment theory. Sweeping <code>max_offspring</code> would now
-reveal the classic crossing of fitness curves — clutch size 1 with high
-investment vs clutch size 5 with low investment — which was inaccessible
-before the graduation fix.</p>
-<p><strong>Before v0.3.0</strong> this section reported that the module
-produced <code>n_juveniles = 0</code> in all conditions because the
-graduation pathway was not active. That is no longer true; the
-simulation reflects the real biology of parental investment.</p>
+<p><strong>What we found (2026-04-15 audit, 3 seeds × 4 investment
+levels).</strong> Full protocol: <a href="../dev/audit/fidelity/parental_investment.html">dev/audit/fidelity/parental_investment.md</a>.</p>
+<p>Across <code>female_investment ∈ {0.3, 0.5, 0.7, 0.9}</code> all
+population metrics are essentially flat: births ≈ 1.5/tick, juveniles ≈
+1.5, n_agents ≈ 262, mean_energy ≈ 125. Spearman ρ(fi, births) = −0.20
+(weak, not significant).</p>
+<p><strong>The Trivers quality-quantity trade-off is not reproduced at
+current parameter couplings.</strong> The mechanism is wired (offspring
+are carried, fed, graduated), but the <code>female_investment</code>
+ratio does not differentially change per-offspring quality or total
+births enough to recover Trivers’ prediction. A kernel extension
+coupling <code>female_investment</code> more tightly to offspring
+graduation energy (or introducing heritable mate-choice preferences)
+would be needed. Flagged as 🟠 passed-consistent.</p>
 </div>
 <div class="section level3">
 <h3 id="discovery-experiments">Discovery experiments<a class="anchor" aria-label="anchor" href="#discovery-experiments"></a>

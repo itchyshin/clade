@@ -43,6 +43,19 @@
     <li><a class="dropdown-item" href="../articles/baldwin-effect.html">Baldwin effect &amp; RL</a></li>
   </ul>
 </li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-kernel-as-biology" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Kernel as biology</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-kernel-as-biology">
+<li><a class="dropdown-item" href="../articles/k-README.html">Overview &amp; reading guide</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/k-tick.html">tick.jl — one tick in the life of an agent</a></li>
+    <li><a class="dropdown-item" href="../articles/k-clade-main.html">Clade.jl — the main loop, in biological order</a></li>
+    <li><a class="dropdown-item" href="../articles/k-sense.html">sense.jl — what an agent perceives</a></li>
+    <li><a class="dropdown-item" href="../articles/k-reproduce.html">reproduce.jl — birth, inheritance, parental cost</a></li>
+    <li><a class="dropdown-item" href="../articles/k-death.html">death.jl — when agents die and why</a></li>
+    <li><a class="dropdown-item" href="../articles/k-genome.html">genome.jl — meiosis, traits, inheritance</a></li>
+  </ul>
+</li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-scenarios" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Scenarios</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-scenarios">
@@ -209,23 +222,32 @@ environments it typically decreases; in seasonally varying environments
 it is maintained at intermediate values.
 </p>
 </div>
-<p><strong>What we found.</strong> Running with
-<code>phenotypic_plasticity = TRUE</code>,
-<code>plasticity_init_mean = 0.3</code> (the corrected default), 80
-agents, 25×25 grid, 400 ticks (seed 42): mean plasticity started at
-0.010 at tick 1, rose to 0.015 at tick 200, and reached 0.018 at tick
-400. The linear slope (2.6 × 10⁻⁵ per tick) was positive — a weak but
-consistent upward trend. Population was viable throughout (47 agents at
-tick 400). The magnitude is low relative to the
-<code>plasticity_init_mean = 0.3</code> because the genome
-initialization places agents near the lower tail of the heritable
-distribution and selection pressure on plasticity is mild in a uniform
-foraging world: the benefit of phenotypic adjustment (better sensory
-responsiveness to local grass density) is real but small when resources
-are spatially homogeneous. To observe stronger plasticity evolution,
-test with <code>complex_landscape = TRUE</code> (spatially heterogeneous
-patches that reward responsive foragers) or with an abrupt mid-run
-environmental shift (<code>grass_rate</code> halved at tick 200).</p>
+<p><strong>What we found (2026-04-15 audit, 4 seeds × 500
+ticks).</strong> Full protocol: <a href="../dev/audit/fidelity/plasticity.html">dev/audit/fidelity/plasticity.md</a>.</p>
+<table class="table">
+<thead><tr class="header">
+<th>Condition</th>
+<th>init → final</th>
+<th>Δ</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>Stable</td>
+<td>0.300 → 0.298</td>
+<td>−0.001</td>
+</tr>
+<tr class="even">
+<td>Seasonal (amp=0.7)</td>
+<td>0.300 → 0.299</td>
+<td>−0.002</td>
+</tr>
+</tbody>
+</table>
+<p>Both trajectories are flat — plasticity barely moves from its init
+value in either environment. The DeWitt-Scheiner prediction (seasonal
+maintains higher plasticity than stable) is not reproducible at default
+couplings; the plasticity trait doesn’t create a strong enough fitness
+differential to drive selection. Flagged 🟠 passed-consistent.</p>
 </div>
 <div class="section level3">
 <h3 id="discovery-experiments">Discovery experiments<a class="anchor" aria-label="anchor" href="#discovery-experiments"></a>

@@ -59,10 +59,18 @@ Declining σ over ticks = canalization / Baldwin Effect. Rising or stable
 
 ### Baseline: does the Baldwin Effect occur in a foraging world?
 
-**Expected output.** Track `mean_prior_sigma` in `data$ticks`. The
-column should decline from approximately 0.3 (broad, flexible priors)
-toward 0.05 (narrow, assimilated priors) as selection repeatedly rewards
-the same weight configurations.
+**Expected output (theoretical).** Over evolutionary time, the prior σ
+should decline as selection canalizes learned behaviour.
+
+**Audit caveat (2026-04-15).** The 4-seed × 800-tick audit found that σ
+*rises* from ~0.19 to the cap of 0.50 in both stable and seasonal
+environments — the opposite of the Baldwin prediction. Root cause:
+clade’s σ is derived from per-locus heterozygosity (\|maternal −
+paternal\|), which accumulates under neutral mutation regardless of
+selection pressure. Without a kernel change to decouple σ from
+heterozygosity or add an explicit cost on uncertainty, the Baldwin
+canalization cannot be observed at default parameters. See
+[dev/audit/fidelity/baldwin.md](../dev/audit/fidelity/baldwin.md).
 
 ``` r
 library(clade)

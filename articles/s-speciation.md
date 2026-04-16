@@ -80,18 +80,27 @@ Expected output: n_species rises from 1 to 2-4 as genome divergence
 accumulates beyond the isolation threshold. Each step in the staircase
 represents a speciation event.
 
-**What we found.** Running with `speciation = TRUE`,
-`isolation_threshold = 0.5`, 80 agents, 25×25 grid, 400 ticks (seed 42):
-`n_species` stabilised at 1 (no speciation events; early mean 0.82, late
-mean 1.0, maximum ever = 1). At 400 ticks, genetic diversity reached
-only ~0.25 — half the isolation threshold of 0.5, so no lineage pair had
-diverged enough for reproductive isolation. Speciation emerges over
-longer timescales (\>1,000 ticks) or with stronger selection pressure
-(lower `isolation_threshold`, e.g. 0.2, which allows speciation once any
-two lineages diverge by more than a fifth of the genetic range). To
-observe speciation within 400 ticks, set `isolation_threshold = 0.15`
-and `mutation_sd = 0.1`; the staircase pattern (abrupt n_species
-increases) then emerges by tick 200 in most replicates.
+**What we found (2026-04-15 audit).** 3 seeds × 1000 ticks, 100 agents
+init, 30×30 grid, `isolation_threshold = 0.15`. Full protocol:
+[dev/audit/fidelity/speciation.md](../dev/audit/fidelity/speciation.md).
+
+| Regime                         | max n_species |
+|--------------------------------|---------------|
+| Default `mutation_sd = 0.1`    | 96            |
+| Aggressive `mutation_sd = 0.3` | 200           |
+
+**Isolation threshold sweep** (5 levels × 3 seeds, mut_sd = 0.2):
+Spearman ρ = −0.97 between `isolation_threshold` and max n_species —
+tighter threshold, fewer clusters, exactly as theory predicts.
+
+**Caveat on n_species interpretation.** Counts in the hundreds (from
+500-agent populations) indicate that the pairwise-distance clustering
+algorithm at high mutation rates flags every distinct genome as a
+separate lineage. The sensitivity signs (to `mutation_sd` and
+`isolation_threshold`) are correct, but the absolute count should be
+read as “number of genetic clusters detected at this resolution,” not
+“Mayr-style biological species.” For textbook-style 2–4 distinct
+species, use lower mutation (0.05–0.08) and longer runs (2000+ ticks).
 
 ### Discovery experiments
 

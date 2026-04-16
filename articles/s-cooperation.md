@@ -76,30 +76,33 @@ p2 <- ggplot(df_mean[df_mean$condition == "Cooperation",],
 p1 / p2
 ```
 
-**What we found.** Running 5 replicates (50 agents,
-`cooperation_multiplier = 2.5`, `cooperation_cost = 1.0`,
-`cooperation_init_mean = 0.5`, 400 ticks):
+**What we found (2026-04-15 audit).** 5-seed multi-seed run at
+`cooperation_multiplier = 2.5`, 80 agents, 400 ticks. Full protocol:
+[dev/audit/fidelity/cooperation.md](../dev/audit/fidelity/cooperation.md).
 
-- **Without cooperation**: mean population 106, final population 98.
-- **With cooperation**: mean population 322, **final population 399**
-  (near the `max_agents = 400` cap). Public goods approximately
-  **tripled** carrying capacity.
+| Condition      | mean n_agents              | final cooperation level |
+|----------------|----------------------------|-------------------------|
+| Baseline       | 202.6                      | —                       |
+| Cooperation ON | **587.6 (2.90× baseline)** | 0.500 → 0.486           |
 
-The cooperation level told a different story: it started at 0.504 ± 0.01
-and ended at 0.492 ± 0.01 — a small but consistent decline (p \< 0.05
-across 5 reps). This is the **tragedy of the commons** in real time:
-while cooperation dramatically increases group-level fitness,
-free-riders (low `cooperation_level` agents) invade because they receive
-public goods benefits without paying the cost. At
-`cooperation_multiplier = 2.5`, the benefit is still large enough that
-even declining-cooperation populations hit the capacity ceiling — but if
-the trajectory continued, cooperation would eventually erode.
+Tragedy-of-commons: cooperation drifts down 0.014 over 400 ticks (small
+but detectable), confirming free-rider invasion even as group benefit
+raises carrying capacity.
 
-**Key insight**: at multiplier = 2.5 \> group size threshold,
-cooperation raises population capacity but individual selection for
-defection creates tension. To see the trajectory resolve: increase
-simulation length (1000+ ticks) or reduce the multiplier toward the
-threshold (multiplier ≈ 2.0 = group size 2).
+**Multiplier sweep (7 levels × 3 seeds, 2026-04-15):** Spearman
+correlation between `cooperation_multiplier` and population is **ρ =
+1.00**. Sharp transition between M = 1.5 (296 agents) and M = 2.0 (528
+agents) — this is the spatial Nowak-May critical regime. Above M ≈ 2.5,
+population saturates at the cap:
+
+| `M`  | mean n  |                                |
+|------|---------|--------------------------------|
+| 0.5  | 137     | sub-baseline (cost unrewarded) |
+| 1.0  | 200     | ≈ baseline                     |
+| 1.5  | 296     |                                |
+| 2.0  | **528** | sharp transition               |
+| 2.5  | 588     | (default in vignette)          |
+| 3.0+ | ~600    | saturated at max_agents cap    |
 
 ![Expected output: population with cooperation (green) rises to near the
 max_agents ceiling while the baseline (pink) stabilises at a lower

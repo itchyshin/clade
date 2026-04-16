@@ -65,14 +65,22 @@ evolution: `mean_dispersal` evolves in response to crowding. (3) IFD:
 `mean_habitat_preference` drifts toward positive values as agents that
 prefer grass-rich cells out-compete those that do not.
 
-**What we found.** Each of the three mechanisms produces a distinct
-signature in the logs: dispersal evolution generates a gradual
-directional shift in `mean_dispersal` (±0.05–0.1 per 200 ticks); spatial
-sorting generates a front–rear divergence in dispersal tendency that
-appears within 50–80 ticks and stabilises; and habitat preference
-evolution drives `mean_habitat_preference` upward from 0 toward 0.2–0.4
-as preference-tracking agents outcompete random movers. See the
-sub-sections below for specific numerical outputs from each mechanism.
+**What we found (2026-04-15 audit).** Full protocol:
+[dev/audit/fidelity/dispersal_ifd.md](../dev/audit/fidelity/dispersal_ifd.md).
+
+All three mechanisms produce directionally-correct but
+magnitudinally-weak signals at default parameters and 500-tick runs:
+
+- **Habitat preference evolution (IFD):** init 0.000 → final 0.002 over
+  500 ticks (4 seeds). Δ = +0.002, within noise.
+- **Spatial sorting:** front_dispersal 0.293 ± 0.070 vs rear_dispersal
+  0.288 ± 0.037. Δ = +0.005, within seed noise but correctly signed.
+
+Both effects are genuine but **require longer runs (2000+ ticks), higher
+mutation, or stronger preference weighting** to produce clean
+signatures. The prior claim that preference drifts to 0.2–0.4 within a
+normal run is not supported by this audit; flagged as 🟠
+passed-consistent.
 
 ### Spatial sorting
 

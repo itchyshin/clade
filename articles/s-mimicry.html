@@ -43,6 +43,19 @@
     <li><a class="dropdown-item" href="../articles/baldwin-effect.html">Baldwin effect &amp; RL</a></li>
   </ul>
 </li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-kernel-as-biology" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Kernel as biology</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-kernel-as-biology">
+<li><a class="dropdown-item" href="../articles/k-README.html">Overview &amp; reading guide</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/k-tick.html">tick.jl — one tick in the life of an agent</a></li>
+    <li><a class="dropdown-item" href="../articles/k-clade-main.html">Clade.jl — the main loop, in biological order</a></li>
+    <li><a class="dropdown-item" href="../articles/k-sense.html">sense.jl — what an agent perceives</a></li>
+    <li><a class="dropdown-item" href="../articles/k-reproduce.html">reproduce.jl — birth, inheritance, parental cost</a></li>
+    <li><a class="dropdown-item" href="../articles/k-death.html">death.jl — when agents die and why</a></li>
+    <li><a class="dropdown-item" href="../articles/k-genome.html">genome.jl — meiosis, traits, inheritance</a></li>
+  </ul>
+</li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-scenarios" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Scenarios</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-scenarios">
@@ -189,19 +202,26 @@ handicap; raised from 0.5 in v0.3.0)</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Expected output at displayed defaults.</strong> With only 5
-predators and <code>toxicity_cost_per_tick = 2.0</code> (raised in 0.3.0
-for Zahavi-handicap honesty), predator encounter density is too low for
-avoidance learning to exceed <code>avoid_threshold</code> within 300
-ticks — predators attack indiscriminately. The per-tick toxicity cost is
-then pure loss, so selection purges toxicity: <code>mean_toxicity</code>
-declines from the init value toward zero. To observe the classical
-upward-evolution signature (Müllerian aposematism), either (a) raise
-<code>n_predators_init</code> to 10–15L and extend
-<code>max_ticks</code> to ≥ 1000, or (b) use the <strong>Calibrated
-regime</strong> below, which CMA-ES discovered by dropping the toxicity
-cost and tuning the <code>toxin_dose</code> /
-<code>signal_memory_rate</code> pair.</p>
+<p><strong>Expected output (audited 2026-04-15).</strong> Across
+multi-seed runs at ten different parameter regimes — from defaults to
+extreme cost = 0, dose = 200, predator-saturated runs —
+<code>mean_toxicity</code> does not measurably evolve in either
+direction. Maximum observed drift was +0.02 (init = 0, no cost, 600
+ticks). See the <a href="../dev/audit/fidelity/mimicry.html">mimicry
+fidelity report</a> for the full evidence.</p>
+<p><strong>Why dynamics are flat: a kernel-level
+simplification.</strong> clade’s predator memory is a
+<strong>scalar</strong> (<code>pred.value_estimate</code>) updated
+toward <code>prey.toxicity</code> directly, while alifeR’s R prototype
+uses a <strong>signal vector</strong> updated toward
+<code>prey.signal</code>. The scalar simplification removes
+signal-specific learning — predators cannot recognise warning
+<em>patterns</em>, only their general aversion level — which is the
+mechanism Bates (1862) and Müller (1879) actually described. Predators
+therefore rarely learn to avoid toxic prey (max 9 avoidance events / 600
+ticks at extreme settings), and without selective avoidance, toxic prey
+gain no measurable survival advantage. Restoring signal-vector predator
+memory is on the 0.4.0 backlog.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">s</span><span class="op">$</span><span class="va">mimicry</span>            <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
@@ -213,21 +233,18 @@ cost and tuning the <code>toxin_dose</code> /
 <span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="calibrated-regime-cma-es-discovered">Calibrated regime (CMA-ES discovered)<a class="anchor" aria-label="anchor" href="#calibrated-regime-cma-es-discovered"></a>
+<h3 id="calibrated-regime-formerly-cma-es-discovered-claim-retracted">Calibrated regime (formerly CMA-ES discovered — claim
+retracted)<a class="anchor" aria-label="anchor" href="#calibrated-regime-formerly-cma-es-discovered-claim-retracted"></a>
 </h3>
-<p>Running Phase 7 auto-calibration
-(<code>dev/audit/calibration/</code>) over the scenario’s parameter
-subspace discovered the following regime, which produces a fitness
-improvement of <strong>21.0x</strong> over the defaults above. See
-<code>dev/audit/calibration/RESULTS.md</code> for the full CMA-ES
-results.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Parameter overrides discovered by CMA-ES (see dev/audit/calibration/):</span></span>
-<span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">s</span><span class="op">$</span><span class="va">toxin_dose</span>                     <span class="op">&lt;-</span> <span class="fl">23L</span></span>
-<span><span class="va">s</span><span class="op">$</span><span class="va">toxicity_cost_per_tick</span>         <span class="op">&lt;-</span> <span class="fl">0.2776</span></span>
-<span><span class="va">s</span><span class="op">$</span><span class="va">signal_memory_rate</span>             <span class="op">&lt;-</span> <span class="fl">0.2991</span></span>
-<span><span class="co"># env &lt;- run_alife(s)   # uncomment to run the calibrated regime</span></span></code></pre></div>
+A previous version of this vignette claimed a 21× fitness improvement
+under
+<code>toxin_dose = 23, toxicity_cost = 0.28, signal_memory_rate = 0.30</code>.
+The 2026-04-15 fidelity audit ran exactly this regime and observed no
+measurable upward toxicity evolution (mean drift = −0.001 over 600
+ticks). The CMA-ES result likely optimised a generic fitness signal that
+is not specific to toxicity evolution. Claim retracted; awaiting kernel
+improvement (signal-vector predator memory) before re-tuning. See <a href="../dev/audit/fidelity/mimicry.html#5-verdict">mimicry fidelity
+report §5</a>.
 <div class="figure">
 <img src="figures/showcase_21_mimicry.png" class="r-plt" alt="Expected output: mean toxicity rises under predator pressure; avoided attacks increase as predators learn to avoid toxic prey; toxic attack rate declines." width="100%"><p class="caption">
 Expected output: mean toxicity rises under predator pressure; avoided
@@ -235,31 +252,25 @@ attacks increase as predators learn to avoid toxic prey; toxic attack
 rate declines.
 </p>
 </div>
-<p><strong>What we found (post-0.3.0 kernel).</strong> Running with
-<code>mimicry = TRUE</code>, 2 predators, 80 agents, default grid,
-<code>toxicity_init_mean = 0.1</code>, 400 ticks (seed 42):
-<code>mean_toxicity</code> <em>declined</em> from 0.101 to 0.047 across
-the run, the <em>opposite</em> of the naive expectation.
-<code>n_avoided_attacks</code> stayed at 0 and
-<code>n_toxic_attacks</code> stayed at 0 — at this low predation density
-the predators don’t encounter enough toxic prey for Rescorla-Wagner
-learning to exceed <code>avoid_threshold</code>, so no avoidance fires.
-<code>should_avoid_prey()</code> IS correctly wired into
-<code>tick_predators.jl</code> (the architectural stub described here
-before 0.3.0 was fixed), but without effective predator pressure
-toxicity is pure cost: <code>toxicity_cost_per_tick = 2.0</code> (raised
-from 0.5 in 0.3.0 for Zahavi-handicap honesty) deducts 0.2 energy/tick
-at init toxicity and more as agents drift toward it, so selection purges
-toxicity.</p>
-<p><strong>To see aposematism evolve, raise predation density</strong>
-(e.g. <code>n_predators_init = 6L</code> and
-<code>predator_attack_strength = 60</code>) or reduce
-<code>toxicity_cost_per_tick</code> back toward 0.5. The
-CMA-ES-discovered regime in the Calibrated regime section above keeps
-the cost low (0.28) and tunes <code>toxin_dose</code> to yield a 21×
-fitness improvement — consistent with the biological requirement that
-the handicap cost must be less than the survival payoff for aposematism
-to evolve (Zahavi 1975, Ruxton, Sherratt &amp; Speed 2004).</p>
+<p><strong>What we found (2026-04-15 audit).</strong> Across 5 seeds and
+four regimes spanning <code>n_predators_init ∈ {0, 8, 15}</code>,
+<code>toxin_dose ∈ {10, 30, 60, 100, 200}</code>, and
+<code>toxicity_cost ∈ {0.0, 0.2, 0.5, 1.0, 2.0}</code>, mean toxicity
+remained essentially locked at its initial value (every regime within
+±0.02 of <code>toxicity_init_mean</code>). Cumulative counters across
+600 ticks: 15–67 toxic attacks vs 700+ total kills (2.5–10% rate, much
+lower than the ~50% expected if predators attacked toxic and non-toxic
+prey indiscriminately at population proportions); 0–9 avoidance events
+total (avoidance learning essentially never fires).</p>
+<p><strong>Diagnosis.</strong> The mechanism is wired correctly per the
+kernel’s own simplified semantics: toxic prey damage attacking
+predators, predator memory updates after toxic encounters, avoidance can
+trigger above threshold. But the scalar-memory simplification relative
+to alifeR (see “Why dynamics are flat” above) prevents the
+signal-specific learning loop that produces textbook aposematism.
+Consequence: textbook Bates/Müller dynamics cannot be reproduced at any
+tested parameter setting until the kernel ports alifeR’s vector-signal
+predator memory.</p>
 <p><strong>Batesian mode (0.3.0 new).</strong> Set
 <code>s$batesian_mimicry &lt;- TRUE</code> to let palatable mimics
 (toxicity = 0) share in learned aversion (Bates 1862). Predator-betrayal

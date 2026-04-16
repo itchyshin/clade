@@ -43,6 +43,19 @@
     <li><a class="dropdown-item" href="../articles/baldwin-effect.html">Baldwin effect &amp; RL</a></li>
   </ul>
 </li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-kernel-as-biology" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Kernel as biology</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-kernel-as-biology">
+<li><a class="dropdown-item" href="../articles/k-README.html">Overview &amp; reading guide</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/k-tick.html">tick.jl — one tick in the life of an agent</a></li>
+    <li><a class="dropdown-item" href="../articles/k-clade-main.html">Clade.jl — the main loop, in biological order</a></li>
+    <li><a class="dropdown-item" href="../articles/k-sense.html">sense.jl — what an agent perceives</a></li>
+    <li><a class="dropdown-item" href="../articles/k-reproduce.html">reproduce.jl — birth, inheritance, parental cost</a></li>
+    <li><a class="dropdown-item" href="../articles/k-death.html">death.jl — when agents die and why</a></li>
+    <li><a class="dropdown-item" href="../articles/k-genome.html">genome.jl — meiosis, traits, inheritance</a></li>
+  </ul>
+</li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-scenarios" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Scenarios</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-scenarios">
@@ -232,20 +245,40 @@ accumulates beyond the isolation threshold. Each step in the staircase
 represents a speciation event.
 </p>
 </div>
-<p><strong>What we found.</strong> Running with
-<code>speciation = TRUE</code>, <code>isolation_threshold = 0.5</code>,
-80 agents, 25×25 grid, 400 ticks (seed 42): <code>n_species</code>
-stabilised at 1 (no speciation events; early mean 0.82, late mean 1.0,
-maximum ever = 1). At 400 ticks, genetic diversity reached only ~0.25 —
-half the isolation threshold of 0.5, so no lineage pair had diverged
-enough for reproductive isolation. Speciation emerges over longer
-timescales (&gt;1,000 ticks) or with stronger selection pressure (lower
-<code>isolation_threshold</code>, e.g. 0.2, which allows speciation once
-any two lineages diverge by more than a fifth of the genetic range). To
-observe speciation within 400 ticks, set
-<code>isolation_threshold = 0.15</code> and
-<code>mutation_sd = 0.1</code>; the staircase pattern (abrupt n_species
-increases) then emerges by tick 200 in most replicates.</p>
+<p><strong>What we found (2026-04-15 audit).</strong> 3 seeds × 1000
+ticks, 100 agents init, 30×30 grid,
+<code>isolation_threshold = 0.15</code>. Full protocol: <a href="../dev/audit/fidelity/speciation.html">dev/audit/fidelity/speciation.md</a>.</p>
+<table class="table">
+<thead><tr class="header">
+<th>Regime</th>
+<th>max n_species</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>Default <code>mutation_sd = 0.1</code>
+</td>
+<td>96</td>
+</tr>
+<tr class="even">
+<td>Aggressive <code>mutation_sd = 0.3</code>
+</td>
+<td>200</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Isolation threshold sweep</strong> (5 levels × 3 seeds,
+mut_sd = 0.2): Spearman ρ = −0.97 between
+<code>isolation_threshold</code> and max n_species — tighter threshold,
+fewer clusters, exactly as theory predicts.</p>
+<p><strong>Caveat on n_species interpretation.</strong> Counts in the
+hundreds (from 500-agent populations) indicate that the
+pairwise-distance clustering algorithm at high mutation rates flags
+every distinct genome as a separate lineage. The sensitivity signs (to
+<code>mutation_sd</code> and <code>isolation_threshold</code>) are
+correct, but the absolute count should be read as “number of genetic
+clusters detected at this resolution,” not “Mayr-style biological
+species.” For textbook-style 2–4 distinct species, use lower mutation
+(0.05–0.08) and longer runs (2000+ ticks).</p>
 </div>
 <div class="section level3">
 <h3 id="discovery-experiments">Discovery experiments<a class="anchor" aria-label="anchor" href="#discovery-experiments"></a>

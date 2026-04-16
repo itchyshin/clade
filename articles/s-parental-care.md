@@ -42,31 +42,24 @@ Expected output: juvenile count is positive throughout the run;
 per-capita offspring count is lower than baseline but juvenile survival
 is higher, resulting in more buffered population dynamics.
 
-**What we found (post-0.3.0 kernel fix).** Running with
-`parental_care = TRUE` (`care_duration = 5`,
-`care_cost_per_tick = 2.0`), 80 agents, 25×25 grid, 300 ticks (seed 42):
-`n_juveniles` reaches a peak of 40 and averages ~0.3 across ticks
-(juveniles come and go as offspring are born into the brood and graduate
-out). Total births: 92; total deaths: 168. The graduation pathway —
-wired up in 0.3.0 at
-[reproduce.jl:126](../../inst/julia/src/reproduce.jl#L126) after the
-earlier audit found it was a Phase-2 stub — correctly moves carried
-juveniles into the adult population when they reach
-`juvenile_independence_age` or `juvenile_independence_energy`.
+**What we found (2026-04-15 audit, 3 seeds × 400 ticks).** Full
+protocol:
+[dev/audit/fidelity/parental_care.md](../dev/audit/fidelity/parental_care.md).
 
-Under these specific displayed parameters the population thins to
-`final_n = 4` — `care_cost_per_tick = 2.0` per juvenile is expensive
-enough that high-care-load parents lose mass and fail to forage, a
-genuine cost-of-care dynamic rather than a module stub. Lower
-`care_cost_per_tick` (e.g. 0.5) or raise `feeding_rate` to stabilise the
-population across generations. The cost-of-care trade-off is now a real
-observable, no longer masked by unreachable code.
+| Condition   | mean n | var(n) | mean juveniles |
+|-------------|--------|--------|----------------|
+| Baseline    | 290    | 4548   | 0.00           |
+| care_dur=5  | 291    | 4625   | **1.24**       |
+| care_dur=10 | 286    | 4481   | 1.24           |
 
-**Before v0.3.0** this section reported “`n_juveniles` registered as 0
-throughout” and explained that the graduation pathway was not yet wired.
-That pathway was fixed in 0.3.0 (commit
-[7ad2b1d](../../dev/audit/review/SUMMARY.md)) and the results above are
-from the current kernel.
+**Graduation pathway verified (P1 PASS)** — juveniles persist at ~1.24
+with care on, 0 without. The 0.3.0 fix is confirmed working: offspring
+are carried, fed, and graduate to the adult population.
+
+**Population-level buffering (P2 FAIL).** Care does not measurably
+reduce population variance at default parameters (4625 vs 4548). The
+quality-quantity trade-off predicted by Clutton-Brock needs tighter
+resource scarcity or higher `care_cost_per_tick` to express visibly.
 
 ### Discovery experiments
 

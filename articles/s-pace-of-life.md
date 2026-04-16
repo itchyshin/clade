@@ -30,6 +30,15 @@ throughput, but their populations are more volatile. Slow-pace agents
 productive environments; slow agents persist more reliably when
 resources are lean.
 
+**Audit caveat (2026-04-15).** In the 5-level sweep (rates 0.5 to 3.0),
+all metrics are flat: mean_age ≈ 98, n_agents ≈ 258, births ≈ 1.44,
+variance ≈ 1300, regardless of `metabolic_rate`. Cause: clade’s
+always-on `max_age = 200` dominates the age schedule — agents die at the
+cap before metabolic-rate differences can accumulate. Enabling Gompertz
+senescence or removing the age cap would be needed to reproduce the
+Réale et al. pace-of-life divergence. See
+[dev/audit/fidelity/pace_of_life.md](../dev/audit/fidelity/pace_of_life.md).
+
 ``` r
 library(clade)
 library(ggplot2)

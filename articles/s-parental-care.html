@@ -43,6 +43,19 @@
     <li><a class="dropdown-item" href="../articles/baldwin-effect.html">Baldwin effect &amp; RL</a></li>
   </ul>
 </li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-kernel-as-biology" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Kernel as biology</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-kernel-as-biology">
+<li><a class="dropdown-item" href="../articles/k-README.html">Overview &amp; reading guide</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/k-tick.html">tick.jl — one tick in the life of an agent</a></li>
+    <li><a class="dropdown-item" href="../articles/k-clade-main.html">Clade.jl — the main loop, in biological order</a></li>
+    <li><a class="dropdown-item" href="../articles/k-sense.html">sense.jl — what an agent perceives</a></li>
+    <li><a class="dropdown-item" href="../articles/k-reproduce.html">reproduce.jl — birth, inheritance, parental cost</a></li>
+    <li><a class="dropdown-item" href="../articles/k-death.html">death.jl — when agents die and why</a></li>
+    <li><a class="dropdown-item" href="../articles/k-genome.html">genome.jl — meiosis, traits, inheritance</a></li>
+  </ul>
+</li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-scenarios" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Scenarios</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-scenarios">
@@ -197,30 +210,45 @@ per-capita offspring count is lower than baseline but juvenile survival
 is higher, resulting in more buffered population dynamics.
 </p>
 </div>
-<p><strong>What we found (post-0.3.0 kernel fix).</strong> Running with
-<code>parental_care = TRUE</code> (<code>care_duration = 5</code>,
-<code>care_cost_per_tick = 2.0</code>), 80 agents, 25×25 grid, 300 ticks
-(seed 42): <code>n_juveniles</code> reaches a peak of 40 and averages
-~0.3 across ticks (juveniles come and go as offspring are born into the
-brood and graduate out). Total births: 92; total deaths: 168. The
-graduation pathway — wired up in 0.3.0 at <a href="../../inst/julia/src/reproduce.jl#L126">reproduce.jl:126</a> after
-the earlier audit found it was a Phase-2 stub — correctly moves carried
-juveniles into the adult population when they reach
-<code>juvenile_independence_age</code> or
-<code>juvenile_independence_energy</code>.</p>
-<p>Under these specific displayed parameters the population thins to
-<code>final_n = 4</code> — <code>care_cost_per_tick = 2.0</code> per
-juvenile is expensive enough that high-care-load parents lose mass and
-fail to forage, a genuine cost-of-care dynamic rather than a module
-stub. Lower <code>care_cost_per_tick</code> (e.g. 0.5) or raise
-<code>feeding_rate</code> to stabilise the population across
-generations. The cost-of-care trade-off is now a real observable, no
-longer masked by unreachable code.</p>
-<p><strong>Before v0.3.0</strong> this section reported
-“<code>n_juveniles</code> registered as 0 throughout” and explained that
-the graduation pathway was not yet wired. That pathway was fixed in
-0.3.0 (commit <a href="../../dev/audit/review/SUMMARY.html">7ad2b1d</a>)
-and the results above are from the current kernel.</p>
+<p><strong>What we found (2026-04-15 audit, 3 seeds × 400
+ticks).</strong> Full protocol: <a href="../dev/audit/fidelity/parental_care.html">dev/audit/fidelity/parental_care.md</a>.</p>
+<table class="table">
+<thead><tr class="header">
+<th>Condition</th>
+<th>mean n</th>
+<th>var(n)</th>
+<th>mean juveniles</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>Baseline</td>
+<td>290</td>
+<td>4548</td>
+<td>0.00</td>
+</tr>
+<tr class="even">
+<td>care_dur=5</td>
+<td>291</td>
+<td>4625</td>
+<td><strong>1.24</strong></td>
+</tr>
+<tr class="odd">
+<td>care_dur=10</td>
+<td>286</td>
+<td>4481</td>
+<td>1.24</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Graduation pathway verified (P1 PASS)</strong> — juveniles
+persist at ~1.24 with care on, 0 without. The 0.3.0 fix is confirmed
+working: offspring are carried, fed, and graduate to the adult
+population.</p>
+<p><strong>Population-level buffering (P2 FAIL).</strong> Care does not
+measurably reduce population variance at default parameters (4625 vs
+4548). The quality-quantity trade-off predicted by Clutton-Brock needs
+tighter resource scarcity or higher <code>care_cost_per_tick</code> to
+express visibly.</p>
 </div>
 <div class="section level3">
 <h3 id="discovery-experiments">Discovery experiments<a class="anchor" aria-label="anchor" href="#discovery-experiments"></a>

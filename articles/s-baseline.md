@@ -42,24 +42,34 @@ sigma.](figures/showcase_01_run_dashboard.png)
 Expected output: six-panel run summary showing population dynamics, mean
 energy, genetic diversity, births/deaths, grass coverage, and BNN sigma.
 
-**What we found.** Running 100 agents on a 30×30 grid for 500 ticks
-(seed 42), `grass_rate = 0.15`: population ranged from 143 to 402 (mean
-283), showing density-dependent regulation against a carrying capacity
-of ~400 imposed by the energy budget. Mean energy was stable near 130
-throughout the run (129.6 at tick 50, 130.6 at tick 450) — foraging is
-already near-optimal in the default parameterisation, so there is little
-room for selection to raise mean energy within 500 ticks. Genetic
-diversity increased from 0.178 at tick 50 to 0.386 at tick 450,
-reflecting divergence of neural genome lineages rather than selective
-sweep toward a single optimum: the spatial structure of the resource
-landscape supports multiple foraging strategies simultaneously. Total
-births = 727, deaths = 587 over 500 ticks, a persistent turnover of ~1.5
-generations per 100 ticks. Grass coverage oscillated in 0.23–0.52 as
-agents grazed down and resources regrew, consistent with active
-consumer–resource dynamics. Verified over 10 seeds in
-`dev/audit/fidelity/baseline.md`; running the displayed code (a single
-seed) is sufficient to reproduce the trends though not the exact
-numbers.
+**What we found (10-seed audit, 2026-04-15).** Running 10 seeds × 500
+ticks at 100 agents init, 30×30 grid, `grass_rate = 0.15`:
+
+| Metric                      | Mean ± SD     | Notes                                           |
+|-----------------------------|---------------|-------------------------------------------------|
+| `n_agents`                  | 256.9 ± 3.5   | Strong carrying capacity                        |
+| `mean_energy`               | 129.2 ± 1.1   | 65% of `energy_max = 200`                       |
+| `mean_age`                  | 98.3 ± 0.3    | Steady-state age structure                      |
+| `genetic_diversity`         | 0.341 ± 0.002 | Rises 0.07 → 0.34 (mutation outpaces selection) |
+| `mean_ann_weight_magnitude` | 27.3 ± 0.2    | Init ~5 → evolved 27                            |
+| `n_births` per tick         | 1.43 ± 0.03   | Balanced against ~1.43 deaths                   |
+| `n_starvations` per tick    | 0.003         | Negligible                                      |
+| `grass_coverage`            | 0.385 ± 0.006 | Active grazing equilibrium                      |
+
+Seed-to-seed variability is \< 2% on every metric — the baseline is
+exceptionally reproducible.
+
+**Kernel lineage note.** clade’s baseline kernel has diverged
+substantially from its MATLAB ancestor (Bulitko 2023,
+[alifeR/alife_matlab/codebase/alife.m](https://github.com/itchyshin/alifeR/tree/main/alife_matlab))
+and from the alifeR R port. Intentional improvements include diploid
+genomes with full meiosis, a Bayesian-NN default brain, input
+normalisation to \[0,1\], and scalar trait evolution. A handful of
+undocumented changes (eating semantics, grass-to-energy ratio, always-on
+age cap, fixed repro cost) are worth flagging for 0.4.0 review. The full
+three-way diff is in
+[dev/audit/fidelity/baseline.md](../dev/audit/fidelity/baseline.md) §3
+and §6.
 
 ### Discovery experiments
 

@@ -43,6 +43,19 @@
     <li><a class="dropdown-item" href="../articles/baldwin-effect.html">Baldwin effect &amp; RL</a></li>
   </ul>
 </li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-kernel-as-biology" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Kernel as biology</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-kernel-as-biology">
+<li><a class="dropdown-item" href="../articles/k-README.html">Overview &amp; reading guide</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/k-tick.html">tick.jl — one tick in the life of an agent</a></li>
+    <li><a class="dropdown-item" href="../articles/k-clade-main.html">Clade.jl — the main loop, in biological order</a></li>
+    <li><a class="dropdown-item" href="../articles/k-sense.html">sense.jl — what an agent perceives</a></li>
+    <li><a class="dropdown-item" href="../articles/k-reproduce.html">reproduce.jl — birth, inheritance, parental cost</a></li>
+    <li><a class="dropdown-item" href="../articles/k-death.html">death.jl — when agents die and why</a></li>
+    <li><a class="dropdown-item" href="../articles/k-genome.html">genome.jl — meiosis, traits, inheritance</a></li>
+  </ul>
+</li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-scenarios" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Scenarios</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-scenarios">
@@ -222,22 +235,38 @@ outbreak.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">p1</span> <span class="op">/</span> <span class="va">p2</span></span></code></pre></div>
-<p><strong>What we found.</strong> Running this code (100 agents,
-<code>transmission_prob = 0.20</code>,
-<code>disease_seed_prob = 0.05</code>, seed 42): the epidemic peaks at
-tick 10 with 19 infected agents (19% prevalence). The wave resolves by
-tick 50 as agents recover and acquire immunity
-(<code>immune_duration = 20</code> ticks). Total new infections over 300
-ticks: 161. Mean agent energy drops only marginally during the epidemic
-(93.8 before vs 92.7 at peak) because the default
-<code>disease_energy_cost = 5.0</code> is partially offset by reduced
-competition for grass when infected agents move less. Final population
-at tick 300: 58 agents — a 42% decline driven by compounded starvation
-and disease mortality, not by direct disease death (which is only
-<code>disease_death_prob = 0.01</code> per tick). <strong>Key empirical
-calibration point</strong>: R₀ ≈ 1.5–2.5 at these parameters, consistent
-with moderate-virulence respiratory pathogens (Anderson &amp; May
-1991).</p>
+<p><strong>What we found (2026-04-15 audit).</strong> 5-seed run at
+<code>transmission_prob = 0.20</code>, 120 agents init, 300 ticks. Full
+protocol: <a href="../dev/audit/fidelity/disease.html">dev/audit/fidelity/disease.md</a>.</p>
+<table class="table">
+<thead><tr class="header">
+<th>Metric</th>
+<th>Value</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>Peak infected</td>
+<td>75.0 ± 9.5</td>
+</tr>
+<tr class="even">
+<td>Total new infections</td>
+<td>918.8 ± 33.5</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Transmission sweep (6 levels × 3 seeds):</strong> Spearman ρ
+between <code>transmission_prob</code> and peak = <strong>1.00</strong>
+— perfectly monotone dose-response. Threshold behaviour visible: at
+<code>tr = 0.02</code> the pathogen fades (peak ≈ seed count = 6); at
+<code>tr = 0.10</code> the epidemic ignites (peak = 27); above
+<code>tr = 0.20</code> the outbreak saturates toward the population
+size.</p>
+<p><strong>Endemic, not closed-SIR.</strong> Unlike the textbook
+bell-shaped Kermack-McKendrick curve (closed population, permanent
+immunity), clade’s disease dynamics become <em>endemic</em> because
+births replenish susceptibles and immunity wanes after
+<code>immune_duration = 20</code> ticks. This is biologically correct
+for an open population.</p>
 </div>
 <div class="section level3">
 <h3 id="calibrated-regime-cma-es-discovered">Calibrated regime (CMA-ES discovered)<a class="anchor" aria-label="anchor" href="#calibrated-regime-cma-es-discovered"></a>

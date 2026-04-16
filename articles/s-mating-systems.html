@@ -43,6 +43,19 @@
     <li><a class="dropdown-item" href="../articles/baldwin-effect.html">Baldwin effect &amp; RL</a></li>
   </ul>
 </li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-kernel-as-biology" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Kernel as biology</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-kernel-as-biology">
+<li><a class="dropdown-item" href="../articles/k-README.html">Overview &amp; reading guide</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/k-tick.html">tick.jl — one tick in the life of an agent</a></li>
+    <li><a class="dropdown-item" href="../articles/k-clade-main.html">Clade.jl — the main loop, in biological order</a></li>
+    <li><a class="dropdown-item" href="../articles/k-sense.html">sense.jl — what an agent perceives</a></li>
+    <li><a class="dropdown-item" href="../articles/k-reproduce.html">reproduce.jl — birth, inheritance, parental cost</a></li>
+    <li><a class="dropdown-item" href="../articles/k-death.html">death.jl — when agents die and why</a></li>
+    <li><a class="dropdown-item" href="../articles/k-genome.html">genome.jl — meiosis, traits, inheritance</a></li>
+  </ul>
+</li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-scenarios" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Scenarios</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-scenarios">
@@ -227,22 +240,38 @@ sexual (diploid) condition. The asexual population converges to lower
 diversity more rapidly, illustrating the recombination advantage of sex.
 </p>
 </div>
-<p><strong>What we found.</strong> Running 3 replicates with
-<code>sexual_repro = FALSE</code> (haploid asexual) vs
-<code>sexual_repro = TRUE</code> (diploid sexual), 80 agents, 25×25
-grid, <code>grass_rate = 0.15</code>, 400 ticks (seeds 41–43): the two
-mating systems performed nearly identically — asexual mean population
-211 vs sexual 209; mean energy 124.3 vs 124.5; late genetic diversity
-0.340 vs 0.339. Neither condition produced near-extinction events. The
-two diverged slightly in early diversity (asexual 0.181 early vs sexual
-0.165), with asexual populations slightly more diverse in the first 50
-ticks (because haploid genomes express all mutations immediately without
-recessive masking) but converging to the same late diversity. In a
-stable foraging environment, sexual recombination’s shuffling of
-existing variants provides no detectable advantage. The theoretical
-advantage of sex — greater adaptive flexibility under novel selection —
-requires testing under dynamic perturbation (e.g., episodic disease or
-seasonal crashes) where recombinants fill new adaptive peaks.</p>
+<p><strong>What we found (2026-04-15 audit, 4 seeds × 500
+ticks).</strong> Full protocol: <a href="../dev/audit/fidelity/mating_systems.html">dev/audit/fidelity/mating_systems.md</a>.</p>
+<table class="table">
+<thead><tr class="header">
+<th>Condition</th>
+<th>genetic diversity</th>
+<th>mean n_agents</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>Haploid asexual</td>
+<td>0.314 ± 0.003</td>
+<td>288</td>
+</tr>
+<tr class="even">
+<td>Diploid sexual (xo=0.1)</td>
+<td>0.308 ± 0.002</td>
+<td>286</td>
+</tr>
+</tbody>
+</table>
+<p>In a stable foraging environment, the theoretical recombination
+advantage of sex is <strong>not reproduced</strong> — haploid asex
+maintains marginally <em>higher</em> diversity (Δ = −0.005, reversed
+direction but small). Haploids expose all mutations immediately without
+recessive masking, which gives them slightly higher standing phenotypic
+variation at equilibrium.</p>
+<p>The Maynard Smith Red-Queen prediction — sex out-competes asex under
+fluctuating selection (parasites, seasons) — is not tested here and
+would require combining <code>ploidy = 2</code> with
+<code>disease = TRUE</code> or <code>seasonal_amplitude &gt; 0</code> to
+detect.</p>
 </div>
 <div class="section level3">
 <h3 id="discovery-experiments">Discovery experiments<a class="anchor" aria-label="anchor" href="#discovery-experiments"></a>

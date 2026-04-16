@@ -63,22 +63,27 @@ ggplot(df_mean, aes(t, mean_body_size, colour = condition)) +
   theme_minimal()
 ```
 
-**What we found.** Running 5 replicates (80 agents, 400 ticks, default
-grass):
+**What we found (2026-04-15 audit, 5 seeds × 600 ticks).** Full
+protocol:
+[dev/audit/fidelity/body_size.md](../dev/audit/fidelity/body_size.md).
 
-- **No predators**: body size evolved from 1.001 to 1.078 (Δ = +0.077).
-- **10 predators**: body size evolved from 1.003 to 1.124 (Δ = +0.121 —
-  **57% larger increase**).
+| Condition    | final body size | Δ from init                     |
+|--------------|-----------------|---------------------------------|
+| No predators | 1.126 ± 0.029   | **+0.128** (Cope direction ✓)   |
+| 10 predators | 1.103 ± 0.023   | **+0.105** (slower, not faster) |
 
-Predation accelerates directional selection for larger body size. The
-mechanism: the body size module rewards larger-bodied agents with
-proportionally greater foraging gains (energy received scales with body
-size); predators create additional mortality on the smaller-bodied end,
-compressing the lower tail of the body-size distribution. Both forces
-push the population mean upward. Population size was similar across
-conditions (no predators: 99 agents mean; predators: 96 agents mean),
-confirming that selection, not population bottleneck, drives the size
-increase.
+**Cope’s rule direction (P1) PASS** — body size drifts upward by ~13%
+over 600 ticks without predators.
+
+**Predation-accelerates-size prediction NOT REPRODUCED.** The audit
+found predation slows the drift (Δ ratio 0.81). The vignette’s prior
+“+57% larger increase under predation” claim is retracted. Two plausible
+mechanisms: (a) larger prey are more detectable in clade’s sensing
+model, so predators cull the top of the distribution; (b) predation
+thins the population, reducing the density-dependent
+foraging-competition that drives Cope’s rule in the first place. Either
+way, the “predators favour larger bodies” story (Shine 2011 cane-toad
+result) is not a general prediction reproduced at these parameters.
 
 ### Calibrated regime (CMA-ES discovered)
 

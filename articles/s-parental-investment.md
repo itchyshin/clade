@@ -76,25 +76,23 @@ better-provisioned offspring; equal investment (blue) produces more
 offspring at lower individual quality, illustrating the quality-quantity
 trade-off.
 
-**What we found (post-0.3.0 kernel fix).** The parental investment
-module now operates on top of a working parental-care pipeline
-(graduation pathway wired in 0.3.0, see
-[`dev/audit/review/SUMMARY.md`](../../dev/audit/review/SUMMARY.md)).
-`n_juveniles` is a real non-zero trajectory for conditions that retain
-the population through 300 ticks. The quality-quantity trade-off is now
-observable: at default `feeding_rate = 5` and `male_repro_cost = 0.3`,
-raising feeding_rate to ~19 (per CMA-ES calibration in Phase 7;
-`dev/audit/calibration/RESULTS.md`) yields higher `n_juveniles` **and**
-higher late-run `n_agents`, consistent with the Smith-Fretwell (1974)
-optimum-investment theory. Sweeping `max_offspring` would now reveal the
-classic crossing of fitness curves — clutch size 1 with high investment
-vs clutch size 5 with low investment — which was inaccessible before the
-graduation fix.
+**What we found (2026-04-15 audit, 3 seeds × 4 investment levels).**
+Full protocol:
+[dev/audit/fidelity/parental_investment.md](../dev/audit/fidelity/parental_investment.md).
 
-**Before v0.3.0** this section reported that the module produced
-`n_juveniles = 0` in all conditions because the graduation pathway was
-not active. That is no longer true; the simulation reflects the real
-biology of parental investment.
+Across `female_investment ∈ {0.3, 0.5, 0.7, 0.9}` all population metrics
+are essentially flat: births ≈ 1.5/tick, juveniles ≈ 1.5, n_agents ≈
+262, mean_energy ≈ 125. Spearman ρ(fi, births) = −0.20 (weak, not
+significant).
+
+**The Trivers quality-quantity trade-off is not reproduced at current
+parameter couplings.** The mechanism is wired (offspring are carried,
+fed, graduated), but the `female_investment` ratio does not
+differentially change per-offspring quality or total births enough to
+recover Trivers’ prediction. A kernel extension coupling
+`female_investment` more tightly to offspring graduation energy (or
+introducing heritable mate-choice preferences) would be needed. Flagged
+as 🟠 passed-consistent.
 
 ### Discovery experiments
 

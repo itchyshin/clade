@@ -43,6 +43,19 @@
     <li><a class="dropdown-item" href="../articles/baldwin-effect.html">Baldwin effect &amp; RL</a></li>
   </ul>
 </li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-kernel-as-biology" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Kernel as biology</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-kernel-as-biology">
+<li><a class="dropdown-item" href="../articles/k-README.html">Overview &amp; reading guide</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/k-tick.html">tick.jl — one tick in the life of an agent</a></li>
+    <li><a class="dropdown-item" href="../articles/k-clade-main.html">Clade.jl — the main loop, in biological order</a></li>
+    <li><a class="dropdown-item" href="../articles/k-sense.html">sense.jl — what an agent perceives</a></li>
+    <li><a class="dropdown-item" href="../articles/k-reproduce.html">reproduce.jl — birth, inheritance, parental cost</a></li>
+    <li><a class="dropdown-item" href="../articles/k-death.html">death.jl — when agents die and why</a></li>
+    <li><a class="dropdown-item" href="../articles/k-genome.html">genome.jl — meiosis, traits, inheritance</a></li>
+  </ul>
+</li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-scenarios" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Scenarios</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-scenarios">
@@ -236,35 +249,76 @@ tendency).</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">p1</span> <span class="op">/</span> <span class="va">p2</span></span></code></pre></div>
-<p><strong>What we found.</strong> Running 5 replicates (50 agents,
-<code>cooperation_multiplier = 2.5</code>,
-<code>cooperation_cost = 1.0</code>,
-<code>cooperation_init_mean = 0.5</code>, 400 ticks):</p>
-<ul>
-<li>
-<strong>Without cooperation</strong>: mean population 106, final
-population 98.</li>
-<li>
-<strong>With cooperation</strong>: mean population 322,
-<strong>final population 399</strong> (near the
-<code>max_agents = 400</code> cap). Public goods approximately
-<strong>tripled</strong> carrying capacity.</li>
-</ul>
-<p>The cooperation level told a different story: it started at 0.504 ±
-0.01 and ended at 0.492 ± 0.01 — a small but consistent decline (p &lt;
-0.05 across 5 reps). This is the <strong>tragedy of the commons</strong>
-in real time: while cooperation dramatically increases group-level
-fitness, free-riders (low <code>cooperation_level</code> agents) invade
-because they receive public goods benefits without paying the cost. At
-<code>cooperation_multiplier = 2.5</code>, the benefit is still large
-enough that even declining-cooperation populations hit the capacity
-ceiling — but if the trajectory continued, cooperation would eventually
-erode.</p>
-<p><strong>Key insight</strong>: at multiplier = 2.5 &gt; group size
-threshold, cooperation raises population capacity but individual
-selection for defection creates tension. To see the trajectory resolve:
-increase simulation length (1000+ ticks) or reduce the multiplier toward
-the threshold (multiplier ≈ 2.0 = group size 2).</p>
+<p><strong>What we found (2026-04-15 audit).</strong> 5-seed multi-seed
+run at <code>cooperation_multiplier = 2.5</code>, 80 agents, 400 ticks.
+Full protocol: <a href="../dev/audit/fidelity/cooperation.html">dev/audit/fidelity/cooperation.md</a>.</p>
+<table class="table">
+<thead><tr class="header">
+<th>Condition</th>
+<th>mean n_agents</th>
+<th>final cooperation level</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>Baseline</td>
+<td>202.6</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>Cooperation ON</td>
+<td><strong>587.6 (2.90× baseline)</strong></td>
+<td>0.500 → 0.486</td>
+</tr>
+</tbody>
+</table>
+<p>Tragedy-of-commons: cooperation drifts down 0.014 over 400 ticks
+(small but detectable), confirming free-rider invasion even as group
+benefit raises carrying capacity.</p>
+<p><strong>Multiplier sweep (7 levels × 3 seeds, 2026-04-15):</strong>
+Spearman correlation between <code>cooperation_multiplier</code> and
+population is <strong>ρ = 1.00</strong>. Sharp transition between M =
+1.5 (296 agents) and M = 2.0 (528 agents) — this is the spatial
+Nowak-May critical regime. Above M ≈ 2.5, population saturates at the
+cap:</p>
+<table class="table">
+<thead><tr class="header">
+<th><code>M</code></th>
+<th>mean n</th>
+<th></th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>0.5</td>
+<td>137</td>
+<td>sub-baseline (cost unrewarded)</td>
+</tr>
+<tr class="even">
+<td>1.0</td>
+<td>200</td>
+<td>≈ baseline</td>
+</tr>
+<tr class="odd">
+<td>1.5</td>
+<td>296</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>2.0</td>
+<td><strong>528</strong></td>
+<td>sharp transition</td>
+</tr>
+<tr class="odd">
+<td>2.5</td>
+<td>588</td>
+<td>(default in vignette)</td>
+</tr>
+<tr class="even">
+<td>3.0+</td>
+<td>~600</td>
+<td>saturated at max_agents cap</td>
+</tr>
+</tbody>
+</table>
 <div class="figure">
 <img src="figures/showcase_08_cooperation.png" class="r-plt" alt="Expected output: population with cooperation (green) rises to near the max_agents ceiling while the baseline (pink) stabilises at a lower level. Cooperation level drifts slightly downward, showing free-rider invasion alongside the group-level benefit." width="100%"><p class="caption">
 Expected output: population with cooperation (green) rises to near the

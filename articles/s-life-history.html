@@ -43,6 +43,19 @@
     <li><a class="dropdown-item" href="../articles/baldwin-effect.html">Baldwin effect &amp; RL</a></li>
   </ul>
 </li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-kernel-as-biology" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Kernel as biology</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-kernel-as-biology">
+<li><a class="dropdown-item" href="../articles/k-README.html">Overview &amp; reading guide</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/k-tick.html">tick.jl — one tick in the life of an agent</a></li>
+    <li><a class="dropdown-item" href="../articles/k-clade-main.html">Clade.jl — the main loop, in biological order</a></li>
+    <li><a class="dropdown-item" href="../articles/k-sense.html">sense.jl — what an agent perceives</a></li>
+    <li><a class="dropdown-item" href="../articles/k-reproduce.html">reproduce.jl — birth, inheritance, parental cost</a></li>
+    <li><a class="dropdown-item" href="../articles/k-death.html">death.jl — when agents die and why</a></li>
+    <li><a class="dropdown-item" href="../articles/k-genome.html">genome.jl — meiosis, traits, inheritance</a></li>
+  </ul>
+</li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-scenarios" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Scenarios</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-scenarios">
@@ -224,22 +237,64 @@ and episodic birth bursts; the iteroparous population (green) sustains a
 higher mean age and a smoother birth-rate trajectory.
 </p>
 </div>
-<p><strong>What we found.</strong> Running 3 replicates with
-<code>life_history = "semelparous"</code> (max_offspring = 4) vs
-<code>"iteroparous"</code>, 80 agents, 25×25 grid,
-<code>grass_rate = 0.15</code>, 400 ticks (seeds 41–43): the contrast is
-stark. Semelparous agents showed mean population 84 vs 209
-(iteroparous), mean age 13 vs 86 ticks, and 4× more births (1,718 vs
-438). Semelparous population variance was near-zero (6.9 vs 2,170 for
-iteroparous) — rapid generation turnover smooths out stochastic
-fluctuations, creating exceptionally stable population counts despite
-each individual having a very short life. Semelparous agents maintained
-much lower mean energy (84 vs 125), consistent with energy investment in
-burst reproduction rather than somatic maintenance. The result
-illustrates Williams’s (1966) original prediction: semelparous organisms
-trade somatic investment for maximising terminal reproductive effort, at
-the cost of reduced population size in systems where resource depletion
-is correlated.</p>
+<p><strong>What we found.</strong> Multi-seed audit (5 seeds, 80 agents,
+25×25 grid, <code>grass_rate = 0.15</code>, 400 ticks; full protocol in
+<a href="../dev/audit/fidelity/life_history.html">dev/audit/fidelity/life_history.md</a>).
+All three sign predictions from Cole (1954) and Williams (1966) hold,
+with seed-level reproducibility under 5%:</p>
+<table class="table">
+<thead><tr class="header">
+<th>Metric</th>
+<th>Semelparous</th>
+<th>Iteroparous</th>
+<th>Theory predicted</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code>mean_age</code></td>
+<td>13.0</td>
+<td>101.5</td>
+<td>sem &lt; iter ✓</td>
+</tr>
+<tr class="even">
+<td>
+<code>n_births</code> per tick</td>
+<td>4.20</td>
+<td>0.89</td>
+<td>sem &gt; iter ✓</td>
+</tr>
+<tr class="odd">
+<td><code>mean_energy</code></td>
+<td>84.7</td>
+<td>127.1</td>
+<td>sem &lt; iter (Williams 1966) ✓</td>
+</tr>
+<tr class="even">
+<td>equilibrium <code>n_agents</code>
+</td>
+<td>84</td>
+<td>209</td>
+<td>empirical</td>
+</tr>
+<tr class="odd">
+<td>population variance</td>
+<td>3.9</td>
+<td>2,628</td>
+<td>empirical</td>
+</tr>
+</tbody>
+</table>
+<p>The most striking emergent finding is that <strong>semelparous
+populations are 674× more stable</strong> (lower variance) than
+iteroparous, despite 4.7× faster turnover. Tightly synchronized cohorts
+phase births and deaths to grass renewal, so population fluctuations
+cancel out; iteroparous individuals can opportunistically survive lean
+periods, which paradoxically <em>decouples</em> demography from
+resources and <em>increases</em> variance. Cole’s paradox — that the
+per-individual fitness gap between strategies is small — is consistent
+with this result: equilibrium populations differ but neither strategy is
+catastrophically worse, and the demographic <em>signatures</em> differ
+much more than the <em>fitness</em> outcomes do.</p>
 </div>
 <div class="section level3">
 <h3 id="discovery-experiments">Discovery experiments<a class="anchor" aria-label="anchor" href="#discovery-experiments"></a>

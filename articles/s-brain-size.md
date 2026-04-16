@@ -26,15 +26,22 @@ The key prediction: `brain_size_evolution = TRUE` without parental care
 selects against large brains; with parental care, larger brains can
 evolve.
 
-**What we found.** With `brain_size_cost_scale = 2.0` and
-`care_duration = 15L`, the parental-care condition produced an upward
-drift in mean brain size from 1.1 to ~1.8 over 300 ticks (+0.7 units);
-the no-care condition declined to ~0.85 (−0.25 units). The two
-trajectories diverge within 30–50 ticks and do not cross. Calibration
-matters: at the default `brain_size_cost_scale = 1.2` the foraging bonus
-overwhelms the metabolic surcharge and both conditions drift upward,
-masking the bootstrapping problem. See the Example subsection for full
-code and the Discovery prompts for cross-module extensions.
+**What we found (2026-04-15 audit, 4 seeds × 400 ticks,
+`brain_size_cost_scale = 2.0`, `care_duration = 15`).** Full protocol:
+[dev/audit/fidelity/brain_size.md](../dev/audit/fidelity/brain_size.md).
+
+| Condition        | init → final brain | Δ      |
+|------------------|--------------------|--------|
+| Parental care    | 1.100 → 1.097      | −0.003 |
+| No parental care | 1.102 → 1.091      | −0.012 |
+
+**Direction is correct** (care drift \> no-care drift, Δ-delta = +0.009)
+— parental provisioning hypothesis supported qualitatively. **But
+magnitudes are tiny** and both conditions slightly decline rather than
+diverge dramatically. The prior “+0.7 with care, −0.25 no-care” claim is
+not reproduced at these parameters and is retracted. Flagged 🟠
+passed-consistent; longer runs or higher cost_scale needed to sharpen
+the contrast.
 
 ### Parameters
 

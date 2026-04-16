@@ -69,21 +69,31 @@ Expected output: the semelparous population (red) shows lower mean age
 and episodic birth bursts; the iteroparous population (green) sustains a
 higher mean age and a smoother birth-rate trajectory.
 
-**What we found.** Running 3 replicates with
-`life_history = "semelparous"` (max_offspring = 4) vs `"iteroparous"`,
-80 agents, 25×25 grid, `grass_rate = 0.15`, 400 ticks (seeds 41–43): the
-contrast is stark. Semelparous agents showed mean population 84 vs 209
-(iteroparous), mean age 13 vs 86 ticks, and 4× more births (1,718 vs
-438). Semelparous population variance was near-zero (6.9 vs 2,170 for
-iteroparous) — rapid generation turnover smooths out stochastic
-fluctuations, creating exceptionally stable population counts despite
-each individual having a very short life. Semelparous agents maintained
-much lower mean energy (84 vs 125), consistent with energy investment in
-burst reproduction rather than somatic maintenance. The result
-illustrates Williams’s (1966) original prediction: semelparous organisms
-trade somatic investment for maximising terminal reproductive effort, at
-the cost of reduced population size in systems where resource depletion
-is correlated.
+**What we found.** Multi-seed audit (5 seeds, 80 agents, 25×25 grid,
+`grass_rate = 0.15`, 400 ticks; full protocol in
+[dev/audit/fidelity/life_history.md](../dev/audit/fidelity/life_history.md)).
+All three sign predictions from Cole (1954) and Williams (1966) hold,
+with seed-level reproducibility under 5%:
+
+| Metric                 | Semelparous | Iteroparous | Theory predicted              |
+|------------------------|-------------|-------------|-------------------------------|
+| `mean_age`             | 13.0        | 101.5       | sem \< iter ✓                 |
+| `n_births` per tick    | 4.20        | 0.89        | sem \> iter ✓                 |
+| `mean_energy`          | 84.7        | 127.1       | sem \< iter (Williams 1966) ✓ |
+| equilibrium `n_agents` | 84          | 209         | empirical                     |
+| population variance    | 3.9         | 2,628       | empirical                     |
+
+The most striking emergent finding is that **semelparous populations are
+674× more stable** (lower variance) than iteroparous, despite 4.7×
+faster turnover. Tightly synchronized cohorts phase births and deaths to
+grass renewal, so population fluctuations cancel out; iteroparous
+individuals can opportunistically survive lean periods, which
+paradoxically *decouples* demography from resources and *increases*
+variance. Cole’s paradox — that the per-individual fitness gap between
+strategies is small — is consistent with this result: equilibrium
+populations differ but neither strategy is catastrophically worse, and
+the demographic *signatures* differ much more than the *fitness*
+outcomes do.
 
 ### Discovery experiments
 

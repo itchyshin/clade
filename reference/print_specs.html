@@ -32,6 +32,17 @@ parameters differ from the defaults."></head><body>
     <li><a class="dropdown-item" href="../articles/baldwin-effect.html">Baldwin effect &amp; RL</a></li>
   </ul></li>
 <li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-kernel-as-biology" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Kernel as biology</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-kernel-as-biology"><li><a class="dropdown-item" href="../articles/k-README.html">Overview &amp; reading guide</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/k-tick.html">tick.jl — one tick in the life of an agent</a></li>
+    <li><a class="dropdown-item" href="../articles/k-clade-main.html">Clade.jl — the main loop, in biological order</a></li>
+    <li><a class="dropdown-item" href="../articles/k-sense.html">sense.jl — what an agent perceives</a></li>
+    <li><a class="dropdown-item" href="../articles/k-reproduce.html">reproduce.jl — birth, inheritance, parental cost</a></li>
+    <li><a class="dropdown-item" href="../articles/k-death.html">death.jl — when agents die and why</a></li>
+    <li><a class="dropdown-item" href="../articles/k-genome.html">genome.jl — meiosis, traits, inheritance</a></li>
+  </ul></li>
+<li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-scenarios" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Scenarios</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-scenarios"><li><a class="dropdown-item" href="../articles/scenarios.html">All scenarios (index)</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -139,7 +150,7 @@ Default <code>FALSE</code>.</p></dd>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">print_specs</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -- clade specs (232 parameters) --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -- clade specs (242 parameters) --</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Grid &amp; population</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     grid_rows                              30</span>
@@ -288,6 +299,12 @@ Default <code>FALSE</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Other</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     toroidal                               TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     max_bite                               2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     repro_cost_mode                        proportional</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     repro_cost_fraction                    0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     offspring_energy_mode                  proportional</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     offspring_energy_fraction              0.25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     max_age_scales_with_metabolism         FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     input_radius                           1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     n_genes                                20</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     transformer_history                    8</span>
@@ -298,6 +315,10 @@ Default <code>FALSE</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     brain_energy_mode                      activity</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     brain_energy_base                      0.001</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     brain_energy_activity                  0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     bnn_sigma_init                         0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     bnn_sigma_min                          0.01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     bnn_sigma_source                       heterozygosity</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     bnn_sample_freq                        1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     n_chromosomes                          1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     dominance_model                        additive</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     mutation_rate_evolution                FALSE</span>
@@ -423,7 +444,7 @@ Default <code>FALSE</code>.</p></dd>
 <span class="r-in"><span><span class="va">s</span><span class="op">$</span><span class="va">kin_selection</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="va">s</span><span class="op">$</span><span class="va">complex_landscape</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="fu">print_specs</span><span class="op">(</span><span class="va">s</span>, diff_only <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -- clade specs (232 parameters) [diff only] --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -- clade specs (242 parameters) [diff only] --</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Kin selection</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     kin_selection                          TRUE *</span>

@@ -43,6 +43,19 @@
     <li><a class="dropdown-item" href="../articles/baldwin-effect.html">Baldwin effect &amp; RL</a></li>
   </ul>
 </li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-kernel-as-biology" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Kernel as biology</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-kernel-as-biology">
+<li><a class="dropdown-item" href="../articles/k-README.html">Overview &amp; reading guide</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/k-tick.html">tick.jl — one tick in the life of an agent</a></li>
+    <li><a class="dropdown-item" href="../articles/k-clade-main.html">Clade.jl — the main loop, in biological order</a></li>
+    <li><a class="dropdown-item" href="../articles/k-sense.html">sense.jl — what an agent perceives</a></li>
+    <li><a class="dropdown-item" href="../articles/k-reproduce.html">reproduce.jl — birth, inheritance, parental cost</a></li>
+    <li><a class="dropdown-item" href="../articles/k-death.html">death.jl — when agents die and why</a></li>
+    <li><a class="dropdown-item" href="../articles/k-genome.html">genome.jl — meiosis, traits, inheritance</a></li>
+  </ul>
+</li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-scenarios" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Scenarios</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-scenarios">
@@ -250,21 +263,57 @@ conditions (blue) select for smaller clutches, illustrating the r/K
 continuum.
 </p>
 </div>
-<p><strong>What we found.</strong> Running with
-<code>max_offspring = 6</code> at <code>grass_rate = 0.25</code> (rich)
-vs <code>grass_rate = 0.06</code> (scarce), 80 agents, 25×25 grid, 400
-ticks (3 replicates): rich environments supported 2.9× more agents (mean
-282 vs 96) and 4.1× more births (629 vs 152). Both conditions used the
-same maximum clutch size (6), so the comparison shows population-level
-consequences of resource availability rather than evolved clutch-size
-differences. To observe evolved r/K divergence, enable heritable
-<code>max_offspring</code> with mutation: when resources are rich,
-offspring producing many young of low quality should outcompete
-single-offspring strategists; when resources are scarce, the
-few-high-quality strategy should dominate. Run
-<code><a href="../reference/batch_alife.html">batch_alife()</a></code> varying <code>grass_rate</code> from 0.04 to
-0.30 and watch whether mean <code>max_offspring</code> correlates with
-resource availability across replicates.</p>
+<p><strong>What we found (2026-04-15 audit).</strong> Grass sweep × 3
+seeds × 600 ticks reveals a <strong>non-monotone, bell-shaped r/K
+response</strong> — the richest theoretical signature in this scenario.
+Full protocol: <a href="../dev/audit/fidelity/clutch_size.html">dev/audit/fidelity/clutch_size.md</a>.</p>
+<table class="table">
+<thead><tr class="header">
+<th><code>grass_rate</code></th>
+<th>evolved clutch</th>
+<th>mean n_agents</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>0.05</td>
+<td>1.56</td>
+<td>166</td>
+</tr>
+<tr class="even">
+<td>0.10</td>
+<td>1.86</td>
+<td>315</td>
+</tr>
+<tr class="odd">
+<td>0.15</td>
+<td><strong>2.32 (peak)</strong></td>
+<td>447</td>
+</tr>
+<tr class="even">
+<td>0.20</td>
+<td>1.44</td>
+<td>500 (cap)</td>
+</tr>
+<tr class="odd">
+<td>0.30</td>
+<td>1.14</td>
+<td>500 (cap)</td>
+</tr>
+<tr class="even">
+<td>0.40</td>
+<td>1.12</td>
+<td>500 (cap)</td>
+</tr>
+</tbody>
+</table>
+<p>Below the carrying-capacity cap (grass ≤ 0.15), clutch size rises
+monotonically with resources — the <strong>r-selection arm of Lack’s
+prediction</strong>. Above, the population saturates at
+<code>max_agents = 500</code> and K-selection takes over:
+single-offspring strategists out- compete multi-offspring ones, driving
+evolved clutch to the lower bound. Both arms match MacArthur-Wilson r/K
+theory; only the naive monotone Lack prediction misses the
+density-dependent regime shift.</p>
 </div>
 <div class="section level3">
 <h3 id="discovery-experiments">Discovery experiments<a class="anchor" aria-label="anchor" href="#discovery-experiments"></a>

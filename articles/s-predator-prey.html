@@ -43,6 +43,19 @@
     <li><a class="dropdown-item" href="../articles/baldwin-effect.html">Baldwin effect &amp; RL</a></li>
   </ul>
 </li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-kernel-as-biology" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Kernel as biology</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-kernel-as-biology">
+<li><a class="dropdown-item" href="../articles/k-README.html">Overview &amp; reading guide</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/k-tick.html">tick.jl — one tick in the life of an agent</a></li>
+    <li><a class="dropdown-item" href="../articles/k-clade-main.html">Clade.jl — the main loop, in biological order</a></li>
+    <li><a class="dropdown-item" href="../articles/k-sense.html">sense.jl — what an agent perceives</a></li>
+    <li><a class="dropdown-item" href="../articles/k-reproduce.html">reproduce.jl — birth, inheritance, parental cost</a></li>
+    <li><a class="dropdown-item" href="../articles/k-death.html">death.jl — when agents die and why</a></li>
+    <li><a class="dropdown-item" href="../articles/k-genome.html">genome.jl — meiosis, traits, inheritance</a></li>
+  </ul>
+</li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-scenarios" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Scenarios</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-scenarios">
@@ -137,12 +150,15 @@
 </h3>
 <p><strong>What it models.</strong> Predator-prey coevolution is one of
 the oldest and most empirically grounded problems in population biology.
-The classical Lotka-Volterra equations predict sustained oscillations in
-which predator abundance tracks prey abundance with a characteristic lag
-(Lotka 1925; Volterra 1928). In <code>clade</code>, predators are
-autonomous agents with their own energy budgets, movement rules, and
-reproduction thresholds, so oscillations emerge from individual
-behaviour rather than being imposed by differential equations.</p>
+The classical Lotka-Volterra equations predict sustained sinusoidal
+oscillations in which predator abundance tracks prey abundance with a
+quarter-cycle lag (Lotka 1925; Volterra 1926). Crucially, that
+mean-field prediction assumes <strong>fixed, mass-action
+predators</strong>. In <code>clade</code>, predators carry their own
+evolving neural-network genome — they learn, mutate, and adapt across
+generations. This single change is enough to break the textbook LV
+signature, in a specific and well-documented way (see “What we found”
+below).</p>
 <p><strong>Key parameters.</strong></p>
 <table class="table">
 <colgroup>
@@ -188,21 +204,33 @@ behaviour rather than being imposed by differential equations.</p>
 </tr>
 </tbody>
 </table>
-<p><strong>Expected output.</strong> Watch <code>n_agents</code> (prey)
-and <code>n_predators</code> over time. At the <strong>default</strong>
-parameters predators barely reproduce, so prey simply rise to their
-grass-imposed carrying capacity and stay there — no interesting
-dynamics. At the <strong>calibrated</strong> parameters in the chunk
-below (discovered via a grid search over
-<code>predator_energy_gain × predator_min_repro_energy × n_predators_init × grass_rate</code>
-in <code>dev/audit/fidelity/predator_prey.R</code>), the system produces
-one clear boom-bust cycle — prey climb to ~460 while predators grow to
-their cap, then crash at tick ~200 as predation pressure exceeds prey
-renewal — followed by damped coexistence near a prey equilibrium of
-~300. This is the classic signature of spatially-structured
-Lotka-Volterra dynamics: the first cycle is visible, but sustained
-oscillations are damped by local refugia (Huffaker 1958; Comins &amp;
-Hassell 1996; Murdoch et al. 1992).</p>
+<p><strong>Expected output (evolutionary ABM, not mean-field
+LV).</strong> Watch <code>n_agents</code> (prey) and
+<code>n_predators</code> over time at the calibrated parameters below.
+Two distinct phases emerge:</p>
+<ol style="list-style-type: decimal">
+<li><p><strong>Bootstrap (t ≈ 0–30).</strong> Initial predators have
+random neural genomes and hunt poorly. Prey climb rapidly toward their
+grass-imposed carrying capacity. Predators that survive long enough to
+reproduce pass on slightly-better-than-random hunting brains.</p></li>
+<li><p><strong>Arms-race equilibrium (t ≈ 30+).</strong> Predator brains
+evolve toward efficient pursuit; prey brains evolve toward avoidance.
+Predators saturate at their cap (<code>predator_max_agents</code>) and
+<strong>stay there</strong> even when prey are sparse — efficient
+hunters extract enough food from any non-zero prey density to maintain
+the cap-limited population. Prey continue to oscillate (driven by grass
+renewal × predation pressure), but the classic quarter-cycle predator
+lag of textbook LV is <strong>muted</strong>: the predator decline phase
+that LV requires is suppressed by ongoing pursuit-trait
+evolution.</p></li>
+</ol>
+<p>This is the documented behaviour of evolutionary predator-prey ABMs
+(see the <a href="../dev/audit/fidelity/predator_prey.html">predator-prey
+fidelity report</a> for cross-reference to the alifeR prototype, which
+contains the same explanation in §12 of its showcase vignette). To
+recover textbook sustained sinusoidal LV, you would need a fixed-policy
+predator (not yet exposed as a spec) or non-toroidal patchy spatial
+structure (Huffaker 1958; future scenario).</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
@@ -232,64 +260,68 @@ Hassell 1996; Murdoch et al. 1992).</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
 <span>    x     <span class="op">=</span> <span class="st">"Tick"</span>,</span>
 <span>    y     <span class="op">=</span> <span class="st">"Population size"</span>,</span>
-<span>    title <span class="op">=</span> <span class="st">"Predator-prey: boom-bust cycle at calibrated parameters"</span></span>
+<span>    title <span class="op">=</span> <span class="st">"Evolutionary predator-prey: prey oscillate, predators arms-race to cap"</span></span>
 <span>  <span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_classic</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">12</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_14_predators.png" class="r-plt" alt="Calibrated predator-prey regime (seed 42, 1000 ticks). Predators saturate at their cap by tick 30; prey climb to ~460 by tick 200, crash to ~250 as predator pressure builds, then settle into damped oscillations near 300. One clear boom-bust cycle — sustained LV oscillations are damped by spatial refugia in the agent-based model." width="100%"><p class="caption">
+<img src="figures/showcase_14_predators.png" class="r-plt" alt="Calibrated predator-prey regime (seed 42, 1000 ticks). Predators bootstrap from 10 to their cap of 100 by tick ~30 and stay there for the remainder — the arms-race equilibrium. Prey climb to a peak of ~460 by tick 200, crash to ~250 as predator pressure builds, then continue oscillating at amplitude ±30 around a mean of ~300. The classic LV quarter-cycle predator lag is muted because evolved predators track prey efficiently regardless of density." width="100%"><p class="caption">
 Calibrated predator-prey regime (seed 42, 1000 ticks). Predators
-saturate at their cap by tick 30; prey climb to ~460 by tick 200, crash
-to ~250 as predator pressure builds, then settle into damped
-oscillations near 300. One clear boom-bust cycle — sustained LV
-oscillations are damped by spatial refugia in the agent-based model.
+bootstrap from 10 to their cap of 100 by tick ~30 and stay there for the
+remainder — the arms-race equilibrium. Prey climb to a peak of ~460 by
+tick 200, crash to ~250 as predator pressure builds, then continue
+oscillating at amplitude ±30 around a mean of ~300. The classic LV
+quarter-cycle predator lag is muted because evolved predators track prey
+efficiently regardless of density.
 </p>
 </div>
-<p><strong>What we found.</strong> At the calibrated parameters shown
-above, seed 42, 1000 ticks: predators grow from 10 to the hard cap of
-100 by tick ~30 as prey provide abundant energy; prey climb from 150 to
-a peak of 466 by tick 200; prey crash to 245 over ticks 200–250 as
-predator pressure exceeds prey renewal; the population then settles into
-damped oscillations around a mean of ~300 prey with amplitude ±30 for
-the rest of the run. Across 10 seeds
-(<code>dev/audit/fidelity/predator_prey.R</code>), the oscillation score
-— the magnitude of the most negative autocorrelation in the
-lag-20-to-lag-100 range after tick 100 — is 0.39 ± 0.14, confirming a
-reproducible (but damped) cycle. Sustained LV oscillations comparable to
-Lotka’s 1925 mean-field derivation are <strong>not</strong> reproduced
-here: the spatial ABM dampens them via local prey refugia, consistent
-with Huffaker (1958) and Comins &amp; Hassell (1996). The prior vignette
-claimed a classical 30-tick LV lag, which is not supported by this
-audit; the first crash lag is ~50 ticks and subsequent cycles are not
-strongly periodic. Companion fidelity report: <a href="dev/audit/fidelity/predator_prey.html">dev/audit/fidelity/predator_prey.md</a>.</p>
+<p><strong>What we found.</strong> At the calibrated parameters above,
+seed 42, 1000 ticks: predators bootstrap from 10 to the cap of 100 by
+tick ~30 and remain saturated for the rest of the run — this is the
+arms-race equilibrium, not a kernel limit being hit (the multi-seed
+audit confirmed that runs with <code>predator_max_agents = 800</code>
+show identical saturation behaviour at ~6–12 individuals when energy is
+granted only on kills). Prey climb from 150 to 466 by tick 200, crash to
+245 over ticks 200–250 as cap-limited predators consume them faster than
+grass renewal can replace them, then continue oscillating around ~300
+with amplitude ±30. Across 10 seeds the prey oscillation score
+(magnitude of the most negative autocorrelation in the lag-20-to-lag-100
+range after tick 100) is 0.39 ± 0.14 — a reproducible cycle. Predator
+oscillation score is ≈ 0 by design: once evolved, they track prey
+efficiently and never enter the LV decline phase.</p>
+<p>This is the <strong>expected</strong> signature of an evolutionary
+predator-prey ABM, and matches the alifeR R prototype’s documented
+behaviour (see <a href="https://github.com/itchyshin/alifeR" class="external-link"><code>alifeR/vignettes/showcase.Rmd</code></a>
+§12 — the package author’s own explanation of why evolving predators
+suppress textbook LV oscillations). It is <strong>not</strong> Lotka
+1925’s mean-field sustained sinusoidal result, and we no longer claim to
+be. Full cross-reference table and audit protocol: <a href="dev/audit/fidelity/predator_prey.html">dev/audit/fidelity/predator_prey.md</a>.</p>
 </div>
 <div class="section level3">
 <h3 id="discovery-experiments">Discovery experiments<a class="anchor" aria-label="anchor" href="#discovery-experiments"></a>
 </h3>
-<p>The calibrated regime reproduces one boom-bust cycle + damped
-coexistence. Three open questions for going beyond:</p>
+<p>The calibrated regime reproduces the documented evolutionary-ABM
+predator-prey signature: prey oscillate, predators saturate at cap.
+Three open directions for going beyond:</p>
 <ol style="list-style-type: decimal">
-<li><p><strong>Can sustained LV oscillations be recovered?</strong>
-Huffaker (1958) achieved sustained oscillations in a spatial mite system
-only by breaking the grid into patches with dispersal barriers. Try
-lowering <code>predator_max_agents</code> from 100 back to 50 or 25,
-reducing <code>predator_sense_radius</code> to sharpen the patch scale,
-and raising <code>grid_rows</code>/<code>grid_cols</code> so local
-refugia persist. Measure the oscillation score across a grid-size sweep:
-does score rise with area?</p></li>
+<li><p><strong>Can textbook LV be recovered with fixed-policy
+predators?</strong> Lotka 1925’s sinusoidal cycles require non-evolving
+predators. A future spec (<code>predator_evolution = FALSE</code> or a
+fixed <code>policy_fn</code>) would let us test whether the pure
+mass-action mechanism reproduces the quarter-cycle lag. Currently the
+kernel always evolves predator brains, so this scenario can’t yet be
+tested directly.</p></li>
+<li><p><strong>Can spatial-refugia LV be recovered?</strong> Huffaker
+(1958) achieved sustained oscillations only by breaking the grid into
+patches with dispersal barriers. With
+<code>complex_landscape = TRUE</code> plus <code>toroidal = FALSE</code>
+and a much larger grid, the same mechanism may produce sustained cycles
+even with evolving predators. Worth a dedicated
+<code>s-spatial-refugia</code> scenario.</p></li>
 <li><p><strong>Prey trait evolution under predation.</strong> Turn on
-<code>body_size_evolution =    TRUE</code>. Under predation, are larger
-prey selected for (harder to kill) or smaller prey (faster maturation)?
-Run 10 seeds each at 0, 5, and 15 predators for 1000+ ticks and compare
-final <code>mean_body_size</code>.</p></li>
-<li><p><strong>Predator-side calibration: what makes
-<code>predator_attack_strength</code> matter?</strong> The vignette’s
-original “CMA-ES calibrated regime” with
-<code>predator_attack_strength = 1</code> and
-<code>grass_rate = 4.22e-06</code> was a numerical-optimisation
-artefact, not biology. A proper sweep of
-<code>predator_attack_strength</code> in the [10, 120] range at the
-calibrated baseline above would map the hunting-efficiency dose-response
-curve.</p></li>
+<code>body_size_evolution = TRUE</code>. Under predation, are larger
+prey selected (harder to kill) or smaller (faster maturation)? Run 10
+seeds each at 0, 5, and 15 predators for 1000+ ticks and compare final
+<code>mean_body_size</code>.</p></li>
 </ol>
 <hr>
 </div>

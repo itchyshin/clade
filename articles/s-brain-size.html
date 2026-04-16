@@ -43,6 +43,19 @@
     <li><a class="dropdown-item" href="../articles/baldwin-effect.html">Baldwin effect &amp; RL</a></li>
   </ul>
 </li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-kernel-as-biology" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Kernel as biology</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-kernel-as-biology">
+<li><a class="dropdown-item" href="../articles/k-README.html">Overview &amp; reading guide</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/k-tick.html">tick.jl — one tick in the life of an agent</a></li>
+    <li><a class="dropdown-item" href="../articles/k-clade-main.html">Clade.jl — the main loop, in biological order</a></li>
+    <li><a class="dropdown-item" href="../articles/k-sense.html">sense.jl — what an agent perceives</a></li>
+    <li><a class="dropdown-item" href="../articles/k-reproduce.html">reproduce.jl — birth, inheritance, parental cost</a></li>
+    <li><a class="dropdown-item" href="../articles/k-death.html">death.jl — when agents die and why</a></li>
+    <li><a class="dropdown-item" href="../articles/k-genome.html">genome.jl — meiosis, traits, inheritance</a></li>
+  </ul>
+</li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-scenarios" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Scenarios</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-scenarios">
@@ -163,17 +176,35 @@ brain size evolves upward.</li>
 <p>The key prediction: <code>brain_size_evolution = TRUE</code> without
 parental care selects against large brains; with parental care, larger
 brains can evolve.</p>
-<p><strong>What we found.</strong> With
-<code>brain_size_cost_scale = 2.0</code> and
-<code>care_duration = 15L</code>, the parental-care condition produced
-an upward drift in mean brain size from 1.1 to ~1.8 over 300 ticks (+0.7
-units); the no-care condition declined to ~0.85 (−0.25 units). The two
-trajectories diverge within 30–50 ticks and do not cross. Calibration
-matters: at the default <code>brain_size_cost_scale = 1.2</code> the
-foraging bonus overwhelms the metabolic surcharge and both conditions
-drift upward, masking the bootstrapping problem. See the Example
-subsection for full code and the Discovery prompts for cross-module
-extensions.</p>
+<p><strong>What we found (2026-04-15 audit, 4 seeds × 400 ticks,
+<code>brain_size_cost_scale = 2.0</code>,
+<code>care_duration = 15</code>).</strong> Full protocol: <a href="../dev/audit/fidelity/brain_size.html">dev/audit/fidelity/brain_size.md</a>.</p>
+<table class="table">
+<thead><tr class="header">
+<th>Condition</th>
+<th>init → final brain</th>
+<th>Δ</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>Parental care</td>
+<td>1.100 → 1.097</td>
+<td>−0.003</td>
+</tr>
+<tr class="even">
+<td>No parental care</td>
+<td>1.102 → 1.091</td>
+<td>−0.012</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Direction is correct</strong> (care drift &gt; no-care drift,
+Δ-delta = +0.009) — parental provisioning hypothesis supported
+qualitatively. <strong>But magnitudes are tiny</strong> and both
+conditions slightly decline rather than diverge dramatically. The prior
+“+0.7 with care, −0.25 no-care” claim is not reproduced at these
+parameters and is retracted. Flagged 🟠 passed-consistent; longer runs
+or higher cost_scale needed to sharpen the contrast.</p>
 </div>
 <div class="section level3">
 <h3 id="parameters">Parameters<a class="anchor" aria-label="anchor" href="#parameters"></a>
