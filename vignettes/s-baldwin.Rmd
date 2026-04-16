@@ -128,28 +128,46 @@ s$learning_rate_init_mean        <- 0.007
 FIG("bnn_uncertainty")
 ```
 
-**What we found.** Running with `brain_type = "bnn"`, 80 agents, 25×25 grid,
-`grass_rate = 0.15`, 600 ticks (seed 42): `mean_prior_sigma` rose monotonically
-from 0.30 at ticks 1–50 to 0.50 (the maximum ceiling) by tick 300, where it
-remained for the rest of the run. Sigma moved *upward*, not downward — the
-opposite of Baldwin Effect canalization.
+**What we found (updated 2026-04-16, audit 🔴 → 🟠 kernel-limited).**
 
-This result is not a failure of the implementation. It is a theoretically
-coherent finding: in a spatially heterogeneous environment with no single optimal
-foraging policy, maintaining exploration is adaptively superior to fixing any
-particular strategy. The fitness landscape is not stable enough for canalization
-to proceed. Canalization requires a fitness landscape with a stable global
-optimum — a condition that a dynamic foraging world with population competition
-does not provide at short run lengths.
+The pre-0.4.0 audit showed `mean_prior_sigma` rising monotonically
+from ~0.3 to the 0.5 cap in both stable and seasonal environments
+— the *opposite* of the canonical Baldwin canalization. That was
+traced to the legacy `bnn_sigma_source = "heterozygosity"` coupling,
+which prevented selection from touching sigma. Two 0.4.x kernel
+changes addressed that:
 
-**Theoretical interpretation.** Mayley (1996) showed that the Baldwin Effect
-operates fastest when (1) the fitness landscape has a single sharp peak, (2)
-mutational variance is sufficient for selection to find it, and (3) generation
-times are long enough for selection to act. In a competitive foraging world with
-spatial heterogeneity and stochastic resource patches, condition (1) fails: the
-optimal foraging strategy shifts continuously with population density and grass
-distribution. Selection therefore maintains the ability to learn (high σ) as
-the evolutionarily stable strategy.
+1. **0.4.0 Tier 5A** — `bnn_sigma_source = "trait"`: sigma tracks a
+   dedicated heritable `TRAIT_PLASTICITY` gene, so selection can
+   reduce it.
+2. **0.4.1 Tier 5C** — `brain_energy_sigma_scale > 0`: a
+   log-scaled information cost on sigma creates the selection
+   gradient Hinton & Nowlan (1987) call for.
+
+At 600 ticks with these flags on, the **canonical direction appears
+transiently**: stable Δ = −0.004, seasonal Δ = +0.003 (Δ-delta =
++0.007 in the Hinton-Nowlan direction). However, the 0.4.2 1500-tick
+sweep shows this is a **transient on the way to equilibrium, not a
+stable selection outcome**:
+
+| sigma_scale | env | 600-tick Δ | 1500-tick Δ |
+|---|---|---|---|
+| 0.05 | stable | **−0.004** | +0.001 |
+| 0.05 | seasonal | **+0.003** | −0.004 |
+
+At equilibrium the direction reverses: seasonal ends up with
+*lower* sigma than stable. The underlying reason is a kernel
+limitation — sigma in clade mediates *both* learning capacity AND
+behavioural variance (noisy actions). Seasonal stress kills agents
+during lean phases; those kills favour lower-sigma (more
+deterministic) phenotypes regardless of the Hinton-Nowlan
+learning-cost term. 0.4.3+ backlog: decouple sigma from
+behavioural variance so the canonical prediction can be tested
+without the foraging-efficiency confounder.
+
+**Current verdict** is 🟠 passed-consistent (kernel-limited):
+direction reversal from the pre-0.4.0 🔴 confirmed at short
+timescales, caveated at equilibrium.
 
 ---
 

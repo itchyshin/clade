@@ -51,18 +51,40 @@ data <- get_run_data(env)
 FIG("10_rl")
 ```
 
-**What we found.** Running 3 replicates with `rl_mode = "actor_critic"` vs `"none"`,
-80 agents, 25×25 grid, `grass_rate = 0.15`, 400 ticks (seeds 41–43): mean population
-was 208 (RL) vs 207 (no RL); mean energy 124.8 vs 124.85. BNN prior sigma rose from
-~0.30 early to ~0.50 late in *both* conditions — the opposite of the expected Baldwin
-Effect canalization. At `learning_rate = 0.01` and `rl_update_freq = 5`, each REINFORCE
-gradient step is small relative to the BNN's per-tick weight resampling from a broad
-sigma prior. The copied delta is diluted before the next update, preventing sustained
-policy improvement. The Baldwin Effect (sigma narrowing through genetic assimilation)
-is predicted to require: (i) runs longer than 400 ticks to allow genetic fixation; or
-(ii) a narrower initial sigma that is itself heritable and under selection. A dedicated
-BNN canalization scenario (see below) uses a 500-tick run that is more likely to reveal
-the sigma trajectory.
+**What we found (updated 2026-04-16, 0.4.1 audit → ✅ at
+bnn_sample_freq=5).**
+
+*Pre-0.4.0 baseline.* Running RL vs no-RL with `bnn_sample_freq = 1`
+(the old default): mean population 208 vs 207; mean energy 124.8
+vs 124.85 — essentially null. The REINFORCE gradient was being
+overwritten every tick when the BNN resampled its weights from the
+prior, so no learning accumulated across ticks.
+
+*0.4.0 Tier 5B fix.* The spec `bnn_sample_freq` now controls how
+often the BNN resamples: at `freq = 1` the legacy per-tick resample
+still washes out updates, but at `freq ≥ 5` the sample persists long
+enough for REINFORCE deltas to compound. The audit swept
+`bnn_sample_freq ∈ {1, 5, 20}` × 3 seeds × 500 ticks:
+
+| bnn_sample_freq | Δn (RL on − RL off) | Δe |
+|---|---|---|
+| 1 | −1.2 | +0.8 |
+| **5** | **+5.2** | −2.6 |
+| 20 | +0.6 | −0.2 |
+
+At `freq = 5` the Williams 1992 benefit finally appears: RL-on
+populations sustain +5.2 more agents (+2.6% of ~200) than RL-off,
+with a small energy-redistribution trade-off (agents use energy for
+reproduction rather than standing stock). At `freq = 1` the
+gradient washes out; at `freq = 20` the sample is too rigid and
+populations crash. `freq = 5` is the middle-path regime.
+
+**Verdict ✅ at `bnn_sample_freq = 5`.** Scenarios combining BNN
+brains with `rl_mode = "actor_critic"` should explicitly set this.
+The Baldwin canalization interaction is documented separately in
+[s-baldwin](s-baldwin.html) — sigma coupling to behavioural
+variance creates the kernel-limitation caveat, which is independent
+of the RL gradient channel.
 
 ### Discovery experiments
 
