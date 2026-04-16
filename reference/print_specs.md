@@ -32,7 +32,7 @@ Invisibly, the `specs` list (for piping).
 
 ``` r
 print_specs()
-#> -- clade specs (247 parameters) --
+#> -- clade specs (248 parameters) --
 #> 
 #>   Grid & population
 #>     grid_rows                              30
@@ -279,6 +279,7 @@ print_specs()
 #>     signal_drift_sd                        0.01
 #>     mate_choice_mode                       random
 #>     mate_choice_strength                   0.5
+#>     signal_toxicity_coupling               0
 #>     speciation                             FALSE
 #>     isolation_threshold                    0.5
 #>     speciation_cluster_interval            10
@@ -331,7 +332,7 @@ s <- default_specs()
 s$kin_selection <- TRUE
 s$complex_landscape <- TRUE
 print_specs(s, diff_only = TRUE)
-#> -- clade specs (247 parameters) [diff only] --
+#> -- clade specs (248 parameters) [diff only] --
 #> 
 #>   Kin selection
 #>     kin_selection                          TRUE *
