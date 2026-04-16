@@ -13,7 +13,7 @@ home:
 
 navbar:
   structure:
-    left:  [intro, articles, kernel, scenarios, reference, news]
+    left:  [intro, articles, paramsearch, kernel, scenarios, reference, news]
     right: [github]
   components:
     intro:
@@ -24,18 +24,22 @@ navbar:
       menu:
         - text: "Getting started"
           href: articles/getting-started.html
-        - text: "Introduction"
-          href: articles/introduction.html
         - text: "Parameter reference"
           href: articles/parameter-reference.html
         - text: "Custom modules API"
           href: articles/custom-modules.html
-        - text: "Parameter search (CMA-ES, MAP-Elites)"
-          href: articles/diversity-search.html
+    paramsearch:
+      text: "Parameter search"
+      menu:
+        - text: "Introduction"
+          href: articles/ps-introduction.html
         - text: "---"
-        - text: "Gallery"
-        - text: "Baldwin effect & RL"
-          href: articles/baldwin-effect.html
+        - text: "Agent-level parameters"
+          href: articles/ps-agent-parameters.html
+        - text: "Environment-level parameters"
+          href: articles/ps-environment-parameters.html
+        - text: "Algorithms (CMA-ES, MAP-Elites, viability)"
+          href: articles/ps-algorithms.html
     kernel:
       text: "Kernel as biology"
       menu:
@@ -129,6 +133,8 @@ navbar:
           href: articles/s-plasticity.html
         - text: "BNN uncertainty canalization"
           href: articles/s-baldwin.html
+        - text: "Baldwin effect — long-form"
+          href: articles/baldwin-effect.html
         - text: "Cephalopod paradox"
           href: articles/s-cephalopod.html
         - text: "---"
@@ -153,10 +159,22 @@ articles:
     contents:
       - scenarios
       - getting-started
-      - introduction
       - parameter-reference
       - custom-modules
-      - diversity-search
+
+  - title: "Parameter search"
+    desc: >
+      Automated tools for finding parameter combinations that produce
+      target evolutionary outcomes. Start with the introduction for
+      when/why/which algorithm; then pick the agent-level or
+      environment-level guide depending on what you're tuning; or go
+      straight to the algorithm reference.
+    navbar: ~
+    contents:
+      - ps-introduction
+      - ps-agent-parameters
+      - ps-environment-parameters
+      - ps-algorithms
 
   - title: "Kernel as biology"
     desc: >
@@ -227,6 +245,7 @@ articles:
       - s-social-learning
       - s-plasticity
       - s-baldwin
+      - baldwin-effect
       - s-cephalopod
 
   - title: "Theme 7 — Discovery experiments"
@@ -237,11 +256,6 @@ articles:
       - s-kitchen-sink
       - s-bad-science
       - s-cross-module
-
-  - title: "Gallery"
-    navbar: "Gallery"
-    contents:
-      - baldwin-effect
 
 reference:
   - title: "Running simulations"
