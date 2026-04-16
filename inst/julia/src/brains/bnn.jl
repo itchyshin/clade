@@ -207,7 +207,8 @@ function forward(brain::BNNBrain, input::Vector{Float32})::Vector{Float32}
     if isempty(brain.last_sample) ||
        length(brain.last_sample) != length(brain.mu) ||
        brain.ticks_since_sample >= sample_freq
-        w_sample = brain.mu .+ brain.sigma .* Float32.(randn(length(brain.mu)))
+        noise_scale = Float32(get(_bnn_action_noise_cache, :scale, 1.0f0))
+        w_sample = brain.mu .+ (noise_scale .* brain.sigma) .* Float32.(randn(length(brain.mu)))
         brain.last_sample = w_sample
         brain.ticks_since_sample = Int32(0)
     else
@@ -223,6 +224,14 @@ end
 # call. Set once per tick_agents! entry via `_bnn_set_freq`.
 const _bnn_freq_cache = Dict{Symbol,Int32}()
 _bnn_set_freq(f::Integer) = (_bnn_freq_cache[:freq] = Int32(max(f, 1)); nothing)
+
+# 0.5.5: action-noise scale for sigma decoupling. At scale=1.0 (default),
+# weight samples are w = mu + sigma*z (legacy full coupling). At scale=0,
+# actions are deterministic from mu; sigma only affects the learning/cost
+# channel. Intermediate values give partial decoupling. Set once per
+# tick_agents! entry via `_bnn_set_action_noise_scale`.
+const _bnn_action_noise_cache = Dict{Symbol,Float32}()
+_bnn_set_action_noise_scale(s::Real) = (_bnn_action_noise_cache[:scale] = Float32(clamp(s, 0, 1)); nothing)
 
 # ── Within-lifetime learning (REINFORCE update on posterior) ──────────────────
 
