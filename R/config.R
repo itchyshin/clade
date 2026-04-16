@@ -601,6 +601,24 @@
 #'     `mimicry = TRUE` and `signal_dims > 0`. Added 0.4.4.}
 #' }
 #'
+#' ## Coevolving parasites (Hamilton 1980 Red Queen, 0.5.0)
+#' \describe{
+#'   \item{`coevolving_parasites`}{Logical. Enable genotype-matched
+#'     virulence module (default `FALSE`). Active only when
+#'     `signal_dims > 0` — the signal vector serves as the
+#'     host genotype-matching channel. Reference: Hamilton, W.D.
+#'     (1980) Sex versus non-sex versus parasite. *Oikos* 35:282--290.}
+#'   \item{`parasite_virulence_rate`}{Numeric in \[0, 1\]. Rate at which
+#'     the collective parasite optimum tracks the host signal centroid
+#'     each tick (exponential smoothing; default 0.1 ≈ 10-tick lag).}
+#'   \item{`parasite_pressure`}{Numeric. Maximum per-tick energy drain
+#'     from parasite infection, applied only to hosts whose signal
+#'     matches the parasite optimum (default 0.5).}
+#'   \item{`parasite_distance_scale`}{Numeric. Gaussian falloff scale
+#'     (default 1.0). Hosts further than ~scale units in signal space
+#'     from the parasite optimum escape parasitism almost entirely.}
+#' }
+#'
 #' ## Mimicry and toxicity
 #' \describe{
 #'   \item{`mimicry`}{Logical. Enable heritable toxicity trait and predator
@@ -1091,6 +1109,22 @@ default_specs <- function() {
     # aposematic dynamics to close the feedback loop. Active only
     # when `mimicry = TRUE` and `signal_dims > 0`.
     signal_toxicity_coupling   = 0.0,
+
+    # 0.5.0: Hamilton 1980 Red Queen coevolving-parasite module.
+    # Active when `coevolving_parasites = TRUE` AND `signal_dims > 0`.
+    # Parasites are modelled collectively as a single virulence vector
+    # that tracks the host signal centroid with lag (exponential
+    # smoothing at `parasite_virulence_rate`). Each host pays an
+    # energy drain proportional to `parasite_pressure * exp(-d²/s²)`
+    # where d is the Euclidean distance between its signal and the
+    # parasite optimum, and s is `parasite_distance_scale`. Hosts
+    # genetically novel relative to the population mean escape
+    # parasitism — sex with recombination produces more such novelty
+    # than asexual cloning, yielding the Red Queen advantage.
+    coevolving_parasites       = FALSE,
+    parasite_virulence_rate    = 0.1,
+    parasite_pressure          = 0.5,
+    parasite_distance_scale    = 1.0,
 
     # ── Speciation (genome-distance clustering) ────────────────────────────
     speciation                 = FALSE,

@@ -78,6 +78,7 @@ include("modules/social_learning.jl")
 include("modules/rl.jl")
 include("modules/mimicry.jl")
 include("modules/signals.jl")
+include("modules/coevolving_parasite.jl")
 include("modules/speciation.jl")
 include("modules/tick_predators.jl")
 include("modules/group_defense.jl")
@@ -362,6 +363,7 @@ function run_clade(specs::Dict{String,Any})
         apply_signal_costs!(env)          # signal evolution: per-tick signal cost
         apply_signal_evolution!(env)      # signal drift mutation (when enabled)
         apply_signal_toxicity_pleiotropy!(env)  # 0.4.4: aposematic coupling
+        apply_coevolving_parasites!(env)  # 0.5.0: Hamilton 1980 Red Queen
 
         # ── Optional modules ─────────────────────────────────────────────
         # (each is a no-op when its flag is false)
