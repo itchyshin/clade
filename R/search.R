@@ -117,12 +117,28 @@ search_map_elites <- function(specs_base,
   obj_fn <- .make_obj_fn(objective)
 
   if (is.null(mutation_params)) {
-    # Default to continuous (double) positive scalars only -- never mutate
-    # integer-typed parameters, since they encode discrete options (ploidy,
-    # max_ticks, ...) that the Julia validator rejects on non-integer values.
-    mutation_params <- names(Filter(function(v) {
-      is.double(v) && length(v) == 1L && !is.na(v) && v > 0
-    }, specs_base))
+    # 0.4.1: prefer high-leverage behavioural drivers as the default search
+    # axes. Previously the default was "every positive double in specs",
+    # which produced tiny behavioural variation because most spec entries
+    # (brain_energy_base, bnn_sigma_init, etc.) have weak coupling to
+    # genetic_diversity / n_agents. The resulting archive typically filled
+    # only one cell (see dev/audit/fidelity/map_elites.md).
+    #
+    # The curated list below maps to the main axes of population dynamics
+    # and trait evolution. Users who want a different default can pass
+    # `mutation_params` explicitly.
+    behavioural_drivers <- c(
+      "grass_rate", "mutation_sd", "move_cost", "idle_cost",
+      "metabolic_rate_init_mean", "max_bite"
+    )
+    mutation_params <- intersect(behavioural_drivers, names(specs_base))
+    # Fallback: if none of the drivers are present in a custom specs
+    # object, fall back to the legacy "all positive doubles" filter.
+    if (length(mutation_params) == 0L) {
+      mutation_params <- names(Filter(function(v) {
+        is.double(v) && length(v) == 1L && !is.na(v) && v > 0
+      }, specs_base))
+    }
   }
 
   # Build archive grid
@@ -207,6 +223,27 @@ search_map_elites <- function(specs_base,
       message(sprintf("  iter %d: %.3f filled cells: %d / %d",
                       i, score, tail(history$filled_cells, 1L), n_cells))
     }
+  }
+
+  # 0.4.1: warn if the archive coverage is pathologically low at the end —
+  # a strong signal that the mutation step is too small for the chosen
+  # archive resolution, or that the simulator's behavioural descriptor
+  # hasn't had time to equilibrate at the chosen `max_ticks`. Skipped when
+  # the user asked for verbose=FALSE (search already logged quiet), or when
+  # fewer than 50 iterations ran (might just be a warm-up).
+  filled_frac <- sum(!vapply(archive, is.null, logical(1L))) / n_cells
+  if (filled_frac < 0.1 && n_iterations >= 50L) {
+    warning(sprintf(
+      "MAP-Elites: only %.1f%% of the archive (%d / %d cells) was filled ",
+      100 * filled_frac, sum(!vapply(archive, is.null, logical(1L))), n_cells),
+      "after ", n_iterations, " iterations. ",
+      "Possible causes: (a) mutation_sd too small (try 0.2 or 0.3); ",
+      "(b) archive_dims bins too fine for the behavioural range; ",
+      "(c) max_ticks too short for the descriptor to stabilise; ",
+      "(d) mutation_params doesn't include behavioural drivers (defaults ",
+      "to grass_rate / mutation_sd / move_cost / idle_cost / ",
+      "metabolic_rate_init_mean / max_bite when available).",
+      call. = FALSE)
   }
 
   map_plot <- if (length(dim_names) == 2L) .map_elites_plot(archive, archive_dims) else NULL
