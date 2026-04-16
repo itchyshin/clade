@@ -32,7 +32,7 @@ Invisibly, the `specs` list (for piping).
 
 ``` r
 print_specs()
-#> -- clade specs (243 parameters) --
+#> -- clade specs (244 parameters) --
 #> 
 #>   Grid & population
 #>     grid_rows                              30
@@ -284,6 +284,7 @@ print_specs()
 #>     predator_energy_gain                   30
 #>     predator_min_repro_age                 5
 #>     predator_mutation_sd                   0.1
+#>     predator_sense_graded                  TRUE
 #>     batesian_mimicry                       FALSE
 #>     toxicity_cost_per_tick                 2
 #>     signal_memory_rate                     0.3
@@ -327,7 +328,7 @@ s <- default_specs()
 s$kin_selection <- TRUE
 s$complex_landscape <- TRUE
 print_specs(s, diff_only = TRUE)
-#> -- clade specs (243 parameters) [diff only] --
+#> -- clade specs (244 parameters) [diff only] --
 #> 
 #>   Kin selection
 #>     kin_selection                          TRUE *
