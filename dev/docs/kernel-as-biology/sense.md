@@ -262,10 +262,9 @@ prey to evolve avoidance behaviour over generations.
 **Variants worth considering.**
 
 1. **Distance-graded predator signal** (real `1/(distance+1)`
-   instead of binary) would let the brain assess threat level.
-   The function `_pred_dist` was apparently meant to do this (the
-   docstring says so) but the implementation just returns binary.
-   Worth fixing for biological realism.
+   instead of binary). *Implemented in 0.4.2* — see
+   `predator_sense_graded` spec (default `TRUE`). Legacy binary
+   behaviour available via `predator_sense_graded = FALSE`.
 2. **Predator type signal** — when multiple predator species exist,
    distinguishing them is useful (e.g. terrestrial vs aerial
    predators trigger different responses). Currently a single
@@ -354,10 +353,12 @@ characteristic, not a bug.
 
 Things to check when reading this file:
 
-1. **Are inputs in [0, 1]?** All grass, age, energy, and care inputs
-   are clamped or naturally bounded. Predator and conspecific inputs
-   are binary {0, 1}. Bias is constant 1.0. Signal inputs are
-   *unbounded* — the only ones that can fall outside [0, 1].
+1. **Are inputs in [0, 1]?** All grass, age, energy, care, and
+   (from 0.4.2) signal inputs are clamped or naturally bounded.
+   Conspecific inputs are binary {0, 1}. Predator inputs are
+   graded `1/(d+1)` in [0, 1] by default (0.4.2; legacy binary via
+   `predator_sense_graded = FALSE`). Bias is constant 1.0. All
+   sensory channels are now in [0, 1].
 2. **What does the brain *not* see?** It doesn't see absolute energy
    (only relative), absolute grid position (only relative cell
    sensing), other agents' traits (only their presence). This is

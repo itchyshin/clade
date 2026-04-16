@@ -76,8 +76,14 @@ function _death_cause(ag::Agent, starv_th::Float32, max_age::Int,
     # 1. Starvation
     ag.energy < starv_th && return :starvation
 
-    # 2. Age cap
-    ag.age >= max_age && return :age
+    # 2. Age cap — only when Gompertz senescence is off (0.4.2). Otherwise
+    # the hard cap masks the stochastic senescence curve and no scenario
+    # can demonstrate age-dependent mortality cleanly. When senescence is
+    # on, Gompertz governs late-life mortality; agents die from the tail
+    # well before runaway ages.
+    if senes_r <= 0.0f0
+        ag.age >= max_age && return :age
+    end
 
     # 3. Gompertz senescence
     if senes_r > 0.0f0
