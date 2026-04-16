@@ -129,7 +129,7 @@ from altruism. At `rB/C = 2.5`, population rises to 211 agents,
 
 **Implementation note.** clade's kin altruism module is not
 evolutionary — the kernel performs altruism deterministically when
-the gate (`r ≥ r_min` and `energy > min_donor_energy`) fires. So
+the gate (relatedness ≥ `r_min` and `energy > min_donor_energy`) fires. So
 this audit tests the *population-level consequences* of Hamilton's
 rule, not the invasion dynamics of an altruistic mutant. For the
 evolutionary dynamics (heritable `helper_tendency`), see the
