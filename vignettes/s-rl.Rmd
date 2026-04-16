@@ -47,7 +47,7 @@ env  <- run_alife(s)
 data <- get_run_data(env)
 ```
 
-```{r fig-rl, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: agents with within-lifetime RL adapt to local resource distribution within their lifetime. The Baldwin Effect is visible as the BNN prior sigma narrows over generations."}
+```{r fig-rl, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="0.4.1 audit (3 seeds × 3 BNN sample frequencies × RL on/off × 500 ticks). At bnn_sample_freq=1 the BNN resamples weights every tick, washing out REINFORCE gradient updates (null Δ). At freq=5 the sample persists long enough for gradients to compound — Δn = +5.2 (✅). At freq=20 the sample is too rigid and populations crash. Scenarios combining BNN brains with rl_mode='actor_critic' should use freq=5."}
 FIG("10_rl")
 ```
 
