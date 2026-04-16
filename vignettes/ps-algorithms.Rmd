@@ -1,0 +1,374 @@
+---
+title: "Parameter search — algorithms"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Parameter search — algorithms}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(eval = FALSE, collapse = TRUE, comment = "#>")
+```
+
+This is the reference for the search algorithms themselves — what each
+does, when each shines, and how the code looks. For the experimental
+question ("when should I search at all?") see
+[ps-introduction.html](ps-introduction.html). For which parameters to
+search, see [ps-agent-parameters.html](ps-agent-parameters.html) and
+[ps-environment-parameters.html](ps-environment-parameters.html).
+
+`clade` ships five search functions. All of them take the same core
+arguments — `specs_base`, `search_params` (or `params`), `objective` —
+and return results with the same structure, so you can swap algorithms
+without changing the surrounding code.
+
+---
+
+## Random search {#random-search}
+
+**When.** A cheap initial screen before committing to a more expensive
+algorithm. No priors about where the good region is needed.
+
+**What it does.** Samples `n_samples` points uniformly from the
+hyper-rectangle you specify, runs a simulation at each, scores them,
+returns them sorted by descending score.
+
+**Cost.** 30 simulations × 5–30 s each = 2–15 minutes at default
+settings.
+
+```{r random}
+library(clade)
+
+result <- search_random(
+  specs_base    = default_specs(),
+  search_params = list(
+    mutation_sd   = c(0.01, 0.5),
+    grass_rate    = c(0.05, 0.8),
+    n_agents_init = c(20L, 150L)
+  ),
+  n_samples  = 30L,
+  objective  = "genetic_diversity"
+)
+
+head(result)
+```
+
+```
+#>   mutation_sd grass_rate n_agents_init score
+#> 1       0.312      0.621           127 0.847
+#> 2       0.287      0.583           119 0.831
+#> 3       0.341      0.548           143 0.819
+```
+
+Retrieve the full specs of the best row:
+
+```{r random-retrieve}
+best_specs <- attr(result, "specs_list")[[1]]
+cat("Best mutation_sd:", best_specs$mutation_sd, "\n")
+cat("Best grass_rate:", best_specs$grass_rate, "\n")
+```
+
+**Strengths.** Embarrassingly parallel, needs no priors, easy to reason
+about, gives partial-dependence plots as a free by-product.
+
+**Weaknesses.** Scales badly with dimension (coverage drops fast beyond
+5 parameters). Doesn't exploit structure; if two parameters interact,
+random search won't exploit it.
+
+---
+
+## MAP-Elites {#map-elites}
+
+**When.** You want to understand the *achievable set* of outcomes, not
+just the single best point. MAP-Elites fills a grid of niches in
+behavioural space and reports the best parameter set for each niche.
+
+**What it does.** Divides a behavioural space (two or more dimensions of
+`get_run_data()$ticks` columns) into bins. Starts with random parameter
+sets, and at each iteration picks an existing archive member, perturbs
+it, runs a simulation, and places the result in whichever bin it falls
+into — *iff* that bin was empty or the new score beats the incumbent.
+
+**Cost.** 300 simulations = 20–90 minutes.
+
+```{r map-elites}
+result <- search_map_elites(
+  specs_base   = default_specs(),
+  archive_dims = list(
+    genetic_diversity = seq(0, 1, by = 0.1),
+    n_agents          = seq(0, 200, by = 20)
+  ),
+  n_iterations = 300L,
+  objective    = "genetic_diversity",
+  verbose      = FALSE
+)
+
+# Archive heatmap: x = genetic_diversity niche, y = n_agents niche,
+# fill = objective score (NA = empty cell).
+result$map
+```
+
+**Interpreting the heatmap.**
+
+- *Filled cells* show achievable (diversity, population) pairs. The
+  colour encodes the objective score.
+- *Empty cells* (grey) are combinations no simulated parameter set
+  produced. If high-diversity, large-population cells are empty, that
+  combination may be intrinsically unattainable.
+- The raw archive (`result$archive`) is a list of length equal to the
+  number of cells. Non-null entries have `$specs`, `$score`, and
+  `$behavioural_descriptor`.
+
+Inspect the archive directly:
+
+```{r map-elites-inspect}
+non_empty <- Filter(Negate(is.null), result$archive)
+cat("Filled cells:", length(non_empty), "\n")
+cat("mutation_sd range in archive:",
+    range(sapply(non_empty, function(x) x$specs$mutation_sd)), "\n")
+```
+
+**Strengths.** Illumination — reveals Pareto-like frontiers and
+impossible regions that single-objective methods silently skip over.
+Robust to local optima.
+
+**Weaknesses.** Expensive per cell filled. Needs meaningful bin
+definitions; if your archive dims don't carve the space usefully, the
+result is uninformative.
+
+**Known issue (0.4.0 backlog).** At default mutation, MAP-Elites
+sometimes fills only one cell — the candidate mutations produce near-
+identical behavioural descriptors. See the
+[s-map-elites audit](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/map_elites.md)
+for the workaround (wider mutation + broader archive bins).
+
+---
+
+## CMA-ES {#cma-es}
+
+**When.** You want the single best parameter combination for one
+scalar objective, and the parameters are continuous (not discrete
+categorical choices like `brain_type`).
+
+**What it does.** Maintains a multivariate Gaussian over the parameter
+space. Each generation samples `popsize` candidates, runs them, and uses
+the ranked top half to update the Gaussian's mean and covariance. The
+step size (sigma) shrinks as the search converges. `clade`'s
+`search_cmaes()` is a pure-R implementation (Hansen 2006) — no external
+packages required.
+
+**Cost.** `n_iterations × popsize` simulations = 200–500, i.e. 15–90
+minutes.
+
+```{r cmaes}
+result <- search_cmaes(
+  specs_base = default_specs(),
+  params     = c("mutation_sd", "grass_rate", "crossover_rate"),
+  objective  = "genetic_diversity",
+  n_iterations = 20L,
+  popsize    = 10L
+)
+
+cat("Best diversity:", result$score, "\n")
+cat("Best params:\n")
+print(result$specs[c("mutation_sd", "grass_rate", "crossover_rate")])
+```
+
+**Strengths.** State of the art for continuous derivative-free
+optimisation. Converges faster than random search, handles
+ill-conditioned objectives. Treats `run_alife()` as a black box —
+discrete events (death, birth) are no obstacle.
+
+**Weaknesses.** Returns a single point, not a trade-off map. Can get
+stuck in local optima (mitigated by running multiple restarts with
+different seeds). Doesn't handle categorical parameters
+(`brain_type`, `life_history`).
+
+**Rule of thumb for choosing between CMA-ES and MAP-Elites:** use
+CMA-ES when you care about *where the optimum is*; use MAP-Elites when
+you care about *what the landscape looks like around the optimum*.
+CMA-ES is faster per run for a single-objective answer; MAP-Elites is
+more informative per compute budget for multi-objective insight.
+
+### Scenario auto-calibration harness
+
+A per-scenario CMA-ES harness ships under
+[`dev/audit/calibration/`](https://github.com/itchyshin/clade/tree/main/dev/audit/calibration).
+Each `s-*.Rmd` scenario has a fitness function encoding its biological
+claim (e.g. "negative slope of `mean_prior_sigma`" for the Baldwin
+Effect, "late `n_altruistic_acts` per tick" for kin selection). Running
+`bash dev/audit/calibration/run_all.sh` launches all 31 in parallel
+(xargs -P 16) and writes per-scenario JSON with the best-discovered
+specs. Results are summarised in
+[`dev/audit/calibration/RESULTS.md`](https://github.com/itchyshin/clade/blob/main/dev/audit/calibration/RESULTS.md).
+
+Several scenarios retracted their prior "Calibrated regime" claims
+after the 0.4.0 fidelity audit found the CMA-ES had optimised a generic
+fitness rather than the stated theoretical signal — see
+[ps-introduction.html](ps-introduction.html#designing-an-objective-function)
+for the discipline this requires.
+
+---
+
+## Viability search {#viability-search}
+
+**When.** Before CMA-ES in any region where you're not sure the
+population survives at all. Also useful as a standalone sanity-check
+when setting up a new scenario.
+
+**What it does.** Runs a rectangular 2-parameter grid with `n_reps`
+replicates per cell. Reports a ggplot heatmap coloured by viability
+(green = population survives; red = extinction) and a tidy data frame.
+
+**Cost.** `length(values_x) × length(values_y) × n_reps` simulations.
+For 5 × 5 × 3 = 75 runs, 5–15 minutes.
+
+```{r viability-map}
+library(clade)
+
+s <- default_specs()
+s$complex_landscape <- TRUE
+
+vmap <- search_viability(
+  s,
+  param_x = "shrub_density",  values_x = seq(0.1, 0.6, by = 0.1),
+  param_y = "canopy_density", values_y = seq(0.05, 0.35, by = 0.1),
+  n_reps  = 3L
+)
+
+vmap$map     # ggplot2 heatmap
+vmap$data    # data frame with viability, mean_final_pop per cell
+```
+
+**Strengths.** Clearest possible picture of where the system is alive.
+Runs fast because extinction-prone cells finish early. Cheap enough to
+run every time you set up a new scenario.
+
+**Weaknesses.** Only 2 parameters at a time (by design — heatmap output).
+Doesn't optimise; just shows you where it's safe to optimise.
+
+### Pre-packaged tuners
+
+For the two scenarios where viability mapping is particularly worthwhile,
+`clade` ships domain-specific tuners that combine viability mapping with
+a CMA-ES pass inside the viable region:
+
+- `tune_complex_landscape()` — five landscape parameters + custom
+  objective measuring joint increase in wing size, niche diversity, and
+  survival.
+- `tune_iffolk()` — IFfolk transfer rate and parliament cost + custom
+  objective rewarding upward trends in `mean_helper_tendency`.
+
+---
+
+## Gradient ascent {#gradient-ascent}
+
+**When.** Final-tick refinement when the objective surface is smooth
+near a known good point — and you want fractional improvement on a
+parameter you already trust.
+
+**What it does.** Estimates the gradient of the objective with respect to
+each parameter by finite differences, then takes a step in the positive
+direction. Repeats until the step size drops below a threshold.
+
+**Cost.** `n_iterations × (n_params × 2 + 1)` simulations per iteration
+(two finite-difference evaluations per parameter plus one at the
+midpoint). Rarely the most efficient option.
+
+**Strengths.** Simple. Good for the last 1–5% of optimisation after
+CMA-ES has found the basin.
+
+**Weaknesses.** Gets stuck in local optima. Sensitive to step size.
+Doesn't handle noisy objectives well (and clade's simulations are
+stochastic, so objectives *are* noisy).
+
+Usage mirrors the CMA-ES signature:
+
+```{r gradient, eval=FALSE}
+result <- search_gradient(
+  specs_base   = default_specs(),
+  params       = c("mutation_sd", "grass_rate"),
+  objective    = "genetic_diversity",
+  n_iterations = 20L,
+  step_size    = 0.02
+)
+```
+
+---
+
+## Why not Julia autodiff?
+
+Julia has mature automatic differentiation (Zygote.jl, Enzyme.jl). It
+would be natural to ask whether we could differentiate `run_alife()`
+end-to-end and use gradient descent. We cannot. `run_alife()` contains
+several operations that are not differentiable:
+
+- **Agent death** is a threshold event: `energy < starvation_threshold`.
+- **Reproduction** is conditional on `energy >= min_repro_energy`.
+- **Action selection** uses `argmax` over brain logits.
+- **Mating** is a categorical sample.
+
+Autodiff through any of these either fails at trace time or silently
+produces a zero gradient. The correct class of optimisers for stochastic
+discrete-event simulations is derivative-free: CMA-ES, MAP-Elites,
+random sampling. They treat the simulator as a black box and estimate
+curvature from population statistics.
+
+---
+
+## Compute parallelism
+
+All five search functions accept an `n_cores` argument (default 1). Set
+it to the number of R workers you want clade to fan the inner
+simulations across. For `n_iterations × popsize = 200` simulations, a
+4-core machine can cut wall time from ~40 minutes to ~10 minutes.
+
+Julia caches its precompiled simulation package per worker, so the first
+call in each worker pays the ~60-second compile cost. For batches of
+10 or more simulations per worker, this overhead is amortised; for
+smaller batches, consider running on fewer cores or using
+`batch_alife()` to warm the Julia sessions first.
+
+---
+
+## Choosing the right algorithm — a decision tree
+
+```
+Is the population surviving at all at the starting point?
+├── No  → search_viability() first.
+└── Yes → Do you want one best answer or a landscape?
+    ├── One best answer
+    │   ├── Parameters continuous?    → search_cmaes()
+    │   └── Parameters categorical?   → loop over conditions
+    │                                   with batch_alife()
+    └── A landscape
+        ├── 2D trade-offs known in advance  → search_map_elites()
+        └── Exploring without priors        → search_random()
+                                              (then iterate)
+```
+
+---
+
+## See also
+
+- **[ps-introduction.html](ps-introduction.html)** — when to search and
+  how to design objectives.
+- **[ps-agent-parameters.html](ps-agent-parameters.html)** — per-organism
+  parameters to search.
+- **[ps-environment-parameters.html](ps-environment-parameters.html)** —
+  world-level parameters to search.
+- **`?search_random`, `?search_map_elites`, `?search_cmaes`,
+  `?search_viability`, `?search_gradient`** — full function reference.
+
+---
+
+## References
+
+- Hansen, N. & Ostermeier, A. (2001) Completely derandomized
+  self-adaptation in evolution strategies. *Evolutionary Computation*
+  9(2):159–195.
+- Hansen, N. (2006) The CMA Evolution Strategy: A Comparing Review.
+  *Towards a New Evolutionary Computation*, Springer: 75–102.
+- Mouret, J.-B. & Clune, J. (2015) Illuminating search spaces by
+  mapping elites. *arXiv:1504.04909*.
