@@ -36,7 +36,7 @@ Statuses:
 | s-signals                             | Zahavi 1975; Iwasa & Pomiankowski 1994        | ✅ passed           | [signals.md](signals.md)                            | pending |
 | s-speciation                          | Dieckmann & Doebeli 1999                      | ✅ passed           | [speciation.md](speciation.md)                      | pending |
 | s-parental-care                       | Clutton-Brock 1991                            | ✅ passed           | [parental_care.md](parental_care.md)                | pending |
-| s-mating-systems                      | Maynard Smith 1978; Hamilton 1980             | 🟠 passed-consistent (0.5.1 discrete Red Queen: Δn = +1.1 sex > asex under parasites) | [mating_systems.md](mating_systems.md)              | pending |
+| s-mating-systems                      | Maynard Smith 1978; Hamilton 1980             | 🟠 passed-consistent (0.5.3 16-seed retraction: direction correct on average across 19 regimes, no cell crosses 2×SE) | [mating_systems.md](mating_systems.md)              | pending |
 | s-life-history                        | Cole 1954; Williams 1966                      | ✅ passed           | [life_history.md](life_history.md)                  | pending |
 | s-clutch-size                         | Lack 1947; r/K (MacArthur & Wilson 1967)      | ✅ passed           | [clutch_size.md](clutch_size.md)                    | pending |
 | s-parental-investment                 | Trivers 1972                                  | ✅ passed (0.4.0 Tier 3) | [parental_investment.md](parental_investment.md) | 9b21f66 |

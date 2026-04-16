@@ -1,3 +1,36 @@
+# clade 0.5.3 (2026-04-16)
+
+## Audit: s-mating-systems 0.5.1 "first sex > asex" claim retracted
+
+Applied the 0.5.2 body-size precedent (16-seed sweep with 2×SE
+hypothesis test) to the Red Queen scenario. Across 448 audit runs
+covering 19 distinct parameter regimes:
+
+- **16-seed replication** at the 0.5.1 default `parasite_discrete`
+  parameters: Δn (sex − asex) = −0.49 ± 1.54 → flat within 2×SE.
+  The 0.5.1 "+1.1 first sex wins" finding was 3-seed noise.
+- **Regime search** over `n_loci × pressure × exponent × mutation`
+  (16 cells, 8 seeds each): all 16 regimes show direction in
+  favour of sex on average; NONE crosses 2×SE.
+- **Top-3 verification at 16 seeds**: the 8-seed apparent signals
+  (+2.3 to +2.8) collapse to flat Δn ∈ {−1.07, +0.42, −0.45}.
+
+The canonical discrete-allele Red Queen mechanism is implemented
+correctly (direction consistently non-negative on average), but
+clade's baseline cost of sex is higher than parasite selection
+pressure can offset at every tested regime. Hamilton (1980)
+himself noted sex's two-fold cost is a tall order for parasites;
+this finding is consistent with his caveat.
+
+Verdict: **s-mating-systems stays 🟠** with direction correct and
+the "first sex wins" claim retracted. Pushing to ✅ is deferred as
+a scenario-design question (minimise clade's baseline cost of sex
+via population size, mate-finding dynamics, or longer runs).
+
+No kernel changes.
+
+---
+
 # clade 0.5.2 (2026-04-16)
 
 ## Audit: s-body-size P2 direction resolved
