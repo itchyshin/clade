@@ -74,6 +74,7 @@ function tick_agents!(env::Environment)
     # 0.4.0 Tier 5B: BNN sample cadence — cache weight sample for N forward
     # calls instead of resampling every tick. Freq = 1 is legacy default.
     _bnn_set_freq(Int(get(specs, "bnn_sample_freq", 1)))
+    _bnn_set_action_noise_scale(Float64(get(specs, "bnn_action_noise_scale", 1.0)))
     e_mode     = get(specs, "brain_energy_mode", "activity")
     e_base     = Float32(get(specs, "brain_energy_base",     0.001))
     e_act      = Float32(get(specs, "brain_energy_activity", 0.5))

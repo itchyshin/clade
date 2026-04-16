@@ -866,6 +866,13 @@ default_specs <- function() {
                                              # per-tick sampling. Higher values
                                              # let RL/social-learning updates
                                              # accumulate before washout.
+    bnn_action_noise_scale = 1.0,            # 0.5.5: sigma-action decoupling.
+                                             # 1.0 = legacy (w = mu + sigma*z).
+                                             # 0.0 = deterministic actions from
+                                             # mu; sigma only affects the
+                                             # learning/cost channel. Required
+                                             # for clean Baldwin/plasticity
+                                             # canalisation scenarios.
 
     # ── Genome and ploidy ──────────────────────────────────────────────────
     ploidy                 = 2L,
