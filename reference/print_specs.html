@@ -154,7 +154,7 @@ Default <code>FALSE</code>.</p></dd>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">print_specs</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -- clade specs (244 parameters) --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -- clade specs (247 parameters) --</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Grid &amp; population</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     grid_rows                              30</span>
@@ -320,6 +320,7 @@ Default <code>FALSE</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     brain_energy_base                      0.001</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     brain_energy_activity                  0.5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     brain_energy_sigma_scale               0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     brain_energy_size_exponent             1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     bnn_sigma_init                         0.5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     bnn_sigma_min                          0.01</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     bnn_sigma_source                       heterozygosity</span>
@@ -390,6 +391,8 @@ Default <code>FALSE</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     juvenile_independence_age              10</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     juvenile_independence_energy           50</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     max_clutch_size                        1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     neonatal_foraging_deficit              0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     neonatal_deficit_duration              10</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     helper_min_energy                      80</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     helper_transfer                        5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     helper_kin_threshold                   0.25</span>
@@ -450,7 +453,7 @@ Default <code>FALSE</code>.</p></dd>
 <span class="r-in"><span><span class="va">s</span><span class="op">$</span><span class="va">kin_selection</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="va">s</span><span class="op">$</span><span class="va">complex_landscape</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="fu">print_specs</span><span class="op">(</span><span class="va">s</span>, diff_only <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -- clade specs (244 parameters) [diff only] --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -- clade specs (247 parameters) [diff only] --</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Kin selection</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     kin_selection                          TRUE *</span>
