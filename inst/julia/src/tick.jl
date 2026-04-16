@@ -69,6 +69,15 @@ function tick_agents!(env::Environment)
     e_mode     = get(specs, "brain_energy_mode", "activity")
     e_base     = Float32(get(specs, "brain_energy_base",     0.001))
     e_act      = Float32(get(specs, "brain_energy_activity", 0.5))
+    # 0.4.1 Tier 5C: energetic cost of behavioural uncertainty (BNN sigma).
+    # Default 0 preserves legacy behaviour. A positive value penalises
+    # maintaining wide posterior weight distributions, which is the
+    # information-theoretic cost Aiello & Wheeler (1995) identify for
+    # flexible brains. Log-scaled relative to `bnn_sigma_min` so that
+    # exploitation (sigma == sigma_min) is free and every doubling of
+    # uncertainty above the floor costs the same increment.
+    e_sigma    = Float32(get(specs, "brain_energy_sigma_scale", 0.0))
+    sigma_min  = Float32(get(specs, "bnn_sigma_min",            0.01))
 
     # Clear agent map before moves (rebuild below)
     fill!(env.agent_map, Int64(0))
@@ -121,7 +130,9 @@ function tick_agents!(env::Environment)
         ag.energy = min(ag.energy, Float32(get(specs, "energy_max", 200.0)))
 
         # ── Brain energy cost ─────────────────────────────────────────────
-        ag.energy -= _brain_energy_cost(ag.brain, logits, e_mode, e_base, e_act)
+        ag.energy -= _brain_energy_cost(ag.brain, logits,
+                                          e_mode, e_base, e_act,
+                                          e_sigma, sigma_min)
     end
 
     # Rebuild agent map after all moves
@@ -131,30 +142,64 @@ function tick_agents!(env::Environment)
 end
 
 """
-    _brain_energy_cost(brain, logits, mode, base, act_scale) -> Float32
+    _brain_energy_cost(brain, logits, mode, base, act_scale,
+                        sigma_scale = 0, sigma_min = 0.01) -> Float32
 
 Compute the metabolic cost of neural computation.
 
-Mode "none": 0.
-Mode "size": base * brain_size(brain).
-Mode "activity": base * brain_size(brain) + act_scale * mean(abs.(logits)).
-Mode "prediction_error": BNN only; placeholder (returns size cost).
+Modes:
+- `"none"`            : 0.
+- `"size"`            : `base * brain_size(brain)`.
+- `"activity"`        : `base * brain_size(brain) + act_scale *
+                          mean(abs.(logits))`.
+- `"prediction_error"`: BNN only; placeholder (returns size cost).
 
-Reference: Yaeger (1994) PolyWorld. In: Artificial Life III.
-Addison-Wesley, pp 263–298.
+**0.4.1 Tier 5C — behavioural-uncertainty cost.** When `sigma_scale > 0`
+and `brain` is a `BNNBrain`, an additional cost is added:
+
+    sigma_cost = sigma_scale *
+                 mean(max(log(sigma / sigma_min), 0))
+
+This penalises maintaining wide posterior weight distributions (high
+plasticity / exploration). Log-scaled relative to `sigma_min` so that
+fully exploitative agents (sigma == sigma_min at every weight) pay 0,
+and every doubling of uncertainty above the floor costs the same
+increment. The biological analogue is the information-theoretic cost of
+maintaining flexible neural hardware (Aiello & Wheeler 1995). Default
+`sigma_scale = 0` preserves all legacy behaviour.
+
+References:
+- Yaeger, L. (1994) PolyWorld. In: *Artificial Life III*.
+  Addison-Wesley, pp 263–298.
+- Aiello, L.C. & Wheeler, P. (1995) The expensive-tissue hypothesis.
+  *Curr. Anthropol.* 36:199–221.
 """
 function _brain_energy_cost(brain::AbstractBrain,
                               logits::Vector{Float32},
                               mode::String,
                               base::Float32,
-                              act_scale::Float32)::Float32
+                              act_scale::Float32,
+                              sigma_scale::Float32 = 0.0f0,
+                              sigma_min::Float32 = 0.01f0)::Float32
     mode == "none" && return 0.0f0
     size_cost = base * Float32(brain_size(brain))
-    mode == "size" && return size_cost
+
+    # 0.4.1 Tier 5C: information-theoretic sigma cost for BNN brains.
+    sigma_cost = 0.0f0
+    if sigma_scale > 0.0f0 && isa(brain, BNNBrain)
+        sm = max(sigma_min, 1.0f-6)
+        s  = 0.0f0
+        @inbounds for v in brain.sigma
+            s += max(log(v / sm), 0.0f0)
+        end
+        sigma_cost = sigma_scale * s / Float32(length(brain.sigma))
+    end
+
+    mode == "size" && return size_cost + sigma_cost
     if mode == "activity"
         act_cost = act_scale * sum(abs, logits) / Float32(length(logits))
-        return size_cost + act_cost
+        return size_cost + act_cost + sigma_cost
     end
-    # prediction_error — use size cost as fallback (Phase 3 will implement KL)
-    size_cost
+    # prediction_error — use size cost + sigma cost (Phase 3 will implement KL)
+    size_cost + sigma_cost
 end
