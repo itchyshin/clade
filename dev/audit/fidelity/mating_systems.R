@@ -33,16 +33,31 @@ one_run <- function(ploidy, crossover_rate, env_label, seed,
   } else if (env_label == "seasonal") {
     s$seasonal_amplitude <- 0.8
     s$season_length      <- 50L
-  } else if (env_label == "parasite") {
-    # 0.5.0 Hamilton 1980 Red Queen: genotype-matched coevolving parasites.
-    # Reuses the signal vector as the host genotype-matching channel.
+  } else if (env_label == "parasite_continuous") {
+    # 0.5.0 continuous-trait variant (signal-vector centroid tracking).
+    # Included for comparison; does NOT reproduce Hamilton's canonical
+    # Red Queen — sex offspring cluster near the centroid and are more
+    # exposed to parasites.
     s$signal_dims             <- 5L
     s$signal_evolution_drift  <- TRUE
     s$signal_drift_sd         <- 0.04
     s$coevolving_parasites    <- TRUE
+    s$parasite_match_mode     <- "continuous"
     s$parasite_pressure       <- 3.0
     s$parasite_virulence_rate <- 0.05
     s$parasite_distance_scale <- 0.4
+  } else if (env_label == "parasite_discrete") {
+    # 0.5.1 Hamilton 1980 canonical Red Queen: discrete-allele haplotype
+    # with Mendelian inheritance and Hamming-distance matching. Sex
+    # offspring receive genuinely novel haplotype combinations that
+    # parasites haven't tracked.
+    s$coevolving_parasites        <- TRUE
+    s$parasite_match_mode         <- "discrete"
+    s$n_parasite_loci             <- 16L
+    s$parasite_pressure           <- 2.0
+    s$parasite_virulence_rate     <- 0.15
+    s$parasite_discrete_exponent  <- 6.0
+    s$parasite_mutation_rate      <- 0.02
   }
   env <- run_alife(s, verbose = FALSE)
   d <- get_run_data(env)$ticks
@@ -54,10 +69,13 @@ one_run <- function(ploidy, crossover_rate, env_label, seed,
 }
 
 seeds <- 1L:3L
-envs  <- c("stable", "disease", "seasonal", "parasite")
+envs  <- c("stable", "disease", "seasonal",
+           "parasite_continuous", "parasite_discrete")
 conds <- list(
   list(ploidy = 1, crossover_rate = 0.0, label = "haploid_asex"),
-  list(ploidy = 2, crossover_rate = 0.1, label = "diploid_sex")
+  # 0.5.1: raised crossover_rate from 0.1 to 0.5 so recombination mixes
+  # alleles enough for the Red Queen novel-haplotype advantage to appear.
+  list(ploidy = 2, crossover_rate = 0.5, label = "diploid_sex")
 )
 
 cat(sprintf("── mating systems: 2 ploidies × %d envs × %d seeds = %d runs\n",
@@ -104,21 +122,35 @@ cat("\nSummary (post-burn-in t>100):\n")
 print(summary)
 
 cat("\nΔ diploid-sex - haploid-asex per env:\n")
-env_deltas <- numeric()
+env_div_deltas <- numeric()
+env_n_deltas   <- numeric()
 for (envl in envs) {
   sx <- summary[summary$env == envl & summary$cond == "diploid_sex", ]
   ax <- summary[summary$env == envl & summary$cond == "haploid_asex", ]
-  d  <- sx$div_mean - ax$div_mean
-  env_deltas[envl] <- d
-  cat(sprintf("  %-9s: Δdiv=%+6.3f  Δn=%+6.1f\n",
-              envl, d, sx$n_mean - ax$n_mean))
+  env_div_deltas[envl] <- sx$div_mean - ax$div_mean
+  env_n_deltas[envl]   <- sx$n_mean   - ax$n_mean
+  cat(sprintf("  %-20s: Δdiv=%+6.3f  Δn=%+6.1f\n",
+              envl, env_div_deltas[envl], env_n_deltas[envl]))
 }
 
-p1_pass <- any(env_deltas > 0.01)
+p1_pass <- any(env_div_deltas > 0.01)
 cat(sprintf("\nP1 (sex > asex in diversity in some env): %s\n",
             if (p1_pass) "PASS" else "FAIL"))
-best_env <- names(which.max(env_deltas))
-cat(sprintf("Best env: %s (Δdiv=%+.3f)\n", best_env, env_deltas[best_env]))
+
+# P2 (0.5.1): canonical Red Queen — under discrete coevolving parasites,
+# sexual populations should have higher fitness (population size) than
+# asexual. This is Hamilton's (1980) canonical prediction.
+rq_dn <- env_n_deltas["parasite_discrete"]
+p2_pass <- !is.na(rq_dn) && rq_dn > 0
+cat(sprintf("P2 (sex > asex in n under discrete parasites, canonical Red Queen): %s (Δn = %+.1f)\n",
+            if (p2_pass) "PASS" else "FAIL", rq_dn))
+
+# P3: continuous-trait parasites should NOT produce the canonical signal
+# (documents the 0.5.0 finding).
+cont_dn <- env_n_deltas["parasite_continuous"]
+p3_pass <- !is.na(cont_dn) && cont_dn < 0
+cat(sprintf("P3 (continuous-trait parasites disfavour sex, expected): %s (Δn = %+.1f)\n",
+            if (p3_pass) "PASS" else "FAIL", cont_dn))
 
 all_ticks <- do.call(rbind, all_runs)
 all_ticks$cond <- ifelse(all_ticks$ploidy == 1,
