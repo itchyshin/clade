@@ -33,8 +33,17 @@ function create_offspring!(env::Environment)
     specs     = env.specs
     # Spatial sorting: refresh centroid cache once before mate-finding loop
     refresh_sorting_centroid!(env)
-    repro_cost= Float32(get(specs, "repro_cost",       30.0))
-    off_energy= Float32(get(specs, "offspring_energy", 60.0))
+    # 0.4.0: parental cost can be either fixed (legacy) or proportional to
+    # parent energy. Proportional cost is the biological default per
+    # Smith & Fretwell (1974) and all life-history theory: parents in
+    # better condition have more to invest. Fixed-cost mode preserved for
+    # reproducibility of pre-0.4.0 runs.
+    repro_cost_mode = String(get(specs, "repro_cost_mode", "proportional"))
+    repro_cost      = Float32(get(specs, "repro_cost",          30.0))
+    repro_cost_frac = Float32(get(specs, "repro_cost_fraction", 0.5))
+    off_energy_base = Float32(get(specs, "offspring_energy",    60.0))
+    off_energy_mode = String(get(specs, "offspring_energy_mode", "proportional"))
+    off_energy_frac = Float32(get(specs, "offspring_energy_fraction", 0.25))
     max_ag    = Int(get(specs, "max_agents",           500))
     care      = Bool(get(specs, "parental_care",       false))
     allee_th      = Int(get(specs, "allee_threshold",  0))
@@ -81,16 +90,61 @@ function create_offspring!(env::Environment)
             # Find mate (or reproduce asexually)
             mate = _find_mate(ag, env)
 
-            # Deduct cost
-            ag.energy -= repro_cost
-            mate !== nothing && (mate.energy -= repro_cost * 0.5f0)
-
-            # Parental investment: mate pays additional male_repro_cost per offspring
-            if Bool(get(specs, "parental_investment_evolution", false)) && mate !== nothing
-                male_cost = Float32(get(specs, "male_repro_cost", 0.3)) * off_energy
-                mate.energy -= male_cost
+            # 0.4.0: parental cost
+            #   "fixed"        — deduct constant `repro_cost` (legacy)
+            #   "proportional" — deduct `repro_cost_fraction * parent.energy`
+            #                    (Smith & Fretwell 1974; default in 0.4.0)
+            cost_paid = if repro_cost_mode == "proportional"
+                repro_cost_frac * ag.energy
+            else
+                repro_cost
             end
-            off_energy_actual = off_energy
+            # 0.4.0 Tier 3: female_investment couples to outcomes.
+            # When parental_investment_evolution = TRUE, the female (focal
+            # agent) bears `female_investment` of the total cost and the
+            # male bears `1 - female_investment`. Default 0.5 (symmetric)
+            # preserves prior behaviour. The whole `cost_paid` flows into
+            # offspring energy below — so higher female_investment
+            # automatically gives offspring more of *its* mother's
+            # contribution, exactly as Trivers (1972) predicts.
+            pi_on  = Bool(get(specs, "parental_investment_evolution", false))
+            fi     = Float32(get(specs, "female_investment", 0.5))
+            if pi_on && mate !== nothing
+                ag.energy   -= cost_paid * fi
+                mate.energy -= cost_paid * (1.0f0 - fi)
+            else
+                ag.energy   -= cost_paid
+                mate !== nothing && (mate.energy -= cost_paid * 0.5f0)
+            end
+
+            # 0.4.0: offspring birth energy
+            #   "fixed"        — every newborn starts with `offspring_energy`
+            #                    (legacy; ignores parent condition)
+            #   "proportional" — newborn starts with `offspring_energy_fraction
+            #                    * cost_paid` per Smith-Fretwell quality-quantity
+            #                    (default in 0.4.0)
+            off_energy_actual = if off_energy_mode == "proportional"
+                off_energy_frac * cost_paid
+            else
+                off_energy_base
+            end
+            # 0.4.0 Tier 3: scale offspring birth energy by `2 * fi` when
+            # parental_investment_evolution is on. fi = 0.5 → factor 1
+            # (no change vs default); fi = 0.9 → factor 1.8 (larger
+            # offspring); fi = 0.3 → factor 0.6 (smaller offspring).
+            # Direct implementation of Trivers' (1972) prediction that
+            # higher maternal investment yields better-provisioned young.
+            if pi_on
+                off_energy_actual = off_energy_actual * 2.0f0 * fi
+            end
+
+            # Legacy "male_repro_cost" extra male contribution: only fires
+            # when pi_on AND explicit male_repro_cost > 0. Stacks on top
+            # of the basic split.
+            if pi_on && mate !== nothing
+                male_extra = Float32(get(specs, "male_repro_cost", 0.0))
+                male_extra > 0.0f0 && (mate.energy -= male_extra * off_energy_actual)
+            end
 
             # Base mutation rate: when mutation_rate_evolution is on, use
             # the parent's per-agent evolved trait (ag.mutation_sd); else

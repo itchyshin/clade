@@ -37,10 +37,20 @@ function kill_dead!(env::Environment)
     senes_r   = Float32(get(specs, "senescence_rate", 0.0))
     semel     = get(specs, "life_history", "iteroparous") == "semelparous"
     scav_on   = Bool(get(specs, "scavenging", false))
+    # 0.4.0 Tier 2: max_age scales inversely with metabolic_rate when
+    # `max_age_scales_with_metabolism = TRUE`. Fast-pace agents (high
+    # metabolic_rate) get shorter lifespans; slow-pace agents longer.
+    # Implements Réale et al. 2010 pace-of-life syndrome at the
+    # demographic level: effective max_age = base_max_age / metabolic_rate.
+    # Off by default to preserve pre-0.4.0 behaviour.
+    age_scales = Bool(get(specs, "max_age_scales_with_metabolism", false))
 
     for ag in env.agents
         ag.alive || continue
-        cause = _death_cause(ag, starv_th, max_age, senes_r, semel, env.rng)
+        eff_max_age = age_scales ?
+            max(1, round(Int, max_age / max(ag.metabolic_rate, 0.01f0))) :
+            max_age
+        cause = _death_cause(ag, starv_th, eff_max_age, senes_r, semel, env.rng)
         if cause != :alive
             ag.alive = false
             env.n_deaths += Int32(1)

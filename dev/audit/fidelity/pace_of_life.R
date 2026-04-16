@@ -10,8 +10,13 @@ suppressPackageStartupMessages({
 
 one_run <- function(rate, seed, max_ticks = 500L) {
   s <- default_specs()
+  # 0.4.0: use evolution=TRUE so init_mean is honoured (otherwise all
+  # agents get metabolic_rate=1.0 regardless of init_mean).
+  s$metabolic_rate_evolution <- TRUE
   s$metabolic_rate_init_mean <- rate
-  s$metabolic_rate_evolution <- FALSE
+  s$metabolic_rate_mutation_sd <- 0.001  # essentially fixed
+  # 0.4.0 Tier 2: enable max_age scaling so pace-of-life can express.
+  s$max_age_scales_with_metabolism <- TRUE
   s$n_agents_init   <- 100L
   s$grid_rows       <- 30L; s$grid_cols <- 30L
   s$grass_rate      <- 0.15
