@@ -14,12 +14,13 @@ suppressPackageStartupMessages({
 })
 
 one_run <- function(with_care, cost_scale, care_duration,
-                    seed, max_ticks = 400L) {
+                    brain_energy_base, seed, max_ticks = 400L) {
   s <- default_specs()
   s$brain_size_evolution     <- TRUE
   s$brain_size_init_mean     <- 1.1
   s$brain_size_mutation_sd   <- 0.05
   s$brain_size_cost_scale    <- cost_scale
+  s$brain_energy_base        <- brain_energy_base
   s$parental_care            <- with_care
   s$care_duration            <- as.integer(care_duration)
   s$feeding_rate             <- 3.0
@@ -32,33 +33,43 @@ one_run <- function(with_care, cost_scale, care_duration,
   s$random_seed              <- as.integer(seed)
   env <- run_alife(s, verbose = FALSE)
   d <- get_run_data(env)$ticks
-  d$with_care     <- with_care
-  d$cost_scale    <- cost_scale
-  d$care_duration <- care_duration
-  d$seed          <- seed
+  d$with_care          <- with_care
+  d$cost_scale         <- cost_scale
+  d$care_duration      <- care_duration
+  d$brain_energy_base  <- brain_energy_base
+  d$seed               <- seed
   d
 }
 
-grid <- expand.grid(cost_scale    = c(2.0, 3.0, 4.0),
-                    care_duration = c(15L, 30L, 45L),
-                    KEEP.OUT.ATTRS = FALSE)
+# 0.4.2 update: previous 0.4.1 grid fixed cost_scale × care_duration and
+# found Δdelta +0.005 at grid-max (below the 0.05 ✅ threshold). The plan
+# identified the brain_energy_base default (0.001) as the shallow gradient
+# root cause. Here we sweep brain_energy_base ∈ {0.001, 0.005, 0.01} at
+# the best 0.4.1 cell (cost=3.0, dur=15) to find the base that promotes
+# to ✅ without destabilising populations.
+grid <- expand.grid(brain_energy_base = c(0.001, 0.005, 0.01),
+                    cost_scale        = c(3.0),
+                    care_duration     = c(15L),
+                    KEEP.OUT.ATTRS    = FALSE)
 seeds <- 1L:3L
 
-cat(sprintf("── brain_size grid: %d combos × 2 conditions × %d seeds\n",
+cat(sprintf("── brain_size grid (0.4.2): %d combos × 2 conditions × %d seeds\n",
             nrow(grid), length(seeds)))
 
 summary_rows <- list()
 for (i in seq_len(nrow(grid))) {
   row <- grid[i, ]
   care_runs    <- lapply(seeds, function(sd) {
-    cat(sprintf("  cost=%.1f dur=%d care=T seed=%d\n",
-                row$cost_scale, row$care_duration, sd))
-    one_run(TRUE,  row$cost_scale, row$care_duration, sd)
+    cat(sprintf("  base=%.3f cost=%.1f dur=%d care=T seed=%d\n",
+                row$brain_energy_base, row$cost_scale, row$care_duration, sd))
+    one_run(TRUE,  row$cost_scale, row$care_duration,
+            row$brain_energy_base, sd)
   })
   no_care_runs <- lapply(seeds, function(sd) {
-    cat(sprintf("  cost=%.1f dur=%d care=F seed=%d\n",
-                row$cost_scale, row$care_duration, sd))
-    one_run(FALSE, row$cost_scale, row$care_duration, sd)
+    cat(sprintf("  base=%.3f cost=%.1f dur=%d care=F seed=%d\n",
+                row$brain_energy_base, row$cost_scale, row$care_duration, sd))
+    one_run(FALSE, row$cost_scale, row$care_duration,
+            row$brain_energy_base, sd)
   })
   care_delta <- vapply(care_runs,
                        function(d) tail(d$mean_brain_size, 1L) -
@@ -69,8 +80,9 @@ for (i in seq_len(nrow(grid))) {
                                     d$mean_brain_size[1],
                        numeric(1L))
   summary_rows[[i]] <- data.frame(
-    cost_scale     = row$cost_scale,
-    care_duration  = row$care_duration,
+    brain_energy_base = row$brain_energy_base,
+    cost_scale        = row$cost_scale,
+    care_duration     = row$care_duration,
     care_delta     = mean(care_delta),
     no_care_delta  = mean(noc_delta),
     delta_delta    = mean(care_delta) - mean(noc_delta),
@@ -89,8 +101,8 @@ cat("\nGrid summary (care Δ - no-care Δ):\n")
 print(summary[order(-summary$delta_delta), ])
 
 best <- summary[which.max(summary$delta_delta), ]
-cat(sprintf("\nBest regime: cost=%.1f dur=%d  Δdelta=%+.3f ± %.3f\n",
-            best$cost_scale, best$care_duration,
+cat(sprintf("\nBest regime: base=%.3f  Δdelta=%+.3f ± %.3f\n",
+            best$brain_energy_base,
             best$delta_delta, best$sd_delta_delta))
 p1_pass <- best$delta_delta > 0.05
 cat(sprintf("P1 (parental-provisioning benefit > 0.05 at some regime): %s\n",
@@ -100,15 +112,15 @@ saveRDS(summary, "dev/audit/fidelity/brain_size_results.rds")
 
 dir.create("dev/audit/fidelity/figs", showWarnings = FALSE, recursive = TRUE)
 p <- ggplot(summary,
-            aes(factor(care_duration), factor(cost_scale),
+            aes(factor(brain_energy_base), factor(cost_scale),
                 fill = delta_delta)) +
   geom_tile() +
   geom_text(aes(label = sprintf("%+.3f", delta_delta)),
             colour = "white") +
   scale_fill_viridis_c(name = "Δdelta") +
-  labs(title = "Brain size: care-vs-no-care delta across cost × duration grid",
+  labs(title = "Brain size: care-vs-no-care delta across brain_energy_base (0.4.2)",
        subtitle = "Parental provisioning hypothesis (van Schaik et al. 2023)",
-       x = "care_duration (ticks)", y = "brain_size_cost_scale") +
+       x = "brain_energy_base", y = "brain_size_cost_scale") +
   theme_minimal(base_size = 11)
 ggsave("dev/audit/fidelity/figs/brain_size.png", p,
        width = 9, height = 5, dpi = 150)

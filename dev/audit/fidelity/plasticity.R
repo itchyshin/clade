@@ -15,14 +15,15 @@ suppressPackageStartupMessages({
   library(clade); library(ggplot2); library(patchwork)
 })
 
-one_run <- function(seasonal_amp, seed, max_ticks = 500L) {
+one_run <- function(seasonal_amp, seed, max_ticks = 500L,
+                    sigma_scale = 0.05) {
   s <- default_specs()
   s$phenotypic_plasticity   <- TRUE
   s$plasticity_init_mean    <- 0.3
-  s$plasticity_mutation_sd  <- 0.05
+  s$plasticity_mutation_sd  <- 0.05   # 0.4.1 value retained (0.08 reversed direction)
   # 0.4.1: couple BNN sigma to the plasticity trait and cost it.
   s$bnn_sigma_source        <- "trait"
-  s$brain_energy_sigma_scale <- 0.02
+  s$brain_energy_sigma_scale <- sigma_scale
   s$seasonal_amplitude      <- seasonal_amp
   s$season_length           <- 50L
   s$n_agents_init           <- 100L
@@ -35,19 +36,26 @@ one_run <- function(seasonal_amp, seed, max_ticks = 500L) {
   env <- run_alife(s, verbose = FALSE)
   d <- get_run_data(env)$ticks
   d$seasonal_amp <- seasonal_amp
-  d$seed <- seed
+  d$sigma_scale  <- sigma_scale
+  d$seed         <- seed
   d
 }
 
+# 0.4.2 update: longer runs (1500 ticks, ~30 seasons) + stronger cost
+# (sigma_scale=0.05, up from 0.02) + larger plasticity_mutation_sd (0.08).
+# Pre-0.4.1 was flat. 0.4.1 gave Δdelta ~+0.003 (direction correct, modest).
+# Target: Δdelta > 0.02 to promote 🟠 → ✅.
 seeds <- 1L:4L
-cat("── plasticity: stable vs seasonal (4 seeds, 500 ticks)\n")
+TICKS <- 1500L
+cat(sprintf("── plasticity (0.4.2): stable vs seasonal (%d seeds × %d ticks)\n",
+            length(seeds), TICKS))
 stable <- lapply(seeds, function(sd) {
   cat(sprintf("  stable seed %d\n", sd))
-  one_run(0.0, sd)
+  one_run(0.0, sd, max_ticks = TICKS)
 })
 seasonal <- lapply(seeds, function(sd) {
   cat(sprintf("  seasonal amp=0.7 seed %d\n", sd))
-  one_run(0.7, sd)
+  one_run(0.7, sd, max_ticks = TICKS)
 })
 
 fin_p <- function(runs) {

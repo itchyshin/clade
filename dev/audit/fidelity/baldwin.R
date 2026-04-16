@@ -23,7 +23,7 @@ one_run <- function(seasonal_amp, sigma_scale, seed, max_ticks = 800L) {
   s$bnn_sigma_source           <- "trait"
   s$phenotypic_plasticity      <- TRUE
   s$plasticity_init_mean       <- 0.4
-  s$plasticity_mutation_sd     <- 0.05
+  s$plasticity_mutation_sd     <- 0.05   # keep 0.4.1 value; 0.08 reversed direction at 1500 ticks
   s$brain_energy_sigma_scale   <- sigma_scale
   s$seasonal_amplitude         <- seasonal_amp
   s$season_length              <- 50L
@@ -43,8 +43,13 @@ one_run <- function(seasonal_amp, sigma_scale, seed, max_ticks = 800L) {
 }
 
 seeds  <- 1L:3L
-scales <- c(0.0, 0.02, 0.05)   # sigma-cost dose-response
-cat("── Baldwin audit: sigma-cost × environment (3 seeds × 3 scales × 2 envs, 600 ticks)\n")
+# 0.4.2 update: longer runs + stronger cost. Pre-0.4.1 was at 0.05 max with
+# direction-correct but tiny magnitude (~0.004). Plan expects 3× magnitude
+# growth at 0.10 cost over 1500 ticks (2.5× the ticks × 2× the cost gradient).
+scales <- c(0.0, 0.05, 0.10)
+TICKS  <- 1500L
+cat(sprintf("── Baldwin audit (0.4.2): %d scales × 2 envs × %d seeds × %d ticks\n",
+            length(scales), length(seeds), TICKS))
 
 all_runs <- list()
 for (sc in scales) {
@@ -52,7 +57,7 @@ for (sc in scales) {
     for (sd in seeds) {
       cat(sprintf("  scale=%.2f amp=%.1f seed=%d\n", sc, amp, sd))
       all_runs[[length(all_runs) + 1L]] <- one_run(amp, sc, sd,
-                                                   max_ticks = 600L)
+                                                   max_ticks = TICKS)
     }
   }
 }
