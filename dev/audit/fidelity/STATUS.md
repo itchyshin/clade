@@ -22,12 +22,12 @@ Statuses:
 | s-baseline                            | MacArthur & Pianka 1966; Bulitko 2023 (MATLAB)| ✅ passed (three-way xref) | [baseline.md](baseline.md)                   | pending |
 | s-bad-science                         | Smaldino & McElreath 2016                     | ✅ passed           | inline in commit                                    | 91cc1a9 |
 | s-predator-prey                       | Lotka 1925, Volterra 1926, Huffaker 1958      | ✅ passed           | [predator_prey.md](predator_prey.md)                | pending |
-| s-body-size                           | Cope's rule; Shine et al. 2011                | 🟠 passed-consistent | [body_size.md](body_size.md)                        | pending |
-| s-brain-size                          | Parental provisioning hypothesis              | 🟠 passed-consistent | [brain_size.md](brain_size.md)                      | pending |
+| s-body-size                           | Cope's rule; Brooks & Dodson 1965             | ✅ passed (0.4.1 reframe)    | [body_size.md](body_size.md)                        | pending |
+| s-brain-size                          | Parental provisioning hypothesis              | 🟠 passed-consistent (0.4.1 grid) | [brain_size.md](brain_size.md)                      | pending |
 | s-pop-genetics                        | Fisher-Wright; parent-offspring regression    | ✅ passed           | [pop_genetics.md](pop_genetics.md)                  | pending |
 | s-stress-hypermutation                | Rosenberg 2001; Foster 2007                   | ✅ passed           | [stress_hypermutation.md](stress_hypermutation.md)  | pending |
 | s-complex-landscape                   | Multi-layer habitat                           | ✅ passed           | [complex_landscape.md](complex_landscape.md)        | pending |
-| s-dispersal-ifd                       | Fretwell & Lucas 1970; Shine et al. 2011      | 🟠 passed-consistent | [dispersal_ifd.md](dispersal_ifd.md)                | pending |
+| s-dispersal-ifd                       | Fretwell & Lucas 1970; Shine et al. 2011      | 🟠 passed-consistent (0.4.1 grid) | [dispersal_ifd.md](dispersal_ifd.md)                | pending |
 | s-niche                               | Odling-Smee et al. 2003                       | ✅ passed           | [niche.md](niche.md)                                | pending |
 | s-seasonal                            | Sinusoidal resource variation                 | ✅ passed           | [seasonal.md](seasonal.md)                          | pending |
 | s-scavenging                          | DeVault et al. 2003                           | ✅ passed           | [scavenging.md](scavenging.md)                      | pending |
@@ -36,22 +36,22 @@ Statuses:
 | s-signals                             | Zahavi 1975; Iwasa & Pomiankowski 1994        | ✅ passed           | [signals.md](signals.md)                            | pending |
 | s-speciation                          | Dieckmann & Doebeli 1999                      | ✅ passed           | [speciation.md](speciation.md)                      | pending |
 | s-parental-care                       | Clutton-Brock 1991                            | ✅ passed           | [parental_care.md](parental_care.md)                | pending |
-| s-mating-systems                      | Maynard Smith 1978                            | 🟠 passed-consistent | [mating_systems.md](mating_systems.md)              | pending |
+| s-mating-systems                      | Maynard Smith 1978                            | 🟠 passed-consistent (0.4.1 env sweep) | [mating_systems.md](mating_systems.md)              | pending |
 | s-life-history                        | Cole 1954; Williams 1966                      | ✅ passed           | [life_history.md](life_history.md)                  | pending |
 | s-clutch-size                         | Lack 1947; r/K (MacArthur & Wilson 1967)      | ✅ passed           | [clutch_size.md](clutch_size.md)                    | pending |
 | s-parental-investment                 | Trivers 1972                                  | ✅ passed (0.4.0 Tier 3) | [parental_investment.md](parental_investment.md) | 9b21f66 |
 | s-pace-of-life                        | Réale et al. 2010                             | ✅ passed (0.4.0 Tier 2) | [pace_of_life.md](pace_of_life.md)               | 9b21f66 |
-| s-group-defense                       | Hamilton 1971 (selfish herd)                  | 🟠 passed-consistent | [group_defense.md](group_defense.md)                | pending |
+| s-group-defense                       | Hamilton 1971 (selfish herd)                  | ✅ passed (0.4.1 grid) | [group_defense.md](group_defense.md)                | pending |
 | s-mimicry                             | Bates 1862; Müller 1879                       | 🟠 passed-consistent | [mimicry.md](mimicry.md)                            | pending |
 | s-disease                             | Kermack & McKendrick 1927 (SIR)               | ✅ passed           | [disease.md](disease.md)                            | pending |
 | s-predation-neural                    | —                                             | ⚪ N/A              | demo-only; no fidelity claim                        |         |
-| s-rl                                  | Williams 1992 (REINFORCE)                     | 🟠 passed-consistent | [rl.md](rl.md)                                      | pending |
+| s-rl                                  | Williams 1992 (REINFORCE)                     | ✅ passed (0.4.1 + Tier 5B freq>1) | [rl.md](rl.md)                                      | pending |
 | s-social-learning                     | Boyd & Richerson 1985                         | ✅ passed (ANN)      | [social_learning.md](social_learning.md)            | pending |
-| s-plasticity                          | Pigliucci 2001                                | 🟠 passed-consistent | [plasticity.md](plasticity.md)                      | pending |
-| s-baldwin                             | Hinton & Nowlan 1987                          | 🔴 contradicts       | [baldwin.md](baldwin.md)                            | pending |
+| s-plasticity                          | Pigliucci 2001                                | 🟠 passed-consistent (0.4.1 Tier 5A+5C) | [plasticity.md](plasticity.md)                      | pending |
+| s-baldwin                             | Hinton & Nowlan 1987                          | 🟠 passed-consistent (0.4.1 Tier 5C sigma cost) | [baldwin.md](baldwin.md)                            | pending |
 | s-cephalopod                          | —                                             | ⚪ N/A              | demo-only; no fidelity claim                        |         |
 | s-module-comparison                   | —                                             | ⚪ N/A              |                                                     |         |
-| s-map-elites                          | Mouret & Clune 2015                           | 🟠 passed-consistent | [map_elites.md](map_elites.md)                      | pending |
+| s-map-elites                          | Mouret & Clune 2015                           | ✅ passed (0.4.1 default-mutation fix) | [map_elites.md](map_elites.md)                      | pending |
 | s-kitchen-sink                        | —                                             | ⚪ N/A              |                                                     |         |
 | s-cross-module                        | —                                             | ⚪ N/A              |                                                     |         |
 

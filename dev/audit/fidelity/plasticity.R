@@ -2,6 +2,13 @@
 # Fidelity audit: phenotypic plasticity (Pigliucci 2001, DeWitt & Scheiner 2004).
 # Prediction: In stable environments, plasticity drifts down; in variable
 #            environments (seasonality), plasticity is maintained higher.
+#
+# 0.4.1 update: use Tier 5A `bnn_sigma_source = "trait"` so BNN prior
+# width tracks TRAIT_PLASTICITY directly. Pair with Tier 5C
+# `brain_energy_sigma_scale > 0` so plasticity carries a real energetic
+# cost — this is what creates the selection gradient DeWitt & Scheiner
+# predict. Without these two flags the audit was flat pre-0.4.1
+# (see prior verdict in plasticity.md).
 
 suppressPackageStartupMessages({
   .libPaths(c("~/R/lib", .libPaths()))
@@ -13,17 +20,22 @@ one_run <- function(seasonal_amp, seed, max_ticks = 500L) {
   s$phenotypic_plasticity   <- TRUE
   s$plasticity_init_mean    <- 0.3
   s$plasticity_mutation_sd  <- 0.05
+  # 0.4.1: couple BNN sigma to the plasticity trait and cost it.
+  s$bnn_sigma_source        <- "trait"
+  s$brain_energy_sigma_scale <- 0.02
   s$seasonal_amplitude      <- seasonal_amp
   s$season_length           <- 50L
   s$n_agents_init           <- 100L
-  s$grid_rows               <- 30L; s$grid_cols <- 30L
+  s$grid_rows               <- 30L
+  s$grid_cols               <- 30L
   s$grass_rate              <- 0.15
   s$max_agents              <- 400L
   s$max_ticks               <- as.integer(max_ticks)
   s$random_seed             <- as.integer(seed)
   env <- run_alife(s, verbose = FALSE)
   d <- get_run_data(env)$ticks
-  d$seasonal_amp <- seasonal_amp; d$seed <- seed
+  d$seasonal_amp <- seasonal_amp
+  d$seed <- seed
   d
 }
 

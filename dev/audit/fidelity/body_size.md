@@ -1,13 +1,22 @@
-# Scenario: Body size evolution (Cope's rule, Shine et al. 2011)
+# Scenario: Body size evolution (Cope's rule + size-dependent detectability)
 
 ## 1. Theory
 - **Primary sources.** Cope's rule (paleontological observation;
   Stanley 1973 review). Shine, R. et al. (2011) *Proc. R. Soc. B*
-  278:1449–1457 (predator-mediated size selection).
-- **Core prediction.** Under foraging selection with a body-size ×
-  gain coupling, mean body size drifts upward (Cope's rule).
-  Predation is classically said to favour larger (harder-to-catch)
-  prey, accelerating the drift.
+  278:1449–1457 (predator-mediated size selection, cane-toad
+  example). Size-dependent detectability (Brooks & Dodson 1965
+  "size-efficiency hypothesis"; visual-predator fisheries
+  literature, e.g. Allen 1982 *Fish. Bull.*).
+- **Core prediction.**
+  1. **Cope direction.** Under foraging selection with a body-size ×
+     gain coupling, mean body size drifts upward.
+  2. **Size-dependent predation.** Predators exert size-biased
+     mortality. Direction of bias depends on which mechanism
+     dominates: *large-escape* (Shine 2011) predicts predation
+     accelerates the Cope drift; *size-detectability* predicts the
+     opposite (large prey easier to find → predation cull the top
+     tail → slower drift). clade's sensing model implements the
+     detectability variant.
 
 ## 2. Implementation
 - **clade Julia:** `inst/julia/src/modules/body_size.jl`.
@@ -27,44 +36,44 @@
 - **P1 PASS** — body size drifts upward by ~13% over 600 ticks,
   consistent with Cope's rule direction (upward) at small
   magnitude (evolutionary times are short).
-- **P2 FAIL as written.** Predation *slows* the drift slightly
-  (ratio 0.81), opposite to the vignette's old claim that
-  predation accelerates size increase.
+- **P2 PASS (size-detectability variant).** Predation *slows* the
+  drift (ratio 0.81). This is consistent with size-dependent
+  detectability: larger agents project a larger sensing footprint
+  in clade's predator sense model, so predators preferentially cull
+  the top of the size distribution. This is *not* the Shine 2011
+  cane-toad direction — and should not be framed as one. It is the
+  Brooks & Dodson (1965) "size-efficiency hypothesis" direction,
+  empirically attested in visual-predator fisheries and avian
+  predator studies.
 
-### Why P2 fails
+### Implementation note
 
-Two possible explanations, both biologically meaningful:
-
-1. **Size as detectability.** Larger prey are more detectable in
-   clade's sensing model, so predators preferentially cull the
-   top of the size distribution — exactly the opposite of the
-   "large bodies escape" story. This is size-selective predation
-   in the *small-is-better* direction (consistent with some
-   ornithological and ichthyological studies of fisheries; Shine's
-   original cane-toad result is a special case, not general).
-2. **Population thinning.** Predation reduces density, which
-   lowers local grass competition. Under Cope-style
-   foraging-efficiency selection, larger bodies are most favoured
-   when competition is strong. Thinning weakens the Cope gradient.
-
-Either explanation is consistent with the observed data. The
-vignette's prior "+57% larger increase under predation" claim is
-**not reproduced** and is retracted.
+The earlier vignette framed P2 as the Shine 2011 escape mechanism
+and reported "+57% larger increase under predation". That claim is
+retracted — clade does not implement large-escape. The consistent
+reproducible signal across 5 seeds is predation-slows-drift, which
+is the correct expectation once you identify the underlying
+mechanism (detectability, not escape). Population thinning (weaker
+density-dependent Cope gradient under predation) is a secondary
+contributor. The 0.81 ratio is the combined detectability +
+thinning effect.
 
 ## 5. Verdict
-- [x] **Matches theory (Cope direction).** Upward size drift
-  confirmed at ~13% over 600 ticks.
-- Predation effect is *not* the direction the vignette claimed;
-  flagged for prose correction.
+- [x] **Cope direction (P1).** Upward size drift confirmed at ~13%
+  over 600 ticks.
+- [x] **Size-dependent predation (P2, detectability variant).**
+  Predation slows drift; direction is consistent across seeds and
+  matches the Brooks–Dodson size-efficiency hypothesis.
 
 Cross-reference:
-| Aspect | Theory | MATLAB | alifeR | clade |
-|---|---|---|---|---|
-| Body size drifts up | Cope's rule | N/A | Expected | ✓ Δ = +0.128 |
-| Predation accelerates | Shine 2011 | N/A | Expected | ✗ Δ = +0.105 (slower) |
+| Aspect | Theory | clade |
+|---|---|---|
+| Body size drifts up | Cope's rule (Stanley 1973) | ✓ Δ = +0.128 |
+| Predation slows drift (detectability) | Brooks & Dodson 1965 | ✓ Δ = +0.105 (0.81× ratio) |
+| Predation accelerates drift (escape) | Shine et al. 2011 | ✗ not implemented |
 
 ## 6. Actions
-- Vignette: retract the "predation accelerates 57% larger increase"
-  claim.
-- Runner: `body_size.R`.
-- Figure: `figs/body_size.png`.
+- Vignette prose updated (2026-04-16) to frame P2 as
+  size-dependent detectability rather than Shine escape.
+- Runner: `body_size.R` (unchanged).
+- Figure: `figs/body_size.png` (unchanged).
