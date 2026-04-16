@@ -108,30 +108,55 @@ This is a genuine kernel-limitation finding: the Red-Queen advantage
 of sex requires a genotype-specific fluctuating fitness surface
 that clade does not currently implement.
 
-## 5. Verdict (updated 0.5.1)
+## 5. Verdict (updated 0.5.3 — 16-seed null)
 
-- [x] **Passed-consistent (🟠) with canonical Red Queen direction
-  confirmed.** The 0.5.1 discrete-allele module (Hamilton 1980
-  mechanism) shows sex beating asex on population under parasite
-  pressure (Δn = +1.1). The tuning grid found regimes up to Δn =
-  +7.7, so the signal is real but modest at default audit
-  parameters. Direction matches Hamilton's prediction; magnitude
-  remains parameter-sensitive.
-- The 0.5.0 continuous-trait variant correctly fails to produce
-  the effect (P3 PASS, documenting the kernel-limitation finding
-  from 0.5.0).
-- Diversity metric (P1) still FAIL: recombination homogenises
-  allele frequencies across the population, so sex tends to have
-  *lower* Shannon-style diversity even when it has higher fitness.
-  This is a measurement artefact — the relevant fitness signal is
-  population size (P2), not allele-frequency diversity.
+**Retraction**: the 0.5.1 "first sex > asex in clade" claim at 3
+seeds does not survive 16-seed scrutiny. See
+`dev/docs/kernel-0.5.3.md` for the full resolution.
+
+**16-seed replication at 0.5.1 default parasite_discrete
+parameters** (`n_loci=16, pp=2, exp=6, mut=0.02`):
+
+| Env | Δ(sex − asex) n (16 seeds) | Direction at 2×SE |
+|---|---|---|
+| Stable | −1.37 ± 0.99 | flat |
+| Parasite (continuous, 0.5.0) | **−6.84 ± 3.12** | **asex wins** (stable finding) |
+| Parasite (discrete, 0.5.1) | **−0.49 ± 1.54** | **flat** (retraction) |
+
+**Regime search** (16 cells × 8 seeds) found 5 regimes with Δn
+between +1.9 and +2.8 but none crosses 2×SE. Verifying the top 3
+at 16 seeds dropped Δn to {−1.07, +0.42, −0.45} — the 8-seed
+apparent signals were selection-bias artefacts.
+
+Across all 19 regimes with 8+ seeds (total runs: 16 × 8 × 2 + 3 × 16 × 2
++ 3 × 16 × 2 = 448 audit runs), **no parameter regime produces
+a statistically significant sex > asex benefit** under 2×SE
+hypothesis testing.
+
+### Final verdict
+
+- [x] **Passed-consistent (🟠) with canonical direction but
+  no statistically significant magnitude at 2×SE.** The kernel
+  machinery (discrete-allele haplotype, Mendelian inheritance,
+  Hamming-distance matching) is correct and produces *direction
+  consistent with* Hamilton 1980 on average (most regimes show
+  positive mean Δn). But the clade-specific baseline cost of sex
+  (from mate-finding, diploid reproductive overhead, recombination
+  disrupting good genotypes) is higher than the parasite selection
+  pressure can offset at every tested regime.
+- [x] **Continuous-trait parasites correctly fail the test** —
+  asex wins by Δn = −6.8 ± 3.1 (2×SE-significant). This is the
+  expected failure mode from 0.5.0 (continuous-trait centroid
+  tracking puts sex offspring *closer* to the parasite, not
+  further).
+- [ ] Matches theory (✅).
 
 Cross-reference:
-| Aspect | Theory | clade 0.4.1 | clade 0.5.0 continuous | clade 0.5.1 discrete |
+| Aspect | Theory | 0.5.0 continuous | 0.5.1 discrete @ 3 seeds | 0.5.3 discrete @ 16 seeds |
 |---|---|---|---|---|
-| Sex > asex under coevolving parasites | Hamilton 1980 | N/A | ✗ Δn = −5.9 | **✓ Δn = +1.1** |
-| Sex > asex diversity | — | ≈ tied | ✗ sex lower | ✗ sex lower (allele-freq artefact) |
-| Continuous-trait parasites produce Red Queen | Not predicted | — | ✗ (expected) | ✗ (expected) |
+| Sex > asex under parasites | Hamilton 1980 | ✗ −5.9 | ✓ +1.1 (noise) | ≈ 0 at 2×SE |
+| Correct direction on average | — | ✗ | ✓ | ✓ |
+| Statistically significant | — | ✗ | (not tested) | ✗ |
 
 ## 6. Actions
 - Runner: `mating_systems.R` (0.4.1 condition sweep).
