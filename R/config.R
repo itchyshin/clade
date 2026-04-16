@@ -861,6 +861,17 @@ default_specs <- function() {
     brain_energy_base      = 0.001,
     brain_energy_activity  = 0.5,
 
+    # ── BNN brain ──────────────────────────────────────────────────────────
+    bnn_sigma_init    = 0.5,                 # haploid default & "fixed" mode
+    bnn_sigma_min     = 0.01,                # floor for all modes
+    bnn_sigma_source  = "heterozygosity",    # 0.4.0 Tier 5A: "heterozygosity"
+                                             # (legacy), "fixed", or "trait"
+    bnn_sample_freq   = 1L,                  # 0.4.0 Tier 5B: resample every
+                                             # N forward calls; 1 = legacy
+                                             # per-tick sampling. Higher values
+                                             # let RL/social-learning updates
+                                             # accumulate before washout.
+
     # ── Genome and ploidy ──────────────────────────────────────────────────
     ploidy                 = 2L,
     n_chromosomes          = 1L,

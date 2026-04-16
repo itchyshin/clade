@@ -63,6 +63,9 @@ function tick_agents!(env::Environment)
     idle_cost  = Float32(get(specs, "idle_cost",  0.5))
     eat_gain   = Float32(get(specs, "eat_gain",   5.0))
     max_bite   = Float32(get(specs, "max_bite",   2.0))   # 0.4.0: handling time
+    # 0.4.0 Tier 5B: BNN sample cadence — cache weight sample for N forward
+    # calls instead of resampling every tick. Freq = 1 is legacy default.
+    _bnn_set_freq(Int(get(specs, "bnn_sample_freq", 1)))
     e_mode     = get(specs, "brain_energy_mode", "activity")
     e_base     = Float32(get(specs, "brain_energy_base",     0.001))
     e_act      = Float32(get(specs, "brain_energy_activity", 0.5))
