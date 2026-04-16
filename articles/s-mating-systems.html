@@ -300,21 +300,29 @@ where the parasite tracks — so sex is <em>more</em> exposed, not less.
 This confirms Hamilton’s intuition that a continuous-trait version of
 the Red Queen doesn’t work.</li>
 <li>
-<strong>Discrete-allele parasites produce the canonical
-direction.</strong> Under the 0.5.1 module
-(<code>n_parasite_loci = 16, pressure = 2.0,    exponent = 6, mutation = 0.02</code>),
-sex beats asex by Δn = +1.1 at audit-default parameters. A tuning grid
-found regimes up to Δn = +7.7. The first observation of sex &gt; asex in
-clade, and the Hamilton 1980 direction.</li>
+<strong>Discrete-allele parasites show the canonical direction on
+average but no statistically significant magnitude.</strong> The 0.5.1
+audit reported Δn = +1.1 at 3 seeds; at 16 seeds this collapses to Δn =
+−0.49 ± 1.54 (within 2×SE). A 0.5.3 regime search across 16 parameter
+cells (varying <code>n_loci</code>, <code>pressure</code>,
+<code>exponent</code>, <code>mutation_rate</code>) found that all
+regimes give direction in favour of sex on average, but NONE crosses
+2×SE at 8 seeds — and the top 3 regimes also come out flat at 16
+seeds.</li>
 </ol>
-<p>The diversity metric (Δdiv) still shows sex below asex — a
-measurement artefact: recombination homogenises allele
-<em>frequencies</em> across the population, so Shannon-style diversity
-understates the fitness advantage. Population size is the right fitness
-proxy.</p>
-<p>Verdict: 🟠 with canonical Red Queen direction confirmed at moderate
-magnitude. Stronger pressure or larger populations could promote to ✅;
-scenario remains parameter-sensitive.</p>
+<p>The diversity metric (Δdiv) shows sex below asex — a measurement
+artefact: recombination homogenises allele <em>frequencies</em> across
+the population, so Shannon-style diversity understates the fitness
+advantage. Population size is the right fitness proxy.</p>
+<p>Verdict: 🟠 with canonical direction correct on average but no
+statistically-robust magnitude. clade’s baseline cost of sex
+(mate-finding, diploid reproductive overhead) appears higher than the
+parasite selection pressure can offset at any tested regime. Hamilton
+(1980) himself noted sex’s two-fold cost is a tall order for parasites;
+this finding is consistent with his caveat. Pushing to ✅ would require
+either reducing clade’s baseline cost of sex or testing at very large
+population sizes where mate- finding is not limiting — deferred to
+0.6+.</p>
 </div>
 <div class="section level3">
 <h3 id="discovery-experiments">Discovery experiments<a class="anchor" aria-label="anchor" href="#discovery-experiments"></a>

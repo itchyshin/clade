@@ -116,6 +116,22 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.5.3" id="clade-053-2026-04-16">clade 0.5.3 (2026-04-16)<a class="anchor" aria-label="anchor" href="#clade-053-2026-04-16"></a></h2>
+<div class="section level3">
+<h3 id="audit-s-mating-systems-first-sex--asex-claim-retracted-0-5-3">Audit: s-mating-systems 0.5.1 “first sex &gt; asex” claim retracted<a class="anchor" aria-label="anchor" href="#audit-s-mating-systems-first-sex--asex-claim-retracted-0-5-3"></a></h3>
+<p>Applied the 0.5.2 body-size precedent (16-seed sweep with 2×SE hypothesis test) to the Red Queen scenario. Across 448 audit runs covering 19 distinct parameter regimes:</p>
+<ul><li>
+<strong>16-seed replication</strong> at the 0.5.1 default <code>parasite_discrete</code> parameters: Δn (sex − asex) = −0.49 ± 1.54 → flat within 2×SE. The 0.5.1 “+1.1 first sex wins” finding was 3-seed noise.</li>
+<li>
+<strong>Regime search</strong> over <code>n_loci × pressure × exponent × mutation</code> (16 cells, 8 seeds each): all 16 regimes show direction in favour of sex on average; NONE crosses 2×SE.</li>
+<li>
+<strong>Top-3 verification at 16 seeds</strong>: the 8-seed apparent signals (+2.3 to +2.8) collapse to flat Δn ∈ {−1.07, +0.42, −0.45}.</li>
+</ul><p>The canonical discrete-allele Red Queen mechanism is implemented correctly (direction consistently non-negative on average), but clade’s baseline cost of sex is higher than parasite selection pressure can offset at every tested regime. Hamilton (1980) himself noted sex’s two-fold cost is a tall order for parasites; this finding is consistent with his caveat.</p>
+<p>Verdict: <strong>s-mating-systems stays 🟠</strong> with direction correct and the “first sex wins” claim retracted. Pushing to ✅ is deferred as a scenario-design question (minimise clade’s baseline cost of sex via population size, mate-finding dynamics, or longer runs).</p>
+<p>No kernel changes.</p>
+<hr></div>
+</div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.5.2" id="clade-052-2026-04-16">clade 0.5.2 (2026-04-16)<a class="anchor" aria-label="anchor" href="#clade-052-2026-04-16"></a></h2>
 <div class="section level3">
 <h3 id="audit-s-body-size-p2-direction-resolved-0-5-2">Audit: s-body-size P2 direction resolved<a class="anchor" aria-label="anchor" href="#audit-s-body-size-p2-direction-resolved-0-5-2"></a></h3>
