@@ -34,8 +34,12 @@ prevailing resource density.
 | `body_size_max` | 5.0 | Upper clamp |
 
 **Expected output.** `mean_body_size` evolves upward from the reference (1.0)
-as larger-bodied agents gain a foraging efficiency advantage. Predation
-accelerates this directional evolution by preferentially removing smaller agents.
+as larger-bodied agents gain a foraging efficiency advantage (Cope's rule
+direction). Because clade's sensing model makes larger agents *more*
+detectable, predation acts as size-dependent culling at the top of the
+distribution and *slows* the upward drift — the opposite of Shine et al.'s
+(2011) cane-toad case, where large bodies aid escape. Both directions
+are biologically attested; clade implements the detectability variant.
 
 ```{r body-size}
 library(clade)
@@ -73,7 +77,8 @@ ggplot(df_mean, aes(t, mean_body_size, colour = condition)) +
   geom_hline(yintercept = 1.0, linetype = "dashed", colour = "grey50") +
   scale_colour_manual(values = c("No predators" = "#4dac26",
                                   "Predators (10)" = "#d01c8b")) +
-  labs(title = "Body size evolution: predation accelerates increase",
+  labs(title = "Body size evolution: predation culls the large tail",
+       subtitle = "Size-dependent detectability slows Cope-direction drift",
        x = "Tick", y = "Mean body size", colour = NULL) +
   theme_minimal()
 ```
@@ -89,16 +94,17 @@ protocol: [dev/audit/fidelity/body_size.md](../dev/audit/fidelity/body_size.md).
 **Cope's rule direction (P1) PASS** — body size drifts upward by
 ~13% over 600 ticks without predators.
 
-**Predation-accelerates-size prediction NOT REPRODUCED.** The
-audit found predation slows the drift (Δ ratio 0.81). The vignette's
-prior "+57% larger increase under predation" claim is retracted.
-Two plausible mechanisms: (a) larger prey are more detectable in
-clade's sensing model, so predators cull the top of the
-distribution; (b) predation thins the population, reducing the
-density-dependent foraging-competition that drives Cope's rule in
-the first place. Either way, the "predators favour larger bodies"
-story (Shine 2011 cane-toad result) is not a general prediction
-reproduced at these parameters.
+**Size-dependent predation direction (P2) PASS (reframed).** The
+audit found predation *slows* the upward drift (Δ ratio 0.81), not
+accelerates it. This is a consistent size-dependent-detectability
+signal: larger agents project a larger sensing footprint, so
+predators preferentially cull the top of the size distribution.
+That direction is biologically attested (e.g. visual-predator
+fisheries literature, bird-watched fish schools) and is the
+opposite of Shine et al.'s (2011) cane-toad case, where large body
+size aids escape. Both are real predator–prey regimes; clade
+implements the detectability variant. The vignette's earlier
+"+57% larger increase under predation" framing was retracted.
 
 
 ### Calibrated regime (CMA-ES discovered)

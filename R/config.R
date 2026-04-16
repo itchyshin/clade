@@ -857,9 +857,14 @@ default_specs <- function() {
     ann_regularization_lambda = 0.001,    # penalty scale (energy / unit / tick)
 
     # ── Brain energy cost ──────────────────────────────────────────────────
-    brain_energy_mode      = "activity",
-    brain_energy_base      = 0.001,
-    brain_energy_activity  = 0.5,
+    brain_energy_mode         = "activity",
+    brain_energy_base         = 0.001,
+    brain_energy_activity     = 0.5,
+    brain_energy_sigma_scale  = 0.0,   # 0.4.1 Tier 5C: information cost
+                                       # of BNN prior width (sigma).
+                                       # Default 0 preserves legacy. Set
+                                       # to ~0.005–0.05 for Baldwin
+                                       # canalisation scenarios.
 
     # ── BNN brain ──────────────────────────────────────────────────────────
     bnn_sigma_init    = 0.5,                 # haploid default & "fixed" mode
