@@ -591,6 +591,14 @@
 #'     per tick (default 0.1). Models honest signalling costs (Zahavi 1975).
 #'     Reference: Zahavi (1975) Mate selection -- a selection for a handicap,
 #'     *Journal of Theoretical Biology* 53(1):205--214.}
+#'   \item{`signal_toxicity_coupling`}{Numeric in \[0, 1\]. Strength of
+#'     aposematic pleiotropy between the first signal dimension and the
+#'     heritable `toxicity` trait. At 0 (default) signal and toxicity
+#'     evolve independently; at 1, `signal[1]` is locked to each agent's
+#'     toxicity value so predators can learn a reliable honest
+#'     aposematic signal. Required to close the Bates (1862) /
+#'     Müller (1879) feedback loop in clade. Active only when
+#'     `mimicry = TRUE` and `signal_dims > 0`. Added 0.4.4.}
 #' }
 #'
 #' ## Mimicry and toxicity
@@ -1075,6 +1083,14 @@ default_specs <- function() {
     signal_drift_sd            = 0.01,
     mate_choice_mode           = "random",
     mate_choice_strength       = 0.5,
+    # 0.4.4: aposematic honest signalling. When > 0, each agent's
+    # `signal[1]` is pulled per tick toward its own `toxicity` value
+    # (`signal[1] ← (1-coupling)*signal[1] + coupling*toxicity`).
+    # At coupling=0 (default) signal evolves freely; at coupling=1
+    # signal[1] is locked to toxicity. Required for Bates/Müller
+    # aposematic dynamics to close the feedback loop. Active only
+    # when `mimicry = TRUE` and `signal_dims > 0`.
+    signal_toxicity_coupling   = 0.0,
 
     # ── Speciation (genome-distance clustering) ────────────────────────────
     speciation                 = FALSE,

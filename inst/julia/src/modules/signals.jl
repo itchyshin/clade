@@ -111,3 +111,44 @@ function apply_signal_evolution!(env::Environment)
     end
     nothing
 end
+
+"""
+    apply_signal_toxicity_pleiotropy!(env::Environment)
+
+0.4.4: soft pleiotropic coupling between signal[1] and toxicity. When
+`signal_toxicity_coupling > 0`, each agent's `signal[1]` is pulled each
+tick toward its own `toxicity` value, blending the heritable signal with
+a toxicity-derived value:
+
+    signal[1] ← (1 - coupling) × signal[1] + coupling × toxicity
+
+At `coupling = 0` (default): signal evolves fully independently (legacy
+0.3.x / 0.4.x behaviour). At `coupling = 1`: signal[1] is locked to
+toxicity — aposematic honest signalling. Intermediate values give a
+partial honest-signal regime.
+
+This is the clean mechanism aposematic theory invokes (Endler 1988;
+Ruxton, Sherratt & Speed 2004): toxic prey *must* advertise their
+toxicity for predator learning to select for it. Without coupling,
+signal and toxicity are independent traits in clade and aposematic
+dynamics cannot close the feedback loop. Opt-in, so no existing
+scenario's behaviour changes.
+
+Is a no-op when `signal_dims == 0` or `mimicry == false`.
+"""
+function apply_signal_toxicity_pleiotropy!(env::Environment)
+    Int(get(env.specs, "signal_dims", 0)) > 0 || return
+    Bool(get(env.specs, "mimicry", false))    || return
+    coupling = Float32(get(env.specs, "signal_toxicity_coupling", 0.0))
+    coupling > 0.0f0 || return
+
+    @inbounds for ag in env.agents
+        ag.alive || continue
+        if !isempty(ag.signal)
+            ag.signal[1] = (1.0f0 - coupling) * ag.signal[1] +
+                            coupling * ag.toxicity
+            ag.signal[1] = clamp(ag.signal[1], -1.0f0, 1.0f0)
+        end
+    end
+    nothing
+end

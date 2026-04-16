@@ -352,6 +352,7 @@ function _make_offspring(id::Int64, g::DiploidGenome, brain::AbstractBrain,
         body_size, immune_str, coop, disp, metab, aging, repro_th, mut_sd, lr,
         zeros(Float32, sig_dims), zeros(Float32, sig_dims),
         toxicity,       # toxicity (heritable via TRAIT_TOXICITY)
+        Float32[],      # signal_memory (0.4.4): empty for prey offspring
         false, false, Int32(0), Int32(0),   # disease
         Any[], Int32(0),                    # parental care
         0.0f0, energy,                      # RL

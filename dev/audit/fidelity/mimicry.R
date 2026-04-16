@@ -62,7 +62,8 @@ suppressPackageStartupMessages({
 })
 
 one_run <- function(n_predators, toxin_dose, toxicity_cost, seed,
-                    toxicity_init = 0.3, max_ticks = 600L) {
+                    toxicity_init = 0.3, max_ticks = 600L,
+                    pleiotropy = 0.0) {
   s <- default_specs()
   s$mimicry                <- TRUE
   s$toxicity_init_mean     <- toxicity_init
@@ -74,6 +75,9 @@ one_run <- function(n_predators, toxin_dose, toxicity_cost, seed,
   s$signal_drift_sd        <- 0.05
   s$signal_memory_rate     <- 0.5
   s$avoid_threshold        <- 0.1   # lower threshold so avoidance fires
+  # 0.4.4: aposematic pleiotropy — binds signal[1] to toxicity so
+  # predator learning can close the Bates/Müller feedback loop.
+  s$signal_toxicity_coupling <- pleiotropy
   s$n_predators_init       <- as.integer(n_predators)
   s$predator_attack_strength <- 60
   s$predator_min_repro_energy <- 50
@@ -128,16 +132,18 @@ cat(sprintf("  P1 (control drifts down/flat): %s\n",
 cat(sprintf("  P2 (treatment > control):       %s\n",
             if (mean(trt_final) > mean(ctrl_final)) "PASS" else "FAIL"))
 
-# Avoidance / toxic attack counts
+# Avoidance / toxic attack counts. These are per-tick counters that reset
+# every tick, so we must sum across the tick series to get cumulative totals
+# (pre-0.4.4 audit used tail() and reported near-zero spuriously).
 trt_avoid <- vapply(runs_treat,
-                    function(d) tail(d$n_avoided_attacks, 1L),
+                    function(d) sum(d$n_avoided_attacks, na.rm = TRUE),
                     numeric(1L))
 trt_toxic <- vapply(runs_treat,
-                    function(d) tail(d$n_toxic_attacks, 1L),
+                    function(d) sum(d$n_toxic_attacks, na.rm = TRUE),
                     numeric(1L))
-cat(sprintf("  Treatment n_avoided_attacks (final): %.0f ± %.0f\n",
+cat(sprintf("  Treatment n_avoided_attacks (total): %.0f ± %.0f\n",
             mean(trt_avoid), sd(trt_avoid)))
-cat(sprintf("  Treatment n_toxic_attacks   (final): %.0f ± %.0f\n",
+cat(sprintf("  Treatment n_toxic_attacks   (total): %.0f ± %.0f\n",
             mean(trt_toxic), sd(trt_toxic)))
 cat(sprintf("  P3 (predators attack toxic AND learn to avoid): %s\n",
             if (mean(trt_toxic) > 0 && mean(trt_avoid) > 0) "PASS" else "FAIL"))
@@ -249,3 +255,37 @@ p <- (p_traj | p_dose) / p_grid +
 ggsave("dev/audit/fidelity/figs/mimicry.png", p,
        width = 11, height = 8, dpi = 150)
 cat("\nWrote dev/audit/fidelity/figs/mimicry.png\n")
+
+# ── Step 5: aposematic pleiotropy (0.4.4) ────────────────────────────────────
+# With `signal_toxicity_coupling > 0`, signal[1] is bound to the toxicity
+# trait, which is the mechanism Bates/Müller theory invokes for predators
+# to learn honest warning signals. Expected: much stronger upward drift
+# in toxicity under predator pressure than without pleiotropy.
+
+cat("\n── Step 5: aposematic pleiotropy sweep\n")
+pleio_grid <- c(0.0, 0.3, 0.6, 1.0)
+pleio_results <- lapply(pleio_grid, function(pl) {
+  finals <- vapply(1L:5L, function(sd) {
+    d <- one_run(n_predators = 8, toxin_dose = 60, toxicity_cost = 0.3,
+                 toxicity_init = 0.3, seed = sd, pleiotropy = pl)
+    tail(d$mean_toxicity, 1L)
+  }, numeric(1L))
+  cat(sprintf("  coupling=%.1f: final mean_toxicity = %.3f ± %.3f\n",
+              pl, mean(finals), sd(finals)))
+  data.frame(coupling = pl, mean_final = mean(finals),
+             sd_final = sd(finals))
+})
+pleio_df <- do.call(rbind, pleio_results)
+
+# P5: upward trend in mean_toxicity with coupling
+pleio_slope <- cor(pleio_df$coupling, pleio_df$mean_final, method = "spearman")
+pleio_pass  <- pleio_slope > 0 &&
+               (pleio_df$mean_final[nrow(pleio_df)] -
+                pleio_df$mean_final[1]) > 0.05
+cat(sprintf("  P5 (pleiotropy drives toxicity evolution): %s  (rho=%.2f, Δmax=%+.3f)\n",
+            if (pleio_pass) "PASS" else "FAIL",
+            pleio_slope,
+            pleio_df$mean_final[nrow(pleio_df)] -
+              pleio_df$mean_final[1]))
+
+saveRDS(pleio_df, "dev/audit/fidelity/mimicry_pleio_results.rds")

@@ -102,8 +102,9 @@ function seed_predators!(env::Environment)
             0.01f0,  # learning_rate
             # Signal (predators carry no signal)
             Float32[], Float32[],
-            # Mimicry
+            # Mimicry (toxicity) + signal_memory (0.4.4): lazily sized by attack path
             0.0f0,
+            Float32[],
             # Disease
             false, false, Int32(0), Int32(0),
             # Parental care
@@ -433,8 +434,10 @@ function _predator_reproduction!(env::Environment)
             pred.repro_threshold, pred.mutation_sd, pred.learning_rate,
             # Signal
             Float32[], Float32[],
-            # Mimicry
+            # Mimicry + signal_memory (0.4.4): offspring inherits nothing;
+            # predator learning starts fresh each generation
             0.0f0,
+            Float32[],
             # Disease
             false, false, Int32(0), Int32(0),
             # Parental care
