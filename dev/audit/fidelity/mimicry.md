@@ -229,6 +229,26 @@ The vignette's earlier "21× fitness improvement" under "CMA-ES
 calibrated" parameters is **not reproduced** at any tested regime
 and should be re-derived or removed.
 
+### 0.5.4 calibration (honest null)
+
+Following the 0.5.3 Red Queen methodology (adequate seeds + 2×SE
+testing), an 8-cell grid × 5 seeds × 1000 ticks sweep over
+`n_pred ∈ {12, 20}` × `toxin_dose ∈ {80, 150}` ×
+`toxicity_cost ∈ {0.1, 0.2}` with `signal_toxicity_coupling = 1.0`:
+
+**Every tested regime shows Δtoxicity < 0** (range −0.002 to
+−0.009). No regime crosses 2×SE in the positive direction.
+
+Selection arithmetic: toxicity cost (0.03–0.06 energy/tick)
+dominates aposematic protection (~1% of predator attacks blocked
+by learned aversion) by ~10× at default population scales. This
+is the Zahavi (1975) handicap-honesty challenge at ABM scale.
+
+See [kernel-0.5.4.md](../../docs/kernel-0.5.4.md) for the full
+writeup including recommended directions for a 0.6+ follow-up
+(smaller populations, stronger predation, or bootstrapping with
+correlated initial signal + toxicity).
+
 ### Cross-reference table (0.4.4)
 
 | Aspect | Theory (Bates/Müller) | alifeR prototype | clade Julia 0.4.4 |

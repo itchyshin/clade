@@ -42,7 +42,7 @@ Statuses:
 | s-parental-investment                 | Trivers 1972                                  | ✅ passed (0.4.0 Tier 3) | [parental_investment.md](parental_investment.md) | 9b21f66 |
 | s-pace-of-life                        | Réale et al. 2010                             | ✅ passed (0.4.0 Tier 2) | [pace_of_life.md](pace_of_life.md)               | 9b21f66 |
 | s-group-defense                       | Hamilton 1971 (selfish herd)                  | ✅ passed (0.4.1 grid) | [group_defense.md](group_defense.md)                | pending |
-| s-mimicry                             | Bates 1862; Müller 1879                       | 🟠 passed-consistent (0.4.4 delta-rule + pleiotropy; magnitude ecology-limited) | [mimicry.md](mimicry.md)                            | pending |
+| s-mimicry                             | Bates 1862; Müller 1879                       | 🟠 passed-consistent (0.5.4: kernel machinery correct; all 8-cell ×5-seed grid regimes show Δtoxicity < 0 — Zahavi handicap cost > benefit at default ecology) | [mimicry.md](mimicry.md)                            | pending |
 | s-disease                             | Kermack & McKendrick 1927 (SIR)               | ✅ passed           | [disease.md](disease.md)                            | pending |
 | s-predation-neural                    | —                                             | ⚪ N/A              | demo-only; no fidelity claim                        |         |
 | s-rl                                  | Williams 1992 (REINFORCE)                     | ✅ passed (0.4.1 + Tier 5B freq>1) | [rl.md](rl.md)                                      | pending |
