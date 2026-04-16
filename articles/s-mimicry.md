@@ -63,13 +63,21 @@ improvement (signal-vector predator memory) before re-tuning. See
 [mimicry fidelity report
 §5](../dev/audit/fidelity/mimicry.html#5-verdict).
 
-![Expected output: mean toxicity rises under predator pressure; avoided
-attacks increase as predators learn to avoid toxic prey; toxic attack
-rate declines.](figures/showcase_21_mimicry.png)
+![0.4.4 audit (5 seeds × 600 ticks, vector-signal predator memory +
+delta-rule Rescorla-Wagner update). Upper panels: toxicity trajectories
+(flat across control and treatment) and dose-response (Spearman ρ =
++0.40 — positive direction). Lower panel: dose × cost grid. P3 (learning
+fires: 12–28 avoidance events) and P4 (dose-response) PASS; P2 magnitude
+direction-sensitive in the ±0.002 noise band — ecology-limited per the
+0.5.4 calibration.](figures/showcase_21_mimicry.png)
 
-Expected output: mean toxicity rises under predator pressure; avoided
-attacks increase as predators learn to avoid toxic prey; toxic attack
-rate declines.
+0.4.4 audit (5 seeds × 600 ticks, vector-signal predator memory +
+delta-rule Rescorla-Wagner update). Upper panels: toxicity trajectories
+(flat across control and treatment) and dose-response (Spearman ρ =
++0.40 — positive direction). Lower panel: dose × cost grid. P3 (learning
+fires: 12–28 avoidance events) and P4 (dose-response) PASS; P2 magnitude
+direction-sensitive in the ±0.002 noise band — ecology-limited per the
+0.5.4 calibration.
 
 **What we found (updated 2026-04-16, audit 🟠 with 0.4.4 kernel
 fixes).** Two audit iterations materially changed the picture:

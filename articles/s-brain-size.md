@@ -123,15 +123,22 @@ ggplot(df, aes(t, mean_brain_size, colour = condition)) +
   theme_minimal()
 ```
 
-![Expected output: mean brain size trajectories for the parental-care
-and no-care conditions. The parental-care condition (blue) should show
-upward drift; the no-care condition (red) should remain flat or decline
-below the reference line (dashed).](figures/showcase_brain_size.png)
+![0.4.3 audit heatmap: Δdelta (care Δ − no-care Δ) across
+neonatal_foraging_deficit × brain_energy_size_exponent (3 seeds × 400
+ticks). ✅ regimes (Δdelta \> 0.05) appear in the upper-right region
+where super-linear brain cost combines with neonatal foraging penalty —
+the biologically-principled Aiello-Wheeler / Isler-van-Schaik route to
+the parental-provisioning signal. Note the trade-off: strong settings
+produce large Δdelta but also shrink
+populations.](figures/showcase_brain_size.png)
 
-Expected output: mean brain size trajectories for the parental-care and
-no-care conditions. The parental-care condition (blue) should show
-upward drift; the no-care condition (red) should remain flat or decline
-below the reference line (dashed).
+0.4.3 audit heatmap: Δdelta (care Δ − no-care Δ) across
+neonatal_foraging_deficit × brain_energy_size_exponent (3 seeds × 400
+ticks). ✅ regimes (Δdelta \> 0.05) appear in the upper-right region
+where super-linear brain cost combines with neonatal foraging penalty —
+the biologically-principled Aiello-Wheeler / Isler-van-Schaik route to
+the parental-provisioning signal. Note the trade-off: strong settings
+produce large Δdelta but also shrink populations.
 
 **What we found.** With `brain_size_cost_scale = 2.0`,
 `brain_size_init_mean = 1.1`, `n_agents_init = 100L`, and

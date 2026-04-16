@@ -71,14 +71,21 @@ ggplot(dat, aes(x = t, y = n_agents, colour = condition)) +
   theme_classic(base_size = 12)
 ```
 
-![Expected output: group defense (green) sustains a larger and more
-stable population than the baseline (red) under identical predation
-pressure, illustrating the dilution-of-risk
-effect.](figures/showcase_15_group_defense.png)
+![0.4.1 audit (5 predator densities × 3 group-defense strengths × 2
+seeds). Upper: dose-response heatmap of gd_n / base_n ratio. Benefit
+grows monotonically with predator pressure and exceeds 1.05× at n_pred ≥
+20. Lower: population trajectories per predator density. At
+n_predators=30, strength=2.0, GD gives a +20-agent (~1.10×) population
+boost — the clean ✅ regime Hamilton (1971) selfish-herd theory
+predicts.](figures/showcase_15_group_defense.png)
 
-Expected output: group defense (green) sustains a larger and more stable
-population than the baseline (red) under identical predation pressure,
-illustrating the dilution-of-risk effect.
+0.4.1 audit (5 predator densities × 3 group-defense strengths × 2
+seeds). Upper: dose-response heatmap of gd_n / base_n ratio. Benefit
+grows monotonically with predator pressure and exceeds 1.05× at n_pred ≥
+20. Lower: population trajectories per predator density. At
+n_predators=30, strength=2.0, GD gives a +20-agent (~1.10×) population
+boost — the clean ✅ regime Hamilton (1971) selfish-herd theory
+predicts.
 
 **What we found (updated 2026-04-16, 0.4.1 audit → ✅ at high predator
 pressure).** Full protocol:

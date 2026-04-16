@@ -111,13 +111,22 @@ s$learning_rate_init_mean        <- 0.007
 # env <- run_alife(s)   # uncomment to run the calibrated regime
 ```
 
-![BNN prior sigma trajectory. Declining sigma indicates canalization
-(Baldwin Effect); rising sigma indicates selection for maintained
-behavioural flexibility.](figures/showcase_bnn_uncertainty.png)
+![0.4.2 audit (3 seeds × 1500 ticks). Mean_prior_sigma trajectories
+facetted by sigma_cost (0, 0.05, 0.10). Transient canalisation at 600
+ticks disappears at equilibrium (1500 ticks): sigma also mediates
+behavioural variance, so seasonal stress drives selection against wide
+posteriors regardless of the information-cost term. Direction reversal
+from the pre-0.4.0 🔴 confirmed at short timescales (see mating_systems
+and plasticity for the shared kernel-limitation
+caveat).](figures/showcase_bnn_uncertainty.png)
 
-BNN prior sigma trajectory. Declining sigma indicates canalization
-(Baldwin Effect); rising sigma indicates selection for maintained
-behavioural flexibility.
+0.4.2 audit (3 seeds × 1500 ticks). Mean_prior_sigma trajectories
+facetted by sigma_cost (0, 0.05, 0.10). Transient canalisation at 600
+ticks disappears at equilibrium (1500 ticks): sigma also mediates
+behavioural variance, so seasonal stress drives selection against wide
+posteriors regardless of the information-cost term. Direction reversal
+from the pre-0.4.0 🔴 confirmed at short timescales (see mating_systems
+and plasticity for the shared kernel-limitation caveat).
 
 **What we found (updated 2026-04-16, audit 🔴 → 🟠 kernel-limited).**
 

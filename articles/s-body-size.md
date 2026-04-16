@@ -117,14 +117,20 @@ s$mutation_sd                    <- 0.0846
 # env <- run_alife(s)   # uncomment to run the calibrated regime
 ```
 
-![Expected output: mean body size evolves upward from the reference
-(1.0, dashed). The predation condition (pink) shows faster and larger
-increase than the predator-free baseline
-(green).](figures/showcase_04_body_size.png)
+![0.5.2 16-seed resolution. Top: Δ mean_body_size (final − init) with
+1×SE error bars across 2 sensing modes × 2 predator levels. P1 (Cope
+direction) robustly positive (~+0.09 to +0.11); P2 (predation effect)
+flat within 2×SE in both sensing modes. Bottom: per-seed trajectories.
+Graded predator sensing produces a larger Cope drift than binary sensing
+— an SE-bounded real effect of the 0.4.2 sensing
+polish.](figures/showcase_04_body_size.png)
 
-Expected output: mean body size evolves upward from the reference (1.0,
-dashed). The predation condition (pink) shows faster and larger increase
-than the predator-free baseline (green).
+0.5.2 16-seed resolution. Top: Δ mean_body_size (final − init) with 1×SE
+error bars across 2 sensing modes × 2 predator levels. P1 (Cope
+direction) robustly positive (~+0.09 to +0.11); P2 (predation effect)
+flat within 2×SE in both sensing modes. Bottom: per-seed trajectories.
+Graded predator sensing produces a larger Cope drift than binary sensing
+— an SE-bounded real effect of the 0.4.2 sensing polish.
 
 ### Discovery experiments
 

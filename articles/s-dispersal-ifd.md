@@ -138,15 +138,19 @@ ggplot(data$ticks, aes(t)) +
   theme_minimal()
 ```
 
-![Dispersal events per tick rise as the population fills the grid.
-Front-zone vs rear-zone dispersal divergence requires a non-toroidal
-habitat with a defined invasion front (see calibration note in 'What we
-found').](figures/showcase_05_dispersal.png)
+![0.4.1 grid audit. Upper: habitat_preference evolution facetted by run
+length, across 4 preference-strength levels (2 seeds per cell). IFD
+signal grows with strength, saturates around strength=2 at Δ ≈ +0.006
+(below 0.02 ✅ threshold). Lower: front vs rear dispersal (non-toroidal
+grid, Shine et al. 2011 spatial sorting test) — Δ = +0.012 in sign, P2
+PASS.](figures/showcase_05_dispersal.png)
 
-Dispersal events per tick rise as the population fills the grid.
-Front-zone vs rear-zone dispersal divergence requires a non-toroidal
-habitat with a defined invasion front (see calibration note in ‘What we
-found’).
+0.4.1 grid audit. Upper: habitat_preference evolution facetted by run
+length, across 4 preference-strength levels (2 seeds per cell). IFD
+signal grows with strength, saturates around strength=2 at Δ ≈ +0.006
+(below 0.02 ✅ threshold). Lower: front vs rear dispersal (non-toroidal
+grid, Shine et al. 2011 spatial sorting test) — Δ = +0.012 in sign, P2
+PASS.
 
 **Example: evolution of habitat preference.**
 

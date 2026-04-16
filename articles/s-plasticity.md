@@ -48,14 +48,21 @@ s$grass_rate                     <- 0.0264
 # env <- run_alife(s)   # uncomment to run the calibrated regime
 ```
 
-![Expected output: mean plasticity evolves over time. In stable
-environments it typically decreases; in seasonally varying environments
-it is maintained at intermediate
-values.](figures/showcase_22_plasticity.png)
+![0.4.2 audit (4 seeds × 1500 ticks, brain_energy_sigma_scale=0.05,
+bnn_sigma_source='trait'). Seasonal environments (red) maintain slightly
+higher plasticity than stable (blue) — the DeWitt-Scheiner direction (P1
+PASS). Magnitudes are modest (Δdelta ≈ +0.002). Both environments drift
+slightly upward rather than the stable env canalising, because clade's
+sigma also mediates behavioural variance — a shared kernel-limitation
+caveat with s-baldwin.](figures/showcase_22_plasticity.png)
 
-Expected output: mean plasticity evolves over time. In stable
-environments it typically decreases; in seasonally varying environments
-it is maintained at intermediate values.
+0.4.2 audit (4 seeds × 1500 ticks, brain_energy_sigma_scale=0.05,
+bnn_sigma_source=‘trait’). Seasonal environments (red) maintain slightly
+higher plasticity than stable (blue) — the DeWitt-Scheiner direction (P1
+PASS). Magnitudes are modest (Δdelta ≈ +0.002). Both environments drift
+slightly upward rather than the stable env canalising, because clade’s
+sigma also mediates behavioural variance — a shared kernel-limitation
+caveat with s-baldwin.
 
 **What we found (updated 2026-04-16, 0.4.2 audit).** Full protocol:
 [dev/audit/fidelity/plasticity.md](../dev/audit/fidelity/plasticity.md).
