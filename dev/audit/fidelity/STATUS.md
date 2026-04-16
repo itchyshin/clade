@@ -22,7 +22,7 @@ Statuses:
 | s-baseline                            | MacArthur & Pianka 1966; Bulitko 2023 (MATLAB)| ✅ passed (three-way xref) | [baseline.md](baseline.md)                   | pending |
 | s-bad-science                         | Smaldino & McElreath 2016                     | ✅ passed           | inline in commit                                    | 91cc1a9 |
 | s-predator-prey                       | Lotka 1925, Volterra 1926, Huffaker 1958      | ✅ passed           | [predator_prey.md](predator_prey.md)                | pending |
-| s-body-size                           | Cope's rule; Brooks & Dodson 1965             | ✅ passed (0.4.1 reframe)    | [body_size.md](body_size.md)                        | pending |
+| s-body-size                           | Cope's rule (Stanley 1973)                    | ✅ passed (0.5.2: P1 robust @ 16 seeds; P2 NULL, no predator-direction signal) | [body_size.md](body_size.md)                        | pending |
 | s-brain-size                          | Parental provisioning hypothesis              | ✅ passed (0.4.2 brain_energy_base=0.010) | [brain_size.md](brain_size.md)                      | pending |
 | s-pop-genetics                        | Fisher-Wright; parent-offspring regression    | ✅ passed           | [pop_genetics.md](pop_genetics.md)                  | pending |
 | s-stress-hypermutation                | Rosenberg 2001; Foster 2007                   | ✅ passed           | [stress_hypermutation.md](stress_hypermutation.md)  | pending |
