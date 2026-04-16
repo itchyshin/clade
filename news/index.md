@@ -1,5 +1,38 @@
 # Changelog
 
+## clade 0.5.4 (2026-04-16)
+
+### Audit: s-mimicry ecology-limited calibration (honest null)
+
+Applied the 0.5.3 methodology (adequate seeds + 2×SE testing from the
+start) to an 8-cell parameter search for a regime that produces
+statistically clean upward toxicity evolution under the full 0.4.4
+vector-signal machinery.
+
+Result: **every tested regime shows Δtoxicity \< 0** (range −0.002 to
+−0.009) across 40 total runs. The selection arithmetic:
+
+- Toxicity cost: 0.03–0.06 energy/tick (cost × mean toxicity)
+- Aposematic protection: 9–23 avoidance events per 1000 ticks across
+  ~2000 attacks = ~1% of predator attacks on toxic prey blocked.
+- Net effect: cost dominates benefit by ~10× at default population
+  scales (n=100, 12–20 predators).
+
+This is the **Zahavi (1975) handicap-honesty challenge at ABM scale** —
+mirrors the 0.5.3 Red Queen finding (Hamilton’s two-fold cost of sex) as
+a real simulation-ecology limitation where the canonical mechanism is
+correct but the cost-to-benefit ratio in the default clade kernel
+doesn’t support the evolution the theory predicts.
+
+s-mimicry stays 🟠 with kernel machinery confirmed correct and
+ecology-limitation documented. Deferred to 0.6+ as a scenario design
+question (smaller populations, more intense predation, or bootstrapping
+with correlated signal + toxicity).
+
+No kernel changes.
+
+------------------------------------------------------------------------
+
 ## clade 0.5.3 (2026-04-16)
 
 ### Audit: s-mating-systems 0.5.1 “first sex \> asex” claim retracted
