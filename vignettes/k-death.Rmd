@@ -206,7 +206,7 @@ exponentially with age. The formula is:
 p_die(age) = 1 - exp(-r * exp(r * age))
 ```
 
-where `r = senescence_rate × aging_rate` and `aging_rate` is the
+where *r* is `senescence_rate × aging_rate` and `aging_rate` is the
 agent's heritable trait.
 
 **Biology.** This is the **standard demographic model for
