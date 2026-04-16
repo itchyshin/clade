@@ -125,21 +125,11 @@
 #' the Polyworld simulation (Yaeger 1994).
 #'
 #' \describe{
-#'   \item{`brain_energy_mode`}{Character. One of `"none"`, `"size"`,
-#'     `"activity"` (default), or `"prediction_error"`.
-#'
-#'     * `"none"` -- no brain energy cost.
-#'     * `"size"` -- cost proportional to number of synaptic weights.
-#'     * `"activity"` -- cost = `brain_energy_base * n_weights + brain_energy_activity * mean(|activations|)`.
-#'       Larger and more active brains are more costly.
-#'     * `"prediction_error"` -- BNN-only; cost proportional to KL divergence
-#'       between prior and posterior (measures how much the agent had to
-#'       update its beliefs).
-#'
-#'     Reference: Yaeger (1994) Computational genetics, physiology, metabolism,
-#'     neural systems, learning, vision, and behavior or PolyWorld: Life in a
-#'     new context, in *Artificial Life III*, Addison-Wesley, pp 263--298.
-#'   }
+#'   \item{`brain_energy_mode`}{Character. One of `"none"` (no cost),
+#'     `"size"` (proportional to synapse count), `"activity"` (default;
+#'     base + activity-scaled cost), or `"prediction_error"` (BNN-only;
+#'     KL divergence between prior and posterior). Reference: Yaeger
+#'     (1994) PolyWorld, in *Artificial Life III*, pp 263--298.}
 #'   \item{`brain_energy_base`}{Numeric. Fixed cost per synaptic weight per
 #'     tick (default 0.001).}
 #'   \item{`brain_energy_activity`}{Numeric. Scaling factor on mean absolute
@@ -174,15 +164,11 @@
 #'     chromosome pair per meiosis (Poisson distributed; default 1.0). Set to
 #'     0 to disable recombination.}
 #'   \item{`dominance_model`}{Character. How maternal and paternal alleles
-#'     combine to produce the expressed phenotype:
-#'     * `"additive"` (default) -- phenotype = (maternal + paternal) / 2.
-#'     * `"dominant"` -- randomly choose one allele at each locus.
-#'     * `"codominant"` -- both alleles expressed; implemented as additive but
-#'       reported separately in `get_genome_data()`.
-#'
-#'     Reference: Charlesworth & Charlesworth (2010) *Elements of Evolutionary
-#'     Genetics*, Roberts & Company, Chapter 5.
-#'   }
+#'     combine: `"additive"` (default; mean of two alleles), `"dominant"`
+#'     (random allele at each locus), or `"codominant"` (both expressed;
+#'     reported separately in `get_genome_data()`). Reference:
+#'     Charlesworth & Charlesworth (2010) *Elements of Evolutionary
+#'     Genetics*, Chapter 5.}
 #' }
 #'
 #' ## Mutation
@@ -212,30 +198,18 @@
 #'
 #' \describe{
 #'   \item{`rl_mode`}{Character. Reinforcement learning update rule:
-#'     `"none"` (default), `"actor_critic"`, or `"hebbian"`.
-#'
-#'     * `"actor_critic"` -- REINFORCE with baseline (Williams 1992).
-#'       Reward = energy delta per tick. Advantage = reward - running mean
-#'       (`value_estimate`). Applied to output weights for the chosen action.
-#'     * `"hebbian"` -- Hebbian potentiation: weights between co-active
-#'       neurons are strengthened proportionally to joint activation
-#'       (Hebb 1949).
-#'
-#'     References:
-#'     Williams (1992) Simple statistical gradient-following algorithms for
-#'     connectionist reinforcement learning, *Machine Learning* 8:229--256.
-#'     Hebb (1949) *The Organisation of Behavior*, Wiley.
-#'   }
+#'     `"none"` (default), `"actor_critic"` (REINFORCE with baseline,
+#'     Williams 1992; reward = energy delta, applied to output weights),
+#'     or `"hebbian"` (Hebbian potentiation, Hebb 1949; co-active neurons
+#'     are strengthened). Use `bnn_sample_freq = 5` with BNN brains so
+#'     REINFORCE gradients accumulate across ticks.}
 #'   \item{`learning_rate`}{Numeric. Step size for within-lifetime weight
 #'     updates (default 0.01).}
 #'   \item{`learning_rate_evolution`}{Logical. If `TRUE`, `learning_rate` is a
 #'     heritable diploid trait (default `FALSE`). Enables study of the Baldwin
 #'     Effect (Baldwin 1896, Hinton & Nowlan 1987).
-#'
-#'     References:
-#'     Baldwin (1896) A new factor in evolution, *American Naturalist*
-#'     30:441--451.
-#'     Hinton & Nowlan (1987) How learning can guide evolution, *Complex
+#'     References: Baldwin (1896) *American Naturalist* 30:441--451;
+#'     Hinton & Nowlan (1987) *Complex
 #'     Systems* 1(3):495--502.
 #'   }
 #'   \item{`learning_rate_init_mean`}{Numeric. Initial mean of the
@@ -262,8 +236,7 @@
 #'     *which* loci should be canalized; Lamarckian inheritance copies the
 #'     actual learned *weight values* into the heritable material.
 #'     Both can be active simultaneously (default `FALSE`).
-#'
-#'     Reference: Baldwin (1896) *American Naturalist* 30:441–451;
+#'     Reference: Baldwin (1896) *American Naturalist* 30:441--451;
 #'     Weismann (1892) *Das Keimplasma*; Jablonka & Lamb (2005) *Evolution
 #'     in Four Dimensions*, MIT Press.}
 #' }
