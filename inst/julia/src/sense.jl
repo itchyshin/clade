@@ -95,13 +95,14 @@ function sense_agent(ag::Agent, env::Environment)::Vector{Float32}
 
     # Optional: predator proximity at distances 1..r (N/E/S/W × r steps)
     if Int(get(specs, "n_predators_init", 0)) > 0
+        graded = Bool(get(specs, "predator_sense_graded", true))
         for d in 1:r
             xN = mod1(x - d, rows);  xS = mod1(x + d, rows)
             yE = mod1(y + d, cols);  yW = mod1(y - d, cols)
-            inp[pos] = _pred_dist(env, xN, y);  pos += 1
-            inp[pos] = _pred_dist(env, x,  yE); pos += 1
-            inp[pos] = _pred_dist(env, xS, y);  pos += 1
-            inp[pos] = _pred_dist(env, x,  yW); pos += 1
+            inp[pos] = _pred_dist(env, xN, y, d, graded); pos += 1
+            inp[pos] = _pred_dist(env, x,  yE, d, graded); pos += 1
+            inp[pos] = _pred_dist(env, xS, y, d, graded); pos += 1
+            inp[pos] = _pred_dist(env, x,  yW, d, graded); pos += 1
         end
     end
 
@@ -114,18 +115,26 @@ function sense_agent(ag::Agent, env::Environment)::Vector{Float32}
         inp[pos]  = clamp(mean_e / emax, 0.0f0, 1.0f0);  pos += 1
     end
 
-    # Optional: own signal
+    # Optional: own signal (clamped to [0, 1] for consistency with other
+    # sensory channels — signal traits evolve freely but the brain sees a
+    # bounded value, matching grass/energy/age/care normalisation).
     for s in ag.signal
-        inp[pos] = s;  pos += 1
+        inp[pos] = clamp(s, 0.0f0, 1.0f0);  pos += 1
     end
 
     inp
 end
 
 """
-    _pred_dist(env, x, y) -> Float32
+    _pred_dist(env, x, y, d, graded) -> Float32
 
-Return 1/(distance+1) to the nearest predator in cell (x,y), or 0 if none.
+Predator-proximity signal for cell (x, y) at distance `d`. Returns 0 if no
+predator occupies the cell. When `graded` is `true` (the 0.4.2 default),
+returns `1/(d+1)` — closer predators produce a stronger signal, giving the
+brain a distance-graded threat input. When `false`, returns `1.0f0` (legacy
+binary behaviour pre-0.4.2).
 """
-_pred_dist(env::Environment, x::Int, y::Int)::Float32 =
-    env.predator_map[x, y] > 0 ? 1.0f0 : 0.0f0
+_pred_dist(env::Environment, x::Int, y::Int, d::Int, graded::Bool)::Float32 =
+    env.predator_map[x, y] > 0 ?
+        (graded ? 1.0f0 / Float32(d + 1) : 1.0f0) :
+        0.0f0

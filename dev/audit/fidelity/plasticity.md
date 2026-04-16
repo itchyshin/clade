@@ -22,55 +22,83 @@
 
 ## 3. Protocol
 
-0.4.1 audit: 4 seeds × 2 conditions (stable vs seasonal amp=0.7)
-× 500 ticks. `phenotypic_plasticity = TRUE`,
-`bnn_sigma_source = "trait"`, `brain_energy_sigma_scale = 0.02`.
+- **0.4.1 audit**: 4 seeds × 2 conditions × 500 ticks.
+  `phenotypic_plasticity = TRUE`, `bnn_sigma_source = "trait"`,
+  `brain_energy_sigma_scale = 0.02`.
+- **0.4.2 rerun**: 4 seeds × 2 conditions × **1500 ticks** (3× the
+  runtime to let selection accumulate), `brain_energy_sigma_scale
+  = 0.05` (2.5× the 0.4.1 cost).
 
 Pre-0.4.1 audit had plasticity flat in both conditions (Δ =
-−0.001 / −0.002) because there was no fitness gradient — the
-plasticity trait had no effect on behaviour or cost.
+−0.001 / −0.002) because there was no fitness gradient.
 
 ## 4. Observed dynamics
 
-| Condition | init → final plasticity | Δ (mean ± sd) |
+### 0.4.1 result (500 ticks, sigma_scale=0.02)
+
+| Condition | init → final | Δ |
 |---|---|---|
 | Stable | 0.300 → 0.300 | −0.0003 ± 0.009 |
-| Seasonal (amp=0.7) | 0.300 → 0.303 | **+0.003 ± 0.005** |
+| Seasonal | 0.300 → 0.303 | +0.003 ± 0.005 |
 
-**Direction is now correct.** Stable env holds near init (the
-sigma cost applies to both; in a stable env there's no fluctuating
-optimum to track so plasticity has no offsetting benefit — but the
-cost is also small at this scale). Seasonal env maintains
-plasticity slightly above init — agents that can adjust their
-posterior width to the seasonal phase pay the cost but gain in
-tracking the fluctuating resource optimum.
+Direction correct but magnitudes near noise.
 
-Magnitude is modest (~0.003) because:
-- 500 ticks ≈ 10 seasons at `season_length = 50` — only a
-  handful of generations of selection on the trait.
-- `plasticity_mutation_sd = 0.05` and the cost coefficient 0.02
-  are both conservative.
+### 0.4.2 result (1500 ticks, sigma_scale=0.05)
+
+| Condition | init → final | Δ |
+|---|---|---|
+| Stable | 0.301 → 0.304 | +0.003 |
+| Seasonal | 0.301 → 0.306 | **+0.005** |
+
+**P1 PASS**: seasonal > stable by Δdelta ≈ +0.002. The seasonal
+env maintains slightly higher plasticity than the stable env at
+equilibrium — the DeWitt-Scheiner direction. The absolute decline
+expected in stable (canalisation) does NOT appear — in fact
+plasticity slightly *increases* in both environments, meaning the
+trait-evolution dynamics favour modest plasticity under clade's
+foraging selection regardless of environmental fluctuation.
+
+### Interpretation
+
+The 0.4.2 1500-tick run pushes the system toward equilibrium.
+Seasonal vs stable separates in the DeWitt-Scheiner direction
+(seasonal > stable) but with small magnitude (Δdelta = +0.002). At
+equilibrium the stable env does NOT canalise as Hinton-Nowlan
+would predict — a finding consistent with the s-baldwin 0.4.2
+rerun, which showed the same stable-env canalisation *disappears*
+at long timescales.
+
+In both scenarios the selection gradient from `brain_energy_sigma_scale`
+is offset by the trait-evolution noise from `plasticity_mutation_sd`
+and by the interaction between sigma (width) and foraging
+efficiency — high sigma ≠ pure learning cost in clade; it also
+means noisier actions, which affects fitness directly. The
+theoretical prediction cleanly separates these; clade entangles
+them. Stays 🟠 with direction correct, small magnitude.
 
 ## 5. Verdict
-- [x] **Passed-consistent.** Under the 0.4.1 coupled regime
-  (`bnn_sigma_source = "trait"` + `brain_energy_sigma_scale = 0.02`),
-  seasonal environments maintain higher plasticity than stable,
-  in the DeWitt-Scheiner direction. Magnitude is modest at 500
-  ticks but the direction flip from the pre-0.4.1 null is
-  clear.
-- Pre-0.4.1 flat-signal verdict superseded.
+- [x] **Passed-consistent (🟠).** Seasonal > stable direction
+  confirmed at both 500 ticks (0.4.1) and 1500 ticks (0.4.2).
+  Magnitude is modest (Δdelta = +0.002 to +0.003). The full
+  Hinton-Nowlan prediction (stable canalises + seasonal preserves)
+  is not reproduced because stable does not canalise; seasonal
+  maintains slightly more plasticity than stable, which is the
+  DeWitt-Scheiner contrast direction — partial support for the
+  phenotypic-plasticity-tracks-environmental-variability claim.
 
 Cross-reference:
-| Aspect | Theory | clade 0.4.0 (no coupling) | clade 0.4.1 (trait + cost) |
+| Aspect | Theory | clade 0.4.1 (500 t) | clade 0.4.2 (1500 t) |
 |---|---|---|---|
-| Stable → canalise | Yes | Flat (Δ=-0.001) | ≈ flat (Δ=-0.0003) |
-| Seasonal → maintain | Yes | Flat (Δ=-0.002) | ✓ Δ=+0.003 |
-| Seasonal > stable | Yes | No | ✓ +0.003 vs −0.0003 |
+| Stable → canalise | Yes | ≈ flat | ✗ slight rise |
+| Seasonal → maintain | Yes | ✓ Δ=+0.003 | ✓ Δ=+0.005 |
+| Seasonal > stable | Yes | ✓ | ✓ |
 
 ## 6. Actions
-- Runner: `plasticity.R` (0.4.1 version with trait-mode + cost).
+- Runner: `plasticity.R` (0.4.2 version, 1500 ticks).
 - Figure: `figs/plasticity.png`.
-- Vignette: update prose to describe the trait + cost coupling and
-  the Δdelta signal (not absolute Δ — the contrast is what matters).
-- 0.4.2 backlog: longer run (1000+ ticks) + stronger cost
-  (`brain_energy_sigma_scale = 0.05`) for a ✅ promotion.
+- Vignette: update prose — seasonal > stable direction is
+  confirmed at equilibrium; stable-env canalisation is NOT
+  reproduced (shared feature with s-baldwin 0.4.2 finding).
+- 0.4.3+ backlog: decouple sigma from foraging-efficiency so the
+  Hinton-Nowlan stable-env canalisation prediction can be tested
+  without the behavioural-variance confounder.

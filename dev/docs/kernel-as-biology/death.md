@@ -163,22 +163,30 @@ removing their genes from the pool.
 ### 3.2 Age cap
 
 ```julia
-ag.age >= max_age && return :age
+# From 0.4.2: the hard cap applies only when senescence is off.
+if senes_r <= 0.0f0
+    ag.age >= max_age && return :age
+end
 ```
 
-Hard ceiling — at age `max_age`, certain death.
+Hard ceiling — at age `max_age`, certain death. **From 0.4.2** this
+cap is suppressed when `senescence_rate > 0`, so the Gompertz curve
+(next subsection) governs late-life mortality without the hard
+ceiling truncating the distribution. Scenarios that want to test
+age-dependent mortality should set `senescence_rate > 0`; scenarios
+that want a deterministic cap leave it at the default 0.
 
 **Biology.** Real animals don't have a hard age cap; they have
 exponentially decreasing survival with age. The hard cap is a
 simplification used in many ABMs to bound memory and prevent
 "immortal genotype" artefacts. Default 200 ticks.
 
-**Audit findings.** s-pace-of-life flagged this as the *cause* of
-metabolic-rate-not-mattering. Every agent dies at age 200 regardless
-of metabolic rate, so pace-of-life evolution can't express. **Tier 2
-fix:** make `max_age` scale with `metabolic_rate` (so
-`max_age_effective = base / metabolic_rate`), letting fast-pace
-agents have shorter lifespans as Réale 2010 predicts.
+**Audit findings.** s-pace-of-life initially flagged this as the
+*cause* of metabolic-rate-not-mattering. Addressed in two steps:
+**0.4.0 Tier 2** (`max_age_scales_with_metabolism`) made `max_age`
+scale inversely with `metabolic_rate`; **0.4.2** demotes the hard
+cap entirely when `senescence_rate > 0` so Gompertz senescence can
+express cleanly.
 
 ### 3.3 Gompertz senescence
 
@@ -211,9 +219,9 @@ population-level constant and `aging_rate` be a per-agent
 heritable trait — together they implement evolved senescence.
 
 **Audit findings.** Senescence is off by default (`senescence_rate
-= 0`). When the user enables it the formula works correctly. Not
-the bottleneck for s-pace-of-life — that's the always-on `max_age`
-cap, even when senescence is off.
+= 0`). When the user enables it the formula works correctly. From
+0.4.2 the hard `max_age` cap no longer overrides it — the Gompertz
+curve governs late-life mortality directly.
 
 ### 3.4 Semelparous
 

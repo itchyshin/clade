@@ -367,6 +367,11 @@
 #'     weights (default 0.1).}
 #'   \item{`max_predators`}{Integer. Hard cap on predator population
 #'     (default 20L).}
+#'   \item{`predator_sense_graded`}{Logical. If `TRUE` (default, 0.4.2),
+#'     prey's predator sensory input at distance `d` is `1/(d+1)` (closer
+#'     predators produce a stronger signal). If `FALSE`, falls back to
+#'     the pre-0.4.2 binary presence signal. No effect when
+#'     `n_predators_init = 0`.}
 #' }
 #'
 #' ## Life history
@@ -375,10 +380,14 @@
 #'     `"semelparous"`. Semelparous agents die immediately after reproducing.
 #'     Reference: Stearns (1992) *The Evolution of Life Histories*, Oxford UP.}
 #'   \item{`max_age`}{Integer. Maximum lifespan in ticks; agents die at this
-#'     age regardless of energy (default 200L). Set to `Inf` to disable.}
+#'     age regardless of energy (default 200L). The hard cap applies only
+#'     when `senescence_rate == 0`; when Gompertz senescence is active,
+#'     late-life mortality is governed by the stochastic curve instead
+#'     (0.4.2 behaviour). Set to `Inf` to disable.}
 #'   \item{`senescence_rate`}{Numeric in \[0, 1\]. Gompertz mortality rate;
 #'     per-tick death probability scales as exp(senescence_rate * age)
-#'     (default 0 = no senescence).
+#'     (default 0 = no senescence). When > 0, supersedes the `max_age`
+#'     hard cap (0.4.2).
 #'     Reference: Gompertz (1825) On the nature of the function expressive of
 #'     the law of human mortality, *Philosophical Transactions of the Royal
 #'     Society* 115:513--583.}
@@ -1050,6 +1059,9 @@ default_specs <- function() {
     predator_min_repro_age     = 5L,
     predator_mutation_sd       = 0.1,
     predator_max_agents        = 50L,
+    predator_sense_graded      = TRUE, # 0.4.2: prey's predator sense is 1/(d+1), not binary
+
+
 
     # ── Mimicry / toxicity ─────────────────────────────────────────────────
     mimicry                    = FALSE,

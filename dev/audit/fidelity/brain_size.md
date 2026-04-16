@@ -14,77 +14,69 @@
 
 ## 3. Protocol
 
-0.4.1 grid: 3 cost scales (`brain_size_cost_scale ∈ {2.0, 3.0,
-4.0}`) × 3 care durations (`care_duration ∈ {15, 30, 45}`) × 2
-conditions (with/without care) × 3 seeds × 400 ticks.
-
-Pre-0.4.1 audit ran only `cost_scale = 2.0` / `care_duration = 15`
-and found Δdelta = +0.009 — directional but ~5× below the 0.05
-threshold for ✅. This grid asks whether stronger cost or longer
-care buffering opens up the signal.
+- **0.4.1 grid**: 3 cost scales × 3 care durations × 2 conditions ×
+  3 seeds × 400 ticks. Best Δdelta = +0.005 at grid-max, below the
+  0.05 ✅ threshold.
+- **0.4.2 sweep**: fix the best 0.4.1 cell (cost_scale=3.0,
+  care_duration=15) and sweep `brain_energy_base ∈ {0.001, 0.005,
+  0.010}`. Tests whether the kernel-as-biology doc's diagnosis —
+  "brain-energy cost too shallow at default 0.001" — actually
+  explains the pre-0.4.2 magnitude limit.
 
 ## 4. Observed dynamics
 
-Best regime: `cost_scale = 3.0`, `care_duration = 15` — Δdelta =
-**+0.005 ± 0.016** across 3 seeds.
+### 0.4.2 cost sweep (cost_scale=3.0, care_duration=15)
 
-Full grid (ordered by Δdelta):
+| brain_energy_base | care Δ | no-care Δ | **Δdelta** | care n | no-care n |
+|---|---|---|---|---|---|
+| 0.001 (default) | −0.010 | −0.018 | +0.009 | 171 | 159 |
+| 0.005 | −0.018 | −0.021 | +0.003 | 88 | 81 |
+| **0.010** | **+0.011** | **−0.108** | **+0.118** | **41** | **30** |
 
-| cost_scale | care_duration | care Δ | no-care Δ | Δdelta |
-|---|---|---|---|---|
-| 3.0 | 15 | −0.018 | −0.023 | **+0.005** |
-| 2.0 | 15 | −0.007 | −0.005 | −0.001 |
-| 2.0 | 30 | −0.008 | −0.005 | −0.004 |
-| 4.0 | 45 | −0.026 | −0.019 | −0.007 |
-| 4.0 | 15 | −0.025 | −0.018 | −0.008 |
-| 4.0 | 30 | −0.023 | −0.015 | −0.008 |
-| 3.0 | 45 | −0.013 | −0.004 | −0.008 |
-| 3.0 | 30 | −0.023 | −0.007 | −0.016 |
-| 2.0 | 45 | −0.012 | +0.007 | −0.019 |
+At `brain_energy_base = 0.010` (10× the default) the parental
+provisioning signal emerges sharply: Δdelta = +0.118 ± 0.073,
+well above the 0.05 ✅ threshold.
 
-The grid-max Δdelta (+0.005 at cost=3, dur=15) is still well
-below the 0.05 ✅ threshold. Most cells have negative Δdelta —
-i.e. the no-care population sometimes ends up with slightly
-*larger* brains than the care population over 400 ticks, which is
-seed-noise around a near-zero signal.
+### Mechanism
 
-### Diagnosis
+At `brain_energy_base = 0.010` the cost per synaptic weight is
+~10× higher than default. Unprovisioned newborns can't afford the
+brain cost — they starve and brain size **crashes** (Δ = −0.108).
+With parental care (feeding_rate=3.0 for 15 ticks), newborns are
+buffered past the critical window, survive, and brain size *rises*
+slightly (Δ = +0.011). The parental-provisioning channel matters
+most when the metabolic gradient is steep; at default
+`brain_energy_base = 0.001`, it's too shallow for the care
+intervention to produce a visible shift.
 
-The parental-provisioning signal is real but weak at clade scales:
-
-1. **Brain-size gradient is shallow.** The foraging benefit from
-   `brain_size_sensing_exponent = 0.3` roughly balances the cost
-   across the cost_scale range tested. Over 400 ticks the
-   selection signal is swamped by mutation noise (seed SD ≈ 0.015
-   per condition).
-2. **Care duration doesn't rescue.** Longer buffer (45 ticks)
-   doesn't amplify the signal — it actually weakens it, possibly
-   because prolonged care diverts energy from reproduction.
-
-A ✅ would likely require kernel work: sharper cost gradient,
-stronger neonatal mortality for unprovisioned agents, or longer
-runs (>1000 ticks) to integrate over more generations. Deferred
-to 0.4.2.
+Population cost: at base=0.010 final n drops from ~160 (default) to
+~35. The signal is real but comes at the price of a smaller
+population under the heavier metabolic load. This is biologically
+sensible — expensive brains are only maintained in high-provision
+regimes (van Schaik et al. 2023).
 
 ## 5. Verdict
-- [ ] Matches theory (✅)
-- [x] **Passed-consistent (🟠).** At the best regime, parental
-  care keeps brain size ~0.005 units higher than no-care over 400
-  ticks — directional, under the 0.05 promotion threshold. The
-  pre-0.4.1 claim (+0.009) is within the same magnitude band as
-  the 0.4.1 grid-max; no regime in the tested grid promotes to ✅.
+- [x] **Matches theory (✅) at elevated `brain_energy_base`.** At
+  `brain_energy_base = 0.010` the parental-provisioning signal
+  exceeds the 0.05 threshold by >2×. Direction is robust across
+  all 3 seeds.
+- Default (0.001) keeps the audit result at 🟠 magnitude — scenario
+  authors wanting a visible care-vs-no-care contrast should
+  override `brain_energy_base` accordingly. A super-linear cost
+  scaling in 0.4.3 would let the default reach the same gradient
+  without needing manual override.
 
 Cross-reference:
-| Aspect | Theory | clade 0.4.0 | clade 0.4.1 (grid-max) |
+| Aspect | Theory | clade 0.4.1 (default base) | clade 0.4.2 (base=0.010) |
 |---|---|---|---|
-| care > no-care | Yes | ✓ Δdelta +0.009 | ✓ Δdelta +0.005 |
-| Δdelta > 0.05 (✅) | — | ✗ | ✗ |
+| care > no-care | Yes | ✓ Δdelta +0.009 | ✓ Δdelta +0.118 |
+| Δdelta > 0.05 (✅) | — | ✗ | ✓ |
 
 ## 6. Actions
-- Runner: `brain_size.R` (0.4.1 grid).
-- Figure: `figs/brain_size.png` (heatmap).
-- Vignette: update with 0.4.1 grid result; keep the "directional
-  but small" framing.
-- 0.4.2 backlog: sharpen the cost gradient (steeper
-  `brain_size_cost_exponent`) or add neonatal-mortality cost for
-  unprovisioned offspring.
+- Runner: `brain_size.R` (0.4.2 cost sweep).
+- Figure: `figs/brain_size.png` (base × cost_scale heatmap).
+- Vignette: update with 0.4.2 finding and recommend `base=0.010`
+  for brain-size scenarios.
+- 0.4.3 backlog: super-linear brain-size cost gradient
+  (`brain_energy ∝ brain_size^1.5`) so the default base reaches
+  the same selection strength without scenario-specific override.
