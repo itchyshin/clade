@@ -33,6 +33,16 @@ one_run <- function(ploidy, crossover_rate, env_label, seed,
   } else if (env_label == "seasonal") {
     s$seasonal_amplitude <- 0.8
     s$season_length      <- 50L
+  } else if (env_label == "parasite") {
+    # 0.5.0 Hamilton 1980 Red Queen: genotype-matched coevolving parasites.
+    # Reuses the signal vector as the host genotype-matching channel.
+    s$signal_dims             <- 5L
+    s$signal_evolution_drift  <- TRUE
+    s$signal_drift_sd         <- 0.04
+    s$coevolving_parasites    <- TRUE
+    s$parasite_pressure       <- 3.0
+    s$parasite_virulence_rate <- 0.05
+    s$parasite_distance_scale <- 0.4
   }
   env <- run_alife(s, verbose = FALSE)
   d <- get_run_data(env)$ticks
@@ -43,8 +53,8 @@ one_run <- function(ploidy, crossover_rate, env_label, seed,
   d
 }
 
-seeds <- 1L:2L
-envs  <- c("stable", "disease", "seasonal")
+seeds <- 1L:3L
+envs  <- c("stable", "disease", "seasonal", "parasite")
 conds <- list(
   list(ploidy = 1, crossover_rate = 0.0, label = "haploid_asex"),
   list(ploidy = 2, crossover_rate = 0.1, label = "diploid_sex")

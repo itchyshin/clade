@@ -14,32 +14,38 @@
 
 ## 3. Protocol
 
-0.4.1 condition sweep: 2 ploidies (haploid asex, diploid sex) × 3
-environments (stable, disease, seasonal amp=0.8) × 2 seeds × 500
-ticks.
+- **0.4.1 condition sweep**: 2 ploidies × 3 environments (stable,
+  disease, seasonal amp=0.8) × 2 seeds × 500 ticks.
+- **0.5.0 update**: 4th env condition `"parasite"` added — enables
+  the new `coevolving_parasites` module with `signal_dims = 5`,
+  `parasite_pressure = 3.0`, `parasite_distance_scale = 0.4`. Seeds
+  bumped to 3 (n = 24 runs total).
 
 Pre-0.4.1 audit tested only the stable environment and found Δ =
-−0.005 (sex slightly *below* asex) — not the Red-Queen direction.
-This version adds disease and seasonal environments to test whether
-the predicted recombination advantage emerges under fluctuating
-selection.
+−0.005 (sex slightly *below* asex). 0.4.1 added disease and seasonal
+environments (still no Red Queen signal). 0.5.0 adds the
+coevolving-parasite condition to test Hamilton's (1980) canonical
+mechanism directly.
 
 ## 4. Observed dynamics
 
-| Environment | haploid_asex div | diploid_sex div | Δ (sex − asex) |
-|---|---|---|---|
-| Stable | 0.290 | 0.287 | −0.003 |
-| Disease | 0.291 | 0.289 | −0.003 |
-| Seasonal | 0.294 | 0.292 | −0.002 |
+### 0.5.0 result (3 seeds × 4 envs × 500 ticks)
 
-Population size is also ~2 agents lower under sex in every env.
-None of the three environments reverses the sign: sex does *not*
-produce higher diversity than asex in any of stable, disease, or
-seasonal conditions.
+| Environment | haploid_asex div | diploid_sex div | Δ (sex − asex) | asex n | sex n |
+|---|---|---|---|---|---|
+| Stable | 0.289 | 0.286 | −0.003 | 236.5 | 235.2 |
+| Disease | 0.291 | 0.290 | −0.001 | 237.2 | 236.8 |
+| Seasonal | 0.294 | 0.290 | −0.004 | 223.1 | 223.0 |
+| **Parasite** | 0.286 | **0.239** | **−0.047** | 94.3 | **84.5** |
+
+The parasite condition (new in 0.5.0) widens the sex-asex gap
+rather than closing it. This is the opposite of what Hamilton's
+canonical Red Queen predicts, and is a real finding about the
+limits of continuous-trait parasite models — see §5.
 
 ### Diagnosis
 
-Two structural reasons the Red-Queen advantage does not emerge
+Three structural reasons the Red-Queen advantage does not emerge
 here:
 
 1. **No two-fold cost of sex in the kernel.** Sex is implemented as
@@ -48,12 +54,25 @@ here:
    kernel also doesn't give sex its standing advantage — it just
    shuffles existing alleles. In a stable environment
    recombination has nothing new to expose.
-2. **Disease model does not produce Red-Queen fluctuation.**
-   `disease = TRUE` in clade produces a mild constant mortality
-   skew, not a co-evolving parasite host-genotype cycle. Without
-   genotype-specific parasite pressure, recombination can't find
-   the "novel-combinations-escape-parasites" niche Hamilton 1980
-   predicted.
+2. **`disease = TRUE` is not a coevolving-parasite model.**
+   clade's built-in disease module produces a mild constant
+   mortality skew (infection rate × virulence), not a
+   genotype-matched pressure. 0.5.0 adds an explicit
+   coevolving-parasite module (`coevolving_parasites` spec), but
+   see #3 for why it still doesn't produce the canonical signal.
+3. **0.5.0 coevolving parasites use continuous-trait matching,
+   not discrete-allele matching.** The module tracks the host
+   signal-centroid with lag and applies Gaussian-falloff penalty
+   based on Euclidean distance. Under this dynamic, sex offspring
+   (genotype midpoint of two parents) end up *closer* to the
+   population mean than asex offspring (clones of a potentially-
+   drifted parent). Parasites sit at the mean → sex offspring
+   are *more* exposed, not less. Hamilton's canonical Red Queen
+   requires DISCRETE-allele matching (haplotypes like AA vs aa
+   vs Aa) where recombination produces genuinely novel
+   combinations. Deferred to 0.5.1+ (needs a discrete
+   `parasite_match::Vector{Int32}` host trait with Mendelian
+   inheritance).
 3. **Seasonal fluctuation is a phenotypic tracking challenge, not
    a genotypic one.** Sex helps when recombination can track a
    moving genetic optimum; clade's seasonal resource oscillation

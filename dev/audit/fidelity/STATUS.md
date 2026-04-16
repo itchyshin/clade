@@ -36,7 +36,7 @@ Statuses:
 | s-signals                             | Zahavi 1975; Iwasa & Pomiankowski 1994        | ✅ passed           | [signals.md](signals.md)                            | pending |
 | s-speciation                          | Dieckmann & Doebeli 1999                      | ✅ passed           | [speciation.md](speciation.md)                      | pending |
 | s-parental-care                       | Clutton-Brock 1991                            | ✅ passed           | [parental_care.md](parental_care.md)                | pending |
-| s-mating-systems                      | Maynard Smith 1978                            | 🟠 passed-consistent (0.4.1 env sweep) | [mating_systems.md](mating_systems.md)              | pending |
+| s-mating-systems                      | Maynard Smith 1978                            | 🟠 passed-consistent (0.5.0 parasite module; continuous-trait variant widens gap) | [mating_systems.md](mating_systems.md)              | pending |
 | s-life-history                        | Cole 1954; Williams 1966                      | ✅ passed           | [life_history.md](life_history.md)                  | pending |
 | s-clutch-size                         | Lack 1947; r/K (MacArthur & Wilson 1967)      | ✅ passed           | [clutch_size.md](clutch_size.md)                    | pending |
 | s-parental-investment                 | Trivers 1972                                  | ✅ passed (0.4.0 Tier 3) | [parental_investment.md](parental_investment.md) | 9b21f66 |
