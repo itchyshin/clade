@@ -59,11 +59,16 @@ contributor. The 0.81 ratio is the combined detectability +
 thinning effect.
 
 ## 5. Verdict
-- [x] **Cope direction (P1).** Upward size drift confirmed at ~13%
-  over 600 ticks.
-- [x] **Size-dependent predation (P2, detectability variant).**
-  Predation slows drift; direction is consistent across seeds and
-  matches the Brooks–Dodson size-efficiency hypothesis.
+- [x] **Cope direction (P1).** Upward size drift confirmed at ~10%
+  over 600 ticks across 5 seeds.
+- [~] **Size-dependent predation (P2).** Direction is
+  seed-noise-sensitive. 0.4.1 audit reported ratio 0.81
+  (detectability direction) with binary predator sensing; 0.4.3
+  re-audit with graded predator sensing (new 0.4.2 default) gives
+  ratio 1.08 (Shine-escape direction). Both are within the 5-seed
+  noise band. The graded-sensing change helps all prey flee
+  equally well, which weakens the detectability signal. Needs a
+  larger seed sweep (8–16 seeds) to resolve direction robustly.
 
 Cross-reference:
 | Aspect | Theory | clade |
