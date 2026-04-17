@@ -161,6 +161,15 @@
 #'     coupling (legacy). At 0 = deterministic actions from mu;
 #'     sigma only affects the learning/cost channel. Added 0.5.5 for
 #'     sigma-action decoupling in Baldwin/plasticity scenarios.}
+#'   \item{`action_exploration_epsilon`}{Numeric in \[0, 1\]. Epsilon-
+#'     greedy exploration rate, orthogonal to BNN sigma. 0 (default) =
+#'     pure argmax over action logits (legacy). > 0 = each tick, with
+#'     probability epsilon the agent picks a uniformly random action
+#'     instead of the greedy one. Intended for scenarios that set
+#'     `bnn_action_noise_scale = 0`: BNN sigma then drives only
+#'     learning/cost, and exploration comes from epsilon-greedy, so
+#'     canalisation (sigma → 0) can happen without eliminating the
+#'     foraging variability agents need to survive. Added 0.5.6.}
 #' }
 #'
 #' ## Genome and ploidy
@@ -892,6 +901,16 @@ default_specs <- function() {
                                              # learning/cost channel. Required
                                              # for clean Baldwin/plasticity
                                              # canalisation scenarios.
+    action_exploration_epsilon = 0.0,        # 0.5.6: epsilon-greedy exploration
+                                             # orthogonal to BNN sigma. 0 =
+                                             # pure argmax (legacy). > 0 = each
+                                             # tick, with prob epsilon pick a
+                                             # uniformly random action instead
+                                             # of the greedy one. Intended to
+                                             # restore foraging variability
+                                             # when bnn_action_noise_scale = 0
+                                             # kills the BNN-driven
+                                             # exploration channel.
 
     # ── Genome and ploidy ──────────────────────────────────────────────────
     ploidy                 = 2L,

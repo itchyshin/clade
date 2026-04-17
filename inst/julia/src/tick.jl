@@ -88,6 +88,16 @@ function tick_agents!(env::Environment)
     # uncertainty above the floor costs the same increment.
     e_sigma    = Float32(get(specs, "brain_energy_sigma_scale", 0.0))
     sigma_min  = Float32(get(specs, "bnn_sigma_min",            0.01))
+    # 0.5.6: epsilon-greedy exploration, independent of BNN sigma. With
+    # epsilon = 0 (default), behaviour is unchanged (pure argmax over
+    # the action logits). With epsilon > 0, each agent takes a uniformly
+    # random action with probability epsilon and the greedy action
+    # otherwise. Added to support Baldwin / plasticity scenarios where
+    # `bnn_action_noise_scale = 0` decouples BNN sigma from action
+    # noise — exploration has to come from somewhere else in that
+    # regime, otherwise populations crash from lack of foraging
+    # variability. See dev/audit/fidelity/baldwin_sigma_decoupled.R.
+    action_epsilon = Float32(get(specs, "action_exploration_epsilon", 0.0))
 
     # Clear agent map before moves (rebuild below)
     fill!(env.agent_map, Int64(0))
@@ -104,6 +114,11 @@ function tick_agents!(env::Environment)
         action = argmax(logits)           # greedy; BNN exploration via sigma
         ag.num_choices        += Int32(1)
         ag.num_greedy_choices += Int32(1)
+        # 0.5.6: epsilon-greedy exploration (orthogonal to BNN sigma).
+        if action_epsilon > 0.0f0 && rand(env.rng) < action_epsilon
+            action = rand(env.rng, 1:length(logits))
+            ag.num_greedy_choices -= Int32(1)    # undo: this wasn't greedy
+        end
 
         # ── Move ──────────────────────────────────────────────────────────
         ag.energy_last_tick = ag.energy
