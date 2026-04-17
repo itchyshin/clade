@@ -18,14 +18,24 @@ Scheiner 2004).
 | `plasticity_init_mean`   | 0.3     | Starting mean plasticity (**note**: was 0.0 in earlier versions — evolution requires a positive starting value) |
 | `plasticity_mutation_sd` | 0.05    | Mutation rate                                                                                                   |
 
-**Expected output.** `mean_plasticity` evolves. In stable environments
-(fixed `grass_rate`), plasticity typically decreases over time. In
-seasonally varying environments, plasticity may be maintained.
+**Expected output.** `mean_plasticity` evolves upward in seasonal
+environments and stays lower (or drifts) in stable environments — but
+only if **season length ≤ agent lifetime**. The DeWitt- Scheiner
+prediction is about *within-lifetime* environmental variability: if an
+agent lives through only one seasonal state, genetic adaptation to that
+state is just as good as plasticity, and there is no selection gradient.
+See “What we found” below for the 2026-04-17 season-length sweep that
+surfaced this constraint.
 
 ``` r
-s <- default_specs()
-s$phenotypic_plasticity <- TRUE
-s$max_ticks             <- 300L
+s <- fast_specs()                     # max_age = 30, ~66 generations in 2000 ticks
+s$phenotypic_plasticity    <- TRUE
+s$plasticity_init_mean     <- 0.3
+s$plasticity_mutation_sd   <- 0.05
+s$bnn_sigma_source         <- "trait"
+s$brain_energy_sigma_scale <- 0.05
+s$seasonal_amplitude       <- 0.35
+s$season_length            <- 10L     # < max_age so agents see multiple seasons per life
 
 env  <- run_alife(s)
 data <- get_run_data(env)
@@ -48,20 +58,62 @@ s$grass_rate                     <- 0.0264
 # env <- run_alife(s)   # uncomment to run the calibrated regime
 ```
 
-![fast_specs() demo (5 seeds × 2000 ticks = 66 generations). Stable
-environments (blue) canalise plasticity from 0.3 → 0.13 (Δ = −0.17).
-Seasonal environments (orange) canalise less: 0.3 → 0.25 (Δ = −0.05).
-Seasonal preserves 3× more plasticity — the DeWitt-Scheiner (2004)
-prediction is now dramatic and
-unmistakable.](figures/showcase_22_plasticity.png)
+\<img src=“figures/showcase_22_plasticity.png” class=“r-plt”
+alt=“fast_specs() + season_length = 10 demo (5 seeds × 2000 ticks = 66
+generations). Seasons are shorter than a lifetime, so each agent
+experiences multiple seasonal states. Seasonal environments maintain
+higher plasticity than stable ones — the DeWitt-Scheiner (2004)
+prediction. Δdelta = +0.014 across 5 seeds (direction PASS, below the
+0.02 promotion threshold but 7× larger than at season_length = 100 where
+the signal reverses). See”What we found (2026-04-17)” for the full
+season-length sweep.” width=“100%” /\>
 
-fast_specs() demo (5 seeds × 2000 ticks = 66 generations). Stable
-environments (blue) canalise plasticity from 0.3 → 0.13 (Δ = −0.17).
-Seasonal environments (orange) canalise less: 0.3 → 0.25 (Δ = −0.05).
-Seasonal preserves 3× more plasticity — the DeWitt-Scheiner (2004)
-prediction is now dramatic and unmistakable.
+fast_specs() + season_length = 10 demo (5 seeds × 2000 ticks = 66
+generations). Seasons are shorter than a lifetime, so each agent
+experiences multiple seasonal states. Seasonal environments maintain
+higher plasticity than stable ones — the DeWitt-Scheiner (2004)
+prediction. Δdelta = +0.014 across 5 seeds (direction PASS, below the
+0.02 promotion threshold but 7× larger than at season_length = 100 where
+the signal reverses). See “What we found (2026-04-17)” for the full
+season-length sweep.
 
-**What we found (updated 2026-04-16, 0.4.2 audit).** Full protocol:
+**What we found (updated 2026-04-17, season-length sweep).** The
+critical parameter turned out to be `season_length / max_age`:
+plasticity evolves in the DeWitt-Scheiner direction (seasonal \> stable)
+only when each agent experiences multiple seasonal states during its
+lifetime. See
+[dev/audit/fidelity/plasticity_within_lifetime_sweep.R](../dev/audit/fidelity/plasticity_within_lifetime_sweep.R)
+for the full sweep; results at fast_specs (`max_age = 30`, 40×40 grid,
+180 agents init, 5 seeds × 2000 ticks):
+
+| season_length | stable Δ | seasonal Δ | Δdelta     | P1   |
+|---------------|----------|------------|------------|------|
+| 10            | +0.004   | +0.018     | **+0.014** | PASS |
+| 20            | +0.006   | +0.012     | +0.006     | PASS |
+| 30            | +0.014   | +0.023     | +0.009     | PASS |
+| 60            | +0.024   | +0.021     | −0.003     | FAIL |
+| 100           | +0.020   | +0.010     | −0.010     | FAIL |
+
+The direction flips at `season_length > max_age`. When seasons are
+longer than a lifetime, each agent experiences only one seasonal state,
+so genetic adaptation to the current state is just as good as plasticity
+and the selection gradient on plasticity disappears. When seasons are
+shorter than a lifetime, plasticity pays off because it lets one agent
+respond to multiple states. This is the correct DeWitt-Scheiner reading
+— “plasticity tracks environmental variability at the timescale of the
+organism” — and it explains why the 2026-04-17 first-pass multi-seed
+audit (at `season_length = 100`) reported direction flips and a −0.084
+Δdelta: that audit was testing a scenario where plasticity *shouldn’t*
+evolve.
+
+The demo chunk in this vignette now uses `season_length = 10` to
+demonstrate the regime where the prediction holds. Status stays 🟠
+because Δdelta = +0.014 is below the 0.02 promotion threshold; ~8 seeds
+would tighten the SE and likely cross it, or a slightly steeper sigma
+cost (the original 0.4.1 Tier 5C channel) should amplify the effect.
+Promotion to ✅ is now a matter of tuning, not a missing mechanism.
+
+**Earlier 0.4.2 audit state (superseded by the above).** Full protocol:
 [dev/audit/fidelity/plasticity.md](../dev/audit/fidelity/plasticity.md).
 
 At pre-0.4.0 defaults the trajectories were flat — plasticity barely

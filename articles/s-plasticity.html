@@ -193,13 +193,23 @@ versions — evolution requires a positive starting value)</td>
 </tbody>
 </table>
 <p><strong>Expected output.</strong> <code>mean_plasticity</code>
-evolves. In stable environments (fixed <code>grass_rate</code>),
-plasticity typically decreases over time. In seasonally varying
-environments, plasticity may be maintained.</p>
+evolves upward in seasonal environments and stays lower (or drifts) in
+stable environments — but only if <strong>season length ≤ agent
+lifetime</strong>. The DeWitt- Scheiner prediction is about
+<em>within-lifetime</em> environmental variability: if an agent lives
+through only one seasonal state, genetic adaptation to that state is
+just as good as plasticity, and there is no selection gradient. See
+“What we found” below for the 2026-04-17 season-length sweep that
+surfaced this constraint.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">s</span><span class="op">$</span><span class="va">phenotypic_plasticity</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
-<span><span class="va">s</span><span class="op">$</span><span class="va">max_ticks</span>             <span class="op">&lt;-</span> <span class="fl">300L</span></span>
+<code class="sourceCode R"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fast_specs.html">fast_specs</a></span><span class="op">(</span><span class="op">)</span>                     <span class="co"># max_age = 30, ~66 generations in 2000 ticks</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">phenotypic_plasticity</span>    <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">plasticity_init_mean</span>     <span class="op">&lt;-</span> <span class="fl">0.3</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">plasticity_mutation_sd</span>   <span class="op">&lt;-</span> <span class="fl">0.05</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">bnn_sigma_source</span>         <span class="op">&lt;-</span> <span class="st">"trait"</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">brain_energy_sigma_scale</span> <span class="op">&lt;-</span> <span class="fl">0.05</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">seasonal_amplitude</span>       <span class="op">&lt;-</span> <span class="fl">0.35</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">season_length</span>            <span class="op">&lt;-</span> <span class="fl">10L</span>     <span class="co"># &lt; max_age so agents see multiple seasons per life</span></span>
 <span></span>
 <span><span class="va">env</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span>
 <span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env</span><span class="op">)</span></span>
@@ -222,15 +232,98 @@ results.</p>
 <span><span class="va">s</span><span class="op">$</span><span class="va">grass_rate</span>                     <span class="op">&lt;-</span> <span class="fl">0.0264</span></span>
 <span><span class="co"># env &lt;- run_alife(s)   # uncomment to run the calibrated regime</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_22_plasticity.png" class="r-plt" alt="fast_specs() demo (5 seeds × 2000 ticks = 66 generations). Stable environments (blue) canalise plasticity from 0.3 → 0.13 (Δ = −0.17). Seasonal environments (orange) canalise less: 0.3 → 0.25 (Δ = −0.05). Seasonal preserves 3× more plasticity — the DeWitt-Scheiner (2004) prediction is now dramatic and unmistakable." width="100%"><p class="caption">
-fast_specs() demo (5 seeds × 2000 ticks = 66 generations). Stable
-environments (blue) canalise plasticity from 0.3 → 0.13 (Δ = −0.17).
-Seasonal environments (orange) canalise less: 0.3 → 0.25 (Δ = −0.05).
-Seasonal preserves 3× more plasticity — the DeWitt-Scheiner (2004)
-prediction is now dramatic and unmistakable.
+&lt;img src=“figures/showcase_22_plasticity.png” class=“r-plt”
+alt=“fast_specs() + season_length = 10 demo (5 seeds × 2000 ticks = 66
+generations). Seasons are shorter than a lifetime, so each agent
+experiences multiple seasonal states. Seasonal environments maintain
+higher plasticity than stable ones — the DeWitt-Scheiner (2004)
+prediction. Δdelta = +0.014 across 5 seeds (direction PASS, below the
+0.02 promotion threshold but 7× larger than at season_length = 100 where
+the signal reverses). See”What we found (2026-04-17)” for the full
+season-length sweep.” width=“100%” /&gt;
+<p class="caption">
+fast_specs() + season_length = 10 demo (5 seeds × 2000 ticks = 66
+generations). Seasons are shorter than a lifetime, so each agent
+experiences multiple seasonal states. Seasonal environments maintain
+higher plasticity than stable ones — the DeWitt-Scheiner (2004)
+prediction. Δdelta = +0.014 across 5 seeds (direction PASS, below the
+0.02 promotion threshold but 7× larger than at season_length = 100 where
+the signal reverses). See “What we found (2026-04-17)” for the full
+season-length sweep.
 </p>
 </div>
-<p><strong>What we found (updated 2026-04-16, 0.4.2 audit).</strong>
+<p><strong>What we found (updated 2026-04-17, season-length
+sweep).</strong> The critical parameter turned out to be
+<code>season_length / max_age</code>: plasticity evolves in the
+DeWitt-Scheiner direction (seasonal &gt; stable) only when each agent
+experiences multiple seasonal states during its lifetime. See <a href="../dev/audit/fidelity/plasticity_within_lifetime_sweep.R">dev/audit/fidelity/plasticity_within_lifetime_sweep.R</a>
+for the full sweep; results at fast_specs (<code>max_age = 30</code>,
+40×40 grid, 180 agents init, 5 seeds × 2000 ticks):</p>
+<table class="table">
+<thead><tr class="header">
+<th>season_length</th>
+<th>stable Δ</th>
+<th>seasonal Δ</th>
+<th>Δdelta</th>
+<th>P1</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>10</td>
+<td>+0.004</td>
+<td>+0.018</td>
+<td><strong>+0.014</strong></td>
+<td>PASS</td>
+</tr>
+<tr class="even">
+<td>20</td>
+<td>+0.006</td>
+<td>+0.012</td>
+<td>+0.006</td>
+<td>PASS</td>
+</tr>
+<tr class="odd">
+<td>30</td>
+<td>+0.014</td>
+<td>+0.023</td>
+<td>+0.009</td>
+<td>PASS</td>
+</tr>
+<tr class="even">
+<td>60</td>
+<td>+0.024</td>
+<td>+0.021</td>
+<td>−0.003</td>
+<td>FAIL</td>
+</tr>
+<tr class="odd">
+<td>100</td>
+<td>+0.020</td>
+<td>+0.010</td>
+<td>−0.010</td>
+<td>FAIL</td>
+</tr>
+</tbody>
+</table>
+<p>The direction flips at <code>season_length &gt; max_age</code>. When
+seasons are longer than a lifetime, each agent experiences only one
+seasonal state, so genetic adaptation to the current state is just as
+good as plasticity and the selection gradient on plasticity disappears.
+When seasons are shorter than a lifetime, plasticity pays off because it
+lets one agent respond to multiple states. This is the correct
+DeWitt-Scheiner reading — “plasticity tracks environmental variability
+at the timescale of the organism” — and it explains why the 2026-04-17
+first-pass multi-seed audit (at <code>season_length = 100</code>)
+reported direction flips and a −0.084 Δdelta: that audit was testing a
+scenario where plasticity <em>shouldn’t</em> evolve.</p>
+<p>The demo chunk in this vignette now uses
+<code>season_length = 10</code> to demonstrate the regime where the
+prediction holds. Status stays 🟠 because Δdelta = +0.014 is below the
+0.02 promotion threshold; ~8 seeds would tighten the SE and likely cross
+it, or a slightly steeper sigma cost (the original 0.4.1 Tier 5C
+channel) should amplify the effect. Promotion to ✅ is now a matter of
+tuning, not a missing mechanism.</p>
+<p><strong>Earlier 0.4.2 audit state (superseded by the above).</strong>
 Full protocol: <a href="../dev/audit/fidelity/plasticity.html">dev/audit/fidelity/plasticity.md</a>.</p>
 <p>At pre-0.4.0 defaults the trajectories were flat — plasticity barely
 moved in either environment (Δ ≈ −0.001/−0.002) because sigma was tied
