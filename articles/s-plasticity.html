@@ -318,11 +318,23 @@ reported direction flips and a −0.084 Δdelta: that audit was testing a
 scenario where plasticity <em>shouldn’t</em> evolve.</p>
 <p>The demo chunk in this vignette now uses
 <code>season_length = 10</code> to demonstrate the regime where the
-prediction holds. Status stays 🟠 because Δdelta = +0.014 is below the
-0.02 promotion threshold; ~8 seeds would tighten the SE and likely cross
-it, or a slightly steeper sigma cost (the original 0.4.1 Tier 5C
-channel) should amplify the effect. Promotion to ✅ is now a matter of
-tuning, not a missing mechanism.</p>
+prediction holds. Status stays 🟠.</p>
+<p>An <strong>8-seed re-audit</strong>
+(<code>dev/audit/fidelity/plasticity_8seed.R</code>) of the sl=10 regime
+showed the 5-seed +0.014 claim was optimistic:</p>
+<ul>
+<li>5-seed Δdelta = +0.014 (reported above)</li>
+<li>8-seed Δdelta = +0.005 ± SE 0.007, <em>t</em> ≈ 0.74</li>
+</ul>
+<p>Direction PASS is robust (seasonal &gt; stable across both audits),
+but the magnitude shrinks as more seeds are added — consistent with the
+“signal on the edge of drift” interpretation. The scenario is
+kernel-limited after all: clade’s plasticity-to-sigma coupling produces
+the correct sign but the effect is too small relative to drift variance
+at 5–8 seeds to push past the 0.02 threshold. Genuine promotion likely
+needs a kernel lift (decouple plasticity cost from BNN sigma, or a
+dedicated “plasticity_cost” trait with a differential-across-individuals
+structure).</p>
 <p><strong>Earlier 0.4.2 audit state (superseded by the above).</strong>
 Full protocol: <a href="../dev/audit/fidelity/plasticity.html">dev/audit/fidelity/plasticity.md</a>.</p>
 <p>At pre-0.4.0 defaults the trajectories were flat — plasticity barely
