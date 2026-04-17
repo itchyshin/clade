@@ -151,16 +151,17 @@ each entry for the primary literature.
 
 - `brain_type`:
 
-  Character. One of `"bnn"` (default), `"ann"`, `"ctrnn"`, `"grn"`,
-  `"transformer"`, `"synthesis"`, or `"random"`. BNN = Bayesian neural
-  network (Neal 1996; Blundell et al. 2015); ANN = multilayer perceptron
-  (Rumelhart et al. 1986); CTRNN = continuous-time recurrent network
-  (Beer 1995); GRN = gene regulatory network (Kauffman 1993);
-  transformer = attention over sensory history (Vaswani et al. 2017);
-  synthesis = evolved symbolic IF-THEN rules (Koza 1992); random = null
-  baseline. See
+  Character. Currently implemented: `"bnn"` (default), `"ann"`,
+  `"ctrnn"`, `"grn"`, `"random"`. Listed but **not yet implemented**
+  (kernel errors with "planned for later phases"): `"transformer"`,
+  `"synthesis"` — they're reserved names, not working architectures as
+  of 0.5.6. BNN = Bayesian neural network (Neal 1996; Blundell et al.
+  2015); ANN = multilayer perceptron (Rumelhart et al. 1986); CTRNN =
+  continuous-time recurrent network (Beer 1995); GRN = gene regulatory
+  network (Kauffman 1993); random = null baseline. See
   [`vignette("custom-modules")`](https://itchyshin.github.io/clade/articles/custom-modules.md)
-  for architecture details.
+  for architecture details and `dev/benchmarks/brain_comparison.R` for a
+  side-by-side benchmark of the five working types.
 
 - `hidden_layers`:
 

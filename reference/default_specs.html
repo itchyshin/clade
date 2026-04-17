@@ -269,16 +269,18 @@ cell grows grass (default 0.05).</p></dd>
 All types are heritable and evolvable. See the references in each entry for
 the primary literature.</p>
 <dl><dt><code>brain_type</code></dt>
-<dd><p>Character. One of <code>"bnn"</code> (default), <code>"ann"</code>,
-<code>"ctrnn"</code>, <code>"grn"</code>, <code>"transformer"</code>, <code>"synthesis"</code>, or <code>"random"</code>.
+<dd><p>Character. Currently implemented: <code>"bnn"</code>
+(default), <code>"ann"</code>, <code>"ctrnn"</code>, <code>"grn"</code>, <code>"random"</code>. Listed but
+<strong>not yet implemented</strong> (kernel errors with "planned for later
+phases"): <code>"transformer"</code>, <code>"synthesis"</code> — they're reserved
+names, not working architectures as of 0.5.6.
 BNN = Bayesian neural network (Neal 1996; Blundell et al. 2015);
 ANN = multilayer perceptron (Rumelhart et al. 1986);
 CTRNN = continuous-time recurrent network (Beer 1995);
 GRN = gene regulatory network (Kauffman 1993);
-transformer = attention over sensory history (Vaswani et al. 2017);
-synthesis = evolved symbolic IF-THEN rules (Koza 1992);
 random = null baseline. See <code><a href="../articles/custom-modules.html">vignette("custom-modules")</a></code> for
-architecture details.</p></dd>
+architecture details and <code>dev/benchmarks/brain_comparison.R</code>
+for a side-by-side benchmark of the five working types.</p></dd>
 
 <dt><code>hidden_layers</code></dt>
 <dd><p>Integer vector. Hidden layer widths for <code>"ann"</code> and

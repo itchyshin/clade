@@ -131,6 +131,8 @@ realistic.
   evolution](https://itchyshin.github.io/clade/articles/baldwin-effect.md):
 - [The cephalopod
   paradox](https://itchyshin.github.io/clade/articles/s-cephalopod.md):
+- [Comparing brain architectures
+  side-by-side](https://itchyshin.github.io/clade/articles/s-brain-comparison.md):
 
 ### Theme 7 — Discovery experiments
 

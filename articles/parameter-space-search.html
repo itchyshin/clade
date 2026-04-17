@@ -482,6 +482,53 @@ them afterwards:</p>
 <span>                    n_cores <span class="op">=</span> <span class="fl">50L</span>, resume <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
+<h2 id="worked-example-brain-type-benchmark">Worked example: brain-type benchmark<a class="anchor" aria-label="anchor" href="#worked-example-brain-type-benchmark"></a>
+</h2>
+<p>The <code>dev/benchmarks/brain_comparison.R</code> script in the repo
+is a compact, reproducible end-to-end use of the tooling. It runs
+<code>5 brain types × 5 seeds = 25</code> independent clade simulations
+in parallel and produces a faceted comparison figure. The full code:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/">clade</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span>; <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">BRAIN_TYPES</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"bnn"</span>, <span class="st">"ann"</span>, <span class="st">"ctrnn"</span>, <span class="st">"grn"</span>, <span class="st">"random"</span><span class="op">)</span></span>
+<span><span class="va">SEEDS</span>       <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1L</span>, <span class="fl">7L</span>, <span class="fl">13L</span>, <span class="fl">19L</span>, <span class="fl">25L</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">base</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">base</span><span class="op">$</span><span class="va">grid_rows</span>     <span class="op">&lt;-</span> <span class="fl">30L</span>; <span class="va">base</span><span class="op">$</span><span class="va">grid_cols</span> <span class="op">&lt;-</span> <span class="fl">30L</span></span>
+<span><span class="va">base</span><span class="op">$</span><span class="va">n_agents_init</span> <span class="op">&lt;-</span> <span class="fl">80L</span>; <span class="va">base</span><span class="op">$</span><span class="va">max_agents</span> <span class="op">&lt;-</span> <span class="fl">400L</span></span>
+<span><span class="va">base</span><span class="op">$</span><span class="va">grass_rate</span>    <span class="op">&lt;-</span> <span class="fl">0.15</span></span>
+<span><span class="va">base</span><span class="op">$</span><span class="va">max_ticks</span>     <span class="op">&lt;-</span> <span class="fl">500L</span></span>
+<span></span>
+<span><span class="va">specs_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grid_specs.html">grid_specs</a></span><span class="op">(</span><span class="va">base</span>,</span>
+<span>                         brain_type  <span class="op">=</span> <span class="va">BRAIN_TYPES</span>,</span>
+<span>                         random_seed <span class="op">=</span> <span class="va">SEEDS</span><span class="op">)</span></span>
+<span><span class="co"># 25 PSOCK workers, each with its own Julia; Julia compile</span></span>
+<span><span class="co"># happens in parallel so wall clock is ~60 s startup + run time.</span></span>
+<span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/batch_alife.html">batch_alife</a></span><span class="op">(</span><span class="va">specs_list</span>, n_cores <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">specs_list</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Pull out summary + full trajectories</span></span>
+<span><span class="va">tbl</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/summarize_batch.html">summarize_batch</a></span><span class="op">(</span><span class="va">results</span>, <span class="va">specs_list</span>,</span>
+<span>                       param_names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"brain_type"</span>, <span class="st">"random_seed"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">traj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/funprog.html" class="external-link">Map</a></span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="va">env</span>, <span class="va">specs</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env</span><span class="op">)</span><span class="op">$</span><span class="va">ticks</span></span>
+<span>  <span class="va">d</span><span class="op">$</span><span class="va">brain_type</span> <span class="op">&lt;-</span> <span class="va">specs</span><span class="op">$</span><span class="va">brain_type</span></span>
+<span>  <span class="va">d</span><span class="op">$</span><span class="va">seed</span>       <span class="op">&lt;-</span> <span class="va">specs</span><span class="op">$</span><span class="va">random_seed</span></span>
+<span>  <span class="va">d</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"t"</span>, <span class="st">"n_agents"</span>, <span class="st">"mean_energy"</span>, <span class="st">"brain_type"</span>, <span class="st">"seed"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="op">}</span>, <span class="va">results</span>, <span class="va">specs_list</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>See <code><a href="../articles/s-brain-comparison.html">vignette("s-brain-comparison")</a></code> for the full analysis
++ the saved figure. Takeaways that map cleanly to canonical life-history
+theory:</p>
+<ul>
+<li>BNN → <strong>density strategy</strong> (196 agents × 125
+energy)</li>
+<li>GRN → <strong>quality strategy</strong> (56 agents × 170
+energy)</li>
+<li>ANN / CTRNN intermediate; random is the most fragile</li>
+</ul>
+</div>
+<div class="section level2">
 <h2 id="summary">Summary<a class="anchor" aria-label="anchor" href="#summary"></a>
 </h2>
 <table class="table">
@@ -526,6 +573,11 @@ them afterwards:</p>
 <td>Search (MAP-Elites)</td>
 <td><code><a href="../reference/search_map_elites.html">search_map_elites()</a></code></td>
 <td>any</td>
+</tr>
+<tr class="even">
+<td>Dispatch to SLURM</td>
+<td><code><a href="../reference/submit_sweep_slurm.html">submit_sweep_slurm()</a></code></td>
+<td>multi-node</td>
 </tr>
 </tbody>
 </table>

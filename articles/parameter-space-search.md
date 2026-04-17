@@ -310,6 +310,53 @@ stream_specs_to_csv(retry_specs, "/data/sweeps/big_sweep_retry.csv",
                     n_cores = 50L, resume = TRUE)
 ```
 
+## Worked example: brain-type benchmark
+
+The `dev/benchmarks/brain_comparison.R` script in the repo is a compact,
+reproducible end-to-end use of the tooling. It runs
+`5 brain types × 5 seeds = 25` independent clade simulations in parallel
+and produces a faceted comparison figure. The full code:
+
+``` r
+library(clade)
+library(ggplot2); library(patchwork)
+
+BRAIN_TYPES <- c("bnn", "ann", "ctrnn", "grn", "random")
+SEEDS       <- c(1L, 7L, 13L, 19L, 25L)
+
+base <- default_specs()
+base$grid_rows     <- 30L; base$grid_cols <- 30L
+base$n_agents_init <- 80L; base$max_agents <- 400L
+base$grass_rate    <- 0.15
+base$max_ticks     <- 500L
+
+specs_list <- grid_specs(base,
+                         brain_type  = BRAIN_TYPES,
+                         random_seed = SEEDS)
+# 25 PSOCK workers, each with its own Julia; Julia compile
+# happens in parallel so wall clock is ~60 s startup + run time.
+results <- batch_alife(specs_list, n_cores = length(specs_list))
+
+# Pull out summary + full trajectories
+tbl <- summarize_batch(results, specs_list,
+                       param_names = c("brain_type", "random_seed"))
+traj <- do.call(rbind, Map(function(env, specs) {
+  d <- get_run_data(env)$ticks
+  d$brain_type <- specs$brain_type
+  d$seed       <- specs$random_seed
+  d[, c("t", "n_agents", "mean_energy", "brain_type", "seed")]
+}, results, specs_list))
+```
+
+See
+[`vignette("s-brain-comparison")`](https://itchyshin.github.io/clade/articles/s-brain-comparison.md)
+for the full analysis + the saved figure. Takeaways that map cleanly to
+canonical life-history theory:
+
+- BNN → **density strategy** (196 agents × 125 energy)
+- GRN → **quality strategy** (56 agents × 170 energy)
+- ANN / CTRNN intermediate; random is the most fragile
+
 ## Summary
 
 | Task                    | Function                                                                                      | Scale                                                                              |
@@ -321,6 +368,7 @@ stream_specs_to_csv(retry_specs, "/data/sweeps/big_sweep_retry.csv",
 | Summarize to tibble     | [`summarize_batch()`](https://itchyshin.github.io/clade/reference/summarize_batch.md)         | from [`batch_alife()`](https://itchyshin.github.io/clade/reference/batch_alife.md) |
 | Search (CMA-ES)         | [`search_cmaes()`](https://itchyshin.github.io/clade/reference/search_cmaes.md)               | any                                                                                |
 | Search (MAP-Elites)     | [`search_map_elites()`](https://itchyshin.github.io/clade/reference/search_map_elites.md)     | any                                                                                |
+| Dispatch to SLURM       | [`submit_sweep_slurm()`](https://itchyshin.github.io/clade/reference/submit_sweep_slurm.md)   | multi-node                                                                         |
 
 All of these use the PSOCK parallel path; pass `n_cores = N` to fan out
 across `N` separate R+Julia worker processes on one machine.

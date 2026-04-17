@@ -117,7 +117,83 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.5.6" id="clade-056-2026-04-17">clade 0.5.6 (2026-04-17)<a class="anchor" aria-label="anchor" href="#clade-056-2026-04-17"></a></h2>
-<p>Substantial multi-PR session covering timescale presets, a round of 🟠-sort work, and a new audit-methodology utility.</p>
+<p>Substantial multi-PR day covering timescale presets, 🟠-sort work, a new audit-methodology utility, a working parallel scenario-search toolkit, three kernel bug fixes, and a head-to-head brain-type benchmark. 22+ PRs merged to main.</p>
+<div class="section level3">
+<h3 id="parameter-space-search-and-parallelism-afternoon-0-5-6">Parameter-space search and parallelism (afternoon)<a class="anchor" aria-label="anchor" href="#parameter-space-search-and-parallelism-afternoon-0-5-6"></a></h3>
+<p>The story: the existing <code>batch_alife(n_cores = N)</code> path silently deadlocked (forked R workers all blocked on one Julia socket — fork-unsafe RPC). Fix: <strong>swap <code><a href="https://rdrr.io/r/parallel/mclapply.html" class="external-link">parallel::mclapply</a></code> for <code>parallel::makeCluster("PSOCK")</code></strong>, where each worker is a separate R process with its own Julia session. Same fix applied to <code>search_cmaes</code>. <code>n_cores &gt; 1</code> now actually parallelises.</p>
+<p>New exports built on the fixed parallel path:</p>
+<ul><li>
+<strong><code>grid_specs(base, ...)</code></strong> — factorial expansion of a base spec.</li>
+<li>
+<strong><code>sample_specs(base, n, ...)</code></strong> — random draws from three distribution forms (vector → sample with replacement; list of 2 → uniform; function → user-supplied).</li>
+<li>
+<strong><code>summarize_batch(results, specs_list)</code></strong> — one-row-per-run tidy data frame with parameters, default metrics, viability verdict.</li>
+<li>
+<strong><code>stream_specs_to_csv(specs_list, out_path)</code></strong> — memory-efficient streaming writer for 10k–1M-scenario sweeps. <code>resume = TRUE</code> (default) skips run_ids already in the output CSV, so killed overnight jobs restart cleanly.</li>
+<li>
+<strong><code><a href="../reference/submit_sweep_slurm.html">submit_sweep_slurm()</a></code></strong> — writes a SLURM array-job template that dispatches chunks of the specs_list across cluster nodes, each task calling <code><a href="../reference/stream_specs_to_csv.html">stream_specs_to_csv()</a></code> against a shared CSV.</li>
+<li>
+<strong><code>search_map_elites(checkpoint_path, checkpoint_every)</code></strong> — checkpoint/resume for long MAP-Elites runs.</li>
+</ul><p>New dedicated vignette: <strong>parameter-space-search.Rmd</strong> (placed after parameter-reference in the sidebar) walks through the full workflow from small grids to million-scenario cluster sweeps.</p>
+<p>Full deadlock post-mortem: <code>dev/docs/parallelism-audit.md</code>.</p>
+</div>
+<div class="section level3">
+<h3 id="kernel-fixes-0-5-6">Kernel fixes<a class="anchor" aria-label="anchor" href="#kernel-fixes-0-5-6"></a></h3>
+<ul><li>
+<strong>body_size foraging death spiral</strong>: <code>apply_body_size!</code> charged small agents (bs &lt; 1) a foraging correction bounded only by 40% of current energy — on low-grass cells the correction exceeded the eat_gain, making eating net-negative. Small agents drifted to bs ≈ 0.5 then starved. Fix: scale <code>eat_gain * bite * body_size</code> at the source in <code>tick.jl</code>; drop the post-hoc correction. At realistic mutation_sd (≤ 0.02) the scenario is now viable at fast_specs.</li>
+<li>
+<strong>RNG-order contamination in BNN sampler</strong>: <code>randn(length(mu))</code> in Thompson sampling used Julia’s global RNG. Consecutive <code><a href="../reference/run_alife.html">run_alife()</a></code> calls in one Julia session shared state so figures depended on call order even with <code>random_seed</code> set. Fix: per-run RNG cache populated from <code>env.rng</code> at the top of <code>tick_agents!</code>. Verified deterministic across call order.</li>
+<li>
+<strong>search_cmaes parallel path</strong>: same PSOCK fix as batch_alife. Single cluster reused across generations to amortise Julia compile cost.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="new-kernel-specs-baldwin--plasticity-scaffolding-0-5-6">New kernel specs (Baldwin / plasticity scaffolding)<a class="anchor" aria-label="anchor" href="#new-kernel-specs-baldwin--plasticity-scaffolding-0-5-6"></a></h3>
+<ul><li>
+<code>bnn_action_noise_scale</code> (0.5.5, now documented): decouples BNN sigma from action sampling. At scale = 0, actions are deterministic from mu; sigma affects only learning/cost.</li>
+<li>
+<code>action_exploration_epsilon</code> (0.5.6): epsilon-greedy exploration orthogonal to BNN sigma. At epsilon &gt; 0, with that probability each tick picks a uniformly random action. Intended as the exploration channel when sigma is fully decoupled.</li>
+<li>
+<code>bnn_sigma_lr_scale</code>, <code>bnn_sigma_lr_ref</code> (0.5.6): within-life effective learning rate scales with mean(sigma)/sigma_ref. Canalised agents learn slowly; plastic agents learn fast. Puts the cost of canalisation on learning speed, not noise.</li>
+</ul><p>Combined, these three levers give a 3-axis decoupling of the sigma channel. None individually promoted Baldwin to ✅ — the baseline sigma dynamics in clade don’t canalise at fast_specs settings, so the levers never engage. Filed as the clearest next step in <code>dev/audit/fidelity/ORANGE_OVERVIEW.md</code>.</p>
+</div>
+<div class="section level3">
+<h3 id="audit-methodology-hardening-0-5-6">Audit-methodology hardening<a class="anchor" aria-label="anchor" href="#audit-methodology-hardening-0-5-6"></a></h3>
+<ul><li>
+<strong><code><a href="../reference/viability_report.html">viability_report()</a></code></strong> — new exported function that flags runs where <code>n_final &lt; 20</code> OR <code>n_final &lt; 0.2 × n_init</code>. <code><a href="../reference/run_alife.html">run_alife()</a></code> now attaches it as <code>env$viability</code> and warns on <code>"crashed"</code> verdicts. Codifies the “always check viability before interpreting trait means” rule the audit round kept relearning.</li>
+<li>
+<strong>Cross-scenario crash audit</strong> (<code>crash_audit.R</code>): 17 scenarios × 5 seeds at fast_specs revealed 4 ✅ scenarios that crash at fast_specs (body_size, signals, parental_care, stress_hypermutation). The morning’s demo-chunk updates were silently reverted for those four to keep them at <code>default_specs</code>.</li>
+<li>
+<strong>Evidence-strength review</strong> (<code>EVIDENCE_REVIEW.md</code>): tiers all 30 auditable scenarios into Strong / Moderate / Weak-✅ / Honest 🟠. Revealed 14 of 26 ✅ sit in Tier C (audited pre-8-seed discipline).</li>
+<li>
+<strong>Tier C re-audit (batches 1 + 2)</strong>: ran 12 of the 14 Tier C scenarios × 8 seeds × 2 conditions. Six pass as module-firing-correctness checks (cooperation, speciation, niche, parental_care, complex_landscape, seasonal). <strong>Five demoted</strong>: group_defense, social_learning, scavenging, brain_size, rl — the canonical theoretical claim doesn’t hold at 8 seeds. One marginal (parental_investment). Inventory and next steps for all 9 🟠 in <code>dev/audit/fidelity/ORANGE_OVERVIEW.md</code>.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="status-changes-0-5-6">Status changes<a class="anchor" aria-label="anchor" href="#status-changes-0-5-6"></a></h3>
+<ul><li>
+<strong>s-dispersal-ifd promoted 🟠 → ✅</strong> at <code>habitat_preference_strength = 2.0</code>: Δ = +0.021 ± 0.005 across 5 seeds.</li>
+<li>
+<strong>s-mimicry reframed</strong> to lead with predation-dominant ecology (Grafen 1990 handicap-equilibrium critique cited).</li>
+<li>Five Tier-C ✅ → 🟠 (per above).</li>
+</ul><p>Honest ledger (post-retire): <strong>~14 defensible-✅ / ~9 🟠 / 1 marginal / 2 untouched / 0 🔴</strong> out of 30 auditable scenarios (11 were already Tier A / Tier B, 3 pass Tier C at module- correctness level).</p>
+</div>
+<div class="section level3">
+<h3 id="new-benchmark-brain-type-comparison-s-brain-comparison-0-5-6">New benchmark: brain-type comparison (s-brain-comparison)<a class="anchor" aria-label="anchor" href="#new-benchmark-brain-type-comparison-s-brain-comparison-0-5-6"></a></h3>
+<p>First side-by-side benchmark of clade’s five working brain architectures (BNN, ANN, CTRNN, GRN, random). Same ecology, 5 seeds per brain type = 25 independent runs dispatched across 25 PSOCK workers. Surfaces a clean r-vs-K partition:</p>
+<ul><li>
+<strong>BNN</strong>: 196 ± 5 agents × 125 ± 2 energy — density over quality</li>
+<li>
+<strong>GRN</strong>: 56 ± 8 agents × 170 ± 5 energy — quality over density</li>
+<li>ANN / CTRNN intermediate; random is fragile.</li>
+</ul><p>Doubles as a working demonstration of the new parallel-search toolkit. New vignette <code>s-brain-comparison.Rmd</code> in Theme 6.</p>
+<p>Doc fix: <code>brain_type</code> no longer claims <code>transformer</code> and <code>synthesis</code> are supported — the Julia kernel errors out on both (“planned for later phases”). Listed as reserved names only.</p>
+</div>
+<div class="section level3">
+<h3 id="memory-entries-added-cross-session-0-5-6">Memory entries added (cross-session)<a class="anchor" aria-label="anchor" href="#memory-entries-added-cross-session-0-5-6"></a></h3>
+<ul><li>
+<code>project_landing_page_cleanup.md</code> — user flagged remaining 22-vs-23-vs-26 inconsistencies across pages; systematic sweep planned.</li>
+<li>
+<code>project_rng_order_sensitivity.md</code> — now resolved by the 0.5.6 RNG fix; kept as historical record.</li>
+</ul></div>
 <div class="section level3">
 <h3 id="new-exports-0-5-6">New exports<a class="anchor" aria-label="anchor" href="#new-exports-0-5-6"></a></h3>
 <ul><li>
@@ -135,7 +211,7 @@
 <code>toroidal</code> exposed in the <code><a href="../reference/default_specs.html">default_specs()</a></code> roxygen docs (the spec existed but was undocumented).</li>
 </ul></div>
 <div class="section level3">
-<h3 id="status-changes-0-5-6">Status changes<a class="anchor" aria-label="anchor" href="#status-changes-0-5-6"></a></h3>
+<h3 id="status-changes-0-5-6-1">Status changes<a class="anchor" aria-label="anchor" href="#status-changes-0-5-6-1"></a></h3>
 <ul><li>
 <strong>s-dispersal-ifd promoted 🟠 → ✅.</strong> Sweep at fast_specs over <code>habitat_preference_strength</code> found a clean promotion path: at strength ≥ 2.0, Δ = +0.021 ± 0.005 across 5 seeds (vs +0.003 at the default 0.5). Default strength was below the drift floor — only ~1.5% effective move-toward-grass per tick.</li>
 <li>
