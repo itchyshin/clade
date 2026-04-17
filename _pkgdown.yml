@@ -347,6 +347,7 @@ reference:
       - genome_distance
       - diversity_landscape
       - species_tree
+      - viability_report
 
   - title: "Map generation"
     desc: "Create structured landscape maps for the simulation grid."

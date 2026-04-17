@@ -53,11 +53,16 @@ with runaway dynamics.
 library(clade)
 library(ggplot2)
 
-s <- fast_specs()                     # ~66 generations in 2000 ticks
+# default_specs() — fast_specs() crashes this scenario (n_final < 5
+# across 5 seeds per 2026-04-17 crash_audit.R). Signal cost + sexual
+# selection intensity combine to overwhelm the short fast_specs
+# lifespan.
+s <- default_specs()
 s$signal_dims          <- 3L
 s$signal_cost          <- 0.05
 s$mate_choice_mode     <- "preference"
 s$mate_choice_strength <- 0.7
+s$max_ticks            <- 400L
 s$random_seed          <- 21L
 
 env  <- run_alife(s)
