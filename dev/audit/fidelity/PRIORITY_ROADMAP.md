@@ -104,7 +104,15 @@ generations:
   `dev/audit/fidelity/plasticity_within_lifetime_sweep.R`.
 - **s-baldwin**: decouple BNN sigma from behavioural variance
   (plan file 0.4.3 item — sigma should be a pure learning cost,
-  not a noise term).
+  not a noise term). *Season-length sweep (2026-04-17 afternoon)
+  confirmed the plasticity fix does NOT work for Baldwin*: at every
+  tested `season_length ∈ {10, 20, 30, 60, 100}`, stable `sigma`
+  went UP not DOWN (opposite of Hinton-Nowlan canalisation). The
+  baldwin.md report's "sigma couples to behavioural variance"
+  diagnosis is the real block — canalising sigma means more
+  deterministic actions, which has secondary costs that cancel
+  the learning-cost savings. Script:
+  `dev/audit/fidelity/baldwin_within_lifetime_sweep.R`.
 - **s-dispersal-ifd**: a genuine spatial-gradient in grass
   (current `complex_landscape` provides resource *layering*, not
   a gradient — agents can't use preference to move *toward*
