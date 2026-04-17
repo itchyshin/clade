@@ -15,6 +15,7 @@
 <url><loc>https://itchyshin.github.io/clade/articles/k-sense.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/articles/k-tick.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/articles/parameter-reference.html</loc></url>
+<url><loc>https://itchyshin.github.io/clade/articles/parameter-space-search.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/articles/ps-agent-parameters.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/articles/ps-algorithms.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/articles/ps-environment-parameters.html</loc></url>
@@ -85,6 +86,7 @@
 <url><loc>https://itchyshin.github.io/clade/reference/get_brain_weights.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/get_genome_data.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/get_run_data.html</loc></url>
+<url><loc>https://itchyshin.github.io/clade/reference/grid_specs.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/heritability_estimate.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/index.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/inspect_brain.html</loc></url>
@@ -117,6 +119,7 @@
 <url><loc>https://itchyshin.github.io/clade/reference/run_alife.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/run_bad_science.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/run_clade.html</loc></url>
+<url><loc>https://itchyshin.github.io/clade/reference/sample_specs.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/search_cmaes.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/search_gradient.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/search_map_elites.html</loc></url>
@@ -125,6 +128,8 @@
 <url><loc>https://itchyshin.github.io/clade/reference/sense_env.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/slow_specs.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/species_tree.html</loc></url>
+<url><loc>https://itchyshin.github.io/clade/reference/stream_specs_to_csv.html</loc></url>
+<url><loc>https://itchyshin.github.io/clade/reference/summarize_batch.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/take_action.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/tune_complex_landscape.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/tune_iffolk.html</loc></url>

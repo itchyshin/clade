@@ -12,6 +12,14 @@ Entry points for running and batching evolutionary simulations.
   : Run multiple simulations in parallel
 - [`batch_seeds()`](https://itchyshin.github.io/clade/reference/batch_seeds.md)
   : Run one specs object with multiple random seeds
+- [`grid_specs()`](https://itchyshin.github.io/clade/reference/grid_specs.md)
+  : Generate a factorial grid of specs
+- [`sample_specs()`](https://itchyshin.github.io/clade/reference/sample_specs.md)
+  : Sample specs randomly from parameter distributions
+- [`summarize_batch()`](https://itchyshin.github.io/clade/reference/summarize_batch.md)
+  : Summarize a batch of run results into a tidy data frame
+- [`stream_specs_to_csv()`](https://itchyshin.github.io/clade/reference/stream_specs_to_csv.md)
+  : Stream a parameter-space sweep to disk, one row per run
 - [`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md)
   : Default simulation parameters for clade
 - [`quick_specs()`](https://itchyshin.github.io/clade/reference/quick_specs.md)

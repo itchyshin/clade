@@ -13,6 +13,7 @@ articles:
   k-sense: k-sense.html
   k-tick: k-tick.html
   parameter-reference: parameter-reference.html
+  parameter-space-search: parameter-space-search.html
   ps-agent-parameters: ps-agent-parameters.html
   ps-algorithms: ps-algorithms.html
   ps-environment-parameters: ps-environment-parameters.html
@@ -53,7 +54,7 @@ articles:
   s-speciation: s-speciation.html
   s-stress-hypermutation: s-stress-hypermutation.html
   scenarios: scenarios.html
-last_built: 2026-04-17T20:42Z
+last_built: 2026-04-17T21:08Z
 urls:
   reference: https://itchyshin.github.io/clade/reference
   article: https://itchyshin.github.io/clade/articles

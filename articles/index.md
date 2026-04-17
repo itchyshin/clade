@@ -8,6 +8,8 @@
   clade](https://itchyshin.github.io/clade/articles/getting-started.md):
 - [Parameter
   Reference](https://itchyshin.github.io/clade/articles/parameter-reference.md):
+- [Parameter-space search at scale (parallel, resumable,
+  streaming)](https://itchyshin.github.io/clade/articles/parameter-space-search.md):
 - [Custom Modules: Extending clade with Per-Tick
   Hooks](https://itchyshin.github.io/clade/articles/custom-modules.md):
 
