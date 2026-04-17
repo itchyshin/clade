@@ -86,7 +86,7 @@ shows direction correct on average under the discrete-allele Red Queen,
 but none crosses 2×SE at 16 seeds (0.5.3 retraction).
 
 **What we found (updated 2026-04-16 through 0.5.1).** Full protocol:
-[dev/audit/fidelity/mating_systems.md](../dev/audit/fidelity/mating_systems.md).
+[dev/audit/fidelity/mating_systems.md](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/mating_systems.md).
 
 The pre-0.4.0 audit tested only the stable environment and got Δdiv =
 −0.005 (sex slightly below asex). 0.4.1 added disease and seasonal

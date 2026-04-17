@@ -145,7 +145,7 @@
 </h1></div>
 <p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="Lifecycle: experimental"></a> <a href="https://opensource.org/licenses/MIT" class="external-link"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a> <a href="https://itchyshin.github.io/clade/" class="external-link"><img src="https://img.shields.io/badge/docs-pkgdown-blue.svg" alt="pkgdown"></a></p>
 <p><strong>Agent-based evolutionary simulation with a Julia backend and R interface.</strong></p>
-<p><code>clade</code> runs populations of digital organisms on a renewable resource grid. Each agent carries a heritable neural-network genome; natural selection acts on brain weights, life-history traits, and — with 30+ optional modules — body size, dispersal tendency, mimicry, coevolving parasites, parental care, cooperative breeding, disease, and more. Every biological scenario is backed by a <a href="dev/audit/fidelity/DASHBOARD.html">multi-seed fidelity audit</a> against the primary literature (22 of 30 auditable scenarios pass; 5 have direction-correct but magnitude-limited signals; 0 contradict theory).</p>
+<p><code>clade</code> runs populations of digital organisms on a renewable resource grid. Each agent carries a heritable neural-network genome; natural selection acts on brain weights, life-history traits, and — with 30+ optional modules — body size, dispersal tendency, mimicry, coevolving parasites, parental care, cooperative breeding, disease, and more. Every biological scenario is backed by a <a href="https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/DASHBOARD.md" class="external-link">multi-seed fidelity audit</a> against the primary literature (22 of 30 auditable scenarios pass; 5 have direction-correct but magnitude-limited signals; 0 contradict theory).</p>
 <p>The simulation kernel is written in Julia for performance. R is the interface: you set parameters, call <code><a href="reference/run_alife.html">run_alife()</a></code> once, and receive the full simulation environment back for analysis and visualisation. The R–Julia boundary is crossed <strong>once per run</strong>, not once per tick, so large populations and long simulations stay fast.</p>
 <hr>
 <div class="section level2">
@@ -475,7 +475,7 @@
 </tr>
 </tbody>
 </table>
-<p>The five 🟠 scenarios (dispersal-IFD, mating-systems, mimicry, plasticity, Baldwin effect) have honestly-documented kernel or ecology limitations. All audit reports, runners, and figures live under <a href="dev/audit/fidelity/"><code>dev/audit/fidelity/</code></a>. See the <a href="dev/audit/fidelity/DASHBOARD.html">audit dashboard</a> for the full ledger with evidence strength, honest nulls, and retractions.</p>
+<p>The five 🟠 scenarios (dispersal-IFD, mating-systems, mimicry, plasticity, Baldwin effect) have honestly-documented kernel or ecology limitations. All audit reports, runners, and figures live under <a href="https://github.com/itchyshin/clade/tree/main/dev/audit/fidelity" class="external-link"><code>dev/audit/fidelity/</code></a>. See the <a href="https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/DASHBOARD.md" class="external-link">audit dashboard</a> for the full ledger with evidence strength, honest nulls, and retractions.</p>
 <hr>
 </div>
 <div class="section level2">

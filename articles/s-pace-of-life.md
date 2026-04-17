@@ -37,7 +37,7 @@ always-on `max_age = 200` dominates the age schedule — agents die at the
 cap before metabolic-rate differences can accumulate. Enabling Gompertz
 senescence or removing the age cap would be needed to reproduce the
 Réale et al. pace-of-life divergence. See
-[dev/audit/fidelity/pace_of_life.md](../dev/audit/fidelity/pace_of_life.md).
+[dev/audit/fidelity/pace_of_life.md](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/pace_of_life.md).
 
 ``` r
 library(clade)

@@ -45,11 +45,12 @@ parameters below. Two distinct phases emerge:
 
 This is the documented behaviour of evolutionary predator-prey ABMs (see
 the [predator-prey fidelity
-report](../dev/audit/fidelity/predator_prey.md) for cross-reference to
-the alifeR prototype, which contains the same explanation in §12 of its
-showcase vignette). To recover textbook sustained sinusoidal LV, you
-would need a fixed-policy predator (not yet exposed as a spec) or
-non-toroidal patchy spatial structure (Huffaker 1958; future scenario).
+report](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/predator_prey.md)
+for cross-reference to the alifeR prototype, which contains the same
+explanation in §12 of its showcase vignette). To recover textbook
+sustained sinusoidal LV, you would need a fixed-policy predator (not yet
+exposed as a spec) or non-toroidal patchy spatial structure (Huffaker
+1958; future scenario).
 
 ``` r
 library(clade)
@@ -123,7 +124,7 @@ and matches the alifeR R prototype’s documented behaviour (see
 suppress textbook LV oscillations). It is **not** Lotka 1925’s
 mean-field sustained sinusoidal result, and we no longer claim to be.
 Full cross-reference table and audit protocol:
-[dev/audit/fidelity/predator_prey.md](dev/audit/fidelity/predator_prey.md).
+[dev/audit/fidelity/predator_prey.md](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/predator_prey.md).
 
 ### Discovery experiments
 
@@ -138,17 +139,42 @@ Three open directions for going beyond:
     quarter-cycle lag. Currently the kernel always evolves predator
     brains, so this scenario can’t yet be tested directly.
 
-2.  **Can spatial-refugia LV be recovered?** Huffaker (1958) achieved
+2.  **Oscillation strength vs predator density.** Does increasing
+    predator density produce stronger LV-like oscillations? Measured
+    oscillation score (magnitude of most negative autocorrelation at
+    lags 20–100 after tick 50) across 4 predator densities, 10 seeds
+    each, 500 ticks.
+
+    *Tried it.* `n_predators_init ∈ {5, 10, 20, 40}`, 100 prey, 30×30
+    grid, `grass_rate = 0.15`: oscillation scores = 0.217, 0.248, 0.221,
+    0.257. Moderate oscillation (~0.22–0.26) across all densities with
+    no strong trend. The oscillation amplitude is insensitive to
+    predator count because evolved predators efficiently track prey
+    regardless of density — they saturate behaviourally rather than
+    dynamically. This is why clade produces damped LV rather than
+    sustained: the predator arms race removes the phase lag that
+    sustains textbook sinusoidal cycles.
+
+3.  **Prey body-size evolution under predation.** Does predation select
+    for larger or smaller prey? Run 5 seeds each at 0, 5, and 15
+    predators for 600 ticks with `body_size_evolution = TRUE`.
+
+    *Tried it.* `n_pred=0`: Δbody_size = +0.080 ± 0.014; `n_pred=5`: Δ =
+    +0.082 ± 0.021; `n_pred=15`: Δ = +0.115 ± 0.007. All three
+    conditions drift upward (Cope’s rule). At 5 seeds the
+    predation-accelerates trend (n_pred=15 \> n_pred=0) is suggestive,
+    but the 0.5.2 body-size P2 16-seed audit showed this direction is
+    NOT statistically robust — both the “predation accelerates” and
+    “predation slows” framings are inside the 5-seed noise band. The
+    honest finding: predation does not modulate body-size drift at
+    default parameters. See [s-body-size](s-body-size.md) for the full
+    16-seed resolution.
+
+4.  **Can spatial-refugia LV be recovered?** Huffaker (1958) achieved
     sustained oscillations only by breaking the grid into patches with
     dispersal barriers. With `complex_landscape = TRUE` plus
     `toroidal = FALSE` and a much larger grid, the same mechanism may
     produce sustained cycles even with evolving predators. Worth a
-    dedicated `s-spatial-refugia` scenario.
-
-3.  **Prey trait evolution under predation.** Turn on
-    `body_size_evolution = TRUE`. Under predation, are larger prey
-    selected (harder to kill) or smaller (faster maturation)? Run 10
-    seeds each at 0, 5, and 15 predators for 1000+ ticks and compare
-    final `mean_body_size`.
+    dedicated `s-spatial-refugia` scenario. Not yet tried.
 
 ------------------------------------------------------------------------

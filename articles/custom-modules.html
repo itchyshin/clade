@@ -578,8 +578,8 @@ biologically meaningful snapshot for spatial dispersion.</p>
 <div class="section level2">
 <h2 id="error-handling">7. Error handling<a class="anchor" aria-label="anchor" href="#error-handling"></a>
 </h2>
-<p>Custom modules are called inside a <code>tryCatch</code> wrapper (<a href="../R/modules.R#L126"><code>R/modules.R:126-134</code></a>). Any
-error raised by your function is converted into an R warning and the
+<p>Custom modules are called inside a <code>tryCatch</code> wrapper (<a href="https://github.com/itchyshin/clade/blob/main/R/modules.R#L126" class="external-link"><code>R/modules.R:126-134</code></a>).
+Any error raised by your function is converted into an R warning and the
 simulation continues with the unmodified snapshot. This is deliberately
 forgiving — you can’t accidentally crash a 500-tick run by writing a bad
 module — but it means silent data-loss bugs are possible.</p>
@@ -652,8 +652,8 @@ hooks are registered.</li>
 tick. The marshalling cost scales with population size because each
 agent’s fields are serialised into R-readable form before your function
 runs.</p>
-<p><strong>Concrete benchmark</strong> (documented inline in <a href="../R/modules.R#L19"><code>R/modules.R:19-21</code></a>): a
-200-agent × 500-tick run with one <code>post_tick</code> custom module
+<p><strong>Concrete benchmark</strong> (documented inline in <a href="https://github.com/itchyshin/clade/blob/main/R/modules.R#L19" class="external-link"><code>R/modules.R:19-21</code></a>):
+a 200-agent × 500-tick run with one <code>post_tick</code> custom module
 adds ~0.5–1 s of overhead compared to the same run with no modules. For
 1,000 agents × 1,000 ticks, overhead climbs to ~5–10 s. Several
 registered modules are approximately additive.</p>

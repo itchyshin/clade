@@ -28,7 +28,7 @@ evolve.
 
 **What we found (updated 2026-04-16, audit now 🟠 → ✅).** Full
 protocol:
-[dev/audit/fidelity/brain_size.md](../dev/audit/fidelity/brain_size.md).
+[dev/audit/fidelity/brain_size.md](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/brain_size.md).
 Two routes to the ✅ verdict:
 
 *0.4.2 base override* — raise `brain_energy_base` from the 0.001 default

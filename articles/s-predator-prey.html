@@ -231,7 +231,7 @@ that LV requires is suppressed by ongoing pursuit-trait
 evolution.</p></li>
 </ol>
 <p>This is the documented behaviour of evolutionary predator-prey ABMs
-(see the <a href="../dev/audit/fidelity/predator_prey.html">predator-prey
+(see the <a href="https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/predator_prey.md" class="external-link">predator-prey
 fidelity report</a> for cross-reference to the alifeR prototype, which
 contains the same explanation in §12 of its showcase vignette). To
 recover textbook sustained sinusoidal LV, you would need a fixed-policy
@@ -300,7 +300,7 @@ behaviour (see <a href="https://github.com/itchyshin/alifeR" class="external-lin
 §12 — the package author’s own explanation of why evolving predators
 suppress textbook LV oscillations). It is <strong>not</strong> Lotka
 1925’s mean-field sustained sinusoidal result, and we no longer claim to
-be. Full cross-reference table and audit protocol: <a href="dev/audit/fidelity/predator_prey.html">dev/audit/fidelity/predator_prey.md</a>.</p>
+be. Full cross-reference table and audit protocol: <a href="https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/predator_prey.md" class="external-link">dev/audit/fidelity/predator_prey.md</a>.</p>
 </div>
 <div class="section level3">
 <h3 id="discovery-experiments">Discovery experiments<a class="anchor" aria-label="anchor" href="#discovery-experiments"></a>
@@ -316,18 +316,45 @@ fixed <code>policy_fn</code>) would let us test whether the pure
 mass-action mechanism reproduces the quarter-cycle lag. Currently the
 kernel always evolves predator brains, so this scenario can’t yet be
 tested directly.</p></li>
+<li>
+<p><strong>Oscillation strength vs predator density.</strong> Does
+increasing predator density produce stronger LV-like oscillations?
+Measured oscillation score (magnitude of most negative autocorrelation
+at lags 20–100 after tick 50) across 4 predator densities, 10 seeds
+each, 500 ticks.</p>
+<p><em>Tried it.</em> <code>n_predators_init ∈ {5, 10, 20, 40}</code>,
+100 prey, 30×30 grid, <code>grass_rate = 0.15</code>: oscillation scores
+= 0.217, 0.248, 0.221, 0.257. Moderate oscillation (~0.22–0.26) across
+all densities with no strong trend. The oscillation amplitude is
+insensitive to predator count because evolved predators efficiently
+track prey regardless of density — they saturate behaviourally rather
+than dynamically. This is why clade produces damped LV rather than
+sustained: the predator arms race removes the phase lag that sustains
+textbook sinusoidal cycles.</p>
+</li>
+<li>
+<p><strong>Prey body-size evolution under predation.</strong> Does
+predation select for larger or smaller prey? Run 5 seeds each at 0, 5,
+and 15 predators for 600 ticks with
+<code>body_size_evolution = TRUE</code>.</p>
+<p><em>Tried it.</em> <code>n_pred=0</code>: Δbody_size = +0.080 ±
+0.014; <code>n_pred=5</code>: Δ = +0.082 ± 0.021;
+<code>n_pred=15</code>: Δ = +0.115 ± 0.007. All three conditions drift
+upward (Cope’s rule). At 5 seeds the predation-accelerates trend
+(n_pred=15 &gt; n_pred=0) is suggestive, but the 0.5.2 body-size P2
+16-seed audit showed this direction is NOT statistically robust — both
+the “predation accelerates” and “predation slows” framings are inside
+the 5-seed noise band. The honest finding: predation does not modulate
+body-size drift at default parameters. See <a href="s-body-size.html">s-body-size</a> for the full 16-seed
+resolution.</p>
+</li>
 <li><p><strong>Can spatial-refugia LV be recovered?</strong> Huffaker
 (1958) achieved sustained oscillations only by breaking the grid into
 patches with dispersal barriers. With
 <code>complex_landscape = TRUE</code> plus <code>toroidal = FALSE</code>
 and a much larger grid, the same mechanism may produce sustained cycles
 even with evolving predators. Worth a dedicated
-<code>s-spatial-refugia</code> scenario.</p></li>
-<li><p><strong>Prey trait evolution under predation.</strong> Turn on
-<code>body_size_evolution = TRUE</code>. Under predation, are larger
-prey selected (harder to kill) or smaller (faster maturation)? Run 10
-seeds each at 0, 5, and 15 predators for 1000+ ticks and compare final
-<code>mean_body_size</code>.</p></li>
+<code>s-spatial-refugia</code> scenario. Not yet tried.</p></li>
 </ol>
 <hr>
 </div>
