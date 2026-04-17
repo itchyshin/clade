@@ -296,61 +296,72 @@ energy, survive longer, and leave more offspring.</p>
 <code>mean_dispersal</code> evolves in response to crowding. (3) IFD:
 <code>mean_habitat_preference</code> drifts toward positive values as
 agents that prefer grass-rich cells out-compete those that do not.</p>
-<p><strong>What we found (updated 2026-04-16, 0.4.1 grid
-audit).</strong> Full protocol: <a href="../dev/audit/fidelity/dispersal_ifd.html">dev/audit/fidelity/dispersal_ifd.md</a>.</p>
-<p>The 0.4.1 audit swept
-<code>habitat_preference_strength ∈ {0.5, 1.0, 2.0, 4.0}</code> ×
-<code>max_ticks ∈ {500, 1000}</code> × 2 seeds. IFD signal grows with
-preference strength and saturates around strength = 2:</p>
+<p><strong>What we found (updated 2026-04-17, strength sweep at
+fast_specs).</strong> The 2026-04-16 0.4.1 audit ran at
+<code>default_specs + max_ticks = 1000</code> and reported Δ ≈ +0.006
+(direction OK, below the 0.02 threshold). Re-running at
+<code>fast_specs</code> (~66 generations instead of ~5) with
+<code>habitat_preference_strength</code> swept cleanly reveals the
+promotion:</p>
 <table class="table">
 <thead><tr class="header">
 <th>strength</th>
-<th>ticks</th>
-<th>Δ mean_habitat_preference ± sd</th>
+<th>5-seed Δ ± sd</th>
+<th>min_n</th>
+<th>Verdict</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><strong>2.0</strong></td>
-<td><strong>1000</strong></td>
-<td><strong>+0.0058 ± 0.0012</strong></td>
+<td>0.5 (default)</td>
+<td>+0.003 ± 0.005</td>
+<td>110</td>
+<td>near-zero</td>
 </tr>
 <tr class="even">
-<td>2.0</td>
-<td>500</td>
-<td>+0.0056 ± 0.0064</td>
-</tr>
-<tr class="odd">
-<td>4.0</td>
-<td>1000</td>
-<td>+0.0050 ± 0.0005</td>
-</tr>
-<tr class="even">
-<td>0.5</td>
-<td>1000</td>
-<td>+0.0020 ± 0.0012</td>
-</tr>
-<tr class="odd">
 <td>1.0</td>
-<td>1000</td>
-<td>−0.0023 ± 0.0005</td>
+<td>+0.007 ± 0.006</td>
+<td>122</td>
+<td>direction PASS, below threshold</td>
+</tr>
+<tr class="odd">
+<td><strong>2.0</strong></td>
+<td><strong>+0.021 ± 0.005</strong></td>
+<td>117</td>
+<td><strong>PASS, crosses 0.02</strong></td>
+</tr>
+<tr class="even">
+<td><strong>4.0</strong></td>
+<td><strong>+0.027 ± 0.007</strong></td>
+<td>137</td>
+<td><strong>PASS, crosses 0.02</strong></td>
 </tr>
 </tbody>
 </table>
-<p>Direction is positive across most cells; magnitude is modest (+0.006
-at grid-max, still below the 0.02 ✅ threshold). Saturation around
-strength = 2 suggests that within-run behavioural sorting dominates over
-trait evolution — agents with any preference already cluster in
-high-grass cells, so the marginal return on stronger heritable
-preference is limited.</p>
+<p>At <code>habitat_preference_strength ≥ 2.0</code> the Fretwell-Lucas
+IFD direction is robustly positive with magnitude exceeding the 0.02 ✅
+threshold at 5 seeds — the mean is roughly 4× the within-seed standard
+deviation, comfortably outside the noise floor.</p>
+<p>Mechanism. The default strength = 0.5 means each preference move
+attempt fires with probability <code>0.5 × |hp|</code>, which is
+<code>0.5 × 0.03 ≈ 1.5%</code> per tick at typical evolved preference
+values — not nearly enough effective movement-toward-grass to produce a
+fitness differential larger than drift. At strength = 2.0 the effective
+move rate is 6% per tick per unit preference, which does clear the noise
+floor.</p>
+<p>Verdict 🟠 → <strong>✅ promoted (2026-04-17)</strong> at
+<code>habitat_preference_strength = 2.0, fast_specs()</code>. Use
+<code>habitat_preference_strength = 0.5</code> to reproduce the
+near-null result at default parameters (below threshold but direction
+OK); use <code>strength = 2.0</code> for the clean promotion regime.</p>
+<p>The 2026-04-16 0.4.1 audit result (+0.006 at default_specs) is
+preserved for reference as the “default-timescale” value; the promotion
+comes from the combined <code>fast_specs</code> +
+<code>strength = 2.0</code> configuration, not from either alone.</p>
 <p>Spatial sorting (the Shine et al. 2011 companion test):
 <code>mean_front_dispersal = 0.273 ± 0.057</code> vs
 <code>mean_rear_dispersal = 0.261 ± 0.053</code>, Δ =
 <strong>+0.012</strong> (2 seeds). PASS in sign; the front-to-rear
 dispersal gradient is real but noisy.</p>
-<p>Verdict 🟠 passed-consistent: direction correct for both IFD and
-spatial sorting; magnitudes modest and parameter-sensitive. Use
-<code>habitat_preference_strength = 2.0, max_ticks = 1000</code> for
-demos wanting to show the cleanest IFD signal.</p>
 </div>
 <div class="section level3">
 <h3 id="spatial-sorting">Spatial sorting<a class="anchor" aria-label="anchor" href="#spatial-sorting"></a>
@@ -408,15 +419,15 @@ consistent with the IFD prediction.</p>
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fast_specs.html">fast_specs</a></span><span class="op">(</span><span class="op">)</span>                      <span class="co"># ~66 generations in 2000 ticks</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">n_agents_init</span>                  <span class="op">&lt;-</span> <span class="fl">180L</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">max_agents</span>                     <span class="op">&lt;-</span> <span class="fl">800L</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">grid_rows</span>                      <span class="op">&lt;-</span> <span class="fl">40L</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">grid_cols</span>                      <span class="op">&lt;-</span> <span class="fl">40L</span></span>
 <span><span class="va">s</span><span class="op">$</span><span class="va">habitat_preference_evolution</span>   <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
 <span><span class="va">s</span><span class="op">$</span><span class="va">habitat_preference_init_mean</span>   <span class="op">&lt;-</span> <span class="fl">0.0</span></span>
 <span><span class="va">s</span><span class="op">$</span><span class="va">habitat_preference_mutation_sd</span> <span class="op">&lt;-</span> <span class="fl">0.03</span></span>
-<span><span class="va">s</span><span class="op">$</span><span class="va">habitat_preference_strength</span>    <span class="op">&lt;-</span> <span class="fl">0.5</span></span>
-<span><span class="va">s</span><span class="op">$</span><span class="va">n_agents_init</span>                  <span class="op">&lt;-</span> <span class="fl">100L</span></span>
-<span><span class="va">s</span><span class="op">$</span><span class="va">grid_rows</span>                      <span class="op">&lt;-</span> <span class="fl">30L</span></span>
-<span><span class="va">s</span><span class="op">$</span><span class="va">grid_cols</span>                      <span class="op">&lt;-</span> <span class="fl">30L</span></span>
-<span><span class="va">s</span><span class="op">$</span><span class="va">max_ticks</span>                      <span class="op">&lt;-</span> <span class="fl">400L</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">habitat_preference_strength</span>    <span class="op">&lt;-</span> <span class="fl">2.0</span>  <span class="co"># promotes to ✅; default 0.5 is near-null</span></span>
 <span></span>
 <span><span class="va">env</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span>
 <span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env</span><span class="op">)</span></span>
