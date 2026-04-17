@@ -89,9 +89,19 @@ comparable to the drift variance at 5-seed sample size.
 sharpen the selection gradient, not longer runs or faster
 generations:
 
-- **s-plasticity**: steeper sigma-to-energy-cost coupling
-  (`brain_energy_sigma_scale` from 0.05 → 0.15+), so the DeWitt-
-  Scheiner trade-off becomes mechanistically stronger.
+- **s-plasticity**: ~~steeper sigma-to-energy-cost coupling~~.
+  *Corrected 2026-04-17 afternoon:* not a cost-scale problem. A
+  two-step sweep found (1) `brain_energy_sigma_scale` ramping
+  just crashes populations (0.5 → min_n = 3, 2.0 → extinct), and
+  (2) the *actual* fix is **`season_length ≤ max_age`**. The
+  DeWitt-Scheiner prediction is about within-lifetime variability
+  — if each agent lives through only one season, there's no
+  selection gradient on plasticity. At `season_length = 10` with
+  `fast_specs` (max_age = 30), Δdelta = +0.014 across 5 seeds,
+  P1 PASS. Below the 0.02 threshold but 7× larger than at
+  `season_length = 100` where the signal reverses. 8 seeds or a
+  mild cost increase should push this across. See
+  `dev/audit/fidelity/plasticity_within_lifetime_sweep.R`.
 - **s-baldwin**: decouple BNN sigma from behavioural variance
   (plan file 0.4.3 item — sigma should be a pure learning cost,
   not a noise term).
