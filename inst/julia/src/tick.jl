@@ -80,6 +80,16 @@ function tick_agents!(env::Environment)
     # RNG. See dev/docs/parallelism-audit.md and the
     # project_rng_order_sensitivity memory.
     _bnn_set_rng(env.rng)
+    # 0.5.6: Baldwin deeper lift — when bnn_sigma_lr_scale > 0, the
+    # effective BNN learning rate in bnn_update! mixes the legacy
+    # constant lr with lr × mean_sigma / sigma_ref. Canalised agents
+    # (low sigma) learn slowly; plastic agents (high sigma) learn
+    # fast. Puts the cost of canalisation on learning speed, not
+    # action noise — complements bnn_action_noise_scale.
+    _bnn_set_sigma_lr(
+        Float64(get(specs, "bnn_sigma_lr_scale", 0.0)),
+        Float64(get(specs, "bnn_sigma_lr_ref",
+                    get(specs, "plasticity_init_mean", 0.5))))
     e_mode     = get(specs, "brain_energy_mode", "activity")
     e_base     = Float32(get(specs, "brain_energy_base",     0.001))
     e_act      = Float32(get(specs, "brain_energy_activity", 0.5))
