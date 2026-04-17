@@ -208,7 +208,19 @@ function forward(brain::BNNBrain, input::Vector{Float32})::Vector{Float32}
        length(brain.last_sample) != length(brain.mu) ||
        brain.ticks_since_sample >= sample_freq
         noise_scale = Float32(get(_bnn_action_noise_cache, :scale, 1.0f0))
-        w_sample = brain.mu .+ (noise_scale .* brain.sigma) .* Float32.(randn(length(brain.mu)))
+        # 0.5.6: use the per-run RNG if one has been set via
+        # _bnn_set_rng(env.rng). Falls back to Julia's default global
+        # RNG otherwise (legacy behaviour). Without this, consecutive
+        # run_alife() calls within one Julia session shared global
+        # RNG state and produced non-deterministic trajectories even
+        # with the random_seed spec set.
+        rng = get(_bnn_rng_cache, :rng, nothing)
+        z = if rng === nothing
+            Float32.(randn(length(brain.mu)))
+        else
+            Float32.(randn(rng, length(brain.mu)))
+        end
+        w_sample = brain.mu .+ (noise_scale .* brain.sigma) .* z
         brain.last_sample = w_sample
         brain.ticks_since_sample = Int32(0)
     else
@@ -232,6 +244,14 @@ _bnn_set_freq(f::Integer) = (_bnn_freq_cache[:freq] = Int32(max(f, 1)); nothing)
 # tick_agents! entry via `_bnn_set_action_noise_scale`.
 const _bnn_action_noise_cache = Dict{Symbol,Float32}()
 _bnn_set_action_noise_scale(s::Real) = (_bnn_action_noise_cache[:scale] = Float32(clamp(s, 0, 1)); nothing)
+
+# 0.5.6: per-run RNG cache for BNN Thompson sampling. Set at the
+# start of tick_agents! to env.rng so that consecutive run_alife()
+# calls don't share Julia's global RNG state through the BNN
+# sampling path. Memory: project_rng_order_sensitivity.md.
+const _bnn_rng_cache = Dict{Symbol,Any}()
+_bnn_set_rng(rng) = (_bnn_rng_cache[:rng] = rng; nothing)
+_bnn_clear_rng() = (delete!(_bnn_rng_cache, :rng); nothing)
 
 # ── Within-lifetime learning (REINFORCE update on posterior) ──────────────────
 

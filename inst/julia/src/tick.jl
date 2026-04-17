@@ -75,6 +75,11 @@ function tick_agents!(env::Environment)
     # calls instead of resampling every tick. Freq = 1 is legacy default.
     _bnn_set_freq(Int(get(specs, "bnn_sample_freq", 1)))
     _bnn_set_action_noise_scale(Float64(get(specs, "bnn_action_noise_scale", 1.0)))
+    # 0.5.6: seed the BNN sampler's RNG from env.rng so that consecutive
+    # run_alife() calls don't contaminate each other via Julia's global
+    # RNG. See dev/docs/parallelism-audit.md and the
+    # project_rng_order_sensitivity memory.
+    _bnn_set_rng(env.rng)
     e_mode     = get(specs, "brain_energy_mode", "activity")
     e_base     = Float32(get(specs, "brain_energy_base",     0.001))
     e_act      = Float32(get(specs, "brain_energy_activity", 0.5))
