@@ -355,11 +355,29 @@ or quality-diversity search) use the built-in adaptive algorithms:</p>
 <span>  n_evals    <span class="op">=</span> <span class="fl">1000L</span>,</span>
 <span>  n_cores    <span class="op">=</span> <span class="fl">20L</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p>Both algorithms use the PSOCK path internally in 0.5.6+. For
-<strong>long</strong> MAP-Elites runs (&gt;&gt; 10 k evals), wrap the
-call in a <code><a href="../reference/stream_specs_to_csv.html">stream_specs_to_csv()</a></code> style harness by saving the
-archive periodically — checkpoint/resume native to the search functions
-is on the roadmap.</p>
+<p>Both algorithms use the PSOCK path internally in 0.5.6+.</p>
+<p><strong>Checkpoint/resume for long MAP-Elites runs</strong> (new in
+0.5.6): pass <code>checkpoint_path</code> and the current archive +
+history + iteration index are saved as an RDS every
+<code>checkpoint_every</code> iterations (and once more at the end). If
+the process dies, re-running the <em>same call</em> picks up from the
+saved iteration:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">res_me</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/search_map_elites.html">search_map_elites</a></span><span class="op">(</span></span>
+<span>  base_specs       <span class="op">=</span> <span class="fu"><a href="../reference/fast_specs.html">fast_specs</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  archive_dims     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>mean_energy <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">40</span>, <span class="fl">120</span>, length.out <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span>,</span>
+<span>                          genetic_diversity <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">1</span>, length.out <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  n_iterations     <span class="op">=</span> <span class="fl">100000L</span>,</span>
+<span>  mutation_sd      <span class="op">=</span> <span class="fl">0.2</span>,</span>
+<span>  n_cores          <span class="op">=</span> <span class="fl">20L</span>,</span>
+<span>  checkpoint_path  <span class="op">=</span> <span class="st">"/scratch/me_archive.rds"</span>,</span>
+<span>  checkpoint_every <span class="op">=</span> <span class="fl">500L</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co"># If this dies at iter 73,421, just run the same call again — it</span></span>
+<span><span class="co"># resumes at 73,421 + 1 and runs to 100,000.</span></span></code></pre></div>
+<p>The checkpoint RDS is also useful mid-run for exploratory analysis —
+you can <code><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS()</a></code> the file from another R session and plot
+the current archive without interrupting the search.</p>
 </div>
 <div class="section level2">
 <h2 id="how-big-can-i-go-on-one-machine">How big can I go on one machine?<a class="anchor" aria-label="anchor" href="#how-big-can-i-go-on-one-machine"></a>
@@ -402,20 +420,44 @@ cluster.</p>
 <div class="section level2">
 <h2 id="how-big-can-i-go-on-a-cluster">How big can I go on a cluster?<a class="anchor" aria-label="anchor" href="#how-big-can-i-go-on-a-cluster"></a>
 </h2>
-<p>Not directly — the <code>future.batchtools</code> /
-<code>rslurm</code> adapter is not currently wired into
-<code>clade</code>. The pragmatic path meanwhile:</p>
+<p><code><a href="../reference/submit_sweep_slurm.html">submit_sweep_slurm()</a></code> (new in 0.5.6) writes a SLURM
+array-job template for you. It does not submit — you run
+<code>sbatch</code> yourself — but it handles the mechanical parts:
+splitting <code>specs_list</code> into chunks, writing a per-task R
+script that reads <code>SLURM_ARRAY_TASK_ID</code> and processes the
+right slice, and pointing every task at the same resume-safe CSV.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">specs_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sample_specs.html">sample_specs</a></span><span class="op">(</span><span class="fu"><a href="../reference/fast_specs.html">fast_specs</a></span><span class="op">(</span><span class="op">)</span>, n <span class="op">=</span> <span class="fl">100000L</span>,</span>
+<span>                           grass_rate  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.45</span><span class="op">)</span>,</span>
+<span>                           mutation_sd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.1</span>, <span class="fl">0.2</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/submit_sweep_slurm.html">submit_sweep_slurm</a></span><span class="op">(</span></span>
+<span>  <span class="va">specs_list</span>,</span>
+<span>  out_path         <span class="op">=</span> <span class="st">"/shared/sweeps/big_sweep.csv"</span>,</span>
+<span>  script_path      <span class="op">=</span> <span class="st">"/shared/sweeps/submit.sh"</span>,</span>
+<span>  rds_path         <span class="op">=</span> <span class="st">"/shared/sweeps/specs.rds"</span>,</span>
+<span>  n_array_tasks    <span class="op">=</span> <span class="fl">200L</span>,</span>
+<span>  n_cores_per_task <span class="op">=</span> <span class="fl">8L</span>,</span>
+<span>  time             <span class="op">=</span> <span class="st">"12:00:00"</span>,</span>
+<span>  mem              <span class="op">=</span> <span class="st">"16G"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co"># prints:  sbatch /shared/sweeps/submit.sh</span></span></code></pre></div>
+<p>Each array task:</p>
 <ol style="list-style-type: decimal">
-<li>Write a small SLURM array script that invokes
-<code>Rscript -e    'clade::stream_specs_to_csv(...)'</code> with a
-subset of <code>specs_list</code> per array task. Point all array tasks
-at the same <code>out_path</code> CSV (on a shared filesystem). Resume
-makes the shared-write safe.</li>
-<li>Submit with <code>sbatch --array=1-100 my_script.sh</code>.</li>
+<li>Reads the task index from <code>SLURM_ARRAY_TASK_ID</code>.</li>
+<li>Loads its slice of <code>specs_list</code> from the shared RDS.</li>
+<li>Runs <code><a href="../reference/stream_specs_to_csv.html">stream_specs_to_csv()</a></code> on that slice at
+<code>n_cores_per_task</code> cores with
+<code>resume = TRUE</code>.</li>
 </ol>
-<p>Half-day of integration work wraps this up into
-<code>clade::submit_sweep_slurm(specs_list, ...)</code>. Open an issue
-if you have a SLURM target and want it prioritised.</p>
+<p>Resume-safe CSV + chunked specs means preempted or stalled tasks can
+be re-run without re-processing completed specs. For a 100 k-run sweep
+split 200 ways, each task processes 500 specs — at 5 s/run × 8 cores =
+~5 min per task if everything goes right, so even a 10-minute SLURM slot
+per task with a re-queue is tolerant.</p>
+<p>Not currently wired: <code>future.batchtools</code> (alternative
+backend abstraction) and a <code>clustermq</code> adapter. Open an issue
+if you’d rather use those.</p>
 </div>
 <div class="section level2">
 <h2 id="viability-guard">Viability guard<a class="anchor" aria-label="anchor" href="#viability-guard"></a>
@@ -425,7 +467,7 @@ report to every run and <code>warn()</code>s if the population crashed.
 When streaming thousands of runs, crashed runs still produce a summary
 row (with <code>viability = "crashed"</code>) — you can filter or re-run
 them afterwards:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tbl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="st">"/data/sweeps/big_sweep.csv"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">tbl</span><span class="op">$</span><span class="va">viability</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  viable  weak  crashed</span></span>
