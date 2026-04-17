@@ -67,7 +67,29 @@ run_alife <- function(specs = default_specs(), verbose = TRUE) {
   )
 
   # Convert the Julia result back to an R list
-  .julia_env_to_r(env_julia, specs)
+  env <- .julia_env_to_r(env_julia, specs)
+
+  # 0.5.6: attach a viability report and warn on crashed runs. Trait-mean
+  # audits on crashed runs are unreliable (dominated by tiny surviving
+  # populations). Silent on "weak" verdicts — that's common enough that a
+  # warning every time would be noise.
+  env$viability <- tryCatch({
+    ticks <- as.data.frame(lapply(env$progress, unlist))
+    viability_report(ticks, n_agents_init = specs$n_agents_init)
+  }, error = function(e) NULL)
+
+  if (!is.null(env$viability) && env$viability$verdict == "crashed") {
+    warning(
+      "run_alife(): population crashed — ",
+      env$viability$message,
+      ". Trait-mean interpretations on this run are unreliable. ",
+      "Suppress with suppressWarnings() if you expected this (e.g. in a ",
+      "deliberate viability stress test).",
+      call. = FALSE
+    )
+  }
+
+  env
 }
 
 #' Synonym for run_alife()
