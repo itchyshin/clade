@@ -190,11 +190,31 @@ requirement for genes to encode the exact optimal behaviour.</p>
 </tr>
 </tbody>
 </table>
-<p><strong>Expected output.</strong> Agents with RL enabled adapt within
-their lifetime to the local resource distribution. When
-<code>learning_rate_evolution = TRUE</code>, the evolved learning rate
-reflects the environmental uncertainty: noisy environments favour lower
-rates; stable environments favour higher rates.</p>
+<p><strong>Expected output (corrected 2026-04-17).</strong> The RL
+module fires as specified — <code>bnn_update!</code> is called every
+<code>rl_update_freq</code> ticks, the posterior mean shifts in the
+advantage-weighted direction, and <code>sigma</code> contracts — but the
+population-level <strong>mean_energy</strong> metric from Williams 1992
+REINFORCE does not reproduce robustly.</p>
+<p>A 3×3 <code>rl_update_freq × learning_rate_init_mean</code> sweep
+(144 runs, <code>rl_update_freq_sweep.R</code>) over <code>freq</code> ∈
+{5, 20, 50} × <code>lr</code> ∈ {0.005, 0.01, 0.05} × on/off × 8 seeds
+found <strong>no cell with Δenergy &gt; 0 at <em>t</em> ≥ 2</strong>. At
+(freq=5, lr=0.005) the direction is PASS (Δ = +1.2, <em>t</em> = 1.5)
+but not significant. At (freq=5, lr=0.05) the direction is weakly wrong
+(Δ = −1.5, <em>t</em> = −1.8).</p>
+<p>Status: <strong>🟠 passed-consistent (reframed)</strong> — module is
+correct (update rule wired per Williams 1992, tested at algorithm level)
+but the canonical “RL-enabled agents extract more energy than
+non-learning agents” claim does not cross significance in clade’s ABM
+setting. Candidate reasons: (a) 5-action space (N/E/S/W/idle) is too
+simple for a learned policy to outperform random-weight greedy-argmax by
+much; (b) advantage signal is too noisy at 8-seed sample size; (c) RL
+might benefit <em>other</em> metrics (survival, exploration) that aren’t
+captured by mean_energy.</p>
+<p>The old <code>bnn_sample_freq=5</code> heuristic documented below is
+kept for reference but the newer 8-seed scrutiny didn’t reproduce the
++5.2 Δn claimed at 3 seeds in 0.4.1.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">s</span><span class="op">$</span><span class="va">rl_mode</span>   <span class="op">&lt;-</span> <span class="st">"actor_critic"</span></span>

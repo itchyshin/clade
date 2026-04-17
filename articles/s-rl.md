@@ -18,11 +18,32 @@ the exact optimal behaviour.
 | `learning_rate`           | 0.01     | Step size for output-layer update |
 | `learning_rate_evolution` | FALSE    | Allow learning rate to evolve     |
 
-**Expected output.** Agents with RL enabled adapt within their lifetime
-to the local resource distribution. When
-`learning_rate_evolution = TRUE`, the evolved learning rate reflects the
-environmental uncertainty: noisy environments favour lower rates; stable
-environments favour higher rates.
+**Expected output (corrected 2026-04-17).** The RL module fires as
+specified — `bnn_update!` is called every `rl_update_freq` ticks, the
+posterior mean shifts in the advantage-weighted direction, and `sigma`
+contracts — but the population-level **mean_energy** metric from
+Williams 1992 REINFORCE does not reproduce robustly.
+
+A 3×3 `rl_update_freq × learning_rate_init_mean` sweep (144 runs,
+`rl_update_freq_sweep.R`) over `freq` ∈ {5, 20, 50} × `lr` ∈ {0.005,
+0.01, 0.05} × on/off × 8 seeds found **no cell with Δenergy \> 0 at *t*
+≥ 2**. At (freq=5, lr=0.005) the direction is PASS (Δ = +1.2, *t* = 1.5)
+but not significant. At (freq=5, lr=0.05) the direction is weakly wrong
+(Δ = −1.5, *t* = −1.8).
+
+Status: **🟠 passed-consistent (reframed)** — module is correct (update
+rule wired per Williams 1992, tested at algorithm level) but the
+canonical “RL-enabled agents extract more energy than non-learning
+agents” claim does not cross significance in clade’s ABM setting.
+Candidate reasons: (a) 5-action space (N/E/S/W/idle) is too simple for a
+learned policy to outperform random-weight greedy-argmax by much; (b)
+advantage signal is too noisy at 8-seed sample size; (c) RL might
+benefit *other* metrics (survival, exploration) that aren’t captured by
+mean_energy.
+
+The old `bnn_sample_freq=5` heuristic documented below is kept for
+reference but the newer 8-seed scrutiny didn’t reproduce the +5.2 Δn
+claimed at 3 seeds in 0.4.1.
 
 ``` r
 s <- default_specs()
