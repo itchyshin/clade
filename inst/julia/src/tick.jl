@@ -142,7 +142,16 @@ function tick_agents!(env::Environment)
                 max_bite
             end
             bite             = min(env.grass[x, y], eff_max_bite)
-            ag.energy       += eat_gain * bite
+            # 0.5.6: scale eat_gain by body_size at the source instead of
+            # via a post-hoc correction in apply_body_size!. Large agents
+            # (bs > 1) extract more per bite; small agents (bs < 1) extract
+            # less. Eliminates the bs < 1 death spiral from the old
+            # correction path (it could subtract more energy than was
+            # actually credited, making eating net-negative at low grass
+            # density). body_size = 1.0 when body_size_evolution is off,
+            # so this is a no-op in that case — preserves all existing
+            # audits.
+            ag.energy       += eat_gain * bite * ag.body_size
             env.grass[x, y] -= bite
         end
         eat_layered!(ag, env)   # complex landscape: shrub/canopy supplements
