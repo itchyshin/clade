@@ -160,6 +160,7 @@ articles:
       - scenarios
       - getting-started
       - parameter-reference
+      - parameter-space-search
       - custom-modules
 
   - title: "Parameter search"
@@ -265,6 +266,10 @@ reference:
       - run_clade
       - batch_alife
       - batch_seeds
+      - grid_specs
+      - sample_specs
+      - summarize_batch
+      - stream_specs_to_csv
       - default_specs
       - quick_specs
       - full_specs
