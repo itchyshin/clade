@@ -208,19 +208,38 @@ handicap; raised from 0.5 in v0.3.0)</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Expected output (updated 0.5.4).</strong> With the 0.4.4
-kernel fixes (vector-signal memory, delta-rule RW, aposematic
-pleiotropy), the avoidance mechanism fires (P3 PASS: 12–28 events/600
-ticks) and shows positive dose-response (P4 PASS: Spearman ρ = +0.40).
-But toxicity magnitude evolution remains ecology-limited: the 0.5.4
-calibration grid (8 cells × 5 seeds × 1000 ticks) found every tested
-regime has Δtoxicity &lt; 0 because the Zahavi handicap cost exceeds the
-aposematic protection benefit at default population scales. A
-predation-dominant ecology (<code>grass_rate ≈ 0.08</code>, where
-predation = 89% of mortality) produces the first positive Δtoxicity
-(+0.006), confirming the mechanism works when predation is the dominant
-selection pressure. See the <a href="../dev/audit/fidelity/mimicry.html">mimicry fidelity report</a> for
-the full evidence.</p>
+<p><strong>Expected output (primary claim, post-2026-04-17
+reframe).</strong> The scenario is <em>conditionally</em> 🟠 —
+aposematism evolves in clade only under <strong>predation-dominant
+ecology</strong>, where grass is scarce (<code>grass_rate ≈ 0.08</code>)
+and predation accounts for ~89% of mortality rather than ~20%. Under the
+default well-fed ecology, aposematism does not evolve, because the
+Zahavi handicap cost exceeds the predation benefit (see “Why this is
+ecology-limited” below for the Grafen/Számadó/Getty theoretical
+background). The vignette now leads with the predation-dominant regime
+because that is the configuration where clade reproduces the textbook
+positive Δtoxicity; the default-ecology result is documented below as a
+limit condition.</p>
+<p>With the 0.4.4 kernel fixes (vector-signal memory, delta-rule RW,
+aposematic pleiotropy):</p>
+<ul>
+<li>
+<strong>P1 (mean toxicity rises under predation-dominant
+ecology):</strong> +0.006 over 600 ticks at
+<code>grass_rate = 0.08</code>, vs −0.001 at
+<code>grass_rate = 0.20</code> (default well-fed).</li>
+<li>
+<strong>P3 (avoidance mechanism fires):</strong> PASS, 12–28 events
+per 600 ticks.</li>
+<li>
+<strong>P4 (positive toxin_dose dose-response):</strong> PASS,
+Spearman ρ = +0.40 across the dose sweep.</li>
+</ul>
+<p>See the <a href="../dev/audit/fidelity/mimicry.html">mimicry fidelity
+report</a> for the full evidence. Because the primary claim holds only
+under one ecology, the status remains 🟠 rather than ✅ — the handicap
+equilibrium is fragile in both theory (Grafen 1990) and clade (default
+ecology), and 🟠 is the honest label.</p>
 <p><strong>Pre-0.4.4 kernel simplification (historical).</strong> Before
 0.4.4, clade’s predator memory was a <strong>scalar</strong> updated
 toward <code>prey.toxicity</code> directly, which removed
@@ -229,10 +248,23 @@ signal-specific learning — predators couldn’t recognise warning
 vector-signal memory using the Widrow-Hoff delta rule. See “What we
 found” below for details.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fast_specs.html">fast_specs</a></span><span class="op">(</span><span class="op">)</span>                     <span class="co"># ~66 generations in 2000 ticks</span></span>
+<code class="sourceCode R"><span><span class="co"># Predation-dominant ecology — the regime where aposematism evolves.</span></span>
+<span><span class="co"># At default grass_rate = 0.20, the Zahavi handicap cost exceeds the</span></span>
+<span><span class="co"># protection benefit and toxicity stays flat. Lowering grass to 0.08</span></span>
+<span><span class="co"># flips the cost-benefit ratio in toxicity's favour.</span></span>
+<span><span class="co">#</span></span>
+<span><span class="co"># Note: this scenario uses default_specs() rather than fast_specs().</span></span>
+<span><span class="co"># fast_specs() + grass_rate = 0.08 crashes the prey population to</span></span>
+<span><span class="co"># near-extinction — fast_specs shortens prey lifespan, and stacking</span></span>
+<span><span class="co"># predation-dominant ecology on top of that overwhelms viability.</span></span>
+<span><span class="co"># The default_specs timescale (generation ~190 ticks) gives the</span></span>
+<span><span class="co"># population time to persist under heavy predation.</span></span>
+<span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">s</span><span class="op">$</span><span class="va">mimicry</span>            <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
 <span><span class="va">s</span><span class="op">$</span><span class="va">n_predators_init</span>   <span class="op">&lt;-</span> <span class="fl">5L</span></span>
 <span><span class="va">s</span><span class="op">$</span><span class="va">toxicity_init_mean</span> <span class="op">&lt;-</span> <span class="fl">0.1</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">grass_rate</span>         <span class="op">&lt;-</span> <span class="fl">0.08</span>          <span class="co"># predation-dominant ecology</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">max_ticks</span>          <span class="op">&lt;-</span> <span class="fl">1000L</span></span>
 <span></span>
 <span><span class="va">env</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span>
 <span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env</span><span class="op">)</span></span></code></pre></div>
@@ -310,7 +342,7 @@ differential.</li>
 is now theoretically aligned with Bates (1862) / Müller (1879);
 magnitude of upward toxicity evolution is limited by ecology, not the
 predator-learning channel.</p>
-<p><strong>Why “ecology-limited” is not a bug — Zahavi handicap
+<p><strong>Why this is ecology-limited — Zahavi handicap
 critique.</strong> The toxicity trait acts as a Zahavi (1975) handicap:
 a costly honest signal of unpalatability. Grafen (1990, <em>J. Theor.
 Biol.</em> 144:517) formalised Zahavi’s verbal argument as a signalling
