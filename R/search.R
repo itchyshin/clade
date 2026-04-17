@@ -321,7 +321,10 @@ search_map_elites <- function(specs_base,
 #'   `max(8, 4 + floor(3 * log(n_params)))`.
 #' @param sigma0 Numeric. Initial step size on the log scale (default 0.3).
 #' @param n_cores Integer. Parallel cores for candidate evaluation (default
-#'   1L). Uses [parallel::mclapply()] on Unix/macOS when `> 1`.
+#'   1L). Uses [parallel::makeCluster()] PSOCK workers (one R session +
+#'   Julia per worker) when `> 1`. Was `parallel::mclapply` before 0.5.6
+#'   but that path silently deadlocked because JuliaConnectoR is not
+#'   fork-safe — see `dev/docs/parallelism-audit.md`.
 #' @param verbose Logical (default `TRUE`).
 #'
 #' @return A list with:
@@ -440,6 +443,17 @@ search_cmaes <- function(specs_base,
     message(sprintf("CMA-ES: n=%d, lambda=%d, mu=%d, max_gen=%d",
                     n, lambda, mu, n_iterations))
 
+  # 0.5.6: create a single PSOCK cluster for all generations. Each
+  # worker boots its own Julia; the compile cost is paid once here
+  # rather than per-generation. Cluster is torn down on function exit.
+  .cma_cluster <- if (n_cores > 1L) {
+    cl <- parallel::makeCluster(as.integer(n_cores))
+    on.exit(try(parallel::stopCluster(cl), silent = TRUE), add = TRUE)
+    parallel::clusterEvalQ(cl, suppressPackageStartupMessages(library(clade)))
+    parallel::clusterExport(cl, c("eval_one"), envir = environment())
+    cl
+  } else NULL
+
   for (gen in seq_len(n_iterations)) {
 
     # ---- Sample lambda candidates -------------------------------------------
@@ -452,8 +466,14 @@ search_cmaes <- function(specs_base,
     cands       <- lapply(seq_len(lambda), function(k) build_specs(X[k, ]))
     total_evals <- total_evals + lambda
 
-    scores <- if (n_cores > 1L && .Platform$OS.type != "windows") {
-      unlist(parallel::mclapply(cands, eval_one, mc.cores = n_cores))
+    # 0.5.6: switched from mclapply to a single PSOCK cluster reused
+    # across generations. mclapply deadlocked because forked workers
+    # share the parent's JuliaConnectoR socket; PSOCK spawns separate
+    # R sessions each with their own Julia. The cluster is created
+    # once (before the generation loop) so the per-worker Julia
+    # compile cost is paid just once per search_cmaes() call.
+    scores <- if (!is.null(.cma_cluster)) {
+      unlist(parallel::parLapply(.cma_cluster, cands, eval_one))
     } else {
       vapply(cands, eval_one, numeric(1L))
     }
