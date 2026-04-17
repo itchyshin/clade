@@ -16,7 +16,8 @@ take_action(env, i = 1L, input = NULL)
 
 - env:
 
-  Environment list from [`run_alife()`](run_alife.md).
+  Environment list from
+  [`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md).
 
 - i:
 
@@ -24,8 +25,9 @@ take_action(env, i = 1L, input = NULL)
 
 - input:
 
-  Numeric vector. Sensory input (from [`sense_env()`](sense_env.md)). If
-  `NULL`, `sense_env(env, i)` is called automatically.
+  Numeric vector. Sensory input (from
+  [`sense_env()`](https://itchyshin.github.io/clade/reference/sense_env.md)).
+  If `NULL`, `sense_env(env, i)` is called automatically.
 
 ## Value
 
@@ -55,7 +57,8 @@ used.
 
 ## See also
 
-[`sense_env()`](sense_env.md), [`inspect_brain()`](inspect_brain.md)
+[`sense_env()`](https://itchyshin.github.io/clade/reference/sense_env.md),
+[`inspect_brain()`](https://itchyshin.github.io/clade/reference/inspect_brain.md)
 
 ## Examples
 

@@ -14,8 +14,10 @@ plot_disease_dynamics(run_data)
 
 - run_data:
 
-  A list returned by [`get_run_data()`](get_run_data.md). Must contain
-  `$ticks` with the columns `t`, `n_infected`, `n_new_infections`.
+  A list returned by
+  [`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md).
+  Must contain `$ticks` with the columns `t`, `n_infected`,
+  `n_new_infections`.
 
 ## Value
 
@@ -29,7 +31,8 @@ Plot disease dynamics over time
 
 ## See also
 
-[`plot_run()`](plot_run.md), [`get_run_data()`](get_run_data.md)
+[`plot_run()`](https://itchyshin.github.io/clade/reference/plot_run.md),
+[`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md)
 
 ## Examples
 

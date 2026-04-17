@@ -128,7 +128,7 @@ recovery. To go beyond:
     response. Does kin selection reduce the frequency of hypermutation
     events and the variance of `genetic_diversity` spikes? Plot spike
     height vs `kin_altruism_r_min` across
-    [`batch_alife()`](../reference/batch_alife.md).
+    [`batch_alife()`](https://itchyshin.github.io/clade/reference/batch_alife.md).
 
     *Tried it.* With `stress_hypermutation = TRUE`, `grass_rate = 0.05`,
     60 agents, 200 ticks, seed 42: genetic diversity SD = 0.0116 without

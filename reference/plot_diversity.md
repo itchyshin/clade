@@ -21,9 +21,10 @@ plot_diversity(run_data)
 
 - run_data:
 
-  A list returned by [`get_run_data()`](get_run_data.md). Must contain a
-  `$ticks` data frame with at minimum `t`, `n_agents`, and
-  `genetic_diversity`.
+  A list returned by
+  [`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md).
+  Must contain a `$ticks` data frame with at minimum `t`, `n_agents`,
+  and `genetic_diversity`.
 
 ## Value
 
@@ -37,8 +38,8 @@ Plot genetic diversity over the run
 
 ## See also
 
-[`plot_genome_diversity()`](plot_genome_diversity.md),
-[`visualize_progress()`](visualize_progress.md)
+[`plot_genome_diversity()`](https://itchyshin.github.io/clade/reference/plot_genome_diversity.md),
+[`visualize_progress()`](https://itchyshin.github.io/clade/reference/visualize_progress.md)
 
 ## Examples
 

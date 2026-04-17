@@ -1,8 +1,9 @@
 # Pretty-print all simulation parameters
 
-Prints every parameter in a [`default_specs()`](default_specs.md) list
-with its current value, grouped by biological theme. Pass a modified
-specs list to see which parameters differ from the defaults.
+Prints every parameter in a
+[`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md)
+list with its current value, grouped by biological theme. Pass a
+modified specs list to see which parameters differ from the defaults.
 
 ## Usage
 
@@ -15,14 +16,15 @@ print_specs(specs = NULL, diff_only = FALSE)
 - specs:
 
   A named list of simulation parameters (from
-  [`default_specs()`](default_specs.md)). If `NULL` (default), prints
-  the unmodified defaults.
+  [`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md)).
+  If `NULL` (default), prints the unmodified defaults.
 
 - diff_only:
 
   Logical. If `TRUE`, only print parameters that differ from
-  [`default_specs()`](default_specs.md) defaults. Useful for inspecting
-  a customised spec list. Default `FALSE`.
+  [`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md)
+  defaults. Useful for inspecting a customised spec list. Default
+  `FALSE`.
 
 ## Value
 

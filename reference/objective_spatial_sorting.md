@@ -15,7 +15,8 @@ objective_spatial_sorting(env)
 
 - env:
 
-  A `clade_env` object from [`run_alife()`](run_alife.md).
+  A `clade_env` object from
+  [`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md).
 
 ## Value
 
@@ -23,8 +24,8 @@ A numeric scalar. Higher is better; `-Inf` = unviable.
 
 ## See also
 
-[`tune_spatial_sorting()`](tune_spatial_sorting.md),
-[`search_cmaes()`](search_cmaes.md)
+[`tune_spatial_sorting()`](https://itchyshin.github.io/clade/reference/tune_spatial_sorting.md),
+[`search_cmaes()`](https://itchyshin.github.io/clade/reference/search_cmaes.md)
 
 ## Examples
 

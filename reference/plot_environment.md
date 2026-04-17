@@ -15,9 +15,10 @@ plot_environment(env)
 
 - env:
 
-  An environment list returned by [`run_clade()`](run_clade.md). Must
-  contain `$specs`, `$grass` (numeric matrix), and `$agents` (list of
-  per-agent records with `x`, `y`, and `energy` fields).
+  An environment list returned by
+  [`run_clade()`](https://itchyshin.github.io/clade/reference/run_clade.md).
+  Must contain `$specs`, `$grass` (numeric matrix), and `$agents` (list
+  of per-agent records with `x`, `y`, and `energy` fields).
 
 ## Value
 
@@ -31,7 +32,8 @@ Plot the current state of a clade environment
 
 ## See also
 
-[`plot_run()`](plot_run.md), [`run_clade()`](run_clade.md)
+[`plot_run()`](https://itchyshin.github.io/clade/reference/plot_run.md),
+[`run_clade()`](https://itchyshin.github.io/clade/reference/run_clade.md)
 
 ## Examples
 

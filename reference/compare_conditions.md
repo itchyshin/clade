@@ -20,8 +20,8 @@ compare_conditions(conditions, burn_in = 100L, plot = TRUE)
 - conditions:
 
   A named list of `run_data` objects, each from
-  [`get_run_data()`](get_run_data.md). Names are used as condition
-  labels.
+  [`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md).
+  Names are used as condition labels.
 
 - burn_in:
 
@@ -45,9 +45,9 @@ Compare evolutionary outcomes across simulation conditions
 
 ## See also
 
-[`get_run_data()`](get_run_data.md),
-[`estimate_heritability()`](estimate_heritability.md),
-[`run_alife()`](run_alife.md)
+[`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md),
+[`estimate_heritability()`](https://itchyshin.github.io/clade/reference/estimate_heritability.md),
+[`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md)
 
 ## Examples
 

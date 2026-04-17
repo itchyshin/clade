@@ -16,7 +16,8 @@ batch_alife(specs_list, n_cores = 1L, verbose = FALSE)
 - specs_list:
 
   A list of specs lists. Each element is passed to
-  [`run_alife()`](run_alife.md) independently.
+  [`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md)
+  independently.
 
 - n_cores:
 
@@ -38,7 +39,8 @@ order.
 
 ## See also
 
-[`run_alife()`](run_alife.md), [`get_run_data()`](get_run_data.md)
+[`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md),
+[`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md)
 
 ## Examples
 

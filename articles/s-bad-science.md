@@ -138,8 +138,8 @@ unchecked, strong replication disciplines it. Open questions to explore:
     minority of high-effort labs that never cut corners (`effort` fixed
     at 0.95). Does the presence of an honest minority slow or reverse
     FPR drift? Vary minority fraction from 5% to 30% using
-    [`batch_alife()`](../reference/batch_alife.md)-style replicate
-    loops.
+    [`batch_alife()`](https://itchyshin.github.io/clade/reference/batch_alife.md)-style
+    replicate loops.
 
     *Tried it.* A 10% fixed-high-effort minority (effort = 0.95 in 20 of
     200 labs, 500 ticks, seed 42): FPR ended at 0.267 vs 0.283 (no

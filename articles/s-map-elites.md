@@ -12,12 +12,13 @@ reveals the attainable combinations of ecological outcomes — which
 regions of the parameter space produce high genetic diversity, which
 produce large populations, and which produce both.
 
-[`search_map_elites()`](../reference/search_map_elites.md) implements
-the MAP-Elites algorithm over `clade` specs. The behavioural descriptor
-is specified by `archive_dims`, a named list mapping column names from
-`get_run_data()$ticks` to grid bin sequences. Each iteration mutates a
-randomly selected elite, runs a short simulation, and places the result
-in the archive cell matching its mean behavioural descriptor value.
+[`search_map_elites()`](https://itchyshin.github.io/clade/reference/search_map_elites.md)
+implements the MAP-Elites algorithm over `clade` specs. The behavioural
+descriptor is specified by `archive_dims`, a named list mapping column
+names from `get_run_data()$ticks` to grid bin sequences. Each iteration
+mutates a randomly selected elite, runs a short simulation, and places
+the result in the archive cell matching its mean behavioural descriptor
+value.
 
 ``` r
 library(clade)

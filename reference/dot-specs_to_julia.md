@@ -19,7 +19,8 @@ character), and the Julia helper rebuilds the Dict keyed by string.
 
 - specs:
 
-  A validated specs list from [`default_specs()`](default_specs.md).
+  A validated specs list from
+  [`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md).
 
 ## Value
 

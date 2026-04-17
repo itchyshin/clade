@@ -18,9 +18,10 @@ plot_dead_agents(run_data)
 
 - run_data:
 
-  A list returned by [`get_run_data()`](get_run_data.md). Must contain a
-  `$deaths` data frame with columns `age`, `energy`, `cause`,
-  `num_offspring`, and optionally `body_size`.
+  A list returned by
+  [`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md).
+  Must contain a `$deaths` data frame with columns `age`, `energy`,
+  `cause`, `num_offspring`, and optionally `body_size`.
 
 ## Value
 
@@ -34,8 +35,8 @@ Plot lifetime statistics of dead agents
 
 ## See also
 
-[`get_run_data()`](get_run_data.md),
-[`visualize_progress()`](visualize_progress.md)
+[`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md),
+[`visualize_progress()`](https://itchyshin.github.io/clade/reference/visualize_progress.md)
 
 ## Examples
 

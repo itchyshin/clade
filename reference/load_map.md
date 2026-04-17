@@ -23,7 +23,8 @@ An integer matrix (0 = open, 1 = wall).
 
 ## See also
 
-[`generate_map()`](generate_map.md), [`prepare_map()`](prepare_map.md)
+[`generate_map()`](https://itchyshin.github.io/clade/reference/generate_map.md),
+[`prepare_map()`](https://itchyshin.github.io/clade/reference/prepare_map.md)
 
 ## Examples
 

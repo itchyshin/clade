@@ -70,7 +70,7 @@ paternal\|), which accumulates under neutral mutation regardless of
 selection pressure. Without a kernel change to decouple σ from
 heterozygosity or add an explicit cost on uncertainty, the Baldwin
 canalization cannot be observed at default parameters. See
-[dev/audit/fidelity/baldwin.md](../dev/audit/fidelity/baldwin.md).
+[dev/audit/fidelity/baldwin.md](https://itchyshin.github.io/clade/dev/audit/fidelity/baldwin.md).
 
 ``` r
 library(clade)
@@ -593,7 +593,8 @@ further:
     can coexist?
 
 3.  **MAP-Elites to discover canalization-compatible phenotypes.** Use
-    [`search_map_elites()`](../reference/search_map_elites.md) with
+    [`search_map_elites()`](https://itchyshin.github.io/clade/reference/search_map_elites.md)
+    with
     `archive_dims = list(mean_prior_sigma = seq(0, 0.5, by=0.05), genetic_diversity = seq(0, 0.5, by=0.05))`
     to systematically search the parameter space for conditions that
     produce low-sigma (canalized) genomes. Does low sigma coexist with

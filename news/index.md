@@ -1,5 +1,118 @@
 # Changelog
 
+## clade 0.5.6 (2026-04-17)
+
+Substantial multi-PR session covering timescale presets, a round of
+🟠-sort work, and a new audit-methodology utility.
+
+### New exports
+
+- [`fast_specs()`](https://itchyshin.github.io/clade/reference/fast_specs.md)
+  — preset for fast-generation evolutionary scenarios (max_age = 30, ~66
+  generations in 2000 ticks). Root-cause fix for the “weak evolutionary
+  signal” family of 🟠 scenarios: at `default_specs`, 500-tick audits
+  run only 2.6 generations, far below the 100+ Fisher 1930 predicts for
+  modest selection.
+- [`slow_specs()`](https://itchyshin.github.io/clade/reference/slow_specs.md)
+  — preset for K-strategist scenarios (max_age = 200,
+  `min_repro_energy = 150`).
+- [`viability_report()`](https://itchyshin.github.io/clade/reference/viability_report.md)
+  — first-class utility for flagging population crashes before
+  interpreting trait-mean effects. Returns one of `"viable"`, `"weak"`,
+  `"crashed"` with a diagnostic message. Motivated by several 🟠 audits
+  where direction flips were silently driven by population crashes in
+  one condition.
+
+### New specs
+
+- `predator_max_age` — predator lifespan independent of prey. Default
+  `NA` (same as prey); set higher for biologically realistic
+  owl-vs-mouse scenarios.
+- `toroidal` exposed in the
+  [`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md)
+  roxygen docs (the spec existed but was undocumented).
+
+### Status changes
+
+- **s-dispersal-ifd promoted 🟠 → ✅.** Sweep at fast_specs over
+  `habitat_preference_strength` found a clean promotion path: at
+  strength ≥ 2.0, Δ = +0.021 ± 0.005 across 5 seeds (vs +0.003 at the
+  default 0.5). Default strength was below the drift floor — only ~1.5%
+  effective move-toward-grass per tick.
+- **s-mimicry reframed** to lead with the predation-dominant ecology
+  (grass_rate = 0.08) where aposematism actually evolves. Default
+  well-fed ecology documented as a Zahavi-handicap limit condition
+  (Grafen 1990 / Getty 2006 / Számadó 2011 critique cited).
+- **s-baldwin and s-plasticity confirmed kernel-limited.** Single-seed
+  fast_specs results (61× / 11× stronger than default) were noise;
+  5-seed and 8-seed re-audits show Δdelta ≈ 0.005 (well below the 0.02
+  threshold). Both need the 0.4.3 BNN-sigma-decoupling work (partial
+  kernel support via `bnn_action_noise_scale` landed in 0.5.5 — see that
+  release).
+
+### Scenario vignette updates
+
+- Every evolutionary-scenario vignette demo chunk now uses
+  [`fast_specs()`](https://itchyshin.github.io/clade/reference/fast_specs.md)
+  where the scenario is viable at fast_specs, and
+  [`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md)
+  where not. `dev/audit/fidelity/crash_audit.R` identified four ✅
+  scenarios that crash at fast_specs (body_size, signals, parental_care,
+  stress_hypermutation) and four that are robustly viable (cooperation,
+  clutch_size, kin, scavenging).
+- `s-predator-prey`: 3 new Discovery experiments added — spatial refugia
+  (2×2 toroidal × complex_landscape factorial), grass density × predator
+  density, group defense × LV. The strongest LV-like cycling clade has
+  produced (oscillation score 0.64) is the complex_landscape +
+  toroidal + 50×50 regime; grid-scale dependent (no effect at 30×30),
+  consistent with a spatial-decoupling mechanism rather than Rosenzweig
+  enrichment.
+- `vignettes/getting-started.Rmd`: new “Simulation timescale” section
+  with the fast/default/slow preset table and Fisher `1/s` rationale.
+
+### Infrastructure
+
+- `dev/audit/fidelity/PRIORITY_ROADMAP.md`: classifies every 🟠 scenario
+  as easy-win (parametric fix), kernel-limited, or weak-✅ (crash risk).
+- `dev/audit/fidelity/CRASH_AUDIT_FINDINGS.md`: documents the
+  cross-scenario viability verdict and the body_size crash mechanism
+  (asymmetric foraging correction for small agents creates a death
+  spiral).
+
+### Bug fixes and methodology
+
+- `_pkgdown.yml`: add `fast_specs`, `slow_specs`, and `viability_report`
+  to the reference index. Previous-version missing-topic errors were
+  blocking pkgdown deploys since PR
+  [\#34](https://github.com/itchyshin/clade/issues/34).
+- **Methodology rule (now codified in
+  [`viability_report()`](https://itchyshin.github.io/clade/reference/viability_report.md))**:
+  never promote a scenario on fewer than 5 seeds; always check `n_final`
+  before interpreting any trait-mean effect. This lesson surfaced four
+  times in the repo now (Red Queen 0.5.3, mimicry 0.5.4, body_size P2
+  0.5.2, and 0.5.6 plasticity/baldwin/dispersal).
+
+### Memory (cross-session)
+
+Three new persistent memory entries capture what future sessions need to
+know: fast_specs is necessary but not sufficient for evolutionary
+signals; clade kernel has RNG-order contamination; priority roadmap for
+🟠 sort.
+
+------------------------------------------------------------------------
+
+## clade 0.5.5 (back-filled)
+
+Kernel-only release (no scenario changes): added the
+`bnn_action_noise_scale` spec to decouple BNN sigma from the action
+sampling channel. At `scale = 1.0` (default), legacy full coupling:
+`w = mu + sigma * z`. At `scale = 0`, actions are deterministic from mu;
+sigma only affects the learning/cost channel. Infrastructure added to
+`inst/julia/src/brains/bnn.jl` and `inst/julia/src/tick.jl`; used by
+0.5.6 Baldwin audit.
+
+------------------------------------------------------------------------
+
 ## clade 0.5.4 (2026-04-16)
 
 ### Audit: s-mimicry ecology-limited calibration (honest null)
@@ -326,7 +439,8 @@ wide posteriors. Stays 🟠 (kernel-limited).
 
 ### Ecology corrections
 
-- `R/run.R` [`.validate_specs()`](../reference/dot-validate_specs.md)
+- `R/run.R`
+  [`.validate_specs()`](https://itchyshin.github.io/clade/reference/dot-validate_specs.md)
   now warns when `spatial_sorting = TRUE` combined with
   `toroidal = TRUE`. Shine et al. (2011) invasion-front dynamics require
   a bounded grid; on a torus the population centroid wraps and the
@@ -345,12 +459,12 @@ wide posteriors. Stays 🟠 (kernel-limited).
 ### CMA-ES auto-calibration harness
 
 - New `dev/audit/calibration/` harness drives
-  [`search_cmaes()`](../reference/search_cmaes.md) over each scenario’s
-  parameter subspace, with a per-scenario fitness function encoding the
-  biological claim. Parallel launcher (`run_all.sh`) runs 31 scenarios
-  concurrently.
+  [`search_cmaes()`](https://itchyshin.github.io/clade/reference/search_cmaes.md)
+  over each scenario’s parameter subspace, with a per-scenario fitness
+  function encoding the biological claim. Parallel launcher
+  (`run_all.sh`) runs 31 scenarios concurrently.
 - Full Phase 7 results in
-  [`dev/audit/calibration/RESULTS.md`](dev/audit/calibration/RESULTS.md).
+  [`dev/audit/calibration/RESULTS.md`](https://itchyshin.github.io/clade/news/dev/audit/calibration/RESULTS.md).
   Headline discoveries: a regime where the **Baldwin effect does
   emerge** (`grass_rate ≈ 0.027`, `learning_rate_init_mean ≈ 0.007`) in
   the otherwise non-canalising foraging world; a regime where speciation
@@ -425,12 +539,12 @@ defaults).
 
 - **`s-pop-genetics.Rmd` chunk rewrite.** The displayed code called
   `h2$ci` and `plot(h2)`, neither of which
-  [`estimate_heritability()`](../reference/estimate_heritability.md)
+  [`estimate_heritability()`](https://itchyshin.github.io/clade/reference/estimate_heritability.md)
   returns. The chunk now shows the lag-1 autocorrelation proxy (what the
   function actually computes) and plots the mean trajectory that the
   proxy is derived from, with a note pointing to
-  [`heritability_estimate()`](../reference/heritability_estimate.md) for
-  the parent-offspring-regression route.
+  [`heritability_estimate()`](https://itchyshin.github.io/clade/reference/heritability_estimate.md)
+  for the parent-offspring-regression route.
 - **`DESCRIPTION`**: `tidyr` added to `Suggests` because
   `vignettes/s-kitchen-sink.Rmd` and `vignettes/s-seasonal.Rmd` call
   [`tidyr::pivot_longer()`](https://tidyr.tidyverse.org/reference/pivot_longer.html).
@@ -542,15 +656,18 @@ intentionally preserved rather than papered over:
   becomes infected with probability `carrion_transmission_prob` (default
   0.0 — off for backwards compatibility).
 
-- **[`batch_seeds()`](../reference/batch_seeds.md)**: convenience
-  wrapper around [`batch_alife()`](../reference/batch_alife.md) that
-  takes a single specs object and a vector of seeds and returns a named
-  list of results.
+- **[`batch_seeds()`](https://itchyshin.github.io/clade/reference/batch_seeds.md)**:
+  convenience wrapper around
+  [`batch_alife()`](https://itchyshin.github.io/clade/reference/batch_alife.md)
+  that takes a single specs object and a vector of seeds and returns a
+  named list of results.
 
-- **[`quick_specs()`](../reference/quick_specs.md) /
-  [`full_specs()`](../reference/full_specs.md)**: preset specs for fast
-  exploratory runs (50 agents, 200 ticks, 20×20 grid) and
-  publication-quality runs (200 agents, 1000 ticks, 30×30 grid).
+- **[`quick_specs()`](https://itchyshin.github.io/clade/reference/quick_specs.md)
+  /
+  [`full_specs()`](https://itchyshin.github.io/clade/reference/full_specs.md)**:
+  preset specs for fast exploratory runs (50 agents, 200 ticks, 20×20
+  grid) and publication-quality runs (200 agents, 1000 ticks, 30×30
+  grid).
 
 ### Logging additions
 
@@ -568,7 +685,8 @@ Six previously-NA log columns are now populated:
 
 ### Other
 
-- Social learning warning: [`run_alife()`](../reference/run_alife.md)
+- Social learning warning:
+  [`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md)
   now warns when `social_learning = TRUE` and `n_agents_init < 100`,
   since neighbour density at that population size is rarely sufficient
   to trigger copying events.
@@ -589,14 +707,15 @@ First public release.
   perceptron (ANN), continuous-time RNN (CTRNN), gene regulatory network
   (GRN), random null model, and stubs for transformer and synthesis
   brains.
-- [`run_alife()`](../reference/run_alife.md) — single simulation run;
-  returns a named list compatible with
-  [`get_run_data()`](../reference/get_run_data.md) and
-  [`plot_run()`](../reference/plot_run.md).
-- [`batch_alife()`](../reference/batch_alife.md) — run multiple
-  replicates in sequence.
-- [`default_specs()`](../reference/default_specs.md) — fully documented
-  parameter list with sensible defaults.
+- [`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md)
+  — single simulation run; returns a named list compatible with
+  [`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md)
+  and
+  [`plot_run()`](https://itchyshin.github.io/clade/reference/plot_run.md).
+- [`batch_alife()`](https://itchyshin.github.io/clade/reference/batch_alife.md)
+  — run multiple replicates in sequence.
+- [`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md)
+  — fully documented parameter list with sensible defaults.
 
 ### Optional biological modules
 
@@ -642,34 +761,36 @@ Each module is a no-op when its flag is `FALSE`; overhead is zero.
 
 ### Parameter search
 
-- [`search_map_elites()`](../reference/search_map_elites.md) —
-  MAP-Elites quality-diversity search over simulation parameters (Mouret
-  & Clune 2015). Returns an archive of parameter sets covering a
+- [`search_map_elites()`](https://itchyshin.github.io/clade/reference/search_map_elites.md)
+  — MAP-Elites quality-diversity search over simulation parameters
+  (Mouret & Clune 2015). Returns an archive of parameter sets covering a
   behavioural descriptor space.
-- [`search_cmaes()`](../reference/search_cmaes.md) — CMA-ES optimisation
-  via the GA package.
-- [`search_gradient()`](../reference/search_gradient.md) —
-  finite-difference gradient ascent on the log parameter scale;
+- [`search_cmaes()`](https://itchyshin.github.io/clade/reference/search_cmaes.md)
+  — CMA-ES optimisation via the GA package.
+- [`search_gradient()`](https://itchyshin.github.io/clade/reference/search_gradient.md)
+  — finite-difference gradient ascent on the log parameter scale;
   backend-agnostic (no Zygote.jl dependency).
 
 ### Analysis
 
-- [`get_run_data()`](../reference/get_run_data.md) — convert raw Julia
-  environment to tidy `$ticks` and `$deaths` data frames.
-- [`estimate_heritability()`](../reference/estimate_heritability.md) —
-  lag-1 autocorrelation proxy for trait heritability (Falconer & Mackay
-  1996).
-- [`compute_ld()`](../reference/compute_ld.md) — stub for linkage
-  disequilibrium (Lewontin & Kojima 1960).
-- [`species_tree()`](../reference/species_tree.md) — stub for
-  phylogenetic reconstruction.
+- [`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md)
+  — convert raw Julia environment to tidy `$ticks` and `$deaths` data
+  frames.
+- [`estimate_heritability()`](https://itchyshin.github.io/clade/reference/estimate_heritability.md)
+  — lag-1 autocorrelation proxy for trait heritability (Falconer &
+  Mackay 1996).
+- [`compute_ld()`](https://itchyshin.github.io/clade/reference/compute_ld.md)
+  — stub for linkage disequilibrium (Lewontin & Kojima 1960).
+- [`species_tree()`](https://itchyshin.github.io/clade/reference/species_tree.md)
+  — stub for phylogenetic reconstruction.
 
 ### Visualisation
 
-- [`plot_run()`](../reference/plot_run.md) — population dynamics panel
-  (n_agents, mean_energy, genetic_diversity, grass_coverage).
-- [`plot_environment()`](../reference/plot_environment.md) — snapshot of
-  the grid at a given tick.
+- [`plot_run()`](https://itchyshin.github.io/clade/reference/plot_run.md)
+  — population dynamics panel (n_agents, mean_energy, genetic_diversity,
+  grass_coverage).
+- [`plot_environment()`](https://itchyshin.github.io/clade/reference/plot_environment.md)
+  — snapshot of the grid at a given tick.
 
 ### Vignettes
 

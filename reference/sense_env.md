@@ -16,7 +16,8 @@ sense_env(env, i = 1L)
 
 - env:
 
-  Environment list from [`run_alife()`](run_alife.md).
+  Environment list from
+  [`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md).
 
 - i:
 
@@ -46,13 +47,15 @@ A named numeric vector. Slots:
 ## Details
 
 The function requires `env$grass` (returned automatically by
-[`run_alife()`](run_alife.md)) and `env$agents`. Agent-map occupancy is
-reconstructed from agent positions. When `env$grass` is `NULL` (e.g.
-from a mock env), grass slots are set to 0.
+[`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md))
+and `env$agents`. Agent-map occupancy is reconstructed from agent
+positions. When `env$grass` is `NULL` (e.g. from a mock env), grass
+slots are set to 0.
 
 ## See also
 
-[`take_action()`](take_action.md), [`inspect_brain()`](inspect_brain.md)
+[`take_action()`](https://itchyshin.github.io/clade/reference/take_action.md),
+[`inspect_brain()`](https://itchyshin.github.io/clade/reference/inspect_brain.md)
 
 ## Examples
 

@@ -1,9 +1,11 @@
 # Tune parameters for the complex landscape module
 
-Pre-configures [`search_cmaes()`](search_cmaes.md) or
-[`search_map_elites()`](search_map_elites.md) with biologically sensible
-parameters and the
-[`objective_complex_landscape()`](objective_complex_landscape.md)
+Pre-configures
+[`search_cmaes()`](https://itchyshin.github.io/clade/reference/search_cmaes.md)
+or
+[`search_map_elites()`](https://itchyshin.github.io/clade/reference/search_map_elites.md)
+with biologically sensible parameters and the
+[`objective_complex_landscape()`](https://itchyshin.github.io/clade/reference/objective_complex_landscape.md)
 objective for the complex landscape (forest) module. Call this instead
 of configuring CMA-ES manually.
 
@@ -22,7 +24,8 @@ tune_complex_landscape(
 
 - specs_base:
 
-  A specs list from [`default_specs()`](default_specs.md).
+  A specs list from
+  [`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md).
   `complex_landscape` and `wing_size_init_mean` are set automatically.
 
 - n_iterations:
@@ -36,18 +39,22 @@ tune_complex_landscape(
 
 - ...:
 
-  Additional arguments passed to [`search_cmaes()`](search_cmaes.md) or
-  [`search_map_elites()`](search_map_elites.md).
+  Additional arguments passed to
+  [`search_cmaes()`](https://itchyshin.github.io/clade/reference/search_cmaes.md)
+  or
+  [`search_map_elites()`](https://itchyshin.github.io/clade/reference/search_map_elites.md).
 
 ## Value
 
-The result of [`search_cmaes()`](search_cmaes.md) or
-[`search_map_elites()`](search_map_elites.md).
+The result of
+[`search_cmaes()`](https://itchyshin.github.io/clade/reference/search_cmaes.md)
+or
+[`search_map_elites()`](https://itchyshin.github.io/clade/reference/search_map_elites.md).
 
 ## See also
 
-[`objective_complex_landscape()`](objective_complex_landscape.md),
-[`search_viability()`](search_viability.md)
+[`objective_complex_landscape()`](https://itchyshin.github.io/clade/reference/objective_complex_landscape.md),
+[`search_viability()`](https://itchyshin.github.io/clade/reference/search_viability.md)
 
 ## Examples
 

@@ -118,8 +118,8 @@ recoveries. To go beyond:
     seasonal environments, dispersal spreads risk across patches at
     different resource phases. Does evolved `mean_dispersal` increase
     with `seasonal_amplitude` across a five-level
-    [`batch_alife()`](../reference/batch_alife.md) sweep, consistent
-    with dispersal as a bet-hedging strategy?
+    [`batch_alife()`](https://itchyshin.github.io/clade/reference/batch_alife.md)
+    sweep, consistent with dispersal as a bet-hedging strategy?
 
     *Tried it.* Across four seasonal amplitudes (0, 0.3, 0.6, 0.9; 50
     agents, 200 ticks, seed 42): population size was insensitive to

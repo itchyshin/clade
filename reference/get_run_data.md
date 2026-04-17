@@ -1,7 +1,8 @@
 # Extract simulation results as tidy data frames
 
 `get_run_data()` converts the raw environment list returned by
-[`run_alife()`](run_alife.md) into a list of two tidy data frames:
+[`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md)
+into a list of two tidy data frames:
 
 - `$ticks` – one row per logged tick, with population-level statistics.
 
@@ -17,7 +18,8 @@ get_run_data(env)
 
 - env:
 
-  An environment list returned by [`run_alife()`](run_alife.md).
+  An environment list returned by
+  [`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md).
 
 ## Value
 
@@ -41,7 +43,8 @@ A list with components:
 
 ## See also
 
-[`run_alife()`](run_alife.md), [`plot_run()`](plot_run.md)
+[`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md),
+[`plot_run()`](https://itchyshin.github.io/clade/reference/plot_run.md)
 
 ## Examples
 

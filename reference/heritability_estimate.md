@@ -2,9 +2,10 @@
 
 `heritability_estimate()` computes h2 by regressing offspring trait
 values on parent trait values using the `$deaths` data frame returned by
-[`get_run_data()`](get_run_data.md). This is the parent-offspring
-regression method, as distinct from the lag-1 autocorrelation approach
-used by [`estimate_heritability()`](estimate_heritability.md).
+[`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md).
+This is the parent-offspring regression method, as distinct from the
+lag-1 autocorrelation approach used by
+[`estimate_heritability()`](https://itchyshin.github.io/clade/reference/estimate_heritability.md).
 
 ## Usage
 
@@ -16,8 +17,9 @@ heritability_estimate(data, trait = "num_offspring")
 
 - data:
 
-  A list from [`get_run_data()`](get_run_data.md), specifically using
-  `data$deaths`.
+  A list from
+  [`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md),
+  specifically using `data$deaths`.
 
 - trait:
 
@@ -52,8 +54,8 @@ column. Run the simulation long enough that agents die and are recorded.
 
 ## See also
 
-[`estimate_heritability()`](estimate_heritability.md) for the lag-1
-autocorrelation approach.
+[`estimate_heritability()`](https://itchyshin.github.io/clade/reference/estimate_heritability.md)
+for the lag-1 autocorrelation approach.
 
 ## Examples
 

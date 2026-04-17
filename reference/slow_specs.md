@@ -1,9 +1,10 @@
 # Slow-generation specs for long-lived organism scenarios
 
-Returns [`default_specs()`](default_specs.md) calibrated for
-**long-lived organisms** (elephant, whale, large primate). Generation
-time ~50 ticks; requires longer runs (10000+ ticks) for meaningful
-evolution.
+Returns
+[`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md)
+calibrated for **long-lived organisms** (elephant, whale, large
+primate). Generation time ~50 ticks; requires longer runs (10000+ ticks)
+for meaningful evolution.
 
 ## Usage
 
@@ -35,4 +36,5 @@ A specs list calibrated for K-strategist organisms.
 
 ## See also
 
-[`default_specs()`](default_specs.md), [`fast_specs()`](fast_specs.md)
+[`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md),
+[`fast_specs()`](https://itchyshin.github.io/clade/reference/fast_specs.md)

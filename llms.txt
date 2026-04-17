@@ -15,16 +15,17 @@ selection acts on brain weights, life-history traits, and — with 30+
 optional modules — body size, dispersal tendency, mimicry, coevolving
 parasites, parental care, cooperative breeding, disease, and more. Every
 biological scenario is backed by a [multi-seed fidelity
-audit](dev/audit/fidelity/DASHBOARD.md) against the primary literature
-(22 of 30 auditable scenarios pass; 5 have direction-correct but
-magnitude-limited signals; 0 contradict theory).
+audit](https://itchyshin.github.io/clade/dev/audit/fidelity/DASHBOARD.md)
+against the primary literature (22 of 30 auditable scenarios pass; 5
+have direction-correct but magnitude-limited signals; 0 contradict
+theory).
 
 The simulation kernel is written in Julia for performance. R is the
 interface: you set parameters, call
-[`run_alife()`](reference/run_alife.md) once, and receive the full
-simulation environment back for analysis and visualisation. The R–Julia
-boundary is crossed **once per run**, not once per tick, so large
-populations and long simulations stay fast.
+[`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md)
+once, and receive the full simulation environment back for analysis and
+visualisation. The R–Julia boundary is crossed **once per run**, not
+once per tick, so large populations and long simulations stay fast.
 
 ------------------------------------------------------------------------
 
@@ -51,9 +52,10 @@ Or download directly from
 
 ### First-run compilation
 
-On the first call to [`run_alife()`](reference/run_alife.md), Julia
-compiles the simulation kernel. This takes **60–90 seconds** and is
-cached for all subsequent runs in the same Julia environment.
+On the first call to
+[`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md),
+Julia compiles the simulation kernel. This takes **60–90 seconds** and
+is cached for all subsequent runs in the same Julia environment.
 
 ------------------------------------------------------------------------
 
@@ -124,7 +126,7 @@ the specs list. Modules can be freely combined.
 | Quantised weights             | `ann_weight_values`                                            | Snap weights to a discrete set (e.g. ternary) after expression                                                                                                                                    |
 
 See
-[`vignettes/parameter-reference.Rmd`](vignettes/parameter-reference.Rmd)
+[`vignettes/parameter-reference.Rmd`](https://itchyshin.github.io/clade/vignettes/parameter-reference.Rmd)
 for the complete parameter list.
 
 ------------------------------------------------------------------------
@@ -151,20 +153,27 @@ differ.
 Every biological scenario is backed by a multi-seed fidelity audit that
 cross-references the primary literature, the alifeR R prototype, and
 (where applicable) the MATLAB ancestor codebase. Current ledger (as of
-0.5.4):
+0.5.6):
 
 | Status                                                      | Count                            |
 |-------------------------------------------------------------|----------------------------------|
-| ✅ Passed                                                   | **22** of 30 auditable scenarios |
-| 🟠 Passed-consistent (direction correct, magnitude limited) | **5**                            |
+| ✅ Passed                                                   | **23** of 30 auditable scenarios |
+| 🟠 Passed-consistent (direction correct, magnitude limited) | **4**                            |
 | 🔴 Contradicts                                              | **0**                            |
 
-The five 🟠 scenarios (dispersal-IFD, mating-systems, mimicry,
-plasticity, Baldwin effect) have honestly-documented kernel or ecology
-limitations. All audit reports, runners, and figures live under
-[`dev/audit/fidelity/`](dev/audit/fidelity/). See the [audit
-dashboard](dev/audit/fidelity/DASHBOARD.md) for the full ledger with
-evidence strength, honest nulls, and retractions.
+The four 🟠 scenarios (mating-systems, mimicry, plasticity, Baldwin
+effect) have honestly-documented kernel or ecology limitations. See the
+[priority
+roadmap](https://itchyshin.github.io/clade/dev/audit/fidelity/PRIORITY_ROADMAP.md)
+for each scenario’s diagnosis and promotion path, and the [crash-audit
+findings](https://itchyshin.github.io/clade/dev/audit/fidelity/CRASH_AUDIT_FINDINGS.md)
+for the scenarios that need
+[`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md)
+(not
+[`fast_specs()`](https://itchyshin.github.io/clade/reference/fast_specs.md))
+for viability. All audit reports, runners, and figures live under
+[`dev/audit/fidelity/`](https://itchyshin.github.io/clade/dev/audit/fidelity/);
+`STATUS.md` there is the per-scenario ledger.
 
 ------------------------------------------------------------------------
 
@@ -173,13 +182,12 @@ evidence strength, honest nulls, and retractions.
 Full documentation is available at
 **<https://itchyshin.github.io/clade/>**.
 
-| Article                                                                                    | Contents                                                                               |
-|--------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------|
-| [Getting Started](https://itchyshin.github.io/clade/articles/getting-started.html)         | Installation, first run, extracting results, batch runs                                |
-| [Biological Scenarios](https://itchyshin.github.io/clade/articles/scenarios.html)          | Code and expected outputs for every module                                             |
-| [Custom Modules](https://itchyshin.github.io/clade/articles/custom-modules.html)           | Write your own per-tick hooks with [`register_module()`](reference/register_module.md) |
-| [Parameter Reference](https://itchyshin.github.io/clade/articles/parameter-reference.html) | Every parameter in [`default_specs()`](reference/default_specs.md), grouped by theme   |
-| [Diversity Search](https://itchyshin.github.io/clade/articles/diversity-search.html)       | CMA-ES, MAP-Elites, viability mapping, and scenario-specific tuning                    |
+| Article                                                                                    | Contents                                                                                                                 |
+|--------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|
+| [Getting Started](https://itchyshin.github.io/clade/articles/getting-started.html)         | Installation, first run, extracting results, batch runs                                                                  |
+| [Biological Scenarios](https://itchyshin.github.io/clade/articles/scenarios.html)          | Code and expected outputs for every module                                                                               |
+| [Custom Modules](https://itchyshin.github.io/clade/articles/custom-modules.html)           | Write your own per-tick hooks with [`register_module()`](https://itchyshin.github.io/clade/reference/register_module.md) |
+| [Parameter Reference](https://itchyshin.github.io/clade/articles/parameter-reference.html) | Every parameter in [`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md), grouped by theme   |
 
 ------------------------------------------------------------------------
 
@@ -192,7 +200,7 @@ If you use clade in published work, please cite:
   author  = {Nakagawa, Shinichi},
   title   = {clade: Agent-based evolutionary simulation with a Julia backend},
   year    = {2026},
-  note    = {R package version 0.5.4},
+  note    = {R package version 0.5.6},
   url     = {https://github.com/itchyshin/clade}
 }
 ```
@@ -201,7 +209,7 @@ If you use clade in published work, please cite:
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT — see [LICENSE](https://itchyshin.github.io/clade/LICENSE).
 
 # Package index
 
@@ -209,197 +217,208 @@ MIT — see [LICENSE](LICENSE).
 
 Entry points for running and batching evolutionary simulations.
 
-- [`run_alife()`](run_alife.md) : Run an evolutionary simulation
-- [`run_clade()`](run_clade.md) : Synonym for run_alife()
-- [`batch_alife()`](batch_alife.md) : Run multiple simulations in
-  parallel
-- [`batch_seeds()`](batch_seeds.md) : Run one specs object with multiple
-  random seeds
-- [`default_specs()`](default_specs.md) : Default simulation parameters
-  for clade
-- [`quick_specs()`](quick_specs.md) : Quick preset specs for fast
-  exploratory runs
-- [`full_specs()`](full_specs.md) : Full preset specs for
-  publication-quality runs
-- [`fast_specs()`](fast_specs.md) : Fast-generation specs for
-  evolutionary scenarios
-- [`slow_specs()`](slow_specs.md) : Slow-generation specs for long-lived
-  organism scenarios
-- [`load_specs()`](load_specs.md) : Load simulation specs from a JSON
-  file
+- [`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md)
+  : Run an evolutionary simulation
+- [`run_clade()`](https://itchyshin.github.io/clade/reference/run_clade.md)
+  : Synonym for run_alife()
+- [`batch_alife()`](https://itchyshin.github.io/clade/reference/batch_alife.md)
+  : Run multiple simulations in parallel
+- [`batch_seeds()`](https://itchyshin.github.io/clade/reference/batch_seeds.md)
+  : Run one specs object with multiple random seeds
+- [`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md)
+  : Default simulation parameters for clade
+- [`quick_specs()`](https://itchyshin.github.io/clade/reference/quick_specs.md)
+  : Quick preset specs for fast exploratory runs
+- [`full_specs()`](https://itchyshin.github.io/clade/reference/full_specs.md)
+  : Full preset specs for publication-quality runs
+- [`fast_specs()`](https://itchyshin.github.io/clade/reference/fast_specs.md)
+  : Fast-generation specs for evolutionary scenarios
+- [`slow_specs()`](https://itchyshin.github.io/clade/reference/slow_specs.md)
+  : Slow-generation specs for long-lived organism scenarios
+- [`load_specs()`](https://itchyshin.github.io/clade/reference/load_specs.md)
+  : Load simulation specs from a JSON file
 
 ## Results & visualisation
 
 Extract tidy output and produce plots.
 
-- [`clade-visualization`](clade-visualization.md) : Visualisation layer
-  for clade simulation output
-- [`get_run_data()`](get_run_data.md) : Extract simulation results as
-  tidy data frames
-- [`get_genome_data()`](get_genome_data.md) : Extract per-tick genome
-  data (allele frequencies, diversity, FST)
-- [`plot_run()`](plot_run.md) : Dashboard plot summarising a clade
-  simulation run
-- [`plot_environment()`](plot_environment.md) : Plot the current state
-  of a clade environment
-- [`plot_diversity()`](plot_diversity.md) : Plot genetic diversity over
-  the run
-- [`plot_signal_evolution()`](plot_signal_evolution.md) : Plot signal
-  evolution (Phase 2 placeholder)
-- [`plot_disease_dynamics()`](plot_disease_dynamics.md) : Plot disease
-  dynamics over time
-- [`plot_body_size_evolution()`](plot_body_size_evolution.md) : Plot
-  body-size evolution over time
-- [`plot_dispersal_events()`](plot_dispersal_events.md) : Plot natal
-  dispersal events over time
-- [`plot_kin_network()`](plot_kin_network.md) : Plot kin network (Phase
-  2 placeholder)
-- [`plot_dead_agents()`](plot_dead_agents.md) : Plot lifetime statistics
-  of dead agents
-- [`plot_genome_diversity()`](plot_genome_diversity.md) : Plot genetic
-  diversity over time
-- [`plot_tsne_genomes()`](plot_tsne_genomes.md) : Plot genome PCA to
-  reveal population genetic structure
-- [`plot_weight_heatmap()`](plot_weight_heatmap.md) : Visualise a neural
-  genome as a weight heatmap
-- [`plot_module_metrics()`](plot_module_metrics.md) : Plot
-  module-specific metrics from a clade simulation run
-- [`visualize_progress()`](visualize_progress.md) : Render the full
-  simulation dashboard
+- [`clade-visualization`](https://itchyshin.github.io/clade/reference/clade-visualization.md)
+  : Visualisation layer for clade simulation output
+- [`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md)
+  : Extract simulation results as tidy data frames
+- [`get_genome_data()`](https://itchyshin.github.io/clade/reference/get_genome_data.md)
+  : Extract per-tick genome data (allele frequencies, diversity, FST)
+- [`plot_run()`](https://itchyshin.github.io/clade/reference/plot_run.md)
+  : Dashboard plot summarising a clade simulation run
+- [`plot_environment()`](https://itchyshin.github.io/clade/reference/plot_environment.md)
+  : Plot the current state of a clade environment
+- [`plot_diversity()`](https://itchyshin.github.io/clade/reference/plot_diversity.md)
+  : Plot genetic diversity over the run
+- [`plot_signal_evolution()`](https://itchyshin.github.io/clade/reference/plot_signal_evolution.md)
+  : Plot signal evolution (Phase 2 placeholder)
+- [`plot_disease_dynamics()`](https://itchyshin.github.io/clade/reference/plot_disease_dynamics.md)
+  : Plot disease dynamics over time
+- [`plot_body_size_evolution()`](https://itchyshin.github.io/clade/reference/plot_body_size_evolution.md)
+  : Plot body-size evolution over time
+- [`plot_dispersal_events()`](https://itchyshin.github.io/clade/reference/plot_dispersal_events.md)
+  : Plot natal dispersal events over time
+- [`plot_kin_network()`](https://itchyshin.github.io/clade/reference/plot_kin_network.md)
+  : Plot kin network (Phase 2 placeholder)
+- [`plot_dead_agents()`](https://itchyshin.github.io/clade/reference/plot_dead_agents.md)
+  : Plot lifetime statistics of dead agents
+- [`plot_genome_diversity()`](https://itchyshin.github.io/clade/reference/plot_genome_diversity.md)
+  : Plot genetic diversity over time
+- [`plot_tsne_genomes()`](https://itchyshin.github.io/clade/reference/plot_tsne_genomes.md)
+  : Plot genome PCA to reveal population genetic structure
+- [`plot_weight_heatmap()`](https://itchyshin.github.io/clade/reference/plot_weight_heatmap.md)
+  : Visualise a neural genome as a weight heatmap
+- [`plot_module_metrics()`](https://itchyshin.github.io/clade/reference/plot_module_metrics.md)
+  : Plot module-specific metrics from a clade simulation run
+- [`visualize_progress()`](https://itchyshin.github.io/clade/reference/visualize_progress.md)
+  : Render the full simulation dashboard
 
 ## Parameter search
 
 Automated tools for finding parameter combinations that produce target
 evolutionary outcomes.
 
-- [`search_map_elites()`](search_map_elites.md) : MAP-Elites
-  quality-diversity search over simulation parameters
-- [`search_cmaes()`](search_cmaes.md) : CMA-ES optimisation over
-  simulation parameters
-- [`search_gradient()`](search_gradient.md) : Finite-difference gradient
-  ascent over simulation parameters
-- [`search_random()`](search_random.md) : Stochastic parameter sweep for
-  evolutionary outcome discovery
-- [`search_viability()`](search_viability.md) : Grid-search parameter
-  viability: which combinations allow population survival?
+- [`search_map_elites()`](https://itchyshin.github.io/clade/reference/search_map_elites.md)
+  : MAP-Elites quality-diversity search over simulation parameters
+- [`search_cmaes()`](https://itchyshin.github.io/clade/reference/search_cmaes.md)
+  : CMA-ES optimisation over simulation parameters
+- [`search_gradient()`](https://itchyshin.github.io/clade/reference/search_gradient.md)
+  : Finite-difference gradient ascent over simulation parameters
+- [`search_random()`](https://itchyshin.github.io/clade/reference/search_random.md)
+  : Stochastic parameter sweep for evolutionary outcome discovery
+- [`search_viability()`](https://itchyshin.github.io/clade/reference/search_viability.md)
+  : Grid-search parameter viability: which combinations allow population
+  survival?
 
 ## Scenario objectives
 
 Pre-built objective functions for the complex landscape, spatial
 sorting, and IFfolk modules. Pass to
-[`search_cmaes()`](../reference/search_cmaes.md) or write your own with
-the same signature.
+[`search_cmaes()`](https://itchyshin.github.io/clade/reference/search_cmaes.md)
+or write your own with the same signature.
 
-- [`objective_complex_landscape()`](objective_complex_landscape.md) :
-  Objective function for the complex landscape scenario
-- [`objective_spatial_sorting()`](objective_spatial_sorting.md) :
-  Objective function for the spatial sorting scenario
-- [`objective_iffolk()`](objective_iffolk.md) : Objective function for
-  the IFfolk inclusive fitness scenario
+- [`objective_complex_landscape()`](https://itchyshin.github.io/clade/reference/objective_complex_landscape.md)
+  : Objective function for the complex landscape scenario
+- [`objective_spatial_sorting()`](https://itchyshin.github.io/clade/reference/objective_spatial_sorting.md)
+  : Objective function for the spatial sorting scenario
+- [`objective_iffolk()`](https://itchyshin.github.io/clade/reference/objective_iffolk.md)
+  : Objective function for the IFfolk inclusive fitness scenario
 
 ## Convenience tuning wrappers
 
-Pre-configured [`search_cmaes()`](../reference/search_cmaes.md) /
-[`search_map_elites()`](../reference/search_map_elites.md) calls for
-each major module. Use these instead of wiring up objectives and
-parameter lists manually.
+Pre-configured
+[`search_cmaes()`](https://itchyshin.github.io/clade/reference/search_cmaes.md)
+/
+[`search_map_elites()`](https://itchyshin.github.io/clade/reference/search_map_elites.md)
+calls for each major module. Use these instead of wiring up objectives
+and parameter lists manually.
 
-- [`tune_complex_landscape()`](tune_complex_landscape.md) : Tune
-  parameters for the complex landscape module
-- [`tune_spatial_sorting()`](tune_spatial_sorting.md) : Tune parameters
-  for the spatial sorting module
-- [`tune_iffolk()`](tune_iffolk.md) : Tune parameters for the IFfolk
-  inclusive fitness module
+- [`tune_complex_landscape()`](https://itchyshin.github.io/clade/reference/tune_complex_landscape.md)
+  : Tune parameters for the complex landscape module
+- [`tune_spatial_sorting()`](https://itchyshin.github.io/clade/reference/tune_spatial_sorting.md)
+  : Tune parameters for the spatial sorting module
+- [`tune_iffolk()`](https://itchyshin.github.io/clade/reference/tune_iffolk.md)
+  : Tune parameters for the IFfolk inclusive fitness module
 
 ## Custom modules
 
 Register user-defined hook functions that run at each tick.
 
-- [`register_module()`](register_module.md) : Register a custom module
-  function
-- [`list_modules()`](list_modules.md) : List registered custom modules
-- [`clear_modules()`](clear_modules.md) : Remove all registered custom
-  modules
+- [`register_module()`](https://itchyshin.github.io/clade/reference/register_module.md)
+  : Register a custom module function
+- [`list_modules()`](https://itchyshin.github.io/clade/reference/list_modules.md)
+  : List registered custom modules
+- [`clear_modules()`](https://itchyshin.github.io/clade/reference/clear_modules.md)
+  : Remove all registered custom modules
 
 ## Pure-R scenarios
 
 Scenarios that run entirely in R (no Julia required).
 
-- [`run_bad_science()`](run_bad_science.md) : Simulate the evolution of
-  scientific practice
+- [`run_bad_science()`](https://itchyshin.github.io/clade/reference/run_bad_science.md)
+  : Simulate the evolution of scientific practice
 
 ## Population genetics & analysis
 
 Estimate heritability, relatedness, LD, and genome diversity.
 
-- [`estimate_heritability()`](estimate_heritability.md) : Estimate
-  narrow-sense heritability from a logged trait time-series
-- [`heritability_estimate()`](heritability_estimate.md) : Estimate
-  narrow-sense heritability from parent-offspring data
-- [`compare_conditions()`](compare_conditions.md) : Compare evolutionary
-  outcomes across simulation conditions
-- [`compute_relatedness()`](compute_relatedness.md) : Compute
-  pedigree-based relatedness between two agents
-- [`compute_ld()`](compute_ld.md) : Compute linkage disequilibrium from
-  a logged genome time-series
-- [`genome_distance()`](genome_distance.md) : Compute normalised
-  Euclidean genome distance between two agents
-- [`diversity_landscape()`](diversity_landscape.md) : Visualise the
-  multi-trait diversity landscape
-- [`species_tree()`](species_tree.md) : Reconstruct a species tree from
-  a logged simulation
-- [`viability_report()`](viability_report.md) : Viability report for an
-  evolutionary-audit run
+- [`estimate_heritability()`](https://itchyshin.github.io/clade/reference/estimate_heritability.md)
+  : Estimate narrow-sense heritability from a logged trait time-series
+- [`heritability_estimate()`](https://itchyshin.github.io/clade/reference/heritability_estimate.md)
+  : Estimate narrow-sense heritability from parent-offspring data
+- [`compare_conditions()`](https://itchyshin.github.io/clade/reference/compare_conditions.md)
+  : Compare evolutionary outcomes across simulation conditions
+- [`compute_relatedness()`](https://itchyshin.github.io/clade/reference/compute_relatedness.md)
+  : Compute pedigree-based relatedness between two agents
+- [`compute_ld()`](https://itchyshin.github.io/clade/reference/compute_ld.md)
+  : Compute linkage disequilibrium from a logged genome time-series
+- [`genome_distance()`](https://itchyshin.github.io/clade/reference/genome_distance.md)
+  : Compute normalised Euclidean genome distance between two agents
+- [`diversity_landscape()`](https://itchyshin.github.io/clade/reference/diversity_landscape.md)
+  : Visualise the multi-trait diversity landscape
+- [`species_tree()`](https://itchyshin.github.io/clade/reference/species_tree.md)
+  : Reconstruct a species tree from a logged simulation
+- [`viability_report()`](https://itchyshin.github.io/clade/reference/viability_report.md)
+  : Viability report for an evolutionary-audit run
 
 ## Map generation
 
 Create structured landscape maps for the simulation grid.
 
-- [`generate_map()`](generate_map.md) : Generate a procedural habitat
-  map
-- [`prepare_map()`](prepare_map.md) : Validate and resize a habitat map
-- [`load_map()`](load_map.md) : Load a bundled or saved habitat map
-- [`plot_map()`](plot_map.md) : Plot the spatial distribution of agents
-  on the grid
+- [`generate_map()`](https://itchyshin.github.io/clade/reference/generate_map.md)
+  : Generate a procedural habitat map
+- [`prepare_map()`](https://itchyshin.github.io/clade/reference/prepare_map.md)
+  : Validate and resize a habitat map
+- [`load_map()`](https://itchyshin.github.io/clade/reference/load_map.md)
+  : Load a bundled or saved habitat map
+- [`plot_map()`](https://itchyshin.github.io/clade/reference/plot_map.md)
+  : Plot the spatial distribution of agents on the grid
 
 ## Agent internals
 
 Inspect individual agent brains, weights, and actions.
 
-- [`inspect_brain()`](inspect_brain.md) : Inspect the brain structure of
-  a single agent
-- [`get_brain_weights()`](get_brain_weights.md) : Extract weight values
-  from an agent's brain
-- [`sense_env()`](sense_env.md) : Build the sensory input vector for an
-  agent
-- [`take_action()`](take_action.md) : Choose an action for an agent
-  given its sensory input
+- [`inspect_brain()`](https://itchyshin.github.io/clade/reference/inspect_brain.md)
+  : Inspect the brain structure of a single agent
+- [`get_brain_weights()`](https://itchyshin.github.io/clade/reference/get_brain_weights.md)
+  : Extract weight values from an agent's brain
+- [`sense_env()`](https://itchyshin.github.io/clade/reference/sense_env.md)
+  : Build the sensory input vector for an agent
+- [`take_action()`](https://itchyshin.github.io/clade/reference/take_action.md)
+  : Choose an action for an agent given its sensory input
 
 ## Julia session management
 
 Check Julia availability and version.
 
-- [`julia_is_ready()`](julia_is_ready.md) : Check whether the Julia
-  session is active
-- [`julia_version()`](julia_version.md) : Report the Julia version used
-  by clade
+- [`julia_is_ready()`](https://itchyshin.github.io/clade/reference/julia_is_ready.md)
+  : Check whether the Julia session is active
+- [`julia_version()`](https://itchyshin.github.io/clade/reference/julia_version.md)
+  : Report the Julia version used by clade
 
 ## Inspection utilities
 
 Pretty-print specs, summarise environments.
 
-- [`print_specs()`](print_specs.md) : Pretty-print all simulation
-  parameters
+- [`print_specs()`](https://itchyshin.github.io/clade/reference/print_specs.md)
+  : Pretty-print all simulation parameters
 
 # Articles
 
 ### Overview
 
-- [Biological Scenarios: A Discovery Guide](scenarios.md):
-- [Getting started with clade](getting-started.md):
-- [Parameter Reference](parameter-reference.md):
+- [Biological Scenarios: A Discovery
+  Guide](https://itchyshin.github.io/clade/articles/scenarios.md):
+- [Getting started with
+  clade](https://itchyshin.github.io/clade/articles/getting-started.md):
+- [Parameter
+  Reference](https://itchyshin.github.io/clade/articles/parameter-reference.md):
 - [Custom Modules: Extending clade with Per-Tick
-  Hooks](custom-modules.md):
+  Hooks](https://itchyshin.github.io/clade/articles/custom-modules.md):
 
 ### Parameter search
 
@@ -409,11 +428,14 @@ algorithm; then pick the agent-level or environment-level guide
 depending on what you’re tuning; or go straight to the algorithm
 reference.
 
-- [Parameter search — introduction](ps-introduction.md):
-- [Parameter search — agent-level parameters](ps-agent-parameters.md):
+- [Parameter search —
+  introduction](https://itchyshin.github.io/clade/articles/ps-introduction.md):
+- [Parameter search — agent-level
+  parameters](https://itchyshin.github.io/clade/articles/ps-agent-parameters.md):
 - [Parameter search — environment-level
-  parameters](ps-environment-parameters.md):
-- [Parameter search — algorithms](ps-algorithms.md):
+  parameters](https://itchyshin.github.io/clade/articles/ps-environment-parameters.md):
+- [Parameter search —
+  algorithms](https://itchyshin.github.io/clade/articles/ps-algorithms.md):
 
 ### Kernel as biology
 
@@ -423,68 +445,109 @@ these to understand the rules of the simulation as biology, spot
 inconsistencies, and find places where the model could be more
 realistic.
 
-- [Kernel as biology — overview](k-README.md):
-- [tick.jl — one tick in the life of an agent](k-tick.md):
-- [Clade.jl — the main loop, in biological order](k-clade-main.md):
-- [sense.jl — what an agent perceives](k-sense.md):
-- [reproduce.jl — birth, inheritance, parental cost](k-reproduce.md):
-- [death.jl — when agents die and why](k-death.md):
-- [genome.jl — meiosis, traits, inheritance](k-genome.md):
+- [Kernel as biology —
+  overview](https://itchyshin.github.io/clade/articles/k-README.md):
+- [tick.jl — one tick in the life of an
+  agent](https://itchyshin.github.io/clade/articles/k-tick.md):
+- [Clade.jl — the main loop, in biological
+  order](https://itchyshin.github.io/clade/articles/k-clade-main.md):
+- [sense.jl — what an agent
+  perceives](https://itchyshin.github.io/clade/articles/k-sense.md):
+- [reproduce.jl — birth, inheritance, parental
+  cost](https://itchyshin.github.io/clade/articles/k-reproduce.md):
+- [death.jl — when agents die and
+  why](https://itchyshin.github.io/clade/articles/k-death.md):
+- [genome.jl — meiosis, traits,
+  inheritance](https://itchyshin.github.io/clade/articles/k-genome.md):
 
 ### Theme 1 — How do traits evolve?
 
-- [Baseline world](s-baseline.md):
-- [Population genetics and heritability](s-pop-genetics.md):
-- [Body size evolution](s-body-size.md):
-- [Brain size evolution](s-brain-size.md):
-- [Stress hypermutation](s-stress-hypermutation.md):
+- [Baseline
+  world](https://itchyshin.github.io/clade/articles/s-baseline.md):
+- [Population genetics and
+  heritability](https://itchyshin.github.io/clade/articles/s-pop-genetics.md):
+- [Body size
+  evolution](https://itchyshin.github.io/clade/articles/s-body-size.md):
+- [Brain size
+  evolution](https://itchyshin.github.io/clade/articles/s-brain-size.md):
+- [Stress
+  hypermutation](https://itchyshin.github.io/clade/articles/s-stress-hypermutation.md):
 
 ### Theme 2 — Ecology and adaptive landscapes
 
-- [Complex landscape](s-complex-landscape.md):
-- [Dispersal, IFD and spatial sorting](s-dispersal-ifd.md):
-- [Niche construction](s-niche.md):
-- [Seasonal dynamics](s-seasonal.md):
-- [Scavenging and carrion dynamics](s-scavenging.md):
+- [Complex
+  landscape](https://itchyshin.github.io/clade/articles/s-complex-landscape.md):
+- [Dispersal, IFD and spatial
+  sorting](https://itchyshin.github.io/clade/articles/s-dispersal-ifd.md):
+- [Niche
+  construction](https://itchyshin.github.io/clade/articles/s-niche.md):
+- [Seasonal
+  dynamics](https://itchyshin.github.io/clade/articles/s-seasonal.md):
+- [Scavenging and carrion
+  dynamics](https://itchyshin.github.io/clade/articles/s-scavenging.md):
 
 ### Theme 3 — Social evolution
 
-- [Kin selection](s-kin.md):
-- [Cooperative breeding and public goods](s-cooperation.md):
-- [Signals and mate choice](s-signals.md):
-- [Speciation and genetic divergence](s-speciation.md):
+- [Kin selection](https://itchyshin.github.io/clade/articles/s-kin.md):
+- [Cooperative breeding and public
+  goods](https://itchyshin.github.io/clade/articles/s-cooperation.md):
+- [Signals and mate
+  choice](https://itchyshin.github.io/clade/articles/s-signals.md):
+- [Speciation and genetic
+  divergence](https://itchyshin.github.io/clade/articles/s-speciation.md):
 
 ### Theme 4 — Life history strategies
 
-- [Parental care](s-parental-care.md):
-- [Mating systems](s-mating-systems.md):
-- [Life history strategies](s-life-history.md):
-- [Clutch size evolution](s-clutch-size.md):
-- [Parental investment](s-parental-investment.md):
-- [Pace-of-life syndromes](s-pace-of-life.md):
+- [Parental
+  care](https://itchyshin.github.io/clade/articles/s-parental-care.md):
+- [Mating
+  systems](https://itchyshin.github.io/clade/articles/s-mating-systems.md):
+- [Life history
+  strategies](https://itchyshin.github.io/clade/articles/s-life-history.md):
+- [Clutch size
+  evolution](https://itchyshin.github.io/clade/articles/s-clutch-size.md):
+- [Parental
+  investment](https://itchyshin.github.io/clade/articles/s-parental-investment.md):
+- [Pace-of-life
+  syndromes](https://itchyshin.github.io/clade/articles/s-pace-of-life.md):
 
 ### Theme 5 — Species interactions and arms races
 
-- [Predator-prey dynamics](s-predator-prey.md):
-- [Group defense](s-group-defense.md):
-- [Mimicry and toxicity](s-mimicry.md):
-- [SIR disease](s-disease.md):
-- [Predation and neural evolution](s-predation-neural.md):
+- [Predator-prey
+  dynamics](https://itchyshin.github.io/clade/articles/s-predator-prey.md):
+- [Group
+  defense](https://itchyshin.github.io/clade/articles/s-group-defense.md):
+- [Mimicry and
+  toxicity](https://itchyshin.github.io/clade/articles/s-mimicry.md):
+- [SIR
+  disease](https://itchyshin.github.io/clade/articles/s-disease.md):
+- [Predation and neural
+  evolution](https://itchyshin.github.io/clade/articles/s-predation-neural.md):
 
 ### Theme 6 — Learning, plasticity, and cognition
 
-- [Within-lifetime reinforcement learning](s-rl.md):
-- [Social learning](s-social-learning.md):
-- [Phenotypic plasticity](s-plasticity.md):
-- [BNN uncertainty canalization and the Baldwin Effect](s-baldwin.md):
+- [Within-lifetime reinforcement
+  learning](https://itchyshin.github.io/clade/articles/s-rl.md):
+- [Social
+  learning](https://itchyshin.github.io/clade/articles/s-social-learning.md):
+- [Phenotypic
+  plasticity](https://itchyshin.github.io/clade/articles/s-plasticity.md):
+- [BNN uncertainty canalization and the Baldwin
+  Effect](https://itchyshin.github.io/clade/articles/s-baldwin.md):
 - [The Baldwin Effect: within-lifetime learning accelerating
-  evolution](baldwin-effect.md):
-- [The cephalopod paradox](s-cephalopod.md):
+  evolution](https://itchyshin.github.io/clade/articles/baldwin-effect.md):
+- [The cephalopod
+  paradox](https://itchyshin.github.io/clade/articles/s-cephalopod.md):
 
 ### Theme 7 — Discovery experiments
 
-- [Module comparison](s-module-comparison.md):
-- [MAP-Elites diversity search](s-map-elites.md):
-- [Kitchen-sink run](s-kitchen-sink.md):
-- [Evolution of bad science](s-bad-science.md):
-- [Cross-module discovery gallery](s-cross-module.md):
+- [Module
+  comparison](https://itchyshin.github.io/clade/articles/s-module-comparison.md):
+- [MAP-Elites diversity
+  search](https://itchyshin.github.io/clade/articles/s-map-elites.md):
+- [Kitchen-sink
+  run](https://itchyshin.github.io/clade/articles/s-kitchen-sink.md):
+- [Evolution of bad
+  science](https://itchyshin.github.io/clade/articles/s-bad-science.md):
+- [Cross-module discovery
+  gallery](https://itchyshin.github.io/clade/articles/s-cross-module.md):

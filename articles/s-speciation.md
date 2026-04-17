@@ -81,7 +81,7 @@ represents a speciation event.
 
 **What we found (2026-04-15 audit).** 3 seeds × 1000 ticks, 100 agents
 init, 30×30 grid, `isolation_threshold = 0.15`. Full protocol:
-[dev/audit/fidelity/speciation.md](../dev/audit/fidelity/speciation.md).
+[dev/audit/fidelity/speciation.md](https://itchyshin.github.io/clade/dev/audit/fidelity/speciation.md).
 
 | Regime                         | max n_species |
 |--------------------------------|---------------|
@@ -143,10 +143,11 @@ distance accumulates past `isolation_threshold`. To go beyond:
 
 3.  **Isolation threshold sensitivity** Vary `isolation_threshold` from
     0.2 to 0.8 across seven values in
-    [`batch_alife()`](../reference/batch_alife.md). Does speciation rate
-    (slope of `n_species` vs time) respond monotonically to threshold,
-    or is there a critical threshold below which sympatric speciation
-    cannot initiate even given sufficient time?
+    [`batch_alife()`](https://itchyshin.github.io/clade/reference/batch_alife.md).
+    Does speciation rate (slope of `n_species` vs time) respond
+    monotonically to threshold, or is there a critical threshold below
+    which sympatric speciation cannot initiate even given sufficient
+    time?
 
     *Tried it.* Seven isolation thresholds tested (0.2 to 0.8;
     `mutation_sd = 0.1`, 80 agents, 300 ticks, seed 42): no speciation

@@ -13,7 +13,8 @@ rather than letting Julia produce a cryptic stack trace.
 
 - specs:
 
-  A specs list from [`default_specs()`](default_specs.md).
+  A specs list from
+  [`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md).
 
 ## Value
 

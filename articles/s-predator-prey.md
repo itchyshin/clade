@@ -45,11 +45,12 @@ parameters below. Two distinct phases emerge:
 
 This is the documented behaviour of evolutionary predator-prey ABMs (see
 the [predator-prey fidelity
-report](../dev/audit/fidelity/predator_prey.md) for cross-reference to
-the alifeR prototype, which contains the same explanation in §12 of its
-showcase vignette). To recover textbook sustained sinusoidal LV, you
-would need a fixed-policy predator (not yet exposed as a spec) or
-non-toroidal patchy spatial structure (Huffaker 1958; future scenario).
+report](https://itchyshin.github.io/clade/dev/audit/fidelity/predator_prey.md)
+for cross-reference to the alifeR prototype, which contains the same
+explanation in §12 of its showcase vignette). To recover textbook
+sustained sinusoidal LV, you would need a fixed-policy predator (not yet
+exposed as a spec) or non-toroidal patchy spatial structure (Huffaker
+1958; future scenario).
 
 ``` r
 library(clade)
@@ -123,7 +124,7 @@ and matches the alifeR R prototype’s documented behaviour (see
 suppress textbook LV oscillations). It is **not** Lotka 1925’s
 mean-field sustained sinusoidal result, and we no longer claim to be.
 Full cross-reference table and audit protocol:
-[dev/audit/fidelity/predator_prey.md](../dev/audit/fidelity/predator_prey.md).
+[dev/audit/fidelity/predator_prey.md](https://itchyshin.github.io/clade/dev/audit/fidelity/predator_prey.md).
 
 ### Discovery experiments
 
@@ -186,8 +187,9 @@ Three open directions for going beyond:
     NOT statistically robust — both the “predation accelerates” and
     “predation slows” framings are inside the 5-seed noise band. The
     honest finding: predation does not modulate body-size drift at
-    default parameters. See [s-body-size](s-body-size.md) for the full
-    16-seed resolution.
+    default parameters. See
+    [s-body-size](https://itchyshin.github.io/clade/articles/s-body-size.md)
+    for the full 16-seed resolution.
 
 4.  **Spatial heterogeneity and resource layering.** Two separate
     theoretical predictions about spatial structure: Huffaker (1958)

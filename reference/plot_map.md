@@ -15,8 +15,9 @@ plot_map(env, colour_by = "energy", ...)
 
 - env:
 
-  An environment list returned by [`run_clade()`](run_clade.md). Must
-  contain `$specs` (with `grid_rows`, `grid_cols`, and optionally
+  An environment list returned by
+  [`run_clade()`](https://itchyshin.github.io/clade/reference/run_clade.md).
+  Must contain `$specs` (with `grid_rows`, `grid_cols`, and optionally
   `grass_max`), `$grass` (numeric matrix), and `$agents` (list of
   per-agent records).
 
@@ -44,8 +45,9 @@ Plot the spatial distribution of agents on the grid
 
 ## See also
 
-[`plot_environment()`](plot_environment.md),
-[`plot_run()`](plot_run.md), [`run_clade()`](run_clade.md)
+[`plot_environment()`](https://itchyshin.github.io/clade/reference/plot_environment.md),
+[`plot_run()`](https://itchyshin.github.io/clade/reference/plot_run.md),
+[`run_clade()`](https://itchyshin.github.io/clade/reference/run_clade.md)
 
 ## Examples
 

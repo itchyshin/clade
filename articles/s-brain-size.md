@@ -28,7 +28,7 @@ evolve.
 
 **What we found (updated 2026-04-16, audit now 🟠 → ✅).** Full
 protocol:
-[dev/audit/fidelity/brain_size.md](../dev/audit/fidelity/brain_size.md).
+[dev/audit/fidelity/brain_size.md](https://itchyshin.github.io/clade/dev/audit/fidelity/brain_size.md).
 Two routes to the ✅ verdict:
 
 *0.4.2 base override* — raise `brain_energy_base` from the 0.001 default
@@ -194,9 +194,9 @@ energy deficit. To go beyond:
 
 2.  **Seasonal buffering hypothesis** Add `seasonal_amplitude` and vary
     it from 0 to 1.0 across five runs in
-    [`batch_alife()`](../reference/batch_alife.md). The cognitive
-    buffering hypothesis (van Schaik et al. 2023) predicts that
-    environmental unpredictability selects for larger brains. Does
+    [`batch_alife()`](https://itchyshin.github.io/clade/reference/batch_alife.md).
+    The cognitive buffering hypothesis (van Schaik et al. 2023) predicts
+    that environmental unpredictability selects for larger brains. Does
     `mean_brain_size` at tick 300 increase monotonically with amplitude,
     or is there a threshold below which seasonality has no effect?
 

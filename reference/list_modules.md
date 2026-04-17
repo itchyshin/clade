@@ -16,5 +16,5 @@ A character vector: `"name (when)"` for each registered module. Returns
 
 ## See also
 
-[`register_module()`](register_module.md),
-[`clear_modules()`](clear_modules.md)
+[`register_module()`](https://itchyshin.github.io/clade/reference/register_module.md),
+[`clear_modules()`](https://itchyshin.github.io/clade/reference/clear_modules.md)

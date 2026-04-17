@@ -1,9 +1,12 @@
 # Tune parameters for the spatial sorting module
 
-Pre-configures [`search_cmaes()`](search_cmaes.md) or
-[`search_map_elites()`](search_map_elites.md) with
-[`objective_spatial_sorting()`](objective_spatial_sorting.md) and the
-key dispersal/sorting parameters.
+Pre-configures
+[`search_cmaes()`](https://itchyshin.github.io/clade/reference/search_cmaes.md)
+or
+[`search_map_elites()`](https://itchyshin.github.io/clade/reference/search_map_elites.md)
+with
+[`objective_spatial_sorting()`](https://itchyshin.github.io/clade/reference/objective_spatial_sorting.md)
+and the key dispersal/sorting parameters.
 
 ## Usage
 
@@ -20,7 +23,8 @@ tune_spatial_sorting(
 
 - specs_base:
 
-  A specs list from [`default_specs()`](default_specs.md).
+  A specs list from
+  [`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md).
   `dispersal_evolution` and `spatial_sorting` are set automatically.
 
 - n_iterations:
@@ -37,13 +41,15 @@ tune_spatial_sorting(
 
 ## Value
 
-The result of [`search_cmaes()`](search_cmaes.md) or
-[`search_map_elites()`](search_map_elites.md).
+The result of
+[`search_cmaes()`](https://itchyshin.github.io/clade/reference/search_cmaes.md)
+or
+[`search_map_elites()`](https://itchyshin.github.io/clade/reference/search_map_elites.md).
 
 ## See also
 
-[`objective_spatial_sorting()`](objective_spatial_sorting.md),
-[`search_viability()`](search_viability.md)
+[`objective_spatial_sorting()`](https://itchyshin.github.io/clade/reference/objective_spatial_sorting.md),
+[`search_viability()`](https://itchyshin.github.io/clade/reference/search_viability.md)
 
 ## Examples
 

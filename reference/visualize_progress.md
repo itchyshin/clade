@@ -5,7 +5,7 @@ Assembles a 2 x 3 panel dashboard from a completed clade run:
 - Top-left:
 
   Grid snapshot – landscape and agent positions at the final tick
-  ([`plot_environment()`](plot_environment.md)).
+  ([`plot_environment()`](https://itchyshin.github.io/clade/reference/plot_environment.md)).
 
 - Top-centre:
 
@@ -13,7 +13,8 @@ Assembles a 2 x 3 panel dashboard from a completed clade run:
 
 - Top-right:
 
-  Diversity trajectory ([`plot_diversity()`](plot_diversity.md)).
+  Diversity trajectory
+  ([`plot_diversity()`](https://itchyshin.github.io/clade/reference/plot_diversity.md)).
 
 - Bottom-left:
 
@@ -38,12 +39,14 @@ visualize_progress(env, run_data = NULL, title = NULL)
 
 - env:
 
-  An environment list returned by [`run_clade()`](run_clade.md).
+  An environment list returned by
+  [`run_clade()`](https://itchyshin.github.io/clade/reference/run_clade.md).
 
 - run_data:
 
-  A list returned by [`get_run_data()`](get_run_data.md). If `NULL`,
-  computed from `env` automatically.
+  A list returned by
+  [`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md).
+  If `NULL`, computed from `env` automatically.
 
 - title:
 
@@ -62,11 +65,11 @@ Render the full simulation dashboard
 
 ## See also
 
-[`plot_environment()`](plot_environment.md),
-[`plot_dead_agents()`](plot_dead_agents.md),
-[`plot_diversity()`](plot_diversity.md),
-[`plot_body_size_evolution()`](plot_body_size_evolution.md),
-[`get_run_data()`](get_run_data.md)
+[`plot_environment()`](https://itchyshin.github.io/clade/reference/plot_environment.md),
+[`plot_dead_agents()`](https://itchyshin.github.io/clade/reference/plot_dead_agents.md),
+[`plot_diversity()`](https://itchyshin.github.io/clade/reference/plot_diversity.md),
+[`plot_body_size_evolution()`](https://itchyshin.github.io/clade/reference/plot_body_size_evolution.md),
+[`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md)
 
 ## Examples
 

@@ -1,9 +1,9 @@
 # Parameter Reference
 
 This article lists every parameter in
-[`default_specs()`](../reference/default_specs.md), grouped by
-biological theme. For each parameter: the default value, type, and what
-it controls.
+[`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md),
+grouped by biological theme. For each parameter: the default value,
+type, and what it controls.
 
 Use `print_specs(diff_only = TRUE)` to see which parameters differ from
 defaults in a given specs list.

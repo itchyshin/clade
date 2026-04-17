@@ -144,13 +144,15 @@ tick_predators!(env)              # predator sense-decide-act loop
 ```
 
 **What this says.** Run the per-agent tick logic for every prey agent
-(documented in detail in [tick.jl chapter](k-tick.md)). Then run the
-predator update loop.
+(documented in detail in [tick.jl
+chapter](https://itchyshin.github.io/clade/articles/k-tick.md)). Then
+run the predator update loop.
 
 **Biology.** This is where most of the per-tick action lives. Each prey
 agent senses, decides, moves, eats, and pays its metabolic costs. Each
 predator does the same plus attack logic. See the [tick.jl
-chapter](k-tick.md) for the full breakdown.
+chapter](https://itchyshin.github.io/clade/articles/k-tick.md) for the
+full breakdown.
 
 The ordering — prey first, then predators — matters: it means predators
 react to *post-move* prey positions, not *pre-move*. Real predator-prey
@@ -364,12 +366,13 @@ everything, downsample later if needed.
 ### What this file *doesn’t* do
 
 - **Per-agent decisions.** Those are in `tick_agents!` ([tick.jl
-  chapter](k-tick.md)).
+  chapter](https://itchyshin.github.io/clade/articles/k-tick.md)).
 - **Reproduction logic.** That’s in `create_offspring!` ([reproduce.jl
-  chapter](k-reproduce.md)).
+  chapter](https://itchyshin.github.io/clade/articles/k-reproduce.md)).
 - **Death decisions.** Those are in `kill_dead!` ([death.jl
-  chapter](k-death.md)).
-- **Sensing.** That’s in `sense_agent` ([sense.jl chapter](k-sense.md)).
+  chapter](https://itchyshin.github.io/clade/articles/k-death.md)).
+- **Sensing.** That’s in `sense_agent` ([sense.jl
+  chapter](https://itchyshin.github.io/clade/articles/k-sense.md)).
 - **Module logic.** Each module file in `inst/julia/src/modules/`.
 
 `Clade.jl` is *just the orchestrator* — it answers “in what order do
@@ -418,10 +421,17 @@ Things to check when reading this file:
 
 ### Companion chapters
 
-- [Kernel as biology — overview](k-README.md)
-- [tick.jl — one tick in the life of an agent](k-tick.md)
-- [Clade.jl — the main loop, in biological order](k-clade-main.md)
-- [sense.jl — what an agent perceives](k-sense.md)
-- [reproduce.jl — birth, inheritance, parental cost](k-reproduce.md)
-- [death.jl — when agents die and why](k-death.md)
-- [genome.jl — meiosis, traits, inheritance](k-genome.md)
+- [Kernel as biology —
+  overview](https://itchyshin.github.io/clade/articles/k-README.md)
+- [tick.jl — one tick in the life of an
+  agent](https://itchyshin.github.io/clade/articles/k-tick.md)
+- [Clade.jl — the main loop, in biological
+  order](https://itchyshin.github.io/clade/articles/k-clade-main.md)
+- [sense.jl — what an agent
+  perceives](https://itchyshin.github.io/clade/articles/k-sense.md)
+- [reproduce.jl — birth, inheritance, parental
+  cost](https://itchyshin.github.io/clade/articles/k-reproduce.md)
+- [death.jl — when agents die and
+  why](https://itchyshin.github.io/clade/articles/k-death.md)
+- [genome.jl — meiosis, traits,
+  inheritance](https://itchyshin.github.io/clade/articles/k-genome.md)

@@ -2,8 +2,9 @@
 
 Returns a named list of all simulation parameters with type-annotated
 defaults. Every parameter is documented below. Pass a modified copy to
-[`run_alife()`](run_alife.md) or
-[`search_map_elites()`](search_map_elites.md).
+[`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md)
+or
+[`search_map_elites()`](https://itchyshin.github.io/clade/reference/search_map_elites.md).
 
 ## Usage
 
@@ -158,8 +159,8 @@ each entry for the primary literature.
   transformer = attention over sensory history (Vaswani et al. 2017);
   synthesis = evolved symbolic IF-THEN rules (Koza 1992); random = null
   baseline. See
-  [`vignette("custom-modules")`](../articles/custom-modules.md) for
-  architecture details.
+  [`vignette("custom-modules")`](https://itchyshin.github.io/clade/articles/custom-modules.md)
+  for architecture details.
 
 - `hidden_layers`:
 
@@ -301,8 +302,9 @@ recombination.
   Character. How maternal and paternal alleles combine: `"additive"`
   (default; mean of two alleles), `"dominant"` (random allele at each
   locus), or `"codominant"` (both expressed; reported separately in
-  [`get_genome_data()`](get_genome_data.md)). Reference: Charlesworth &
-  Charlesworth (2010) *Elements of Evolutionary Genetics*, Chapter 5.
+  [`get_genome_data()`](https://itchyshin.github.io/clade/reference/get_genome_data.md)).
+  Reference: Charlesworth & Charlesworth (2010) *Elements of
+  Evolutionary Genetics*, Chapter 5.
 
 ### Mutation
 
@@ -1233,8 +1235,9 @@ evolution. *Complex Systems* 1(3):495–502.
 
 ## See also
 
-[`run_alife()`](run_alife.md), [`get_run_data()`](get_run_data.md),
-[`search_map_elites()`](search_map_elites.md)
+[`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md),
+[`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md),
+[`search_map_elites()`](https://itchyshin.github.io/clade/reference/search_map_elites.md)
 
 ## Examples
 

@@ -42,8 +42,9 @@ aposematic pleiotropy):
 - **P4 (positive toxin_dose dose-response):** PASS, Spearman ρ = +0.40
   across the dose sweep.
 
-See the [mimicry fidelity report](../dev/audit/fidelity/mimicry.md) for
-the full evidence. Because the primary claim holds only under one
+See the [mimicry fidelity
+report](https://itchyshin.github.io/clade/dev/audit/fidelity/mimicry.md)
+for the full evidence. Because the primary claim holds only under one
 ecology, the status remains 🟠 rather than ✅ — the handicap equilibrium
 is fragile in both theory (Grafen 1990) and clade (default ecology), and
 🟠 is the honest label.
@@ -89,7 +90,7 @@ ticks). The CMA-ES result likely optimised a generic fitness signal that
 is not specific to toxicity evolution. Claim retracted; awaiting kernel
 improvement (signal-vector predator memory) before re-tuning. See
 [mimicry fidelity report
-§5](../dev/audit/fidelity/mimicry.html#5-verdict).
+§5](https://itchyshin.github.io/clade/dev/audit/fidelity/mimicry.html#5-verdict).
 
 ![Ecology comparison (5 seeds × 1000 ticks, full 0.4.4 machinery). Top:
 toxicity trajectories under standard ecology (grass=0.20, grey) vs

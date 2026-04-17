@@ -3,9 +3,11 @@
 This is the reference for the search algorithms themselves — what each
 does, when each shines, and how the code looks. For the experimental
 question (“when should I search at all?”) see
-[ps-introduction.html](ps-introduction.md). For which parameters to
-search, see [ps-agent-parameters.html](ps-agent-parameters.md) and
-[ps-environment-parameters.html](ps-environment-parameters.md).
+[ps-introduction.html](https://itchyshin.github.io/clade/articles/ps-introduction.md).
+For which parameters to search, see
+[ps-agent-parameters.html](https://itchyshin.github.io/clade/articles/ps-agent-parameters.md)
+and
+[ps-environment-parameters.html](https://itchyshin.github.io/clade/articles/ps-environment-parameters.md).
 
 `clade` ships five search functions. All of them take the same core
 arguments — `specs_base`, `search_params` (or `params`), `objective` —
@@ -127,8 +129,8 @@ result is uninformative.
 **Known issue (0.4.0 backlog).** At default mutation, MAP-Elites
 sometimes fills only one cell — the candidate mutations produce near-
 identical behavioural descriptors. See the [s-map-elites
-audit](../dev/audit/fidelity/map_elites.md) for the workaround (wider
-mutation + broader archive bins).
+audit](https://itchyshin.github.io/clade/dev/audit/fidelity/map_elites.md)
+for the workaround (wider mutation + broader archive bins).
 
 ------------------------------------------------------------------------
 
@@ -142,8 +144,9 @@ choices like `brain_type`).
 space. Each generation samples `popsize` candidates, runs them, and uses
 the ranked top half to update the Gaussian’s mean and covariance. The
 step size (sigma) shrinks as the search converges. `clade`’s
-[`search_cmaes()`](../reference/search_cmaes.md) is a pure-R
-implementation (Hansen 2006) — no external packages required.
+[`search_cmaes()`](https://itchyshin.github.io/clade/reference/search_cmaes.md)
+is a pure-R implementation (Hansen 2006) — no external packages
+required.
 
 **Cost.** `n_iterations × popsize` simulations = 200–500, i.e. 15–90
 minutes.
@@ -165,8 +168,8 @@ print(result$specs[c("mutation_sd", "grass_rate", "crossover_rate")])
 **Strengths.** State of the art for continuous derivative-free
 optimisation. Converges faster than random search, handles
 ill-conditioned objectives. Treats
-[`run_alife()`](../reference/run_alife.md) as a black box — discrete
-events (death, birth) are no obstacle.
+[`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md)
+as a black box — discrete events (death, birth) are no obstacle.
 
 **Weaknesses.** Returns a single point, not a trade-off map. Can get
 stuck in local optima (mitigated by running multiple restarts with
@@ -194,7 +197,7 @@ specs. Results are summarised in
 Several scenarios retracted their prior “Calibrated regime” claims after
 the 0.4.0 fidelity audit found the CMA-ES had optimised a generic
 fitness rather than the stated theoretical signal — see
-[ps-introduction.html](ps-introduction.html#designing-an-objective-function)
+[ps-introduction.html](https://itchyshin.github.io/clade/articles/ps-introduction.html#designing-an-objective-function)
 for the discipline this requires.
 
 ------------------------------------------------------------------------
@@ -242,12 +245,12 @@ For the two scenarios where viability mapping is particularly
 worthwhile, `clade` ships domain-specific tuners that combine viability
 mapping with a CMA-ES pass inside the viable region:
 
-- [`tune_complex_landscape()`](../reference/tune_complex_landscape.md) —
-  five landscape parameters + custom objective measuring joint increase
-  in wing size, niche diversity, and survival.
-- [`tune_iffolk()`](../reference/tune_iffolk.md) — IFfolk transfer rate
-  and parliament cost + custom objective rewarding upward trends in
-  `mean_helper_tendency`.
+- [`tune_complex_landscape()`](https://itchyshin.github.io/clade/reference/tune_complex_landscape.md)
+  — five landscape parameters + custom objective measuring joint
+  increase in wing size, niche diversity, and survival.
+- [`tune_iffolk()`](https://itchyshin.github.io/clade/reference/tune_iffolk.md)
+  — IFfolk transfer rate and parliament cost + custom objective
+  rewarding upward trends in `mean_helper_tendency`.
 
 ------------------------------------------------------------------------
 
@@ -290,9 +293,10 @@ result <- search_gradient(
 
 Julia has mature automatic differentiation (Zygote.jl, Enzyme.jl). It
 would be natural to ask whether we could differentiate
-[`run_alife()`](../reference/run_alife.md) end-to-end and use gradient
-descent. We cannot. [`run_alife()`](../reference/run_alife.md) contains
-several operations that are not differentiable:
+[`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md)
+end-to-end and use gradient descent. We cannot.
+[`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md)
+contains several operations that are not differentiable:
 
 - **Agent death** is a threshold event: `energy < starvation_threshold`.
 - **Reproduction** is conditional on `energy >= min_repro_energy`.
@@ -318,8 +322,8 @@ Julia caches its precompiled simulation package per worker, so the first
 call in each worker pays the ~60-second compile cost. For batches of 10
 or more simulations per worker, this overhead is amortised; for smaller
 batches, consider running on fewer cores or using
-[`batch_alife()`](../reference/batch_alife.md) to warm the Julia
-sessions first.
+[`batch_alife()`](https://itchyshin.github.io/clade/reference/batch_alife.md)
+to warm the Julia sessions first.
 
 ------------------------------------------------------------------------
 
@@ -341,18 +345,18 @@ sessions first.
 
 ## See also
 
-- **[ps-introduction.html](ps-introduction.md)** — when to search and
-  how to design objectives.
-- **[ps-agent-parameters.html](ps-agent-parameters.md)** — per-organism
-  parameters to search.
-- **[ps-environment-parameters.html](ps-environment-parameters.md)** —
-  world-level parameters to search.
-- **[`?search_random`](../reference/search_random.md),
-  [`?search_map_elites`](../reference/search_map_elites.md),
-  [`?search_cmaes`](../reference/search_cmaes.md),
-  [`?search_viability`](../reference/search_viability.md),
-  [`?search_gradient`](../reference/search_gradient.md)** — full
-  function reference.
+- **[ps-introduction.html](https://itchyshin.github.io/clade/articles/ps-introduction.md)**
+  — when to search and how to design objectives.
+- **[ps-agent-parameters.html](https://itchyshin.github.io/clade/articles/ps-agent-parameters.md)**
+  — per-organism parameters to search.
+- **[ps-environment-parameters.html](https://itchyshin.github.io/clade/articles/ps-environment-parameters.md)**
+  — world-level parameters to search.
+- **[`?search_random`](https://itchyshin.github.io/clade/reference/search_random.md),
+  [`?search_map_elites`](https://itchyshin.github.io/clade/reference/search_map_elites.md),
+  [`?search_cmaes`](https://itchyshin.github.io/clade/reference/search_cmaes.md),
+  [`?search_viability`](https://itchyshin.github.io/clade/reference/search_viability.md),
+  [`?search_gradient`](https://itchyshin.github.io/clade/reference/search_gradient.md)**
+  — full function reference.
 
 ------------------------------------------------------------------------
 

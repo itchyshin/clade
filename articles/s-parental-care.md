@@ -44,7 +44,7 @@ is higher, resulting in more buffered population dynamics.
 
 **What we found (2026-04-15 audit, 3 seeds × 400 ticks).** Full
 protocol:
-[dev/audit/fidelity/parental_care.md](../dev/audit/fidelity/parental_care.md).
+[dev/audit/fidelity/parental_care.md](https://itchyshin.github.io/clade/dev/audit/fidelity/parental_care.md).
 
 | Condition   | mean n | var(n) | mean juveniles |
 |-------------|--------|--------|----------------|
@@ -71,8 +71,9 @@ population dynamics are more buffered under parental care. To go beyond:
     prerequisite for brain size evolution. Does `mean_brain_size` at
     tick 300 increase more under `parental_care = TRUE`? Vary
     `care_duration` across `{2, 5, 10, 20}` ticks in
-    [`batch_alife()`](../reference/batch_alife.md) to find the minimum
-    care duration that allows brain size to evolve upward.
+    [`batch_alife()`](https://itchyshin.github.io/clade/reference/batch_alife.md)
+    to find the minimum care duration that allows brain size to evolve
+    upward.
 
     *Tried it.* With `brain_size_cost_scale = 2.0`,
     `brain_size_init_mean = 1.1`, 60 agents, 250 ticks, seed 42: no care

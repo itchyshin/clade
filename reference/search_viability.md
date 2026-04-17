@@ -26,7 +26,8 @@ search_viability(
 
 - specs_base:
 
-  A specs list from [`default_specs()`](default_specs.md).
+  A specs list from
+  [`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md).
 
 - param_x:
 
@@ -86,8 +87,8 @@ evolve?" without requiring CMA-ES to converge first.
 
 ## See also
 
-[`search_cmaes()`](search_cmaes.md),
-[`tune_complex_landscape()`](tune_complex_landscape.md)
+[`search_cmaes()`](https://itchyshin.github.io/clade/reference/search_cmaes.md),
+[`tune_complex_landscape()`](https://itchyshin.github.io/clade/reference/tune_complex_landscape.md)
 
 ## Examples
 

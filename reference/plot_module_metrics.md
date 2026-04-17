@@ -48,9 +48,10 @@ plot_module_metrics(run_data)
 
 - run_data:
 
-  A list as returned by [`get_run_data()`](get_run_data.md). Must
-  contain a `$ticks` data frame. The new module columns (`n_predators`,
-  `n_helpers`, `mean_signal_magnitude`, `mean_toxicity`,
+  A list as returned by
+  [`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md).
+  Must contain a `$ticks` data frame. The new module columns
+  (`n_predators`, `n_helpers`, `mean_signal_magnitude`, `mean_toxicity`,
   `mean_plasticity`, `mean_helper_tendency`, `n_species`, `n_juveniles`,
   `n_toxic_attacks`, `n_avoided_attacks`) are used when present; absent
   columns are silently skipped.
@@ -70,9 +71,9 @@ Plot module-specific metrics from a clade simulation run
 
 ## See also
 
-[`plot_run()`](plot_run.md),
-[`visualize_progress()`](visualize_progress.md),
-[`get_run_data()`](get_run_data.md)
+[`plot_run()`](https://itchyshin.github.io/clade/reference/plot_run.md),
+[`visualize_progress()`](https://itchyshin.github.io/clade/reference/visualize_progress.md),
+[`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md)
 
 ## Examples
 

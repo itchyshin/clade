@@ -17,8 +17,9 @@ run_alife(specs = default_specs(), verbose = TRUE)
 - specs:
 
   A named list of simulation parameters, typically from
-  [`default_specs()`](default_specs.md) with modifications. All
-  parameters are documented in [`default_specs()`](default_specs.md).
+  [`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md)
+  with modifications. All parameters are documented in
+  [`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md).
 
 - verbose:
 
@@ -66,9 +67,10 @@ boundary on every tick.
 
 ## See also
 
-[`default_specs()`](default_specs.md),
-[`get_run_data()`](get_run_data.md), [`batch_alife()`](batch_alife.md),
-[`search_map_elites()`](search_map_elites.md)
+[`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md),
+[`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md),
+[`batch_alife()`](https://itchyshin.github.io/clade/reference/batch_alife.md),
+[`search_map_elites()`](https://itchyshin.github.io/clade/reference/search_map_elites.md)
 
 ## Examples
 

@@ -436,10 +436,17 @@ hierarchical-clustering improvement.
 
 ### Companion chapters
 
-- [Kernel as biology — overview](k-README.md)
-- [tick.jl — one tick in the life of an agent](k-tick.md)
-- [Clade.jl — the main loop, in biological order](k-clade-main.md)
-- [sense.jl — what an agent perceives](k-sense.md)
-- [reproduce.jl — birth, inheritance, parental cost](k-reproduce.md)
-- [death.jl — when agents die and why](k-death.md)
-- [genome.jl — meiosis, traits, inheritance](k-genome.md)
+- [Kernel as biology —
+  overview](https://itchyshin.github.io/clade/articles/k-README.md)
+- [tick.jl — one tick in the life of an
+  agent](https://itchyshin.github.io/clade/articles/k-tick.md)
+- [Clade.jl — the main loop, in biological
+  order](https://itchyshin.github.io/clade/articles/k-clade-main.md)
+- [sense.jl — what an agent
+  perceives](https://itchyshin.github.io/clade/articles/k-sense.md)
+- [reproduce.jl — birth, inheritance, parental
+  cost](https://itchyshin.github.io/clade/articles/k-reproduce.md)
+- [death.jl — when agents die and
+  why](https://itchyshin.github.io/clade/articles/k-death.md)
+- [genome.jl — meiosis, traits,
+  inheritance](https://itchyshin.github.io/clade/articles/k-genome.md)

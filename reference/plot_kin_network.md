@@ -14,8 +14,9 @@ plot_kin_network(run_data)
 
 - run_data:
 
-  A list returned by [`get_run_data()`](get_run_data.md). Currently
-  unused.
+  A list returned by
+  [`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md).
+  Currently unused.
 
 ## Value
 
@@ -29,7 +30,7 @@ Plot kin network (Phase 2 placeholder)
 
 ## See also
 
-[`plot_run()`](plot_run.md)
+[`plot_run()`](https://itchyshin.github.io/clade/reference/plot_run.md)
 
 ## Examples
 

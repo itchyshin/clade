@@ -75,7 +75,7 @@ ggplot(df_mean, aes(t, mean_body_size, colour = condition)) +
 
 **What we found (updated 2026-04-16, 0.5.2 audit: 16 seeds × 2 sensing
 modes × 2 predator levels = 64 runs × 600 ticks).** Full protocol:
-[dev/audit/fidelity/body_size.md](../dev/audit/fidelity/body_size.md).
+[dev/audit/fidelity/body_size.md](https://itchyshin.github.io/clade/dev/audit/fidelity/body_size.md).
 
 | graded predator sensing | n_pred | Δ mean_body_size | 1×SE   |
 |-------------------------|--------|------------------|--------|
@@ -163,7 +163,7 @@ by the metabolic cost–foraging gain trade-off. To go beyond:
     better) or downward (smaller bodies are harder to catch)? Compare
     final `mean_body_size` with and without predators across a
     `grass_rate` gradient of five values in
-    [`batch_alife()`](../reference/batch_alife.md).
+    [`batch_alife()`](https://itchyshin.github.io/clade/reference/batch_alife.md).
 
     *Tried it.* Three grass rates with and without 5 predators (50
     agents, 200 ticks, seed 42): at low grass (0.05), predation selected

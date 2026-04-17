@@ -24,7 +24,7 @@ Use custom modules when you need one of:
 
 Don’t reach for custom modules if a built-in module flag does the job.
 Every `*_evolution` flag and every biological module in
-[`vignette("parameter-reference")`](../articles/parameter-reference.md)
+[`vignette("parameter-reference")`](https://itchyshin.github.io/clade/articles/parameter-reference.md)
 is implemented in Julia with no R↔︎Julia round-trip per tick. Enabling
 those is both faster and more thoroughly audited than writing your own.
 
@@ -183,28 +183,29 @@ clear_modules()
   something else, the simulation will error on the next hook.
 - `when`: one of `"pre_tick"`, `"post_agents"`, `"post_tick"`,
   `"post_reproduce"`. Default `"post_tick"`.
-- `name`: label used in [`list_modules()`](../reference/list_modules.md)
+- `name`: label used in
+  [`list_modules()`](https://itchyshin.github.io/clade/reference/list_modules.md)
   output. If omitted, modules are auto-named `"module_1"`, `"module_2"`,
   etc.
 
-**[`list_modules()`](../reference/list_modules.md)** returns a character
-vector of `"name (when)"` entries in registration order. Multiple
-modules at the same hook run in that order.
+**[`list_modules()`](https://itchyshin.github.io/clade/reference/list_modules.md)**
+returns a character vector of `"name (when)"` entries in registration
+order. Multiple modules at the same hook run in that order.
 
-**[`clear_modules()`](../reference/clear_modules.md)** empties the
-registry. Calling it between runs is essential if you don’t want the
-last run’s modules applied to the next one.
+**[`clear_modules()`](https://itchyshin.github.io/clade/reference/clear_modules.md)**
+empties the registry. Calling it between runs is essential if you don’t
+want the last run’s modules applied to the next one.
 
 ### The snapshot
 
 `env` inside a module is a minimal R list, not the full `clade_env`:
 
-| Field        | Type           | What it is                                                                      |
-|--------------|----------------|---------------------------------------------------------------------------------|
-| `env$t`      | integer        | Current tick index                                                              |
-| `env$specs`  | named list     | The specs list passed to [`run_alife()`](../reference/run_alife.md) (read-only) |
-| `env$agents` | list of lists  | One entry per live agent; see agent-field table below                           |
-| `env$grass`  | numeric matrix | Rows × cols of grass units per cell                                             |
+| Field        | Type           | What it is                                                                                                     |
+|--------------|----------------|----------------------------------------------------------------------------------------------------------------|
+| `env$t`      | integer        | Current tick index                                                                                             |
+| `env$specs`  | named list     | The specs list passed to [`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md) (read-only) |
+| `env$agents` | list of lists  | One entry per live agent; see agent-field table below                                                          |
+| `env$grass`  | numeric matrix | Rows × cols of grass units per cell                                                                            |
 
 Modifying `env$agents[[i]]$energy` changes that agent’s energy. Setting
 `env$agents[[i]]$alive <- FALSE` kills the agent; it will be removed at
@@ -294,8 +295,9 @@ clear_modules()
 
 The effect should be visible as a step change in
 `data$ticks$mean_energy` at tick 100. Compare against a paired control
-run with [`clear_modules()`](../reference/clear_modules.md) to quantify
-the perturbation’s downstream effect.
+run with
+[`clear_modules()`](https://itchyshin.github.io/clade/reference/clear_modules.md)
+to quantify the perturbation’s downstream effect.
 
 ------------------------------------------------------------------------
 
@@ -345,11 +347,11 @@ meaningful snapshot for spatial dispersion.
 ## 7. Error handling
 
 Custom modules are called inside a `tryCatch` wrapper
-([`R/modules.R:126-134`](../R/modules.R#L126)). Any error raised by your
-function is converted into an R warning and the simulation continues
-with the unmodified snapshot. This is deliberately forgiving — you can’t
-accidentally crash a 500-tick run by writing a bad module — but it means
-silent data-loss bugs are possible.
+([`R/modules.R:126-134`](https://itchyshin.github.io/clade/R/modules.R#L126)).
+Any error raised by your function is converted into an R warning and the
+simulation continues with the unmodified snapshot. This is deliberately
+forgiving — you can’t accidentally crash a 500-tick run by writing a bad
+module — but it means silent data-loss bugs are possible.
 
 ### Pattern: defensive sub-steps
 
@@ -406,8 +408,9 @@ occurred without having to grep through per-tick output.
 - [`print()`](https://rdrr.io/r/base/print.html) inside the module is
   flushed to the R console via the regular Julia `@info` channel — your
   debug prints will appear interleaved with the simulation’s own logs.
-- Use [`list_modules()`](../reference/list_modules.md) before a run to
-  confirm the expected hooks are registered.
+- Use
+  [`list_modules()`](https://itchyshin.github.io/clade/reference/list_modules.md)
+  before a run to confirm the expected hooks are registered.
 
 ------------------------------------------------------------------------
 
@@ -419,11 +422,11 @@ agent’s fields are serialised into R-readable form before your function
 runs.
 
 **Concrete benchmark** (documented inline in
-[`R/modules.R:19-21`](../R/modules.R#L19)): a 200-agent × 500-tick run
-with one `post_tick` custom module adds ~0.5–1 s of overhead compared to
-the same run with no modules. For 1,000 agents × 1,000 ticks, overhead
-climbs to ~5–10 s. Several registered modules are approximately
-additive.
+[`R/modules.R:19-21`](https://itchyshin.github.io/clade/R/modules.R#L19)):
+a 200-agent × 500-tick run with one `post_tick` custom module adds
+~0.5–1 s of overhead compared to the same run with no modules. For 1,000
+agents × 1,000 ticks, overhead climbs to ~5–10 s. Several registered
+modules are approximately additive.
 
 **Guidelines:**
 
@@ -437,11 +440,13 @@ additive.
 - If you need per-agent computation heavier than a few microseconds per
   agent, you’re likely better off modifying the Julia kernel and
   recompiling, rather than using a custom module. See the
-  [kernel-as-biology](k-tick.md) chapters for the hot path.
+  [kernel-as-biology](https://itchyshin.github.io/clade/articles/k-tick.md)
+  chapters for the hot path.
 
 **Hooks fire even with no modules registered** — but the registry lookup
 is trivial and the Julia↔︎R boundary crossing is skipped entirely if
-[`list_modules()`](../reference/list_modules.md) is empty.
+[`list_modules()`](https://itchyshin.github.io/clade/reference/list_modules.md)
+is empty.
 
 ------------------------------------------------------------------------
 
@@ -506,7 +511,7 @@ fields in `env$agents[[i]]` carry new semantics in 0.4.0:
 
 - `plasticity` now also determines BNN prior width when
   `bnn_sigma_source = "trait"` (see
-  [`vignette("k-genome")`](../articles/k-genome.md)).
+  [`vignette("k-genome")`](https://itchyshin.github.io/clade/articles/k-genome.md)).
 - `energy` dynamics changed due to handling time (`max_bite`) and
   proportional reproduction costs. If you intervene on energy in a
   `post_tick` module, the baseline consumption from the tick’s eating
@@ -523,14 +528,17 @@ compared to pre-0.4.0 runs.
 
 ## See also
 
-- [`?register_module`](../reference/register_module.md),
-  [`?list_modules`](../reference/list_modules.md),
-  [`?clear_modules`](../reference/clear_modules.md) — full R help.
-- [`k-tick`](k-tick.md) — the hot path `tick.jl` with biological
-  commentary. Read this before modifying agent behaviour, so you know
-  what’s already done in Julia at each hook point.
-- [`k-clade-main`](k-clade-main.md) — the main loop orchestration,
-  showing where each hook fires relative to built-in modules.
-- [`parameter-reference`](parameter-reference.md) — every built-in
-  module flag. Check here before writing a custom module; if a flag
-  already does the job, use it.
+- [`?register_module`](https://itchyshin.github.io/clade/reference/register_module.md),
+  [`?list_modules`](https://itchyshin.github.io/clade/reference/list_modules.md),
+  [`?clear_modules`](https://itchyshin.github.io/clade/reference/clear_modules.md)
+  — full R help.
+- [`k-tick`](https://itchyshin.github.io/clade/articles/k-tick.md) — the
+  hot path `tick.jl` with biological commentary. Read this before
+  modifying agent behaviour, so you know what’s already done in Julia at
+  each hook point.
+- [`k-clade-main`](https://itchyshin.github.io/clade/articles/k-clade-main.md)
+  — the main loop orchestration, showing where each hook fires relative
+  to built-in modules.
+- [`parameter-reference`](https://itchyshin.github.io/clade/articles/parameter-reference.md)
+  — every built-in module flag. Check here before writing a custom
+  module; if a flag already does the job, use it.

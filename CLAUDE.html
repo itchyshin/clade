@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -121,7 +121,7 @@
 <div class="section level2">
 <h2 id="project-overview">Project overview<a class="anchor" aria-label="anchor" href="#project-overview"></a></h2>
 <p><strong>clade</strong> is an R package providing an agent-based evolutionary simulation with a Julia backend. R is the user-facing interface (specs, runs, analysis, plots); the per-tick simulation kernel lives in Julia and is called once per <code><a href="reference/run_alife.html">run_alife()</a></code> via <code>JuliaConnectoR</code>, so the R↔︎Julia boundary is crossed once per run, not per tick.</p>
-<p>Key facts: - R package layout (<code>DESCRIPTION</code>, <code>NAMESPACE</code>, <code>R/</code>, <code>man/</code>, <code>tests/testthat/</code>, <code>vignettes/</code>). - Julia kernel under <code>inst/julia/</code> (own <code>Project.toml</code>/<code>Manifest.toml</code>, sources in <code>inst/julia/src/</code>). - Cached simulation outputs in <code>Rdata/*.rds</code> (used by vignettes/figures so they render without re-running). - pkgdown site config: <code>_pkgdown.yml</code>. Docs published at <a href="https://itchyshin.github.io/clade/" class="external-link uri">https://itchyshin.github.io/clade/</a>.</p>
+<p>Key facts: - R package layout (<code>DESCRIPTION</code>, <code>NAMESPACE</code>, <code>R/</code>, <code>man/</code>, <code>tests/testthat/</code>, <code>vignettes/</code>). - Julia kernel under <code>inst/julia/</code> (own <code>Project.toml</code>/<code>Manifest.toml</code>, sources in <code>inst/julia/src/</code>). - Cached simulation outputs in <code>Rdata/*.rds</code> (used by vignettes/figures so they render without re-running). - pkgdown site config: <code>_pkgdown.yml</code>. Docs published at <a href="https://itchyshin.github.io/clade/" class="uri">https://itchyshin.github.io/clade/</a>.</p>
 </div>
 <div class="section level2">
 <h2 id="repository-map">Repository map<a class="anchor" aria-label="anchor" href="#repository-map"></a></h2>
@@ -191,7 +191,7 @@
 <span><span class="fu">pkgdown</span><span class="fu">::</span><span class="fu"><a href="https://pkgdown.r-lib.org/reference/build_site.html" class="external-link">build_site</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Quick smoke run:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/">clade</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="reference/julia_is_ready.html">julia_is_ready</a></span><span class="op">(</span><span class="op">)</span>         <span class="co"># first call compiles Julia kernel (~60–90 s)</span></span>
 <span><span class="va">specs</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">specs</span><span class="op">$</span><span class="va">n_agents_init</span> <span class="op">&lt;-</span> <span class="fl">40L</span></span>

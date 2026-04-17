@@ -1,8 +1,10 @@
 # Convert a Julia env result to an R list
 
 JuliaConnectoR returns Julia structs as named R lists. This function
-extracts the fields expected by [`get_run_data()`](get_run_data.md) and
-[`plot_run()`](plot_run.md).
+extracts the fields expected by
+[`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md)
+and
+[`plot_run()`](https://itchyshin.github.io/clade/reference/plot_run.md).
 
 ## Usage
 

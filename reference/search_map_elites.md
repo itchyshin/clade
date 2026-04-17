@@ -25,8 +25,9 @@ search_map_elites(
 
 - specs_base:
 
-  A specs list from [`default_specs()`](default_specs.md). Used as the
-  starting point for mutations.
+  A specs list from
+  [`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md).
+  Used as the starting point for mutations.
 
 - archive_dims:
 
@@ -48,8 +49,8 @@ search_map_elites(
 - mutation_params:
 
   Character vector of parameter names (from
-  [`default_specs()`](default_specs.md)) to mutate. Defaults to all
-  numeric parameters.
+  [`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md))
+  to mutate. Defaults to all numeric parameters.
 
 - mutation_sd:
 
@@ -108,8 +109,9 @@ of stochastic optimization. arXiv:2012.04322.
 
 ## See also
 
-[`search_cmaes()`](search_cmaes.md),
-[`search_gradient()`](search_gradient.md), [`run_alife()`](run_alife.md)
+[`search_cmaes()`](https://itchyshin.github.io/clade/reference/search_cmaes.md),
+[`search_gradient()`](https://itchyshin.github.io/clade/reference/search_gradient.md),
+[`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md)
 
 ## Examples
 

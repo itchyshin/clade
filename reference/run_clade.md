@@ -1,7 +1,8 @@
 # Synonym for run_alife()
 
-`run_clade()` is an alias for [`run_alife()`](run_alife.md), provided
-for consistency with the package name.
+`run_clade()` is an alias for
+[`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md),
+provided for consistency with the package name.
 
 ## Usage
 
@@ -14,8 +15,9 @@ run_clade(specs = default_specs(), verbose = TRUE)
 - specs:
 
   A named list of simulation parameters, typically from
-  [`default_specs()`](default_specs.md) with modifications. All
-  parameters are documented in [`default_specs()`](default_specs.md).
+  [`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md)
+  with modifications. All parameters are documented in
+  [`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md).
 
 - verbose:
 

@@ -39,7 +39,7 @@ Réale et al. signal: Spearman(rate, mean_age) = −1.00 across 5 rates.
 **Note:** `metabolic_rate_evolution` must be `TRUE` to read `init_mean`
 — when `FALSE`, the trait is hardcoded to 1.0. Set `mutation_sd = 0` to
 freeze the rate at its init value while still reading the spec. See
-[dev/audit/fidelity/pace_of_life.md](../dev/audit/fidelity/pace_of_life.md).
+[dev/audit/fidelity/pace_of_life.md](https://itchyshin.github.io/clade/dev/audit/fidelity/pace_of_life.md).
 
 ``` r
 library(clade)
@@ -175,8 +175,8 @@ birth rates and higher mean age and energy stability. To go beyond:
 
 3.  **Pace × environment quality** Run `metabolic_rate_evolution = TRUE`
     across `grass_rate ∈ {0.02, 0.1, 0.4}` in
-    [`batch_alife()`](../reference/batch_alife.md). Theory predicts rich
-    environments select for fast pace. Does evolved
+    [`batch_alife()`](https://itchyshin.github.io/clade/reference/batch_alife.md).
+    Theory predicts rich environments select for fast pace. Does evolved
     `mean_metabolic_rate` increase monotonically with `grass_rate`, or
     is there a non-monotone relationship (very high resources remove
     mortality pressure on fast-paced energy burn)?

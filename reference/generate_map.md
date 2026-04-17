@@ -1,9 +1,11 @@
 # Generate a procedural habitat map
 
-Creates a 0/1 wall matrix for use with [`run_alife()`](run_alife.md).
+Creates a 0/1 wall matrix for use with
+[`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md).
 Five landscape types are available, ranging from completely open to
 structured corridor networks. Pass the result to
-[`prepare_map()`](prepare_map.md) to validate dimensions before use.
+[`prepare_map()`](https://itchyshin.github.io/clade/reference/prepare_map.md)
+to validate dimensions before use.
 
 ## Usage
 
@@ -56,8 +58,10 @@ generate_map(
 
 An integer matrix (0 = open, 1 = wall) of dimensions `grid_rows` x
 `grid_cols`. Assign to `specs$wall_map` before calling
-[`run_alife()`](run_alife.md), or pass to
-[`prepare_map()`](prepare_map.md) first.
+[`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md),
+or pass to
+[`prepare_map()`](https://itchyshin.github.io/clade/reference/prepare_map.md)
+first.
 
 ## Details
 
@@ -70,7 +74,8 @@ higher-quality neutral-landscape generators.
 
 ## See also
 
-[`load_map()`](load_map.md), [`prepare_map()`](prepare_map.md)
+[`load_map()`](https://itchyshin.github.io/clade/reference/load_map.md),
+[`prepare_map()`](https://itchyshin.github.io/clade/reference/prepare_map.md)
 
 ## Examples
 

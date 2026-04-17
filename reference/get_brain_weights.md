@@ -15,7 +15,8 @@ get_brain_weights(env, agent_id = 1L, layer = NULL)
 
 - env:
 
-  An environment list returned by [`run_clade()`](run_clade.md).
+  An environment list returned by
+  [`run_clade()`](https://itchyshin.github.io/clade/reference/run_clade.md).
 
 - agent_id:
 
@@ -34,7 +35,8 @@ A named numeric vector (when `layer = NULL`) or a numeric matrix (when
 
 ## See also
 
-[`inspect_brain()`](inspect_brain.md), [`run_clade()`](run_clade.md)
+[`inspect_brain()`](https://itchyshin.github.io/clade/reference/inspect_brain.md),
+[`run_clade()`](https://itchyshin.github.io/clade/reference/run_clade.md)
 
 ## Examples
 

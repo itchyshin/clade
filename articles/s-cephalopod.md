@@ -121,10 +121,10 @@ cephalopod paradox. To go beyond:
 1.  **Landscape × lifespan interaction** Cross
     `max_age ∈ {20, 50, 100, 200}` with
     `complex_landscape ∈ {TRUE, FALSE}` in an 8-condition
-    [`batch_alife()`](../reference/batch_alife.md). Is the paradox
-    (short lifespan → faster evolved learning rate) amplified by
-    landscape complexity, or does it emerge even in spatially
-    homogeneous environments? The prediction is that landscape
+    [`batch_alife()`](https://itchyshin.github.io/clade/reference/batch_alife.md).
+    Is the paradox (short lifespan → faster evolved learning rate)
+    amplified by landscape complexity, or does it emerge even in
+    spatially homogeneous environments? The prediction is that landscape
     complexity is required to make learning beneficial at all.
 
     *Tried it (social substitution variant).* With `max_age = 20L`,

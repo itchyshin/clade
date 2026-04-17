@@ -68,8 +68,8 @@ normalisation to \[0,1\], and scalar trait evolution. A handful of
 undocumented changes (eating semantics, grass-to-energy ratio, always-on
 age cap, fixed repro cost) are worth flagging for 0.4.0 review. The full
 three-way diff is in
-[dev/audit/fidelity/baseline.md](../dev/audit/fidelity/baseline.md) §3
-and §6.
+[dev/audit/fidelity/baseline.md](https://itchyshin.github.io/clade/dev/audit/fidelity/baseline.md)
+§3 and §6.
 
 ### Discovery experiments
 
@@ -93,7 +93,8 @@ genomes diverge under selection for foraging. To go beyond:
     `"bnn"` at fixed `grass_rate = 0.05`. Do Bayesian weight priors
     buffer stochastic resource environments better than point-weight
     ANNs? Watch `genetic_diversity` and `mean_energy` over 500 ticks
-    using [`batch_alife()`](../reference/batch_alife.md).
+    using
+    [`batch_alife()`](https://itchyshin.github.io/clade/reference/batch_alife.md).
 
     *Tried it.* Four architectures tested (50 agents, 200 ticks,
     grass_rate = 0.05, seed 42): BNN supported the largest population (n

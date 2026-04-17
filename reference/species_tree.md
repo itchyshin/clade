@@ -16,7 +16,8 @@ species_tree(run_data)
 
 - run_data:
 
-  A list returned by [`get_run_data()`](get_run_data.md).
+  A list returned by
+  [`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md).
 
 ## Value
 
@@ -33,9 +34,9 @@ A list with components:
 
 ## See also
 
-[`get_run_data()`](get_run_data.md),
-[`estimate_heritability()`](estimate_heritability.md),
-[`compute_ld()`](compute_ld.md)
+[`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md),
+[`estimate_heritability()`](https://itchyshin.github.io/clade/reference/estimate_heritability.md),
+[`compute_ld()`](https://itchyshin.github.io/clade/reference/compute_ld.md)
 
 ## Examples
 

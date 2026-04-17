@@ -2,10 +2,11 @@
 
 Optimises a scalar objective with respect to named numeric simulation
 parameters using forward-difference gradient ascent. Each gradient
-coordinate is estimated by re-running [`run_alife()`](run_alife.md) with
-one parameter perturbed by `epsilon` on the log scale, then comparing
-the resulting objective to a baseline run. Updates are applied on the
-log scale so that positive parameters remain positive.
+coordinate is estimated by re-running
+[`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md)
+with one parameter perturbed by `epsilon` on the log scale, then
+comparing the resulting objective to a baseline run. Updates are applied
+on the log scale so that positive parameters remain positive.
 
 ## Usage
 
@@ -26,7 +27,8 @@ search_gradient(
 
 - specs_base:
 
-  A specs list from [`default_specs()`](default_specs.md).
+  A specs list from
+  [`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md).
 
 - params:
 
@@ -80,11 +82,11 @@ A list with components:
 ## Details
 
 This implementation is intentionally backend-agnostic: it treats
-[`run_alife()`](run_alife.md) as a black box and only requires
-`(n_steps + 1) * n_params` simulation calls per run. For a true
-gradient-through-simulation approach using Zygote.jl automatic
-differentiation through the Julia backend, see the deferred Phase 4b
-plan.
+[`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md)
+as a black box and only requires `(n_steps + 1) * n_params` simulation
+calls per run. For a true gradient-through-simulation approach using
+Zygote.jl automatic differentiation through the Julia backend, see the
+deferred Phase 4b plan.
 
 ## References
 
@@ -95,8 +97,8 @@ SSA-form programs. arXiv:1810.07951. (Zygote.jl – Phase 4b deferred.)
 
 ## See also
 
-[`search_map_elites()`](search_map_elites.md),
-[`search_cmaes()`](search_cmaes.md)
+[`search_map_elites()`](https://itchyshin.github.io/clade/reference/search_map_elites.md),
+[`search_cmaes()`](https://itchyshin.github.io/clade/reference/search_cmaes.md)
 
 ## Examples
 

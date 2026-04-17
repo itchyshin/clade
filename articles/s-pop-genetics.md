@@ -7,7 +7,7 @@ narrow-sense heritability, h² — the proportion of phenotypic variance in
 a trait that is attributable to additive genetic effects (Falconer &
 Mackay 1996; Lynch & Walsh 1998). A trait cannot respond to natural
 selection unless h² \> 0. The
-[`estimate_heritability()`](../reference/estimate_heritability.md)
+[`estimate_heritability()`](https://itchyshin.github.io/clade/reference/estimate_heritability.md)
 function performs parent-offspring regression on pedigree records
 accumulated during the simulation: offspring trait values are regressed
 on mid-parent values, and the slope estimates h². When
@@ -74,10 +74,10 @@ autocorrelation reflects that `mean_body_size` changes smoothly between
 ticks (only one generation turns over per few ticks), and the
 parent–offspring regression slope should fall in the range 0.5–0.8 when
 computed directly from pedigree records.
-[`get_run_data()`](../reference/get_run_data.md) returns the tick-level
-summary; to construct the actual parent–offspring regression, collect
-each agent’s `body_size` and `parent_id` at death from `env$deaths`,
-match offspring to parent body size, and use
+[`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md)
+returns the tick-level summary; to construct the actual parent–offspring
+regression, collect each agent’s `body_size` and `parent_id` at death
+from `env$deaths`, match offspring to parent body size, and use
 `lm(offspring_size ~ parent_size)`.
 
 ### Discovery experiments
@@ -90,7 +90,7 @@ beyond:
     imposes a non-genetic energy penalty that inflates residual
     phenotypic variance. Does disease systematically depress estimated
     h² for `body_size`? Compare
-    [`estimate_heritability()`](../reference/estimate_heritability.md)
+    [`estimate_heritability()`](https://itchyshin.github.io/clade/reference/estimate_heritability.md)
     output with and without disease across five replicates.
 
     *Tried it.* With `body_size_evolution = TRUE`, 80 agents, 200 ticks,
@@ -120,8 +120,8 @@ beyond:
     does narrow-sense h² decline faster in small populations because
     drift erodes additive variance faster than selection can act? Vary
     population size across
-    [`batch_alife()`](../reference/batch_alife.md) and plot final h²
-    against log(N).
+    [`batch_alife()`](https://itchyshin.github.io/clade/reference/batch_alife.md)
+    and plot final h² against log(N).
 
     *Tried it.* Three founder sizes tested with
     `body_size_evolution = TRUE` (200 ticks, seed 42): N = 10 showed

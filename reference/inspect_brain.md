@@ -16,7 +16,8 @@ inspect_brain(env, agent_id = 1L)
 
 - env:
 
-  An environment list returned by [`run_clade()`](run_clade.md).
+  An environment list returned by
+  [`run_clade()`](https://itchyshin.github.io/clade/reference/run_clade.md).
 
 - agent_id:
 
@@ -69,8 +70,8 @@ A named list with elements:
 
 ## See also
 
-[`get_brain_weights()`](get_brain_weights.md),
-[`run_clade()`](run_clade.md)
+[`get_brain_weights()`](https://itchyshin.github.io/clade/reference/get_brain_weights.md),
+[`run_clade()`](https://itchyshin.github.io/clade/reference/run_clade.md)
 
 ## Examples
 

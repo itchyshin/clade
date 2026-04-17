@@ -69,7 +69,7 @@ higher mean age and a smoother birth-rate trajectory.
 
 **What we found.** Multi-seed audit (5 seeds, 80 agents, 25×25 grid,
 `grass_rate = 0.15`, 400 ticks; full protocol in
-[dev/audit/fidelity/life_history.md](../dev/audit/fidelity/life_history.md)).
+[dev/audit/fidelity/life_history.md](https://itchyshin.github.io/clade/dev/audit/fidelity/life_history.md)).
 All three sign predictions from Cole (1954) and Williams (1966) hold,
 with seed-level reproducibility under 5%:
 
@@ -134,9 +134,9 @@ smoother birth rates and higher mean age. To go beyond:
 
 3.  **Iteroparous senescence gradient** Vary `senescence_rate` from 0.0
     to 0.1 across five values in
-    [`batch_alife()`](../reference/batch_alife.md) with
-    `life_history = "iteroparous"`. Does increasing senescence rate push
-    iteroparous life history toward semelparous dynamics (earlier
+    [`batch_alife()`](https://itchyshin.github.io/clade/reference/batch_alife.md)
+    with `life_history = "iteroparous"`. Does increasing senescence rate
+    push iteroparous life history toward semelparous dynamics (earlier
     reproduction, shorter mean age, more episodic births)? Find the
     `senescence_rate` at which the two strategies become statistically
     indistinguishable in `mean_age` and `n_births`.

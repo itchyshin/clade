@@ -1,9 +1,11 @@
 # Valid behavioural-descriptor column names for archive_dims
 
-Mirrors the columns produced by [`get_run_data()`](get_run_data.md)
-`$ticks`. Used by [`search_map_elites()`](search_map_elites.md) for
-early validation of `archive_dims` names so that typos are caught before
-any Julia call.
+Mirrors the columns produced by
+[`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md)
+`$ticks`. Used by
+[`search_map_elites()`](https://itchyshin.github.io/clade/reference/search_map_elites.md)
+for early validation of `archive_dims` names so that typos are caught
+before any Julia call.
 
 ## Usage
 

@@ -79,9 +79,9 @@ crash. `freq = 5` is the middle-path regime.
 **Verdict ✅ at `bnn_sample_freq = 5`.** Scenarios combining BNN brains
 with `rl_mode = "actor_critic"` should explicitly set this. The Baldwin
 canalization interaction is documented separately in
-[s-baldwin](s-baldwin.md) — sigma coupling to behavioural variance
-creates the kernel-limitation caveat, which is independent of the RL
-gradient channel.
+[s-baldwin](https://itchyshin.github.io/clade/articles/s-baldwin.md) —
+sigma coupling to behavioural variance creates the kernel-limitation
+caveat, which is independent of the RL gradient channel.
 
 ### Discovery experiments
 

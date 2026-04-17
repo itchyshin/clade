@@ -16,7 +16,8 @@ compute_ld(run_data)
 
 - run_data:
 
-  A list returned by [`get_run_data()`](get_run_data.md).
+  A list returned by
+  [`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md).
 
 ## Value
 
@@ -38,8 +39,8 @@ polymorphisms. *Evolution* 14(4):458-472.
 
 ## See also
 
-[`get_genome_data()`](get_genome_data.md),
-[`estimate_heritability()`](estimate_heritability.md)
+[`get_genome_data()`](https://itchyshin.github.io/clade/reference/get_genome_data.md),
+[`estimate_heritability()`](https://itchyshin.github.io/clade/reference/estimate_heritability.md)
 
 ## Examples
 

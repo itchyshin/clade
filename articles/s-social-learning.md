@@ -102,12 +102,12 @@ behaviours propagate socially. To go beyond:
 
 3.  **Learning radius × genetic diversity** Vary
     `social_learning_radius` from 1 to 10 across
-    [`batch_alife()`](../reference/batch_alife.md). Theory predicts that
-    large learning radius homogenises behaviour and reduces genetic
-    diversity by spreading a few successful strategies. Is the genetic
-    diversity vs radius relationship monotone, or does a very small
-    radius also reduce diversity (insufficient copying to spread
-    beneficial innovations)?
+    [`batch_alife()`](https://itchyshin.github.io/clade/reference/batch_alife.md).
+    Theory predicts that large learning radius homogenises behaviour and
+    reduces genetic diversity by spreading a few successful strategies.
+    Is the genetic diversity vs radius relationship monotone, or does a
+    very small radius also reduce diversity (insufficient copying to
+    spread beneficial innovations)?
 
     *Tried it.* Social learning + RL combined (50 agents, 200 ticks,
     seed 42): gd = 0.190, sl_events = 0, vs RL only: gd = 0.190. Neither

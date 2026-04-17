@@ -19,8 +19,8 @@ prepare_map(map, specs)
 - specs:
 
   Named list; simulation parameters from
-  [`default_specs()`](default_specs.md). Used for dimension checking
-  (`$grid_rows`, `$grid_cols`).
+  [`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md).
+  Used for dimension checking (`$grid_rows`, `$grid_cols`).
 
 ## Value
 
@@ -29,7 +29,8 @@ with values 0 or 1.
 
 ## See also
 
-[`generate_map()`](generate_map.md), [`load_map()`](load_map.md)
+[`generate_map()`](https://itchyshin.github.io/clade/reference/generate_map.md),
+[`load_map()`](https://itchyshin.github.io/clade/reference/load_map.md)
 
 ## Examples
 

@@ -3,7 +3,7 @@
 ## Why search the parameter space at all?
 
 `clade` exposes roughly 90 parameters (see
-[`vignette("parameter-reference")`](../articles/parameter-reference.md)).
+[`vignette("parameter-reference")`](https://itchyshin.github.io/clade/articles/parameter-reference.md)).
 Even if most of them are at a biologically defensible default, any
 serious experiment asks a question of the form *which parameter
 combination produces outcome X?* — and “outcome X” is rarely a single
@@ -41,17 +41,19 @@ Each of these questions maps to a different search algorithm. A single
 
 A typical workflow moves from coarse to fine:
 
-1.  **[`search_viability()`](../reference/search_viability.md)** — if
-    you are not sure the default region even sustains life, map it
+1.  **[`search_viability()`](https://itchyshin.github.io/clade/reference/search_viability.md)**
+    — if you are not sure the default region even sustains life, map it
     first.
-2.  **[`search_random()`](../reference/search_random.md)** — a cheap
-    30-run sweep to find roughly productive regions of parameter space.
-3.  **[`search_map_elites()`](../reference/search_map_elites.md)** —
-    illuminate the trade-offs among the top candidates from step 2.
-4.  **[`search_cmaes()`](../reference/search_cmaes.md)** — zoom into the
-    cell you care about most and find the single best point.
-5.  **[`search_gradient()`](../reference/search_gradient.md)** —
-    optional final-tick refinement if the objective surface is smooth
+2.  **[`search_random()`](https://itchyshin.github.io/clade/reference/search_random.md)**
+    — a cheap 30-run sweep to find roughly productive regions of
+    parameter space.
+3.  **[`search_map_elites()`](https://itchyshin.github.io/clade/reference/search_map_elites.md)**
+    — illuminate the trade-offs among the top candidates from step 2.
+4.  **[`search_cmaes()`](https://itchyshin.github.io/clade/reference/search_cmaes.md)**
+    — zoom into the cell you care about most and find the single best
+    point.
+5.  **[`search_gradient()`](https://itchyshin.github.io/clade/reference/search_gradient.md)**
+    — optional final-tick refinement if the objective surface is smooth
     near the optimum.
 
 Most users will live in steps 2 and 3. The others are specialist tools.
@@ -60,22 +62,26 @@ Most users will live in steps 2 and 3. The others are specialist tools.
 
 ## What gets searched: agent vs environment parameters
 
-A parameter in [`default_specs()`](../reference/default_specs.md) is
-usually one of two kinds, and the two kinds imply different experimental
-designs and different choices of search method. We dedicate a vignette
-to each:
+A parameter in
+[`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md)
+is usually one of two kinds, and the two kinds imply different
+experimental designs and different choices of search method. We dedicate
+a vignette to each:
 
-- **[Agent-level parameters](ps-agent-parameters.md)** — anything that
-  varies per organism or per species: heritable traits (`body_size_*`,
-  `metabolic_rate_*`, `brain_size_*`), brain architecture (`brain_type`,
-  `bnn_sigma_*`, `rl_mode`), life-history (`max_age`, `senescence_rate`,
-  `life_history`), reproduction (`repro_cost_*`, `offspring_energy_*`,
-  `clutch_size_*`, `female_investment`), mutation (`mutation_sd`,
+- **[Agent-level
+  parameters](https://itchyshin.github.io/clade/articles/ps-agent-parameters.md)**
+  — anything that varies per organism or per species: heritable traits
+  (`body_size_*`, `metabolic_rate_*`, `brain_size_*`), brain
+  architecture (`brain_type`, `bnn_sigma_*`, `rl_mode`), life-history
+  (`max_age`, `senescence_rate`, `life_history`), reproduction
+  (`repro_cost_*`, `offspring_energy_*`, `clutch_size_*`,
+  `female_investment`), mutation (`mutation_sd`,
   `stress_mutation_multiplier`), signals and mate choice (`signal_dims`,
   `mate_choice_*`), social behaviours (`kin_altruism_*`, `iffolk_*`,
   `parliament_*`, `cooperation_*`).
-- **[Environment-level parameters](ps-environment-parameters.md)** —
-  anything about the world: grid and population bookkeeping
+- **[Environment-level
+  parameters](https://itchyshin.github.io/clade/articles/ps-environment-parameters.md)**
+  — anything about the world: grid and population bookkeeping
   (`grid_rows`, `grid_cols`, `toroidal`, `n_agents_init`, `max_agents`,
   `max_ticks`), resources (`grass_rate`, `grass_max`, `eat_gain`,
   `max_bite`), temporal and spatial structure (`seasonal_amplitude`,
@@ -131,10 +137,11 @@ than the whole run — the first half is dominated by initial-condition
 transients.
 
 The same `custom_obj` can be passed unchanged to
-[`search_random()`](ps-algorithms.html#random-search),
-[`search_map_elites()`](ps-algorithms.html#map-elites),
-[`search_cmaes()`](ps-algorithms.html#cma-es), or
-[`search_gradient()`](ps-algorithms.html#gradient-ascent).
+[`search_random()`](https://itchyshin.github.io/clade/articles/ps-algorithms.html#random-search),
+[`search_map_elites()`](https://itchyshin.github.io/clade/articles/ps-algorithms.html#map-elites),
+[`search_cmaes()`](https://itchyshin.github.io/clade/articles/ps-algorithms.html#cma-es),
+or
+[`search_gradient()`](https://itchyshin.github.io/clade/articles/ps-algorithms.html#gradient-ascent).
 
 ------------------------------------------------------------------------
 
@@ -143,8 +150,9 @@ The same `custom_obj` can be passed unchanged to
 Julia has excellent automatic differentiation (Zygote.jl, Enzyme.jl). It
 is tempting to ask whether `clade`’s simulator could be differentiated
 end-to-end and optimised with gradient descent. It cannot, for good
-biological reasons. [`run_alife()`](../reference/run_alife.md) contains
-several operations that are not differentiable:
+biological reasons.
+[`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md)
+contains several operations that are not differentiable:
 
 - **Agent death** is a threshold event: `energy < starvation_threshold`
   triggers removal. The gradient of a Bernoulli draw w.r.t. energy is
@@ -158,14 +166,15 @@ several operations that are not differentiable:
 Autodiff through these either fails at trace time or silently produces a
 zero gradient. The correct optimisers here are **derivative-free** —
 CMA-ES, MAP-Elites, random sampling — which treat
-[`run_alife()`](../reference/run_alife.md) as a black box and estimate
-curvature from population statistics alone.
+[`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md)
+as a black box and estimate curvature from population statistics alone.
 
 ------------------------------------------------------------------------
 
 ## Compute budget
 
-A practical constraint: each [`run_alife()`](../reference/run_alife.md)
+A practical constraint: each
+[`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md)
 call takes roughly 5–30 seconds on a modern machine (default grid, 500
 ticks). A typical search therefore involves ~300 runs and costs tens of
 minutes to an hour. Two ways to multiply throughput:
@@ -183,12 +192,15 @@ the winning region; the coarse-to-fine workflow above is cheaper.
 
 ## Where to go next
 
-- **[Agent parameters](ps-agent-parameters.md)** — canonical list,
-  search examples per module.
-- **[Environment parameters](ps-environment-parameters.md)** — grid,
-  grass, seasonality, landscape, external forces.
-- **[Algorithms](ps-algorithms.md)** — CMA-ES, MAP-Elites, viability,
-  gradient: how each works and when each shines, with full working code.
+- **[Agent
+  parameters](https://itchyshin.github.io/clade/articles/ps-agent-parameters.md)**
+  — canonical list, search examples per module.
+- **[Environment
+  parameters](https://itchyshin.github.io/clade/articles/ps-environment-parameters.md)**
+  — grid, grass, seasonality, landscape, external forces.
+- **[Algorithms](https://itchyshin.github.io/clade/articles/ps-algorithms.md)**
+  — CMA-ES, MAP-Elites, viability, gradient: how each works and when
+  each shines, with full working code.
 - **Scenario auto-calibration harness.** A per-scenario CMA-ES harness
   ships under
   [`dev/audit/calibration/`](https://github.com/itchyshin/clade/tree/main/dev/audit/calibration).

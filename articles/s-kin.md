@@ -102,7 +102,7 @@ p1 / p2
 
 **What we found (2026-04-15 audit, 60 runs).** Hamilton’s rule is
 reproduced with striking clarity at the population level. Full protocol:
-[dev/audit/fidelity/kin.md](../dev/audit/fidelity/kin.md).
+[dev/audit/fidelity/kin.md](https://itchyshin.github.io/clade/dev/audit/fidelity/kin.md).
 
 - **Default regime** (`r_min = 0.25`, `B = 10`, `C = 2` → rB/C = 1.25):
   population rises from 166 (baseline) to **194 (+16.4%)** with 4196
@@ -225,11 +225,11 @@ baseline. To go beyond:
 
 2.  **Relatedness threshold sweep** Vary `kin_altruism_r_min` from 0.0
     to 0.5 across six values in
-    [`batch_alife()`](../reference/batch_alife.md). Hamilton’s rule
-    predicts a threshold (r × benefit \> cost) below which altruism is
-    not favoured. Is there a sharp transition in `n_altruistic_acts`, or
-    a smooth decay? Plot final altruism rate against
-    `kin_altruism_r_min`.
+    [`batch_alife()`](https://itchyshin.github.io/clade/reference/batch_alife.md).
+    Hamilton’s rule predicts a threshold (r × benefit \> cost) below
+    which altruism is not favoured. Is there a sharp transition in
+    `n_altruistic_acts`, or a smooth decay? Plot final altruism rate
+    against `kin_altruism_r_min`.
 
     *Tried it.* Five thresholds tested (80 agents, 200 ticks, seed 42):
     altruistic acts peaked at r_min = 0.125 (1682 acts), not at r_min =

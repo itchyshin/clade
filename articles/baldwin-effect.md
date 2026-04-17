@@ -474,7 +474,8 @@ do those solutions coexist with high genetic diversity (the Baldwin
 Effect proper) or with low genetic diversity (drift-driven
 pseudo-canalization)?
 
-**Design.** [`search_map_elites()`](../reference/search_map_elites.md)
+**Design.**
+[`search_map_elites()`](https://itchyshin.github.io/clade/reference/search_map_elites.md)
 with a 11 × 11 archive over σ × genetic diversity space (both 0–0.5,
 step 0.05 = 121 cells), 150 iterations, 500-tick runs per evaluation.
 The archive records the highest-scoring parameter configuration found
@@ -523,8 +524,9 @@ world in `clade` consistently selects for maintained exploration.
 ## Addendum: a calibrated regime where canalization emerges
 
 After the five original experiments, we ran clade’s built-in CMA-ES
-search ([`clade::search_cmaes`](../reference/search_cmaes.md), driven by
-the harness under
+search
+([`clade::search_cmaes`](https://itchyshin.github.io/clade/reference/search_cmaes.md),
+driven by the harness under
 [`dev/audit/calibration/`](https://github.com/itchyshin/clade/tree/main/dev/audit/calibration))
 against the objective “negative slope of `mean_prior_sigma`” — i.e.
 reward any parameter regime that makes σ *narrow*. Full writeup at

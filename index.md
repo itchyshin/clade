@@ -15,16 +15,17 @@ selection acts on brain weights, life-history traits, and — with 30+
 optional modules — body size, dispersal tendency, mimicry, coevolving
 parasites, parental care, cooperative breeding, disease, and more. Every
 biological scenario is backed by a [multi-seed fidelity
-audit](dev/audit/fidelity/DASHBOARD.md) against the primary literature
-(22 of 30 auditable scenarios pass; 5 have direction-correct but
-magnitude-limited signals; 0 contradict theory).
+audit](https://itchyshin.github.io/clade/dev/audit/fidelity/DASHBOARD.md)
+against the primary literature (22 of 30 auditable scenarios pass; 5
+have direction-correct but magnitude-limited signals; 0 contradict
+theory).
 
 The simulation kernel is written in Julia for performance. R is the
 interface: you set parameters, call
-[`run_alife()`](reference/run_alife.md) once, and receive the full
-simulation environment back for analysis and visualisation. The R–Julia
-boundary is crossed **once per run**, not once per tick, so large
-populations and long simulations stay fast.
+[`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md)
+once, and receive the full simulation environment back for analysis and
+visualisation. The R–Julia boundary is crossed **once per run**, not
+once per tick, so large populations and long simulations stay fast.
 
 ------------------------------------------------------------------------
 
@@ -51,9 +52,10 @@ Or download directly from
 
 ### First-run compilation
 
-On the first call to [`run_alife()`](reference/run_alife.md), Julia
-compiles the simulation kernel. This takes **60–90 seconds** and is
-cached for all subsequent runs in the same Julia environment.
+On the first call to
+[`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md),
+Julia compiles the simulation kernel. This takes **60–90 seconds** and
+is cached for all subsequent runs in the same Julia environment.
 
 ------------------------------------------------------------------------
 
@@ -124,7 +126,7 @@ the specs list. Modules can be freely combined.
 | Quantised weights             | `ann_weight_values`                                            | Snap weights to a discrete set (e.g. ternary) after expression                                                                                                                                    |
 
 See
-[`vignettes/parameter-reference.Rmd`](vignettes/parameter-reference.Rmd)
+[`vignettes/parameter-reference.Rmd`](https://itchyshin.github.io/clade/vignettes/parameter-reference.Rmd)
 for the complete parameter list.
 
 ------------------------------------------------------------------------
@@ -151,20 +153,27 @@ differ.
 Every biological scenario is backed by a multi-seed fidelity audit that
 cross-references the primary literature, the alifeR R prototype, and
 (where applicable) the MATLAB ancestor codebase. Current ledger (as of
-0.5.4):
+0.5.6):
 
 | Status                                                      | Count                            |
 |-------------------------------------------------------------|----------------------------------|
-| ✅ Passed                                                   | **22** of 30 auditable scenarios |
-| 🟠 Passed-consistent (direction correct, magnitude limited) | **5**                            |
+| ✅ Passed                                                   | **23** of 30 auditable scenarios |
+| 🟠 Passed-consistent (direction correct, magnitude limited) | **4**                            |
 | 🔴 Contradicts                                              | **0**                            |
 
-The five 🟠 scenarios (dispersal-IFD, mating-systems, mimicry,
-plasticity, Baldwin effect) have honestly-documented kernel or ecology
-limitations. All audit reports, runners, and figures live under
-[`dev/audit/fidelity/`](dev/audit/fidelity/). See the [audit
-dashboard](dev/audit/fidelity/DASHBOARD.md) for the full ledger with
-evidence strength, honest nulls, and retractions.
+The four 🟠 scenarios (mating-systems, mimicry, plasticity, Baldwin
+effect) have honestly-documented kernel or ecology limitations. See the
+[priority
+roadmap](https://itchyshin.github.io/clade/dev/audit/fidelity/PRIORITY_ROADMAP.md)
+for each scenario’s diagnosis and promotion path, and the [crash-audit
+findings](https://itchyshin.github.io/clade/dev/audit/fidelity/CRASH_AUDIT_FINDINGS.md)
+for the scenarios that need
+[`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md)
+(not
+[`fast_specs()`](https://itchyshin.github.io/clade/reference/fast_specs.md))
+for viability. All audit reports, runners, and figures live under
+[`dev/audit/fidelity/`](https://itchyshin.github.io/clade/dev/audit/fidelity/);
+`STATUS.md` there is the per-scenario ledger.
 
 ------------------------------------------------------------------------
 
@@ -173,13 +182,12 @@ evidence strength, honest nulls, and retractions.
 Full documentation is available at
 **<https://itchyshin.github.io/clade/>**.
 
-| Article                                                                                    | Contents                                                                               |
-|--------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------|
-| [Getting Started](https://itchyshin.github.io/clade/articles/getting-started.html)         | Installation, first run, extracting results, batch runs                                |
-| [Biological Scenarios](https://itchyshin.github.io/clade/articles/scenarios.html)          | Code and expected outputs for every module                                             |
-| [Custom Modules](https://itchyshin.github.io/clade/articles/custom-modules.html)           | Write your own per-tick hooks with [`register_module()`](reference/register_module.md) |
-| [Parameter Reference](https://itchyshin.github.io/clade/articles/parameter-reference.html) | Every parameter in [`default_specs()`](reference/default_specs.md), grouped by theme   |
-| [Diversity Search](https://itchyshin.github.io/clade/articles/diversity-search.html)       | CMA-ES, MAP-Elites, viability mapping, and scenario-specific tuning                    |
+| Article                                                                                    | Contents                                                                                                                 |
+|--------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|
+| [Getting Started](https://itchyshin.github.io/clade/articles/getting-started.html)         | Installation, first run, extracting results, batch runs                                                                  |
+| [Biological Scenarios](https://itchyshin.github.io/clade/articles/scenarios.html)          | Code and expected outputs for every module                                                                               |
+| [Custom Modules](https://itchyshin.github.io/clade/articles/custom-modules.html)           | Write your own per-tick hooks with [`register_module()`](https://itchyshin.github.io/clade/reference/register_module.md) |
+| [Parameter Reference](https://itchyshin.github.io/clade/articles/parameter-reference.html) | Every parameter in [`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md), grouped by theme   |
 
 ------------------------------------------------------------------------
 
@@ -192,7 +200,7 @@ If you use clade in published work, please cite:
   author  = {Nakagawa, Shinichi},
   title   = {clade: Agent-based evolutionary simulation with a Julia backend},
   year    = {2026},
-  note    = {R package version 0.5.4},
+  note    = {R package version 0.5.6},
   url     = {https://github.com/itchyshin/clade}
 }
 ```
@@ -201,4 +209,4 @@ If you use clade in published work, please cite:
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT — see [LICENSE](https://itchyshin.github.io/clade/LICENSE).

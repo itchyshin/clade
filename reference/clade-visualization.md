@@ -2,8 +2,8 @@
 
 Functions in this file construct ggplot2 (Wickham 2016) and patchwork
 (Pedersen 2020) objects from the tidy data returned by
-[`get_run_data()`](get_run_data.md). All plots use a minimal theme and
-are safe to print, save, or combine.
+[`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md).
+All plots use a minimal theme and are safe to print, save, or combine.
 
 ## References
 

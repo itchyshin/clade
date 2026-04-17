@@ -20,7 +20,8 @@ compute_relatedness(id_a, id_b, env)
 
 - env:
 
-  Environment list from [`run_alife()`](run_alife.md).
+  Environment list from
+  [`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md).
 
 ## Value
 

@@ -1,9 +1,10 @@
 # Load simulation specs from a JSON file
 
 Reads a JSON file containing simulation parameters and merges it over
-the defaults from [`default_specs()`](default_specs.md). Parameters not
-present in the JSON file retain their defaults; parameters in the JSON
-that are not valid spec names trigger a warning.
+the defaults from
+[`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md).
+Parameters not present in the JSON file retain their defaults;
+parameters in the JSON that are not valid spec names trigger a warning.
 
 ## Usage
 
@@ -17,12 +18,14 @@ load_specs(path)
 
   Character. Path to a JSON file. The file should contain a single JSON
   object whose keys are parameter names from
-  [`default_specs()`](default_specs.md). Numeric vectors of length 1 are
-  read as scalars; longer vectors as R vectors.
+  [`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md).
+  Numeric vectors of length 1 are read as scalars; longer vectors as R
+  vectors.
 
 ## Value
 
-A specs list (same format as [`default_specs()`](default_specs.md)).
+A specs list (same format as
+[`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md)).
 
 ## Details
 
@@ -30,7 +33,8 @@ Load simulation specs from a JSON file
 
 ## See also
 
-[`default_specs()`](default_specs.md), [`run_alife()`](run_alife.md)
+[`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md),
+[`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md)
 
 ## Examples
 

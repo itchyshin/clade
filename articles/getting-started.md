@@ -15,12 +15,12 @@ writing low-level simulation code.
 entire simulation in Julia (via
 [JuliaConnectoR](https://CRAN.R-project.org/package=JuliaConnectoR)).
 The R–Julia boundary is crossed *once* per
-[`run_alife()`](../reference/run_alife.md) call, not once per tick. For
-200 agents and 1,000 ticks this is roughly 25× faster than the
-Rcpp-based alifeR backend, and it makes runs of 100,000 agents
-practical. The Julia backend also enables MAP-Elites quality-diversity
-search and derivative-free optimisation (CMA-ES), neither of which is
-feasible at this scale from an Rcpp simulator.
+[`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md)
+call, not once per tick. For 200 agents and 1,000 ticks this is roughly
+25× faster than the Rcpp-based alifeR backend, and it makes runs of
+100,000 agents practical. The Julia backend also enables MAP-Elites
+quality-diversity search and derivative-free optimisation (CMA-ES),
+neither of which is feasible at this scale from an Rcpp simulator.
 
 This vignette is an orientation, not a reference. It introduces the
 workflow, the parameter list, the brain types, and the biological
@@ -51,7 +51,8 @@ curl -fsSL https://install.julialang.org | sh
 Alternatively, download directly from
 [julialang.org/downloads](https://julialang.org/downloads/).
 
-On the **first** call to [`run_alife()`](../reference/run_alife.md),
+On the **first** call to
+[`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md),
 `clade` starts a Julia session, installs its own Julia dependencies into
 a private environment, and precompiles the simulation package. This
 takes 60–90 seconds and is cached for all subsequent runs in the same
@@ -120,8 +121,8 @@ plot_run() produces a six-panel dashboard: population size, mean energy
 (±SD ribbon), genetic diversity, births and deaths per tick, grass
 coverage, and BNN prior sigma.
 
-[`get_run_data()`](../reference/get_run_data.md) returns a list with two
-tidy data frames:
+[`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md)
+returns a list with two tidy data frames:
 
 - `data$ticks` — one row per logged tick, with population-level
   summaries (mean energy, mean body size, genetic diversity, grass
@@ -136,9 +137,9 @@ package.
 
 ## Inspecting specs
 
-[`default_specs()`](../reference/default_specs.md) returns a long named
-list (roughly 90 parameters in 0.4.0). To see only what you have
-changed, use `print_specs(diff_only = TRUE)`:
+[`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md)
+returns a long named list (roughly 90 parameters in 0.4.0). To see only
+what you have changed, use `print_specs(diff_only = TRUE)`:
 
 ``` r
 specs <- default_specs()
@@ -160,8 +161,9 @@ print_specs(specs, diff_only = TRUE)
 ```
 
 For a full parameter listing with types and defaults, see
-[`vignette("parameter-reference")`](../articles/parameter-reference.md)
-or the help page for [`?default_specs`](../reference/default_specs.md).
+[`vignette("parameter-reference")`](https://itchyshin.github.io/clade/articles/parameter-reference.md)
+or the help page for
+[`?default_specs`](https://itchyshin.github.io/clade/reference/default_specs.md).
 
 ------------------------------------------------------------------------
 
@@ -174,26 +176,28 @@ the selection coefficient. For modest selection
 ($s \approx 0.05\text{–}0.10$), this is 20–100 generations. Weaker
 selection needs hundreds.
 
-Under [`default_specs()`](../reference/default_specs.md), generation
-time is roughly `max_age / 2 ≈ 100 ticks` plus maturation delay, so the
-effective generation time is ~190 ticks. A 500-tick run is therefore
-only ~2.6 generations — too short to see any evolutionary dynamics at
-realistic selection strengths. This is the single largest source of
-“weak effect” reports in early clade audits.
+Under
+[`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md),
+generation time is roughly `max_age / 2 ≈ 100 ticks` plus maturation
+delay, so the effective generation time is ~190 ticks. A 500-tick run is
+therefore only ~2.6 generations — too short to see any evolutionary
+dynamics at realistic selection strengths. This is the single largest
+source of “weak effect” reports in early clade audits.
 
 The package ships three presets that make this trade-off explicit:
 
-| Preset                                             | Generation time | Recommended `max_ticks` | Generations | Use case                                                                            |
-|----------------------------------------------------|-----------------|-------------------------|-------------|-------------------------------------------------------------------------------------|
-| [`fast_specs()`](../reference/fast_specs.md)       | ~30 ticks       | 2000                    | ~66         | Any evolutionary scenario — plasticity, Baldwin, body size, cooperation, speciation |
-| [`default_specs()`](../reference/default_specs.md) | ~190 ticks      | 500                     | ~2.6        | Within-generation demos — ecology, predator-prey, disease, learning, kitchen-sink   |
-| [`slow_specs()`](../reference/slow_specs.md)       | ~200 ticks      | 10000                   | ~50         | K-strategist scenarios (elephant, whale) where long life history is the point       |
+| Preset                                                                            | Generation time | Recommended `max_ticks` | Generations | Use case                                                                            |
+|-----------------------------------------------------------------------------------|-----------------|-------------------------|-------------|-------------------------------------------------------------------------------------|
+| [`fast_specs()`](https://itchyshin.github.io/clade/reference/fast_specs.md)       | ~30 ticks       | 2000                    | ~66         | Any evolutionary scenario — plasticity, Baldwin, body size, cooperation, speciation |
+| [`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md) | ~190 ticks      | 500                     | ~2.6        | Within-generation demos — ecology, predator-prey, disease, learning, kitchen-sink   |
+| [`slow_specs()`](https://itchyshin.github.io/clade/reference/slow_specs.md)       | ~200 ticks      | 10000                   | ~50         | K-strategist scenarios (elephant, whale) where long life history is the point       |
 
-[`fast_specs()`](../reference/fast_specs.md) achieves a short generation
-time by lowering `max_age` to 30 ticks and `min_repro_energy` to 60
-(versus 200 and 120 in default). This is how the MATLAB ancestor of
-clade (Bulitko 2023) ran — agents matured quickly and turned over fast,
-which is exactly what gives selection enough time to do its work.
+[`fast_specs()`](https://itchyshin.github.io/clade/reference/fast_specs.md)
+achieves a short generation time by lowering `max_age` to 30 ticks and
+`min_repro_energy` to 60 (versus 200 and 120 in default). This is how
+the MATLAB ancestor of clade (Bulitko 2023) ran — agents matured quickly
+and turned over fast, which is exactly what gives selection enough time
+to do its work.
 
 ``` r
 # Evolutionary scenario: use fast_specs
@@ -210,10 +214,13 @@ run_alife(ecol)
 
 **Rule of thumb.** If the phenomenon you want to see requires *allele
 change* (heritable trait evolution, genetic assimilation, cooperation or
-signal elaboration), use [`fast_specs()`](../reference/fast_specs.md).
+signal elaboration), use
+[`fast_specs()`](https://itchyshin.github.io/clade/reference/fast_specs.md).
 If it is a demographic or ecological phenomenon that unfolds within a
 single generation (predator-prey cycles, disease spread, seasonal grass
-dynamics), [`default_specs()`](../reference/default_specs.md) is fine.
+dynamics),
+[`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md)
+is fine.
 
 See `dev/docs/timescale-analysis.md` for the biological reference table
 (E. coli through elephant) and the full MATLAB-ancestor comparison that
@@ -224,8 +231,9 @@ motivated these presets.
 ## Parameter overview
 
 The parameters that most strongly shape a run are summarised below. All
-others live in [`?default_specs`](../reference/default_specs.md). Values
-shown are the 0.4.0 defaults.
+others live in
+[`?default_specs`](https://itchyshin.github.io/clade/reference/default_specs.md).
+Values shown are the 0.4.0 defaults.
 
 | Parameter               | Default          | What it controls                                                                           |
 |-------------------------|------------------|--------------------------------------------------------------------------------------------|
@@ -272,7 +280,7 @@ captures Baldwin-style learning–evolution interactions (Baldwin 1896,
 Mouret & Clune 2015) cleanly. In 0.4.0, the BNN’s prior-width can be
 drawn from heterozygosity (legacy), a fixed value, or the evolved
 `plasticity` trait — see `bnn_sigma_source` in
-[`?default_specs`](../reference/default_specs.md).
+[`?default_specs`](https://itchyshin.github.io/clade/reference/default_specs.md).
 
 ------------------------------------------------------------------------
 
@@ -314,8 +322,8 @@ death.
 
 A typical experimental design fixes the brain type and toggles one
 module at a time, comparing the resulting
-[`get_run_data()`](../reference/get_run_data.md) outputs across
-conditions.
+[`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md)
+outputs across conditions.
 
 ------------------------------------------------------------------------
 
@@ -378,21 +386,21 @@ data          <- get_run_data(env)
 plot_disease_dynamics(data)
 ```
 
-[`plot_disease_dynamics()`](../reference/plot_disease_dynamics.md) reads
-the `n_infected` and `n_new_infections` columns from `data$ticks` and
-overlays the susceptible, infected, and recovered classes through time.
-The transmission probability, infectious period, and immune duration are
-all controlled through
-[`default_specs()`](../reference/default_specs.md).
+[`plot_disease_dynamics()`](https://itchyshin.github.io/clade/reference/plot_disease_dynamics.md)
+reads the `n_infected` and `n_new_infections` columns from `data$ticks`
+and overlays the susceptible, infected, and recovered classes through
+time. The transmission probability, infectious period, and immune
+duration are all controlled through
+[`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md).
 
 ------------------------------------------------------------------------
 
 ## Running multiple scenarios in parallel
 
-[`batch_alife()`](../reference/batch_alife.md) runs a list of specs
-across R worker processes. This is the recommended way to compare
-parameter regimes, since each Julia process stays warm for its slice of
-the batch:
+[`batch_alife()`](https://itchyshin.github.io/clade/reference/batch_alife.md)
+runs a list of specs across R worker processes. This is the recommended
+way to compare parameter regimes, since each Julia process stays warm
+for its slice of the batch:
 
 ``` r
 specs_list <- lapply(c(0.05, 0.10, 0.20), function(gr) {
@@ -411,20 +419,21 @@ sapply(results, function(env) {
 ```
 
 For more systematic parameter exploration (CMA-ES, MAP-Elites, viability
-search), see the [parameter search guide](ps-introduction.md).
+search), see the [parameter search
+guide](https://itchyshin.github.io/clade/articles/ps-introduction.md).
 
 ------------------------------------------------------------------------
 
 ## Performance note
 
 `clade` crosses the R–Julia boundary exactly **once per
-[`run_alife()`](../reference/run_alife.md) call**, regardless of the
-number of ticks or the number of agents. The entire tick loop — sensing,
-neural network forward pass, action selection, movement, eating,
-reproduction, and death — runs inside a single Julia process. For 200
-agents and 1,000 ticks this is roughly 25× faster than the Rcpp-based
-`alifeR` backend, and it scales smoothly to populations of ~100,000
-agents on a workstation.
+[`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md)
+call**, regardless of the number of ticks or the number of agents. The
+entire tick loop — sensing, neural network forward pass, action
+selection, movement, eating, reproduction, and death — runs inside a
+single Julia process. For 200 agents and 1,000 ticks this is roughly 25×
+faster than the Rcpp-based `alifeR` backend, and it scales smoothly to
+populations of ~100,000 agents on a workstation.
 
 The first call in an R session pays a one-off start-up cost (~60–90 s)
 for Julia compilation. Subsequent calls reuse the warm Julia session and
@@ -435,26 +444,30 @@ return results immediately.
 ## Where to go next
 
 - **Biological scenarios.**
-  [`vignette("scenarios")`](../articles/scenarios.md) is a discovery
-  guide to all 35 pre-packaged scenarios, each with runnable code,
-  expected dynamics, and follow-up experiments.
+  [`vignette("scenarios")`](https://itchyshin.github.io/clade/articles/scenarios.md)
+  is a discovery guide to all 35 pre-packaged scenarios, each with
+  runnable code, expected dynamics, and follow-up experiments.
 - **Parameter search.** The [parameter search
-  introduction](ps-introduction.md) explains when to use random search,
-  MAP-Elites, CMA-ES, or viability mapping. Separate guides cover
-  [agent-level parameters](ps-agent-parameters.md), [environment-level
-  parameters](ps-environment-parameters.md), and [the algorithms
-  themselves](ps-algorithms.md).
+  introduction](https://itchyshin.github.io/clade/articles/ps-introduction.md)
+  explains when to use random search, MAP-Elites, CMA-ES, or viability
+  mapping. Separate guides cover [agent-level
+  parameters](https://itchyshin.github.io/clade/articles/ps-agent-parameters.md),
+  [environment-level
+  parameters](https://itchyshin.github.io/clade/articles/ps-environment-parameters.md),
+  and [the algorithms
+  themselves](https://itchyshin.github.io/clade/articles/ps-algorithms.md).
 - **Full parameter reference.** Every parameter in
-  [`default_specs()`](../reference/default_specs.md) is documented in
-  [`vignette("parameter-reference")`](../articles/parameter-reference.md).
+  [`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md)
+  is documented in
+  [`vignette("parameter-reference")`](https://itchyshin.github.io/clade/articles/parameter-reference.md).
 - **Reading the kernel as biology.** The
-  [kernel-as-biology](k-README.md) series translates the Julia
-  simulation kernel into plain English with biological rationale and
-  audit findings — the hot path (`tick.jl`, `sense.jl`, `reproduce.jl`,
-  etc.), side-by-side with the code.
+  [kernel-as-biology](https://itchyshin.github.io/clade/articles/k-README.md)
+  series translates the Julia simulation kernel into plain English with
+  biological rationale and audit findings — the hot path (`tick.jl`,
+  `sense.jl`, `reproduce.jl`, etc.), side-by-side with the code.
 - **Custom modules.**
-  [`vignette("custom-modules")`](../articles/custom-modules.md) shows
-  how to attach arbitrary R functions to the per-tick hook system.
+  [`vignette("custom-modules")`](https://itchyshin.github.io/clade/articles/custom-modules.md)
+  shows how to attach arbitrary R functions to the per-tick hook system.
 - **0.4.0 kernel changes.** The [0.4.0
   changelog](https://github.com/itchyshin/clade/blob/main/dev/docs/kernel-0.4.0.md)
   documents every kernel-rule change in this release with biological

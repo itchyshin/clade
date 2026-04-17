@@ -23,7 +23,8 @@ search_random(
 
 - specs_base:
 
-  A specs list from [`default_specs()`](default_specs.md).
+  A specs list from
+  [`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md).
 
 - search_params:
 
@@ -78,16 +79,18 @@ Use `search_random()` to:
 - Screen which parameters most strongly influence genetic diversity.
 
 - Identify high-diversity corners of the parameter space before running
-  the more expensive [`search_map_elites()`](search_map_elites.md) or
-  [`search_cmaes()`](search_cmaes.md).
+  the more expensive
+  [`search_map_elites()`](https://itchyshin.github.io/clade/reference/search_map_elites.md)
+  or
+  [`search_cmaes()`](https://itchyshin.github.io/clade/reference/search_cmaes.md).
 
 - Compare stochastic results to MAP-Elites elites to spot archive gaps.
 
 ## See also
 
-[`search_map_elites()`](search_map_elites.md),
-[`search_cmaes()`](search_cmaes.md),
-[`search_gradient()`](search_gradient.md)
+[`search_map_elites()`](https://itchyshin.github.io/clade/reference/search_map_elites.md),
+[`search_cmaes()`](https://itchyshin.github.io/clade/reference/search_cmaes.md),
+[`search_gradient()`](https://itchyshin.github.io/clade/reference/search_gradient.md)
 
 ## Examples
 

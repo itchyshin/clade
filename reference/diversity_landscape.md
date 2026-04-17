@@ -17,9 +17,10 @@ diversity_landscape(run_data, traits = NULL)
 
 - run_data:
 
-  A list from [`get_run_data()`](get_run_data.md). Must contain a
-  `$ticks` data frame with a `t` column and at least one `mean_*` trait
-  column.
+  A list from
+  [`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md).
+  Must contain a `$ticks` data frame with a `t` column and at least one
+  `mean_*` trait column.
 
 - traits:
 
@@ -38,8 +39,8 @@ Visualise the multi-trait diversity landscape
 
 ## See also
 
-[`plot_run()`](plot_run.md),
-[`plot_module_metrics()`](plot_module_metrics.md)
+[`plot_run()`](https://itchyshin.github.io/clade/reference/plot_run.md),
+[`plot_module_metrics()`](https://itchyshin.github.io/clade/reference/plot_module_metrics.md)
 
 ## Examples
 

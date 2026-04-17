@@ -5,7 +5,7 @@ Measures how well the complex-landscape module is working by combining:
 entropy across ground/shrub/canopy layers, and (3) a log-survival bonus.
 Returns `-Inf` for extinct populations or runs with fewer than 10 active
 ticks, making it safe to pass directly to
-[`search_cmaes()`](search_cmaes.md).
+[`search_cmaes()`](https://itchyshin.github.io/clade/reference/search_cmaes.md).
 
 ## Usage
 
@@ -17,7 +17,8 @@ objective_complex_landscape(env)
 
 - env:
 
-  A `clade_env` object from [`run_alife()`](run_alife.md).
+  A `clade_env` object from
+  [`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md).
 
 ## Value
 
@@ -25,8 +26,8 @@ A numeric scalar. Higher is better; `-Inf` = unviable.
 
 ## See also
 
-[`tune_complex_landscape()`](tune_complex_landscape.md),
-[`search_cmaes()`](search_cmaes.md)
+[`tune_complex_landscape()`](https://itchyshin.github.io/clade/reference/tune_complex_landscape.md),
+[`search_cmaes()`](https://itchyshin.github.io/clade/reference/search_cmaes.md)
 
 ## Examples
 

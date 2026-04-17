@@ -16,9 +16,10 @@ plot_body_size_evolution(run_data)
 
 - run_data:
 
-  A list returned by [`get_run_data()`](get_run_data.md). Must contain a
-  `$ticks` data frame with columns `t`, `mean_body_size`, and
-  `sd_body_size`.
+  A list returned by
+  [`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md).
+  Must contain a `$ticks` data frame with columns `t`, `mean_body_size`,
+  and `sd_body_size`.
 
 ## Value
 
@@ -37,7 +38,8 @@ Kleiber, M. (1947) Body size and metabolic rate. *Physiological Reviews*
 
 ## See also
 
-[`plot_run()`](plot_run.md), [`get_run_data()`](get_run_data.md)
+[`plot_run()`](https://itchyshin.github.io/clade/reference/plot_run.md),
+[`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md)
 
 ## Examples
 

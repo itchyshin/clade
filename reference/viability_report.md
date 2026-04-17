@@ -1,11 +1,12 @@
 # Viability report for an evolutionary-audit run
 
-Checks whether a [`run_alife()`](run_alife.md) result is viable enough
-to support claims about *evolved* trait values. Population crashes
-(agents dying faster than they reproduce) silently corrupt trait-mean
-audits by over-weighting a few lucky survivors. This function quantifies
-crash risk via three metrics and returns a tidy report together with a
-verdict in `{"viable", "weak", "crashed"}`.
+Checks whether a
+[`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md)
+result is viable enough to support claims about *evolved* trait values.
+Population crashes (agents dying faster than they reproduce) silently
+corrupt trait-mean audits by over-weighting a few lucky survivors. This
+function quantifies crash risk via three metrics and returns a tidy
+report together with a verdict in `{"viable", "weak", "crashed"}`.
 
 ## Usage
 
@@ -23,8 +24,10 @@ viability_report(
 
 - run_data:
 
-  A list from [`get_run_data()`](get_run_data.md) — either a single
-  `$ticks` data frame or the full [`get_run_data()`](get_run_data.md)
+  A list from
+  [`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md)
+  — either a single `$ticks` data frame or the full
+  [`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md)
   output.
 
 - n_agents_init:
@@ -100,7 +103,8 @@ n_final before trusting trait-mean effects" rule into a reusable check.
 
 ## See also
 
-[`run_alife()`](run_alife.md), [`get_run_data()`](get_run_data.md)
+[`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md),
+[`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md)
 
 ## Examples
 

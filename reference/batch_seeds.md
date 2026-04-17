@@ -1,9 +1,9 @@
 # Run one specs object with multiple random seeds
 
 `batch_seeds()` is a convenience wrapper around
-[`batch_alife()`](batch_alife.md) for the common case of replicating a
-single simulation across several random seeds. Each replicate is
-identical except for its `random_seed`.
+[`batch_alife()`](https://itchyshin.github.io/clade/reference/batch_alife.md)
+for the common case of replicating a single simulation across several
+random seeds. Each replicate is identical except for its `random_seed`.
 
 ## Usage
 
@@ -15,8 +15,12 @@ batch_seeds(specs, seeds = 1:5, n_cores = 1L, verbose = FALSE)
 
 - specs:
 
-  A specs list from [`default_specs()`](default_specs.md) (or
-  [`quick_specs()`](quick_specs.md) / [`full_specs()`](full_specs.md))
+  A specs list from
+  [`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md)
+  (or
+  [`quick_specs()`](https://itchyshin.github.io/clade/reference/quick_specs.md)
+  /
+  [`full_specs()`](https://itchyshin.github.io/clade/reference/full_specs.md))
   with your modifications. The `random_seed` field is overwritten for
   each replicate.
 
@@ -27,7 +31,7 @@ batch_seeds(specs, seeds = 1:5, n_cores = 1L, verbose = FALSE)
 - n_cores:
 
   Integer. Number of parallel R workers (default `1L`). Passed to
-  [`batch_alife()`](batch_alife.md).
+  [`batch_alife()`](https://itchyshin.github.io/clade/reference/batch_alife.md).
 
 - verbose:
 
@@ -40,8 +44,9 @@ A named list of `env` objects, one per seed, named `"seed_1"`,
 
 ## See also
 
-[`batch_alife()`](batch_alife.md),
-[`default_specs()`](default_specs.md), [`quick_specs()`](quick_specs.md)
+[`batch_alife()`](https://itchyshin.github.io/clade/reference/batch_alife.md),
+[`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md),
+[`quick_specs()`](https://itchyshin.github.io/clade/reference/quick_specs.md)
 
 ## Examples
 

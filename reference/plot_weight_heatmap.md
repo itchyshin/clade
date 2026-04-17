@@ -41,7 +41,7 @@ Visualise a neural genome as a weight heatmap
 
 ## See also
 
-[`visualize_progress()`](visualize_progress.md)
+[`visualize_progress()`](https://itchyshin.github.io/clade/reference/visualize_progress.md)
 
 ## Examples
 

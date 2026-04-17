@@ -83,7 +83,7 @@ for a dramatic visual.
 
 **What we found (2026-04-15 audit, 3 seeds × 4 investment levels).**
 Full protocol:
-[dev/audit/fidelity/parental_investment.md](../dev/audit/fidelity/parental_investment.md).
+[dev/audit/fidelity/parental_investment.md](https://itchyshin.github.io/clade/dev/audit/fidelity/parental_investment.md).
 
 Across `female_investment ∈ {0.3, 0.5, 0.7, 0.9}` all population metrics
 are essentially flat: births ≈ 1.5/tick, juveniles ≈ 1.5, n_agents ≈
@@ -142,11 +142,13 @@ beyond:
     energy but not total population output at these run lengths.
 
 3.  **Biparental game** Vary `female_investment` from 0.1 to 0.9 across
-    nine values in [`batch_alife()`](../reference/batch_alife.md). Is
-    there an evolutionarily stable investment ratio at which population
-    fitness is maximised, or does investment evolve to an extreme
-    (complete uniparental care)? Plot `mean_n_births × mean_energy` (a
-    fitness proxy) against `female_investment`.
+    nine values in
+    [`batch_alife()`](https://itchyshin.github.io/clade/reference/batch_alife.md).
+    Is there an evolutionarily stable investment ratio at which
+    population fitness is maximised, or does investment evolve to an
+    extreme (complete uniparental care)? Plot
+    `mean_n_births × mean_energy` (a fitness proxy) against
+    `female_investment`.
 
     *Tried it.* High investment (0.8) + disease (50 agents, 200 ticks,
     seed 42): n = 110, infections = 23. Low investment (0.2) + disease:

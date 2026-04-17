@@ -5,12 +5,13 @@ species. They set individual morphology, behaviour, life history, and
 cognition — and they are typically what gets tuned when you ask “which
 type of organism thrives here?”. For environment-level parameters
 (resources, grid, seasonality, external forces), see
-[ps-environment-parameters.html](ps-environment-parameters.md).
+[ps-environment-parameters.html](https://itchyshin.github.io/clade/articles/ps-environment-parameters.md).
 
 This vignette lists the agent-level parameters by module, flags the ones
 that are only active when a matching `_evolution` flag is set, and shows
 worked searches for a few common cases. For the algorithms themselves,
-see [ps-algorithms.html](ps-algorithms.md).
+see
+[ps-algorithms.html](https://itchyshin.github.io/clade/articles/ps-algorithms.md).
 
 ------------------------------------------------------------------------
 
@@ -44,8 +45,9 @@ ignored.** The trait is clamped at its biologically neutral value
 (usually `1.0` for multipliers, `0.0` for zero-centred propensities).
 This catches beginners: setting `body_size_init_mean = 2.0` with
 `body_size_evolution = FALSE` has no effect. The [fidelity audit
-pace-of-life trace](../dev/audit/fidelity/pace_of_life.md) is a
-cautionary example of this exact pitfall.
+pace-of-life
+trace](https://itchyshin.github.io/clade/dev/audit/fidelity/pace_of_life.md)
+is a cautionary example of this exact pitfall.
 
 ------------------------------------------------------------------------
 
@@ -210,22 +212,24 @@ uses.
 
 ## Worked example: calibrating IFfolk
 
-A domain-specific [`tune_iffolk()`](../reference/tune_iffolk.md) wrapper
-pre-configures the relevant agent-level parameters (transfer rate,
-parliament cost, helper tendency evolution) and uses
-[`objective_iffolk()`](../reference/objective_iffolk.md), which fits a
-linear regression to `mean_helper_tendency` over time and rewards upward
-trends plus a per-agent transfer bonus. This is far more sensitive than
-simply maximising the final helper tendency:
+A domain-specific
+[`tune_iffolk()`](https://itchyshin.github.io/clade/reference/tune_iffolk.md)
+wrapper pre-configures the relevant agent-level parameters (transfer
+rate, parliament cost, helper tendency evolution) and uses
+[`objective_iffolk()`](https://itchyshin.github.io/clade/reference/objective_iffolk.md),
+which fits a linear regression to `mean_helper_tendency` over time and
+rewards upward trends plus a per-agent transfer bonus. This is far more
+sensitive than simply maximising the final helper tendency:
 
 ``` r
 tuned_iff <- tune_iffolk(default_specs(), n_iterations = 80L)
 tuned_iff$specs$iffolk_transfer   # optimal transfer amount
 ```
 
-Pair this with [`search_viability()`](../reference/search_viability.md)
+Pair this with
+[`search_viability()`](https://itchyshin.github.io/clade/reference/search_viability.md)
 first — see
-[ps-environment-parameters.html#viability-mapping](ps-environment-parameters.html#viability-mapping)
+[ps-environment-parameters.html#viability-mapping](https://itchyshin.github.io/clade/articles/ps-environment-parameters.html#viability-mapping)
 — because at extreme parameter values the IFfolk population goes extinct
 and CMA-ES has no signal to follow.
 
@@ -242,7 +246,7 @@ the world:
   `predator_mutation_sd`) live on the predators themselves but their
   *abundance* (`n_predators_init`, `predator_max_agents`) is an
   environmental selection force — see
-  [ps-environment-parameters.html#predators](ps-environment-parameters.html#predators).
+  [ps-environment-parameters.html#predators](https://itchyshin.github.io/clade/articles/ps-environment-parameters.html#predators).
 - **Niche-construction parameters** (`shelter_build_prob`,
   `shelter_occupancy_bonus`) are agent-behavioural, but their effect on
   grass regrowth is environmental.
@@ -253,11 +257,13 @@ the world:
 
 ## See also
 
-- **[ps-introduction.html](ps-introduction.md)** — when to search, which
-  algorithm, how to design an objective function.
-- **[ps-environment-parameters.html](ps-environment-parameters.md)** —
-  grid, resources, seasonality, external forces.
-- **[ps-algorithms.html](ps-algorithms.md)** — full algorithm reference.
-- **[`vignette("parameter-reference")`](../articles/parameter-reference.md)**
+- **[ps-introduction.html](https://itchyshin.github.io/clade/articles/ps-introduction.md)**
+  — when to search, which algorithm, how to design an objective
+  function.
+- **[ps-environment-parameters.html](https://itchyshin.github.io/clade/articles/ps-environment-parameters.md)**
+  — grid, resources, seasonality, external forces.
+- **[ps-algorithms.html](https://itchyshin.github.io/clade/articles/ps-algorithms.md)**
+  — full algorithm reference.
+- **[`vignette("parameter-reference")`](https://itchyshin.github.io/clade/articles/parameter-reference.md)**
   — exhaustive list of every parameter in
-  [`default_specs()`](../reference/default_specs.md).
+  [`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md).

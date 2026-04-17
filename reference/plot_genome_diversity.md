@@ -1,8 +1,9 @@
 # Plot genetic diversity over time
 
 Draws the trajectory of the mean pairwise genome distance logged by
-[`get_run_data()`](get_run_data.md). When `specs$speciation = TRUE` the
-maximum observed `n_species` is annotated in the upper-left corner.
+[`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md).
+When `specs$speciation = TRUE` the maximum observed `n_species` is
+annotated in the upper-left corner.
 
 ## Usage
 
@@ -14,8 +15,10 @@ plot_genome_diversity(run_data)
 
 - run_data:
 
-  A list returned by [`get_run_data()`](get_run_data.md). Must contain a
-  `$ticks` data frame with at minimum `t` and `genetic_diversity`.
+  A list returned by
+  [`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md).
+  Must contain a `$ticks` data frame with at minimum `t` and
+  `genetic_diversity`.
 
 ## Value
 
@@ -29,7 +32,8 @@ Plot genetic diversity over time
 
 ## See also
 
-[`plot_run()`](plot_run.md), [`get_run_data()`](get_run_data.md)
+[`plot_run()`](https://itchyshin.github.io/clade/reference/plot_run.md),
+[`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md)
 
 ## Examples
 

@@ -26,7 +26,8 @@ register_module(fn, when = "post_tick", name = NULL)
 - name:
 
   Character label for the module (optional; used in
-  [`list_modules()`](list_modules.md) output).
+  [`list_modules()`](https://itchyshin.github.io/clade/reference/list_modules.md)
+  output).
 
 ## Value
 
@@ -44,8 +45,9 @@ Custom modules can modify:
 
 ## See also
 
-[`list_modules()`](list_modules.md),
-[`clear_modules()`](clear_modules.md), [`run_alife()`](run_alife.md)
+[`list_modules()`](https://itchyshin.github.io/clade/reference/list_modules.md),
+[`clear_modules()`](https://itchyshin.github.io/clade/reference/clear_modules.md),
+[`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md)
 
 ## Examples
 

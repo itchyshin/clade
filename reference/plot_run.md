@@ -1,11 +1,13 @@
 # Dashboard plot summarising a clade simulation run
 
 Constructs a 2x3 patchwork grid of time-series diagnostics from the
-output of [`get_run_data()`](get_run_data.md): population size, mean
-energy with variability ribbon, genetic diversity, births vs deaths per
-tick, grass coverage, and a sixth panel that switches between body size
-(ANN brain) and BNN prior sigma (the Baldwin Effect panel; Baldwin 1896,
-Hinton & Nowlan 1987) depending on the active brain type.
+output of
+[`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md):
+population size, mean energy with variability ribbon, genetic diversity,
+births vs deaths per tick, grass coverage, and a sixth panel that
+switches between body size (ANN brain) and BNN prior sigma (the Baldwin
+Effect panel; Baldwin 1896, Hinton & Nowlan 1987) depending on the
+active brain type.
 
 ## Usage
 
@@ -17,8 +19,9 @@ plot_run(run_data, ...)
 
 - run_data:
 
-  A list as returned by [`get_run_data()`](get_run_data.md). Must
-  contain a `$ticks` data frame with columns `t`, `n_agents`,
+  A list as returned by
+  [`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md).
+  Must contain a `$ticks` data frame with columns `t`, `n_agents`,
   `mean_energy`, `sd_energy`, `genetic_diversity`, `n_births`,
   `n_deaths`, `grass_coverage`, `mean_body_size`, and
   `mean_prior_sigma`.
@@ -45,9 +48,9 @@ guide evolution. *Complex Systems* 1(3):495–502.
 
 ## See also
 
-[`get_run_data()`](get_run_data.md),
-[`plot_environment()`](plot_environment.md),
-[`plot_genome_diversity()`](plot_genome_diversity.md)
+[`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md),
+[`plot_environment()`](https://itchyshin.github.io/clade/reference/plot_environment.md),
+[`plot_genome_diversity()`](https://itchyshin.github.io/clade/reference/plot_genome_diversity.md)
 
 ## Examples
 

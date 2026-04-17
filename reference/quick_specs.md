@@ -1,9 +1,10 @@
 # Quick preset specs for fast exploratory runs
 
-Returns [`default_specs()`](default_specs.md) with a smaller grid, fewer
-agents, and shorter run length. Use for rapid prototyping and parameter
-sweeps where exact biological accuracy is less important than turnaround
-time.
+Returns
+[`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md)
+with a smaller grid, fewer agents, and shorter run length. Use for rapid
+prototyping and parameter sweeps where exact biological accuracy is less
+important than turnaround time.
 
 ## Usage
 
@@ -13,7 +14,9 @@ quick_specs()
 
 ## Value
 
-A specs list identical to [`default_specs()`](default_specs.md) except:
+A specs list identical to
+[`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md)
+except:
 
 - `n_agents_init`:
 
@@ -33,4 +36,5 @@ Typical wall time: ~30 seconds per run (Julia warm-up excluded).
 
 ## See also
 
-[`default_specs()`](default_specs.md), [`full_specs()`](full_specs.md)
+[`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md),
+[`full_specs()`](https://itchyshin.github.io/clade/reference/full_specs.md)

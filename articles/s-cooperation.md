@@ -76,7 +76,7 @@ p1 / p2
 
 **What we found (2026-04-15 audit).** 5-seed multi-seed run at
 `cooperation_multiplier = 2.5`, 80 agents, 400 ticks. Full protocol:
-[dev/audit/fidelity/cooperation.md](../dev/audit/fidelity/cooperation.md).
+[dev/audit/fidelity/cooperation.md](https://itchyshin.github.io/clade/dev/audit/fidelity/cooperation.md).
 
 | Condition      | mean n_agents              | final cooperation level |
 |----------------|----------------------------|-------------------------|
@@ -155,11 +155,11 @@ accelerates the transition. To go beyond:
 
 3.  **Multiplier threshold** Vary `cooperation_multiplier` from 1.0 to
     4.0 across six values in
-    [`batch_alife()`](../reference/batch_alife.md). Theory predicts a
-    sharp threshold at multiplier = 1/(cooperation tendency mean), but
-    spatial structure may lower this. Is the transition sharp or
-    gradual? Does `n_agents_init` (population size, affecting local
-    encounter rates) shift the threshold?
+    [`batch_alife()`](https://itchyshin.github.io/clade/reference/batch_alife.md).
+    Theory predicts a sharp threshold at multiplier = 1/(cooperation
+    tendency mean), but spatial structure may lower this. Is the
+    transition sharp or gradual? Does `n_agents_init` (population size,
+    affecting local encounter rates) shift the threshold?
 
     *Tried it.* With cooperation + disease (80 agents, 200 ticks, seed
     42; multiplier = 3.0): cooperation condition showed 1523 total

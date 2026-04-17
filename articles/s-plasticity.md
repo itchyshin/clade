@@ -82,7 +82,7 @@ critical parameter turned out to be `season_length / max_age`:
 plasticity evolves in the DeWitt-Scheiner direction (seasonal \> stable)
 only when each agent experiences multiple seasonal states during its
 lifetime. See
-[dev/audit/fidelity/plasticity_within_lifetime_sweep.R](../dev/audit/fidelity/plasticity_within_lifetime_sweep.R)
+[dev/audit/fidelity/plasticity_within_lifetime_sweep.R](https://itchyshin.github.io/clade/dev/audit/fidelity/plasticity_within_lifetime_sweep.R)
 for the full sweep; results at fast_specs (`max_age = 30`, 40×40 grid,
 180 agents init, 5 seeds × 2000 ticks):
 
@@ -126,7 +126,7 @@ dedicated “plasticity_cost” trait with a differential-across-individuals
 structure).
 
 **Earlier 0.4.2 audit state (superseded by the above).** Full protocol:
-[dev/audit/fidelity/plasticity.md](../dev/audit/fidelity/plasticity.md).
+[dev/audit/fidelity/plasticity.md](https://itchyshin.github.io/clade/dev/audit/fidelity/plasticity.md).
 
 At pre-0.4.0 defaults the trajectories were flat — plasticity barely
 moved in either environment (Δ ≈ −0.001/−0.002) because sigma was tied

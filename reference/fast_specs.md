@@ -1,10 +1,11 @@
 # Fast-generation specs for evolutionary scenarios
 
-Returns [`default_specs()`](default_specs.md) calibrated for **fast
-generational turnover** — 66 generations in 2000 ticks (vs ~2.6 at
-defaults). Use this preset whenever the scenario tests a prediction
-about **trait evolution across generations** (plasticity, Baldwin
-effect, mimicry, mating systems, dispersal evolution, etc.).
+Returns
+[`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md)
+calibrated for **fast generational turnover** — 66 generations in 2000
+ticks (vs ~2.6 at defaults). Use this preset whenever the scenario tests
+a prediction about **trait evolution across generations** (plasticity,
+Baldwin effect, mimicry, mating systems, dispersal evolution, etc.).
 
 ## Usage
 
@@ -24,7 +25,8 @@ because agents started at reproduction energy with short
 `minReproductionAge`. See `dev/docs/timescale-analysis.md` for the full
 analysis.
 
-Key changes from [`default_specs()`](default_specs.md):
+Key changes from
+[`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md):
 
 - `max_age`:
 
@@ -66,5 +68,6 @@ Key changes from [`default_specs()`](default_specs.md):
 
 ## See also
 
-[`default_specs()`](default_specs.md), [`slow_specs()`](slow_specs.md),
-[`quick_specs()`](quick_specs.md)
+[`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md),
+[`slow_specs()`](https://itchyshin.github.io/clade/reference/slow_specs.md),
+[`quick_specs()`](https://itchyshin.github.io/clade/reference/quick_specs.md)

@@ -25,12 +25,13 @@ search_cmaes(
 
 - specs_base:
 
-  A specs list from [`default_specs()`](default_specs.md).
+  A specs list from
+  [`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md).
 
 - objective:
 
   Character or function (same as
-  [`search_map_elites()`](search_map_elites.md)).
+  [`search_map_elites()`](https://itchyshin.github.io/clade/reference/search_map_elites.md)).
 
 - params:
 
@@ -94,9 +95,9 @@ review. In: Towards a New Evolutionary Computation, Springer, pp 75-102.
 
 ## See also
 
-[`search_map_elites()`](search_map_elites.md),
-[`search_gradient()`](search_gradient.md),
-[`search_viability()`](search_viability.md)
+[`search_map_elites()`](https://itchyshin.github.io/clade/reference/search_map_elites.md),
+[`search_gradient()`](https://itchyshin.github.io/clade/reference/search_gradient.md),
+[`search_viability()`](https://itchyshin.github.io/clade/reference/search_viability.md)
 
 ## Examples
 

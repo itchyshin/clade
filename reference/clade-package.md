@@ -5,7 +5,8 @@ and social behaviour. The R layer is an interface; the per-tick
 simulation kernel runs in Julia via
 [JuliaConnectoR](https://rdrr.io/pkg/JuliaConnectoR/man/juliaEval.html),
 so the R↔Julia boundary is crossed exactly once per
-[`run_alife()`](run_alife.md) call.
+[`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md)
+call.
 
 ## Details
 
@@ -18,40 +19,48 @@ so the R↔Julia boundary is crossed exactly once per
     data <- get_run_data(env)
     plot_run(data)
 
-First call to [`run_alife()`](run_alife.md) precompiles the Julia kernel
-(~10–90 s, once per Julia session).
+First call to
+[`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md)
+precompiles the Julia kernel (~10–90 s, once per Julia session).
 
 ### Key entry points
 
-- [`default_specs()`](default_specs.md) — canonical parameter list;
-  modify and pass to [`run_alife()`](run_alife.md).
+- [`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md)
+  — canonical parameter list; modify and pass to
+  [`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md).
 
-- [`run_alife()`](run_alife.md) / [`run_clade()`](run_clade.md) — run a
-  single simulation.
+- [`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md)
+  /
+  [`run_clade()`](https://itchyshin.github.io/clade/reference/run_clade.md)
+  — run a single simulation.
 
-- [`batch_alife()`](batch_alife.md) — run many specs lists (parallel via
+- [`batch_alife()`](https://itchyshin.github.io/clade/reference/batch_alife.md)
+  — run many specs lists (parallel via
   [parallel::mclapply](https://rdrr.io/r/parallel/mclapply.html)).
 
-- [`get_run_data()`](get_run_data.md) — extract `$ticks` and `$deaths`
-  data frames from an env.
+- [`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md)
+  — extract `$ticks` and `$deaths` data frames from an env.
 
-- [`plot_run()`](plot_run.md) — population / energy / diversity
-  dashboard.
+- [`plot_run()`](https://itchyshin.github.io/clade/reference/plot_run.md)
+  — population / energy / diversity dashboard.
 
-- [`search_cmaes()`](search_cmaes.md) /
-  [`search_map_elites()`](search_map_elites.md) /
-  [`search_gradient()`](search_gradient.md) — parameter search driven by
-  a user-supplied fitness function.
+- [`search_cmaes()`](https://itchyshin.github.io/clade/reference/search_cmaes.md)
+  /
+  [`search_map_elites()`](https://itchyshin.github.io/clade/reference/search_map_elites.md)
+  /
+  [`search_gradient()`](https://itchyshin.github.io/clade/reference/search_gradient.md)
+  — parameter search driven by a user-supplied fitness function.
 
-- [`register_module()`](register_module.md) — attach a custom per-tick R
-  hook (rarely needed — most modules live on the Julia side).
+- [`register_module()`](https://itchyshin.github.io/clade/reference/register_module.md)
+  — attach a custom per-tick R hook (rarely needed — most modules live
+  on the Julia side).
 
 ### Biological modules
 
 All modules are disabled by default and enabled with a single flag in
 the specs list. See the `README.md` module table and
-[vignettes/parameter-reference.Rmd](../doc/parameter-reference.md) for
-the full list with defaults and expected effects.
+[vignettes/parameter-reference.Rmd](https://itchyshin.github.io/clade/doc/parameter-reference.md)
+for the full list with defaults and expected effects.
 
 ### Brain architectures
 

@@ -1,10 +1,11 @@
 # Plot genome PCA to reveal population genetic structure
 
-Takes genome data logged by [`get_run_data()`](get_run_data.md) when
-`log_genomes = TRUE` was set during the run, draws a random sample of up
-to `n_agents` rows, runs principal components analysis on the genome
-weight matrix, and plots PC1 versus PC2 coloured by tick to show how
-genetic structure shifts over time.
+Takes genome data logged by
+[`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md)
+when `log_genomes = TRUE` was set during the run, draws a random sample
+of up to `n_agents` rows, runs principal components analysis on the
+genome weight matrix, and plots PC1 versus PC2 coloured by tick to show
+how genetic structure shifts over time.
 
 When genome data are absent or contain fewer than four rows, a
 placeholder ggplot with an explanatory message is returned instead.
@@ -19,10 +20,11 @@ plot_tsne_genomes(run_data, n_agents = 50L, perplexity = 15, ...)
 
 - run_data:
 
-  A list returned by [`get_run_data()`](get_run_data.md). When
-  `log_genomes = TRUE` was active, this list contains a `$genomes` data
-  frame with an `id` column, a `t` column, and one numeric column per
-  genome weight. When absent the function returns a placeholder.
+  A list returned by
+  [`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md).
+  When `log_genomes = TRUE` was active, this list contains a `$genomes`
+  data frame with an `id` column, a `t` column, and one numeric column
+  per genome weight. When absent the function returns a placeholder.
 
 - n_agents:
 
@@ -50,8 +52,8 @@ Plot genome PCA to reveal population genetic structure
 
 ## See also
 
-[`get_run_data()`](get_run_data.md),
-[`plot_genome_diversity()`](plot_genome_diversity.md)
+[`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md),
+[`plot_genome_diversity()`](https://itchyshin.github.io/clade/reference/plot_genome_diversity.md)
 
 ## Examples
 

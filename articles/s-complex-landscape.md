@@ -48,7 +48,8 @@ plot(data$ticks$t, data$ticks$mean_wing_size, type = "l",
      main = "Wing size evolution in the forest world")
 ```
 
-Use [`tune_complex_landscape()`](../reference/tune_complex_landscape.md)
+Use
+[`tune_complex_landscape()`](https://itchyshin.github.io/clade/reference/tune_complex_landscape.md)
 to find parameter combinations that produce strong wing-size evolution
 with CMA-ES:
 
@@ -93,7 +94,7 @@ whereas the original 0.5-unit gap (init 0.1, threshold 0.6) was not.
 **Important:** small populations (≤ 80 agents) may not produce canopy
 agents even with the correct parameters — use `n_agents_init ≥ 150L` for
 this module. Run
-[`tune_complex_landscape()`](../reference/tune_complex_landscape.md)
+[`tune_complex_landscape()`](https://itchyshin.github.io/clade/reference/tune_complex_landscape.md)
 with CMA-ES to find optimal parameter combinations automatically.
 
 ### Discovery experiments

@@ -2,16 +2,18 @@
 
 `estimate_heritability()` returns a coarse estimate of narrow-sense
 heritability (\\h^2\\) for a quantitative trait that has been logged
-once per tick by [`run_alife()`](run_alife.md). The estimator is the
-lag-1 temporal autocorrelation of the population mean, \$\$\hat{h}^2
-\approx \mathrm{cor}(\bar{z}\_t,\\ \bar{z}\_{t+1}),\$\$ which is used
-here as a *proxy* for the parent-offspring regression (Falconer & Mackay
-1996, ch. 10). The proxy is reasonable when (i) the trait is under
-directional or stabilising selection, (ii) generation overlap is
-moderate, and (iii) the logging interval is short relative to the
-generation time. It is **not** an exact quantitative-genetic estimate
-and should not be reported as one. An exact estimate requires
-parent-offspring pairs, which clade does not currently log.
+once per tick by
+[`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md).
+The estimator is the lag-1 temporal autocorrelation of the population
+mean, \$\$\hat{h}^2 \approx \mathrm{cor}(\bar{z}\_t,\\
+\bar{z}\_{t+1}),\$\$ which is used here as a *proxy* for the
+parent-offspring regression (Falconer & Mackay 1996, ch. 10). The proxy
+is reasonable when (i) the trait is under directional or stabilising
+selection, (ii) generation overlap is moderate, and (iii) the logging
+interval is short relative to the generation time. It is **not** an
+exact quantitative-genetic estimate and should not be reported as one.
+An exact estimate requires parent-offspring pairs, which clade does not
+currently log.
 
 ## Usage
 
@@ -23,8 +25,9 @@ estimate_heritability(run_data, trait = "body_size")
 
 - run_data:
 
-  A list returned by [`get_run_data()`](get_run_data.md) (must contain
-  `$ticks` with the column `paste0("mean_", trait)`).
+  A list returned by
+  [`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md)
+  (must contain `$ticks` with the column `paste0("mean_", trait)`).
 
 - trait:
 
@@ -66,8 +69,9 @@ Genetics*, 4th ed. Longman, Harlow.
 
 ## See also
 
-[`get_run_data()`](get_run_data.md), [`compute_ld()`](compute_ld.md),
-[`species_tree()`](species_tree.md)
+[`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md),
+[`compute_ld()`](https://itchyshin.github.io/clade/reference/compute_ld.md),
+[`species_tree()`](https://itchyshin.github.io/clade/reference/species_tree.md)
 
 ## Examples
 

@@ -14,7 +14,8 @@ get_genome_data(env)
 
 - env:
 
-  An environment list returned by [`run_alife()`](run_alife.md).
+  An environment list returned by
+  [`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md).
 
 ## Value
 
@@ -42,7 +43,8 @@ analysis of population structure. *Evolution* 38(6):1358-1370.
 
 ## See also
 
-[`get_run_data()`](get_run_data.md), [`run_alife()`](run_alife.md)
+[`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md),
+[`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md)
 
 ## Examples
 

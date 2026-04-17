@@ -6,14 +6,15 @@ structure, temporal structure, and external selection forces — and they
 are typically what gets tuned when you ask “in which world does this
 kind of organism thrive?”. For per-organism parameters (traits, brain
 architecture, life history, reproduction), see
-[ps-agent-parameters.html](ps-agent-parameters.md).
+[ps-agent-parameters.html](https://itchyshin.github.io/clade/articles/ps-agent-parameters.md).
 
 This vignette lists the environment-level parameters by domain, flags
 the ones that are only active under an enabling flag, and shows worked
 searches — especially
-[`search_viability()`](../reference/search_viability.md) for mapping
-survivable regions before committing to CMA-ES. For the algorithms
-themselves, see [ps-algorithms.html](ps-algorithms.md).
+[`search_viability()`](https://itchyshin.github.io/clade/reference/search_viability.md)
+for mapping survivable regions before committing to CMA-ES. For the
+algorithms themselves, see
+[ps-algorithms.html](https://itchyshin.github.io/clade/articles/ps-algorithms.md).
 
 ------------------------------------------------------------------------
 
@@ -67,24 +68,24 @@ for the biology.
 
 ## Temporal and spatial structure
 
-| Parameter            | Default | Role                                                                                                |
-|----------------------|---------|-----------------------------------------------------------------------------------------------------|
-| `seasonal_amplitude` | `0.0`   | Amplitude of sinusoidal grass-rate modulation; 0 disables                                           |
-| `season_length`      | `50L`   | Period of the seasonal cycle (ticks)                                                                |
-| `fixed_patch`        | `NULL`  | Named list defining a perennially-rich cell (see [`?default_specs`](../reference/default_specs.md)) |
-| `complex_landscape`  | `FALSE` | Enable 3-layer habitat (ground + shrub + canopy)                                                    |
-| `shrub_density`      | `0.3`   | Fraction of cells with shrub layer (when `complex_landscape`)                                       |
-| `canopy_density`     | `0.1`   | Fraction of cells with canopy layer (when `complex_landscape`)                                      |
-| `shrub_energy`       | `3.0`   | Energy per unit shrub                                                                               |
-| `canopy_energy`      | `5.0`   | Energy per unit canopy                                                                              |
-| `shrub_growth_rate`  | `0.03`  | Shrub-layer regrowth probability                                                                    |
+| Parameter            | Default | Role                                                                                                                               |
+|----------------------|---------|------------------------------------------------------------------------------------------------------------------------------------|
+| `seasonal_amplitude` | `0.0`   | Amplitude of sinusoidal grass-rate modulation; 0 disables                                                                          |
+| `season_length`      | `50L`   | Period of the seasonal cycle (ticks)                                                                                               |
+| `fixed_patch`        | `NULL`  | Named list defining a perennially-rich cell (see [`?default_specs`](https://itchyshin.github.io/clade/reference/default_specs.md)) |
+| `complex_landscape`  | `FALSE` | Enable 3-layer habitat (ground + shrub + canopy)                                                                                   |
+| `shrub_density`      | `0.3`   | Fraction of cells with shrub layer (when `complex_landscape`)                                                                      |
+| `canopy_density`     | `0.1`   | Fraction of cells with canopy layer (when `complex_landscape`)                                                                     |
+| `shrub_energy`       | `3.0`   | Energy per unit shrub                                                                                                              |
+| `canopy_energy`      | `5.0`   | Energy per unit canopy                                                                                                             |
+| `shrub_growth_rate`  | `0.03`  | Shrub-layer regrowth probability                                                                                                   |
 
 Complex-landscape parameters are the classic “map this region before you
 optimise” case. Many combinations drive the population extinct (too
 little productive area, or wrong energy ratios), and CMA-ES cannot
 follow a gradient through a dead region. Use
-[`search_viability()`](../reference/search_viability.md) first — see
-[worked example](#viability-mapping) below.
+[`search_viability()`](https://itchyshin.github.io/clade/reference/search_viability.md)
+first — see [worked example](#viability-mapping) below.
 
 `seasonal_amplitude` interacts multiplicatively with `grass_rate`:
 `effective_rate_t = grass_rate × (1 + seasonal_amplitude × sin(2π t / season_length))`.
@@ -109,7 +110,7 @@ as environmental selection forces on the prey population.
 
 The per-predator traits (`predator_attack_strength`,
 `predator_energy_gain`) are closer to agent parameters — see
-[ps-agent-parameters.html#cross-links-to-fuzzy-parameters](ps-agent-parameters.html#cross-links-to-fuzzy-parameters).
+[ps-agent-parameters.html#cross-links-to-fuzzy-parameters](https://itchyshin.github.io/clade/articles/ps-agent-parameters.html#cross-links-to-fuzzy-parameters).
 
 ------------------------------------------------------------------------
 
@@ -140,8 +141,9 @@ signals in the suite.
 Before running CMA-ES on a parameter region, it is worth mapping the
 *viable region* — the set of parameter combinations where the population
 doesn’t go extinct.
-[`search_viability()`](../reference/search_viability.md) does this in a
-single call and returns both a heatmap and a tidy data frame.
+[`search_viability()`](https://itchyshin.github.io/clade/reference/search_viability.md)
+does this in a single call and returns both a heatmap and a tidy data
+frame.
 
 ``` r
 library(clade)
@@ -168,11 +170,11 @@ tuned$specs          # optimal parameter set
 tuned$history$sigma  # step-size decay — smaller sigma = converged
 ```
 
-[`tune_complex_landscape()`](../reference/tune_complex_landscape.md) is
-a pre-configured wrapper: it sets five landscape parameters
+[`tune_complex_landscape()`](https://itchyshin.github.io/clade/reference/tune_complex_landscape.md)
+is a pre-configured wrapper: it sets five landscape parameters
 (`shrub_density`, `canopy_density`, `shrub_energy`, `canopy_energy`,
 `shrub_growth_rate`) and uses
-[`objective_complex_landscape()`](../reference/objective_complex_landscape.md),
+[`objective_complex_landscape()`](https://itchyshin.github.io/clade/reference/objective_complex_landscape.md),
 which measures the joint increase in wing size, niche diversity, and
 survival.
 
@@ -250,17 +252,19 @@ agent page but their *world-facing* effects are summarised here:
   interactions.
 - **Carrion** (`carrion_fraction`, `carrion_decay_rate`) — state of the
   environment created by agent deaths; see
-  [ps-agent-parameters.html#cross-links-to-fuzzy-parameters](ps-agent-parameters.html#cross-links-to-fuzzy-parameters).
+  [ps-agent-parameters.html#cross-links-to-fuzzy-parameters](https://itchyshin.github.io/clade/articles/ps-agent-parameters.html#cross-links-to-fuzzy-parameters).
 
 ------------------------------------------------------------------------
 
 ## See also
 
-- **[ps-introduction.html](ps-introduction.md)** — when to search, which
-  algorithm, how to design an objective function.
-- **[ps-agent-parameters.html](ps-agent-parameters.md)** — traits,
-  brain, life history, reproduction, social behaviour.
-- **[ps-algorithms.html](ps-algorithms.md)** — full algorithm reference.
-- **[`vignette("parameter-reference")`](../articles/parameter-reference.md)**
+- **[ps-introduction.html](https://itchyshin.github.io/clade/articles/ps-introduction.md)**
+  — when to search, which algorithm, how to design an objective
+  function.
+- **[ps-agent-parameters.html](https://itchyshin.github.io/clade/articles/ps-agent-parameters.md)**
+  — traits, brain, life history, reproduction, social behaviour.
+- **[ps-algorithms.html](https://itchyshin.github.io/clade/articles/ps-algorithms.md)**
+  — full algorithm reference.
+- **[`vignette("parameter-reference")`](https://itchyshin.github.io/clade/articles/parameter-reference.md)**
   — exhaustive list of every parameter in
-  [`default_specs()`](../reference/default_specs.md).
+  [`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md).
