@@ -49,13 +49,11 @@ library(ggplot2)
 library(patchwork)
 
 run_cond <- function(coop_ev, seed) {
-  s <- default_specs()
+  s <- fast_specs()                   # ~66 generations in 2000 ticks
   s$cooperation_evolution  <- coop_ev
   s$cooperation_multiplier <- 2.5
   s$cooperation_cost       <- 1.0
   s$cooperation_init_mean  <- 0.5
-  s$n_agents_init          <- 50L
-  s$max_ticks              <- 400L
   s$random_seed            <- as.integer(seed)
   env <- run_alife(s, verbose = FALSE)
   d   <- get_run_data(env)$ticks

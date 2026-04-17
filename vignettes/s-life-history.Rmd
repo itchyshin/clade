@@ -48,14 +48,12 @@ generations.
 library(clade)
 library(ggplot2)
 
-s_sem <- default_specs()
+s_sem <- fast_specs()                 # ~66 generations in 2000 ticks
 s_sem$life_history <- "semelparous"
-s_sem$max_ticks    <- 400L
 s_sem$random_seed  <- 7L
 
-s_ite <- default_specs()
+s_ite <- fast_specs()
 s_ite$life_history <- "iteroparous"
-s_ite$max_ticks    <- 400L
 s_ite$random_seed  <- 7L
 
 d_sem <- get_run_data(run_alife(s_sem))$ticks
