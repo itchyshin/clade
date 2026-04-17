@@ -11,8 +11,10 @@ batch_alife(specs_list, n_cores = 1L, verbose = FALSE)
 \code{\link[=run_alife]{run_alife()}} independently.}
 
 \item{n_cores}{Integer. Number of R worker processes to use (default 1L).
-When \verb{> 1}, uses \code{\link[parallel:mclapply]{parallel::mclapply()}} on Unix/macOS or
-\code{\link[parallel:clusterApply]{parallel::parLapply()}} on Windows.}
+Each worker pays a ~60 s Julia compile cost on its first run; for
+batches smaller than ~20 scenarios, serial may be faster. For 50+
+scenarios, the speedup is near-linear in \code{n_cores} (capped by
+available cores; see CLAUDE.md for this machine's 200-core cap).}
 
 \item{verbose}{Logical. Print progress (default \code{FALSE} for batch mode).}
 }
@@ -21,9 +23,17 @@ A list of \code{env} objects, one per element of \code{specs_list}, in the
 same order.
 }
 \description{
-\code{batch_alife()} runs a list of specs in parallel, distributing across
-Julia threads (via \code{Threads.@threads}) if more than one thread is available,
-and additionally across R worker processes via the \code{parallel} package.
+\code{batch_alife()} runs a list of specs across R worker processes. At
+\code{n_cores = 1L} (default), runs are serial via \code{\link[=lapply]{lapply()}}. At
+\code{n_cores > 1L}, runs are distributed across a
+\code{\link[parallel:makeCluster]{parallel::makeCluster()}} PSOCK cluster — each worker is a
+separate R process with its own Julia session.
+}
+\details{
+The PSOCK approach (0.5.6 default) replaces an earlier
+\code{\link[parallel:mclapply]{parallel::mclapply()}} path that silently deadlocked: forked R
+workers shared the parent's JuliaConnectoR socket and all blocked
+on the same Julia server. See \code{dev/docs/parallelism-audit.md}.
 }
 \examples{
 \dontrun{
