@@ -12,7 +12,9 @@ search_map_elites(
   mutation_params = NULL,
   mutation_sd = 0.1,
   n_cores = 1L,
-  verbose = TRUE
+  verbose = TRUE,
+  checkpoint_path = NULL,
+  checkpoint_every = 100L
 )
 }
 \arguments{
@@ -39,6 +41,17 @@ log-transformed parameter values (default 0.1).}
 \item{n_cores}{Integer. Parallel cores for batch evaluation (default 1L).}
 
 \item{verbose}{Logical. Print progress (default \code{TRUE}).}
+
+\item{checkpoint_path}{Optional file path. If supplied, the current
+archive + history + iteration index are saved to this RDS file every
+\code{checkpoint_every} iterations (and once more at the end). If the
+same path is passed to a subsequent call, the search resumes from
+the saved iteration. Set to \code{NULL} (default) to disable
+checkpointing. Added 0.5.6.}
+
+\item{checkpoint_every}{Integer. How often to write the checkpoint,
+in iterations (default 100L). Ignored when \code{checkpoint_path} is
+\code{NULL}. Added 0.5.6.}
 }
 \value{
 A list with components:

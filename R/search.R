@@ -55,6 +55,15 @@
 #'   log-transformed parameter values (default 0.1).
 #' @param n_cores Integer. Parallel cores for batch evaluation (default 1L).
 #' @param verbose Logical. Print progress (default `TRUE`).
+#' @param checkpoint_path Optional file path. If supplied, the current
+#'   archive + history + iteration index are saved to this RDS file every
+#'   `checkpoint_every` iterations (and once more at the end). If the
+#'   same path is passed to a subsequent call, the search resumes from
+#'   the saved iteration. Set to `NULL` (default) to disable
+#'   checkpointing. Added 0.5.6.
+#' @param checkpoint_every Integer. How often to write the checkpoint,
+#'   in iterations (default 100L). Ignored when `checkpoint_path` is
+#'   `NULL`. Added 0.5.6.
 #'
 #' @return A list with components:
 #' \describe{
@@ -93,12 +102,14 @@
 #' @export
 search_map_elites <- function(specs_base,
                                archive_dims,
-                               n_iterations  = 1000L,
-                               objective     = "genetic_diversity",
-                               mutation_params = NULL,
-                               mutation_sd   = 0.1,
-                               n_cores       = 1L,
-                               verbose       = TRUE) {
+                               n_iterations     = 1000L,
+                               objective        = "genetic_diversity",
+                               mutation_params  = NULL,
+                               mutation_sd      = 0.1,
+                               n_cores          = 1L,
+                               verbose          = TRUE,
+                               checkpoint_path  = NULL,
+                               checkpoint_every = 100L) {
   stopifnot(is.list(specs_base), is.list(archive_dims), length(archive_dims) >= 1L)
   n_iterations <- as.integer(n_iterations)
 
@@ -182,9 +193,34 @@ search_map_elites <- function(specs_base,
     new_specs
   }
 
+  # 0.5.6: checkpoint/resume. If `checkpoint_path` points at an
+  # existing RDS, load the saved archive + history + last iteration
+  # index and resume from i = (last_i + 1). Otherwise start fresh.
+  start_iter <- 1L
+  if (!is.null(checkpoint_path) && file.exists(checkpoint_path)) {
+    saved <- tryCatch(readRDS(checkpoint_path), error = function(e) NULL)
+    if (!is.null(saved) && is.list(saved) &&
+        all(c("archive", "history", "iteration") %in% names(saved))) {
+      archive <- saved$archive
+      history <- saved$history
+      start_iter <- as.integer(saved$iteration) + 1L
+      if (verbose)
+        message(sprintf("MAP-Elites: resuming from checkpoint %s at iter %d",
+                        checkpoint_path, start_iter))
+    }
+  }
+
+  .save_checkpoint <- function(iter) {
+    if (is.null(checkpoint_path)) return(invisible(NULL))
+    saveRDS(list(archive = archive, history = history,
+                 iteration = iter),
+            file = checkpoint_path)
+    invisible(NULL)
+  }
+
   if (verbose) message(sprintf("MAP-Elites: %d iterations, %d cells", n_iterations, n_cells))
 
-  for (i in seq_len(n_iterations)) {
+  for (i in seq.int(start_iter, n_iterations)) {
     # Select parent specs
     filled <- which(!vapply(archive, is.null, logical(1L)))
     if (length(filled) == 0L) {
@@ -219,11 +255,22 @@ search_map_elites <- function(specs_base,
       filled_cells = sum(!vapply(archive, is.null, logical(1L)))
     ))
 
+    if (!is.null(checkpoint_path) &&
+        as.integer(checkpoint_every) > 0L &&
+        i %% as.integer(checkpoint_every) == 0L) {
+      .save_checkpoint(i)
+    }
+
     if (verbose && i %% 100 == 0) {
       message(sprintf("  iter %d: %.3f filled cells: %d / %d",
                       i, score, tail(history$filled_cells, 1L), n_cells))
     }
   }
+
+  # 0.5.6: final checkpoint after the loop completes, so the last
+  # iteration's result is persisted even if it fell between scheduled
+  # checkpoints.
+  if (!is.null(checkpoint_path)) .save_checkpoint(n_iterations)
 
   # 0.4.1: warn if the archive coverage is pathologically low at the end —
   # a strong signal that the mutation step is too small for the chosen

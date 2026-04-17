@@ -270,6 +270,7 @@ reference:
       - sample_specs
       - summarize_batch
       - stream_specs_to_csv
+      - submit_sweep_slurm
       - default_specs
       - quick_specs
       - full_specs

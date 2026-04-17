@@ -600,6 +600,173 @@ stream_specs_to_csv <- function(specs_list, out_path,
   invisible(out_path)
 }
 
+#' Generate a SLURM array-job template for a parameter-space sweep
+#'
+#' Writes two files that together let you fan a clade sweep across a
+#' SLURM cluster: an `.rds` with the full specs_list, and a shell
+#' script that calls `Rscript -e 'clade::stream_specs_to_csv(...)'`
+#' for a subset of specs per array task. You run the sweep yourself
+#' with `sbatch <script>.sh` — this function does not talk to SLURM.
+#'
+#' Per-task behaviour: reads `SLURM_ARRAY_TASK_ID` from the
+#' environment, selects the corresponding slice of the specs_list,
+#' and appends summary rows to the shared `out_path` CSV. Because
+#' [stream_specs_to_csv()] is resume-safe, re-running any array task
+#' is idempotent — useful if some jobs get preempted.
+#'
+#' @param specs_list List of specs (e.g. from [sample_specs()]).
+#' @param out_path Character. Path on the cluster filesystem where
+#'   the CSV will be appended to. Must be reachable from every node.
+#' @param script_path Character. Local path where the `.sh` file is
+#'   written.
+#' @param rds_path Character. Local path where the `.rds` of
+#'   `specs_list` is written. Cluster nodes need to be able to read
+#'   this path; for a shared filesystem just put it somewhere the
+#'   cluster can see.
+#' @param n_array_tasks Integer. Number of SLURM array tasks. Each
+#'   gets `ceiling(length(specs_list) / n_array_tasks)` specs.
+#'   Default: `min(100, length(specs_list))`.
+#' @param n_cores_per_task Integer. `n_cores` passed to
+#'   [stream_specs_to_csv()] within each array task. Default 4L.
+#' @param time Character. SLURM `--time` value (e.g. `"06:00:00"`).
+#' @param mem Character. SLURM `--mem` value (e.g. `"8G"`).
+#' @param summary_fn Optional summary function, same as
+#'   [stream_specs_to_csv()]. If `NULL` (default), the default
+#'   summary is used on the cluster side.
+#' @param R_library_path Optional character. Added to `.libPaths()`
+#'   on the cluster node via `.libPaths(c("<path>", .libPaths()))`
+#'   before `library(clade)`. Useful when clade is installed in a
+#'   non-standard location on the cluster.
+#' @param extra_sbatch_lines Character vector of extra `#SBATCH`
+#'   directives (without the leading `#SBATCH`) to include in the
+#'   script preamble.
+#'
+#' @return The path to the generated shell script (invisibly), with
+#'   a message showing the `sbatch` command to invoke.
+#'
+#' @examples
+#' \dontrun{
+#' specs_list <- sample_specs(fast_specs(), n = 100000L,
+#'                            grass_rate  = list(0.05, 0.45),
+#'                            mutation_sd = c(0.05, 0.1, 0.2))
+#' submit_sweep_slurm(
+#'   specs_list,
+#'   out_path     = "/shared/sweeps/big_sweep.csv",
+#'   script_path  = "/shared/sweeps/submit.sh",
+#'   rds_path     = "/shared/sweeps/specs.rds",
+#'   n_array_tasks = 200L,
+#'   n_cores_per_task = 8L,
+#'   time         = "12:00:00",
+#'   mem          = "16G")
+#' # then: sbatch /shared/sweeps/submit.sh
+#' }
+#'
+#' @seealso [stream_specs_to_csv()], [sample_specs()]
+#' @export
+submit_sweep_slurm <- function(specs_list,
+                               out_path,
+                               script_path,
+                               rds_path,
+                               n_array_tasks    = min(100L, length(specs_list)),
+                               n_cores_per_task = 4L,
+                               time             = "06:00:00",
+                               mem              = "8G",
+                               summary_fn       = NULL,
+                               R_library_path   = NULL,
+                               extra_sbatch_lines = character(0)) {
+  stopifnot(is.list(specs_list), length(specs_list) >= 1L,
+            is.character(out_path),    length(out_path)    == 1L,
+            is.character(script_path), length(script_path) == 1L,
+            is.character(rds_path),    length(rds_path)    == 1L)
+  n_array_tasks    <- as.integer(n_array_tasks)
+  n_cores_per_task <- as.integer(n_cores_per_task)
+
+  # Ensure names
+  if (is.null(names(specs_list)))
+    names(specs_list) <- sprintf("run_%06d", seq_along(specs_list))
+
+  # Save the specs + summary function (if any) as RDS. All array
+  # tasks read from this file.
+  saveRDS(list(specs_list = specs_list, summary_fn = summary_fn),
+          file = rds_path)
+
+  N <- length(specs_list)
+  chunk_size <- as.integer(ceiling(N / n_array_tasks))
+
+  libpaths_line <- if (!is.null(R_library_path))
+    sprintf('.libPaths(c("%s", .libPaths()))', R_library_path)
+  else ""
+
+  sbatch_extras <- if (length(extra_sbatch_lines) > 0L)
+    paste0("#SBATCH ", extra_sbatch_lines, collapse = "\n")
+  else ""
+
+  # The per-task R script body. Uses SLURM_ARRAY_TASK_ID to pick the
+  # slice of specs_list; calls stream_specs_to_csv with resume = TRUE.
+  r_body <- sprintf('
+%s
+suppressPackageStartupMessages(library(clade))
+
+task <- as.integer(Sys.getenv("SLURM_ARRAY_TASK_ID"))
+if (is.na(task) || task < 1L)
+  stop("SLURM_ARRAY_TASK_ID not set. Run with sbatch --array=...")
+
+payload <- readRDS("%s")
+specs_list <- payload$specs_list
+summary_fn <- payload$summary_fn
+
+N          <- length(specs_list)
+chunk_size <- %dL
+lo <- (task - 1L) * chunk_size + 1L
+hi <- min(N, task * chunk_size)
+if (lo > N) {
+  message(sprintf("Task %%d out of range (N=%%d), nothing to do", task, N))
+  quit(save = "no", status = 0L)
+}
+
+message(sprintf("Task %%d: specs %%d..%%d (%%d specs)", task, lo, hi, hi - lo + 1L))
+slice <- specs_list[lo:hi]
+
+stream_specs_to_csv(slice,
+                    out_path   = "%s",
+                    summary_fn = summary_fn,
+                    n_cores    = %dL,
+                    resume     = TRUE)
+', libpaths_line, rds_path, chunk_size, out_path, n_cores_per_task)
+
+  sh <- sprintf('#!/bin/bash
+#SBATCH --job-name=clade-sweep
+#SBATCH --array=1-%d
+#SBATCH --cpus-per-task=%d
+#SBATCH --time=%s
+#SBATCH --mem=%s
+#SBATCH --output=clade-sweep_%%A_%%a.out
+#SBATCH --error=clade-sweep_%%A_%%a.err
+%s
+
+set -euo pipefail
+Rscript -e %s
+',
+    n_array_tasks,
+    n_cores_per_task,
+    time,
+    mem,
+    sbatch_extras,
+    shQuote(r_body)
+  )
+
+  writeLines(sh, con = script_path)
+  Sys.chmod(script_path, mode = "0755")
+
+  message(sprintf("SLURM script written to: %s", script_path))
+  message(sprintf("Submit with:  sbatch %s", script_path))
+  message(sprintf("  - %d specs total, %d array tasks × ~%d specs/task",
+                  N, n_array_tasks, chunk_size))
+  message(sprintf("  - output CSV: %s (resume-safe)", out_path))
+
+  invisible(script_path)
+}
+
 # ── Internal helpers ──────────────────────────────────────────────────────────
 
 #' Validate a specs list before sending to Julia
