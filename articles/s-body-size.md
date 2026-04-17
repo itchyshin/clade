@@ -32,11 +32,19 @@ library(ggplot2)
 library(patchwork)
 
 make_s <- function(n_pred, seed) {
-  s <- fast_specs()                   # ~66 generations in 2000 ticks
+  # Uses default_specs() — fast_specs() crashes this scenario (n_final
+  # < 10 across 5 seeds per the 2026-04-17 crash_audit.R run). Body-size
+  # evolution interacts with the short fast_specs lifespan in a way that
+  # overwhelms viability at default grass/density. See
+  # viability_report() and dev/audit/fidelity/crash_audit.R.
+  s <- default_specs()
   s$body_size_evolution <- TRUE
   s$body_size_init_mean <- 1.0
+  s$n_agents_init       <- 80L
+  s$max_agents          <- 400L
   s$n_predators_init    <- as.integer(n_pred)
   s$max_predators       <- as.integer(n_pred * 3L)
+  s$max_ticks           <- 400L
   s$random_seed         <- as.integer(seed)
   s
 }

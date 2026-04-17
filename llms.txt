@@ -348,6 +348,8 @@ Estimate heritability, relatedness, LD, and genome diversity.
   multi-trait diversity landscape
 - [`species_tree()`](species_tree.md) : Reconstruct a species tree from
   a logged simulation
+- [`viability_report()`](viability_report.md) : Viability report for an
+  evolutionary-audit run
 
 ## Map generation
 
