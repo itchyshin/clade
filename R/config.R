@@ -170,6 +170,20 @@
 #'     learning/cost, and exploration comes from epsilon-greedy, so
 #'     canalisation (sigma → 0) can happen without eliminating the
 #'     foraging variability agents need to survive. Added 0.5.6.}
+#'   \item{`bnn_sigma_lr_scale`}{Numeric in \[0, 1\]. When `> 0`, the
+#'     BNN within-lifetime learning rate in `bnn_update!` is mixed
+#'     between the constant-per-agent `lr` and
+#'     `lr × mean(sigma) / bnn_sigma_lr_ref`, so canalised (low-sigma)
+#'     agents learn slowly and plastic (high-sigma) agents learn
+#'     fast. Complements `bnn_action_noise_scale`: that decouples
+#'     sigma from action noise, this couples sigma to learning
+#'     speed. Makes the cost of canalisation sit on learning rate
+#'     rather than exploration. Default 0 preserves legacy
+#'     behaviour. Added 0.5.6.}
+#'   \item{`bnn_sigma_lr_ref`}{Numeric. Reference sigma for the
+#'     `bnn_sigma_lr_scale` mapping. Defaults to 0.5, or the
+#'     `plasticity_init_mean` value when unset explicitly. Added
+#'     0.5.6.}
 #' }
 #'
 #' ## Genome and ploidy
@@ -911,6 +925,19 @@ default_specs <- function() {
                                              # when bnn_action_noise_scale = 0
                                              # kills the BNN-driven
                                              # exploration channel.
+    bnn_sigma_lr_scale  = 0.0,               # 0.5.6: Baldwin deeper lift. When
+                                             # > 0, BNN effective learning rate
+                                             # is scaled by mean(sigma)/sigma_ref
+                                             # — canalised (low-sigma) agents
+                                             # learn slowly, plastic (high-sigma)
+                                             # agents learn fast. At 1.0, fully
+                                             # proportional; 0 legacy. Makes the
+                                             # cost of canalisation sit on
+                                             # learning speed instead of action
+                                             # noise.
+    bnn_sigma_lr_ref    = 0.5,               # 0.5.6: reference sigma for
+                                             # bnn_sigma_lr_scale scaling. When
+                                             # unset, reads plasticity_init_mean.
 
     # ── Genome and ploidy ──────────────────────────────────────────────────
     ploidy                 = 2L,

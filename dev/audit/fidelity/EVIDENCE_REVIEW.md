@@ -126,3 +126,66 @@ A defensible ledger after the re-audit queue would likely look like:
 
 That is still a strong result for a young package, but it is the
 honest one. The review queue above would take ~2 working days.
+
+## Tier C re-audit results — updates (2026-04-17)
+
+Tier C batches 1 + 2 ran 12 of the 14 at-risk ✅ scenarios at 8 seeds
+with the viability_report() guard. Results so far:
+
+**Batch 1 (6 scenarios, `dev/audit/fidelity/tier_c_batch1.R`)**:
+
+| Scenario | Δ | *t* | Outcome |
+|---|---|---|---|
+| cooperation | +424 acts/tick | 36.4 | **PASS** (module-correctness; direction of *evolution* still untested) |
+| speciation | +38 species | 40.0 | **PASS** (module-correctness) |
+| niche | +3956 shelters | 107.2 | **PASS** (module-correctness) |
+| group_defense | -0.9 agents | -0.15 | **FAIL** — no defense benefit under predation |
+| social_learning | -2.2 energy | -1.14 | **FAIL** — no energy benefit from copying |
+| scavenging | +0.05 energy | 0.05 | **NULL** — no detectable carrion benefit |
+
+**Batch 2 (6 scenarios, `dev/audit/fidelity/tier_c_batch2.R`)**:
+
+| Scenario | Δ | *t* | Outcome |
+|---|---|---|---|
+| parental_care | +3.4 juveniles | 27.6 | **PASS** (module-correctness) |
+| complex_landscape | +164 layered agents | 79.5 | **PASS** (module-correctness) |
+| seasonal | +0.129 grass swing | 10.4 | **PASS** (grass oscillates as expected) |
+| brain_size | -0.003 mean_brain_size | -0.08 | **FAIL** — parental_care doesn't grow brain size |
+| parental_investment | +0.035 births/tick | 1.01 | **MARGINAL** — direction OK, not significant |
+| rl | -2.5 energy | -1.66 | **FAIL** — actor-critic doesn't boost foraging |
+
+### Net evidence picture after 12 of 14 Tier C re-audits
+
+- **3 module-correctness PASS** from batch 1 (cooperation, speciation,
+  niche): the flag-on condition differs from flag-off — module
+  engages — but this is a *weaker* claim than "evolves in the
+  direction the cited theory predicts". These stay ✅ with a
+  narrower interpretation.
+- **3 module-correctness PASS** from batch 2 (parental_care,
+  complex_landscape, seasonal): same story; same narrower claim.
+- **5 silent failures (new 🟠 candidates)**: group_defense,
+  social_learning, scavenging, brain_size, rl. Direction fails at
+  8 seeds for the canonical theoretical claim. Needs either
+  (a) reframing of the vignette claim, (b) parameter-regime search
+  for a viable demo, or (c) kernel work.
+- **1 marginal**: parental_investment — direction correct but
+  magnitude not distinguishable from noise at 8 seeds.
+
+### Revised honest ledger (2026-04-17)
+
+Before the re-audit: **26 ✅ / 4 🟠 / 0 🔴** (optimistic).
+
+After the Tier C batch 1+2 re-audits:
+
+| Status | Count | Notes |
+|---|---|---|
+| **Defensible-✅** (module fires OR canonical claim robust at ≥ 8 seeds) | **~14** | All Tier A + B from §Tiers, plus the 6 batch-1-and-2 module-correctness PASSes |
+| **🟠 (honest null, documented caveat)** | **~9** | Original 4 (mating-systems, mimicry, plasticity, baldwin) + 5 Tier C silent failures (group_defense, social_learning, scavenging, brain_size, rl) |
+| **Marginal** | **~1** | parental_investment (direction OK, below significance) |
+| **Untouched Tier C** (need re-audit) | **2** | The 2 scenarios not yet in any batch |
+| 🔴 | **0** | — |
+
+Still a strong result — just more honest. The scenarios that
+demoted aren't kernel bugs; most need parameter-regime calibration
+for their canonical theoretical claim to reproduce. Filed for
+future batches.

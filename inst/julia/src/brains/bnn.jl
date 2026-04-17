@@ -208,7 +208,19 @@ function forward(brain::BNNBrain, input::Vector{Float32})::Vector{Float32}
        length(brain.last_sample) != length(brain.mu) ||
        brain.ticks_since_sample >= sample_freq
         noise_scale = Float32(get(_bnn_action_noise_cache, :scale, 1.0f0))
-        w_sample = brain.mu .+ (noise_scale .* brain.sigma) .* Float32.(randn(length(brain.mu)))
+        # 0.5.6: use the per-run RNG if one has been set via
+        # _bnn_set_rng(env.rng). Falls back to Julia's default global
+        # RNG otherwise (legacy behaviour). Without this, consecutive
+        # run_alife() calls within one Julia session shared global
+        # RNG state and produced non-deterministic trajectories even
+        # with the random_seed spec set.
+        rng = get(_bnn_rng_cache, :rng, nothing)
+        z = if rng === nothing
+            Float32.(randn(length(brain.mu)))
+        else
+            Float32.(randn(rng, length(brain.mu)))
+        end
+        w_sample = brain.mu .+ (noise_scale .* brain.sigma) .* z
         brain.last_sample = w_sample
         brain.ticks_since_sample = Int32(0)
     else
@@ -232,6 +244,29 @@ _bnn_set_freq(f::Integer) = (_bnn_freq_cache[:freq] = Int32(max(f, 1)); nothing)
 # tick_agents! entry via `_bnn_set_action_noise_scale`.
 const _bnn_action_noise_cache = Dict{Symbol,Float32}()
 _bnn_set_action_noise_scale(s::Real) = (_bnn_action_noise_cache[:scale] = Float32(clamp(s, 0, 1)); nothing)
+
+# 0.5.6: per-run RNG cache for BNN Thompson sampling. Set at the
+# start of tick_agents! to env.rng so that consecutive run_alife()
+# calls don't share Julia's global RNG state through the BNN
+# sampling path. Memory: project_rng_order_sensitivity.md.
+const _bnn_rng_cache = Dict{Symbol,Any}()
+_bnn_set_rng(rng) = (_bnn_rng_cache[:rng] = rng; nothing)
+_bnn_clear_rng() = (delete!(_bnn_rng_cache, :rng); nothing)
+
+# 0.5.6: Baldwin deeper lift — when scale > 0, the effective BNN
+# learning rate in bnn_update! is mixed between the legacy rate and
+# (lr × mean_sigma / sigma_ref). So a canalised (low-sigma) agent
+# learns slowly, a plastic (high-sigma) agent learns fast. Makes
+# the COST of canalisation sit on learning speed, not action noise.
+# scale = 0 preserves legacy behaviour; scale = 1 means effective_lr
+# is fully proportional to sigma/sigma_ref. Set from specs at the
+# start of tick_agents!.
+const _bnn_sigma_lr_cache = Dict{Symbol,Float32}()
+_bnn_set_sigma_lr(scale::Real, sigma_ref::Real) = begin
+    _bnn_sigma_lr_cache[:scale]     = Float32(clamp(scale, 0, 1))
+    _bnn_sigma_lr_cache[:sigma_ref] = Float32(max(sigma_ref, 1.0f-6))
+    nothing
+end
 
 # ── Within-lifetime learning (REINFORCE update on posterior) ──────────────────
 
@@ -261,6 +296,28 @@ function bnn_update!(brain::BNNBrain, input::Vector{Float32},
     isempty(brain.last_sample) && return
     length(brain.last_sample) == length(brain.mu) || return
 
+    # 0.5.6: optional "sigma controls learning rate" mode. When
+    # `bnn_sigma_lr_scale > 0`, the effective learning rate for THIS
+    # agent's update is scaled by `mean(sigma) / sigma_ref`, where
+    # sigma_ref is the initial BNN sigma (typically
+    # plasticity_init_mean when bnn_sigma_source = "trait"). Low-sigma
+    # (canalised) agents have low effective_lr → they don't update
+    # much. High-sigma (plastic) agents learn fast. This creates the
+    # Baldwin trade-off: stable envs select for low sigma (learning
+    # is wasteful), variable envs select for high sigma (learning
+    # pays). Default scale = 0 preserves legacy behaviour.
+    lr_scale = Float32(get(_bnn_sigma_lr_cache, :scale, 0.0f0))
+    sigma_ref = Float32(get(_bnn_sigma_lr_cache, :sigma_ref, 0.5f0))
+    effective_lr = if lr_scale > 0.0f0
+        mean_sigma = sum(brain.sigma) / Float32(length(brain.sigma))
+        scale_factor = clamp(mean_sigma / max(sigma_ref, 1.0f-6),
+                              0.0f0, 1.0f0)
+        lr * (1.0f0 - lr_scale + lr_scale * scale_factor)
+    else
+        lr
+    end
+    effective_lr == 0.0f0 && return
+
     # REINFORCE (Williams 1992) with a Gaussian policy over weights
     # (Bayes-By-Backprop score function; Blundell et al. 2015 §3.2):
     #   d log N(w; mu, sigma) / d mu   = (w - mu) / sigma^2
@@ -274,8 +331,8 @@ function bnn_update!(brain::BNNBrain, input::Vector{Float32},
     @inbounds for i in eachindex(brain.mu)
         s2    = max(brain.sigma[i] * brain.sigma[i], 1.0f-6)
         delta = brain.last_sample[i] - brain.mu[i]
-        brain.mu[i]    += lr * advantage * delta / s2
-        brain.sigma[i] *= max(0.01f0, 1.0f0 - lr * abs_adv * 0.1f0)
+        brain.mu[i]    += effective_lr * advantage * delta / s2
+        brain.sigma[i] *= max(0.01f0, 1.0f0 - effective_lr * abs_adv * 0.1f0)
     end
 end
 
