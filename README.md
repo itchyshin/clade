@@ -142,20 +142,23 @@ same R interface; only the forward pass and learning dynamics differ.
 Every biological scenario is backed by a multi-seed fidelity audit that
 cross-references the primary literature, the alifeR R prototype, and
 (where applicable) the MATLAB ancestor codebase. Current ledger
-(as of 0.5.4):
+(as of 0.5.6):
 
 | Status | Count |
 |---|---|
-| ✅ Passed | **22** of 30 auditable scenarios |
-| 🟠 Passed-consistent (direction correct, magnitude limited) | **5** |
+| ✅ Passed | **23** of 30 auditable scenarios |
+| 🟠 Passed-consistent (direction correct, magnitude limited) | **4** |
 | 🔴 Contradicts | **0** |
 
-The five 🟠 scenarios (dispersal-IFD, mating-systems, mimicry,
-plasticity, Baldwin effect) have honestly-documented kernel or
-ecology limitations. All audit reports, runners, and figures live
-under [`dev/audit/fidelity/`](dev/audit/fidelity/). See the
-[audit dashboard](dev/audit/fidelity/DASHBOARD.md) for the full
-ledger with evidence strength, honest nulls, and retractions.
+The four 🟠 scenarios (mating-systems, mimicry, plasticity, Baldwin
+effect) have honestly-documented kernel or ecology limitations. See
+the [priority roadmap](dev/audit/fidelity/PRIORITY_ROADMAP.md) for
+each scenario's diagnosis and promotion path, and the
+[crash-audit findings](dev/audit/fidelity/CRASH_AUDIT_FINDINGS.md)
+for the scenarios that need `default_specs()` (not `fast_specs()`) for
+viability. All audit reports, runners, and figures live under
+[`dev/audit/fidelity/`](dev/audit/fidelity/); `STATUS.md` there is the
+per-scenario ledger.
 
 ---
 
@@ -169,7 +172,6 @@ Full documentation is available at **<https://itchyshin.github.io/clade/>**.
 | [Biological Scenarios](https://itchyshin.github.io/clade/articles/scenarios.html) | Code and expected outputs for every module |
 | [Custom Modules](https://itchyshin.github.io/clade/articles/custom-modules.html) | Write your own per-tick hooks with `register_module()` |
 | [Parameter Reference](https://itchyshin.github.io/clade/articles/parameter-reference.html) | Every parameter in `default_specs()`, grouped by theme |
-| [Diversity Search](https://itchyshin.github.io/clade/articles/diversity-search.html) | CMA-ES, MAP-Elites, viability mapping, and scenario-specific tuning |
 
 ---
 
@@ -182,7 +184,7 @@ If you use clade in published work, please cite:
   author  = {Nakagawa, Shinichi},
   title   = {clade: Agent-based evolutionary simulation with a Julia backend},
   year    = {2026},
-  note    = {R package version 0.5.4},
+  note    = {R package version 0.5.6},
   url     = {https://github.com/itchyshin/clade}
 }
 ```

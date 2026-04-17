@@ -1,3 +1,108 @@
+# clade 0.5.6 (2026-04-17)
+
+Substantial multi-PR session covering timescale presets, a round of
+🟠-sort work, and a new audit-methodology utility.
+
+## New exports
+
+- `fast_specs()` — preset for fast-generation evolutionary scenarios
+  (max_age = 30, ~66 generations in 2000 ticks). Root-cause fix for
+  the "weak evolutionary signal" family of 🟠 scenarios: at
+  `default_specs`, 500-tick audits run only 2.6 generations, far below
+  the 100+ Fisher 1930 predicts for modest selection.
+- `slow_specs()` — preset for K-strategist scenarios (max_age = 200,
+  `min_repro_energy = 150`).
+- `viability_report()` — first-class utility for flagging population
+  crashes before interpreting trait-mean effects. Returns one of
+  `"viable"`, `"weak"`, `"crashed"` with a diagnostic message.
+  Motivated by several 🟠 audits where direction flips were
+  silently driven by population crashes in one condition.
+
+## New specs
+
+- `predator_max_age` — predator lifespan independent of prey. Default
+  `NA` (same as prey); set higher for biologically realistic
+  owl-vs-mouse scenarios.
+- `toroidal` exposed in the `default_specs()` roxygen docs (the spec
+  existed but was undocumented).
+
+## Status changes
+
+- **s-dispersal-ifd promoted 🟠 → ✅.** Sweep at fast_specs over
+  `habitat_preference_strength` found a clean promotion path: at
+  strength ≥ 2.0, Δ = +0.021 ± 0.005 across 5 seeds (vs +0.003 at the
+  default 0.5). Default strength was below the drift floor — only
+  ~1.5% effective move-toward-grass per tick.
+- **s-mimicry reframed** to lead with the predation-dominant ecology
+  (grass_rate = 0.08) where aposematism actually evolves. Default
+  well-fed ecology documented as a Zahavi-handicap limit condition
+  (Grafen 1990 / Getty 2006 / Számadó 2011 critique cited).
+- **s-baldwin and s-plasticity confirmed kernel-limited.** Single-seed
+  fast_specs results (61× / 11× stronger than default) were noise;
+  5-seed and 8-seed re-audits show Δdelta ≈ 0.005 (well below the
+  0.02 threshold). Both need the 0.4.3 BNN-sigma-decoupling work
+  (partial kernel support via `bnn_action_noise_scale` landed in 0.5.5
+  — see that release).
+
+## Scenario vignette updates
+
+- Every evolutionary-scenario vignette demo chunk now uses `fast_specs()`
+  where the scenario is viable at fast_specs, and `default_specs()`
+  where not. `dev/audit/fidelity/crash_audit.R` identified four ✅
+  scenarios that crash at fast_specs (body_size, signals, parental_care,
+  stress_hypermutation) and four that are robustly viable (cooperation,
+  clutch_size, kin, scavenging).
+- `s-predator-prey`: 3 new Discovery experiments added — spatial
+  refugia (2×2 toroidal × complex_landscape factorial), grass density
+  × predator density, group defense × LV. The strongest LV-like
+  cycling clade has produced (oscillation score 0.64) is the
+  complex_landscape + toroidal + 50×50 regime; grid-scale dependent
+  (no effect at 30×30), consistent with a spatial-decoupling mechanism
+  rather than Rosenzweig enrichment.
+- `vignettes/getting-started.Rmd`: new "Simulation timescale" section
+  with the fast/default/slow preset table and Fisher `1/s` rationale.
+
+## Infrastructure
+
+- `dev/audit/fidelity/PRIORITY_ROADMAP.md`: classifies every 🟠 scenario
+  as easy-win (parametric fix), kernel-limited, or weak-✅ (crash risk).
+- `dev/audit/fidelity/CRASH_AUDIT_FINDINGS.md`: documents the
+  cross-scenario viability verdict and the body_size crash mechanism
+  (asymmetric foraging correction for small agents creates a death
+  spiral).
+
+## Bug fixes and methodology
+
+- `_pkgdown.yml`: add `fast_specs`, `slow_specs`, and `viability_report`
+  to the reference index. Previous-version missing-topic errors were
+  blocking pkgdown deploys since PR #34.
+- **Methodology rule (now codified in `viability_report()`)**: never
+  promote a scenario on fewer than 5 seeds; always check `n_final`
+  before interpreting any trait-mean effect. This lesson surfaced
+  four times in the repo now (Red Queen 0.5.3, mimicry 0.5.4, body_size
+  P2 0.5.2, and 0.5.6 plasticity/baldwin/dispersal).
+
+## Memory (cross-session)
+
+Three new persistent memory entries capture what future sessions need
+to know: fast_specs is necessary but not sufficient for evolutionary
+signals; clade kernel has RNG-order contamination; priority roadmap
+for 🟠 sort.
+
+---
+
+# clade 0.5.5 (back-filled)
+
+Kernel-only release (no scenario changes): added the
+`bnn_action_noise_scale` spec to decouple BNN sigma from the action
+sampling channel. At `scale = 1.0` (default), legacy full coupling:
+`w = mu + sigma * z`. At `scale = 0`, actions are deterministic from
+mu; sigma only affects the learning/cost channel. Infrastructure
+added to `inst/julia/src/brains/bnn.jl` and `inst/julia/src/tick.jl`;
+used by 0.5.6 Baldwin audit.
+
+---
+
 # clade 0.5.4 (2026-04-16)
 
 ## Audit: s-mimicry ecology-limited calibration (honest null)
