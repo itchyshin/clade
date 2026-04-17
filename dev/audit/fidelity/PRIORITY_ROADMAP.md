@@ -15,13 +15,15 @@ we look at the 🟠 list:
 1. **`fast_specs()` preset lands.** 66 generations in 2000 ticks
    (vs 2.6 generations at `default_specs` 500 ticks). The root
    cause of most "weak evolutionary signal" reports.
-2. **Plasticity and Baldwin are promotable 🟠 → ✅.** Δdelta grew
-   61× (0.002 → 0.122) and 11× (0.004 → 0.043) respectively
-   under fast_specs. Both now exceed the 0.02 threshold at single
-   seeds; still needs multi-seed re-audit to lock in ✅.
-3. **Dispersal-IFD is promotable 🟠 → ✅.** Δhp grew 18× (0.001
-   → 0.018) under fast_specs. Same caveat: multi-seed re-audit
-   needed.
+2. **~~Plasticity and Baldwin promotable~~.** CORRECTION: the
+   single-seed numbers (61×, 11×) were lucky seeds. 5-seed
+   `fast_specs_reaudit.R` (2026-04-17) shows direction flips to
+   FAIL for both, because severe seasonality (amp=0.7) drives
+   population crashes at the 30×30 / 80-agent density. See §2.1
+   below.
+3. **~~Dispersal-IFD promotable~~.** CORRECTION: 5-seed rerun
+   preserved the direction (patchy > flat, P1 PASS) but the
+   magnitude is +0.008, below the 0.02 threshold. Still 🟠.
 4. **Mimicry got theoretical closure.** Grafen 1990 + Számadó
    2011 + Getty 2006 critique of Zahavi's handicap is now cited
    in the vignette; the weak Δtoxicity at default ecology is
@@ -40,15 +42,41 @@ Five scenarios remain 🟠 on `STATUS.md`. Three will promote on a
 multi-seed re-audit; two are genuinely kernel- or
 theory-limited.
 
-### 2.1 Easy wins (multi-seed fast_specs re-audit should promote)
+### 2.1 Attempted easy wins — single-seed promotions did NOT hold
 
-| Scenario | Current verdict | fast_specs single-seed result | Blocker |
+*Correction added 2026-04-17 after the 5-seed `fast_specs_reaudit.R`
+run. The earlier "61×, 11×, 18× stronger" claims were single-seed
+results that do not survive seed variation:*
+
+| Scenario | Single seed | 5-seed mean Δdelta | 5-seed verdict |
 |---|---|---|---|
-| **s-plasticity** | 🟠 Δdelta +0.003 at 1500 t | +0.122 (61× stronger) | Need 5-seed re-audit at 2000 t |
-| **s-baldwin** | 🟠 Δdelta −0.005 at 1500 t, direction flipped | +0.043 (11× stronger, direction now consistent) | Need 5-seed re-audit at 2000 t |
-| **s-dispersal-ifd** | 🟠 Δhp +0.006 at best grid cell | +0.018 (18× stronger) | Need 5-seed re-audit at 2000 t |
+| **s-plasticity** | +0.122 | **-0.084** | FAIL: direction reverses at multi-seed |
+| **s-baldwin**    | +0.043 | **-0.017** | FAIL: direction reverses at multi-seed |
+| **s-dispersal-ifd** | +0.018 | **+0.008** | Direction PASS, magnitude below 0.02 |
 
-Estimated effort: one runner rewrite + one 3-seed-×-3-cond run per scenario ≈ **2-3 hours total, all three**.
+**What went wrong.** At `fast_specs()` + `seasonal_amplitude = 0.7`,
+the seasonal trough drops grass below the starvation threshold for
+the 30×30 / 80-agent default density. Several seasonal runs crash
+to near-extinction (`n_final` = 0, 3, 5, 11 across seeds) while
+stable runs maintain 14–39 agents. The plasticity / sigma averages
+are then dominated by tiny surviving populations and by seed-
+specific crash timing rather than by the selection gradient. The
+single-seed "promotion" results were lucky seeds that happened not
+to crash.
+
+**Path to genuine promotion.** Either milder seasonality
+(`seasonal_amplitude = 0.3–0.4`), longer seasons
+(`season_length = 100`) to smooth the trough, or a larger world
+(40×40, `n_agents_init = 150`, `max_agents = 600`) to buffer
+against crashes. A calibrated rerun is the next concrete step —
+see `fast_specs_reaudit_v2.R` (TODO, this session).
+
+**Methodology note.** This is the third time in this repo that
+3-5-seed direction claims have reversed under 8+-seed scrutiny
+(prior: Red Queen, mimicry, body-size P2). The lesson continues
+to hold: **never promote a scenario on fewer than 5 seeds, and
+read the raw `n_final` column as a viability sanity check** before
+interpreting any trait-mean effect.
 
 ### 2.2 Kernel-limited (need a kernel change to promote)
 
