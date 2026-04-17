@@ -56,11 +56,7 @@ function apply_body_size!(env::Environment)
 
     specs      = env.specs
     live_cost  = Float32(get(specs, "idle_cost",    0.5))   # proxy for live energy cost
-    eat_gain   = Float32(get(specs, "eat_gain",     5.0))
     energy_max = Float32(get(specs, "energy_max", 200.0))
-
-    rows = Int(specs["grid_rows"])
-    cols = Int(specs["grid_cols"])
 
     @inbounds for ag in env.agents
         ag.alive || continue
@@ -70,22 +66,13 @@ function apply_body_size!(env::Environment)
         # 1. Metabolic surcharge: larger agents pay more, smaller pay less
         ag.energy -= live_cost * (bs - 1.0f0)
 
-        # 2. Foraging correction
-        x, y  = Int(ag.x), Int(ag.y)
-        delta = eat_gain * (bs - 1.0f0)   # + = large agent eats more
-
-        if delta > 0.0f0
-            # Large agent: take extra grass from current cell
-            avail = env.grass[x, y]
-            extra = min(delta, avail)
-            ag.energy       += extra
-            env.grass[x, y] -= extra
-        else
-            # Small agent: correct for over-eating in tick_agents!
-            # Cap correction at 40% of current energy to avoid over-correction
-            correction = min(-delta, max(0.0f0, ag.energy * 0.4f0))
-            ag.energy -= correction
-        end
+        # 2. Foraging is now scaled at the source in tick.jl
+        #    (ag.energy += eat_gain * bite * body_size), so no post-hoc
+        #    correction is needed. The old "correction" branch could
+        #    subtract more energy than was actually credited when grass
+        #    on the cell was low, creating a bs < 1 death spiral —
+        #    diagnosed in dev/audit/fidelity/body_size_crash_diagnosis.R
+        #    and documented in CRASH_AUDIT_FINDINGS.md (2026-04-17).
 
         # 3. Per-agent energy cap
         ag.energy = min(ag.energy, energy_max * bs)
