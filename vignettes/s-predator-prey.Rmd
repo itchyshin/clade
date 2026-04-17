@@ -191,10 +191,73 @@ Three open directions for going beyond:
 
 4. **Can spatial-refugia LV be recovered?** Huffaker (1958) achieved
    sustained oscillations only by breaking the grid into patches with
-   dispersal barriers. With `complex_landscape = TRUE` plus
-   `toroidal = FALSE` and a much larger grid, the same mechanism may
-   produce sustained cycles even with evolving predators. Worth a
-   dedicated `s-spatial-refugia` scenario. Not yet tried.
+   dispersal barriers. With `complex_landscape = TRUE` and a larger
+   grid, the habitat heterogeneity may produce sustained cycles even
+   with evolving predators.
+
+   *Tried it.* 50×50 grid (vs 30×30 baseline), 250 prey init, 25
+   predators init, `complex_landscape ∈ {FALSE, TRUE}`, 5 seeds ×
+   800 ticks each. Prey oscillation score: 0.138 ± 0.011 (baseline)
+   vs 0.095 ± 0.002 (`complex_landscape = TRUE`) — the refugia
+   manipulation made oscillations *weaker*, not stronger. Both
+   conditions saturated prey at `max_agents = 500`, and both
+   saturated predators at their cap. The experiment is inconclusive
+   for the Huffaker question because (a) the kernel is toroidal —
+   `complex_landscape` adds habitat heterogeneity but not the
+   dispersal barriers Huffaker required, and (b) the 50×50 grid at
+   these densities hits the population cap, masking any carrying-
+   capacity-driven cycling. A proper test requires non-toroidal
+   boundaries (`toroidal = FALSE`, not yet exposed) and a larger
+   `max_agents`. Deferred to a dedicated `s-spatial-refugia`
+   scenario.
+
+5. **Grass density × predator density — does LV damping depend on
+   resources?** LV damping should be strongest when prey are
+   resource-limited (small amplitude) and weakest when prey are
+   resource-rich (runaway growth, crashes). Tested
+   `grass_rate ∈ {0.05, 0.15, 0.30}` × `n_predators_init ∈ {5, 20}`
+   × 5 seeds × 800 ticks.
+
+   *Tried it.* Prey oscillation scores (mean ± sd across 5 seeds):
+
+   | grass_rate | 5 preds     | 20 preds    |
+   |---|---|---|
+   | 0.05 (scarce) | 0.19 ± 0.07 | 0.24 ± 0.02 |
+   | 0.15 (moderate) | **0.32 ± 0.04** | **0.32 ± 0.01** |
+   | 0.30 (rich)   | 0.28 ± 0.03 | 0.27 ± 0.05 |
+
+   The result is **non-monotone in grass density**: oscillation
+   peaks at moderate grass (~0.15) and damps at both extremes. With
+   scarce grass (0.05), prey stay near ~40 individuals — too few
+   for coherent cycling. With rich grass (0.30), prey saturate near
+   ~315 — near the ceiling, with little room to oscillate. The
+   moderate regime (grass = 0.15, prey ~190) sits in the sweet spot
+   where carrying-capacity × predation pressure produces the
+   cleanest cycle. Predator initial count has negligible effect
+   within each grass level (the arms-race saturation of Exp 2 holds:
+   evolved predators fill the cap regardless of starting number).
+
+6. **Group defense × LV — Hamilton (1971) dilution.** Hamilton's
+   selfish-herd and dilution arguments predict that group defense
+   reduces per-prey attack risk, which should dampen LV oscillations
+   by reducing predator efficiency. Tested `group_defense ∈ {FALSE,
+   TRUE}` (radius 2, strength 0.3) × 5 seeds × 800 ticks at 20
+   predators.
+
+   *Tried it.* Prey oscillation score: 0.307 ± 0.013 (off) vs
+   0.300 ± 0.020 (on). Effectively identical (difference = 0.007,
+   inside the 0.02 standard deviation of either condition). Prey
+   mean size: 241 vs 245 — also effectively unchanged. Why?
+   Evolved predators appear to compensate behaviourally for the
+   per-attack risk reduction: the hunt-trait evolution already
+   tracks prey availability density by density, so a uniform
+   reduction in attack success is absorbed by the same arms-race
+   saturation mechanism that flattens the predator-count effect in
+   Exp 2. A Hamiltonian dilution signal would likely require either
+   (a) frozen predators (no arms-race absorption) or (b) variance
+   in defense *within* the prey population so that the
+   differential benefit of clustering can be detected genetically.
+   Neither is currently exposed.
 
 ---
 
