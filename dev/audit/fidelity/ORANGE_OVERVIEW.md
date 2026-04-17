@@ -84,40 +84,63 @@ claim-reframing.
 
 - **Expected**: group_defense ON gives higher prey survival under
   predation.
-- **8-seed result**: Δn_agents_final = -0.9, *t* = -0.15 (null).
-- **Diagnosis**: at 5 predators / 100 prey / default strength
-  0.3, the dilution effect is below the noise floor. Not a
-  mechanism failure — a parameter-regime miss.
-- **Next step**: strength + radius sweep (mirroring what worked
-  for s-dispersal-ifd today). Half day.
+- **8-seed result** (default): Δn = -0.9, *t* = -0.15 (null).
+- **3×2 strength×n_predators sweep** (`group_defense_strength_sweep.R`,
+  96 runs, 2026-04-17): defense ON consistently HARMS prey across
+  all 6 cells. At (strength=0.3, n_pred=20): Δ = −10.3, **t = −2.85
+  (PASS in the WRONG direction)**. Pattern holds at strength ≥ 0.6.
+- **Diagnosis**: this is not a parameter-regime miss — the
+  mechanism *inverts* the canonical Hamilton 1971 claim in clade.
+  Likely because (a) evolving predators adapt to grouped prey
+  faster than the defense reduces per-prey risk, and (b) clustered
+  prey deplete local grass faster, starving themselves. Hamilton's
+  original argument assumes fixed predation rate and unlimited
+  food. clade violates both.
+- **Next step**: **honest demotion to 🟠 with claim reframe**.
+  "group_defense changes prey spatial distribution" (true) rather
+  than "Hamilton 1971 selfish-herd dilution" (false in this kernel).
+  Same reframe pattern we did for s-mimicry. No further sweep.
 
 #### 6. s-social-learning (Boyd & Richerson 1985)
 
 - **Expected**: social_learning ON gives higher mean_energy via
   propagation of successful strategies.
-- **8-seed result**: Δmean_energy = -2.2, *t* = -1.14 (weakly
-  *opposite* direction).
-- **Diagnosis**: possibly the copying cost outweighs the
-  information gain at default `social_learning_freq = 20`.
-  Alternatively, the copier's trait moves toward the copied
-  neighbour's — which can be maladaptive if that neighbour's
-  advantage was seed-specific.
-- **Next step**: frequency + mode sweep. Or: reframe the claim
-  to "social_learning increases behavioural convergence" (which
-  is presumably what actually happens) rather than "improves
-  energy".
+- **8-seed result** (default): Δ = −2.2, *t* = −1.14 (null-ish,
+  weakly wrong direction).
+- **3×3 freq×n_init sweep** (`social_learning_sweep.R`, 144 runs):
+  found a working regime. At (freq=50, n_init=150), Δ = +3.3,
+  **t = 2.27 (PASS)**. At more aggressive frequencies (every
+  5 or 20 ticks) direction is wrong or null. At higher density
+  (n_init=250) the effect saturates.
+- **Diagnosis**: default `social_learning_freq = 20` is too
+  aggressive — copying before the copied neighbour's behaviour
+  has stabilised introduces noise. With freq = 50, copying
+  catches only informative neighbours.
+- **Next step**: **keep ✅** with updated vignette claim
+  citing the freq=50 regime as the demonstration. No status
+  change; the mechanism works, just needs the right cadence.
 
 #### 7. s-scavenging (DeVault et al. 2003)
 
 - **Expected**: scavenging ON raises mean_energy under scarce
   grass.
-- **8-seed result**: Δ = +0.05, *t* = 0.05 (null).
-- **Diagnosis**: at default `carrion_fraction = 0.5` and
-  `carrion_eat_gain = 3.0`, carrion contribution is probably
-  swamped by normal foraging variance. Or: agents die of
-  starvation before they find carrion.
-- **Next step**: push grass even scarcer (grass = 0.05) and
-  grass_max lower, to make carrion relatively more important.
+- **8-seed result** (default): Δ = +0.05, *t* = 0.05 (null).
+- **2×3×2 sweep** (`scavenging_strength_sweep.R`, 192 runs,
+  2026-04-17): across 12 parameter cells — `grass_rate` ∈
+  {0.05, 0.10} × `carrion_eat_gain` ∈ {3, 8, 15} × `carrion_fraction`
+  ∈ {0.5, 1.0} — **NO cell gives a positive Δ at t ≥ 2**. One
+  cell (grass=0.05, eat_gain=15, cf=0.5) has |t| = 2.96 but in the
+  WRONG direction (Δ = -5, scavenging LOWERS energy).
+- **Diagnosis**: carrion availability doesn't robustly add to mean
+  agent energy in this kernel. Possible mechanisms: (a) agents
+  foraging on carrion die-site also collide with predators who
+  made the kill; (b) carrion is spatially sparse and time-decayed,
+  so total-energy equalises across conditions.
+- **Next step**: **honest demotion to 🟠 with reframe**.
+  "Scavenging module fires and agents eat carrion" (module-
+  correctness, verified via non-zero `n_scavenging_events`) rather
+  than "improves mean_energy under scarcity" (false). Same
+  reframe pattern as group-defense.
 
 #### 8. s-brain-size (parental-provisioning hypothesis)
 

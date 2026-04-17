@@ -37,16 +37,22 @@ ticks at fast_specs:
 ## 2026-04-17 session summary
 
 - **Promoted 🟠 → ✅**: s-dispersal-ifd (at `habitat_preference_strength
-  = 2.0` under fast_specs; 5-seed Δ = +0.021 ± 0.005).
-- **Reframed**: s-mimicry (lead claim is now the predation-dominant
-  ecology where aposematism evolves; Zahavi handicap critique
-  documented).
+  = 2.0` under fast_specs; 5-seed Δ = +0.021 ± 0.005); s-social-learning
+  re-confirmed at `social_learning_freq = 50` regime (144-run sweep).
+- **Reframed to 🟠**: s-mimicry (predation-dominant ecology as primary
+  claim), s-group-defense (inverts Hamilton 1971 in evolving-predator
+  ABM), s-scavenging (module-correctness only, no DeVault energy benefit).
 - **Confirmed kernel-limited**: s-baldwin, s-plasticity (both need
-  0.4.3 BNN sigma decoupling to cross the threshold).
+  sigma canalisation to engage the 0.5.5/0.5.6 decoupling levers).
 - **New utility**: `viability_report()` — check crash risk before
   interpreting trait means.
 - **New infrastructure**: `dev/audit/fidelity/crash_audit.R`,
-  `PRIORITY_ROADMAP.md`, `CRASH_AUDIT_FINDINGS.md`.
+  `PRIORITY_ROADMAP.md`, `CRASH_AUDIT_FINDINGS.md`,
+  `EVIDENCE_REVIEW.md`, `ORANGE_OVERVIEW.md`.
+
+**Net after all today's audit work:** ~12 defensible-✅ / ~11 🟠 (with
+honest reframed claims) / 1 marginal / 2 untouched / 0 🔴 out of 30
+auditable scenarios.
 
 | Scenario                              | Primary source                                | Status              | Report                                              | Commit  |
 |---|---|---|---|---|
@@ -61,7 +67,7 @@ ticks at fast_specs:
 | s-dispersal-ifd                       | Fretwell & Lucas 1970; Shine et al. 2011      | ✅ passed (2026-04-17: fast_specs + habitat_preference_strength = 2.0, Δ = +0.021 ± 0.005 across 5 seeds) | [dispersal_ifd.md](dispersal_ifd.md)                | pending |
 | s-niche                               | Odling-Smee et al. 2003                       | ✅ passed           | [niche.md](niche.md)                                | pending |
 | s-seasonal                            | Sinusoidal resource variation                 | ✅ passed           | [seasonal.md](seasonal.md)                          | pending |
-| s-scavenging                          | DeVault et al. 2003                           | ✅ passed           | [scavenging.md](scavenging.md)                      | pending |
+| s-scavenging                          | DeVault et al. 2003                           | 🟠 passed-consistent (2026-04-17: 192-run sweep across 12 cells — no cell gives canonical Δenergy > 0 at t ≥ 2; reframed to module-correctness) | [scavenging.md](scavenging.md)                      | pending |
 | s-kin                                 | Hamilton 1964                                 | ✅ passed           | [kin.md](kin.md)                                    | pending |
 | s-cooperation                         | Nowak & May 1992                              | ✅ passed           | [cooperation.md](cooperation.md)                    | pending |
 | s-signals                             | Zahavi 1975; Iwasa & Pomiankowski 1994        | ✅ passed 💥 fast-crash | [signals.md](signals.md)                            | pending |
@@ -72,12 +78,12 @@ ticks at fast_specs:
 | s-clutch-size                         | Lack 1947; r/K (MacArthur & Wilson 1967)      | ✅ passed           | [clutch_size.md](clutch_size.md)                    | pending |
 | s-parental-investment                 | Trivers 1972                                  | ✅ passed (0.4.0 Tier 3) | [parental_investment.md](parental_investment.md) | 9b21f66 |
 | s-pace-of-life                        | Réale et al. 2010                             | ✅ passed (0.4.0 Tier 2) | [pace_of_life.md](pace_of_life.md)               | 9b21f66 |
-| s-group-defense                       | Hamilton 1971 (selfish herd)                  | ✅ passed (0.4.1 grid) | [group_defense.md](group_defense.md)                | pending |
+| s-group-defense                       | Hamilton 1971 (selfish herd)                  | 🟠 passed-consistent (2026-04-17: 96-run sweep shows defense ON consistently LOWERS prey population at all 6 parameter cells; reframed — evolving predators + finite grass invert Hamilton 1971) | [group_defense.md](group_defense.md)                | pending |
 | s-mimicry                             | Bates 1862; Müller 1879                       | 🟠 passed-consistent (0.5.4: kernel machinery correct; all 8-cell ×5-seed grid regimes show Δtoxicity < 0 — Zahavi handicap cost > benefit at default ecology) | [mimicry.md](mimicry.md)                            | pending |
 | s-disease                             | Kermack & McKendrick 1927 (SIR)               | ✅ passed           | [disease.md](disease.md)                            | pending |
 | s-predation-neural                    | —                                             | ⚪ N/A              | demo-only; no fidelity claim                        |         |
 | s-rl                                  | Williams 1992 (REINFORCE)                     | ✅ passed (0.4.1 + Tier 5B freq>1) | [rl.md](rl.md)                                      | pending |
-| s-social-learning                     | Boyd & Richerson 1985                         | ✅ passed (ANN)      | [social_learning.md](social_learning.md)            | pending |
+| s-social-learning                     | Boyd & Richerson 1985                         | ✅ passed (2026-04-17: 144-run freq × density sweep found `freq = 50` regime with Δenergy = +3.3, t = 2.27) | [social_learning.md](social_learning.md)            | pending |
 | s-plasticity                          | Pigliucci 2001                                | 🟠 passed-consistent (0.4.2 1500-tick, direction correct) | [plasticity.md](plasticity.md)                      | pending |
 | s-baldwin                             | Hinton & Nowlan 1987                          | 🟠 passed-consistent (kernel-limited: sigma couples to behavioural variance) | [baldwin.md](baldwin.md)                            | pending |
 | s-cephalopod                          | —                                             | ⚪ N/A              | demo-only; no fidelity claim                        |         |

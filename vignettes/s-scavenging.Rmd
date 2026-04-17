@@ -37,11 +37,24 @@ the cell, yielding `carrion_eat_gain` energy units.
 | `carrion_transmission_prob` | 0.0 | Probability that eating from an infected carcass transmits disease |
 | `grass_rate` | 0.05 | Set low to create resource scarcity that accentuates the scavenging advantage |
 
-**Expected output.** Under scarce grass conditions, mean agent energy should be
-higher in the scavenging condition than the baseline, and the total number of
-deaths should be lower. Carrion provides a density-dependent buffer: more
-deaths in a tick produce more carrion, partially compensating for the energy
-deficit that caused those deaths.
+**Expected output (corrected 2026-04-17).** The scavenging module fires as
+specified (agents eat carrion, `n_scavenging_events > 0`) but the
+canonical DeVault 2003 claim — ON-vs-OFF in `mean_energy` under
+scarcity — does not reproduce robustly. A 2×3×2 parameter sweep
+(192 runs, `scavenging_strength_sweep.R`) over `grass_rate` ∈
+{0.05, 0.10} × `carrion_eat_gain` ∈ {3, 8, 15} × `carrion_fraction`
+∈ {0.5, 1.0} found **no cell gives Δenergy > 0 at *t* ≥ 2** in the
+canonical direction. One cell (grass=0.05, eat_gain=15) has
+|*t*| = 2.96 but in the *wrong* direction (scavenging lowers
+energy, probably because agents on carrion sites collide with the
+predator that made the kill).
+
+Status: **🟠 passed-consistent (reframed)** — module is correct
+(carrion is produced, agents find and eat it) but the mean-energy
+claim from DeVault 2003 is not measurable in clade's
+evolutionary-ABM setting at tested parameters. Use this scenario
+as a module-firing demo, not as evidence that scavenging
+quantitatively improves energy budgets.
 
 ```{r scavenging}
 library(clade)
