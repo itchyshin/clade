@@ -416,6 +416,190 @@ summarize_batch <- function(results, specs_list,
   do.call(rbind, lapply(seq_along(results), row))
 }
 
+#' Stream a parameter-space sweep to disk, one row per run
+#'
+#' The counterpart to [batch_alife()] + [summarize_batch()] for long
+#' sweeps: runs each spec in `specs_list`, extracts a scalar summary
+#' per run via `summary_fn`, and appends one CSV row to `out_path` as
+#' each run completes. Two advantages over batching:
+#'
+#' - **Memory**: the full `env` object for each run is discarded after
+#'   the summary row is written, so a 1 M-run sweep doesn't accumulate
+#'   1 M copies of `progress` / `deaths` in RAM.
+#' - **Resumability**: if the job dies at run 800 000 of 1 000 000,
+#'   re-running with the same `out_path` picks up after the last
+#'   written row (matched by the `run_id` column).
+#'
+#' @param specs_list List of specs.
+#' @param out_path   Path to the CSV. Created if absent; appended if
+#'   present. First row is always a header.
+#' @param summary_fn Function `(env, specs) -> named list or one-row
+#'   data.frame`. Should return the summary stats you want to save
+#'   per run. Default: viability verdict + n_final + mean_energy_final
+#'   + genetic_diversity_final + the run's random_seed and any params
+#'   that differ from [default_specs()].
+#' @param n_cores    Integer. Parallel workers, as in [batch_alife()].
+#' @param resume     Logical. If `TRUE` (default) and `out_path`
+#'   already exists, skip runs whose `run_id` is in the existing CSV.
+#'   Set `FALSE` to overwrite.
+#' @param flush_every Integer. How often to flush the CSV to disk
+#'   (in rows). Default 1 (flush every row — safest; small I/O cost).
+#'
+#' @return The path to the CSV (invisibly). Read back with
+#'   `read.csv(out_path)`.
+#'
+#' @examples
+#' \dontrun{
+#' specs_list <- sample_specs(fast_specs(), n = 10000L,
+#'   grass_rate  = list(0.05, 0.40),
+#'   mutation_sd = c(0.02, 0.05, 0.10))
+#' stream_specs_to_csv(specs_list, "/tmp/sweep.csv", n_cores = 50L)
+#' tbl <- read.csv("/tmp/sweep.csv")   # even if 10k × 50 B = 500 KB
+#' }
+#'
+#' @seealso [batch_alife()], [sample_specs()], [summarize_batch()]
+#' @export
+stream_specs_to_csv <- function(specs_list, out_path,
+                                summary_fn  = NULL,
+                                n_cores     = 1L,
+                                resume      = TRUE,
+                                flush_every = 1L) {
+  stopifnot(is.list(specs_list), length(specs_list) >= 1L,
+            is.character(out_path), length(out_path) == 1L)
+  n_cores <- as.integer(n_cores)
+
+  # Default summary: the parameter fields that differ from default_specs
+  # plus a small set of run-level metrics. Users override for anything
+  # richer.
+  if (is.null(summary_fn)) {
+    def <- default_specs()
+    summary_fn <- function(env, specs) {
+      diff_nms <- intersect(names(specs), names(def))
+      diff_nms <- diff_nms[vapply(diff_nms, function(nm) {
+        v <- specs[[nm]]; d <- def[[nm]]
+        is.atomic(v) && length(v) == 1L &&
+          !isTRUE(all.equal(v, d, check.attributes = FALSE))
+      }, logical(1L))]
+      params <- setNames(lapply(diff_nms, function(nm) specs[[nm]]),
+                         diff_nms)
+      metrics <- list(
+        n_final           = tail(env$progress$n_agents,          1L),
+        mean_energy_final = tail(env$progress$mean_energy,       1L),
+        diversity_final   = tail(env$progress$genetic_diversity, 1L),
+        viability         = if (!is.null(env$viability))
+                              env$viability$verdict else NA_character_
+      )
+      c(params, metrics)
+    }
+  }
+
+  # Assign run_ids — used for resumability
+  run_ids <- if (!is.null(names(specs_list))) names(specs_list)
+             else sprintf("run_%06d", seq_along(specs_list))
+
+  # Resume: figure out which run_ids already have rows
+  existing <- character(0L)
+  if (resume && file.exists(out_path)) {
+    existing_tbl <- tryCatch(utils::read.csv(out_path, stringsAsFactors = FALSE),
+                             error = function(e) NULL)
+    if (!is.null(existing_tbl) && "run_id" %in% names(existing_tbl))
+      existing <- as.character(existing_tbl$run_id)
+  }
+  todo <- which(!run_ids %in% existing)
+  if (length(todo) == 0L) {
+    message(sprintf("All %d runs already in %s — nothing to do.",
+                    length(specs_list), out_path))
+    return(invisible(out_path))
+  }
+  message(sprintf("Streaming %d runs (%d already in %s, %d todo)...",
+                  length(specs_list), length(existing), out_path,
+                  length(todo)))
+
+  specs_sub   <- specs_list[todo]
+  run_ids_sub <- run_ids[todo]
+
+  # Run one spec and return a one-row data frame with run_id
+  run_one_row <- function(i) {
+    id    <- run_ids_sub[i]
+    specs <- specs_sub[[i]]
+    env   <- tryCatch(suppressWarnings(run_alife(specs, verbose = FALSE)),
+                      error = function(e) NULL)
+    if (is.null(env)) {
+      as.data.frame(list(run_id = id,
+                         error_msg = "run_alife failed",
+                         stringsAsFactors = FALSE))
+    } else {
+      row <- tryCatch(summary_fn(env, specs),
+                      error = function(e) list(error_msg = conditionMessage(e)))
+      as.data.frame(c(list(run_id = id), row), stringsAsFactors = FALSE)
+    }
+  }
+
+  # Open CSV for append-write. Write header only if file is empty/new.
+  header_needed <- !file.exists(out_path) ||
+                   file.info(out_path)$size == 0L
+
+  # Buffer rows in memory, flush every `flush_every` rows. flush_every = 1
+  # is the safest — if the job dies, you lose at most one row.
+  buffer <- list()
+  flush_buffer <- function() {
+    if (length(buffer) == 0L) return(invisible(NULL))
+    df <- do.call(rbind, lapply(buffer, as.data.frame, stringsAsFactors = FALSE))
+    write_header <- header_needed && !file.exists(out_path)
+    utils::write.table(df, file = out_path, append = !write_header,
+                       sep = ",", row.names = FALSE,
+                       col.names = write_header || (header_needed && !nzchar(readLines(out_path, n = 1L))),
+                       quote = TRUE)
+    if (write_header) header_needed <<- FALSE
+    buffer <<- list()
+  }
+
+  if (n_cores <= 1L) {
+    # Serial: stream as we go
+    for (i in seq_along(specs_sub)) {
+      row <- run_one_row(i)
+      buffer[[length(buffer) + 1L]] <- row
+      if (length(buffer) >= flush_every) flush_buffer()
+    }
+    flush_buffer()
+  } else {
+    # Parallel: batches of size n_cores, flush after each batch
+    cl <- parallel::makeCluster(n_cores)
+    on.exit(parallel::stopCluster(cl), add = TRUE)
+    parallel::clusterEvalQ(cl, {
+      suppressPackageStartupMessages(library(clade))
+    })
+    # Share the worker fn + data via clusterExport
+    parallel::clusterExport(cl,
+                            c("run_ids_sub", "specs_sub", "summary_fn"),
+                            envir = environment())
+    idxs <- seq_along(specs_sub)
+    batch_size <- n_cores * max(1L, as.integer(flush_every))
+    batches <- split(idxs, ceiling(seq_along(idxs) / batch_size))
+    for (b in batches) {
+      rows <- parallel::parLapply(cl, b, function(i) {
+        id    <- run_ids_sub[i]
+        specs <- specs_sub[[i]]
+        env   <- tryCatch(suppressWarnings(run_alife(specs, verbose = FALSE)),
+                          error = function(e) NULL)
+        if (is.null(env))
+          as.data.frame(list(run_id = id, error_msg = "run_alife failed"),
+                        stringsAsFactors = FALSE)
+        else
+          as.data.frame(c(list(run_id = id),
+                          tryCatch(summary_fn(env, specs),
+                                    error = function(e)
+                                      list(error_msg = conditionMessage(e)))),
+                        stringsAsFactors = FALSE)
+      })
+      buffer <- c(buffer, rows)
+      flush_buffer()
+    }
+  }
+
+  invisible(out_path)
+}
+
 # ── Internal helpers ──────────────────────────────────────────────────────────
 
 #' Validate a specs list before sending to Julia
