@@ -243,6 +243,23 @@ the Polyworld simulation (Yaeger 1994).
   selection gradient at the default `brain_energy_base` without needing
   a scenario-specific override (0.4.3).
 
+- `brain_energy_sigma_scale`:
+
+  Numeric. Log-scaled information cost on BNN posterior width (sigma).
+  When \> 0, each tick costs
+  `scale * mean(max(log(sigma / sigma_min), 0))` energy. Default 0 (no
+  cost). Set 0.005–0.1 for Baldwin canalisation scenarios. Reference:
+  Aiello & Wheeler (1995) expensive-tissue hypothesis. Added 0.4.1 Tier
+  5C.
+
+- `bnn_action_noise_scale`:
+
+  Numeric in \[0, 1\]. Controls how much BNN sigma contributes to action
+  noise during the forward pass: `w = mu + scale * sigma * z`. At 1.0
+  (default) = full coupling (legacy). At 0 = deterministic actions from
+  mu; sigma only affects the learning/cost channel. Added 0.5.5 for
+  sigma-action decoupling in Baldwin/plasticity scenarios.
+
 ### Genome and ploidy
 
 clade supports diploid (default) and haploid life cycles. The diploid

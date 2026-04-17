@@ -357,6 +357,22 @@ metabolic weight — sharpens the parental-provisioning selection
 gradient at the default <code>brain_energy_base</code> without needing a
 scenario-specific override (0.4.3).</p></dd>
 
+<dt><code>brain_energy_sigma_scale</code></dt>
+<dd><p>Numeric. Log-scaled information
+cost on BNN posterior width (sigma). When &gt; 0, each tick costs
+<code>scale * mean(max(log(sigma / sigma_min), 0))</code> energy.
+Default 0 (no cost). Set 0.005–0.1 for Baldwin canalisation
+scenarios. Reference: Aiello &amp; Wheeler (1995) expensive-tissue
+hypothesis. Added 0.4.1 Tier 5C.</p></dd>
+
+<dt><code>bnn_action_noise_scale</code></dt>
+<dd><p>Numeric in [0, 1]. Controls how
+much BNN sigma contributes to action noise during the forward
+pass: <code>w = mu + scale * sigma * z</code>. At 1.0 (default) = full
+coupling (legacy). At 0 = deterministic actions from mu;
+sigma only affects the learning/cost channel. Added 0.5.5 for
+sigma-action decoupling in Baldwin/plasticity scenarios.</p></dd>
+
 
 </dl></div>
 

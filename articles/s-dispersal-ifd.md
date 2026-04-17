@@ -66,7 +66,7 @@ evolution: `mean_dispersal` evolves in response to crowding. (3) IFD:
 prefer grass-rich cells out-compete those that do not.
 
 **What we found (updated 2026-04-16, 0.4.1 grid audit).** Full protocol:
-[dev/audit/fidelity/dispersal_ifd.md](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/dispersal_ifd.md).
+[dev/audit/fidelity/dispersal_ifd.md](../dev/audit/fidelity/dispersal_ifd.md).
 
 The 0.4.1 audit swept
 `habitat_preference_strength ∈ {0.5, 1.0, 2.0, 4.0}` ×

@@ -208,26 +208,26 @@ handicap; raised from 0.5 in v0.3.0)</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Expected output (audited 2026-04-15).</strong> Across
-multi-seed runs at ten different parameter regimes — from defaults to
-extreme cost = 0, dose = 200, predator-saturated runs —
-<code>mean_toxicity</code> does not measurably evolve in either
-direction. Maximum observed drift was +0.02 (init = 0, no cost, 600
-ticks). See the <a href="https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/mimicry.md" class="external-link">mimicry
-fidelity report</a> for the full evidence.</p>
-<p><strong>Why dynamics are flat: a kernel-level
-simplification.</strong> clade’s predator memory is a
-<strong>scalar</strong> (<code>pred.value_estimate</code>) updated
-toward <code>prey.toxicity</code> directly, while alifeR’s R prototype
-uses a <strong>signal vector</strong> updated toward
-<code>prey.signal</code>. The scalar simplification removes
-signal-specific learning — predators cannot recognise warning
-<em>patterns</em>, only their general aversion level — which is the
-mechanism Bates (1862) and Müller (1879) actually described. Predators
-therefore rarely learn to avoid toxic prey (max 9 avoidance events / 600
-ticks at extreme settings), and without selective avoidance, toxic prey
-gain no measurable survival advantage. Restoring signal-vector predator
-memory is on the 0.4.0 backlog.</p>
+<p><strong>Expected output (updated 0.5.4).</strong> With the 0.4.4
+kernel fixes (vector-signal memory, delta-rule RW, aposematic
+pleiotropy), the avoidance mechanism fires (P3 PASS: 12–28 events/600
+ticks) and shows positive dose-response (P4 PASS: Spearman ρ = +0.40).
+But toxicity magnitude evolution remains ecology-limited: the 0.5.4
+calibration grid (8 cells × 5 seeds × 1000 ticks) found every tested
+regime has Δtoxicity &lt; 0 because the Zahavi handicap cost exceeds the
+aposematic protection benefit at default population scales. A
+predation-dominant ecology (<code>grass_rate ≈ 0.08</code>, where
+predation = 89% of mortality) produces the first positive Δtoxicity
+(+0.006), confirming the mechanism works when predation is the dominant
+selection pressure. See the <a href="../dev/audit/fidelity/mimicry.html">mimicry fidelity report</a> for
+the full evidence.</p>
+<p><strong>Pre-0.4.4 kernel simplification (historical).</strong> Before
+0.4.4, clade’s predator memory was a <strong>scalar</strong> updated
+toward <code>prey.toxicity</code> directly, which removed
+signal-specific learning — predators couldn’t recognise warning
+<em>patterns</em>. The 0.4.4 refactor replaced this with a full
+vector-signal memory using the Widrow-Hoff delta rule. See “What we
+found” below for details.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">s</span><span class="op">$</span><span class="va">mimicry</span>            <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
@@ -249,8 +249,8 @@ The 2026-04-15 fidelity audit ran exactly this regime and observed no
 measurable upward toxicity evolution (mean drift = −0.001 over 600
 ticks). The CMA-ES result likely optimised a generic fitness signal that
 is not specific to toxicity evolution. Claim retracted; awaiting kernel
-improvement (signal-vector predator memory) before re-tuning. See <a href="https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/mimicry.md#5-verdict" class="external-link">mimicry
-fidelity report §5</a>.
+improvement (signal-vector predator memory) before re-tuning. See <a href="../dev/audit/fidelity/mimicry.html#5-verdict">mimicry fidelity
+report §5</a>.
 <div class="figure">
 <img src="figures/showcase_21_mimicry.png" class="r-plt" alt="0.4.4 audit (5 seeds × 600 ticks, vector-signal predator memory + delta-rule Rescorla-Wagner update). Upper panels: toxicity trajectories (flat across control and treatment) and dose-response (Spearman ρ = +0.40 — positive direction). Lower panel: dose × cost grid. P3 (learning fires: 12–28 avoidance events) and P4 (dose-response) PASS; P2 magnitude direction-sensitive in the ±0.002 noise band — ecology-limited per the 0.5.4 calibration." width="100%"><p class="caption">
 0.4.4 audit (5 seeds × 600 ticks, vector-signal predator memory +

@@ -70,7 +70,7 @@ ggplot(df_mean, aes(t, mean_body_size, colour = condition)) +
 
 **What we found (updated 2026-04-16, 0.5.2 audit: 16 seeds × 2 sensing
 modes × 2 predator levels = 64 runs × 600 ticks).** Full protocol:
-[dev/audit/fidelity/body_size.md](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/body_size.md).
+[dev/audit/fidelity/body_size.md](../dev/audit/fidelity/body_size.md).
 
 | graded predator sensing | n_pred | Δ mean_body_size | 1×SE   |
 |-------------------------|--------|------------------|--------|

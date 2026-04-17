@@ -78,7 +78,7 @@ trade-off.
 
 **What we found (2026-04-15 audit, 3 seeds × 4 investment levels).**
 Full protocol:
-[dev/audit/fidelity/parental_investment.md](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/parental_investment.md).
+[dev/audit/fidelity/parental_investment.md](../dev/audit/fidelity/parental_investment.md).
 
 Across `female_investment ∈ {0.3, 0.5, 0.7, 0.9}` all population metrics
 are essentially flat: births ≈ 1.5/tick, juveniles ≈ 1.5, n_agents ≈

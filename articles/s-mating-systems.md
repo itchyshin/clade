@@ -23,12 +23,15 @@ trajectory of genetic diversity.
 | `n_chromosomes`   | 1L           | Number of chromosome pairs (diploid only)                      |
 | `dominance_model` | `"additive"` | How alleles at the same locus combine                          |
 
-**Expected output.** `genetic_diversity` is higher and more variable in
-the sexual condition from early in the run, as recombination
-continuously generates novel genotypic combinations. The asexual
-population maintains lower diversity and may converge faster to a local
-optimum — an advantage in stable environments — but is less able to
-respond to environmental change.
+**Expected output (updated 0.5.3).** At default parameters,
+Shannon-style `genetic_diversity` is actually *lower* in the sexual
+condition — a measurement artefact from recombination homogenising
+allele frequencies. The relevant fitness proxy is population size, not
+allele-frequency diversity. Under the 0.5.1 discrete-allele
+coevolving-parasite module (Hamilton 1980 Red Queen), sex shows
+direction in favour on average across 19 tested parameter regimes, but
+no regime crosses 2×SE at 16 seeds. See “What we found” below for the
+full 0.5.3 resolution.
 
 ``` r
 library(clade)
@@ -86,7 +89,7 @@ shows direction correct on average under the discrete-allele Red Queen,
 but none crosses 2×SE at 16 seeds (0.5.3 retraction).
 
 **What we found (updated 2026-04-16 through 0.5.1).** Full protocol:
-[dev/audit/fidelity/mating_systems.md](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/mating_systems.md).
+[dev/audit/fidelity/mating_systems.md](../dev/audit/fidelity/mating_systems.md).
 
 The pre-0.4.0 audit tested only the stable environment and got Δdiv =
 −0.005 (sex slightly below asex). 0.4.1 added disease and seasonal

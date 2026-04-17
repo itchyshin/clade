@@ -646,6 +646,27 @@ between mother and mate and scales offspring birth energy (Trivers
 <td>0.4.0: when <code>TRUE</code>, effective lifespan scales inversely
 with metabolic rate (Réale et al. 2010).</td>
 </tr>
+<tr class="odd">
+<td>Neonatal foraging deficit</td>
+<td><code>neonatal_foraging_deficit</code></td>
+<td>0.4.3: young agents forage at reduced efficiency for
+<code>neonatal_deficit_duration</code> ticks. Creates the selection
+pressure for parental provisioning (Aiello &amp; Wheeler 1995).</td>
+</tr>
+<tr class="even">
+<td>Coevolving parasites</td>
+<td><code>coevolving_parasites</code></td>
+<td>0.5.0/0.5.1: Hamilton 1980 Red Queen. Continuous-trait centroid
+tracking or discrete-allele Hamming matching with Mendelian
+inheritance.</td>
+</tr>
+<tr class="odd">
+<td>Sigma-action decoupling</td>
+<td><code>bnn_action_noise_scale</code></td>
+<td>0.5.5: controls how much BNN sigma contributes to action noise. At
+0, actions are deterministic from mu; sigma only affects the
+learning/cost channel.</td>
+</tr>
 </tbody>
 </table>
 <p>A typical experimental design fixes the brain type and toggles one

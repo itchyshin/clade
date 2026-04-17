@@ -201,12 +201,15 @@ diversity.</p>
 </tr>
 </tbody>
 </table>
-<p><strong>Expected output.</strong> <code>genetic_diversity</code> is
-higher and more variable in the sexual condition from early in the run,
-as recombination continuously generates novel genotypic combinations.
-The asexual population maintains lower diversity and may converge faster
-to a local optimum — an advantage in stable environments — but is less
-able to respond to environmental change.</p>
+<p><strong>Expected output (updated 0.5.3).</strong> At default
+parameters, Shannon-style <code>genetic_diversity</code> is actually
+<em>lower</em> in the sexual condition — a measurement artefact from
+recombination homogenising allele frequencies. The relevant fitness
+proxy is population size, not allele-frequency diversity. Under the
+0.5.1 discrete-allele coevolving-parasite module (Hamilton 1980 Red
+Queen), sex shows direction in favour on average across 19 tested
+parameter regimes, but no regime crosses 2×SE at 16 seeds. See “What we
+found” below for the full 0.5.3 resolution.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
@@ -253,7 +256,7 @@ but none crosses 2×SE at 16 seeds (0.5.3 retraction).
 </p>
 </div>
 <p><strong>What we found (updated 2026-04-16 through 0.5.1).</strong>
-Full protocol: <a href="https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/mating_systems.md" class="external-link">dev/audit/fidelity/mating_systems.md</a>.</p>
+Full protocol: <a href="../dev/audit/fidelity/mating_systems.html">dev/audit/fidelity/mating_systems.md</a>.</p>
 <p>The pre-0.4.0 audit tested only the stable environment and got Δdiv =
 −0.005 (sex slightly below asex). 0.4.1 added disease and seasonal
 environments (still no Red Queen signal). 0.5.0 and 0.5.1 added a

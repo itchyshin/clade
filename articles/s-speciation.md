@@ -82,7 +82,7 @@ represents a speciation event.
 
 **What we found (2026-04-15 audit).** 3 seeds × 1000 ticks, 100 agents
 init, 30×30 grid, `isolation_threshold = 0.15`. Full protocol:
-[dev/audit/fidelity/speciation.md](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/speciation.md).
+[dev/audit/fidelity/speciation.md](../dev/audit/fidelity/speciation.md).
 
 | Regime                         | max n_species |
 |--------------------------------|---------------|

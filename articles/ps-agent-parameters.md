@@ -44,9 +44,8 @@ ignored.** The trait is clamped at its biologically neutral value
 (usually `1.0` for multipliers, `0.0` for zero-centred propensities).
 This catches beginners: setting `body_size_init_mean = 2.0` with
 `body_size_evolution = FALSE` has no effect. The [fidelity audit
-pace-of-life
-trace](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/pace_of_life.md)
-is a cautionary example of this exact pitfall.
+pace-of-life trace](../dev/audit/fidelity/pace_of_life.md) is a
+cautionary example of this exact pitfall.
 
 ------------------------------------------------------------------------
 

@@ -65,7 +65,7 @@ sigma also mediates behavioural variance — a shared kernel-limitation
 caveat with s-baldwin.
 
 **What we found (updated 2026-04-16, 0.4.2 audit).** Full protocol:
-[dev/audit/fidelity/plasticity.md](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/plasticity.md).
+[dev/audit/fidelity/plasticity.md](../dev/audit/fidelity/plasticity.md).
 
 At pre-0.4.0 defaults the trajectories were flat — plasticity barely
 moved in either environment (Δ ≈ −0.001/−0.002) because sigma was tied

@@ -89,7 +89,7 @@ predicts.
 
 **What we found (updated 2026-04-16, 0.4.1 audit → ✅ at high predator
 pressure).** Full protocol:
-[dev/audit/fidelity/group_defense.md](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/group_defense.md).
+[dev/audit/fidelity/group_defense.md](../dev/audit/fidelity/group_defense.md).
 
 The pre-0.4.1 baseline (15 predators, `strength = 60`, 80 agents) gave
 only +5 agent mean advantage — within noise — because at that density
