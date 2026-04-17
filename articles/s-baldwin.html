@@ -308,14 +308,14 @@ results.</p>
 <span><span class="va">s</span><span class="op">$</span><span class="va">learning_rate_init_mean</span>        <span class="op">&lt;-</span> <span class="fl">0.007</span></span>
 <span><span class="co"># env &lt;- run_alife(s)   # uncomment to run the calibrated regime</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_bnn_uncertainty.png" class="r-plt" alt="0.4.2 audit (3 seeds × 1500 ticks). Mean_prior_sigma trajectories facetted by sigma_cost (0, 0.05, 0.10). Transient canalisation at 600 ticks disappears at equilibrium (1500 ticks): sigma also mediates behavioural variance, so seasonal stress drives selection against wide posteriors regardless of the information-cost term. Direction reversal from the pre-0.4.0 🔴 confirmed at short timescales (see mating_systems and plasticity for the shared kernel-limitation caveat)." width="100%"><p class="caption">
-0.4.2 audit (3 seeds × 1500 ticks). Mean_prior_sigma trajectories
-facetted by sigma_cost (0, 0.05, 0.10). Transient canalisation at 600
-ticks disappears at equilibrium (1500 ticks): sigma also mediates
-behavioural variance, so seasonal stress drives selection against wide
-posteriors regardless of the information-cost term. Direction reversal
-from the pre-0.4.0 🔴 confirmed at short timescales (see mating_systems
-and plasticity for the shared kernel-limitation caveat).
+<img src="figures/showcase_bnn_uncertainty.png" class="r-plt" alt="Before/after kernel fix (3 seeds × 600 ticks). LEFT: pre-0.4.0 with sigma from heterozygosity — σ rises toward the 0.5 cap in both environments (🔴 contradicts Baldwin). RIGHT: post-0.4.1 with sigma as evolvable trait + information cost — σ direction reverses. The fix enables the Baldwin mechanism but the magnitude is modest at 600 ticks (Δ ≈ 0.004); at 1500 ticks the transient canalisation disappears due to sigma coupling with behavioural variance — 🟠 kernel-limited." width="100%"><p class="caption">
+Before/after kernel fix (3 seeds × 600 ticks). LEFT: pre-0.4.0 with
+sigma from heterozygosity — σ rises toward the 0.5 cap in both
+environments (🔴 contradicts Baldwin). RIGHT: post-0.4.1 with sigma as
+evolvable trait + information cost — σ direction reverses. The fix
+enables the Baldwin mechanism but the magnitude is modest at 600 ticks
+(Δ ≈ 0.004); at 1500 ticks the transient canalisation disappears due to
+sigma coupling with behavioural variance — 🟠 kernel-limited.
 </p>
 </div>
 <p><strong>What we found (updated 2026-04-16, audit 🔴 → 🟠

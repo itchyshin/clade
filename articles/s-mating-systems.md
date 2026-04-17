@@ -67,26 +67,22 @@ ggplot(df, aes(t, genetic_diversity, colour = system)) +
   theme_minimal()
 ```
 
-![0.5.1 + 0.5.3 audit (3 seeds × 5 environments × 500 ticks,
-crossover_rate=0.5). Genetic-diversity trajectories for haploid asex
-(blue) vs diploid sex (red) across stable, disease, seasonal,
-continuous-parasite, and discrete-allele-parasite conditions. Sex has
-lower Shannon-style allele-frequency diversity throughout — a
-measurement artefact, since recombination homogenises allele
-frequencies. The fitness signal (population size, not plotted here)
-shows direction correct on average under the discrete-allele Red Queen,
-but none crosses 2×SE at 16 seeds (0.5.3
-retraction).](figures/showcase_mating_systems.png)
+![Population-size comparison across 3 environments (3 seeds × 500 ticks,
+error bars = 2×SE). Key finding: continuous-trait parasites (centre)
+punish sex by ~5 agents (anti-Red-Queen — sex offspring cluster near the
+parasite-tracked centroid). Discrete-allele parasites (right) and stable
+baseline (left) show sex ≈ asex. The anti-RQ under continuous is itself
+a genuine scientific finding, even though the canonical Hamilton
+direction doesn't reach 2×SE significance —
+🟠.](figures/showcase_mating_systems.png)
 
-0.5.1 + 0.5.3 audit (3 seeds × 5 environments × 500 ticks,
-crossover_rate=0.5). Genetic-diversity trajectories for haploid asex
-(blue) vs diploid sex (red) across stable, disease, seasonal,
-continuous-parasite, and discrete-allele-parasite conditions. Sex has
-lower Shannon-style allele-frequency diversity throughout — a
-measurement artefact, since recombination homogenises allele
-frequencies. The fitness signal (population size, not plotted here)
-shows direction correct on average under the discrete-allele Red Queen,
-but none crosses 2×SE at 16 seeds (0.5.3 retraction).
+Population-size comparison across 3 environments (3 seeds × 500 ticks,
+error bars = 2×SE). Key finding: continuous-trait parasites (centre)
+punish sex by ~5 agents (anti-Red-Queen — sex offspring cluster near the
+parasite-tracked centroid). Discrete-allele parasites (right) and stable
+baseline (left) show sex ≈ asex. The anti-RQ under continuous is itself
+a genuine scientific finding, even though the canonical Hamilton
+direction doesn’t reach 2×SE significance — 🟠.
 
 **What we found (updated 2026-04-16 through 0.5.1).** Full protocol:
 [dev/audit/fidelity/mating_systems.md](../dev/audit/fidelity/mating_systems.md).

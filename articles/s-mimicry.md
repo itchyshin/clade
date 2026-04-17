@@ -64,21 +64,21 @@ improvement (signal-vector predator memory) before re-tuning. See
 [mimicry fidelity report
 §5](../dev/audit/fidelity/mimicry.html#5-verdict).
 
-![0.4.4 audit (5 seeds × 600 ticks, vector-signal predator memory +
-delta-rule Rescorla-Wagner update). Upper panels: toxicity trajectories
-(flat across control and treatment) and dose-response (Spearman ρ =
-+0.40 — positive direction). Lower panel: dose × cost grid. P3 (learning
-fires: 12–28 avoidance events) and P4 (dose-response) PASS; P2 magnitude
-direction-sensitive in the ±0.002 noise band — ecology-limited per the
-0.5.4 calibration.](figures/showcase_21_mimicry.png)
+![Ecology comparison (5 seeds × 1000 ticks, full 0.4.4 machinery). Top:
+toxicity trajectories under standard ecology (grass=0.20, grey) vs
+predation-dominant ecology (grass=0.08, orange). Predation-dominant
+preserves more toxicity because predation becomes the main mortality
+cause. Bottom: cumulative avoidance events — predator learning fires in
+both ecologies (~30 events). The mechanism works; the magnitude depends
+on ecology — 🟠.](figures/showcase_21_mimicry.png)
 
-0.4.4 audit (5 seeds × 600 ticks, vector-signal predator memory +
-delta-rule Rescorla-Wagner update). Upper panels: toxicity trajectories
-(flat across control and treatment) and dose-response (Spearman ρ =
-+0.40 — positive direction). Lower panel: dose × cost grid. P3 (learning
-fires: 12–28 avoidance events) and P4 (dose-response) PASS; P2 magnitude
-direction-sensitive in the ±0.002 noise band — ecology-limited per the
-0.5.4 calibration.
+Ecology comparison (5 seeds × 1000 ticks, full 0.4.4 machinery). Top:
+toxicity trajectories under standard ecology (grass=0.20, grey) vs
+predation-dominant ecology (grass=0.08, orange). Predation-dominant
+preserves more toxicity because predation becomes the main mortality
+cause. Bottom: cumulative avoidance events — predator learning fires in
+both ecologies (~30 events). The mechanism works; the magnitude depends
+on ecology — 🟠.
 
 **What we found (updated 2026-04-16, audit 🟠 with 0.4.4 kernel
 fixes).** Two audit iterations materially changed the picture:

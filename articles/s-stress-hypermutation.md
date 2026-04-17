@@ -82,16 +82,20 @@ s$grass_rate                     <- 3e-04
 # env <- run_alife(s)   # uncomment to run the calibrated regime
 ```
 
-![Expected output: genetic diversity is transiently elevated in the
-stress-hypermutation condition during resource-crash epochs. Adaptive
-recovery is faster in the hypermutation condition as beneficial variants
-spread more rapidly through the
-population.](figures/showcase_stress_hypermutation.png)
+![Three-panel: evolved mutation rate, genetic diversity, and population
+under food stress (grass_rate=0.06, 5 seeds × 500 ticks). With
+mutation_rate_evolution=TRUE, the stress hypermutation mechanism
+(Rosenberg 2001 SOS response) is directionally consistent but the effect
+is very small (Δmut_rate ≈ 0.004). The mechanism works in the kernel but
+the magnitude at ABM scale is genuinely modest — 🟠
+passed-consistent.](figures/showcase_stress_hypermutation.png)
 
-Expected output: genetic diversity is transiently elevated in the
-stress-hypermutation condition during resource-crash epochs. Adaptive
-recovery is faster in the hypermutation condition as beneficial variants
-spread more rapidly through the population.
+Three-panel: evolved mutation rate, genetic diversity, and population
+under food stress (grass_rate=0.06, 5 seeds × 500 ticks). With
+mutation_rate_evolution=TRUE, the stress hypermutation mechanism
+(Rosenberg 2001 SOS response) is directionally consistent but the effect
+is very small (Δmut_rate ≈ 0.004). The mechanism works in the kernel but
+the magnitude at ABM scale is genuinely modest — 🟠 passed-consistent.
 
 **What we found.** Running 3 replicates with
 `stress_hypermutation = TRUE` vs `FALSE`, 80 agents, 25×25 grid,

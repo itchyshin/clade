@@ -138,19 +138,18 @@ ggplot(data$ticks, aes(t)) +
   theme_minimal()
 ```
 
-![0.4.1 grid audit. Upper: habitat_preference evolution facetted by run
-length, across 4 preference-strength levels (2 seeds per cell). IFD
-signal grows with strength, saturates around strength=2 at Δ ≈ +0.006
-(below 0.02 ✅ threshold). Lower: front vs rear dispersal (non-toroidal
-grid, Shine et al. 2011 spatial sorting test) — Δ = +0.012 in sign, P2
-PASS.](figures/showcase_05_dispersal.png)
+![Spatial sorting (Shine et al. 2011): 4 seeds × 500 ticks, non-toroidal
+40×40 grid. Invasion-front agents (pink) evolve higher dispersal than
+rear agents (blue) — Δ = +0.041. The front-rear divergence is the
+clearest signal in this scenario, consistent with allele surfing at the
+expansion wave. Direction correct, magnitude moderate —
+🟠.](figures/showcase_05_dispersal.png)
 
-0.4.1 grid audit. Upper: habitat_preference evolution facetted by run
-length, across 4 preference-strength levels (2 seeds per cell). IFD
-signal grows with strength, saturates around strength=2 at Δ ≈ +0.006
-(below 0.02 ✅ threshold). Lower: front vs rear dispersal (non-toroidal
-grid, Shine et al. 2011 spatial sorting test) — Δ = +0.012 in sign, P2
-PASS.
+Spatial sorting (Shine et al. 2011): 4 seeds × 500 ticks, non-toroidal
+40×40 grid. Invasion-front agents (pink) evolve higher dispersal than
+rear agents (blue) — Δ = +0.041. The front-rear divergence is the
+clearest signal in this scenario, consistent with allele surfing at the
+expansion wave. Direction correct, magnitude moderate — 🟠.
 
 **Example: evolution of habitat preference.**
 

@@ -222,14 +222,14 @@ results.</p>
 <span><span class="va">s</span><span class="op">$</span><span class="va">grass_rate</span>                     <span class="op">&lt;-</span> <span class="fl">0.0264</span></span>
 <span><span class="co"># env &lt;- run_alife(s)   # uncomment to run the calibrated regime</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_22_plasticity.png" class="r-plt" alt="0.4.2 audit (4 seeds × 1500 ticks, brain_energy_sigma_scale=0.05, bnn_sigma_source='trait'). Seasonal environments (red) maintain slightly higher plasticity than stable (blue) — the DeWitt-Scheiner direction (P1 PASS). Magnitudes are modest (Δdelta ≈ +0.002). Both environments drift slightly upward rather than the stable env canalising, because clade's sigma also mediates behavioural variance — a shared kernel-limitation caveat with s-baldwin." width="100%"><p class="caption">
-0.4.2 audit (4 seeds × 1500 ticks, brain_energy_sigma_scale=0.05,
-bnn_sigma_source=‘trait’). Seasonal environments (red) maintain slightly
-higher plasticity than stable (blue) — the DeWitt-Scheiner direction (P1
-PASS). Magnitudes are modest (Δdelta ≈ +0.002). Both environments drift
-slightly upward rather than the stable env canalising, because clade’s
-sigma also mediates behavioural variance — a shared kernel-limitation
-caveat with s-baldwin.
+<img src="figures/showcase_22_plasticity.png" class="r-plt" alt="Before/after kernel fix comparison (3 seeds × 800 ticks). LEFT: pre-0.4.0 with sigma from heterozygosity — both environments are flat (plasticity doesn't evolve). RIGHT: post-0.4.1 with bnn_sigma_source='trait' + brain_energy_sigma_scale=0.05 — seasonal environments (orange) maintain slightly higher plasticity than stable (blue). The direction is correct (DeWitt-Scheiner 2004) but the magnitude is modest (Δdelta ≈ 0.002) — 🟠 kernel-limited." width="100%"><p class="caption">
+Before/after kernel fix comparison (3 seeds × 800 ticks). LEFT:
+pre-0.4.0 with sigma from heterozygosity — both environments are flat
+(plasticity doesn’t evolve). RIGHT: post-0.4.1 with
+bnn_sigma_source=‘trait’ + brain_energy_sigma_scale=0.05 — seasonal
+environments (orange) maintain slightly higher plasticity than stable
+(blue). The direction is correct (DeWitt-Scheiner 2004) but the
+magnitude is modest (Δdelta ≈ 0.002) — 🟠 kernel-limited.
 </p>
 </div>
 <p><strong>What we found (updated 2026-04-16, 0.4.2 audit).</strong>

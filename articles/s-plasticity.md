@@ -48,21 +48,22 @@ s$grass_rate                     <- 0.0264
 # env <- run_alife(s)   # uncomment to run the calibrated regime
 ```
 
-![0.4.2 audit (4 seeds × 1500 ticks, brain_energy_sigma_scale=0.05,
-bnn_sigma_source='trait'). Seasonal environments (red) maintain slightly
-higher plasticity than stable (blue) — the DeWitt-Scheiner direction (P1
-PASS). Magnitudes are modest (Δdelta ≈ +0.002). Both environments drift
-slightly upward rather than the stable env canalising, because clade's
-sigma also mediates behavioural variance — a shared kernel-limitation
-caveat with s-baldwin.](figures/showcase_22_plasticity.png)
+![Before/after kernel fix comparison (3 seeds × 800 ticks). LEFT:
+pre-0.4.0 with sigma from heterozygosity — both environments are flat
+(plasticity doesn't evolve). RIGHT: post-0.4.1 with
+bnn_sigma_source='trait' + brain_energy_sigma_scale=0.05 — seasonal
+environments (orange) maintain slightly higher plasticity than stable
+(blue). The direction is correct (DeWitt-Scheiner 2004) but the
+magnitude is modest (Δdelta ≈ 0.002) — 🟠
+kernel-limited.](figures/showcase_22_plasticity.png)
 
-0.4.2 audit (4 seeds × 1500 ticks, brain_energy_sigma_scale=0.05,
-bnn_sigma_source=‘trait’). Seasonal environments (red) maintain slightly
-higher plasticity than stable (blue) — the DeWitt-Scheiner direction (P1
-PASS). Magnitudes are modest (Δdelta ≈ +0.002). Both environments drift
-slightly upward rather than the stable env canalising, because clade’s
-sigma also mediates behavioural variance — a shared kernel-limitation
-caveat with s-baldwin.
+Before/after kernel fix comparison (3 seeds × 800 ticks). LEFT:
+pre-0.4.0 with sigma from heterozygosity — both environments are flat
+(plasticity doesn’t evolve). RIGHT: post-0.4.1 with
+bnn_sigma_source=‘trait’ + brain_energy_sigma_scale=0.05 — seasonal
+environments (orange) maintain slightly higher plasticity than stable
+(blue). The direction is correct (DeWitt-Scheiner 2004) but the
+magnitude is modest (Δdelta ≈ 0.002) — 🟠 kernel-limited.
 
 **What we found (updated 2026-04-16, 0.4.2 audit).** Full protocol:
 [dev/audit/fidelity/plasticity.md](../dev/audit/fidelity/plasticity.md).
