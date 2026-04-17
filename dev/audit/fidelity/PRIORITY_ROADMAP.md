@@ -64,19 +64,51 @@ specific crash timing rather than by the selection gradient. The
 single-seed "promotion" results were lucky seeds that happened not
 to crash.
 
-**Path to genuine promotion.** Either milder seasonality
-(`seasonal_amplitude = 0.3–0.4`), longer seasons
-(`season_length = 100`) to smooth the trough, or a larger world
-(40×40, `n_agents_init = 150`, `max_agents = 600`) to buffer
-against crashes. A calibrated rerun is the next concrete step —
-see `fast_specs_reaudit_v2.R` (TODO, this session).
+**v2 calibrated rerun — update 2026-04-17 (same session).**
+`fast_specs_reaudit_v2.R` lifts the confound: 40×40 grid, 180
+agents init, max_agents 800, `seasonal_amplitude = 0.35`,
+`season_length = 100`, `grass_rate = 0.25`. All runs now end
+with `n_final` in the healthy range (min 32, 45, 107 for the
+three scenarios) — no crash artifacts. Multi-seed results:
 
-**Methodology note.** This is the third time in this repo that
-3-5-seed direction claims have reversed under 8+-seed scrutiny
-(prior: Red Queen, mimicry, body-size P2). The lesson continues
-to hold: **never promote a scenario on fewer than 5 seeds, and
-read the raw `n_final` column as a viability sanity check** before
-interpreting any trait-mean effect.
+| Scenario | 5-seed Δdelta (v2) | min n_final | Verdict |
+|---|---|---|---|
+| **s-plasticity** | +0.002 | 32 | P1 direction PASS, magnitude ≪ 0.02 |
+| **s-baldwin** | −0.001 | 45 | P1 FAIL |
+| **s-dispersal-ifd** | −0.001 | 107 | P1 FAIL (direction flips when patchy pops become large) |
+
+**Conclusion.** Once population crashes are eliminated, *the
+effects essentially vanish*. The single-seed fast_specs
+"breakthroughs" (0.12 / 0.04 / 0.02) were lucky-seed artifacts,
+not systematic signal. `fast_specs()` alone does not promote
+these three scenarios. They are genuinely kernel-limited — the
+selection gradient at default trait-cost coefficients is
+comparable to the drift variance at 5-seed sample size.
+
+**Honest path forward.** These scenarios need kernel changes to
+sharpen the selection gradient, not longer runs or faster
+generations:
+
+- **s-plasticity**: steeper sigma-to-energy-cost coupling
+  (`brain_energy_sigma_scale` from 0.05 → 0.15+), so the DeWitt-
+  Scheiner trade-off becomes mechanistically stronger.
+- **s-baldwin**: decouple BNN sigma from behavioural variance
+  (plan file 0.4.3 item — sigma should be a pure learning cost,
+  not a noise term).
+- **s-dispersal-ifd**: a genuine spatial-gradient in grass
+  (current `complex_landscape` provides resource *layering*, not
+  a gradient — agents can't use preference to move *toward*
+  something).
+
+**Methodology note.** This is now the **fourth** time in this
+repo that 3-5-seed direction claims have reversed under proper
+scrutiny (prior: Red Queen, mimicry, body-size P2). New rules:
+
+1. Never promote a scenario on fewer than 5 seeds.
+2. Always inspect `n_final` before trusting any trait-mean effect
+   — near-extinct conditions produce misleading averages.
+3. When single-seed and multi-seed results disagree by 50×+, the
+   single-seed was almost certainly an outlier seed.
 
 ### 2.2 Kernel-limited (need a kernel change to promote)
 
@@ -173,26 +205,33 @@ doesn't visibly modulate ANN diversity") or find a regime where
 the effect is real (e.g. much higher predator pressure,
 `n_predators_init = 40`). Medium effort.
 
-## 4. Recommended priority order
+## 4. Recommended priority order (revised 2026-04-17 after v2 audit)
 
-Cheapest-first, so that each round produces a visible promotion:
+The v2 calibrated re-audit changed the picture: fast_specs alone
+does not promote plasticity / baldwin / dispersal-ifd. They need
+kernel changes, not longer runs. The priority order is now:
 
-1. **Multi-seed re-audit of plasticity, baldwin, dispersal-ifd**
-   at `fast_specs()`. One day. Expected: three 🟠 → ✅.
-2. **s-mimicry vignette reframing** to predation-dominant regime
+1. **s-mimicry vignette reframing** to predation-dominant regime
    as the primary claim. Half day. Expected: 🟠 → ✅ or a clean
-   "conditionally passes" framing.
-3. **s-cooperation vignette clarification** of the drift-without-
-   structure null. Half day. Expected: explicit null, no status
-   change, but user trust improves.
-4. **s-kin / s-cooperative-breeding parameter sweep** for a regime
-   that produces detectable helper-tendency drift. Half day.
-   Expected: a calibrated example regime added to the vignette.
-5. **s-predation-neural re-audit or reframe**. Half day.
+   "conditionally passes" framing. *Cheapest item that actually
+   moves status.*
+2. **s-cooperation vignette clarification** — explicit "drift
+   without structural mechanism" null. Half day. No status change
+   but fixes narrative mismatch.
+3. **s-plasticity kernel lift** — steeper `brain_energy_sigma_scale`
+   or dedicated "plasticity_cost" trait. Half day kernel + one day
+   audit. Expected: 🟠 → ✅ *if* the cost gradient is actually the
+   missing piece.
+4. **s-baldwin kernel lift** — decouple BNN sigma from behavioural
+   variance (0.4.3 plan item). One-two days. Expected: 🟠 → ✅.
+5. **s-dispersal-ifd kernel lift** — expose a true spatial grass
+   gradient (not just resource layers). Half day kernel + one day
+   audit. Expected: 🟠 → ✅.
 6. **s-mating-systems multi-locus parasite module** (0.5.0 plan
    item). 2 days. Expected: 🟠 → ✅.
 
-Items 1-5 are all "this week" scope; item 6 is "next release" scope.
+Items 1-2 are this-week polish; 3-5 are ~0.4.3 kernel work; 6 is
+~0.5.0.
 
 ## 5. Meta-observations worth keeping
 
