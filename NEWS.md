@@ -1,7 +1,149 @@
 # clade 0.5.6 (2026-04-17)
 
-Substantial multi-PR session covering timescale presets, a round of
-🟠-sort work, and a new audit-methodology utility.
+Substantial multi-PR day covering timescale presets, 🟠-sort work,
+a new audit-methodology utility, a working parallel scenario-search
+toolkit, three kernel bug fixes, and a head-to-head brain-type
+benchmark. 22+ PRs merged to main.
+
+## Parameter-space search and parallelism (afternoon)
+
+The story: the existing `batch_alife(n_cores = N)` path silently
+deadlocked (forked R workers all blocked on one Julia socket —
+fork-unsafe RPC). Fix: **swap `parallel::mclapply` for
+`parallel::makeCluster("PSOCK")`**, where each worker is a
+separate R process with its own Julia session. Same fix applied to
+`search_cmaes`. `n_cores > 1` now actually parallelises.
+
+New exports built on the fixed parallel path:
+
+- **`grid_specs(base, ...)`** — factorial expansion of a base spec.
+- **`sample_specs(base, n, ...)`** — random draws from three
+  distribution forms (vector → sample with replacement; list of 2
+  → uniform; function → user-supplied).
+- **`summarize_batch(results, specs_list)`** — one-row-per-run tidy
+  data frame with parameters, default metrics, viability verdict.
+- **`stream_specs_to_csv(specs_list, out_path)`** — memory-efficient
+  streaming writer for 10k–1M-scenario sweeps. `resume = TRUE`
+  (default) skips run_ids already in the output CSV, so killed
+  overnight jobs restart cleanly.
+- **`submit_sweep_slurm()`** — writes a SLURM array-job template
+  that dispatches chunks of the specs_list across cluster nodes,
+  each task calling `stream_specs_to_csv()` against a shared CSV.
+- **`search_map_elites(checkpoint_path, checkpoint_every)`** —
+  checkpoint/resume for long MAP-Elites runs.
+
+New dedicated vignette: **parameter-space-search.Rmd** (placed
+after parameter-reference in the sidebar) walks through the full
+workflow from small grids to million-scenario cluster sweeps.
+
+Full deadlock post-mortem: `dev/docs/parallelism-audit.md`.
+
+## Kernel fixes
+
+- **body_size foraging death spiral**: `apply_body_size!`
+  charged small agents (bs < 1) a foraging correction bounded
+  only by 40% of current energy — on low-grass cells the
+  correction exceeded the eat_gain, making eating net-negative.
+  Small agents drifted to bs ≈ 0.5 then starved. Fix: scale
+  `eat_gain * bite * body_size` at the source in `tick.jl`; drop
+  the post-hoc correction. At realistic mutation_sd (≤ 0.02) the
+  scenario is now viable at fast_specs.
+- **RNG-order contamination in BNN sampler**: `randn(length(mu))`
+  in Thompson sampling used Julia's global RNG. Consecutive
+  `run_alife()` calls in one Julia session shared state so
+  figures depended on call order even with `random_seed` set.
+  Fix: per-run RNG cache populated from `env.rng` at the top of
+  `tick_agents!`. Verified deterministic across call order.
+- **search_cmaes parallel path**: same PSOCK fix as batch_alife.
+  Single cluster reused across generations to amortise Julia
+  compile cost.
+
+## New kernel specs (Baldwin / plasticity scaffolding)
+
+- `bnn_action_noise_scale` (0.5.5, now documented): decouples BNN
+  sigma from action sampling. At scale = 0, actions are
+  deterministic from mu; sigma affects only learning/cost.
+- `action_exploration_epsilon` (0.5.6): epsilon-greedy
+  exploration orthogonal to BNN sigma. At epsilon > 0, with that
+  probability each tick picks a uniformly random action.
+  Intended as the exploration channel when sigma is fully
+  decoupled.
+- `bnn_sigma_lr_scale`, `bnn_sigma_lr_ref` (0.5.6): within-life
+  effective learning rate scales with mean(sigma)/sigma_ref.
+  Canalised agents learn slowly; plastic agents learn fast.
+  Puts the cost of canalisation on learning speed, not noise.
+
+Combined, these three levers give a 3-axis decoupling of the
+sigma channel. None individually promoted Baldwin to ✅ — the
+baseline sigma dynamics in clade don't canalise at fast_specs
+settings, so the levers never engage. Filed as the clearest next
+step in `dev/audit/fidelity/ORANGE_OVERVIEW.md`.
+
+## Audit-methodology hardening
+
+- **`viability_report()`** — new exported function that flags
+  runs where `n_final < 20` OR `n_final < 0.2 × n_init`.
+  `run_alife()` now attaches it as `env$viability` and warns on
+  `"crashed"` verdicts. Codifies the "always check viability
+  before interpreting trait means" rule the audit round kept
+  relearning.
+- **Cross-scenario crash audit** (`crash_audit.R`): 17 scenarios
+  × 5 seeds at fast_specs revealed 4 ✅ scenarios that crash at
+  fast_specs (body_size, signals, parental_care, stress_hypermutation).
+  The morning's demo-chunk updates were silently reverted for
+  those four to keep them at `default_specs`.
+- **Evidence-strength review** (`EVIDENCE_REVIEW.md`): tiers all
+  30 auditable scenarios into Strong / Moderate / Weak-✅ / Honest
+  🟠. Revealed 14 of 26 ✅ sit in Tier C (audited pre-8-seed
+  discipline).
+- **Tier C re-audit (batches 1 + 2)**: ran 12 of the 14 Tier C
+  scenarios × 8 seeds × 2 conditions.  Six pass as
+  module-firing-correctness checks (cooperation, speciation, niche,
+  parental_care, complex_landscape, seasonal). **Five demoted**:
+  group_defense, social_learning, scavenging, brain_size, rl — the
+  canonical theoretical claim doesn't hold at 8 seeds. One
+  marginal (parental_investment). Inventory and next steps for all
+  9 🟠 in `dev/audit/fidelity/ORANGE_OVERVIEW.md`.
+
+## Status changes
+
+- **s-dispersal-ifd promoted 🟠 → ✅** at
+  `habitat_preference_strength = 2.0`: Δ = +0.021 ± 0.005 across
+  5 seeds.
+- **s-mimicry reframed** to lead with predation-dominant ecology
+  (Grafen 1990 handicap-equilibrium critique cited).
+- Five Tier-C ✅ → 🟠 (per above).
+
+Honest ledger (post-retire): **~14 defensible-✅ / ~9 🟠 /
+1 marginal / 2 untouched / 0 🔴** out of 30 auditable scenarios
+(11 were already Tier A / Tier B, 3 pass Tier C at module-
+correctness level).
+
+## New benchmark: brain-type comparison (s-brain-comparison)
+
+First side-by-side benchmark of clade's five working brain
+architectures (BNN, ANN, CTRNN, GRN, random). Same ecology, 5
+seeds per brain type = 25 independent runs dispatched across 25
+PSOCK workers. Surfaces a clean r-vs-K partition:
+
+- **BNN**: 196 ± 5 agents × 125 ± 2 energy — density over quality
+- **GRN**: 56 ± 8 agents × 170 ± 5 energy — quality over density
+- ANN / CTRNN intermediate; random is fragile.
+
+Doubles as a working demonstration of the new parallel-search
+toolkit. New vignette `s-brain-comparison.Rmd` in Theme 6.
+
+Doc fix: `brain_type` no longer claims `transformer` and
+`synthesis` are supported — the Julia kernel errors out on both
+("planned for later phases"). Listed as reserved names only.
+
+## Memory entries added (cross-session)
+
+- `project_landing_page_cleanup.md` — user flagged remaining
+  22-vs-23-vs-26 inconsistencies across pages; systematic sweep
+  planned.
+- `project_rng_order_sensitivity.md` — now resolved by the 0.5.6
+  RNG fix; kept as historical record.
 
 ## New exports
 

@@ -96,16 +96,18 @@ All types are heritable and evolvable. See the references in each entry for
 the primary literature.
 
 \describe{
-\item{\code{brain_type}}{Character. One of \code{"bnn"} (default), \code{"ann"},
-\code{"ctrnn"}, \code{"grn"}, \code{"transformer"}, \code{"synthesis"}, or \code{"random"}.
+\item{\code{brain_type}}{Character. Currently implemented: \code{"bnn"}
+(default), \code{"ann"}, \code{"ctrnn"}, \code{"grn"}, \code{"random"}. Listed but
+\strong{not yet implemented} (kernel errors with "planned for later
+phases"): \code{"transformer"}, \code{"synthesis"} — they're reserved
+names, not working architectures as of 0.5.6.
 BNN = Bayesian neural network (Neal 1996; Blundell et al. 2015);
 ANN = multilayer perceptron (Rumelhart et al. 1986);
 CTRNN = continuous-time recurrent network (Beer 1995);
 GRN = gene regulatory network (Kauffman 1993);
-transformer = attention over sensory history (Vaswani et al. 2017);
-synthesis = evolved symbolic IF-THEN rules (Koza 1992);
 random = null baseline. See \code{vignette("custom-modules")} for
-architecture details.}
+architecture details and \code{dev/benchmarks/brain_comparison.R}
+for a side-by-side benchmark of the five working types.}
 \item{\code{hidden_layers}}{Integer vector. Hidden layer widths for \code{"ann"} and
 \code{"bnn"} (default \code{c(8L)}; gives one hidden layer of 8 units). Set to
 \code{c(16L, 8L)} for two hidden layers.}
