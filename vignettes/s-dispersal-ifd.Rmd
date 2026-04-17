@@ -59,7 +59,7 @@ FIG <- function(name, ...) {
 
 **What we found (updated 2026-04-16, 0.4.1 grid audit).** Full
 protocol:
-[dev/audit/fidelity/dispersal_ifd.md](../dev/audit/fidelity/dispersal_ifd.md).
+[dev/audit/fidelity/dispersal_ifd.md](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/dispersal_ifd.md).
 
 The 0.4.1 audit swept `habitat_preference_strength ∈ {0.5, 1.0,
 2.0, 4.0}` × `max_ticks ∈ {500, 1000}` × 2 seeds. IFD signal grows
