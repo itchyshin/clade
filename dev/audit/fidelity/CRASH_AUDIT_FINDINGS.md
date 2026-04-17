@@ -103,3 +103,44 @@ the "passed" count.
 
 These are recorded here rather than in `PRIORITY_ROADMAP.md` because
 they are observations, not currently planned work.
+
+## Body-size crash mechanism (diagnosed 2026-04-17 afternoon)
+
+`dev/audit/fidelity/body_size_crash_diagnosis.R` ran a focused sweep
+of the body_size × fast_specs interaction. Result:
+
+| body_size_mutation_sd | crashed/5 | mean n_final | mean bs_final |
+|---|---|---|---|
+| 0.000 (no mutation)   | 0 | 39 | 1.00 |
+| 0.005 (tiny)          | 1 | 25 | 0.99 |
+| 0.020 (small)         | 4 | 17 | 1.02 |
+| 0.050 (default)       | 5 |  5 | **0.53** |
+| 0.100 (large)         | 5 |  3 | **0.49** |
+
+Body-size evolution OFF: 0/5 crashed, n=35. Body-size ON + grass=0.35:
+0/5 crashed, n=50.
+
+**Root cause — asymmetric foraging correction for small agents.** In
+`inst/julia/src/modules/body_size.jl`, `apply_body_size!` charges
+small agents (`bs < 1`) an energy correction of `eat_gain × (1 - bs)`
+every tick they foraged, to refund the "over-credited" grass gain.
+But this correction is not capped by the eat_gain received — so when
+`bs ≈ 0.5`, the correction is `5 × 0.5 = 2.5`, which exceeds the
+typical per-tick eat gain on cells with low grass.
+
+Under fast_specs (short lifespan, moderate grass), body_size mutation
+drives some lineages small. Small agents foraging on medium-grass
+cells end up net-negative energy per tick. They starve, shrinking
+population, reducing selection power to push size back up — death
+spiral. Equilibrium at `bs ≈ 0.5` and `n_final < 10`.
+
+**Kernel-polish candidate**: clamp the small-agent correction so
+`energy_after_correction >= energy_before_eat`, i.e. eating can give
+zero net energy but never net-negative. Small change in
+`apply_body_size!`, prevents death-spiral dynamics at any timescale.
+Does not affect large-agent mechanics or the body_size P1/P2 audits
+at default_specs.
+
+Workaround for users who want body_size + fast_specs: set
+`grass_rate >= 0.35` to push equilibrium grass density above the
+small-agent loss threshold. Documented for future vignette variants.
