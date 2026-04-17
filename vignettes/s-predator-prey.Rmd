@@ -133,12 +133,30 @@ The calibrated regime reproduces the documented evolutionary-ABM
 predator-prey signature: prey oscillate, predators saturate at cap.
 Three open directions for going beyond:
 
-1. **Can textbook LV be recovered with fixed-policy predators?** Lotka
-   1925's sinusoidal cycles require non-evolving predators. A future
-   spec (`predator_evolution = FALSE` or a fixed `policy_fn`) would let
-   us test whether the pure mass-action mechanism reproduces the
-   quarter-cycle lag. Currently the kernel always evolves predator
-   brains, so this scenario can't yet be tested directly.
+1. **Can textbook LV be recovered?** Lotka 1925's sinusoidal cycles
+   require fixed, non-adaptive predators with linear predation rates.
+
+   *Tried it (indirectly).* Tested `predator_mutation_sd ∈ {0, 0.1,
+   1.0, 5.0}` × 5 seeds × 1000 ticks, plus `predator_max_agents ∈
+   {20, 50, 200, 500}` × 2 mutation rates × 5 seeds × 1500 ticks.
+   Also checked cross-correlation for the LV quarter-cycle lag.
+
+   Prey oscillation scores range 0.25–0.34 across all regimes (moderate,
+   no textbook sinusoidal). Predator populations have **zero variance**
+   after the bootstrap phase (sd = 0 in every condition): once evolved
+   past random, predators efficiently hunt at any non-zero prey density
+   and saturate at cap. Cross-correlation between prey and predator
+   timeseries cannot be computed (predator series is constant).
+
+   **Why.** Evolved neural-network predators are adaptively nonlinear —
+   they track prey efficiently regardless of density. This removes the
+   quarter-cycle phase lag LV requires (textbook model assumes density-
+   proportional predation). The predator-decline phase that creates the
+   second half of the LV cycle never occurs because evolved predators
+   are too smart to fail at hunting. This is biologically realistic
+   (real predators with behavioural plasticity also suppress LV) but
+   means textbook LV needs a `predator_evolution = FALSE` kernel spec
+   that freezes predator brains. Deferred to 0.6+.
 
 2. **Oscillation strength vs predator density.** Does increasing
    predator density produce stronger LV-like oscillations? Measured
