@@ -162,16 +162,22 @@ claim-reframing.
 
 - **Expected**: actor-critic within-life learning boosts mean
   energy vs no learning.
-- **8-seed result**: Δ = -2.5 energy, *t* = -1.66 (weakly
-  opposite direction).
-- **Diagnosis**: unexpected. The algorithm correctness tests
-  pass (gradient is correct), but at scenario level the learning
-  signal is not translating to foraging benefit. Possibly
-  `rl_update_freq = 5` is too aggressive (updates before
-  advantage signal stabilises).
-- **Next step**: rl_update_freq sweep, or more fundamental
-  investigation of whether the "advantage" signal clade computes
-  actually points in the right direction. Half day to a day.
+- **8-seed result** (default): Δ = -2.5 energy, *t* = -1.66
+  (weakly opposite direction).
+- **3×3 freq × lr sweep** (`rl_update_freq_sweep.R`, 144 runs):
+  **no cell gives Δenergy > 0 at *t* ≥ 2**. Best cell at
+  (freq=5, lr=0.005) is Δ = +1.2, *t* = 1.5 (direction OK but
+  not significant). At higher lr the direction inverts (lr=0.05:
+  Δ = -1.5, *t* = -1.8).
+- **Diagnosis**: Williams 1992 REINFORCE is algorithm-correct in
+  clade (update rule tested at unit level) but the scenario-level
+  mean_energy claim doesn't cross significance. Possible reasons:
+  (a) 5-action space too simple for learning to outperform
+  random-weight argmax; (b) advantage signal too noisy at 8-seed
+  sample size; (c) RL may help metrics other than mean_energy
+  (survival, exploration) that aren't in the canonical claim.
+- **Next step**: **demote to 🟠 with reframe** to module-
+  correctness. Same pattern as group-defense and scavenging.
 
 ### Plus 1 marginal
 
