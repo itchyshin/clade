@@ -1095,6 +1095,12 @@ default_specs <- function() {
     predator_min_repro_age     = 5L,
     predator_mutation_sd       = 0.1,
     predator_max_agents        = 50L,
+    predator_max_age           = NA,   # 0.5.6: separate predator lifespan.
+                                       # NA = same as prey max_age (legacy).
+                                       # Set explicitly for realistic scenarios
+                                       # where predators outlive prey (e.g.
+                                       # owl > mouse: predator_max_age = 150,
+                                       # max_age = 30).
     predator_sense_graded      = TRUE, # 0.4.2: prey's predator sense is 1/(d+1), not binary
 
 
@@ -1300,15 +1306,16 @@ full_specs <- function() {
 #' @export
 fast_specs <- function() {
   s <- default_specs()
-  s$max_age          <- 30L
-  s$min_repro_energy <- 60.0
-  s$min_repro_age    <- 3L
-  s$grass_rate       <- 0.20
-  s$n_agents_init    <- 80L
-  s$max_agents       <- 400L
-  s$grid_rows        <- 30L
+  s$max_age          <- 30L       # short prey life → fast generations
+  s$min_repro_energy <- 60.0      # breed after ~10 ticks of foraging
+  s$min_repro_age    <- 3L        # minimum maturation
+  s$grass_rate       <- 0.20      # adequate food for fast turnover
+  s$n_agents_init    <- 80L       # moderate pop; higher density = stronger selection
+  s$max_agents       <- 400L      # room for growth
+  s$grid_rows        <- 30L       # standard grid (density matters more than size)
   s$grid_cols        <- 30L
-  s$max_ticks        <- 2000L
+  s$max_ticks        <- 2000L     # 66 generations
+  s$predator_max_age <- 100L      # predators outlive prey (owl > mouse)
   s
 }
 
