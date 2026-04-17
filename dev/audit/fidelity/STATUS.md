@@ -17,15 +17,46 @@ Statuses:
 - ⚪ **N/A**: scenario does not claim a primary-source match
   (e.g. discovery / kitchen-sink demos).
 
+## fast_specs viability annotations (2026-04-17)
+
+From `dev/audit/fidelity/CRASH_AUDIT_FINDINGS.md`, with 5 seeds × 2000
+ticks at fast_specs:
+
+- 💥 **fast-crash**: scenario's demo parameters crash at `fast_specs()`
+  (mean `frac_final < 0.20`). Use `default_specs()` for the vignette
+  demo; keep fast_specs for any scenario-specific variant only if a
+  targeted viability check passes. Four scenarios: body_size, signals,
+  parental_care, stress_hypermutation.
+- ⚠️  **fast-weak**: viable at fast_specs but population shrinks to
+  20–50% of init. Either is OK; trait-mean audits at fast_specs should
+  always call `viability_report()` before interpreting. Nine scenarios.
+- 💪 **fast-viable**: robustly viable or growing at fast_specs. Safe
+  to default to fast_specs in audits. Four scenarios: cooperation,
+  clutch_size, kin, scavenging.
+
+## 2026-04-17 session summary
+
+- **Promoted 🟠 → ✅**: s-dispersal-ifd (at `habitat_preference_strength
+  = 2.0` under fast_specs; 5-seed Δ = +0.021 ± 0.005).
+- **Reframed**: s-mimicry (lead claim is now the predation-dominant
+  ecology where aposematism evolves; Zahavi handicap critique
+  documented).
+- **Confirmed kernel-limited**: s-baldwin, s-plasticity (both need
+  0.4.3 BNN sigma decoupling to cross the threshold).
+- **New utility**: `viability_report()` — check crash risk before
+  interpreting trait means.
+- **New infrastructure**: `dev/audit/fidelity/crash_audit.R`,
+  `PRIORITY_ROADMAP.md`, `CRASH_AUDIT_FINDINGS.md`.
+
 | Scenario                              | Primary source                                | Status              | Report                                              | Commit  |
 |---|---|---|---|---|
 | s-baseline                            | MacArthur & Pianka 1966; Bulitko 2023 (MATLAB)| ✅ passed (three-way xref) | [baseline.md](baseline.md)                   | pending |
 | s-bad-science                         | Smaldino & McElreath 2016                     | ✅ passed           | inline in commit                                    | 91cc1a9 |
 | s-predator-prey                       | Lotka 1925, Volterra 1926, Huffaker 1958      | ✅ passed           | [predator_prey.md](predator_prey.md)                | pending |
-| s-body-size                           | Cope's rule (Stanley 1973)                    | ✅ passed (0.5.2: P1 robust @ 16 seeds; P2 NULL, no predator-direction signal) | [body_size.md](body_size.md)                        | pending |
+| s-body-size                           | Cope's rule (Stanley 1973)                    | ✅ passed (0.5.2: P1 robust @ 16 seeds; P2 NULL, no predator-direction signal) 💥 fast-crash | [body_size.md](body_size.md)                        | pending |
 | s-brain-size                          | Parental provisioning hypothesis              | ✅ passed (0.4.2 brain_energy_base=0.010) | [brain_size.md](brain_size.md)                      | pending |
 | s-pop-genetics                        | Fisher-Wright; parent-offspring regression    | ✅ passed           | [pop_genetics.md](pop_genetics.md)                  | pending |
-| s-stress-hypermutation                | Rosenberg 2001; Foster 2007                   | ✅ passed           | [stress_hypermutation.md](stress_hypermutation.md)  | pending |
+| s-stress-hypermutation                | Rosenberg 2001; Foster 2007                   | ✅ passed 💥 fast-crash | [stress_hypermutation.md](stress_hypermutation.md)  | pending |
 | s-complex-landscape                   | Multi-layer habitat                           | ✅ passed           | [complex_landscape.md](complex_landscape.md)        | pending |
 | s-dispersal-ifd                       | Fretwell & Lucas 1970; Shine et al. 2011      | ✅ passed (2026-04-17: fast_specs + habitat_preference_strength = 2.0, Δ = +0.021 ± 0.005 across 5 seeds) | [dispersal_ifd.md](dispersal_ifd.md)                | pending |
 | s-niche                               | Odling-Smee et al. 2003                       | ✅ passed           | [niche.md](niche.md)                                | pending |
@@ -33,9 +64,9 @@ Statuses:
 | s-scavenging                          | DeVault et al. 2003                           | ✅ passed           | [scavenging.md](scavenging.md)                      | pending |
 | s-kin                                 | Hamilton 1964                                 | ✅ passed           | [kin.md](kin.md)                                    | pending |
 | s-cooperation                         | Nowak & May 1992                              | ✅ passed           | [cooperation.md](cooperation.md)                    | pending |
-| s-signals                             | Zahavi 1975; Iwasa & Pomiankowski 1994        | ✅ passed           | [signals.md](signals.md)                            | pending |
+| s-signals                             | Zahavi 1975; Iwasa & Pomiankowski 1994        | ✅ passed 💥 fast-crash | [signals.md](signals.md)                            | pending |
 | s-speciation                          | Dieckmann & Doebeli 1999                      | ✅ passed           | [speciation.md](speciation.md)                      | pending |
-| s-parental-care                       | Clutton-Brock 1991                            | ✅ passed           | [parental_care.md](parental_care.md)                | pending |
+| s-parental-care                       | Clutton-Brock 1991                            | ✅ passed 💥 fast-crash | [parental_care.md](parental_care.md)                | pending |
 | s-mating-systems                      | Maynard Smith 1978; Hamilton 1980             | 🟠 passed-consistent (0.5.3 16-seed retraction: direction correct on average across 19 regimes, no cell crosses 2×SE) | [mating_systems.md](mating_systems.md)              | pending |
 | s-life-history                        | Cole 1954; Williams 1966                      | ✅ passed           | [life_history.md](life_history.md)                  | pending |
 | s-clutch-size                         | Lack 1947; r/K (MacArthur & Wilson 1967)      | ✅ passed           | [clutch_size.md](clutch_size.md)                    | pending |
