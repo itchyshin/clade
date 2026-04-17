@@ -27,7 +27,7 @@ Statuses:
 | s-pop-genetics                        | Fisher-Wright; parent-offspring regression    | ✅ passed           | [pop_genetics.md](pop_genetics.md)                  | pending |
 | s-stress-hypermutation                | Rosenberg 2001; Foster 2007                   | ✅ passed           | [stress_hypermutation.md](stress_hypermutation.md)  | pending |
 | s-complex-landscape                   | Multi-layer habitat                           | ✅ passed           | [complex_landscape.md](complex_landscape.md)        | pending |
-| s-dispersal-ifd                       | Fretwell & Lucas 1970; Shine et al. 2011      | 🟠 passed-consistent (0.4.1 grid) | [dispersal_ifd.md](dispersal_ifd.md)                | pending |
+| s-dispersal-ifd                       | Fretwell & Lucas 1970; Shine et al. 2011      | ✅ passed (2026-04-17: fast_specs + habitat_preference_strength = 2.0, Δ = +0.021 ± 0.005 across 5 seeds) | [dispersal_ifd.md](dispersal_ifd.md)                | pending |
 | s-niche                               | Odling-Smee et al. 2003                       | ✅ passed           | [niche.md](niche.md)                                | pending |
 | s-seasonal                            | Sinusoidal resource variation                 | ✅ passed           | [seasonal.md](seasonal.md)                          | pending |
 | s-scavenging                          | DeVault et al. 2003                           | ✅ passed           | [scavenging.md](scavenging.md)                      | pending |

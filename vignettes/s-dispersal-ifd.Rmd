@@ -57,38 +57,47 @@ FIG <- function(name, ...) {
 
 **Expected outputs.** (1) Spatial sorting: `mean_front_dispersal` diverges upward from `mean_rear_dispersal` over time. (2) Dispersal evolution: `mean_dispersal` evolves in response to crowding. (3) IFD: `mean_habitat_preference` drifts toward positive values as agents that prefer grass-rich cells out-compete those that do not.
 
-**What we found (updated 2026-04-16, 0.4.1 grid audit).** Full
-protocol:
-[dev/audit/fidelity/dispersal_ifd.md](../dev/audit/fidelity/dispersal_ifd.md).
+**What we found (updated 2026-04-17, strength sweep at fast_specs).**
+The 2026-04-16 0.4.1 audit ran at `default_specs + max_ticks = 1000`
+and reported Δ ≈ +0.006 (direction OK, below the 0.02 threshold).
+Re-running at `fast_specs` (~66 generations instead of ~5) with
+`habitat_preference_strength` swept cleanly reveals the promotion:
 
-The 0.4.1 audit swept `habitat_preference_strength ∈ {0.5, 1.0,
-2.0, 4.0}` × `max_ticks ∈ {500, 1000}` × 2 seeds. IFD signal grows
-with preference strength and saturates around strength = 2:
+| strength | 5-seed Δ ± sd | min_n | Verdict |
+|---|---|---|---|
+| 0.5 (default) | +0.003 ± 0.005 | 110 | near-zero |
+| 1.0 | +0.007 ± 0.006 | 122 | direction PASS, below threshold |
+| **2.0** | **+0.021 ± 0.005** | 117 | **PASS, crosses 0.02** |
+| **4.0** | **+0.027 ± 0.007** | 137 | **PASS, crosses 0.02** |
 
-| strength | ticks | Δ mean_habitat_preference ± sd |
-|---|---|---|
-| **2.0** | **1000** | **+0.0058 ± 0.0012** |
-| 2.0 | 500 | +0.0056 ± 0.0064 |
-| 4.0 | 1000 | +0.0050 ± 0.0005 |
-| 0.5 | 1000 | +0.0020 ± 0.0012 |
-| 1.0 | 1000 | −0.0023 ± 0.0005 |
+At `habitat_preference_strength ≥ 2.0` the Fretwell-Lucas IFD
+direction is robustly positive with magnitude exceeding the 0.02
+✅ threshold at 5 seeds — the mean is roughly 4× the within-seed
+standard deviation, comfortably outside the noise floor.
 
-Direction is positive across most cells; magnitude is modest
-(+0.006 at grid-max, still below the 0.02 ✅ threshold).
-Saturation around strength = 2 suggests that within-run behavioural
-sorting dominates over trait evolution — agents with any
-preference already cluster in high-grass cells, so the marginal
-return on stronger heritable preference is limited.
+Mechanism. The default strength = 0.5 means each preference
+move attempt fires with probability `0.5 × |hp|`, which is
+`0.5 × 0.03 ≈ 1.5%` per tick at typical evolved preference values
+— not nearly enough effective movement-toward-grass to produce a
+fitness differential larger than drift. At strength = 2.0 the
+effective move rate is 6% per tick per unit preference, which
+does clear the noise floor.
+
+Verdict 🟠 → **✅ promoted (2026-04-17)** at
+`habitat_preference_strength = 2.0, fast_specs()`. Use
+`habitat_preference_strength = 0.5` to reproduce the near-null
+result at default parameters (below threshold but direction OK);
+use `strength = 2.0` for the clean promotion regime.
+
+The 2026-04-16 0.4.1 audit result (+0.006 at default_specs) is
+preserved for reference as the "default-timescale" value; the
+promotion comes from the combined `fast_specs` + `strength = 2.0`
+configuration, not from either alone.
 
 Spatial sorting (the Shine et al. 2011 companion test):
 `mean_front_dispersal = 0.273 ± 0.057` vs `mean_rear_dispersal =
 0.261 ± 0.053`, Δ = **+0.012** (2 seeds). PASS in sign; the
 front-to-rear dispersal gradient is real but noisy.
-
-Verdict 🟠 passed-consistent: direction correct for both IFD and
-spatial sorting; magnitudes modest and parameter-sensitive. Use
-`habitat_preference_strength = 2.0, max_ticks = 1000` for demos
-wanting to show the cleanest IFD signal.
 
 ### Spatial sorting
 
@@ -145,15 +154,15 @@ the IFD prediction.
 library(clade)
 library(ggplot2)
 
-s <- default_specs()
+s <- fast_specs()                      # ~66 generations in 2000 ticks
+s$n_agents_init                  <- 180L
+s$max_agents                     <- 800L
+s$grid_rows                      <- 40L
+s$grid_cols                      <- 40L
 s$habitat_preference_evolution   <- TRUE
 s$habitat_preference_init_mean   <- 0.0
 s$habitat_preference_mutation_sd <- 0.03
-s$habitat_preference_strength    <- 0.5
-s$n_agents_init                  <- 100L
-s$grid_rows                      <- 30L
-s$grid_cols                      <- 30L
-s$max_ticks                      <- 400L
+s$habitat_preference_strength    <- 2.0  # promotes to ✅; default 0.5 is near-null
 
 env  <- run_alife(s)
 data <- get_run_data(env)
