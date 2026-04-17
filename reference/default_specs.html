@@ -382,6 +382,17 @@ coupling (legacy). At 0 = deterministic actions from mu;
 sigma only affects the learning/cost channel. Added 0.5.5 for
 sigma-action decoupling in Baldwin/plasticity scenarios.</p></dd>
 
+<dt><code>action_exploration_epsilon</code></dt>
+<dd><p>Numeric in [0, 1]. Epsilon-
+greedy exploration rate, orthogonal to BNN sigma. 0 (default) =
+pure argmax over action logits (legacy). &gt; 0 = each tick, with
+probability epsilon the agent picks a uniformly random action
+instead of the greedy one. Intended for scenarios that set
+<code>bnn_action_noise_scale = 0</code>: BNN sigma then drives only
+learning/cost, and exploration comes from epsilon-greedy, so
+canalisation (sigma → 0) can happen without eliminating the
+foraging variability agents need to survive. Added 0.5.6.</p></dd>
+
 
 </dl></div>
 

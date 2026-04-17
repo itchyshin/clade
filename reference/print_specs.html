@@ -154,7 +154,7 @@ Default <code>FALSE</code>.</p></dd>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">print_specs</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -- clade specs (258 parameters) --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -- clade specs (259 parameters) --</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Grid &amp; population</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     grid_rows                              30</span>
@@ -326,6 +326,7 @@ Default <code>FALSE</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     bnn_sigma_source                       heterozygosity</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     bnn_sample_freq                        1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     bnn_action_noise_scale                 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     action_exploration_epsilon             0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     n_chromosomes                          1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     dominance_model                        additive</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     mutation_rate_evolution                FALSE</span>
@@ -464,7 +465,7 @@ Default <code>FALSE</code>.</p></dd>
 <span class="r-in"><span><span class="va">s</span><span class="op">$</span><span class="va">kin_selection</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="va">s</span><span class="op">$</span><span class="va">complex_landscape</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="fu">print_specs</span><span class="op">(</span><span class="va">s</span>, diff_only <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -- clade specs (258 parameters) [diff only] --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -- clade specs (259 parameters) [diff only] --</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Kin selection</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     kin_selection                          TRUE *</span>

@@ -16,7 +16,7 @@ optional modules — body size, dispersal tendency, mimicry, coevolving
 parasites, parental care, cooperative breeding, disease, and more. Every
 biological scenario is backed by a [multi-seed fidelity
 audit](https://itchyshin.github.io/clade/dev/audit/fidelity/DASHBOARD.md)
-against the primary literature (22 of 30 auditable scenarios pass; 5
+against the primary literature (26 of 30 auditable scenarios pass; 4
 have direction-correct but magnitude-limited signals; 0 contradict
 theory).
 
@@ -157,9 +157,14 @@ cross-references the primary literature, the alifeR R prototype, and
 
 | Status                                                      | Count                            |
 |-------------------------------------------------------------|----------------------------------|
-| ✅ Passed                                                   | **23** of 30 auditable scenarios |
+| ✅ Passed                                                   | **26** of 30 auditable scenarios |
 | 🟠 Passed-consistent (direction correct, magnitude limited) | **4**                            |
 | 🔴 Contradicts                                              | **0**                            |
+
+(5 scenarios — bad-science, predation-neural, cephalopod, kitchen-sink,
+module-comparison, cross-module — are demo/discovery vignettes with no
+primary-source quantitative claim and are marked ⚪ N/A in `STATUS.md`;
+they are excluded from the 30 auditable count.)
 
 The four 🟠 scenarios (mating-systems, mimicry, plasticity, Baldwin
 effect) have honestly-documented kernel or ecology limitations. See the

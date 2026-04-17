@@ -34,7 +34,7 @@ Invisibly, the `specs` list (for piping).
 
 ``` r
 print_specs()
-#> -- clade specs (258 parameters) --
+#> -- clade specs (259 parameters) --
 #> 
 #>   Grid & population
 #>     grid_rows                              30
@@ -206,6 +206,7 @@ print_specs()
 #>     bnn_sigma_source                       heterozygosity
 #>     bnn_sample_freq                        1
 #>     bnn_action_noise_scale                 1
+#>     action_exploration_epsilon             0
 #>     n_chromosomes                          1
 #>     dominance_model                        additive
 #>     mutation_rate_evolution                FALSE
@@ -344,7 +345,7 @@ s <- default_specs()
 s$kin_selection <- TRUE
 s$complex_landscape <- TRUE
 print_specs(s, diff_only = TRUE)
-#> -- clade specs (258 parameters) [diff only] --
+#> -- clade specs (259 parameters) [diff only] --
 #> 
 #>   Kin selection
 #>     kin_selection                          TRUE *
