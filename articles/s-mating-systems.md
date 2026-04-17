@@ -37,16 +37,14 @@ full 0.5.3 resolution.
 library(clade)
 library(ggplot2)
 
-s_asex <- default_specs()
+s_asex <- fast_specs()                # ~66 generations in 2000 ticks
 s_asex$ploidy         <- 1L
 s_asex$crossover_rate <- 0.0
-s_asex$max_ticks      <- 400L
 s_asex$random_seed    <- 42L
 
-s_sex <- default_specs()
+s_sex <- fast_specs()
 s_sex$ploidy         <- 2L
 s_sex$crossover_rate <- 0.1
-s_sex$max_ticks      <- 400L
 s_sex$random_seed    <- 42L
 
 d_asex <- get_run_data(run_alife(s_asex))$ticks

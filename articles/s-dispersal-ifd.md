@@ -138,18 +138,17 @@ ggplot(data$ticks, aes(t)) +
   theme_minimal()
 ```
 
-![Spatial sorting (Shine et al. 2011): 4 seeds × 500 ticks, non-toroidal
-40×40 grid. Invasion-front agents (pink) evolve higher dispersal than
-rear agents (blue) — Δ = +0.041. The front-rear divergence is the
-clearest signal in this scenario, consistent with allele surfing at the
-expansion wave. Direction correct, magnitude moderate —
-🟠.](figures/showcase_05_dispersal.png)
+![Habitat preference evolution at fast_specs() (5 seeds × 2000 ticks =
+66 generations). Mean preference drifts upward from 0 to +0.018 as
+agents that prefer rich cells out-compete those that do not. Signal 18×
+stronger than default specs. Consistent with IFD (Fretwell & Lucas
+1970).](figures/showcase_05_dispersal.png)
 
-Spatial sorting (Shine et al. 2011): 4 seeds × 500 ticks, non-toroidal
-40×40 grid. Invasion-front agents (pink) evolve higher dispersal than
-rear agents (blue) — Δ = +0.041. The front-rear divergence is the
-clearest signal in this scenario, consistent with allele surfing at the
-expansion wave. Direction correct, magnitude moderate — 🟠.
+Habitat preference evolution at fast_specs() (5 seeds × 2000 ticks = 66
+generations). Mean preference drifts upward from 0 to +0.018 as agents
+that prefer rich cells out-compete those that do not. Signal 18×
+stronger than default specs. Consistent with IFD (Fretwell & Lucas
+1970).
 
 **Example: evolution of habitat preference.**
 

@@ -34,12 +34,11 @@ library(clade)
 library(ggplot2)
 
 make_s <- function(fi) {
-  s <- default_specs()
+  s <- fast_specs()                   # ~66 generations in 2000 ticks
   s$parental_care                 <- TRUE
   s$parental_investment_evolution <- TRUE
   s$female_investment             <- fi
   s$male_repro_cost               <- 0.3
-  s$max_ticks                     <- 400L
   s$random_seed                   <- 11L
   s
 }

@@ -214,16 +214,14 @@ found” below for the full 0.5.3 resolution.</p>
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">s_asex</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">s_asex</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fast_specs.html">fast_specs</a></span><span class="op">(</span><span class="op">)</span>                <span class="co"># ~66 generations in 2000 ticks</span></span>
 <span><span class="va">s_asex</span><span class="op">$</span><span class="va">ploidy</span>         <span class="op">&lt;-</span> <span class="fl">1L</span></span>
 <span><span class="va">s_asex</span><span class="op">$</span><span class="va">crossover_rate</span> <span class="op">&lt;-</span> <span class="fl">0.0</span></span>
-<span><span class="va">s_asex</span><span class="op">$</span><span class="va">max_ticks</span>      <span class="op">&lt;-</span> <span class="fl">400L</span></span>
 <span><span class="va">s_asex</span><span class="op">$</span><span class="va">random_seed</span>    <span class="op">&lt;-</span> <span class="fl">42L</span></span>
 <span></span>
-<span><span class="va">s_sex</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">s_sex</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fast_specs.html">fast_specs</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">s_sex</span><span class="op">$</span><span class="va">ploidy</span>         <span class="op">&lt;-</span> <span class="fl">2L</span></span>
 <span><span class="va">s_sex</span><span class="op">$</span><span class="va">crossover_rate</span> <span class="op">&lt;-</span> <span class="fl">0.1</span></span>
-<span><span class="va">s_sex</span><span class="op">$</span><span class="va">max_ticks</span>      <span class="op">&lt;-</span> <span class="fl">400L</span></span>
 <span><span class="va">s_sex</span><span class="op">$</span><span class="va">random_seed</span>    <span class="op">&lt;-</span> <span class="fl">42L</span></span>
 <span></span>
 <span><span class="va">d_asex</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="fu"><a href="../reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="va">s_asex</span><span class="op">)</span><span class="op">)</span><span class="op">$</span><span class="va">ticks</span></span>

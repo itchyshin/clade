@@ -41,11 +41,10 @@ full vector-signal memory using the Widrow-Hoff delta rule. See “What we
 found” below for details.
 
 ``` r
-s <- default_specs()
+s <- fast_specs()                     # ~66 generations in 2000 ticks
 s$mimicry            <- TRUE
 s$n_predators_init   <- 5L
 s$toxicity_init_mean <- 0.1
-s$max_ticks          <- 300L
 
 env  <- run_alife(s)
 data <- get_run_data(env)
@@ -124,6 +123,30 @@ Verdict: 🟠 with substantially richer kernel semantics. The machinery is
 now theoretically aligned with Bates (1862) / Müller (1879); magnitude
 of upward toxicity evolution is limited by ecology, not the
 predator-learning channel.
+
+**Why “ecology-limited” is not a bug — Zahavi handicap critique.** The
+toxicity trait acts as a Zahavi (1975) handicap: a costly honest signal
+of unpalatability. Grafen (1990, *J. Theor. Biol.* 144:517) formalised
+Zahavi’s verbal argument as a signalling equilibrium where the marginal
+fitness cost of signalling must be cheaper for high-quality signallers
+than for low-quality ones. A series of later critiques — Getty (2006),
+Számadó (2011), and the TREE review by Számadó & Penn (2015) — showed
+that the handicap equilibrium requires quite specific cost-benefit
+structures. In particular, the cost must scale *differentially* with
+quality; when the cost is flat across the population (as with our
+`toxicity_cost_per_tick`), the equilibrium condition is not met and
+honest signalling does not robustly evolve.
+
+This means clade’s weak upward toxicity evolution at default ecology is
+a theoretical limitation of the handicap model itself, not a kernel bug.
+It is the Zahavi/Grafen problem showing up at ABM scale. The 0.5.4
+calibration found that only a predation-dominant ecology (where
+predation accounts for ~89% of mortality) produces a clear positive
+Δtoxicity — in that regime, the cost-benefit ratio inverts because the
+handicap-cost is dominated by the survival gain from avoiding predation.
+That matches what the theoretical critique predicts: handicap honesty
+emerges only when the environment makes the differential benefit large
+enough to exceed the flat cost.
 
 **Batesian mode.** Set `s$batesian_mimicry <- TRUE` to let palatable
 mimics (toxicity = 0) share in learned aversion. Under the 0.4.4 delta

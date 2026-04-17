@@ -165,6 +165,62 @@ or the help page for [`?default_specs`](../reference/default_specs.md).
 
 ------------------------------------------------------------------------
 
+## Simulation timescale: choosing the right spec preset
+
+The single most important choice when designing a clade run is **how
+many generations you will simulate**. Fisher (1930) showed that a
+beneficial allele needs roughly $1/s$ generations to fix, where $s$ is
+the selection coefficient. For modest selection
+($s \approx 0.05\text{–}0.10$), this is 20–100 generations. Weaker
+selection needs hundreds.
+
+Under [`default_specs()`](../reference/default_specs.md), generation
+time is roughly `max_age / 2 ≈ 100 ticks` plus maturation delay, so the
+effective generation time is ~190 ticks. A 500-tick run is therefore
+only ~2.6 generations — too short to see any evolutionary dynamics at
+realistic selection strengths. This is the single largest source of
+“weak effect” reports in early clade audits.
+
+The package ships three presets that make this trade-off explicit:
+
+| Preset                                             | Generation time | Recommended `max_ticks` | Generations | Use case                                                                            |
+|----------------------------------------------------|-----------------|-------------------------|-------------|-------------------------------------------------------------------------------------|
+| [`fast_specs()`](../reference/fast_specs.md)       | ~30 ticks       | 2000                    | ~66         | Any evolutionary scenario — plasticity, Baldwin, body size, cooperation, speciation |
+| [`default_specs()`](../reference/default_specs.md) | ~190 ticks      | 500                     | ~2.6        | Within-generation demos — ecology, predator-prey, disease, learning, kitchen-sink   |
+| [`slow_specs()`](../reference/slow_specs.md)       | ~200 ticks      | 10000                   | ~50         | K-strategist scenarios (elephant, whale) where long life history is the point       |
+
+[`fast_specs()`](../reference/fast_specs.md) achieves a short generation
+time by lowering `max_age` to 30 ticks and `min_repro_energy` to 60
+(versus 200 and 120 in default). This is how the MATLAB ancestor of
+clade (Bulitko 2023) ran — agents matured quickly and turned over fast,
+which is exactly what gives selection enough time to do its work.
+
+``` r
+# Evolutionary scenario: use fast_specs
+evo <- fast_specs()               # max_ticks = 2000, ~66 generations
+evo$phenotypic_plasticity <- TRUE
+run_alife(evo)
+
+# Within-generation ecology / LV demo: default_specs is appropriate
+ecol <- default_specs()
+ecol$max_ticks <- 500L
+ecol$n_predators_init <- 5L
+run_alife(ecol)
+```
+
+**Rule of thumb.** If the phenomenon you want to see requires *allele
+change* (heritable trait evolution, genetic assimilation, cooperation or
+signal elaboration), use [`fast_specs()`](../reference/fast_specs.md).
+If it is a demographic or ecological phenomenon that unfolds within a
+single generation (predator-prey cycles, disease spread, seasonal grass
+dynamics), [`default_specs()`](../reference/default_specs.md) is fine.
+
+See `dev/docs/timescale-analysis.md` for the biological reference table
+(E. coli through elephant) and the full MATLAB-ancestor comparison that
+motivated these presets.
+
+------------------------------------------------------------------------
+
 ## Parameter overview
 
 The parameters that most strongly shape a run are summarised below. All

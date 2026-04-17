@@ -85,7 +85,8 @@ julia --project=. -e 'using Pkg; Pkg.instantiate()'
 ## Conventions
 
 - Exports are managed by roxygen → do **not** edit `NAMESPACE` by hand;
-  edit `@export` tags in `R/*.R` and run `devtools::document()`.
+  edit `@export` tags in `R/*.R` and run
+  [`devtools::document()`](https://devtools.r-lib.org/reference/document.html).
 - Public R API surface is everything listed in `NAMESPACE`
   (`export(...)`).
 - Specs are plain named lists — see

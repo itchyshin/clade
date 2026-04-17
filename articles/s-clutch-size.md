@@ -34,13 +34,12 @@ library(clade)
 library(ggplot2)
 
 make_s <- function(gr) {
-  s <- default_specs()
+  s <- fast_specs()                   # ~66 generations in 2000 ticks
   s$clutch_size_evolution   <- TRUE
   s$clutch_size_min         <- 1L
   s$clutch_size_max         <- 5L
   s$clutch_size_mutation_sd <- 0.3
-  s$grass_rate              <- gr
-  s$max_ticks               <- 400L
+  s$grass_rate              <- gr     # override fast_specs default 0.20
   s$random_seed             <- 3L
   s
 }

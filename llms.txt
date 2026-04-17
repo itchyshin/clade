@@ -221,6 +221,10 @@ Entry points for running and batching evolutionary simulations.
   exploratory runs
 - [`full_specs()`](full_specs.md) : Full preset specs for
   publication-quality runs
+- [`fast_specs()`](fast_specs.md) : Fast-generation specs for
+  evolutionary scenarios
+- [`slow_specs()`](slow_specs.md) : Slow-generation specs for long-lived
+  organism scenarios
 - [`load_specs()`](load_specs.md) : Load simulation specs from a JSON
   file
 

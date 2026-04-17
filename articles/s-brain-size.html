@@ -289,12 +289,9 @@ inputs; 0 = off, 1 = linear</td>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">base</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">base</span><span class="op">$</span><span class="va">grid_rows</span>     <span class="op">&lt;-</span> <span class="fl">30L</span></span>
-<span><span class="va">base</span><span class="op">$</span><span class="va">grid_cols</span>     <span class="op">&lt;-</span> <span class="fl">30L</span></span>
+<span><span class="va">base</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fast_specs.html">fast_specs</a></span><span class="op">(</span><span class="op">)</span>                  <span class="co"># ~66 generations in 2000 ticks</span></span>
 <span><span class="va">base</span><span class="op">$</span><span class="va">n_agents_init</span> <span class="op">&lt;-</span> <span class="fl">100L</span></span>
 <span><span class="va">base</span><span class="op">$</span><span class="va">max_agents</span>    <span class="op">&lt;-</span> <span class="fl">400L</span></span>
-<span><span class="va">base</span><span class="op">$</span><span class="va">max_ticks</span>     <span class="op">&lt;-</span> <span class="fl">500L</span></span>
 <span></span>
 <span><span class="co"># Brain size evolution parameters (calibrated for clear visual effect)</span></span>
 <span><span class="va">base</span><span class="op">$</span><span class="va">brain_size_evolution</span>   <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>

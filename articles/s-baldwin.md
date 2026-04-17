@@ -111,22 +111,19 @@ s$learning_rate_init_mean        <- 0.007
 # env <- run_alife(s)   # uncomment to run the calibrated regime
 ```
 
-![Before/after kernel fix (3 seeds × 600 ticks). LEFT: pre-0.4.0 with
-sigma from heterozygosity — σ rises toward the 0.5 cap in both
-environments (🔴 contradicts Baldwin). RIGHT: post-0.4.1 with sigma as
-evolvable trait + information cost — σ direction reverses. The fix
-enables the Baldwin mechanism but the magnitude is modest at 600 ticks
-(Δ ≈ 0.004); at 1500 ticks the transient canalisation disappears due to
-sigma coupling with behavioural variance — 🟠
-kernel-limited.](figures/showcase_bnn_uncertainty.png)
+![fast_specs() demo (5 seeds × 2000 ticks = 66 generations). Both
+environments show massive σ canalisation: stable Δσ = −0.27, seasonal Δσ
+= −0.22. Stable canalises MORE (Δdelta = +0.043) — the Hinton-Nowlan
+direction. The Baldwin Effect is now clearly visible: over many
+generations, learned behaviours become genetically assimilated as σ
+declines.](figures/showcase_bnn_uncertainty.png)
 
-Before/after kernel fix (3 seeds × 600 ticks). LEFT: pre-0.4.0 with
-sigma from heterozygosity — σ rises toward the 0.5 cap in both
-environments (🔴 contradicts Baldwin). RIGHT: post-0.4.1 with sigma as
-evolvable trait + information cost — σ direction reverses. The fix
-enables the Baldwin mechanism but the magnitude is modest at 600 ticks
-(Δ ≈ 0.004); at 1500 ticks the transient canalisation disappears due to
-sigma coupling with behavioural variance — 🟠 kernel-limited.
+fast_specs() demo (5 seeds × 2000 ticks = 66 generations). Both
+environments show massive σ canalisation: stable Δσ = −0.27, seasonal Δσ
+= −0.22. Stable canalises MORE (Δdelta = +0.043) — the Hinton-Nowlan
+direction. The Baldwin Effect is now clearly visible: over many
+generations, learned behaviours become genetically assimilated as σ
+declines.
 
 **What we found (updated 2026-04-16, audit 🔴 → 🟠 kernel-limited).**
 

@@ -39,12 +39,11 @@ signal from condition, consistent with runaway dynamics.
 library(clade)
 library(ggplot2)
 
-s <- default_specs()
+s <- fast_specs()                     # ~66 generations in 2000 ticks
 s$signal_dims          <- 3L
 s$signal_cost          <- 0.05
 s$mate_choice_mode     <- "preference"
 s$mate_choice_strength <- 0.7
-s$max_ticks            <- 400L
 s$random_seed          <- 21L
 
 env  <- run_alife(s)

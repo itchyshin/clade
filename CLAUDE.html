@@ -173,19 +173,19 @@
 <p>R-side (run from repo root):</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Load package for interactive dev (no install required)</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">load_all</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/load_all.html" class="external-link">load_all</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Run all tests</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">test</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/test.html" class="external-link">test</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Run a single test file</span></span>
 <span><span class="fu">testthat</span><span class="fu">::</span><span class="fu"><a href="https://testthat.r-lib.org/reference/test_file.html" class="external-link">test_file</a></span><span class="op">(</span><span class="st">"tests/testthat/test-config.R"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Rebuild documentation from roxygen comments</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">document</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/document.html" class="external-link">document</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Full check (CRAN-style)</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">check</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/check.html" class="external-link">check</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Build pkgdown site locally (writes to docs/, gitignored)</span></span>
 <span><span class="fu">pkgdown</span><span class="fu">::</span><span class="fu"><a href="https://pkgdown.r-lib.org/reference/build_site.html" class="external-link">build_site</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
@@ -204,7 +204,7 @@
 </div>
 <div class="section level2">
 <h2 id="conventions">Conventions<a class="anchor" aria-label="anchor" href="#conventions"></a></h2>
-<ul><li>Exports are managed by roxygen → do <strong>not</strong> edit <code>NAMESPACE</code> by hand; edit <code>@export</code> tags in <code>R/*.R</code> and run <code>devtools::document()</code>.</li>
+<ul><li>Exports are managed by roxygen → do <strong>not</strong> edit <code>NAMESPACE</code> by hand; edit <code>@export</code> tags in <code>R/*.R</code> and run <code><a href="https://devtools.r-lib.org/reference/document.html" class="external-link">devtools::document()</a></code>.</li>
 <li>Public R API surface is everything listed in <code>NAMESPACE</code> (<code>export(...)</code>).</li>
 <li>Specs are plain named lists — see <code><a href="reference/default_specs.html">default_specs()</a></code> for the canonical schema and <code>vignettes/parameter-reference.Rmd</code> for documentation.</li>
 <li>Modules are toggled via boolean flags on the specs list (e.g. <code>specs$disease &lt;- TRUE</code>); see README “Biological modules” table.</li>

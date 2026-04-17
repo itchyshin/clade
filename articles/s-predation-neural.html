@@ -202,10 +202,8 @@ killed before reaching peak foraging efficiency.</p>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">make_s</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">n_pred</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
-<span>  <span class="va">s</span><span class="op">$</span><span class="va">n_agents_init</span>    <span class="op">&lt;-</span> <span class="fl">80L</span></span>
+<span>  <span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fast_specs.html">fast_specs</a></span><span class="op">(</span><span class="op">)</span>                   <span class="co"># ~66 generations in 2000 ticks</span></span>
 <span>  <span class="va">s</span><span class="op">$</span><span class="va">n_predators_init</span> <span class="op">&lt;-</span> <span class="va">n_pred</span></span>
-<span>  <span class="va">s</span><span class="op">$</span><span class="va">max_ticks</span>        <span class="op">&lt;-</span> <span class="fl">500L</span></span>
 <span>  <span class="va">s</span></span>
 <span><span class="op">}</span></span>
 <span></span>

@@ -48,22 +48,18 @@ s$grass_rate                     <- 0.0264
 # env <- run_alife(s)   # uncomment to run the calibrated regime
 ```
 
-![Before/after kernel fix comparison (3 seeds × 800 ticks). LEFT:
-pre-0.4.0 with sigma from heterozygosity — both environments are flat
-(plasticity doesn't evolve). RIGHT: post-0.4.1 with
-bnn_sigma_source='trait' + brain_energy_sigma_scale=0.05 — seasonal
-environments (orange) maintain slightly higher plasticity than stable
-(blue). The direction is correct (DeWitt-Scheiner 2004) but the
-magnitude is modest (Δdelta ≈ 0.002) — 🟠
-kernel-limited.](figures/showcase_22_plasticity.png)
+![fast_specs() demo (5 seeds × 2000 ticks = 66 generations). Stable
+environments (blue) canalise plasticity from 0.3 → 0.13 (Δ = −0.17).
+Seasonal environments (orange) canalise less: 0.3 → 0.25 (Δ = −0.05).
+Seasonal preserves 3× more plasticity — the DeWitt-Scheiner (2004)
+prediction is now dramatic and
+unmistakable.](figures/showcase_22_plasticity.png)
 
-Before/after kernel fix comparison (3 seeds × 800 ticks). LEFT:
-pre-0.4.0 with sigma from heterozygosity — both environments are flat
-(plasticity doesn’t evolve). RIGHT: post-0.4.1 with
-bnn_sigma_source=‘trait’ + brain_energy_sigma_scale=0.05 — seasonal
-environments (orange) maintain slightly higher plasticity than stable
-(blue). The direction is correct (DeWitt-Scheiner 2004) but the
-magnitude is modest (Δdelta ≈ 0.002) — 🟠 kernel-limited.
+fast_specs() demo (5 seeds × 2000 ticks = 66 generations). Stable
+environments (blue) canalise plasticity from 0.3 → 0.13 (Δ = −0.17).
+Seasonal environments (orange) canalise less: 0.3 → 0.25 (Δ = −0.05).
+Seasonal preserves 3× more plasticity — the DeWitt-Scheiner (2004)
+prediction is now dramatic and unmistakable.
 
 **What we found (updated 2026-04-16, 0.4.2 audit).** Full protocol:
 [dev/audit/fidelity/plasticity.md](../dev/audit/fidelity/plasticity.md).

@@ -32,14 +32,11 @@ library(ggplot2)
 library(patchwork)
 
 make_s <- function(n_pred, seed) {
-  s <- default_specs()
+  s <- fast_specs()                   # ~66 generations in 2000 ticks
   s$body_size_evolution <- TRUE
   s$body_size_init_mean <- 1.0
-  s$n_agents_init       <- 80L
-  s$max_agents          <- 400L
   s$n_predators_init    <- as.integer(n_pred)
   s$max_predators       <- as.integer(n_pred * 3L)
-  s$max_ticks           <- 400L
   s$random_seed         <- as.integer(seed)
   s
 }

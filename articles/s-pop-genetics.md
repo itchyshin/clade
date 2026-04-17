@@ -33,9 +33,8 @@ by the local environment.
 ``` r
 library(clade)
 
-s <- default_specs()
+s <- fast_specs()                     # ~66 generations in 2000 ticks
 s$body_size_evolution <- TRUE
-s$max_ticks           <- 500L
 
 env  <- run_alife(s)
 data <- get_run_data(env)

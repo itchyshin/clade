@@ -21,11 +21,20 @@ A named list of simulation parameters.
 
 - `grid_rows`:
 
-  Integer. Number of rows in the toroidal grid (default 30).
+  Integer. Number of rows in the grid (default 30).
 
 - `grid_cols`:
 
-  Integer. Number of columns in the toroidal grid (default 30).
+  Integer. Number of columns in the grid (default 30).
+
+- `toroidal`:
+
+  Logical. `TRUE` (default) wraps grid edges so that moving off one side
+  re-enters on the opposite side (classic torus). `FALSE` clamps at
+  boundaries, producing true edges — required for Huffaker-1958-style
+  spatial-refugia dynamics and any scenario where corner/edge effects
+  matter. Used by movement, sensing, dispersal, kin-scan, group-defense,
+  and cooperative-breeding code paths via `wrap_or_clamp()`.
 
 - `n_agents_init`:
 

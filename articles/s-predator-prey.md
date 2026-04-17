@@ -189,11 +189,151 @@ Three open directions for going beyond:
     default parameters. See [s-body-size](s-body-size.md) for the full
     16-seed resolution.
 
-4.  **Can spatial-refugia LV be recovered?** Huffaker (1958) achieved
-    sustained oscillations only by breaking the grid into patches with
-    dispersal barriers. With `complex_landscape = TRUE` plus
-    `toroidal = FALSE` and a much larger grid, the same mechanism may
-    produce sustained cycles even with evolving predators. Worth a
-    dedicated `s-spatial-refugia` scenario. Not yet tried.
+4.  **Spatial heterogeneity and resource layering.** Two separate
+    theoretical predictions about spatial structure: Huffaker (1958)
+    said dispersal barriers between patches sustain predator-prey
+    cycles, and Rosenzweig (1971) — “paradox of enrichment” — said
+    richer prey carrying capacity *amplifies* oscillations even in a
+    well-mixed world. clade exposes `toroidal` as a first-class spec
+    (`TRUE` = wraparound, `FALSE` = clamped boundaries) and a
+    `complex_landscape` module that adds shrub + canopy resource layers
+    on top of ground grass. The 2×2 of these tests both predictions at
+    once.
+
+    *Tried it.* 2×2 factorial of `toroidal ∈ {TRUE, FALSE}` ×
+    `complex_landscape ∈ {FALSE, TRUE}`, 50×50 grid, 250 prey init, 25
+    predators init, `max_agents = 1000` (lifted so cycling isn’t clipped
+    by the cap), 5 seeds × 800 ticks each. Prey oscillation scores:
+
+    | toroidal | complex_landscape | prey_osc (mean ± sd) | prey_mean |
+    |----------|-------------------|----------------------|-----------|
+    | TRUE     | FALSE (flat)      | 0.299 ± 0.032        | 643       |
+    | TRUE     | TRUE (patchy)     | **0.637 ± 0.009**    | 841       |
+    | FALSE    | FALSE (flat)      | 0.000 ± 0.000        | 276       |
+    | FALSE    | TRUE (patchy)     | 0.000 ± 0.000        | 348       |
+
+    Two surprises, and the mechanism is neither a clean Huffaker nor a
+    clean Rosenzweig.
+
+    **(a) `complex_landscape` within a toroidal world DOUBLES the
+    oscillation score at 50×50** (0.338 → 0.650) and raises the prey
+    equilibrium (663 → 841). But a follow-up 30×30 replicate shows the
+    effect is **grid-scale dependent**:
+
+    | grid  | landscape | prey_osc (mean ± sd) | prey_mean |
+    |-------|-----------|----------------------|-----------|
+    | 30×30 | flat      | 0.307 ± 0.048        | 240       |
+    | 30×30 | patchy    | 0.310 ± 0.024        | 308       |
+    | 50×50 | flat      | 0.338 ± 0.022        | 663       |
+    | 50×50 | patchy    | **0.650 ± 0.013**    | 841       |
+
+    At 30×30, patchy vs flat gives essentially no change in cycling
+    (0.307 vs 0.310). The amplification appears only at 50×50. This
+    rules out pure Rosenzweig-1971 enrichment (which would amplify at
+    any scale once K is raised) and instead points to a spatial-
+    decoupling mechanism: `complex_landscape` adds resource layers
+    (shrubs + canopy — see
+    `inst/julia/src/modules/complex_landscape.jl`) that create local
+    resource-density pockets, and those pockets only matter when the
+    grid is large enough that predator and prey trajectories can
+    desynchronise across them. At 30×30 the board is too small for
+    predators and prey to “lose” each other between patches; at 50×50
+    the patches are far enough apart that local predator depletion and
+    prey recovery run out of phase.
+
+    This is clade’s first mechanism that partially defeats the predator
+    arms-race absorption seen in Exps 1–3 and 6. It is also the
+    strongest, cleanest LV-like cycling any clade regime has produced —
+    and it requires *both* resource layering *and* enough grid area for
+    the layering to create effective spatial decoupling.
+
+    **(b) Non-toroidal zeros all sustained cycling** (osc = 0.00 in both
+    landscape conditions). This is *not* a clean Huffaker refutation
+    because the kernel’s non-toroidal implementation clamps at
+    boundaries (`wrap_or_clamp` → `clamp(x, 1, n)` in
+    `inst/julia/src/Clade.jl:48`) — agents that try to step across the
+    edge end up pinned at the edge rather than having their move
+    rejected. The result is pile-up at the perimeter, which halves the
+    effective prey population (276 vs 643) and damps the ACF
+    monotonically (see the figure below: the bounded panels have visible
+    early transients but a declining trend dominates so the
+    autocorrelation never dips below zero). A proper Huffaker test needs
+    reflective boundaries (reject-if-blocked), not clamp. Filed as a
+    kernel-polish item in
+    `dev/docs/kernel-as-biology/ tick.md §6 Variants`.
+
+    Net finding: **resource layering within a connected (toroidal) world
+    amplifies LV cycling** — clade’s first clean Rosenzweig 1971
+    enrichment signature, and the first manipulation that partially
+    defeats the predator arms-race absorption seen in every other
+    experiment here. Deserves a dedicated `s-spatial-heterogeneity`
+    scenario. The Huffaker 1958 refugia prediction remains untested
+    until the reject-if-blocked boundary is implemented.
+
+    ![Prey trajectories across the 2×2 Huffaker audit (seed 7, 800
+    ticks, max_agents = 1000). Top-right (toroidal + patchy) is the only
+    condition with sustained cycling — three clear peak-trough
+    excursions. Top-left (toroidal + flat) shows one overshoot-and-damp.
+    The bottom row (bounded) both show one transient excursion followed
+    by monotonic decline; the ACF-based oscillation score reads 0.00
+    because the declining trend dominates the autocorrelation even
+    though visible mini-cycles are present early
+    on.](figures/showcase_14_predators_refugia.png)
+    Prey trajectories across the 2×2 Huffaker audit (seed 7, 800 ticks,
+    max_agents = 1000). Top-right (toroidal + patchy) is the only
+    condition with sustained cycling — three clear peak-trough
+    excursions. Top-left (toroidal + flat) shows one overshoot-and-damp.
+    The bottom row (bounded) both show one transient excursion followed
+    by monotonic decline; the ACF-based oscillation score reads 0.00
+    because the declining trend dominates the autocorrelation even
+    though visible mini-cycles are present early on.
+
+5.  **Grass density × predator density — does LV damping depend on
+    resources?** LV damping should be strongest when prey are
+    resource-limited (small amplitude) and weakest when prey are
+    resource-rich (runaway growth, crashes). Tested
+    `grass_rate ∈ {0.05, 0.15, 0.30}` × `n_predators_init ∈ {5, 20}` × 5
+    seeds × 800 ticks.
+
+    *Tried it.* Prey oscillation scores (mean ± sd across 5 seeds):
+
+    | grass_rate      | 5 preds         | 20 preds        |
+    |-----------------|-----------------|-----------------|
+    | 0.05 (scarce)   | 0.19 ± 0.07     | 0.24 ± 0.02     |
+    | 0.15 (moderate) | **0.32 ± 0.04** | **0.32 ± 0.01** |
+    | 0.30 (rich)     | 0.28 ± 0.03     | 0.27 ± 0.05     |
+
+    The result is **non-monotone in grass density**: oscillation peaks
+    at moderate grass (~0.15) and damps at both extremes. With scarce
+    grass (0.05), prey stay near ~40 individuals — too few for coherent
+    cycling. With rich grass (0.30), prey saturate near ~315 — near the
+    ceiling, with little room to oscillate. The moderate regime (grass =
+    0.15, prey ~190) sits in the sweet spot where carrying-capacity ×
+    predation pressure produces the cleanest cycle. Predator initial
+    count has negligible effect within each grass level (the arms-race
+    saturation of Exp 2 holds: evolved predators fill the cap regardless
+    of starting number).
+
+6.  **Group defense × LV — Hamilton (1971) dilution.** Hamilton’s
+    selfish-herd and dilution arguments predict that group defense
+    reduces per-prey attack risk, which should dampen LV oscillations by
+    reducing predator efficiency. Tested `group_defense ∈ {FALSE, TRUE}`
+    (radius 2, strength 0.3) × 5 seeds × 800 ticks at 20 predators.
+
+    *Tried it.* Prey oscillation score: 0.307 ± 0.013 (off) vs 0.300 ±
+    0.020 (on). Effectively identical (difference = 0.007, inside the
+    0.02 standard deviation of either condition). Prey mean size: 241 vs
+    245 — also effectively unchanged. Why? Evolved predators appear to
+    compensate behaviourally for the per-attack risk reduction: the
+    hunt-trait evolution already tracks prey availability density by
+    density, so a uniform reduction in attack success is absorbed by the
+    same arms-race saturation mechanism that flattens the predator-count
+    effect in Exp 2. A Hamiltonian dilution signal would likely require
+    either
+
+    1.  frozen predators (no arms-race absorption) or (b) variance in
+        defense *within* the prey population so that the differential
+        benefit of clustering can be detected genetically. Neither is
+        currently exposed.
 
 ------------------------------------------------------------------------

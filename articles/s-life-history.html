@@ -211,14 +211,12 @@ dramatically between generations.</p>
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">s_sem</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">s_sem</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fast_specs.html">fast_specs</a></span><span class="op">(</span><span class="op">)</span>                 <span class="co"># ~66 generations in 2000 ticks</span></span>
 <span><span class="va">s_sem</span><span class="op">$</span><span class="va">life_history</span> <span class="op">&lt;-</span> <span class="st">"semelparous"</span></span>
-<span><span class="va">s_sem</span><span class="op">$</span><span class="va">max_ticks</span>    <span class="op">&lt;-</span> <span class="fl">400L</span></span>
 <span><span class="va">s_sem</span><span class="op">$</span><span class="va">random_seed</span>  <span class="op">&lt;-</span> <span class="fl">7L</span></span>
 <span></span>
-<span><span class="va">s_ite</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">s_ite</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fast_specs.html">fast_specs</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">s_ite</span><span class="op">$</span><span class="va">life_history</span> <span class="op">&lt;-</span> <span class="st">"iteroparous"</span></span>
-<span><span class="va">s_ite</span><span class="op">$</span><span class="va">max_ticks</span>    <span class="op">&lt;-</span> <span class="fl">400L</span></span>
 <span><span class="va">s_ite</span><span class="op">$</span><span class="va">random_seed</span>  <span class="op">&lt;-</span> <span class="fl">7L</span></span>
 <span></span>
 <span><span class="va">d_sem</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="fu"><a href="../reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="va">s_sem</span><span class="op">)</span><span class="op">)</span><span class="op">$</span><span class="va">ticks</span></span>

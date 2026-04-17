@@ -304,6 +304,98 @@ parameters in 0.4.0). To see only what you have changed, use
 <hr>
 </div>
 <div class="section level2">
+<h2 id="simulation-timescale-choosing-the-right-spec-preset">Simulation timescale: choosing the right spec preset<a class="anchor" aria-label="anchor" href="#simulation-timescale-choosing-the-right-spec-preset"></a>
+</h2>
+<p>The single most important choice when designing a clade run is
+<strong>how many generations you will simulate</strong>. Fisher (1930)
+showed that a beneficial allele needs roughly
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mi>/</mi><mi>s</mi></mrow><annotation encoding="application/x-tex">1/s</annotation></semantics></math>
+generations to fix, where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>
+is the selection coefficient. For modest selection
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mo>≈</mo><mn>0.05</mn><mtext mathvariant="normal">–</mtext><mn>0.10</mn></mrow><annotation encoding="application/x-tex">s \approx 0.05\text{–}0.10</annotation></semantics></math>),
+this is 20–100 generations. Weaker selection needs hundreds.</p>
+<p>Under <code><a href="../reference/default_specs.html">default_specs()</a></code>, generation time is roughly
+<code>max_age / 2 ≈ 100 ticks</code> plus maturation delay, so the
+effective generation time is ~190 ticks. A 500-tick run is therefore
+only ~2.6 generations — too short to see any evolutionary dynamics at
+realistic selection strengths. This is the single largest source of
+“weak effect” reports in early clade audits.</p>
+<p>The package ships three presets that make this trade-off
+explicit:</p>
+<table class="table">
+<colgroup>
+<col width="20%">
+<col width="20%">
+<col width="20%">
+<col width="20%">
+<col width="20%">
+</colgroup>
+<thead><tr class="header">
+<th>Preset</th>
+<th>Generation time</th>
+<th>Recommended <code>max_ticks</code>
+</th>
+<th>Generations</th>
+<th>Use case</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code><a href="../reference/fast_specs.html">fast_specs()</a></code></td>
+<td>~30 ticks</td>
+<td>2000</td>
+<td>~66</td>
+<td>Any evolutionary scenario — plasticity, Baldwin, body size,
+cooperation, speciation</td>
+</tr>
+<tr class="even">
+<td><code><a href="../reference/default_specs.html">default_specs()</a></code></td>
+<td>~190 ticks</td>
+<td>500</td>
+<td>~2.6</td>
+<td>Within-generation demos — ecology, predator-prey, disease, learning,
+kitchen-sink</td>
+</tr>
+<tr class="odd">
+<td><code><a href="../reference/slow_specs.html">slow_specs()</a></code></td>
+<td>~200 ticks</td>
+<td>10000</td>
+<td>~50</td>
+<td>K-strategist scenarios (elephant, whale) where long life history is
+the point</td>
+</tr>
+</tbody>
+</table>
+<p><code><a href="../reference/fast_specs.html">fast_specs()</a></code> achieves a short generation time by
+lowering <code>max_age</code> to 30 ticks and
+<code>min_repro_energy</code> to 60 (versus 200 and 120 in default).
+This is how the MATLAB ancestor of clade (Bulitko 2023) ran — agents
+matured quickly and turned over fast, which is exactly what gives
+selection enough time to do its work.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Evolutionary scenario: use fast_specs</span></span>
+<span><span class="va">evo</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fast_specs.html">fast_specs</a></span><span class="op">(</span><span class="op">)</span>               <span class="co"># max_ticks = 2000, ~66 generations</span></span>
+<span><span class="va">evo</span><span class="op">$</span><span class="va">phenotypic_plasticity</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
+<span><span class="fu"><a href="../reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="va">evo</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Within-generation ecology / LV demo: default_specs is appropriate</span></span>
+<span><span class="va">ecol</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">ecol</span><span class="op">$</span><span class="va">max_ticks</span> <span class="op">&lt;-</span> <span class="fl">500L</span></span>
+<span><span class="va">ecol</span><span class="op">$</span><span class="va">n_predators_init</span> <span class="op">&lt;-</span> <span class="fl">5L</span></span>
+<span><span class="fu"><a href="../reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="va">ecol</span><span class="op">)</span></span></code></pre></div>
+<p><strong>Rule of thumb.</strong> If the phenomenon you want to see
+requires <em>allele change</em> (heritable trait evolution, genetic
+assimilation, cooperation or signal elaboration), use
+<code><a href="../reference/fast_specs.html">fast_specs()</a></code>. If it is a demographic or ecological
+phenomenon that unfolds within a single generation (predator-prey
+cycles, disease spread, seasonal grass dynamics),
+<code><a href="../reference/default_specs.html">default_specs()</a></code> is fine.</p>
+<p>See <code>dev/docs/timescale-analysis.md</code> for the biological
+reference table (E. coli through elephant) and the full MATLAB-ancestor
+comparison that motivated these presets.</p>
+<hr>
+</div>
+<div class="section level2">
 <h2 id="parameter-overview">Parameter overview<a class="anchor" aria-label="anchor" href="#parameter-overview"></a>
 </h2>
 <p>The parameters that most strongly shape a run are summarised below.
@@ -683,7 +775,7 @@ a higher metabolic surcharge; smaller agents eat less but are cheaper to
 run. Reference size 1.0 has no metabolic correction. The trait is
 inherited via the genome and bounded by <code>body_size_min</code>
 (default 0.3) and <code>body_size_max</code> (default 3.0).</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">specs</span>                       <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">specs</span><span class="op">$</span><span class="va">body_size_evolution</span>   <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
 <span><span class="va">specs</span><span class="op">$</span><span class="va">body_size_init_mean</span>   <span class="op">&lt;-</span> <span class="fl">1.0</span></span>
@@ -703,7 +795,7 @@ inherited via the genome and bounded by <code>body_size_min</code>
 heritable probability of taking one step away from their birthplace each
 tick. Dispersal reduces inbreeding and kin competition at the cost of
 <code>dispersal_cost</code> energy.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">specs</span>                     <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">specs</span><span class="op">$</span><span class="va">dispersal_evolution</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
 <span><span class="va">specs</span><span class="op">$</span><span class="va">dispersal_init_mean</span> <span class="op">&lt;-</span> <span class="fl">0.2</span></span>
@@ -720,7 +812,7 @@ tick. Dispersal reduces inbreeding and kin competition at the cost of
 </h2>
 <p>To produce an SIR-style epidemic in the population, set the
 <code>disease</code> flag and use the dedicated plotting helper:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">specs</span>         <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">specs</span><span class="op">$</span><span class="va">disease</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
 <span><span class="va">env</span>           <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="va">specs</span><span class="op">)</span></span>
@@ -741,7 +833,7 @@ period, and immune duration are all controlled through
 <p><code><a href="../reference/batch_alife.html">batch_alife()</a></code> runs a list of specs across R worker
 processes. This is the recommended way to compare parameter regimes,
 since each Julia process stays warm for its slice of the batch:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">specs_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.10</span>, <span class="fl">0.20</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">gr</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
 <span>  <span class="va">s</span><span class="op">$</span><span class="va">grass_rate</span> <span class="op">&lt;-</span> <span class="va">gr</span></span>

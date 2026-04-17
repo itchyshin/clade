@@ -143,10 +143,19 @@ defaults. Every parameter is documented below. Pass a modified copy to
 
 
 <dl><dt><code>grid_rows</code></dt>
-<dd><p>Integer. Number of rows in the toroidal grid (default 30).</p></dd>
+<dd><p>Integer. Number of rows in the grid (default 30).</p></dd>
 
 <dt><code>grid_cols</code></dt>
-<dd><p>Integer. Number of columns in the toroidal grid (default 30).</p></dd>
+<dd><p>Integer. Number of columns in the grid (default 30).</p></dd>
+
+<dt><code>toroidal</code></dt>
+<dd><p>Logical. <code>TRUE</code> (default) wraps grid edges so that
+moving off one side re-enters on the opposite side (classic torus).
+<code>FALSE</code> clamps at boundaries, producing true edges — required for
+Huffaker-1958-style spatial-refugia dynamics and any scenario
+where corner/edge effects matter. Used by movement, sensing,
+dispersal, kin-scan, group-defense, and cooperative-breeding
+code paths via <code>wrap_or_clamp()</code>.</p></dd>
 
 <dt><code>n_agents_init</code></dt>
 <dd><p>Integer. Number of agents at tick 0 (default 50).</p></dd>

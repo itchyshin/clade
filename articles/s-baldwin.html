@@ -308,14 +308,13 @@ results.</p>
 <span><span class="va">s</span><span class="op">$</span><span class="va">learning_rate_init_mean</span>        <span class="op">&lt;-</span> <span class="fl">0.007</span></span>
 <span><span class="co"># env &lt;- run_alife(s)   # uncomment to run the calibrated regime</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_bnn_uncertainty.png" class="r-plt" alt="Before/after kernel fix (3 seeds × 600 ticks). LEFT: pre-0.4.0 with sigma from heterozygosity — σ rises toward the 0.5 cap in both environments (🔴 contradicts Baldwin). RIGHT: post-0.4.1 with sigma as evolvable trait + information cost — σ direction reverses. The fix enables the Baldwin mechanism but the magnitude is modest at 600 ticks (Δ ≈ 0.004); at 1500 ticks the transient canalisation disappears due to sigma coupling with behavioural variance — 🟠 kernel-limited." width="100%"><p class="caption">
-Before/after kernel fix (3 seeds × 600 ticks). LEFT: pre-0.4.0 with
-sigma from heterozygosity — σ rises toward the 0.5 cap in both
-environments (🔴 contradicts Baldwin). RIGHT: post-0.4.1 with sigma as
-evolvable trait + information cost — σ direction reverses. The fix
-enables the Baldwin mechanism but the magnitude is modest at 600 ticks
-(Δ ≈ 0.004); at 1500 ticks the transient canalisation disappears due to
-sigma coupling with behavioural variance — 🟠 kernel-limited.
+<img src="figures/showcase_bnn_uncertainty.png" class="r-plt" alt="fast_specs() demo (5 seeds × 2000 ticks = 66 generations). Both environments show massive σ canalisation: stable Δσ = −0.27, seasonal Δσ = −0.22. Stable canalises MORE (Δdelta = +0.043) — the Hinton-Nowlan direction. The Baldwin Effect is now clearly visible: over many generations, learned behaviours become genetically assimilated as σ declines." width="100%"><p class="caption">
+fast_specs() demo (5 seeds × 2000 ticks = 66 generations). Both
+environments show massive σ canalisation: stable Δσ = −0.27, seasonal Δσ
+= −0.22. Stable canalises MORE (Δdelta = +0.043) — the Hinton-Nowlan
+direction. The Baldwin Effect is now clearly visible: over many
+generations, learned behaviours become genetically assimilated as σ
+declines.
 </p>
 </div>
 <p><strong>What we found (updated 2026-04-16, audit 🔴 → 🟠

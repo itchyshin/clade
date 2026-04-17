@@ -60,14 +60,11 @@ library(ggplot2)
 library(patchwork)
 
 run_one <- function(kin, seed) {
-  s <- default_specs()
+  s <- fast_specs()                  # ~66 generations in 2000 ticks
   s$kin_selection          <- kin
   s$kin_altruism_r_min     <- 0.25   # help siblings (r ≥ 0.25) and closer
   s$kin_altruism_cost      <- 5.0    # 5 energy units per act
   s$grass_rate             <- 0.08   # scarce resources to create selection pressure
-  s$n_agents_init          <- 80L
-  s$max_agents             <- 400L
-  s$max_ticks              <- 300L
   s$random_seed            <- as.integer(seed)
   env  <- run_alife(s, verbose = FALSE)
   d    <- get_run_data(env)$ticks

@@ -78,6 +78,7 @@
 <url><loc>/reference/dot-valid_descriptor_columns.html</loc></url>
 <url><loc>/reference/dot-validate_specs.html</loc></url>
 <url><loc>/reference/estimate_heritability.html</loc></url>
+<url><loc>/reference/fast_specs.html</loc></url>
 <url><loc>/reference/full_specs.html</loc></url>
 <url><loc>/reference/generate_map.html</loc></url>
 <url><loc>/reference/genome_distance.html</loc></url>
@@ -122,6 +123,7 @@
 <url><loc>/reference/search_random.html</loc></url>
 <url><loc>/reference/search_viability.html</loc></url>
 <url><loc>/reference/sense_env.html</loc></url>
+<url><loc>/reference/slow_specs.html</loc></url>
 <url><loc>/reference/species_tree.html</loc></url>
 <url><loc>/reference/take_action.html</loc></url>
 <url><loc>/reference/tune_complex_landscape.html</loc></url>

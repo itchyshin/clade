@@ -35,12 +35,11 @@ library(clade)
 library(ggplot2)
 
 make_s <- function(hypermut) {
-  s <- default_specs()
+  s <- fast_specs()                    # ~66 generations in 2000 ticks
   s$stress_hypermutation       <- hypermut
   s$stress_threshold           <- 20.0
   s$stress_mutation_multiplier <- 5.0
-  s$grass_rate                 <- 0.05
-  s$max_ticks                  <- 500L
+  s$grass_rate                 <- 0.05 # override fast_specs default 0.20
   s
 }
 

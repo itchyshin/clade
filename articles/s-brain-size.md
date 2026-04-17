@@ -77,12 +77,9 @@ produce the expected directional contrast cleanly.
 ``` r
 library(clade)
 
-base <- default_specs()
-base$grid_rows     <- 30L
-base$grid_cols     <- 30L
+base <- fast_specs()                  # ~66 generations in 2000 ticks
 base$n_agents_init <- 100L
 base$max_agents    <- 400L
-base$max_ticks     <- 500L
 
 # Brain size evolution parameters (calibrated for clear visual effect)
 base$brain_size_evolution   <- TRUE
