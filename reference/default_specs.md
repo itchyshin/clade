@@ -281,6 +281,23 @@ the Polyworld simulation (Yaeger 1994).
   canalisation (sigma → 0) can happen without eliminating the foraging
   variability agents need to survive. Added 0.5.6.
 
+- `bnn_sigma_lr_scale`:
+
+  Numeric in \[0, 1\]. When `> 0`, the BNN within-lifetime learning rate
+  in `bnn_update!` is mixed between the constant-per-agent `lr` and
+  `lr × mean(sigma) / bnn_sigma_lr_ref`, so canalised (low-sigma) agents
+  learn slowly and plastic (high-sigma) agents learn fast. Complements
+  `bnn_action_noise_scale`: that decouples sigma from action noise, this
+  couples sigma to learning speed. Makes the cost of canalisation sit on
+  learning rate rather than exploration. Default 0 preserves legacy
+  behaviour. Added 0.5.6.
+
+- `bnn_sigma_lr_ref`:
+
+  Numeric. Reference sigma for the `bnn_sigma_lr_scale` mapping.
+  Defaults to 0.5, or the `plasticity_init_mean` value when unset
+  explicitly. Added 0.5.6.
+
 ### Genome and ploidy
 
 clade supports diploid (default) and haploid life cycles. The diploid
