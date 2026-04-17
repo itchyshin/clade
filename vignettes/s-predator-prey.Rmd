@@ -189,27 +189,55 @@ Three open directions for going beyond:
    at default parameters. See [s-body-size](s-body-size.html) for
    the full 16-seed resolution.
 
-4. **Can spatial-refugia LV be recovered?** Huffaker (1958) achieved
-   sustained oscillations only by breaking the grid into patches with
-   dispersal barriers. With `complex_landscape = TRUE` and a larger
-   grid, the habitat heterogeneity may produce sustained cycles even
-   with evolving predators.
+4. **Spatial refugia — Huffaker (1958).** Huffaker (1958) achieved
+   sustained oscillations by breaking the grid into patches with
+   dispersal barriers. clade actually exposes `toroidal` as a
+   first-class spec (`TRUE` = wraparound, `FALSE` = clamped
+   boundaries), so we can factorially cross it with
+   `complex_landscape` to test the Huffaker prediction cleanly.
 
-   *Tried it.* 50×50 grid (vs 30×30 baseline), 250 prey init, 25
-   predators init, `complex_landscape ∈ {FALSE, TRUE}`, 5 seeds ×
-   800 ticks each. Prey oscillation score: 0.138 ± 0.011 (baseline)
-   vs 0.095 ± 0.002 (`complex_landscape = TRUE`) — the refugia
-   manipulation made oscillations *weaker*, not stronger. Both
-   conditions saturated prey at `max_agents = 500`, and both
-   saturated predators at their cap. The experiment is inconclusive
-   for the Huffaker question because (a) the kernel is toroidal —
-   `complex_landscape` adds habitat heterogeneity but not the
-   dispersal barriers Huffaker required, and (b) the 50×50 grid at
-   these densities hits the population cap, masking any carrying-
-   capacity-driven cycling. A proper test requires non-toroidal
-   boundaries (`toroidal = FALSE`, not yet exposed) and a larger
-   `max_agents`. Deferred to a dedicated `s-spatial-refugia`
-   scenario.
+   *Tried it.* 2×2 factorial of
+   `toroidal ∈ {TRUE, FALSE}` × `complex_landscape ∈ {FALSE, TRUE}`,
+   50×50 grid, 250 prey init, 25 predators init,
+   `max_agents = 1000` (lifted so cycling isn't clipped by the cap),
+   5 seeds × 800 ticks each. Prey oscillation scores:
+
+   | toroidal | complex_landscape | prey_osc (mean ± sd) | prey_mean |
+   |---|---|---|---|
+   | TRUE  | FALSE (flat)   | 0.299 ± 0.032 | 643 |
+   | TRUE  | TRUE (patchy)  | **0.637 ± 0.009** | 841 |
+   | FALSE | FALSE (flat)   | 0.000 ± 0.000 | 276 |
+   | FALSE | TRUE (patchy)  | 0.000 ± 0.000 | 348 |
+
+   Two surprises, neither of which is the textbook Huffaker result.
+
+   **(a) Complex landscape with toroidal wrap DOUBLES the oscillation
+   score.** At 0.64 ± 0.009 this is the strongest, cleanest LV-like
+   cycling any regime of clade has produced. The habitat patches
+   (shrubs + canopy) create local heterogeneity in predator-encounter
+   rate while the toroidal wrap keeps populations well-mixed globally.
+   Interestingly, prey mean is also *higher* under patchy habitat
+   (841 vs 643) — the refugia effect raises carrying capacity, which
+   is the opposite of what a "refugia let predators cycle off and
+   lose prey" reading would suggest.
+
+   **(b) Non-toroidal kills all cycling** (osc = 0.00 in both
+   landscape conditions). This is *not* a clean Huffaker refutation
+   because the kernel's non-toroidal implementation clamps at
+   boundaries (`wrap_or_clamp` → `clamp(x, 1, n)` in
+   `inst/julia/src/Clade.jl:48`) — agents that try to step across
+   the edge end up pinned at the edge rather than having their move
+   rejected. The result is pile-up at the perimeter, which halves
+   the effective prey population (276 vs 643) and damps cycling
+   monotonically. A proper Huffaker test needs reflective boundaries
+   (reject-if-blocked), not clamp. Filed as a kernel-polish item.
+
+   Net finding: **patchy habitat within a connected (toroidal) world
+   amplifies LV cycling**, which is the first mechanism in clade we
+   have found that partially defeats the arms-race absorption seen
+   in Exps 1–3 and 6. This is the cleanest positive LV-enhancing
+   manipulation this scenario has surfaced and deserves a dedicated
+   `s-spatial-heterogeneity` follow-up.
 
 5. **Grass density × predator density — does LV damping depend on
    resources?** LV damping should be strongest when prey are
