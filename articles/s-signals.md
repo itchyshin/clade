@@ -82,15 +82,17 @@ s$signal_drift_sd                <- 0.0533
 # env <- run_alife(s)   # uncomment to run the calibrated regime
 ```
 
-![Expected output: mean signal magnitude rises over time as sexual
-selection drives elaboration. A positive correlation between signal
-magnitude and mean energy indicates that the handicap mechanism is
-maintaining signal honesty.](figures/showcase_signals_matechoice.png)
+![Zahavi handicap (3 seeds × 500 ticks × 4 signal_cost levels). Top:
+signal magnitude near-flat (~1.07) across cost levels — signals are
+maintained at ceiling. Bottom: population decreases 196→179 as cost
+rises (−9%) — the demographic cost of honest signalling is the visible
+Zahavi effect.](figures/showcase_signals_matechoice.png)
 
-Expected output: mean signal magnitude rises over time as sexual
-selection drives elaboration. A positive correlation between signal
-magnitude and mean energy indicates that the handicap mechanism is
-maintaining signal honesty.
+Zahavi handicap (3 seeds × 500 ticks × 4 signal_cost levels). Top:
+signal magnitude near-flat (~1.07) across cost levels — signals are
+maintained at ceiling. Bottom: population decreases 196→179 as cost
+rises (−9%) — the demographic cost of honest signalling is the visible
+Zahavi effect.
 
 **What we found (2026-04-15 audit).** 5-seed multi-seed run at
 `signal_dims = 3`, `signal_cost = 0.05`,

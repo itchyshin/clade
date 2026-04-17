@@ -66,15 +66,17 @@ ggplot(df, aes(t, n_births, colour = condition)) +
   theme_minimal()
 ```
 
-![Expected output: high maternal investment (red) produces fewer but
-better-provisioned offspring; equal investment (blue) produces more
-offspring at lower individual quality, illustrating the quality-quantity
-trade-off.](figures/showcase_parental_investment.png)
+![Trivers (1972) quality-quantity trade-off: female_investment sweep (fi
+= 0.3 → 0.9, 3 seeds × 500 ticks). Population near-flat (~257) across fi
+levels at these parameters. The quality-quantity trade-off may be more
+visible in n_juveniles than total population; further calibration needed
+for a dramatic visual.](figures/showcase_parental_investment.png)
 
-Expected output: high maternal investment (red) produces fewer but
-better-provisioned offspring; equal investment (blue) produces more
-offspring at lower individual quality, illustrating the quality-quantity
-trade-off.
+Trivers (1972) quality-quantity trade-off: female_investment sweep (fi =
+0.3 → 0.9, 3 seeds × 500 ticks). Population near-flat (~257) across fi
+levels at these parameters. The quality-quantity trade-off may be more
+visible in n_juveniles than total population; further calibration needed
+for a dramatic visual.
 
 **What we found (2026-04-15 audit, 3 seeds × 4 investment levels).**
 Full protocol:
