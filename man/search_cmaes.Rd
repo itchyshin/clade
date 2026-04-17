@@ -32,7 +32,10 @@ optimise. Defaults to \code{c("grass_rate", "mutation_sd")}.}
 \item{sigma0}{Numeric. Initial step size on the log scale (default 0.3).}
 
 \item{n_cores}{Integer. Parallel cores for candidate evaluation (default
-1L). Uses \code{\link[parallel:mclapply]{parallel::mclapply()}} on Unix/macOS when \verb{> 1}.}
+1L). Uses \code{\link[parallel:makeCluster]{parallel::makeCluster()}} PSOCK workers (one R session +
+Julia per worker) when \verb{> 1}. Was \code{parallel::mclapply} before 0.5.6
+but that path silently deadlocked because JuliaConnectoR is not
+fork-safe — see \code{dev/docs/parallelism-audit.md}.}
 
 \item{verbose}{Logical (default \code{TRUE}).}
 }
