@@ -941,3 +941,121 @@ take_action <- function(env, i = 1L, input = NULL) {
     action_names = action_names
   )
 }
+
+#' Viability report for an evolutionary-audit run
+#'
+#' Checks whether a `run_alife()` result is viable enough to support
+#' claims about *evolved* trait values. Population crashes (agents
+#' dying faster than they reproduce) silently corrupt trait-mean
+#' audits by over-weighting a few lucky survivors. This function
+#' quantifies crash risk via three metrics and returns a tidy report
+#' together with a verdict in `{"viable", "weak", "crashed"}`.
+#'
+#' Motivation: during the 2026-04-17 fast_specs re-audit of
+#' s-plasticity and s-dispersal-ifd, direction flips in the
+#' 5-seed multi-seed results were traced to seasonal runs where
+#' `n_final < 20` while stable runs maintained healthy populations.
+#' The trait-mean average over 0-5 surviving agents is dominated by
+#' the specific crash trajectory rather than by any evolutionary
+#' signal. This utility codifies the "check n_final before trusting
+#' trait-mean effects" rule into a reusable check.
+#'
+#' @param run_data A list from [get_run_data()] — either a single
+#'   `$ticks` data frame or the full `get_run_data()` output.
+#' @param n_agents_init Integer. The initial agent count used to
+#'   seed the run. Required because `run_data` does not carry the
+#'   spec. Pass `NULL` (default) to use the first-tick `n_agents`
+#'   (which approximates init-mean after the first wave of births,
+#'   and is usually close enough).
+#' @param crashed_frac Numeric in (0, 1). A run is declared
+#'   `"crashed"` if `n_final < crashed_frac * n_agents_init`.
+#'   Default 0.2 (final population less than 20% of init).
+#' @param weak_frac Numeric in (0, 1). A run is declared `"weak"`
+#'   (viable but with low confidence) if
+#'   `n_final < weak_frac * n_agents_init`. Default 0.5.
+#' @param min_n Integer. Absolute minimum n_final below which the
+#'   run is `"crashed"` regardless of `crashed_frac`. Default 20
+#'   (at fewer than 20 agents, any trait mean is dominated by a
+#'   handful of individuals). Set to `0` to disable this floor.
+#'
+#' @return A list with:
+#' \describe{
+#'   \item{`verdict`}{One of `"viable"`, `"weak"`, `"crashed"`.}
+#'   \item{`n_init`}{First-tick n_agents used as the reference.}
+#'   \item{`n_final`}{Last-tick n_agents.}
+#'   \item{`n_min`}{Minimum n_agents across the whole run.}
+#'   \item{`frac_final`}{`n_final / n_init`.}
+#'   \item{`frac_min`}{`n_min / n_init`.}
+#'   \item{`tick_of_min`}{First tick where `n_min` was reached.}
+#'   \item{`message`}{A one-line diagnostic suitable for logging.}
+#' }
+#'
+#' @examples
+#' \dontrun{
+#' env  <- run_alife(fast_specs())
+#' vr   <- viability_report(get_run_data(env))
+#' print(vr)
+#' # Guard audit claims on viability:
+#' if (vr$verdict == "crashed") {
+#'   warning("crash-driven result; trait means are unreliable")
+#' }
+#' }
+#'
+#' @seealso [run_alife()], [get_run_data()]
+#' @export
+viability_report <- function(run_data,
+                             n_agents_init = NULL,
+                             crashed_frac  = 0.2,
+                             weak_frac     = 0.5,
+                             min_n         = 20L) {
+  stopifnot(is.numeric(crashed_frac), crashed_frac > 0, crashed_frac < 1,
+            is.numeric(weak_frac),    weak_frac    > crashed_frac,
+            weak_frac    < 1,
+            is.numeric(min_n), min_n >= 0)
+
+  # Accept either full get_run_data() output or the $ticks df directly.
+  ticks <- if (is.list(run_data) && !is.null(run_data$ticks))
+             run_data$ticks
+           else run_data
+  stopifnot(is.data.frame(ticks), "n_agents" %in% names(ticks),
+            "t" %in% names(ticks))
+
+  n_init  <- if (is.null(n_agents_init)) ticks$n_agents[1L]
+             else as.integer(n_agents_init)
+  n_final <- tail(ticks$n_agents, 1L)
+  n_min   <- min(ticks$n_agents, na.rm = TRUE)
+  tick_of_min <- ticks$t[which.min(ticks$n_agents)]
+  frac_final  <- n_final / max(1L, n_init)
+  frac_min    <- n_min   / max(1L, n_init)
+
+  verdict <- if (n_final < min_n || frac_final < crashed_frac) {
+    "crashed"
+  } else if (frac_final < weak_frac) {
+    "weak"
+  } else {
+    "viable"
+  }
+
+  msg <- sprintf(
+    "%s: n_init=%d, n_final=%d (%.0f%%), n_min=%d at tick %d (%.0f%%)",
+    verdict, n_init, n_final, 100 * frac_final,
+    n_min, tick_of_min, 100 * frac_min)
+
+  structure(
+    list(verdict     = verdict,
+         n_init      = as.integer(n_init),
+         n_final     = as.integer(n_final),
+         n_min       = as.integer(n_min),
+         frac_final  = frac_final,
+         frac_min    = frac_min,
+         tick_of_min = as.integer(tick_of_min),
+         message     = msg),
+    class = "clade_viability_report")
+}
+
+#' @export
+print.clade_viability_report <- function(x, ...) {
+  cat("<clade viability report>\n ", x$message, "\n", sep = "")
+  invisible(x)
+}
+

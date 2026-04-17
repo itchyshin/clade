@@ -257,3 +257,50 @@ test_that("get_brain_weights() with layer = 1 returns a matrix", {
   W <- get_brain_weights(env, agent_id = 1L, layer = 1L)
   expect_true(is.matrix(W))
 })
+
+# ── viability_report() ──────────────────────────────────────────────────────
+
+.mock_ticks_with_pop <- function(n_init, n_final) {
+  n <- 20L
+  data.frame(
+    t        = seq_len(n),
+    n_agents = as.integer(round(seq(n_init, n_final, length.out = n)))
+  )
+}
+
+test_that("viability_report() classifies viable runs", {
+  vr <- viability_report(.mock_ticks_with_pop(100L, 90L))
+  expect_equal(vr$verdict, "viable")
+  expect_equal(vr$n_init, 100L)
+  expect_equal(vr$n_final, 90L)
+})
+
+test_that("viability_report() classifies weak runs", {
+  vr <- viability_report(.mock_ticks_with_pop(100L, 40L))
+  expect_equal(vr$verdict, "weak")
+})
+
+test_that("viability_report() classifies crashed runs", {
+  vr <- viability_report(.mock_ticks_with_pop(100L, 5L))
+  expect_equal(vr$verdict, "crashed")
+})
+
+test_that("viability_report() respects absolute min_n floor", {
+  # 60% of init (viable by fraction) but only 12 agents (below min_n=20)
+  ticks <- .mock_ticks_with_pop(20L, 12L)
+  expect_equal(viability_report(ticks, min_n = 20L)$verdict, "crashed")
+  expect_equal(viability_report(ticks, min_n = 0L)$verdict,  "viable")
+})
+
+test_that("viability_report() accepts ticks df OR full get_run_data output", {
+  ticks <- .mock_ticks_with_pop(100L, 90L)
+  vr1   <- viability_report(ticks)
+  vr2   <- viability_report(list(ticks = ticks, deaths = data.frame()))
+  expect_equal(vr1$verdict, vr2$verdict)
+  expect_equal(vr1$n_final, vr2$n_final)
+})
+
+test_that("viability_report() print method runs", {
+  vr <- viability_report(.mock_ticks_with_pop(100L, 50L))
+  expect_output(print(vr), "viability report")
+})
