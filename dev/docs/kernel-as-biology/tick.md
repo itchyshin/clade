@@ -279,6 +279,20 @@ overrides pace-of-life signals — see audit on s-pace-of-life).
    animals typically use **king-style** (8 directions) movement.
    Adding diagonals would be a small kernel change with biological
    payoff.
+4. **Non-toroidal boundary semantics (surfaced by 2026-04-17
+   s-predator-prey spatial-refugia audit).** Under `toroidal =
+   FALSE`, `wrap_or_clamp()` clamps off-grid moves to the edge,
+   which pins agents against boundaries rather than rejecting the
+   move. The 2×2 Huffaker audit showed this produces edge-pile-up
+   that halves prey carrying capacity (276 vs 643) and zeros the LV
+   oscillation score in both homogeneous and patchy landscapes. A
+   cleaner bounded-world mode would **reject** moves that step
+   off-grid (agent stays put, still pays the move cost), matching
+   classical reflective-boundary PDE conventions. Small kernel
+   change, but requires parallel updates in `tick.jl` (movement),
+   `reproduce.jl` (offspring placement), and possibly `sense.jl`
+   (return "empty" for off-grid queries). Deferred until a scenario
+   actually needs it.
 
 ---
 

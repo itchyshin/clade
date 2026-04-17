@@ -132,41 +132,51 @@ summary_B <- aggregate(cbind(prey_osc, prey_mean, pred_mean) ~ group_defense,
 message("\n[B] Summary:")
 print(summary_B)
 
-# ── Exp C: spatial refugia (complex_landscape + larger grid) ────────────────
-message("\n[C] Spatial refugia (2 conditions × 5 seeds = 10 runs, 50×50 grid)")
+# ── Exp C: spatial refugia — Huffaker (1958) with toroidal = FALSE ──────────
+# The 2026-04-17 first pass missed that toroidal is a first-class spec.
+# Re-running the experiment properly: 2×2 factorial of
+# (toroidal ∈ {TRUE, FALSE}) × (complex_landscape ∈ {FALSE, TRUE})
+# on a 50×50 grid with max_agents lifted to 1000 so population cap
+# doesn't confound the cycling measurement.
+message("\n[C] Spatial refugia (4 conditions × 5 seeds = 20 runs, 50×50 grid, max_agents=1000)")
 seeds_C <- c(1L, 7L, 13L, 19L, 25L)
 res_C <- list()
-for (cl in c(FALSE, TRUE)) {
-  for (sd in seeds_C) {
-    s <- .base_specs(sd)
-    s$grid_rows         <- 50L
-    s$grid_cols         <- 50L
-    s$n_agents_init     <- 250L   # scale population with area
-    s$n_predators_init  <- 25L
-    s$predator_max_agents <- 250L
-    s$complex_landscape <- cl
-    if (cl) {
-      s$shrub_density  <- 0.35
-      s$canopy_density <- 0.10
+for (tor in c(TRUE, FALSE)) {
+  for (cl in c(FALSE, TRUE)) {
+    for (sd in seeds_C) {
+      s <- .base_specs(sd)
+      s$grid_rows           <- 50L
+      s$grid_cols           <- 50L
+      s$n_agents_init       <- 250L     # scale population with area
+      s$max_agents          <- 1000L    # lift cap so cycling isn't clipped
+      s$n_predators_init    <- 25L
+      s$predator_max_agents <- 250L
+      s$toroidal            <- tor
+      s$complex_landscape   <- cl
+      if (cl) {
+        s$shrub_density  <- 0.35
+        s$canopy_density <- 0.10
+      }
+      r <- .run_and_score(s)
+      res_C[[length(res_C) + 1L]] <-
+        data.frame(toroidal = tor, complex_landscape = cl, seed = sd,
+                   prey_osc = r$prey_osc, pred_osc = r$pred_osc,
+                   prey_mean = r$prey_mean_last,
+                   pred_mean = r$pred_mean_last,
+                   prey_sd   = r$prey_sd_last)
+      message(sprintf("  tor=%s cl=%s seed=%2d → prey_osc=%.3f prey_mean=%.0f",
+                      tor, cl, sd, r$prey_osc, r$prey_mean_last))
     }
-    r <- .run_and_score(s)
-    res_C[[length(res_C) + 1L]] <-
-      data.frame(complex_landscape = cl, seed = sd,
-                 prey_osc = r$prey_osc, pred_osc = r$pred_osc,
-                 prey_mean = r$prey_mean_last,
-                 pred_mean = r$pred_mean_last,
-                 prey_sd   = r$prey_sd_last)
-    message(sprintf("  cl=%s seed=%2d → prey_osc=%.3f prey_mean=%.0f",
-                    cl, sd, r$prey_osc, r$prey_mean_last))
   }
 }
 res_C <- do.call(rbind, res_C)
 
-summary_C <- aggregate(cbind(prey_osc, prey_mean, pred_mean) ~ complex_landscape,
+summary_C <- aggregate(cbind(prey_osc, prey_mean, pred_mean) ~
+                         toroidal + complex_landscape,
                        data = res_C,
                        FUN  = function(x) c(mean = mean(x, na.rm = TRUE),
                                             sd   = sd(  x, na.rm = TRUE)))
-message("\n[C] Summary:")
+message("\n[C] Summary (2x2 factorial):")
 print(summary_C)
 
 # ── Save all results ────────────────────────────────────────────────────────

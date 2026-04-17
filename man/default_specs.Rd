@@ -18,8 +18,15 @@ defaults. Every parameter is documented below. Pass a modified copy to
 \subsection{Grid and population}{
 
 \describe{
-\item{\code{grid_rows}}{Integer. Number of rows in the toroidal grid (default 30).}
-\item{\code{grid_cols}}{Integer. Number of columns in the toroidal grid (default 30).}
+\item{\code{grid_rows}}{Integer. Number of rows in the grid (default 30).}
+\item{\code{grid_cols}}{Integer. Number of columns in the grid (default 30).}
+\item{\code{toroidal}}{Logical. \code{TRUE} (default) wraps grid edges so that
+moving off one side re-enters on the opposite side (classic torus).
+\code{FALSE} clamps at boundaries, producing true edges — required for
+Huffaker-1958-style spatial-refugia dynamics and any scenario
+where corner/edge effects matter. Used by movement, sensing,
+dispersal, kin-scan, group-defense, and cooperative-breeding
+code paths via \code{wrap_or_clamp()}.}
 \item{\code{n_agents_init}}{Integer. Number of agents at tick 0 (default 50).}
 \item{\code{max_agents}}{Integer. Hard cap on live agents; new offspring are
 rejected if this is exceeded (default 500).}

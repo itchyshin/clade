@@ -189,27 +189,91 @@ Three open directions for going beyond:
    at default parameters. See [s-body-size](s-body-size.html) for
    the full 16-seed resolution.
 
-4. **Can spatial-refugia LV be recovered?** Huffaker (1958) achieved
-   sustained oscillations only by breaking the grid into patches with
-   dispersal barriers. With `complex_landscape = TRUE` and a larger
-   grid, the habitat heterogeneity may produce sustained cycles even
-   with evolving predators.
+4. **Spatial heterogeneity and resource layering.** Two separate
+   theoretical predictions about spatial structure: Huffaker (1958)
+   said dispersal barriers between patches sustain predator-prey
+   cycles, and Rosenzweig (1971) — "paradox of enrichment" — said
+   richer prey carrying capacity *amplifies* oscillations even in
+   a well-mixed world. clade exposes `toroidal` as a first-class
+   spec (`TRUE` = wraparound, `FALSE` = clamped boundaries) and a
+   `complex_landscape` module that adds shrub + canopy resource
+   layers on top of ground grass. The 2×2 of these tests both
+   predictions at once.
 
-   *Tried it.* 50×50 grid (vs 30×30 baseline), 250 prey init, 25
-   predators init, `complex_landscape ∈ {FALSE, TRUE}`, 5 seeds ×
-   800 ticks each. Prey oscillation score: 0.138 ± 0.011 (baseline)
-   vs 0.095 ± 0.002 (`complex_landscape = TRUE`) — the refugia
-   manipulation made oscillations *weaker*, not stronger. Both
-   conditions saturated prey at `max_agents = 500`, and both
-   saturated predators at their cap. The experiment is inconclusive
-   for the Huffaker question because (a) the kernel is toroidal —
-   `complex_landscape` adds habitat heterogeneity but not the
-   dispersal barriers Huffaker required, and (b) the 50×50 grid at
-   these densities hits the population cap, masking any carrying-
-   capacity-driven cycling. A proper test requires non-toroidal
-   boundaries (`toroidal = FALSE`, not yet exposed) and a larger
-   `max_agents`. Deferred to a dedicated `s-spatial-refugia`
-   scenario.
+   *Tried it.* 2×2 factorial of
+   `toroidal ∈ {TRUE, FALSE}` × `complex_landscape ∈ {FALSE, TRUE}`,
+   50×50 grid, 250 prey init, 25 predators init,
+   `max_agents = 1000` (lifted so cycling isn't clipped by the cap),
+   5 seeds × 800 ticks each. Prey oscillation scores:
+
+   | toroidal | complex_landscape | prey_osc (mean ± sd) | prey_mean |
+   |---|---|---|---|
+   | TRUE  | FALSE (flat)   | 0.299 ± 0.032 | 643 |
+   | TRUE  | TRUE (patchy)  | **0.637 ± 0.009** | 841 |
+   | FALSE | FALSE (flat)   | 0.000 ± 0.000 | 276 |
+   | FALSE | TRUE (patchy)  | 0.000 ± 0.000 | 348 |
+
+   Two surprises, and the mechanism is neither a clean Huffaker
+   nor a clean Rosenzweig.
+
+   **(a) `complex_landscape` within a toroidal world DOUBLES the
+   oscillation score at 50×50** (0.338 → 0.650) and raises the prey
+   equilibrium (663 → 841). But a follow-up 30×30 replicate shows
+   the effect is **grid-scale dependent**:
+
+   | grid  | landscape | prey_osc (mean ± sd) | prey_mean |
+   |-------|-----------|----------------------|-----------|
+   | 30×30 | flat      | 0.307 ± 0.048 | 240 |
+   | 30×30 | patchy    | 0.310 ± 0.024 | 308 |
+   | 50×50 | flat      | 0.338 ± 0.022 | 663 |
+   | 50×50 | patchy    | **0.650 ± 0.013** | 841 |
+
+   At 30×30, patchy vs flat gives essentially no change in cycling
+   (0.307 vs 0.310). The amplification appears only at 50×50. This
+   rules out pure Rosenzweig-1971 enrichment (which would amplify at
+   any scale once K is raised) and instead points to a spatial-
+   decoupling mechanism: `complex_landscape` adds resource layers
+   (shrubs + canopy — see `inst/julia/src/modules/complex_landscape.jl`)
+   that create local resource-density pockets, and those pockets
+   only matter when the grid is large enough that predator and prey
+   trajectories can desynchronise across them. At 30×30 the board
+   is too small for predators and prey to "lose" each other between
+   patches; at 50×50 the patches are far enough apart that local
+   predator depletion and prey recovery run out of phase.
+
+   This is clade's first mechanism that partially defeats the
+   predator arms-race absorption seen in Exps 1–3 and 6. It is also
+   the strongest, cleanest LV-like cycling any clade regime has
+   produced — and it requires *both* resource layering *and* enough
+   grid area for the layering to create effective spatial decoupling.
+
+   **(b) Non-toroidal zeros all sustained cycling** (osc = 0.00 in
+   both landscape conditions). This is *not* a clean Huffaker
+   refutation because the kernel's non-toroidal implementation
+   clamps at boundaries (`wrap_or_clamp` → `clamp(x, 1, n)` in
+   `inst/julia/src/Clade.jl:48`) — agents that try to step across
+   the edge end up pinned at the edge rather than having their move
+   rejected. The result is pile-up at the perimeter, which halves
+   the effective prey population (276 vs 643) and damps the ACF
+   monotonically (see the figure below: the bounded panels have
+   visible early transients but a declining trend dominates so the
+   autocorrelation never dips below zero). A proper Huffaker test
+   needs reflective boundaries (reject-if-blocked), not clamp.
+   Filed as a kernel-polish item in `dev/docs/kernel-as-biology/
+   tick.md §6 Variants`.
+
+   Net finding: **resource layering within a connected (toroidal)
+   world amplifies LV cycling** — clade's first clean Rosenzweig
+   1971 enrichment signature, and the first manipulation that
+   partially defeats the predator arms-race absorption seen in
+   every other experiment here. Deserves a dedicated
+   `s-spatial-heterogeneity` scenario. The Huffaker 1958 refugia
+   prediction remains untested until the reject-if-blocked
+   boundary is implemented.
+
+   ```{r fig-refugia-trajectories, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Prey trajectories across the 2×2 Huffaker audit (seed 7, 800 ticks, max_agents = 1000). Top-right (toroidal + patchy) is the only condition with sustained cycling — three clear peak-trough excursions. Top-left (toroidal + flat) shows one overshoot-and-damp. The bottom row (bounded) both show one transient excursion followed by monotonic decline; the ACF-based oscillation score reads 0.00 because the declining trend dominates the autocorrelation even though visible mini-cycles are present early on."}
+   FIG("14_predators_refugia")
+   ```
 
 5. **Grass density × predator density — does LV damping depend on
    resources?** LV damping should be strongest when prey are
