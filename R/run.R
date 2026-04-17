@@ -103,15 +103,24 @@ run_clade <- run_alife
 
 #' Run multiple simulations in parallel
 #'
-#' `batch_alife()` runs a list of specs in parallel, distributing across
-#' Julia threads (via `Threads.@threads`) if more than one thread is available,
-#' and additionally across R worker processes via the `parallel` package.
+#' `batch_alife()` runs a list of specs across R worker processes. At
+#' `n_cores = 1L` (default), runs are serial via [lapply()]. At
+#' `n_cores > 1L`, runs are distributed across a
+#' [parallel::makeCluster()] PSOCK cluster — each worker is a
+#' separate R process with its own Julia session.
+#'
+#' The PSOCK approach (0.5.6 default) replaces an earlier
+#' [parallel::mclapply()] path that silently deadlocked: forked R
+#' workers shared the parent's JuliaConnectoR socket and all blocked
+#' on the same Julia server. See `dev/docs/parallelism-audit.md`.
 #'
 #' @param specs_list A list of specs lists. Each element is passed to
 #'   [run_alife()] independently.
 #' @param n_cores Integer. Number of R worker processes to use (default 1L).
-#'   When `> 1`, uses [parallel::mclapply()] on Unix/macOS or
-#'   [parallel::parLapply()] on Windows.
+#'   Each worker pays a ~60 s Julia compile cost on its first run; for
+#'   batches smaller than ~20 scenarios, serial may be faster. For 50+
+#'   scenarios, the speedup is near-linear in `n_cores` (capped by
+#'   available cores; see CLAUDE.md for this machine's 200-core cap).
 #' @param verbose Logical. Print progress (default `FALSE` for batch mode).
 #'
 #' @return A list of `env` objects, one per element of `specs_list`, in the
@@ -135,11 +144,30 @@ batch_alife <- function(specs_list, n_cores = 1L, verbose = FALSE) {
 
   run_one <- function(specs) run_alife(specs, verbose = verbose)
 
-  if (n_cores <= 1L || .Platform$OS.type == "windows") {
-    lapply(specs_list, run_one)
-  } else {
-    parallel::mclapply(specs_list, run_one, mc.cores = n_cores)
+  if (n_cores <= 1L) {
+    return(lapply(specs_list, run_one))
   }
+
+  # 0.5.6: switched from `parallel::mclapply` to
+  # `parallel::makeCluster("PSOCK")` because mclapply forks the R
+  # session, and forked workers all share the same JuliaConnectoR
+  # socket — concurrent requests deadlock the Julia server. PSOCK
+  # spawns separate R processes, each with its own Julia, so runs
+  # parallelise cleanly.
+  #
+  # Trade-off: each worker pays a ~60 s Julia compile cost on first
+  # run_alife() call. For batches < 20 scenarios this makes parallel
+  # slower than serial; for 50+ scenarios the speedup is near-linear.
+  cl <- parallel::makeCluster(n_cores)
+  on.exit(parallel::stopCluster(cl), add = TRUE)
+  # Make `clade` available on every worker. The package must be
+  # installed on the worker's lib path; during dev, call
+  # devtools::load_all() in the parent before batch_alife() and the
+  # workers will also find it through .libPaths().
+  parallel::clusterEvalQ(cl, {
+    suppressPackageStartupMessages(library(clade))
+  })
+  parallel::parLapply(cl, specs_list, run_one)
 }
 
 #' Run one specs object with multiple random seeds
