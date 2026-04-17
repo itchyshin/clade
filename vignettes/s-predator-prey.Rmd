@@ -239,6 +239,10 @@ Three open directions for going beyond:
    manipulation this scenario has surfaced and deserves a dedicated
    `s-spatial-heterogeneity` follow-up.
 
+   ```{r fig-refugia-trajectories, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Prey trajectories across the 2×2 Huffaker audit (seed 7, 800 ticks, max_agents = 1000). Top-right (toroidal + patchy) is the only condition with sustained cycling — three clear peak-trough excursions. Top-left (toroidal + flat) shows one overshoot-and-damp. The bottom row (bounded) both show one transient excursion followed by monotonic decline; the ACF-based oscillation score reads 0.00 because the declining trend dominates the autocorrelation even though visible mini-cycles are present early on."}
+   FIG("14_predators_refugia")
+   ```
+
 5. **Grass density × predator density — does LV damping depend on
    resources?** LV damping should be strongest when prey are
    resource-limited (small amplitude) and weakest when prey are
