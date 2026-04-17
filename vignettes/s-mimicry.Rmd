@@ -35,25 +35,26 @@ prey that resemble toxic prey are also avoided (Batesian mimicry).
 | `toxin_dose` | 2.0 | Damage dealt to attacker per toxicity unit |
 | `signal_memory` | 20 | Predator memory window for learning |
 
-**Expected output (audited 2026-04-15).** Across multi-seed runs at
-ten different parameter regimes — from defaults to extreme cost = 0,
-dose = 200, predator-saturated runs — `mean_toxicity` does not
-measurably evolve in either direction. Maximum observed drift was
-+0.02 (init = 0, no cost, 600 ticks). See the [mimicry fidelity
-report](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/mimicry.md) for the full evidence.
+**Expected output (updated 0.5.4).** With the 0.4.4 kernel fixes
+(vector-signal memory, delta-rule RW, aposematic pleiotropy), the
+avoidance mechanism fires (P3 PASS: 12–28 events/600 ticks) and
+shows positive dose-response (P4 PASS: Spearman ρ = +0.40). But
+toxicity magnitude evolution remains ecology-limited: the 0.5.4
+calibration grid (8 cells × 5 seeds × 1000 ticks) found every
+tested regime has Δtoxicity < 0 because the Zahavi handicap cost
+exceeds the aposematic protection benefit at default population
+scales. A predation-dominant ecology (`grass_rate ≈ 0.08`, where
+predation = 89% of mortality) produces the first positive Δtoxicity
+(+0.006), confirming the mechanism works when predation is the
+dominant selection pressure. See the [mimicry fidelity
+report](../dev/audit/fidelity/mimicry.md) for the full evidence.
 
-**Why dynamics are flat: a kernel-level simplification.** clade's
-predator memory is a **scalar** (`pred.value_estimate`) updated
-toward `prey.toxicity` directly, while alifeR's R prototype uses a
-**signal vector** updated toward `prey.signal`. The scalar
-simplification removes signal-specific learning — predators cannot
-recognise warning *patterns*, only their general aversion level —
-which is the mechanism Bates (1862) and Müller (1879) actually
-described. Predators therefore rarely learn to avoid toxic prey
-(max 9 avoidance events / 600 ticks at extreme settings), and
-without selective avoidance, toxic prey gain no measurable survival
-advantage. Restoring signal-vector predator memory is on the 0.4.0
-backlog.
+**Pre-0.4.4 kernel simplification (historical).** Before 0.4.4,
+clade's predator memory was a **scalar** updated toward
+`prey.toxicity` directly, which removed signal-specific learning —
+predators couldn't recognise warning *patterns*. The 0.4.4 refactor
+replaced this with a full vector-signal memory using the
+Widrow-Hoff delta rule. See "What we found" below for details.
 
 ```{r mimicry}
 s <- default_specs()
@@ -77,7 +78,7 @@ evolution (mean drift = −0.001 over 600 ticks). The CMA-ES result
 likely optimised a generic fitness signal that is not specific to
 toxicity evolution. Claim retracted; awaiting kernel improvement
 (signal-vector predator memory) before re-tuning. See
-[mimicry fidelity report §5](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/mimicry.md#5-verdict).
+[mimicry fidelity report §5](../dev/audit/fidelity/mimicry.md#5-verdict).
 ```{r fig-mimicry, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="0.4.4 audit (5 seeds × 600 ticks, vector-signal predator memory + delta-rule Rescorla-Wagner update). Upper panels: toxicity trajectories (flat across control and treatment) and dose-response (Spearman ρ = +0.40 — positive direction). Lower panel: dose × cost grid. P3 (learning fires: 12–28 avoidance events) and P4 (dose-response) PASS; P2 magnitude direction-sensitive in the ±0.002 noise band — ecology-limited per the 0.5.4 calibration."}
 FIG("21_mimicry")
 ```

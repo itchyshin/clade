@@ -102,7 +102,7 @@ FIG("clutch_size")
 **What we found (2026-04-15 audit).** Grass sweep × 3 seeds × 600
 ticks reveals a **non-monotone, bell-shaped r/K response** — the
 richest theoretical signature in this scenario. Full protocol:
-[dev/audit/fidelity/clutch_size.md](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/clutch_size.md).
+[dev/audit/fidelity/clutch_size.md](../dev/audit/fidelity/clutch_size.md).
 
 | `grass_rate` | evolved clutch | mean n_agents |
 |---|---|---|

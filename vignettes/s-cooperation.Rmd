@@ -91,7 +91,7 @@ p1 / p2
 
 **What we found (2026-04-15 audit).** 5-seed multi-seed run at
 `cooperation_multiplier = 2.5`, 80 agents, 400 ticks. Full
-protocol: [dev/audit/fidelity/cooperation.md](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/cooperation.md).
+protocol: [dev/audit/fidelity/cooperation.md](../dev/audit/fidelity/cooperation.md).
 
 | Condition | mean n_agents | final cooperation level |
 |---|---|---|

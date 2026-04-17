@@ -102,7 +102,7 @@ p1 / p2
 
 **What we found (2026-04-15 audit, 60 runs).** Hamilton's rule is
 reproduced with striking clarity at the population level. Full
-protocol: [dev/audit/fidelity/kin.md](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/kin.md).
+protocol: [dev/audit/fidelity/kin.md](../dev/audit/fidelity/kin.md).
 
 - **Default regime** (`r_min = 0.25`, `B = 10`, `C = 2` → rB/C = 1.25):
   population rises from 166 (baseline) to **194 (+16.4%)** with 4196
