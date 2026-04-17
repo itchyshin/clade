@@ -113,10 +113,25 @@ generations:
   deterministic actions, which has secondary costs that cancel
   the learning-cost savings. Script:
   `dev/audit/fidelity/baldwin_within_lifetime_sweep.R`.
-- **s-dispersal-ifd**: a genuine spatial-gradient in grass
-  (current `complex_landscape` provides resource *layering*, not
-  a gradient — agents can't use preference to move *toward*
-  something).
+- ~~**s-dispersal-ifd**: a genuine spatial-gradient in grass~~
+  **s-dispersal-ifd: PROMOTED 🟠 → ✅ (2026-04-17 afternoon).**
+  Turned out not to need a spatial gradient — inspection of
+  `inst/julia/src/modules/habitat_preference.jl` showed the
+  module reads `env.grass` directly (the stochastic per-cell
+  variation around the mean), so Fretwell-Lucas IFD does have a
+  selection substrate under uniform `grass_rate`. The real block
+  was the default `habitat_preference_strength = 0.5` — only 1.5%
+  effective move-toward-grass per tick per unit preference, below
+  the drift floor at 5 seeds. Sweep at fast_specs:
+  | strength | 5-seed Δ ± sd | min_n |
+  |---|---|---|
+  | 0.5 (default) | +0.003 ± 0.005 | 110 |
+  | 1.0 | +0.007 ± 0.006 | 122 |
+  | **2.0** | **+0.021 ± 0.005** | 117 |
+  | **4.0** | **+0.027 ± 0.007** | 137 |
+  Clean monotonic, crosses threshold at strength ≥ 2.0. Promoted
+  on STATUS.md. Script:
+  `dev/audit/fidelity/dispersal_ifd_strength_sweep.R`.
 
 **Methodology note.** This is now the **fourth** time in this
 repo that 3-5-seed direction claims have reversed under proper
