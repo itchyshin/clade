@@ -98,10 +98,14 @@ generations:
   — if each agent lives through only one season, there's no
   selection gradient on plasticity. At `season_length = 10` with
   `fast_specs` (max_age = 30), Δdelta = +0.014 across 5 seeds,
-  P1 PASS. Below the 0.02 threshold but 7× larger than at
-  `season_length = 100` where the signal reverses. 8 seeds or a
-  mild cost increase should push this across. See
-  `dev/audit/fidelity/plasticity_within_lifetime_sweep.R`.
+  P1 PASS. **8-seed re-audit** (`plasticity_8seed.R`) shrank the
+  magnitude to Δdelta = +0.005 ± SE 0.007 (*t* ≈ 0.74). Direction
+  PASS is robust; magnitude is not enough to cross the 0.02
+  threshold at the current plasticity-to-sigma coupling. Kernel
+  limitation after all — decoupling plasticity cost from BNN
+  sigma (the 0.4.3 plan item) is what this scenario actually
+  needs. See `plasticity_within_lifetime_sweep.R` and
+  `plasticity_8seed.R` for the full evidence.
 - **s-baldwin**: decouple BNN sigma from behavioural variance
   (plan file 0.4.3 item — sigma should be a pure learning cost,
   not a noise term). *Season-length sweep (2026-04-17 afternoon)
