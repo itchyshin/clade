@@ -356,7 +356,7 @@ meaningful snapshot for spatial dispersion.
 ## 7. Error handling
 
 Custom modules are called inside a `tryCatch` wrapper
-([`R/modules.R:126-134`](../R/modules.R#L126)). Any error raised by
+([`R/modules.R:126-134`](https://github.com/itchyshin/clade/blob/main/R/modules.R#L126)). Any error raised by
 your function is converted into an R warning and the simulation
 continues with the unmodified snapshot. This is deliberately forgiving
 — you can't accidentally crash a 500-tick run by writing a bad module —
@@ -430,7 +430,7 @@ agent's fields are serialised into R-readable form before your function
 runs.
 
 **Concrete benchmark** (documented inline in
-[`R/modules.R:19-21`](../R/modules.R#L19)): a 200-agent × 500-tick run
+[`R/modules.R:19-21`](https://github.com/itchyshin/clade/blob/main/R/modules.R#L19)): a 200-agent × 500-tick run
 with one `post_tick` custom module adds ~0.5–1 s of overhead compared to
 the same run with no modules. For 1,000 agents × 1,000 ticks, overhead
 climbs to ~5–10 s. Several registered modules are approximately

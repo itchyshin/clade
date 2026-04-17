@@ -40,7 +40,7 @@ ten different parameter regimes — from defaults to extreme cost = 0,
 dose = 200, predator-saturated runs — `mean_toxicity` does not
 measurably evolve in either direction. Maximum observed drift was
 +0.02 (init = 0, no cost, 600 ticks). See the [mimicry fidelity
-report](../dev/audit/fidelity/mimicry.md) for the full evidence.
+report](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/mimicry.md) for the full evidence.
 
 **Why dynamics are flat: a kernel-level simplification.** clade's
 predator memory is a **scalar** (`pred.value_estimate`) updated
@@ -77,7 +77,7 @@ evolution (mean drift = −0.001 over 600 ticks). The CMA-ES result
 likely optimised a generic fitness signal that is not specific to
 toxicity evolution. Claim retracted; awaiting kernel improvement
 (signal-vector predator memory) before re-tuning. See
-[mimicry fidelity report §5](../dev/audit/fidelity/mimicry.md#5-verdict).
+[mimicry fidelity report §5](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/mimicry.md#5-verdict).
 ```{r fig-mimicry, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="0.4.4 audit (5 seeds × 600 ticks, vector-signal predator memory + delta-rule Rescorla-Wagner update). Upper panels: toxicity trajectories (flat across control and treatment) and dose-response (Spearman ρ = +0.40 — positive direction). Lower panel: dose × cost grid. P3 (learning fires: 12–28 avoidance events) and P4 (dose-response) PASS; P2 magnitude direction-sensitive in the ±0.002 noise band — ecology-limited per the 0.5.4 calibration."}
 FIG("21_mimicry")
 ```
