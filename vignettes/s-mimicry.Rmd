@@ -35,19 +35,35 @@ prey that resemble toxic prey are also avoided (Batesian mimicry).
 | `toxin_dose` | 2.0 | Damage dealt to attacker per toxicity unit |
 | `signal_memory` | 20 | Predator memory window for learning |
 
-**Expected output (updated 0.5.4).** With the 0.4.4 kernel fixes
-(vector-signal memory, delta-rule RW, aposematic pleiotropy), the
-avoidance mechanism fires (P3 PASS: 12–28 events/600 ticks) and
-shows positive dose-response (P4 PASS: Spearman ρ = +0.40). But
-toxicity magnitude evolution remains ecology-limited: the 0.5.4
-calibration grid (8 cells × 5 seeds × 1000 ticks) found every
-tested regime has Δtoxicity < 0 because the Zahavi handicap cost
-exceeds the aposematic protection benefit at default population
-scales. A predation-dominant ecology (`grass_rate ≈ 0.08`, where
-predation = 89% of mortality) produces the first positive Δtoxicity
-(+0.006), confirming the mechanism works when predation is the
-dominant selection pressure. See the [mimicry fidelity
-report](../dev/audit/fidelity/mimicry.md) for the full evidence.
+**Expected output (primary claim, post-2026-04-17 reframe).** The
+scenario is *conditionally* 🟠 — aposematism evolves in clade only
+under **predation-dominant ecology**, where grass is scarce
+(`grass_rate ≈ 0.08`) and predation accounts for ~89% of mortality
+rather than ~20%. Under the default well-fed ecology, aposematism
+does not evolve, because the Zahavi handicap cost exceeds the
+predation benefit (see "Why this is ecology-limited" below for the
+Grafen/Számadó/Getty theoretical background). The vignette now
+leads with the predation-dominant regime because that is the
+configuration where clade reproduces the textbook positive
+Δtoxicity; the default-ecology result is documented below as a
+limit condition.
+
+With the 0.4.4 kernel fixes (vector-signal memory, delta-rule RW,
+aposematic pleiotropy):
+
+- **P1 (mean toxicity rises under predation-dominant ecology):**
+  +0.006 over 600 ticks at `grass_rate = 0.08`, vs −0.001 at
+  `grass_rate = 0.20` (default well-fed).
+- **P3 (avoidance mechanism fires):** PASS, 12–28 events per 600
+  ticks.
+- **P4 (positive toxin_dose dose-response):** PASS, Spearman
+  ρ = +0.40 across the dose sweep.
+
+See the [mimicry fidelity report](../dev/audit/fidelity/mimicry.md)
+for the full evidence. Because the primary claim holds only under
+one ecology, the status remains 🟠 rather than ✅ — the handicap
+equilibrium is fragile in both theory (Grafen 1990) and clade
+(default ecology), and 🟠 is the honest label.
 
 **Pre-0.4.4 kernel simplification (historical).** Before 0.4.4,
 clade's predator memory was a **scalar** updated toward
@@ -57,10 +73,23 @@ replaced this with a full vector-signal memory using the
 Widrow-Hoff delta rule. See "What we found" below for details.
 
 ```{r mimicry}
-s <- fast_specs()                     # ~66 generations in 2000 ticks
+# Predation-dominant ecology — the regime where aposematism evolves.
+# At default grass_rate = 0.20, the Zahavi handicap cost exceeds the
+# protection benefit and toxicity stays flat. Lowering grass to 0.08
+# flips the cost-benefit ratio in toxicity's favour.
+#
+# Note: this scenario uses default_specs() rather than fast_specs().
+# fast_specs() + grass_rate = 0.08 crashes the prey population to
+# near-extinction — fast_specs shortens prey lifespan, and stacking
+# predation-dominant ecology on top of that overwhelms viability.
+# The default_specs timescale (generation ~190 ticks) gives the
+# population time to persist under heavy predation.
+s <- default_specs()
 s$mimicry            <- TRUE
 s$n_predators_init   <- 5L
 s$toxicity_init_mean <- 0.1
+s$grass_rate         <- 0.08          # predation-dominant ecology
+s$max_ticks          <- 1000L
 
 env  <- run_alife(s)
 data <- get_run_data(env)
@@ -127,7 +156,7 @@ machinery is now theoretically aligned with Bates (1862) / Müller
 (1879); magnitude of upward toxicity evolution is limited by
 ecology, not the predator-learning channel.
 
-**Why "ecology-limited" is not a bug — Zahavi handicap critique.**
+**Why this is ecology-limited — Zahavi handicap critique.**
 The toxicity trait acts as a Zahavi (1975) handicap: a costly
 honest signal of unpalatability. Grafen (1990, *J. Theor. Biol.*
 144:517) formalised Zahavi's verbal argument as a signalling
