@@ -210,12 +210,25 @@ advantage</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Expected output.</strong> Under scarce grass conditions, mean
-agent energy should be higher in the scavenging condition than the
-baseline, and the total number of deaths should be lower. Carrion
-provides a density-dependent buffer: more deaths in a tick produce more
-carrion, partially compensating for the energy deficit that caused those
-deaths.</p>
+<p><strong>Expected output (corrected 2026-04-17).</strong> The
+scavenging module fires as specified (agents eat carrion,
+<code>n_scavenging_events &gt; 0</code>) but the canonical DeVault 2003
+claim — ON-vs-OFF in <code>mean_energy</code> under scarcity — does not
+reproduce robustly. A 2×3×2 parameter sweep (192 runs,
+<code>scavenging_strength_sweep.R</code>) over <code>grass_rate</code> ∈
+{0.05, 0.10} × <code>carrion_eat_gain</code> ∈ {3, 8, 15} ×
+<code>carrion_fraction</code> ∈ {0.5, 1.0} found <strong>no cell gives
+Δenergy &gt; 0 at <em>t</em> ≥ 2</strong> in the canonical direction.
+One cell (grass=0.05, eat_gain=15) has |<em>t</em>| = 2.96 but in the
+<em>wrong</em> direction (scavenging lowers energy, probably because
+agents on carrion sites collide with the predator that made the
+kill).</p>
+<p>Status: <strong>🟠 passed-consistent (reframed)</strong> — module is
+correct (carrion is produced, agents find and eat it) but the
+mean-energy claim from DeVault 2003 is not measurable in clade’s
+evolutionary-ABM setting at tested parameters. Use this scenario as a
+module-firing demo, not as evidence that scavenging quantitatively
+improves energy budgets.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/">clade</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>

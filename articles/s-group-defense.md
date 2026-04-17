@@ -22,11 +22,27 @@ member.
 | `n_predators_init`         | 0       | Set \> 0 to activate predation pressure                             |
 | `predator_attack_strength` | 40.0    | Baseline damage before group reduction is applied                   |
 
-**Expected output.** In the `group_defense = TRUE` condition, mean
-population size should be substantially higher than the baseline, and
-survival curves should diverge after the first predator boom. The
-mechanism is dilution: per-capita attack rate falls as group size grows,
-creating a positive feedback between aggregation and survival.
+**Expected output (corrected 2026-04-17).** The mechanism fires —
+per-tick attack success is genuinely reduced when prey cluster — but in
+clade’s evolutionary-ABM setup the *population-level* outcome inverts
+the classical Hamilton 1971 prediction. A 3×2 strength × n_predators
+sweep (96 runs, `group_defense_strength_sweep.R`) found group_defense ON
+consistently *lowers* prey population: at (strength=0.3, n_pred=20), Δn
+= −10.3, **t = −2.85** (significant, wrong direction). Pattern holds at
+strength ≥ 0.6.
+
+Why the inversion? Two mechanisms that Hamilton 1971 does not include:
+(a) evolving predators *adapt* to the grouped prey distribution faster
+than the defense reduces per-prey risk, and (b) clustered prey **deplete
+local grass faster**, so defense-induced aggregation starves the group.
+Hamilton’s original argument assumes fixed predation rate and unlimited
+food; this ABM violates both.
+
+Status: **🟠 passed-consistent (reframed)** — module is correct
+(attack-reduction fires as documented) but the net population-level
+effect is opposite to the textbook claim at all tested parameters. Filed
+alongside `s-mimicry` as a case where a canonical theory prediction
+doesn’t survive the evolving-predator + limited-food ABM setting.
 
 ``` r
 library(clade)

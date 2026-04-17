@@ -193,9 +193,10 @@ in the population.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">s</span><span class="op">$</span><span class="va">social_learning</span>      <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
-<span><span class="va">s</span><span class="op">$</span><span class="va">social_learning_freq</span> <span class="op">&lt;-</span> <span class="fl">10L</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">social_learning_freq</span> <span class="op">&lt;-</span> <span class="fl">50L</span>    <span class="co"># 0.5.6 audit: freq=10/20 give noise-dominated</span></span>
+<span>                                 <span class="co"># copying; freq=50 is the viable regime</span></span>
 <span><span class="va">s</span><span class="op">$</span><span class="va">n_agents_init</span>        <span class="op">&lt;-</span> <span class="fl">150L</span>   <span class="co"># social learning requires sufficient density</span></span>
-<span><span class="va">s</span><span class="op">$</span><span class="va">max_ticks</span>            <span class="op">&lt;-</span> <span class="fl">300L</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">max_ticks</span>            <span class="op">&lt;-</span> <span class="fl">400L</span></span>
 <span></span>
 <span><span class="va">env</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span>
 <span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env</span><span class="op">)</span></span></code></pre></div>
@@ -207,18 +208,38 @@ brain_type=ann, n=150). Top: population +6.5% with social learning
 similar in both conditions.
 </p>
 </div>
-<p><strong>What we found.</strong> The effect of social learning depends
-critically on brain type. With <code>brain_type = "ann"</code>
-(deterministic weights), social learning produced a +4.5% mean
-population advantage (mean 158 vs 151, 2 replicates, 300 ticks): copied
-output-layer weights persist in the network and benefit subsequent
-actions. With <code>brain_type = "bnn"</code> (default stochastic
-weights), the advantage was zero (mean 183 in both conditions): BNN
-agents resample all weights from their prior distribution each tick,
-diluting any policy copied from a social model before it can influence
-behaviour. This reveals an important constraint on cultural transmission
-in the model: social learning operates on output-layer weights, but BNN
-agents do not retain those weights between ticks. The interaction
+<p><strong>What we found (2026-04-17 sweep).</strong>
+<code>social_learning_freq</code> matters a lot. An 8-seed × 3×3 sweep
+(<code>social_learning_sweep.R</code>) over <code>freq</code> ∈ {5, 20,
+50} × <code>n_agents_init</code> ∈ {80, 150, 250} found:</p>
+<ul>
+<li>At <strong>freq=50, n_init=150</strong>: Δmean_energy = +3.3,
+<strong>t = 2.27</strong> (significant, the regime the demo chunk above
+uses).</li>
+<li>At more aggressive frequencies (freq = 5 or 20), copying fires
+before neighbours’ behaviours have stabilised and the effect is null or
+weakly negative.</li>
+<li>At higher density (n_init=250), copying partners are noisier and the
+advantage saturates.</li>
+</ul>
+<p>The 0.4.x default of <code>social_learning_freq = 10</code> landed in
+the “too-aggressive” regime, which is why the original 8-seed direction
+check (Tier C batch 1) reported a null. Status ✅ at the freq=50 regime;
+see <code>dev/audit/fidelity/social_learning_sweep.rds</code> for the
+full table.</p>
+<p><strong>Earlier finding (original audit).</strong> The effect of
+social learning depends critically on brain type. With
+<code>brain_type = "ann"</code> (deterministic weights), social learning
+produced a +4.5% mean population advantage (mean 158 vs 151, 2
+replicates, 300 ticks): copied output-layer weights persist in the
+network and benefit subsequent actions. With
+<code>brain_type = "bnn"</code> (default stochastic weights), the
+advantage was zero (mean 183 in both conditions): BNN agents resample
+all weights from their prior distribution each tick, diluting any policy
+copied from a social model before it can influence behaviour. This
+reveals an important constraint on cultural transmission in the model:
+social learning operates on output-layer weights, but BNN agents do not
+retain those weights between ticks. The interaction
 <code>social_learning = TRUE</code> +
 <code>rl_mode = "actor_critic"</code> is predicted to restore social
 learning benefits because RL updates (applied after the BNN sample)

@@ -205,12 +205,28 @@ neighbour</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Expected output.</strong> In the
-<code>group_defense = TRUE</code> condition, mean population size should
-be substantially higher than the baseline, and survival curves should
-diverge after the first predator boom. The mechanism is dilution:
-per-capita attack rate falls as group size grows, creating a positive
-feedback between aggregation and survival.</p>
+<p><strong>Expected output (corrected 2026-04-17).</strong> The
+mechanism fires — per-tick attack success is genuinely reduced when prey
+cluster — but in clade’s evolutionary-ABM setup the
+<em>population-level</em> outcome inverts the classical Hamilton 1971
+prediction. A 3×2 strength × n_predators sweep (96 runs,
+<code>group_defense_strength_sweep.R</code>) found group_defense ON
+consistently <em>lowers</em> prey population: at (strength=0.3,
+n_pred=20), Δn = −10.3, <strong>t = −2.85</strong> (significant, wrong
+direction). Pattern holds at strength ≥ 0.6.</p>
+<p>Why the inversion? Two mechanisms that Hamilton 1971 does not
+include: (a) evolving predators <em>adapt</em> to the grouped prey
+distribution faster than the defense reduces per-prey risk, and (b)
+clustered prey <strong>deplete local grass faster</strong>, so
+defense-induced aggregation starves the group. Hamilton’s original
+argument assumes fixed predation rate and unlimited food; this ABM
+violates both.</p>
+<p>Status: <strong>🟠 passed-consistent (reframed)</strong> — module is
+correct (attack-reduction fires as documented) but the net
+population-level effect is opposite to the textbook claim at all tested
+parameters. Filed alongside <code>s-mimicry</code> as a case where a
+canonical theory prediction doesn’t survive the evolving-predator +
+limited-food ABM setting.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/">clade</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>

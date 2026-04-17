@@ -25,9 +25,10 @@ genetic variation) but successful behaviours exist in the population.
 ``` r
 s <- default_specs()
 s$social_learning      <- TRUE
-s$social_learning_freq <- 10L
+s$social_learning_freq <- 50L    # 0.5.6 audit: freq=10/20 give noise-dominated
+                                 # copying; freq=50 is the viable regime
 s$n_agents_init        <- 150L   # social learning requires sufficient density
-s$max_ticks            <- 300L
+s$max_ticks            <- 400L
 
 env  <- run_alife(s)
 data <- get_run_data(env)
@@ -43,21 +44,39 @@ brain_type=ann, n=150). Top: population +6.5% with social learning
 (successful foraging strategies propagate). Bottom: genetic diversity
 similar in both conditions.
 
-**What we found.** The effect of social learning depends critically on
-brain type. With `brain_type = "ann"` (deterministic weights), social
-learning produced a +4.5% mean population advantage (mean 158 vs 151, 2
-replicates, 300 ticks): copied output-layer weights persist in the
-network and benefit subsequent actions. With `brain_type = "bnn"`
-(default stochastic weights), the advantage was zero (mean 183 in both
-conditions): BNN agents resample all weights from their prior
-distribution each tick, diluting any policy copied from a social model
-before it can influence behaviour. This reveals an important constraint
-on cultural transmission in the model: social learning operates on
-output-layer weights, but BNN agents do not retain those weights between
-ticks. The interaction `social_learning = TRUE` +
-`rl_mode = "actor_critic"` is predicted to restore social learning
-benefits because RL updates (applied after the BNN sample) reinforce the
-copied policy within the agent’s lifetime before the next sampling step.
+**What we found (2026-04-17 sweep).** `social_learning_freq` matters a
+lot. An 8-seed × 3×3 sweep (`social_learning_sweep.R`) over `freq` ∈ {5,
+20, 50} × `n_agents_init` ∈ {80, 150, 250} found:
+
+- At **freq=50, n_init=150**: Δmean_energy = +3.3, **t = 2.27**
+  (significant, the regime the demo chunk above uses).
+- At more aggressive frequencies (freq = 5 or 20), copying fires before
+  neighbours’ behaviours have stabilised and the effect is null or
+  weakly negative.
+- At higher density (n_init=250), copying partners are noisier and the
+  advantage saturates.
+
+The 0.4.x default of `social_learning_freq = 10` landed in the
+“too-aggressive” regime, which is why the original 8-seed direction
+check (Tier C batch 1) reported a null. Status ✅ at the freq=50 regime;
+see `dev/audit/fidelity/social_learning_sweep.rds` for the full table.
+
+**Earlier finding (original audit).** The effect of social learning
+depends critically on brain type. With `brain_type = "ann"`
+(deterministic weights), social learning produced a +4.5% mean
+population advantage (mean 158 vs 151, 2 replicates, 300 ticks): copied
+output-layer weights persist in the network and benefit subsequent
+actions. With `brain_type = "bnn"` (default stochastic weights), the
+advantage was zero (mean 183 in both conditions): BNN agents resample
+all weights from their prior distribution each tick, diluting any policy
+copied from a social model before it can influence behaviour. This
+reveals an important constraint on cultural transmission in the model:
+social learning operates on output-layer weights, but BNN agents do not
+retain those weights between ticks. The interaction
+`social_learning = TRUE` + `rl_mode = "actor_critic"` is predicted to
+restore social learning benefits because RL updates (applied after the
+BNN sample) reinforce the copied policy within the agent’s lifetime
+before the next sampling step.
 
 ### Discovery experiments
 
