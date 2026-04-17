@@ -258,6 +258,9 @@ core simulation is a clean baseline of foraging, reproduction, and death.
 | Parental investment       | `parental_investment_evolution`   | In 0.4.0, `female_investment` splits parental cost between mother and mate and scales offspring birth energy (Trivers 1972). |
 | Stress hypermutation      | `stress_hypermutation`            | Mutation rate increases when agent energy falls below a threshold (Rosenberg 2001).              |
 | Max-age pace of life      | `max_age_scales_with_metabolism`  | 0.4.0: when `TRUE`, effective lifespan scales inversely with metabolic rate (Réale et al. 2010).|
+| Neonatal foraging deficit | `neonatal_foraging_deficit`       | 0.4.3: young agents forage at reduced efficiency for `neonatal_deficit_duration` ticks. Creates the selection pressure for parental provisioning (Aiello & Wheeler 1995). |
+| Coevolving parasites      | `coevolving_parasites`            | 0.5.0/0.5.1: Hamilton 1980 Red Queen. Continuous-trait centroid tracking or discrete-allele Hamming matching with Mendelian inheritance. |
+| Sigma-action decoupling   | `bnn_action_noise_scale`          | 0.5.5: controls how much BNN sigma contributes to action noise. At 0, actions are deterministic from mu; sigma only affects the learning/cost channel. |
 
 A typical experimental design fixes the brain type and toggles one module
 at a time, comparing the resulting `get_run_data()` outputs across
