@@ -154,6 +154,11 @@ function tick_predators!(env::Environment)
     move_energy = Float32(get(specs, "predator_move_energy",    1.0))
     attack_str  = Float32(get(specs, "predator_attack_strength", 40.0))
     energy_gain = Float32(get(specs, "predator_energy_gain",    30.0))
+    # 0.5.6: separate predator max_age. Defaults to prey max_age if not
+    # set, preserving legacy behaviour. Predators are typically longer-
+    # lived than prey (owl > mouse, lion > zebra).
+    pred_max_age = Int32(get(specs, "predator_max_age",
+                             get(specs, "max_age", 200)))
     rows        = size(env.grass, 1)
     cols        = size(env.grass, 2)
     toroidal    = Bool(get(specs, "toroidal", true))
@@ -184,6 +189,9 @@ function tick_predators!(env::Environment)
         pred.energy -= live_energy
         pred.age    += Int32(1)
         if pred.energy <= 0.0f0
+            pred.alive   = false
+            env.n_deaths += Int32(1)
+        elseif pred.age >= pred_max_age
             pred.alive   = false
             env.n_deaths += Int32(1)
         end

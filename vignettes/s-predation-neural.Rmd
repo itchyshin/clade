@@ -48,10 +48,8 @@ library(ggplot2)
 library(patchwork)
 
 make_s <- function(n_pred) {
-  s <- default_specs()
-  s$n_agents_init    <- 80L
+  s <- fast_specs()                   # ~66 generations in 2000 ticks
   s$n_predators_init <- n_pred
-  s$max_ticks        <- 500L
   s
 }
 

@@ -49,15 +49,14 @@ stringency of `isolation_threshold`.
 library(clade)
 library(ggplot2)
 
-# Quick-start settings: lower threshold and higher mutation allow speciation
-# within ~400 ticks. The default isolation_threshold = 0.5 requires >1,000
-# ticks to accumulate sufficient genome divergence.
-s <- default_specs()
+# fast_specs() gives ~66 generations over 2000 ticks, which comfortably
+# resolves the speciation burst (~100 clusters in the first few hundred
+# ticks) through consolidation to ~10 persistent clusters.
+s <- fast_specs()
 s$speciation                  <- TRUE
 s$isolation_threshold         <- 0.15   # lower = easier speciation
 s$mutation_sd                 <- 0.15   # higher = faster divergence
 s$speciation_cluster_interval <- 10L
-s$max_ticks                   <- 1000L
 s$random_seed                 <- 55L
 
 env  <- run_alife(s)
