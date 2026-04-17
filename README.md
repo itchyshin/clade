@@ -11,7 +11,7 @@ Each agent carries a heritable neural-network genome; natural selection acts on
 brain weights, life-history traits, and — with 30+ optional modules — body size,
 dispersal tendency, mimicry, coevolving parasites, parental care, cooperative
 breeding, disease, and more. Every biological scenario is backed by a
-[multi-seed fidelity audit](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/DASHBOARD.md) against the
+[multi-seed fidelity audit](dev/audit/fidelity/DASHBOARD.md) against the
 primary literature (22 of 30 auditable scenarios pass; 5 have
 direction-correct but magnitude-limited signals; 0 contradict theory).
 
@@ -153,8 +153,8 @@ cross-references the primary literature, the alifeR R prototype, and
 The five 🟠 scenarios (dispersal-IFD, mating-systems, mimicry,
 plasticity, Baldwin effect) have honestly-documented kernel or
 ecology limitations. All audit reports, runners, and figures live
-under [`dev/audit/fidelity/`](https://github.com/itchyshin/clade/tree/main/dev/audit/fidelity). See the
-[audit dashboard](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/DASHBOARD.md) for the full
+under [`dev/audit/fidelity/`](dev/audit/fidelity/). See the
+[audit dashboard](dev/audit/fidelity/DASHBOARD.md) for the full
 ledger with evidence strength, honest nulls, and retractions.
 
 ---
