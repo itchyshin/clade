@@ -30,47 +30,61 @@ throughput, but their populations are more volatile. Slow-pace agents
 productive environments; slow agents persist more reliably when
 resources are lean.
 
-**Audit caveat (2026-04-15).** In the 5-level sweep (rates 0.5 to 3.0),
-all metrics are flat: mean_age ≈ 98, n_agents ≈ 258, births ≈ 1.44,
-variance ≈ 1300, regardless of `metabolic_rate`. Cause: clade’s
-always-on `max_age = 200` dominates the age schedule — agents die at the
-cap before metabolic-rate differences can accumulate. Enabling Gompertz
-senescence or removing the age cap would be needed to reproduce the
-Réale et al. pace-of-life divergence. See
+**Audit history.** The pre-0.4.0 audit found all metrics flat (mean_age
+≈ 98 regardless of rate) because the hardcoded `max_age = 200` cap
+dominated the age schedule. The 0.4.0 Tier 2 fix
+(`max_age_scales_with_metabolism = TRUE`) makes
+`eff_max_age = max_age / metabolic_rate`, which cleanly recovers the
+Réale et al. signal: Spearman(rate, mean_age) = −1.00 across 5 rates.
+**Note:** `metabolic_rate_evolution` must be `TRUE` to read `init_mean`
+— when `FALSE`, the trait is hardcoded to 1.0. Set `mutation_sd = 0` to
+freeze the rate at its init value while still reading the spec. See
 [dev/audit/fidelity/pace_of_life.md](../dev/audit/fidelity/pace_of_life.md).
 
 ``` r
 library(clade)
 library(ggplot2)
 
+# NOTE: metabolic_rate_evolution must be TRUE to read init_mean
+# (when FALSE, metabolic_rate is hardcoded to 1.0). Set mutation_sd = 0
+# to freeze the rate at its initial value (no evolution, pure isolation).
 make_run <- function(rate, seed = 99L) {
   s <- default_specs()
-  s$metabolic_rate_init_mean <- rate
-  s$metabolic_rate_evolution <- FALSE
-  s$max_ticks                <- 400L
-  s$random_seed              <- seed
+  s$metabolic_rate_evolution      <- TRUE    # needed to read init_mean
+  s$metabolic_rate_init_mean      <- rate
+  s$metabolic_rate_mutation_sd    <- 0.0     # freeze: no evolution
+  s$max_age_scales_with_metabolism <- TRUE   # 0.4.0 Tier 2: max_age ∝ 1/rate
+  s$n_agents_init <- 100L
+  s$grass_rate    <- 0.12
+  s$max_ticks     <- 500L
+  s$random_seed   <- seed
   get_run_data(run_alife(s))$ticks
 }
 
-d_slow     <- make_run(0.5)
-d_baseline <- make_run(1.0)
-d_fast     <- make_run(2.0)
+d_slow <- make_run(0.5)
+d_mid  <- make_run(1.0)
+d_fast <- make_run(2.0)
 
 df <- rbind(
-  cbind(d_slow[,     c("t", "mean_age", "n_births")], pace = "Slow (0.5)"),
-  cbind(d_baseline[, c("t", "mean_age", "n_births")], pace = "Baseline (1.0)"),
-  cbind(d_fast[,     c("t", "mean_age", "n_births")], pace = "Fast (2.0)")
+  cbind(d_slow[, c("t", "mean_age", "n_agents")], pace = "Slow (0.5)"),
+  cbind(d_mid[,  c("t", "mean_age", "n_agents")], pace = "Moderate (1.0)"),
+  cbind(d_fast[, c("t", "mean_age", "n_agents")], pace = "Fast (2.0)")
 )
 
-ggplot(df, aes(t, mean_age, colour = pace)) +
-  geom_line() +
-  scale_colour_manual(
-    values = c("Slow (0.5)" = "#377eb8", "Baseline (1.0)" = "#4daf4a",
-               "Fast (2.0)" = "#e41a1c"),
-    name = NULL) +
-  labs(title = "Pace-of-life: mean age across metabolic rates",
-       x = "Tick", y = "Mean agent age") +
+library(patchwork)
+p1 <- ggplot(df, aes(t, mean_age, colour = pace)) +
+  geom_line(linewidth = 0.8) +
+  scale_colour_manual(values = c("Slow (0.5)" = "#1565C0",
+    "Moderate (1.0)" = "#2E7D32", "Fast (2.0)" = "#E65100"), name = NULL) +
+  labs(title = "Slow-pace agents live 4× longer", y = "Mean age") +
   theme_minimal()
+p2 <- ggplot(df, aes(t, n_agents, colour = pace)) +
+  geom_line(linewidth = 0.8) +
+  scale_colour_manual(values = c("Slow (0.5)" = "#1565C0",
+    "Moderate (1.0)" = "#2E7D32", "Fast (2.0)" = "#E65100"), name = NULL) +
+  labs(title = "Slow-pace sustains 5× more agents", x = "Tick", y = "n_agents") +
+  theme_minimal()
+p1 / p2
 ```
 
 ### Calibrated regime (CMA-ES discovered)
@@ -88,16 +102,18 @@ s$metabolic_rate_init_mean       <- 22L
 # env <- run_alife(s)   # uncomment to run the calibrated regime
 ```
 
-![Expected output: slow-pace agents (blue) maintain the highest mean
-age; fast-pace agents (red) have the lowest mean age but the highest
-per-tick birth rate. The three trajectories illustrate the life-history
-trade-off along the slow-fast
-continuum.](figures/showcase_pace_of_life.png)
+![Pace-of-life syndrome across 5 metabolic rates × 3 seeds × 500 ticks
+(max_age_scales_with_metabolism = TRUE). Top: mean age ranges from 205
+(slow, rate=0.5) to 32 (very fast, rate=3.0) — a 6× difference. Middle:
+population ranges from 328 to 22. Bottom: energy reserves are similar
+across rates. The fast-slow continuum is
+crystal-clear.](figures/showcase_pace_of_life.png)
 
-Expected output: slow-pace agents (blue) maintain the highest mean age;
-fast-pace agents (red) have the lowest mean age but the highest per-tick
-birth rate. The three trajectories illustrate the life-history trade-off
-along the slow-fast continuum.
+Pace-of-life syndrome across 5 metabolic rates × 3 seeds × 500 ticks
+(max_age_scales_with_metabolism = TRUE). Top: mean age ranges from 205
+(slow, rate=0.5) to 32 (very fast, rate=3.0) — a 6× difference. Middle:
+population ranges from 328 to 22. Bottom: energy reserves are similar
+across rates. The fast-slow continuum is crystal-clear.
 
 **What we found.** Running with `senescence_rate = 0.05` (fast pace,
 `repro_senescence = 0.03`) vs `senescence_rate = 0.001` (slow pace, no

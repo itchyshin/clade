@@ -208,46 +208,61 @@ rate, higher <code>mean_age</code>, and more stable
 <code>mean_energy</code>. Fast agents dominate in productive
 environments; slow agents persist more reliably when resources are
 lean.</p>
-<p><strong>Audit caveat (2026-04-15).</strong> In the 5-level sweep
-(rates 0.5 to 3.0), all metrics are flat: mean_age ≈ 98, n_agents ≈ 258,
-births ≈ 1.44, variance ≈ 1300, regardless of
-<code>metabolic_rate</code>. Cause: clade’s always-on
-<code>max_age = 200</code> dominates the age schedule — agents die at
-the cap before metabolic-rate differences can accumulate. Enabling
-Gompertz senescence or removing the age cap would be needed to reproduce
-the Réale et al. pace-of-life divergence. See <a href="../dev/audit/fidelity/pace_of_life.html">dev/audit/fidelity/pace_of_life.md</a>.</p>
+<p><strong>Audit history.</strong> The pre-0.4.0 audit found all metrics
+flat (mean_age ≈ 98 regardless of rate) because the hardcoded
+<code>max_age = 200</code> cap dominated the age schedule. The 0.4.0
+Tier 2 fix (<code>max_age_scales_with_metabolism = TRUE</code>) makes
+<code>eff_max_age = max_age / metabolic_rate</code>, which cleanly
+recovers the Réale et al. signal: Spearman(rate, mean_age) = −1.00
+across 5 rates. <strong>Note:</strong>
+<code>metabolic_rate_evolution</code> must be <code>TRUE</code> to read
+<code>init_mean</code> — when <code>FALSE</code>, the trait is hardcoded
+to 1.0. Set <code>mutation_sd = 0</code> to freeze the rate at its init
+value while still reading the spec. See <a href="../dev/audit/fidelity/pace_of_life.html">dev/audit/fidelity/pace_of_life.md</a>.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/" class="external-link">clade</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span></span>
+<span><span class="co"># NOTE: metabolic_rate_evolution must be TRUE to read init_mean</span></span>
+<span><span class="co"># (when FALSE, metabolic_rate is hardcoded to 1.0). Set mutation_sd = 0</span></span>
+<span><span class="co"># to freeze the rate at its initial value (no evolution, pure isolation).</span></span>
 <span><span class="va">make_run</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">rate</span>, <span class="va">seed</span> <span class="op">=</span> <span class="fl">99L</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
-<span>  <span class="va">s</span><span class="op">$</span><span class="va">metabolic_rate_init_mean</span> <span class="op">&lt;-</span> <span class="va">rate</span></span>
-<span>  <span class="va">s</span><span class="op">$</span><span class="va">metabolic_rate_evolution</span> <span class="op">&lt;-</span> <span class="cn">FALSE</span></span>
-<span>  <span class="va">s</span><span class="op">$</span><span class="va">max_ticks</span>                <span class="op">&lt;-</span> <span class="fl">400L</span></span>
-<span>  <span class="va">s</span><span class="op">$</span><span class="va">random_seed</span>              <span class="op">&lt;-</span> <span class="va">seed</span></span>
+<span>  <span class="va">s</span><span class="op">$</span><span class="va">metabolic_rate_evolution</span>      <span class="op">&lt;-</span> <span class="cn">TRUE</span>    <span class="co"># needed to read init_mean</span></span>
+<span>  <span class="va">s</span><span class="op">$</span><span class="va">metabolic_rate_init_mean</span>      <span class="op">&lt;-</span> <span class="va">rate</span></span>
+<span>  <span class="va">s</span><span class="op">$</span><span class="va">metabolic_rate_mutation_sd</span>    <span class="op">&lt;-</span> <span class="fl">0.0</span>     <span class="co"># freeze: no evolution</span></span>
+<span>  <span class="va">s</span><span class="op">$</span><span class="va">max_age_scales_with_metabolism</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span>   <span class="co"># 0.4.0 Tier 2: max_age ∝ 1/rate</span></span>
+<span>  <span class="va">s</span><span class="op">$</span><span class="va">n_agents_init</span> <span class="op">&lt;-</span> <span class="fl">100L</span></span>
+<span>  <span class="va">s</span><span class="op">$</span><span class="va">grass_rate</span>    <span class="op">&lt;-</span> <span class="fl">0.12</span></span>
+<span>  <span class="va">s</span><span class="op">$</span><span class="va">max_ticks</span>     <span class="op">&lt;-</span> <span class="fl">500L</span></span>
+<span>  <span class="va">s</span><span class="op">$</span><span class="va">random_seed</span>   <span class="op">&lt;-</span> <span class="va">seed</span></span>
 <span>  <span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="fu"><a href="../reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span><span class="op">)</span><span class="op">$</span><span class="va">ticks</span></span>
 <span><span class="op">}</span></span>
 <span></span>
-<span><span class="va">d_slow</span>     <span class="op">&lt;-</span> <span class="fu">make_run</span><span class="op">(</span><span class="fl">0.5</span><span class="op">)</span></span>
-<span><span class="va">d_baseline</span> <span class="op">&lt;-</span> <span class="fu">make_run</span><span class="op">(</span><span class="fl">1.0</span><span class="op">)</span></span>
-<span><span class="va">d_fast</span>     <span class="op">&lt;-</span> <span class="fu">make_run</span><span class="op">(</span><span class="fl">2.0</span><span class="op">)</span></span>
+<span><span class="va">d_slow</span> <span class="op">&lt;-</span> <span class="fu">make_run</span><span class="op">(</span><span class="fl">0.5</span><span class="op">)</span></span>
+<span><span class="va">d_mid</span>  <span class="op">&lt;-</span> <span class="fu">make_run</span><span class="op">(</span><span class="fl">1.0</span><span class="op">)</span></span>
+<span><span class="va">d_fast</span> <span class="op">&lt;-</span> <span class="fu">make_run</span><span class="op">(</span><span class="fl">2.0</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">d_slow</span><span class="op">[</span>,     <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"t"</span>, <span class="st">"mean_age"</span>, <span class="st">"n_births"</span><span class="op">)</span><span class="op">]</span>, pace <span class="op">=</span> <span class="st">"Slow (0.5)"</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">d_baseline</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"t"</span>, <span class="st">"mean_age"</span>, <span class="st">"n_births"</span><span class="op">)</span><span class="op">]</span>, pace <span class="op">=</span> <span class="st">"Baseline (1.0)"</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">d_fast</span><span class="op">[</span>,     <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"t"</span>, <span class="st">"mean_age"</span>, <span class="st">"n_births"</span><span class="op">)</span><span class="op">]</span>, pace <span class="op">=</span> <span class="st">"Fast (2.0)"</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">d_slow</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"t"</span>, <span class="st">"mean_age"</span>, <span class="st">"n_agents"</span><span class="op">)</span><span class="op">]</span>, pace <span class="op">=</span> <span class="st">"Slow (0.5)"</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">d_mid</span><span class="op">[</span>,  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"t"</span>, <span class="st">"mean_age"</span>, <span class="st">"n_agents"</span><span class="op">)</span><span class="op">]</span>, pace <span class="op">=</span> <span class="st">"Moderate (1.0)"</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">d_fast</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"t"</span>, <span class="st">"mean_age"</span>, <span class="st">"n_agents"</span><span class="op">)</span><span class="op">]</span>, pace <span class="op">=</span> <span class="st">"Fast (2.0)"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">t</span>, <span class="va">mean_age</span>, colour <span class="op">=</span> <span class="va">pace</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_colour_manual</a></span><span class="op">(</span></span>
-<span>    values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Slow (0.5)"</span> <span class="op">=</span> <span class="st">"#377eb8"</span>, <span class="st">"Baseline (1.0)"</span> <span class="op">=</span> <span class="st">"#4daf4a"</span>,</span>
-<span>               <span class="st">"Fast (2.0)"</span> <span class="op">=</span> <span class="st">"#e41a1c"</span><span class="op">)</span>,</span>
-<span>    name <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Pace-of-life: mean age across metabolic rates"</span>,</span>
-<span>       x <span class="op">=</span> <span class="st">"Tick"</span>, y <span class="op">=</span> <span class="st">"Mean agent age"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span><span class="op">)</span></span>
+<span><span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">t</span>, <span class="va">mean_age</span>, colour <span class="op">=</span> <span class="va">pace</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>linewidth <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_colour_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Slow (0.5)"</span> <span class="op">=</span> <span class="st">"#1565C0"</span>,</span>
+<span>    <span class="st">"Moderate (1.0)"</span> <span class="op">=</span> <span class="st">"#2E7D32"</span>, <span class="st">"Fast (2.0)"</span> <span class="op">=</span> <span class="st">"#E65100"</span><span class="op">)</span>, name <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Slow-pace agents live 4× longer"</span>, y <span class="op">=</span> <span class="st">"Mean age"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">t</span>, <span class="va">n_agents</span>, colour <span class="op">=</span> <span class="va">pace</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>linewidth <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_colour_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Slow (0.5)"</span> <span class="op">=</span> <span class="st">"#1565C0"</span>,</span>
+<span>    <span class="st">"Moderate (1.0)"</span> <span class="op">=</span> <span class="st">"#2E7D32"</span>, <span class="st">"Fast (2.0)"</span> <span class="op">=</span> <span class="st">"#E65100"</span><span class="op">)</span>, name <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Slow-pace sustains 5× more agents"</span>, x <span class="op">=</span> <span class="st">"Tick"</span>, y <span class="op">=</span> <span class="st">"n_agents"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">p1</span> <span class="op">/</span> <span class="va">p2</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="calibrated-regime-cma-es-discovered">Calibrated regime (CMA-ES discovered)<a class="anchor" aria-label="anchor" href="#calibrated-regime-cma-es-discovered"></a>
@@ -265,11 +280,12 @@ results.</p>
 <span><span class="va">s</span><span class="op">$</span><span class="va">metabolic_rate_init_mean</span>       <span class="op">&lt;-</span> <span class="fl">22L</span></span>
 <span><span class="co"># env &lt;- run_alife(s)   # uncomment to run the calibrated regime</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_pace_of_life.png" class="r-plt" alt="Expected output: slow-pace agents (blue) maintain the highest mean age; fast-pace agents (red) have the lowest mean age but the highest per-tick birth rate. The three trajectories illustrate the life-history trade-off along the slow-fast continuum." width="100%"><p class="caption">
-Expected output: slow-pace agents (blue) maintain the highest mean age;
-fast-pace agents (red) have the lowest mean age but the highest per-tick
-birth rate. The three trajectories illustrate the life-history trade-off
-along the slow-fast continuum.
+<img src="figures/showcase_pace_of_life.png" class="r-plt" alt="Pace-of-life syndrome across 5 metabolic rates × 3 seeds × 500 ticks (max_age_scales_with_metabolism = TRUE). Top: mean age ranges from 205 (slow, rate=0.5) to 32 (very fast, rate=3.0) — a 6× difference. Middle: population ranges from 328 to 22. Bottom: energy reserves are similar across rates. The fast-slow continuum is crystal-clear." width="100%"><p class="caption">
+Pace-of-life syndrome across 5 metabolic rates × 3 seeds × 500 ticks
+(max_age_scales_with_metabolism = TRUE). Top: mean age ranges from 205
+(slow, rate=0.5) to 32 (very fast, rate=3.0) — a 6× difference. Middle:
+population ranges from 328 to 22. Bottom: energy reserves are similar
+across rates. The fast-slow continuum is crystal-clear.
 </p>
 </div>
 <p><strong>What we found.</strong> Running with
