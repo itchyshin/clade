@@ -55,8 +55,11 @@ search_cmaes(
 - n_cores:
 
   Integer. Parallel cores for candidate evaluation (default 1L). Uses
-  [`parallel::mclapply()`](https://rdrr.io/r/parallel/mclapply.html) on
-  Unix/macOS when `> 1`.
+  [`parallel::makeCluster()`](https://rdrr.io/r/parallel/makeCluster.html)
+  PSOCK workers (one R session + Julia per worker) when `> 1`. Was
+  [`parallel::mclapply`](https://rdrr.io/r/parallel/mclapply.html)
+  before 0.5.6 but that path silently deadlocked because JuliaConnectoR
+  is not fork-safe — see `dev/docs/parallelism-audit.md`.
 
 - verbose:
 

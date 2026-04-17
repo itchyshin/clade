@@ -179,7 +179,10 @@ optimise. Defaults to <code>c("grass_rate", "mutation_sd")</code>.</p></dd>
 
 <dt id="arg-n-cores">n_cores<a class="anchor" aria-label="anchor" href="#arg-n-cores"></a></dt>
 <dd><p>Integer. Parallel cores for candidate evaluation (default
-1L). Uses <code><a href="https://rdrr.io/r/parallel/mclapply.html" class="external-link">parallel::mclapply()</a></code> on Unix/macOS when <code>&gt; 1</code>.</p></dd>
+1L). Uses <code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">parallel::makeCluster()</a></code> PSOCK workers (one R session +
+Julia per worker) when <code>&gt; 1</code>. Was <code><a href="https://rdrr.io/r/parallel/mclapply.html" class="external-link">parallel::mclapply</a></code> before 0.5.6
+but that path silently deadlocked because JuliaConnectoR is not
+fork-safe — see <code>dev/docs/parallelism-audit.md</code>.</p></dd>
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
