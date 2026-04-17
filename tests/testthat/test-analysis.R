@@ -304,3 +304,101 @@ test_that("viability_report() print method runs", {
   vr <- viability_report(.mock_ticks_with_pop(100L, 50L))
   expect_output(print(vr), "viability report")
 })
+
+# ── grid_specs() / sample_specs() / summarize_batch() ──────────────────────
+
+test_that("grid_specs() builds a full factorial", {
+  base <- default_specs()
+  g <- grid_specs(base,
+                  grass_rate  = c(0.1, 0.2, 0.3),
+                  mutation_sd = c(0.02, 0.05))
+  expect_length(g, 6L)
+  expect_equal(g[[1L]]$grass_rate,  0.1)
+  expect_equal(g[[1L]]$mutation_sd, 0.02)
+  expect_equal(g[[6L]]$grass_rate,  0.3)
+  expect_equal(g[[6L]]$mutation_sd, 0.05)
+})
+
+test_that("grid_specs() seeds each cell reproducibly", {
+  g <- grid_specs(default_specs(),
+                  grass_rate = c(0.1, 0.2),
+                  seed_from  = 100L)
+  expect_equal(g[[1L]]$random_seed, 100L)
+  expect_equal(g[[2L]]$random_seed, 101L)
+})
+
+test_that("grid_specs() errors without named args", {
+  expect_error(grid_specs(default_specs(), c(0.1, 0.2)), regexp = "named")
+})
+
+test_that("grid_specs() cell names encode the values", {
+  g <- grid_specs(default_specs(),
+                  grass_rate  = c(0.1, 0.2),
+                  mutation_sd = c(0.05))
+  expect_true(all(grepl("grass_rate=", names(g))))
+  expect_true(all(grepl("mutation_sd=0.05", names(g))))
+})
+
+test_that("sample_specs() vector form samples with replacement", {
+  set.seed(1)
+  ss <- sample_specs(default_specs(), n = 20L,
+                     grass_rate = c(0.1, 0.2, 0.3), seed = 42L)
+  vals <- vapply(ss, `[[`, numeric(1L), "grass_rate")
+  expect_equal(length(vals), 20L)
+  expect_true(all(vals %in% c(0.1, 0.2, 0.3)))
+})
+
+test_that("sample_specs() range form draws uniform", {
+  ss <- sample_specs(default_specs(), n = 100L,
+                     grass_rate = list(0.05, 0.40), seed = 7L)
+  vals <- vapply(ss, `[[`, numeric(1L), "grass_rate")
+  expect_true(all(vals >= 0.05 & vals <= 0.40))
+  expect_gt(diff(range(vals)), 0.2)   # should span a good chunk of the range
+})
+
+test_that("sample_specs() function form invokes user function", {
+  ss <- sample_specs(default_specs(), n = 10L,
+                     grass_rate = function(n) rep(0.2, n), seed = 1L)
+  vals <- vapply(ss, `[[`, numeric(1L), "grass_rate")
+  expect_true(all(vals == 0.2))
+})
+
+test_that("sample_specs() is reproducible with fixed seed", {
+  a <- sample_specs(default_specs(), n = 50L,
+                    grass_rate = list(0.05, 0.40), seed = 123L)
+  b <- sample_specs(default_specs(), n = 50L,
+                    grass_rate = list(0.05, 0.40), seed = 123L)
+  va <- vapply(a, `[[`, numeric(1L), "grass_rate")
+  vb <- vapply(b, `[[`, numeric(1L), "grass_rate")
+  expect_equal(va, vb)
+})
+
+test_that("sample_specs() assigns distinct random_seeds per cell", {
+  ss <- sample_specs(default_specs(), n = 5L,
+                     grass_rate = c(0.1), seed_from = 100L)
+  seeds <- unname(vapply(ss, `[[`, integer(1L), "random_seed"))
+  expect_equal(seeds, 100:104)
+})
+
+test_that("summarize_batch() assembles rows from mock env + specs", {
+  # Build a couple of minimal fake env objects that match the structure
+  # summarize_batch expects, plus specs to pair them with.
+  fake_env <- function(final_n = 50L, final_e = 100, final_d = 0.3) {
+    list(progress = list(
+      n_agents          = as.integer(c(100L, 75L, final_n)),
+      mean_energy       = c(100, 95, final_e),
+      genetic_diversity = c(0.0, 0.2, final_d)),
+      viability = structure(list(verdict = "viable"),
+                             class = "clade_viability_report"))
+  }
+  specs_list <- list(
+    list(grass_rate = 0.1, max_ticks = 100L),
+    list(grass_rate = 0.3, max_ticks = 100L)
+  )
+  results <- list(fake_env(final_n = 30L), fake_env(final_n = 50L))
+  tbl <- summarize_batch(results, specs_list, param_names = "grass_rate")
+  expect_s3_class(tbl, "data.frame")
+  expect_equal(nrow(tbl), 2L)
+  expect_equal(tbl$grass_rate, c(0.1, 0.3))
+  expect_equal(tbl$n_final, c(30, 50))
+})

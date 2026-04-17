@@ -183,6 +183,211 @@ batch_seeds <- function(specs, seeds = 1:5, n_cores = 1L, verbose = FALSE) {
   results
 }
 
+#' Generate a factorial grid of specs
+#'
+#' Produces a `list` of specs objects, one per combination of the supplied
+#' parameter values. Every other field is inherited from `base`. Useful for
+#' systematic parameter-space exploration with [batch_alife()].
+#'
+#' @param base A specs list (from [default_specs()], [fast_specs()], etc.)
+#'   to use as the template for each combination.
+#' @param ... Named vectors / lists of candidate values for each parameter.
+#'   For example, `grass_rate = c(0.1, 0.2, 0.3), mutation_sd = c(0.02, 0.05)`
+#'   generates a 3 × 2 = 6-cell grid. String-typed parameters can also be
+#'   passed (e.g. `life_history = c("iteroparous", "semelparous")`).
+#' @param seed_from Integer or `NULL`. If provided, overrides each cell's
+#'   `random_seed` with `seed_from + 0L, seed_from + 1L, ...` so a grid run
+#'   is reproducible. Default `1L`.
+#'
+#' @return A named list of specs. Names encode the parameter values, e.g.
+#'   `"grass_rate=0.1;mutation_sd=0.02"`.
+#'
+#' @examples
+#' \dontrun{
+#' base <- fast_specs()
+#' specs_list <- grid_specs(base,
+#'                          grass_rate   = c(0.1, 0.2, 0.3),
+#'                          mutation_sd  = c(0.02, 0.05))
+#' results <- batch_alife(specs_list, n_cores = 6L)
+#' }
+#'
+#' @seealso [batch_alife()], [sample_specs()], [summarize_batch()]
+#' @export
+grid_specs <- function(base, ..., seed_from = 1L) {
+  stopifnot(is.list(base))
+  params <- list(...)
+  if (length(params) == 0L)
+    stop("grid_specs() requires at least one named parameter", call. = FALSE)
+  nms <- names(params)
+  if (is.null(nms) || any(nms == ""))
+    stop("all parameter arguments to grid_specs() must be named", call. = FALSE)
+
+  grid <- do.call(expand.grid,
+                  c(params, list(KEEP.OUT.ATTRS = FALSE,
+                                  stringsAsFactors = FALSE)))
+  out <- vector("list", nrow(grid))
+  cell_names <- character(nrow(grid))
+
+  for (i in seq_len(nrow(grid))) {
+    s <- base
+    pair_strs <- character(length(nms))
+    for (j in seq_along(nms)) {
+      s[[nms[j]]]   <- grid[i, nms[j]]
+      pair_strs[j]  <- paste0(nms[j], "=", grid[i, nms[j]])
+    }
+    if (!is.null(seed_from))
+      s$random_seed <- as.integer(seed_from) + as.integer(i) - 1L
+    cell_names[i] <- paste(pair_strs, collapse = ";")
+    out[[i]]      <- s
+  }
+
+  names(out) <- cell_names
+  out
+}
+
+#' Sample specs randomly from parameter distributions
+#'
+#' Draws `n` specs from a set of univariate distributions. Each distribution
+#' is either a numeric vector (sampled with replacement), a function of one
+#' argument `n` that returns `n` values, or a two-element list
+#' `list(runif_min, runif_max)` for uniform random draws.
+#'
+#' @param base A specs list template (see [grid_specs()]).
+#' @param n Integer. Number of specs to draw.
+#' @param ... Named distributions. See Details.
+#' @param seed Integer. Seed for the R-side sampler so the draw is
+#'   reproducible. Default `1L`.
+#' @param seed_from Integer or `NULL`. Base for each drawn spec's
+#'   `random_seed`. Default `1L`.
+#'
+#' @details
+#' Three ways to specify a distribution for each parameter:
+#'
+#' - **Vector**: `grass_rate = c(0.05, 0.1, 0.2, 0.3, 0.5)` — draws from
+#'   the vector with replacement.
+#' - **Range (list of 2)**: `mutation_sd = list(0.01, 0.1)` — uniform
+#'   draw from \[0.01, 0.1\]. Useful when the parameter is continuous.
+#' - **Function**: `plasticity_init_mean = function(n) rbeta(n, 2, 2)` —
+#'   any function that takes `n` and returns `n` values.
+#'
+#' @return A named list of specs. Names are `"sample_1"`, `"sample_2"`, …
+#'
+#' @examples
+#' \dontrun{
+#' base <- fast_specs()
+#' specs_list <- sample_specs(base, n = 500L,
+#'                            grass_rate   = list(0.05, 0.40),
+#'                            mutation_sd  = c(0.02, 0.05, 0.1),
+#'                            plasticity_init_mean = function(n) rbeta(n, 2, 2))
+#' results <- batch_alife(specs_list, n_cores = 50L)
+#' summary_tbl <- summarize_batch(results, specs_list)
+#' }
+#'
+#' @seealso [batch_alife()], [grid_specs()], [summarize_batch()]
+#' @export
+sample_specs <- function(base, n, ..., seed = 1L, seed_from = 1L) {
+  stopifnot(is.list(base), is.numeric(n), n >= 1L)
+  n <- as.integer(n)
+  dists <- list(...)
+  nms   <- names(dists)
+  if (is.null(nms) || any(nms == ""))
+    stop("all arguments to sample_specs() must be named", call. = FALSE)
+
+  set.seed(as.integer(seed))
+  drawn <- lapply(dists, function(d) {
+    if (is.function(d))                 return(d(n))
+    if (is.list(d) && length(d) == 2L)  return(runif(n, min = d[[1L]], max = d[[2L]]))
+    if (is.atomic(d))                   return(sample(d, size = n, replace = TRUE))
+    stop("unsupported distribution spec: ", deparse(d), call. = FALSE)
+  })
+
+  out <- vector("list", n)
+  for (i in seq_len(n)) {
+    s <- base
+    for (j in seq_along(nms)) s[[nms[j]]] <- drawn[[j]][i]
+    if (!is.null(seed_from))
+      s$random_seed <- as.integer(seed_from) + as.integer(i) - 1L
+    out[[i]] <- s
+  }
+  names(out) <- paste0("sample_", seq_len(n))
+  out
+}
+
+#' Summarize a batch of run results into a tidy data frame
+#'
+#' Pulls the parameter values from each spec and summary stats from the
+#' corresponding run result into a single row, returning a data frame
+#' suitable for plotting or filtering. Intended as the lightweight
+#' companion to [batch_alife()] for parameter-space exploration.
+#'
+#' @param results A list of `env` objects from [batch_alife()].
+#' @param specs_list The list of specs passed to `batch_alife()`, so the
+#'   parameter values can be recovered. Must have the same length as
+#'   `results`.
+#' @param param_names Character vector of spec field names to extract.
+#'   If `NULL` (default), infers them from the first spec by taking
+#'   every field that differs from [default_specs()].
+#' @param metrics Named list of functions. Each function takes a single
+#'   `env` and returns a scalar numeric. Default metrics: final population
+#'   size, final mean energy, final genetic diversity, viability verdict.
+#'
+#' @return A data frame with one row per run. Columns: the named
+#'   parameters, each metric, and `viability` (the verdict string).
+#'
+#' @examples
+#' \dontrun{
+#' specs_list <- sample_specs(fast_specs(), n = 100L,
+#'                            grass_rate = list(0.05, 0.4))
+#' results <- batch_alife(specs_list, n_cores = 10L)
+#' tbl <- summarize_batch(results, specs_list,
+#'                        param_names = "grass_rate")
+#' plot(tbl$grass_rate, tbl$n_final)
+#' }
+#'
+#' @seealso [batch_alife()], [grid_specs()], [sample_specs()],
+#'   [viability_report()]
+#' @export
+summarize_batch <- function(results, specs_list,
+                            param_names = NULL, metrics = NULL) {
+  stopifnot(is.list(results), is.list(specs_list),
+            length(results) == length(specs_list))
+
+  if (is.null(metrics)) {
+    metrics <- list(
+      n_final           = function(env) tail(env$progress$n_agents,          1L),
+      mean_energy_final = function(env) tail(env$progress$mean_energy,       1L),
+      diversity_final   = function(env) tail(env$progress$genetic_diversity, 1L)
+    )
+  }
+
+  if (is.null(param_names)) {
+    def <- default_specs()
+    first <- specs_list[[1L]]
+    candidates <- intersect(names(first), names(def))
+    param_names <- candidates[vapply(candidates, function(nm) {
+      v <- first[[nm]]
+      d <- def[[nm]]
+      is.atomic(v) && length(v) == 1L &&
+        !isTRUE(all.equal(v, d, check.attributes = FALSE))
+    }, logical(1L))]
+  }
+
+  row <- function(i) {
+    s   <- specs_list[[i]]
+    env <- results[[i]]
+    p   <- setNames(lapply(param_names, function(nm) s[[nm]]), param_names)
+    m   <- setNames(lapply(metrics, function(f) {
+      out <- tryCatch(f(env), error = function(e) NA_real_)
+      if (length(out) != 1L) NA_real_ else as.numeric(out)
+    }), names(metrics))
+    viab <- if (!is.null(env$viability)) env$viability$verdict else NA_character_
+    as.data.frame(c(p, m, list(viability = viab)),
+                  stringsAsFactors = FALSE)
+  }
+
+  do.call(rbind, lapply(seq_along(results), row))
+}
+
 # ── Internal helpers ──────────────────────────────────────────────────────────
 
 #' Validate a specs list before sending to Julia
