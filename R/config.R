@@ -1261,3 +1261,82 @@ full_specs <- function() {
   s$grid_cols     <- 30L
   s
 }
+
+#' Fast-generation specs for evolutionary scenarios
+#'
+#' Returns [default_specs()] calibrated for **fast generational
+#' turnover** — 66 generations in 2000 ticks (vs ~2.6 at defaults).
+#' Use this preset whenever the scenario tests a prediction about
+#' **trait evolution across generations** (plasticity, Baldwin effect,
+#' mimicry, mating systems, dispersal evolution, etc.).
+#'
+#' The timescale calibration is based on the MATLAB ancestor's
+#' parameters (Bulitko 2023), which ran ~40x faster generations than
+#' clade's defaults because agents started at reproduction energy with
+#' short `minReproductionAge`. See `dev/docs/timescale-analysis.md` for
+#' the full analysis.
+#'
+#' @details
+#' Key changes from `default_specs()`:
+#' \describe{
+#'   \item{`max_age`}{30L (vs 200L). Short lifespan forces generational
+#'     turnover at a biologically realistic rate for a small organism
+#'     (e.g., Drosophila, small rodent).}
+#'   \item{`min_repro_energy`}{60 (vs 120). Lower threshold means agents
+#'     breed after ~10 ticks of foraging, not ~100.}
+#'   \item{`min_repro_age`}{3L (vs 0L). Minimum maturation age prevents
+#'     newborn-immediately-reproducing artefacts.}
+#'   \item{`grass_rate`}{0.20 (vs 0.05). Adequate food to sustain a
+#'     viable population of ~65 agents with fast turnover.}
+#'   \item{`max_ticks`}{2000L. At gen time ~30 ticks, this gives ~66
+#'     generations — adequate for most evolutionary predictions.}
+#'   \item{`n_agents_init`}{80L. Moderate starting population.}
+#'   \item{`max_agents`}{400L. Room for population growth.}
+#'   \item{`grid_rows`, `grid_cols`}{30L. Standard grid.}
+#' }
+#'
+#' @return A specs list calibrated for fast evolutionary dynamics.
+#' @seealso [default_specs()], [slow_specs()], [quick_specs()]
+#' @export
+fast_specs <- function() {
+  s <- default_specs()
+  s$max_age          <- 30L
+  s$min_repro_energy <- 60.0
+  s$min_repro_age    <- 3L
+  s$grass_rate       <- 0.20
+  s$n_agents_init    <- 80L
+  s$max_agents       <- 400L
+  s$grid_rows        <- 30L
+  s$grid_cols        <- 30L
+  s$max_ticks        <- 2000L
+  s
+}
+
+#' Slow-generation specs for long-lived organism scenarios
+#'
+#' Returns [default_specs()] calibrated for **long-lived organisms**
+#' (elephant, whale, large primate). Generation time ~50 ticks;
+#' requires longer runs (10000+ ticks) for meaningful evolution.
+#'
+#' @details
+#' \describe{
+#'   \item{`max_age`}{200L (same as default). Long lifespan.}
+#'   \item{`min_repro_energy`}{150 (vs 120). High parental investment.}
+#'   \item{`min_repro_age`}{20L. Late maturation.}
+#'   \item{`max_ticks`}{10000L. At gen time ~200, gives ~50 generations.}
+#' }
+#'
+#' @return A specs list calibrated for K-strategist organisms.
+#' @seealso [default_specs()], [fast_specs()]
+#' @export
+slow_specs <- function() {
+  s <- default_specs()
+  s$max_age          <- 200L
+  s$min_repro_energy <- 150.0
+  s$min_repro_age    <- 20L
+  s$grass_rate       <- 0.10
+  s$n_agents_init    <- 100L
+  s$max_agents       <- 500L
+  s$max_ticks        <- 10000L
+  s
+}
