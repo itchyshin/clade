@@ -63,7 +63,7 @@ s$plasticity_mutation_sd         <- 0.1405
 s$grass_rate                     <- 0.0264
 # env <- run_alife(s)   # uncomment to run the calibrated regime
 ```
-```{r fig-plasticity, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="0.4.2 audit (4 seeds × 1500 ticks, brain_energy_sigma_scale=0.05, bnn_sigma_source='trait'). Seasonal environments (red) maintain slightly higher plasticity than stable (blue) — the DeWitt-Scheiner direction (P1 PASS). Magnitudes are modest (Δdelta ≈ +0.002). Both environments drift slightly upward rather than the stable env canalising, because clade's sigma also mediates behavioural variance — a shared kernel-limitation caveat with s-baldwin."}
+```{r fig-plasticity, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Before/after kernel fix comparison (3 seeds × 800 ticks). LEFT: pre-0.4.0 with sigma from heterozygosity — both environments are flat (plasticity doesn't evolve). RIGHT: post-0.4.1 with bnn_sigma_source='trait' + brain_energy_sigma_scale=0.05 — seasonal environments (orange) maintain slightly higher plasticity than stable (blue). The direction is correct (DeWitt-Scheiner 2004) but the magnitude is modest (Δdelta ≈ 0.002) — 🟠 kernel-limited."}
 FIG("22_plasticity")
 ```
 
