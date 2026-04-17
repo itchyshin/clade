@@ -208,11 +208,32 @@ res_me <- search_map_elites(
 )
 ```
 
-Both algorithms use the PSOCK path internally in 0.5.6+. For
-**long** MAP-Elites runs (>> 10 k evals), wrap the call in a
-`stream_specs_to_csv()` style harness by saving the archive
-periodically — checkpoint/resume native to the search functions is
-on the roadmap.
+Both algorithms use the PSOCK path internally in 0.5.6+.
+
+**Checkpoint/resume for long MAP-Elites runs** (new in 0.5.6):
+pass `checkpoint_path` and the current archive + history + iteration
+index are saved as an RDS every `checkpoint_every` iterations (and
+once more at the end). If the process dies, re-running the *same
+call* picks up from the saved iteration:
+
+```{r me-checkpoint}
+res_me <- search_map_elites(
+  base_specs       = fast_specs(),
+  archive_dims     = list(mean_energy = seq(40, 120, length.out = 10L),
+                          genetic_diversity = seq(0.1, 1, length.out = 10L)),
+  n_iterations     = 100000L,
+  mutation_sd      = 0.2,
+  n_cores          = 20L,
+  checkpoint_path  = "/scratch/me_archive.rds",
+  checkpoint_every = 500L
+)
+# If this dies at iter 73,421, just run the same call again — it
+# resumes at 73,421 + 1 and runs to 100,000.
+```
+
+The checkpoint RDS is also useful mid-run for exploratory analysis
+— you can `readRDS()` the file from another R session and plot the
+current archive without interrupting the search.
 
 ## How big can I go on one machine?
 
@@ -230,18 +251,47 @@ The `n_cores` cap on this machine is 200 (see `CLAUDE.md`). Beyond
 
 ## How big can I go on a cluster?
 
-Not directly — the `future.batchtools` / `rslurm` adapter is not
-currently wired into `clade`. The pragmatic path meanwhile:
+`submit_sweep_slurm()` (new in 0.5.6) writes a SLURM array-job
+template for you. It does not submit — you run `sbatch` yourself —
+but it handles the mechanical parts: splitting `specs_list` into
+chunks, writing a per-task R script that reads `SLURM_ARRAY_TASK_ID`
+and processes the right slice, and pointing every task at the same
+resume-safe CSV.
 
-1. Write a small SLURM array script that invokes `Rscript -e
-   'clade::stream_specs_to_csv(...)'` with a subset of `specs_list`
-   per array task. Point all array tasks at the same `out_path` CSV
-   (on a shared filesystem). Resume makes the shared-write safe.
-2. Submit with `sbatch --array=1-100 my_script.sh`.
+```{r slurm}
+specs_list <- sample_specs(fast_specs(), n = 100000L,
+                           grass_rate  = list(0.05, 0.45),
+                           mutation_sd = c(0.05, 0.1, 0.2))
 
-Half-day of integration work wraps this up into
-`clade::submit_sweep_slurm(specs_list, ...)`. Open an issue if you
-have a SLURM target and want it prioritised.
+submit_sweep_slurm(
+  specs_list,
+  out_path         = "/shared/sweeps/big_sweep.csv",
+  script_path      = "/shared/sweeps/submit.sh",
+  rds_path         = "/shared/sweeps/specs.rds",
+  n_array_tasks    = 200L,
+  n_cores_per_task = 8L,
+  time             = "12:00:00",
+  mem              = "16G"
+)
+# prints:  sbatch /shared/sweeps/submit.sh
+```
+
+Each array task:
+
+1. Reads the task index from `SLURM_ARRAY_TASK_ID`.
+2. Loads its slice of `specs_list` from the shared RDS.
+3. Runs `stream_specs_to_csv()` on that slice at `n_cores_per_task`
+   cores with `resume = TRUE`.
+
+Resume-safe CSV + chunked specs means preempted or stalled tasks
+can be re-run without re-processing completed specs. For a
+100 k-run sweep split 200 ways, each task processes 500 specs —
+at 5 s/run × 8 cores = ~5 min per task if everything goes right, so
+even a 10-minute SLURM slot per task with a re-queue is tolerant.
+
+Not currently wired: `future.batchtools` (alternative backend
+abstraction) and a `clustermq` adapter. Open an issue if you'd
+rather use those.
 
 ## Viability guard
 
