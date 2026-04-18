@@ -392,11 +392,12 @@ get_brain_weights <- function(env, agent_id = 1L, layer = NULL) {
 
 #' Reconstruct a species tree from a logged simulation
 #'
-#' `species_tree()` is a placeholder. Phylogenetic reconstruction requires
-#' the speciation module (Phase 2), which assigns agents to discrete
-#' species, tracks lineage splits, and emits a per-tick species log. None
-#' of that machinery is in place yet, so this function currently returns a
-#' stub for forward compatibility.
+#' `species_tree()` is a placeholder. The speciation module
+#' (`specs$speciation = TRUE`) assigns agents to clusters each tick and
+#' logs a cluster count, but doesn't retain the pairwise genetic
+#' distances or lineage-split history needed for phylogenetic
+#' reconstruction. None of that extended machinery is in place yet, so
+#' this function currently returns a stub for forward compatibility.
 #'
 #' @param run_data A list returned by [get_run_data()].
 #'
@@ -422,9 +423,12 @@ species_tree <- function(run_data) {
   list(
     tree = NULL,
     note = paste0(
-      "Species-tree reconstruction is not yet implemented. It requires ",
-      "the speciation module (Phase 2), which is not currently active in ",
-      "clade. The function is provided as a forward-compatible stub."
+      "Species-tree reconstruction is not yet implemented. The speciation ",
+      "module (`specs$speciation = TRUE`) produces a cluster count per tick ",
+      "(`n_species`) but does not retain pairwise genetic distances or ",
+      "parentage needed for a phylogenetic tree. `species_tree()` is a ",
+      "forward-compatible stub; build trees from `$agents$parent_id` + ",
+      "`compute_relatedness()` manually if needed."
     )
   )
 }
