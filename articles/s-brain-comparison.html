@@ -175,10 +175,9 @@ across 25 R+Julia worker sessions, summarised into a tidy table with
 tooling.</p>
 <p><strong>Two unimplemented reserved names.</strong>
 <code>"transformer"</code> and <code>"synthesis"</code> are listed in
-<code><a href="../reference/default_specs.html">?default_specs</a></code> as reserved brain-type names, but the Julia
-kernel errors with <em>“planned for later phases”</em>. They are
-<strong>not</strong> benchmarkable as of 0.5.6; this vignette covers the
-five working types.</p>
+<code><a href="../reference/default_specs.html">?default_specs</a></code> as reserved names only — the Julia kernel
+errors with <em>“‘transformer’ and ‘synthesis’ are reserved names, not
+implemented”</em>. This vignette covers the five working types.</p>
 <p><strong>Reproducible example.</strong> The code below is the same
 <code>dev/benchmarks/brain_comparison.R</code> runner used to produce
 the figure, distilled to a readable form:</p>

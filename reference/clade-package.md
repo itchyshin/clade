@@ -83,7 +83,7 @@ Set `specs$brain_type`:
 ### Citation
 
 Nakagawa, S. (2026). clade: Agent-based evolutionary simulation with a
-Julia backend. R package version 0.3.0.
+Julia backend. R package version 0.5.6.
 <https://github.com/itchyshin/clade>
 
 ## See also

@@ -28,9 +28,9 @@ for the surrounding tooling.
 **Two unimplemented reserved names.** `"transformer"` and `"synthesis"`
 are listed in
 [`?default_specs`](https://itchyshin.github.io/clade/reference/default_specs.md)
-as reserved brain-type names, but the Julia kernel errors with *“planned
-for later phases”*. They are **not** benchmarkable as of 0.5.6; this
-vignette covers the five working types.
+as reserved names only — the Julia kernel errors with *“‘transformer’
+and ‘synthesis’ are reserved names, not implemented”*. This vignette
+covers the five working types.
 
 **Reproducible example.** The code below is the same
 `dev/benchmarks/brain_comparison.R` runner used to produce the figure,
