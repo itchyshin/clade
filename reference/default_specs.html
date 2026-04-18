@@ -167,6 +167,16 @@ rejected if this is exceeded (default 500).</p></dd>
 <dt><code>max_ticks</code></dt>
 <dd><p>Integer. Simulation length in ticks (default 500).</p></dd>
 
+<dt><code>wall_density</code></dt>
+<dd><p>Numeric in [0, 1]. Fraction of grid cells
+that are non-traversable walls (default 0 = open grid). Walls
+block movement and foraging.</p></dd>
+
+<dt><code>wall_clusters</code></dt>
+<dd><p>Logical. If <code>TRUE</code> (default), walls are
+laid out in contiguous clumps; if <code>FALSE</code>, walls are scattered
+cell-by-cell. Only relevant when <code>wall_density &gt; 0</code>.</p></dd>
+
 
 </dl></div>
 
@@ -333,6 +343,28 @@ complexity: <code>"none"</code> (default), <code>"weight_magnitude"</code> (L1: 
 <dd><p>Numeric. Scale factor for the
 regularisation penalty (default 0.001). Too large a value will cause
 all weights to collapse to zero within a few ticks.</p></dd>
+
+<dt><code>bnn_sigma_init</code></dt>
+<dd><p>Numeric. Initial posterior SD for BNN weights
+when <code>bnn_sigma_source = "fixed"</code> or <code>"heterozygosity"</code> (default 0.1).</p></dd>
+
+<dt><code>bnn_sigma_min</code></dt>
+<dd><p>Numeric. Floor on per-weight BNN sigma (default
+0.01). Prevents the posterior collapsing to a point estimate under
+strong canalisation.</p></dd>
+
+<dt><code>bnn_sigma_source</code></dt>
+<dd><p>Character. How BNN posterior sigma is derived
+at each genome expression: <code>"heterozygosity"</code> (default; sigma =
+|mat - pat| / 2 = half parental-allele difference), <code>"fixed"</code> (always
+<code>bnn_sigma_init</code>), or <code>"trait"</code> (sigma = TRAIT_PLASTICITY). Added
+0.4.0 Tier 5A.</p></dd>
+
+<dt><code>bnn_sample_freq</code></dt>
+<dd><p>Integer. Ticks between BNN Thompson resample
+(default 1L). With <code>rl_mode = "actor_critic"</code>, setting this to 5
+lets REINFORCE gradients accumulate before the next resample.
+Added 0.4.0 Tier 5B.</p></dd>
 
 
 </dl></div>
@@ -550,6 +582,26 @@ Reference: Baldwin (1896) <em>American Naturalist</em> 30:441–451;
 Weismann (1892) <em>Das Keimplasma</em>; Jablonka &amp; Lamb (2005) <em>Evolution
 in Four Dimensions</em>, MIT Press.</p></dd>
 
+<dt><code>phenotypic_plasticity</code></dt>
+<dd><p>Logical. Enable heritable plasticity
+trait (default <code>FALSE</code>). Gates the DeWitt &amp; Scheiner 2004 pathway.</p></dd>
+
+<dt><code>plasticity_init_mean</code></dt>
+<dd><p>Numeric. Starting mean of the plasticity
+trait (default 0.3).</p></dd>
+
+<dt><code>plasticity_mutation_sd</code></dt>
+<dd><p>Numeric. Per-offspring mutation SD on
+the plasticity trait (default 0.05).</p></dd>
+
+<dt><code>plasticity_min</code>, <code>plasticity_max</code></dt>
+<dd><p>Numeric clamps for the
+heritable plasticity trait (default 0 / 1).</p></dd>
+
+<dt><code>plasticity_sense_radius</code></dt>
+<dd><p>Integer. Sensory-radius bonus when
+plasticity is high (default 1L). Unused at plasticity = 0.</p></dd>
+
 
 </dl></div>
 
@@ -627,6 +679,27 @@ weights (default 0.1).</p></dd>
 <dt><code>predator_max_agents</code></dt>
 <dd><p>Integer. Hard cap on predator population
 (default 50L). Named <code>max_predators</code> in docs before 0.5.6.</p></dd>
+
+<dt><code>predator_max_age</code></dt>
+<dd><p>Integer. Predator-specific maximum age
+(default 100L — predators typically outlive prey: owl &gt; mouse).
+Added 0.5.6.</p></dd>
+
+<dt><code>predator_min_repro_energy</code></dt>
+<dd><p>Numeric. Energy threshold for
+predator reproduction (default 200).</p></dd>
+
+<dt><code>predator_min_repro_age</code></dt>
+<dd><p>Integer. Minimum predator age before
+reproduction (default 20L).</p></dd>
+
+<dt><code>predator_move_energy</code></dt>
+<dd><p>Numeric. Energy deducted per predator
+move (default 1.0).</p></dd>
+
+<dt><code>predator_live_energy</code></dt>
+<dd><p>Numeric. Per-tick passive energy cost
+for each live predator (default 0.5).</p></dd>
 
 <dt><code>predator_sense_graded</code></dt>
 <dd><p>Logical. If <code>TRUE</code> (default, 0.4.2),
@@ -800,6 +873,16 @@ boost (e.g. <code>brain_size = 2.0</code> → 1.23× multiplier). No effect when
 
 <dt><code>aging_rate_max</code></dt>
 <dd><p>Numeric. Maximum (default 10.0).</p></dd>
+
+<dt><code>senescence_shape</code></dt>
+<dd><p>Numeric. Shape parameter of the Gompertz
+senescence hazard curve (default 0). Higher values make age-hazard
+steeper. 0 = no age-dependent mortality beyond <code>max_age</code>.</p></dd>
+
+<dt><code>max_age_scales_with_metabolism</code></dt>
+<dd><p>Logical. If <code>TRUE</code>, effective
+lifespan scales inversely with metabolic rate (pace-of-life
+syndrome, Réale et al. 2010). Default <code>FALSE</code>. Added 0.4.0 Tier 2.</p></dd>
 
 
 </dl></div>
@@ -1002,6 +1085,92 @@ brain hypothesis.</p></dd>
 <dd><p>Integer. How many ticks the
 neonatal foraging deficit applies for (default 10L).</p></dd>
 
+<dt><code>parental_investment_evolution</code></dt>
+<dd><p>Logical. Enable Trivers 1972
+quality-quantity trade-off (default <code>FALSE</code>). Couples
+<code>parental_investment_init_mean</code> to per-offspring energy allocation.</p></dd>
+
+<dt><code>parental_investment_init_mean</code></dt>
+<dd><p>Numeric in [0, 1]. Initial
+per-offspring investment fraction (default 0.5).</p></dd>
+
+<dt><code>female_investment</code></dt>
+<dd><p>Numeric in [0, 1]. Fraction of offspring
+energy cost paid by the mother (default 1.0; 0.5 = equal). Added
+0.4.0 Tier 3.</p></dd>
+
+<dt><code>male_repro_cost</code></dt>
+<dd><p>Numeric. Per-offspring energy cost paid by
+the father when <code>female_investment &lt; 1</code> (default 0.0).</p></dd>
+
+<dt><code>cooperative_breeding</code></dt>
+<dd><p>Logical. Enable helper-at-the-nest
+dynamics (default <code>FALSE</code>).</p></dd>
+
+<dt><code>helper_tendency_init_mean</code></dt>
+<dd><p>Numeric in [0, 1]. Heritable
+willingness to help (default 0.2).</p></dd>
+
+<dt><code>helper_tendency_mutation_sd</code></dt>
+<dd><p>Numeric. Mutation SD on the
+helper trait (default 0.05).</p></dd>
+
+<dt><code>helper_transfer</code></dt>
+<dd><p>Numeric. Energy transferred per helping event
+(default 3.0).</p></dd>
+
+<dt><code>helper_kin_threshold</code></dt>
+<dd><p>Numeric. Minimum relatedness for a
+helping attempt (default 0.125 = half-siblings).</p></dd>
+
+<dt><code>helper_min_energy</code></dt>
+<dd><p>Numeric. Minimum helper energy before a
+transfer is refused (default 60.0).</p></dd>
+
+
+</dl></div>
+
+<div class="section">
+<h3 id="clutch-size-evolution">Clutch size evolution<a class="anchor" aria-label="anchor" href="#clutch-size-evolution"></a></h3>
+
+
+<p>Lack (1947) r/K clutch-size evolution.</p>
+<dl><dt><code>clutch_size_evolution</code></dt>
+<dd><p>Logical. Enable heritable clutch size
+(default <code>FALSE</code>).</p></dd>
+
+<dt><code>clutch_size_init_mean</code></dt>
+<dd><p>Numeric. Initial mean clutch size
+(default 1.0).</p></dd>
+
+<dt><code>clutch_size_min</code>, <code>clutch_size_max</code></dt>
+<dd><p>Integer clamps (default
+1L / 5L).</p></dd>
+
+<dt><code>clutch_size_mutation_sd</code></dt>
+<dd><p>Numeric. Mutation SD (default 0.3).</p></dd>
+
+
+</dl></div>
+
+<div class="section">
+<h3 id="stress-hypermutation">Stress hypermutation<a class="anchor" aria-label="anchor" href="#stress-hypermutation"></a></h3>
+
+
+<p>Rosenberg (2001), Foster (2007): under low energy ("stress"), mutation
+rate rises transiently. Controlled by three specs:</p>
+<dl><dt><code>stress_hypermutation</code></dt>
+<dd><p>Logical. Enable stress-induced
+hypermutation (default <code>FALSE</code>).</p></dd>
+
+<dt><code>stress_threshold</code></dt>
+<dd><p>Numeric. Energy below which an agent is
+considered "stressed" (default 20.0).</p></dd>
+
+<dt><code>stress_mutation_multiplier</code></dt>
+<dd><p>Numeric. Per-tick multiplier
+applied to <code>mutation_sd</code> when an agent is stressed (default 5.0).</p></dd>
+
 
 </dl></div>
 
@@ -1029,6 +1198,32 @@ toxicity value so predators can learn a reliable honest
 aposematic signal. Required to close the Bates (1862) /
 Müller (1879) feedback loop in clade. Active only when
 <code>mimicry = TRUE</code> and <code>signal_dims &gt; 0</code>. Added 0.4.4.</p></dd>
+
+<dt><code>signal_drift_sd</code></dt>
+<dd><p>Numeric. Neutral drift SD applied per-tick to
+an agent's signal vector (default 0). At 0 the signal is fixed at
+birth; &gt; 0 lets signals drift within-lifetime.</p></dd>
+
+<dt><code>signal_evolution_drift</code></dt>
+<dd><p>Numeric. Inter-generational drift SD
+on the inherited signal (default 0). Separate from the sensory
+mutation rate.</p></dd>
+
+<dt><code>signal_memory_rate</code></dt>
+<dd><p>Numeric. Rate at which predator memory
+updates toward observed prey signals (default 0.1). Relevant only
+when <code>mimicry = TRUE</code> and predators are present.</p></dd>
+
+<dt><code>mate_choice_mode</code></dt>
+<dd><p>Character. Mate-choice rule: <code>"random"</code>
+(default), <code>"preference"</code> (choose on signal dot-product with own
+evolved preference vector), or <code>"highest_signal"</code> (pick the
+highest-magnitude signal neighbour).</p></dd>
+
+<dt><code>mate_choice_strength</code></dt>
+<dd><p>Numeric in [0, 1]. Soft-max sharpness
+on the mate-choice score (default 0.7). At 1, choice is greedy; at
+0, uniform random.</p></dd>
 
 
 </dl></div>
@@ -1099,6 +1294,31 @@ mimicry via Rescorla-Wagner learning in predators.
 Reference: Rescorla &amp; Wagner (1972) A theory of Pavlovian conditioning,
 in <em>Classical Conditioning II</em>, Appleton-Century-Crofts, pp 64–99.</p></dd>
 
+<dt><code>batesian_mimicry</code></dt>
+<dd><p>Logical. Enable Batesian mimicry branch
+(default <code>FALSE</code>): palatable prey (<code>toxicity = 0</code>) can exploit the
+predator's learned aversion to toxic signals. Predator-betrayal
+decay prevents runaway cheating. Active only when <code>mimicry = TRUE</code>.</p></dd>
+
+<dt><code>toxicity_init_mean</code></dt>
+<dd><p>Numeric. Starting toxicity (default 0).</p></dd>
+
+<dt><code>toxicity_mutation_sd</code></dt>
+<dd><p>Numeric. Mutation SD on the toxicity
+trait (default 0.05).</p></dd>
+
+<dt><code>toxicity_cost_per_tick</code></dt>
+<dd><p>Numeric. Per-tick energy cost paid by
+agents with <code>toxicity &gt; 0</code> (default 2.0; Zahavi handicap).</p></dd>
+
+<dt><code>toxin_dose</code></dt>
+<dd><p>Numeric. Damage dealt to the attacker per unit
+of prey toxicity (default 2.0).</p></dd>
+
+<dt><code>avoid_threshold</code></dt>
+<dd><p>Numeric. Predator-memory value above which
+the predator chooses to avoid the prey (default 0.3).</p></dd>
+
 
 </dl></div>
 
@@ -1128,6 +1348,13 @@ shelter unit per tick when eligible (default 0.1).</p></dd>
 <dd><p>Numeric in [0, 1]. Per-tick probability that
 each shelter unit decays (default 0.05).</p></dd>
 
+<dt><code>shelter_occupancy_bonus</code></dt>
+<dd><p>Numeric. Energy bonus per tick per
+unit shelter depth for agents occupying a sheltered cell (default
+0, meaning shelters don't feed their occupants). Heritable
+niche-construction amplifier in the Odling-Smee et al. 2003 sense.
+Added 0.3.0.</p></dd>
+
 
 </dl></div>
 
@@ -1153,6 +1380,11 @@ carrion that decomposes (default 0.1).</p></dd>
 <dd><p>Numeric. Energy gained per unit of carrion
 consumed (default 3).</p></dd>
 
+<dt><code>carrion_transmission_prob</code></dt>
+<dd><p>Numeric in [0, 1]. Probability
+that a scavenger feeding on infected carrion contracts the disease
+(default 0; active only when <code>disease = TRUE</code> and <code>scavenging = TRUE</code>). Cross-module fomite-transmission pathway.</p></dd>
+
 
 </dl></div>
 
@@ -1168,6 +1400,18 @@ Reference: Foster &amp; Treherne (1981) Evidence for the dilution effect in
 the selfish herd from fish predation on a marine insect,
 <em>Nature</em> 293:466–467.</p></dd>
 
+<dt><code>group_defense_radius</code></dt>
+<dd><p>Integer. Moore radius for counting
+neighbours when computing per-prey dilution (default 2L = 5×5
+neighbourhood).</p></dd>
+
+<dt><code>group_defense_strength</code></dt>
+<dd><p>Numeric in [0, 1]. Maximum fraction
+of predator attack success reduced under maximum grouping
+(default 0.3). 2026-04-17 audit found the population-level effect
+inverts Hamilton 1971 at all tested values — see
+<code>dev/audit/fidelity/group_defense_strength_sweep.R</code>.</p></dd>
+
 
 </dl></div>
 
@@ -1182,6 +1426,30 @@ density; agents are attracted to cells matching their preference.
 Reference: Fretwell &amp; Lucas (1970) On territorial behavior and other
 factors influencing habitat distribution in birds,
 <em>Acta Biotheoretica</em> 19(1):16–36.</p></dd>
+
+<dt><code>habitat_preference_init_mean</code></dt>
+<dd><p>Numeric in [-1, 1]. Initial mean
+preference (default 0 — no preference). Negative values = prefer
+low-grass cells; positive = prefer high-grass.</p></dd>
+
+<dt><code>habitat_preference_mutation_sd</code></dt>
+<dd><p>Numeric. Mutation SD on the
+preference trait (default 0.05).</p></dd>
+
+<dt><code>habitat_preference_min</code>, <code>habitat_preference_max</code></dt>
+<dd><p>Numeric
+clamps (default -1 / 1).</p></dd>
+
+<dt><code>habitat_preference_strength</code></dt>
+<dd><p>Numeric in [0, ∞). Scales the
+probability that an agent attempts a preference-directed move per
+tick (default 0.5). The 2026-04-17 audit found that the default is
+below the drift floor; <code>strength = 2.0</code> is required for a detectable
+Fretwell-Lucas signal at 5 seeds.</p></dd>
+
+<dt><code>habitat_move_cost</code></dt>
+<dd><p>Numeric. Energy cost of a preference-directed
+move (default 0, meaning the move is free).</p></dd>
 
 
 </dl></div>
@@ -1222,6 +1490,11 @@ Species</em>, Princeton UP.</p></dd>
 <dd><p>Numeric. Maximum genome distance for
 successful mating (default 0.45). Species are inferred by hierarchical
 clustering of genome distances at each logging tick.</p></dd>
+
+<dt><code>speciation_cluster_interval</code></dt>
+<dd><p>Integer. Ticks between species-
+count recomputations (default 10L). Reducing this improves temporal
+resolution of the <code>n_species</code> log at a CPU cost.</p></dd>
 
 
 </dl></div>
