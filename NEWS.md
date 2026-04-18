@@ -1,3 +1,65 @@
+# clade 0.5.10 (2026-04-18, late-late evening)
+
+## Major kernel fix — `_find_mate` was structurally asexual by default
+
+Continued investigation of the 0.5.9 sigma-pegging bug traced the
+problem deeper than the selfing fallback. In
+`inst/julia/src/reproduce.jl:_find_mate` there was a short-circuit:
+
+```julia
+if specs["ploidy"] == 1 || Int(get(specs, "signal_dims", 0)) == 0
+    return nothing     # haploid / no-signal-choice → asexual
+end
+```
+
+`signal_dims = 0` is the **default** for every scenario except
+s-signals. The effect was that every supposedly-diploid run in
+clade has been producing structurally-haploid offspring (`pat_w =
+Float32[]` at every birth), regardless of `ploidy = 2`. The entire
+diploid pathway was a no-op unless signal evolution was explicitly
+turned on.
+
+## The fix (0.5.10)
+
+1. **Removed the `signal_dims == 0` short-circuit** in `_find_mate`.
+   When signal evolution is off but `ploidy == 2`, the function now
+   picks a random live neighbour as mate (sexual reproduction without
+   mate choice — the default for any non-signal-evolving species).
+2. **New spec `mate_search_radius`** (default 1, i.e. 3×3 Moore).
+   `2` gives 5×5, `3` gives 7×7. Useful for lowering Allee-failure
+   rate on sparse grids.
+
+## Audit implications — the ledger is softer than yesterday
+
+The bug silently invalidated every sex-vs-asex, heritability, and
+heterozygosity-dependent audit. Results from 0.5.10 so far:
+
+- **s-plasticity / s-baldwin**: sigma now evolves (0.21 → 0.33) instead
+  of pegged at `bnn_sigma_init = 0.5`, but direction is REVERSED:
+  stable > seasonal at Δ = −0.027, t = −1.41. DeWitt 2004 /
+  Hinton-Nowlan canonical prediction (seasonal > stable) is NOT
+  reproduced at tested parameters. Scenarios remain 🟠 but with
+  updated framing: kernel bug was hiding a real direction-mismatch.
+- **s-mating-systems**: the previous "sex ≈ asex" result was measuring
+  asex-vs-asex noise because of the bug. With real diploid sex
+  enabled, sex is catastrophically viability-negative (Δn = −88,
+  t = −29; 20/32 sex seeds crashed). Clade's reproduction-cost
+  parameters are **not currently calibrated for viable real sex**.
+  Hamilton 1980 Red Queen cannot be tested until the sex-cost
+  calibration is done.
+
+## Caveat on the overall ledger
+
+The 27 ✅ / 5 🟠 / 3 ⚪ ledger from 0.5.9 should be read with
+awareness that every `ploidy = 2` scenario pre-0.5.10 was running
+on effectively-haploid kernel dynamics. Scenarios whose claims are
+demographic or ecological (s-baseline, s-predator-prey, s-disease,
+etc.) are largely unaffected — the bug didn't change what the agent
+brain ate, only which kind of offspring it produced. But scenarios
+claiming heritability, heterozygosity, pedigree-based kin selection,
+or sex-specific effects may need re-auditing now that diploid sex
+actually works.
+
 # clade 0.5.9 (2026-04-18, late evening)
 
 ## Kernel bug: silent haploid conversion under mate-finding failure

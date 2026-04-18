@@ -1123,6 +1123,13 @@ default_specs <- function() {
                                            # the offspring effectively haploid.
                                            # Required for evolved-heterozygosity
                                            # audits (s-plasticity, s-baldwin).
+    mate_search_radius     = 1L,           # 0.5.10: radius of Moore search for
+                                           # a mate (1 = 3x3, 2 = 5x5, 3 = 7x7).
+                                           # Increasing this reduces Allee-
+                                           # failure rate on sparse grids so
+                                           # diploid sexual reproduction
+                                           # operates reliably without the
+                                           # selfing fallback kicking in.
 
     # ── Mutation ───────────────────────────────────────────────────────────
     mutation_sd                = 0.1,

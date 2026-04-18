@@ -27,6 +27,8 @@ build_spec <- function(ploidy, seed) {
   s <- realistic_specs()
   s$ploidy                      <- as.integer(ploidy)
   s$crossover_rate              <- if (ploidy == 2L) 0.5 else 0.0
+  s$mate_search_radius          <- 1L    # 0.5.10: default with bug fix
+                                          # = real sex at Moore-8 range
   s$coevolving_parasites        <- TRUE
   s$n_parasite_loci             <- 16L
   s$parasite_pressure           <- 2.0

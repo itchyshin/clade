@@ -880,7 +880,7 @@ Rscript -e %s
     "juvenile_independence_age", "max_clutch_size", "signal_dims", "n_genes",
     "transformer_history", "transformer_heads", "synthesis_max_rules",
     "rl_update_freq", "social_learning_freq", "season_length", "log_freq",
-    "fixed_patch_radius"
+    "fixed_patch_radius", "mate_search_radius"
   )
   for (nm in int_fields) {
     if (!is.null(specs[[nm]])) specs[[nm]] <- as.integer(specs[[nm]])

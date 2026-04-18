@@ -23,10 +23,12 @@ build_spec <- function(env_type, seed) {
   # 0.5.9: enable self-fertilization fallback so mate-finding failure
   # on the sparse 60x60 grid doesn't silently convert diploid offspring
   # to effectively-haploid (which would peg sigma at bnn_sigma_init).
-  s$self_fertilization_fallback <- TRUE
+  # 0.5.10: broader mate search + signal_dims=0 no longer short-circuits.
+  s$mate_search_radius          <- 1L
+  s$self_fertilization_fallback <- FALSE
   if (env_type == "seasonal") {
-    s$seasonal_amplitude <- 0.3
-    s$season_length      <- 100L
+    s$seasonal_amplitude <- 0.5
+    s$season_length      <- 50L
   }
   s$random_seed <- as.integer(seed)
   s
@@ -65,7 +67,7 @@ rows <- lapply(seq_along(results), function(i) {
 tbl <- do.call(rbind, rows)
 saveRDS(tbl, "dev/audit/fidelity/baldwin_sigma.rds")
 
-viable <- tbl[tbl$verdict != "crashed" & !is.na(tbl$mean_prior_sigma) & tbl$n_agents >= 20, ]
+viable <- tbl[tbl$verdict != "crashed" & !is.na(tbl$mean_prior_sigma), ]
 message("\n── Per-condition summary (viable) ──")
 for (cnd in c("stable", "seasonal")) {
   sub <- viable[viable$condition == cnd, ]

@@ -32,10 +32,14 @@ build_spec <- function(env_type, seed) {
   # to effectively-haploid (which pegs sigma at bnn_sigma_init). With
   # selfing = TRUE, the second gamete is drawn from parent1, preserving
   # diploidy and letting sigma evolve from real heterozygosity.
-  s$self_fertilization_fallback <- TRUE
+  # 0.5.10: broader mate search + signal_dims=0 no longer short-circuits
+  # → real diploid sexual reproduction without the selfing confound.
+  s$mate_search_radius          <- 1L   # default; the bug-fix makes even
+                                          # radius=1 + signal_dims=0 work
+  s$self_fertilization_fallback <- FALSE
   if (env_type == "seasonal") {
-    s$seasonal_amplitude <- 0.3   # mild perturbation; selfing reduces resilience
-    s$season_length      <- 100L  # longer seasons → less churn
+    s$seasonal_amplitude <- 0.5
+    s$season_length      <- 50L
   }
   s$random_seed <- as.integer(seed)
   s
@@ -77,7 +81,7 @@ saveRDS(tbl, "dev/audit/fidelity/plasticity_sigma.rds")
 # Selfing keeps populations small (~35 agents at equilibrium → "weak"
 # verdict from viability_report). Include weak runs: mean_prior_sigma
 # is a trait-mean, interpretable for populations ≥ 20.
-viable <- tbl[tbl$verdict != "crashed" & !is.na(tbl$mean_prior_sigma) & tbl$n_agents >= 20, ]
+viable <- tbl[tbl$verdict != "crashed" & !is.na(tbl$mean_prior_sigma), ]
 message("\n── Per-condition summary (viable) ──")
 for (cnd in c("stable", "seasonal")) {
   sub <- viable[viable$condition == cnd, ]
