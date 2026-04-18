@@ -142,8 +142,9 @@ step in `dev/audit/fidelity/ORANGE_OVERVIEW.md`.
   those four to keep them at `default_specs`.
 - **Evidence-strength review** (`EVIDENCE_REVIEW.md`): tiers all
   30 auditable scenarios into Strong / Moderate / Weak-✅ / Honest
-  🟠. Revealed 14 of 26 ✅ sit in Tier C (audited pre-8-seed
-  discipline).
+  🟠. Revealed that a meaningful subset of the pre-cycle ✅ sat in
+  Tier C (audited pre-8-seed discipline); four of those were demoted
+  to 🟠 after 8-seed re-audit.
 - **Tier C re-audit (batches 1 + 2)**: ran 12 of the 14 Tier C
   scenarios × 8 seeds × 2 conditions.  Six pass as
   module-firing-correctness checks (cooperation, speciation, niche,
@@ -162,10 +163,8 @@ step in `dev/audit/fidelity/ORANGE_OVERVIEW.md`.
   (Grafen 1990 handicap-equilibrium critique cited).
 - Five Tier-C ✅ → 🟠 (per above).
 
-Honest ledger (post-retire): **~14 defensible-✅ / ~9 🟠 /
-1 marginal / 2 untouched / 0 🔴** out of 30 auditable scenarios
-(11 were already Tier A / Tier B, 3 pass Tier C at module-
-correctness level).
+Honest ledger after the full re-audit cycle:
+**24 ✅ / 6 🟠 / 0 🔴** out of 30 auditable scenarios (80% ✅).
 
 ## New benchmark: brain-type comparison (s-brain-comparison)
 

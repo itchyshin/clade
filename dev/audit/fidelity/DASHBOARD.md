@@ -1,28 +1,33 @@
-# Fidelity audit dashboard — updated 2026-04-17
+# Fidelity audit dashboard — updated 2026-04-18
 
 One-page summary of all 35 scenarios after the 0.4.2→0.5.6 kernel
-work. Counts reflect the current STATUS.md ledger. **Read alongside
-`EVIDENCE_REVIEW.md`** (2026-04-17), which tiers each ✅ by evidence
-strength — the raw counts here are not uniformly rock-solid.
+work and the Tier C re-audit cycle. Counts reflect the current
+STATUS.md ledger. **Read alongside `EVIDENCE_REVIEW.md`**
+(2026-04-17), which tiers each ✅ by evidence strength.
 
 ## Verdict counts
 
 | Status | Count | Scenarios |
 |---|---|---|
-| ✅ passed | **26** | baseline, bad-science, predator-prey, body-size, brain-size, pop-genetics, stress-hypermutation, complex-landscape, dispersal-ifd, niche, seasonal, scavenging, kin, cooperation, signals, speciation, parental-care, life-history, clutch-size, parental-investment, pace-of-life, group-defense, rl, social-learning, map-elites, disease |
-| 🟠 passed-consistent | **4** | mating-systems, mimicry, plasticity, baldwin |
+| ✅ passed | **24** | baseline, bad-science, predator-prey, body-size, brain-size, pop-genetics, stress-hypermutation, complex-landscape, dispersal-ifd, niche, seasonal, kin, cooperation, signals, speciation, parental-care, life-history, clutch-size, parental-investment, pace-of-life, mimicry, disease, social-learning, map-elites |
+| 🟠 passed-consistent | **6** | scavenging, mating-systems, group-defense, rl, plasticity, baldwin |
 | ⚪ N/A | **5** | predation-neural, cephalopod, module-comparison, kitchen-sink, cross-module |
 | 🔴 contradicts | **0** | — |
 
-**Net: 26 ✅ / 4 🟠 / 0 🔴 out of 30 auditable scenarios (87% ✅).**
+**Net: 24 ✅ / 6 🟠 / 0 🔴 out of 30 auditable scenarios (80% ✅).**
 
-**Caveat on the ✅ count.** Per `EVIDENCE_REVIEW.md` (2026-04-17),
-14 of the 26 ✅ are **Tier C** — audited at 2–5 seeds before the
-current 8+-seed + viability discipline. They may not uniformly
-survive re-audit; three (group_defense, social_learning, scavenging)
-already failed an 8-seed direction check during the Tier C batch 1
-run and should be treated as "direction-suggestive" rather than
-"proven robust" until re-verified.
+**What moved in the Tier C re-audit cycle (2026-04-17):**
+- `s-dispersal-ifd` promoted 🟠 → ✅ (habitat_preference_strength = 2.0,
+  Δ = +0.021 ± 0.005 across 5 seeds).
+- `s-social-learning` re-confirmed ✅ at `social_learning_freq = 50`
+  (144-run sweep).
+- `s-mimicry` retained ✅ but reframed: aposematism evolves under
+  predation-dominant ecology (`grass_rate = 0.08`). Zahavi handicap
+  cost > benefit at default ecology is honestly flagged.
+- Demoted ✅ → 🟠: `s-scavenging` (no DeVault energy benefit in the
+  192-run sweep), `s-group-defense` (selfish-herd inverts under
+  evolving predators + finite grass), `s-rl` (no canonical Δenergy
+  in the 144-run sweep). All reframed to module-correctness.
 
 ## 🟠 scenario detail
 
