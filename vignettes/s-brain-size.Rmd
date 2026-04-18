@@ -102,10 +102,10 @@ base$brain_size_mutation_sd <- 0.08  # faster evolution
 base$brain_size_cost_scale  <- 5.0   # steep metabolic burden
 
 # Condition 1: brain size WITH parental care (care buffers infancy)
-s_care              <- base
-s_care$parental_care  <- TRUE
-s_care$care_duration  <- 20L
-s_care$feeding_rate   <- 4.0
+s_care                             <- base
+s_care$parental_care               <- TRUE
+s_care$juvenile_independence_age   <- 20L  # was `care_duration` in docs <0.5.6
+s_care$feeding_rate                <- 4.0
 
 # Condition 2: brain size WITHOUT parental care (bootstrapping fails)
 s_no_care           <- base

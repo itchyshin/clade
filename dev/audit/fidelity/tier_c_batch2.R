@@ -106,7 +106,7 @@ message("\n=== [3/6] parental-care ===")
 pc_make <- function(care, seed) {
   s <- default_specs()
   s$parental_care      <- care
-  s$care_duration      <- 5L
+  s$juvenile_independence_age <- 5L
   s$care_cost_per_tick <- 2.0
   s$max_ticks          <- 400L
   s$random_seed        <- as.integer(seed)

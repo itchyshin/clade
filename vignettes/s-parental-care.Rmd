@@ -19,17 +19,19 @@ FIG <- function(name, ...) {
 ### Parental care
 
 **What it models.** Offspring are carried by the parent until graduation at age
-`care_duration`. While carried, juveniles receive energy from the parent at
-`feeding_rate` per tick. If the parent dies, carried offspring die too
-(obligate altriciality). This models the evolutionary trade-off between clutch
-size and offspring quality (Smith & Fretwell 1974).
+`juvenile_independence_age` (or earlier if they reach
+`juvenile_independence_energy`). While carried, juveniles receive energy from
+the parent at `feeding_rate` per tick. If the parent dies, carried offspring
+die too (obligate altriciality). This models the evolutionary trade-off
+between clutch size and offspring quality (Smith & Fretwell 1974).
 
 **Key parameters.**
 
 | Parameter | Default | Effect |
 |---|---|---|
 | `parental_care` | FALSE | Enable parental care |
-| `care_duration` | 5 | Ticks offspring are carried |
+| `juvenile_independence_age` | 10L | Ticks offspring are carried. Replaces pre-0.4.0 `care_duration`. |
+| `juvenile_independence_energy` | 50.0 | Energy level at which juvenile graduates early |
 | `care_cost_per_tick` | 1.0 | Energy drained from parent per juvenile per tick |
 | `feeding_rate` | 5.0 | Energy transferred to juvenile per tick |
 
@@ -39,10 +41,10 @@ higher. Population dynamics are more buffered.
 
 ```{r parental-care}
 s <- default_specs()
-s$parental_care     <- TRUE
-s$care_duration     <- 5L
-s$care_cost_per_tick <- 2.0
-s$max_ticks         <- 300L
+s$parental_care                <- TRUE
+s$juvenile_independence_age    <- 5L    # was `care_duration` in docs <0.5.6
+s$care_cost_per_tick           <- 2.0
+s$max_ticks                    <- 300L
 
 env  <- run_alife(s)
 data <- get_run_data(env)

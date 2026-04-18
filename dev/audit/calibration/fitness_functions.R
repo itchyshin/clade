@@ -81,7 +81,7 @@ fitness_registry[["s-social-learning"]] <- list(
 
 fitness_registry[["s-brain-size"]] <- list(
   params     = c("brain_size_cost_scale", "brain_size_sensing_exponent"),
-  specs_mods = function(s) { s$brain_size_evolution <- TRUE; s$parental_care <- TRUE; s$care_duration <- 15L; s$max_ticks <- 300L; s },
+  specs_mods = function(s) { s$brain_size_evolution <- TRUE; s$parental_care <- TRUE; s$juvenile_independence_age <- 15L; s$max_ticks <- 300L; s },
   fitness    = function(env) {
     x <- .safe_traj(env, "mean_brain_size"); if (!length(x)) return(-Inf)
     el <- .early_late(x); if (any(is.na(el))) return(-Inf)
@@ -130,7 +130,7 @@ fitness_registry[["s-cooperation"]] <- list(
 
 fitness_registry[["s-parental-care"]] <- list(
   params     = c("feeding_rate", "care_cost_per_tick"),
-  specs_mods = function(s) { s$parental_care <- TRUE; s$care_duration <- 10L; s$max_ticks <- 300L; s },
+  specs_mods = function(s) { s$parental_care <- TRUE; s$juvenile_independence_age <- 10L; s$max_ticks <- 300L; s },
   fitness    = function(env) {
     j <- .safe_traj(env, "n_juveniles"); a <- .safe_traj(env, "n_agents")
     if (!length(j) || !length(a)) return(-Inf)
