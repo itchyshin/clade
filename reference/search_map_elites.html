@@ -138,7 +138,6 @@ each cell holds the best-performing specs for that behavioural region.</p>
 <span>  objective <span class="op">=</span> <span class="st">"genetic_diversity"</span>,</span>
 <span>  mutation_params <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  mutation_sd <span class="op">=</span> <span class="fl">0.1</span>,</span>
-<span>  n_cores <span class="op">=</span> <span class="fl">1L</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  checkpoint_path <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  checkpoint_every <span class="op">=</span> <span class="fl">100L</span></span>
@@ -179,10 +178,6 @@ If a function, must accept an <code>env</code> list and return a numeric scalar.
 <dt id="arg-mutation-sd">mutation_sd<a class="anchor" aria-label="anchor" href="#arg-mutation-sd"></a></dt>
 <dd><p>Numeric. Standard deviation of Gaussian perturbations to
 log-transformed parameter values (default 0.1).</p></dd>
-
-
-<dt id="arg-n-cores">n_cores<a class="anchor" aria-label="anchor" href="#arg-n-cores"></a></dt>
-<dd><p>Integer. Parallel cores for batch evaluation (default 1L).</p></dd>
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>

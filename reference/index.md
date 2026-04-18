@@ -52,7 +52,7 @@ Extract tidy output and produce plots.
 - [`plot_diversity()`](https://itchyshin.github.io/clade/reference/plot_diversity.md)
   : Plot genetic diversity over the run
 - [`plot_signal_evolution()`](https://itchyshin.github.io/clade/reference/plot_signal_evolution.md)
-  : Plot signal evolution (Phase 2 placeholder)
+  : Plot evolution of mean signal magnitude over ticks
 - [`plot_disease_dynamics()`](https://itchyshin.github.io/clade/reference/plot_disease_dynamics.md)
   : Plot disease dynamics over time
 - [`plot_body_size_evolution()`](https://itchyshin.github.io/clade/reference/plot_body_size_evolution.md)
@@ -60,7 +60,7 @@ Extract tidy output and produce plots.
 - [`plot_dispersal_events()`](https://itchyshin.github.io/clade/reference/plot_dispersal_events.md)
   : Plot natal dispersal events over time
 - [`plot_kin_network()`](https://itchyshin.github.io/clade/reference/plot_kin_network.md)
-  : Plot kin network (Phase 2 placeholder)
+  : Plot kin network (not yet implemented — placeholder)
 - [`plot_dead_agents()`](https://itchyshin.github.io/clade/reference/plot_dead_agents.md)
   : Plot lifetime statistics of dead agents
 - [`plot_genome_diversity()`](https://itchyshin.github.io/clade/reference/plot_genome_diversity.md)

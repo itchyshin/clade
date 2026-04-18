@@ -2,6 +2,51 @@
 
 ## clade 0.5.6 (2026-04-17)
 
+### Hygiene pass (late 0.5.6)
+
+Applied the four karpathy-skills coding principles (Think Before Coding
+/ Simplicity First / Surgical Changes / Goal-Driven Execution) to a
+review sweep of the public API. Findings and fixes:
+
+- **[`plot_signal_evolution()`](https://itchyshin.github.io/clade/reference/plot_signal_evolution.md)**
+  — was a documented “Phase 2 placeholder” returning an empty plot.
+  Implemented properly: now draws `mean_signal_magnitude` vs tick using
+  the column that’s already logged for `s-signals`. Returns an
+  empty-state plot when the column is absent or all-zero. No breaking
+  change.
+- **[`plot_kin_network()`](https://itchyshin.github.io/clade/reference/plot_kin_network.md)**
+  — remains a placeholder (igraph is not a clade dependency). Docstring
+  rewritten to flag this loudly so anyone autocompleting the function
+  sees “not yet implemented” before trying to use it.
+- **`search_gradient(n_cores)`** — previously documented as “Reserved
+  for future parallel finite-difference evaluation; currently unused”.
+  Now *actually uses* `n_cores` via a single PSOCK cluster reused across
+  gradient steps. Finite-difference is embarrassingly parallel:
+  `length(params) + 1` independent evaluations per step. No API change.
+- **`search_map_elites(n_cores)` removed** — the argument was accepted
+  but silently ignored (the MAP-Elites loop is inherently serial because
+  each candidate’s parent is selected from the current archive). Callers
+  passing `n_cores` to this function now error, which is correct:
+  previously they were lied to. If you want parallelism across
+  MAP-Elites *searches*, use
+  `batch_alife(list_of_search_calls, n_cores = N)` externally.
+- **`search_viability(n_cores)`** — added. Every
+  `(param_x, param_y) × replicate` combination is independent; grid now
+  parallelises via PSOCK. Backward-compatible (default `n_cores = 1L`).
+  Also flattened the evaluation loop so parallelism works across both
+  grid cells AND replicate seeds, not just one.
+- **Julia brain-type error message** — was “Transformer and Synthesis
+  are planned for later phases” (promises implementation that isn’t
+  coming in 0.5.x). Now: “‘transformer’ and ‘synthesis’ are reserved
+  names, not implemented.” Matches the corrected R-side doc.
+- **`s-rl` vignette** — retracted the 3-seed bnn_sample_freq = 5 claim
+  (superseded by today’s 8-seed 144-run sweep that didn’t reproduce it).
+  The earlier 3-seed audit block is removed; the 2026-04-17 sweep +
+  diagnosis is the authoritative section.
+
+Plus the CLAUDE.md integration of the four karpathy principles at the
+top of the file, each with a clade-specific application note.
+
 Substantial multi-PR day covering timescale presets, 🟠-sort work, a new
 audit-methodology utility, a working parallel scenario-search toolkit,
 three kernel bug fixes, and a head-to-head brain-type benchmark. 22+ PRs

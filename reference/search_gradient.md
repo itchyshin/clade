@@ -55,8 +55,13 @@ search_gradient(
 
 - n_cores:
 
-  Integer. Reserved for future parallel finite-difference evaluation;
-  currently unused (default 1L).
+  Integer. Parallel cores for finite-difference evaluation (default 1L).
+  Finite-difference gradient needs `length(params) + 1` evaluations per
+  step, which are embarrassingly parallel. When `> 1`, runs them across
+  a
+  [`parallel::makeCluster()`](https://rdrr.io/r/parallel/makeCluster.html)
+  PSOCK cluster (each worker an R session + Julia). Cluster is created
+  once per call and reused across steps. 0.5.6.
 
 - verbose:
 

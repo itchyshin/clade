@@ -140,6 +140,7 @@ region" of parameter space before running CMA-ES or MAP-Elites inside it.</p>
 <span>  n_reps <span class="op">=</span> <span class="fl">3L</span>,</span>
 <span>  survival_threshold <span class="op">=</span> <span class="fl">0.1</span>,</span>
 <span>  objective <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  n_cores <span class="op">=</span> <span class="fl">1L</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -184,6 +185,13 @@ survive for a run to count as viable (default 0.1).</p></dd>
 <dd><p>Character or function or <code>NULL</code>. If supplied, the mean
 objective score across surviving replicates is added as column
 <code>mean_objective</code> (default <code>NULL</code>).</p></dd>
+
+
+<dt id="arg-n-cores">n_cores<a class="anchor" aria-label="anchor" href="#arg-n-cores"></a></dt>
+<dd><p>Integer. Parallel cores for cell evaluation (default 1L).
+Every <code>(param_x, param_y) × replicate</code> combination is independent, so
+the grid runs across a <code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">parallel::makeCluster()</a></code> PSOCK cluster when
+<code>&gt; 1</code>. Added 0.5.6.</p></dd>
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>

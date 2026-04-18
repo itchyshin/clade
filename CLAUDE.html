@@ -119,6 +119,50 @@
 
 <p>Guidance for Claude Code (and other LLM assistants) working in this repository.</p>
 <div class="section level2">
+<h2 id="coding-principles">Coding principles<a class="anchor" aria-label="anchor" href="#coding-principles"></a></h2>
+<p>Bias toward caution over speed. For trivial edits, use judgment; for anything substantive, these four hold. Adapted from the karpathy-skills <code>CLAUDE.md</code> (<a href="https://github.com/forrestchang/andrej-karpathy-skills" class="external-link uri">https://github.com/forrestchang/andrej-karpathy-skills</a>).</p>
+<div class="section level3">
+<h3 id="id_1-think-before-coding">1. Think before coding<a class="anchor" aria-label="anchor" href="#id_1-think-before-coding"></a></h3>
+<p>Don’t assume. Don’t hide confusion. Surface tradeoffs.</p>
+<ul><li>State assumptions explicitly; if uncertain, ask.</li>
+<li>If multiple interpretations exist, present them — don’t pick silently.</li>
+<li>If a simpler approach exists, say so. Push back when warranted.</li>
+<li>If something is unclear, stop. Name what’s confusing. Ask.</li>
+</ul><p>In this repo this particularly means: when an audit result is ambiguous, flag the ambiguity instead of forcing a PASS/FAIL verdict; when an R-spec change implies a Julia-side change (or vice versa), say so before editing either side.</p>
+</div>
+<div class="section level3">
+<h3 id="id_2-simplicity-first">2. Simplicity first<a class="anchor" aria-label="anchor" href="#id_2-simplicity-first"></a></h3>
+<p>Minimum code that solves the problem. Nothing speculative.</p>
+<ul><li>No features beyond what was asked.</li>
+<li>No abstractions for single-use code.</li>
+<li>No configurability that wasn’t requested.</li>
+<li>No error handling for impossible scenarios.</li>
+<li>If you wrote 200 lines and it could be 50, rewrite it.</li>
+</ul><p>In this repo: don’t add new spec fields “for flexibility”. A new spec is a commitment we have to test, document, and maintain forever.</p>
+</div>
+<div class="section level3">
+<h3 id="id_3-surgical-changes">3. Surgical changes<a class="anchor" aria-label="anchor" href="#id_3-surgical-changes"></a></h3>
+<p>Touch only what you must. Clean up only your own mess.</p>
+<ul><li>Don’t “improve” adjacent code, comments, or formatting.</li>
+<li>Don’t refactor things that aren’t broken.</li>
+<li>Match existing style, even if you’d do it differently.</li>
+<li>If you notice unrelated dead code, mention it — don’t delete it.</li>
+<li>Remove imports/variables/functions <em>your</em> changes made unused. Don’t remove pre-existing dead code unless asked.</li>
+</ul><p>In this repo: when fixing a single vignette or audit report, don’t sweep nearby files for “related” issues in the same commit — separate PRs. And don’t hand-edit <code>NAMESPACE</code> or <code>man/*.Rd</code>; run <code><a href="https://devtools.r-lib.org/reference/document.html" class="external-link">devtools::document()</a></code> and commit the generated output.</p>
+</div>
+<div class="section level3">
+<h3 id="id_4-goal-driven-execution">4. Goal-driven execution<a class="anchor" aria-label="anchor" href="#id_4-goal-driven-execution"></a></h3>
+<p>Define success criteria. Loop until verified.</p>
+<ul><li>“Add X” → “Write a test for X, then make it pass.”</li>
+<li>“Fix the bug” → “Write a test that reproduces it, then make it pass.”</li>
+<li>“Refactor X” → “Ensure tests pass before and after.”</li>
+</ul><p>For multi-step tasks, state a brief plan:</p>
+<pre><code>1. [step] → verify: [check]
+2. [step] → verify: [check]</code></pre>
+<p>In this repo: audit claims need 8+ seeds + <code><a href="reference/viability_report.html">viability_report()</a></code> guard before being called PASS; kernel changes need the relevant <code>tests/testthat/test-*.R</code> to still be green; figure regenerations should reproduce their claimed Δ before being pushed.</p>
+</div>
+</div>
+<div class="section level2">
 <h2 id="project-overview">Project overview<a class="anchor" aria-label="anchor" href="#project-overview"></a></h2>
 <p><strong>clade</strong> is an R package providing an agent-based evolutionary simulation with a Julia backend. R is the user-facing interface (specs, runs, analysis, plots); the per-tick simulation kernel lives in Julia and is called once per <code><a href="reference/run_alife.html">run_alife()</a></code> via <code>JuliaConnectoR</code>, so the R↔︎Julia boundary is crossed once per run, not per tick.</p>
 <p>Key facts: - R package layout (<code>DESCRIPTION</code>, <code>NAMESPACE</code>, <code>R/</code>, <code>man/</code>, <code>tests/testthat/</code>, <code>vignettes/</code>). - Julia kernel under <code>inst/julia/</code> (own <code>Project.toml</code>/<code>Manifest.toml</code>, sources in <code>inst/julia/src/</code>). - Cached simulation outputs in <code>Rdata/*.rds</code> (used by vignettes/figures so they render without re-running). - pkgdown site config: <code>_pkgdown.yml</code>. Docs published at <a href="https://itchyshin.github.io/clade/" class="uri">https://itchyshin.github.io/clade/</a>.</p>
@@ -171,7 +215,7 @@
 <div class="section level2">
 <h2 id="common-commands">Common commands<a class="anchor" aria-label="anchor" href="#common-commands"></a></h2>
 <p>R-side (run from repo root):</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Load package for interactive dev (no install required)</span></span>
 <span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/load_all.html" class="external-link">load_all</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
@@ -190,7 +234,7 @@
 <span><span class="co"># Build pkgdown site locally (writes to docs/, gitignored)</span></span>
 <span><span class="fu">pkgdown</span><span class="fu">::</span><span class="fu"><a href="https://pkgdown.r-lib.org/reference/build_site.html" class="external-link">build_site</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Quick smoke run:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/">clade</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="reference/julia_is_ready.html">julia_is_ready</a></span><span class="op">(</span><span class="op">)</span>         <span class="co"># first call compiles Julia kernel (~60–90 s)</span></span>
 <span><span class="va">specs</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -199,8 +243,8 @@
 <span><span class="va">env</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="va">specs</span><span class="op">)</span></span>
 <span><span class="fu"><a href="reference/plot_run.html">plot_run</a></span><span class="op">(</span><span class="fu"><a href="reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Julia-side (only needed for kernel debugging):</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="bu">cd</span> inst/julia</span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="ex">julia</span> <span class="at">--project</span><span class="op">=</span>. <span class="at">-e</span> <span class="st">'using Pkg; Pkg.instantiate()'</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="bu">cd</span> inst/julia</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="ex">julia</span> <span class="at">--project</span><span class="op">=</span>. <span class="at">-e</span> <span class="st">'using Pkg; Pkg.instantiate()'</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="conventions">Conventions<a class="anchor" aria-label="anchor" href="#conventions"></a></h2>

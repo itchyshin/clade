@@ -18,6 +18,7 @@ search_viability(
   n_reps = 3L,
   survival_threshold = 0.1,
   objective = NULL,
+  n_cores = 1L,
   verbose = TRUE
 )
 ```
@@ -61,6 +62,14 @@ search_viability(
   Character or function or `NULL`. If supplied, the mean objective score
   across surviving replicates is added as column `mean_objective`
   (default `NULL`).
+
+- n_cores:
+
+  Integer. Parallel cores for cell evaluation (default 1L). Every
+  `(param_x, param_y) × replicate` combination is independent, so the
+  grid runs across a
+  [`parallel::makeCluster()`](https://rdrr.io/r/parallel/makeCluster.html)
+  PSOCK cluster when `> 1`. Added 0.5.6.
 
 - verbose:
 

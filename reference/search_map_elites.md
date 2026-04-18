@@ -16,7 +16,6 @@ search_map_elites(
   objective = "genetic_diversity",
   mutation_params = NULL,
   mutation_sd = 0.1,
-  n_cores = 1L,
   verbose = TRUE,
   checkpoint_path = NULL,
   checkpoint_every = 100L
@@ -58,10 +57,6 @@ search_map_elites(
 
   Numeric. Standard deviation of Gaussian perturbations to
   log-transformed parameter values (default 0.1).
-
-- n_cores:
-
-  Integer. Parallel cores for batch evaluation (default 1L).
 
 - verbose:
 

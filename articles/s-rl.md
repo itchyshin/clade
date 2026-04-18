@@ -69,39 +69,17 @@ persists long enough for gradients to compound — Δn = +5.2 (✅). At
 freq=20 the sample is too rigid and populations crash. Scenarios
 combining BNN brains with rl_mode=‘actor_critic’ should use freq=5.
 
-**What we found (updated 2026-04-16, 0.4.1 audit → ✅ at
-bnn_sample_freq=5).**
+**Earlier audit (2026-04-16, since superseded).** A 3-seed sweep over
+`bnn_sample_freq ∈ {1, 5, 20}` reported Δn = +5.2 agents at freq = 5,
+and the scenario was labelled ✅ at that regime. The 2026-04-17 8-seed ×
+3×3 `rl_update_freq × learning_rate` sweep (above) did not reproduce a
+significant positive Δ at any tested cell, so the earlier 3-seed claim
+is retracted. The current honest position is documented in the paragraph
+above.
 
-*Pre-0.4.0 baseline.* Running RL vs no-RL with `bnn_sample_freq = 1`
-(the old default): mean population 208 vs 207; mean energy 124.8 vs
-124.85 — essentially null. The REINFORCE gradient was being overwritten
-every tick when the BNN resampled its weights from the prior, so no
-learning accumulated across ticks.
-
-*0.4.0 Tier 5B fix.* The spec `bnn_sample_freq` now controls how often
-the BNN resamples: at `freq = 1` the legacy per-tick resample still
-washes out updates, but at `freq ≥ 5` the sample persists long enough
-for REINFORCE deltas to compound. The audit swept
-`bnn_sample_freq ∈ {1, 5, 20}` × 3 seeds × 500 ticks:
-
-| bnn_sample_freq | Δn (RL on − RL off) | Δe   |
-|-----------------|---------------------|------|
-| 1               | −1.2                | +0.8 |
-| **5**           | **+5.2**            | −2.6 |
-| 20              | +0.6                | −0.2 |
-
-At `freq = 5` the Williams 1992 benefit finally appears: RL-on
-populations sustain +5.2 more agents (+2.6% of ~200) than RL-off, with a
-small energy-redistribution trade-off (agents use energy for
-reproduction rather than standing stock). At `freq = 1` the gradient
-washes out; at `freq = 20` the sample is too rigid and populations
-crash. `freq = 5` is the middle-path regime.
-
-**Verdict ✅ at `bnn_sample_freq = 5`.** Scenarios combining BNN brains
-with `rl_mode = "actor_critic"` should explicitly set this. The Baldwin
-canalization interaction is documented separately in
+The Baldwin canalisation interaction is documented separately in
 [s-baldwin](https://itchyshin.github.io/clade/articles/s-baldwin.md) —
-sigma coupling to behavioural variance creates the kernel-limitation
+sigma coupling to behavioural variance creates a kernel-limitation
 caveat, which is independent of the RL gradient channel.
 
 ### Discovery experiments
