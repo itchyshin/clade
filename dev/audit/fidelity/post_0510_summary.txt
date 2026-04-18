@@ -1,0 +1,19 @@
+post-0.5.10 diploid-sensitive ledger check — 2026-04-18 07:26:20
+
+clade version:  0.5.9 
+
+[pop_genetics          ] 43s wall | 0 verdict lines
+  (no verdict lines captured — see script output)
+
+[speciation            ] 80s wall | 0 verdict lines
+  (no verdict lines captured — see script output)
+
+[kin                   ] 122s wall | 0 verdict lines
+  (no verdict lines captured — see script output)
+
+[cooperation           ] 116s wall | 0 verdict lines
+  (no verdict lines captured — see script output)
+
+[brain_size            ] 59s wall | 0 verdict lines
+  (no verdict lines captured — see script output)
+

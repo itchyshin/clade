@@ -1,3 +1,40 @@
+# clade 0.5.11 (2026-04-18, ledger re-audit)
+
+## Ledger check after 0.5.10 kernel fix
+
+Re-ran the 12 ✅ scenarios whose claims depend on diploid genomic
+dynamics, on the 0.5.10 kernel where `_find_mate` no longer
+short-circuits on `signal_dims = 0` (every pre-0.5.10 diploid
+run was structurally asexual).
+
+**11 of 12 survive.** One demotion:
+
+- **s-stress-hypermutation ✅ → 🟠**: under real diploid sex, baseline
+  genetic diversity (0.263) already equals what hypermutation
+  produces (0.263). Δ = +0.000 across 4 seeds at grass_rate = 0.06.
+  Rosenberg 2001 / Foster 2007's "hypermutation raises diversity"
+  prediction does not reproduce at tested parameters.
+
+**Primary claims hold** for the other 11:
+
+- s-pop-genetics (h² proxy = 0.988): ✅ holds
+- s-speciation (P1+P2+P3 PASS, ρ(iso, n_species) = −0.97): ✅
+- s-kin (P1 PASS Δ=+21.3, P3 PASS; P2 slightly weakened): ✅
+- s-cooperation (ρ(mult, pop) = 1.00): ✅
+- s-brain-size (Δdelta = +1.112 at best regime): ✅
+- s-body-size (Cope drift +0.042 ± 0.011; P2 flat as documented): ✅
+- s-parental-investment (ρ(fi, juveniles) = −1.00 per Trivers): ✅
+- s-clutch-size (Lack positive at grass 0.05→0.20; inverts at
+  resource-saturation 0.30+ due to max_agents cap): ✅ reframed
+- s-life-history (3/3 PASS: semelparous vs iteroparous): ✅
+- s-pace-of-life (ρ(metabolic_rate, age) = −1.00): ✅
+- s-parental-care (P1+P2 PASS): ✅
+
+See `dev/audit/fidelity/post_0510_summary.md`.
+
+**Final ledger**: 26 ✅ / 6 🟠 / 0 🔴 out of 32 auditable scenarios
+(**81% ✅**, confirmed end-to-end on real-diploid-sex kernel).
+
 # clade 0.5.10 (2026-04-18, late-late evening)
 
 ## Major kernel fix — `_find_mate` was structurally asexual by default

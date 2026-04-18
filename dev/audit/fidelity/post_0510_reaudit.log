@@ -1,0 +1,203 @@
+=== pop_genetics ===
+── heritability proxy on body_size (3 seeds, 500 ticks)
+  seed 1
+  seed 2
+  seed 3
+
+Lag-1 autocorrelation (h² proxy): 0.988 ± 0.009 across 3 seeds
+P1 (h² proxy > 0.5, strong heritability): PASS
+Mean body_size drift over 500 ticks: 0.021 ± 0.018
+Wrote dev/audit/fidelity/figs/pop_genetics.png
+=== speciation ===
+── Step 1: default mutation_sd=0.1 vs aggressive 0.3 at iso=0.15
+  default mut=0.1 seed 1
+  default mut=0.1 seed 2
+  default mut=0.1 seed 3
+  aggr    mut=0.3 seed 1
+  aggr    mut=0.3 seed 2
+  aggr    mut=0.3 seed 3
+  default mut=0.1: max n_species = 180.7 ± 3.8
+  aggr    mut=0.3: max n_species = 200.0 ± 0.0
+  P1 (speciation occurs at aggressive regime): PASS
+  P2 (higher mut -> more speciation): PASS
+
+── Step 2: isolation_threshold sweep (mut_sd = 0.2)
+  iso=0.10: max n_species = 200.0 ± 0.0
+  iso=0.15: max n_species = 200.0 ± 0.0
+  iso=0.25: max n_species = 187.3 ± 4.0
+  iso=0.40: max n_species = 144.7 ± 7.5
+  iso=0.60: max n_species = 3.3 ± 0.6
+  P3 (Spearman iso vs n_species rho = -0.97, expect negative): PASS
+
+Wrote dev/audit/fidelity/figs/speciation.png
+=== kin ===
+── Step 1: baseline vs kin-ON (r_min=0.25, B=10, C=2, rB=2.5>C)
+  Baseline:       mean_n = 125.5 ± 4.6, tot_acts = 0 ± 0
+  Kin ON (rB>C):  mean_n = 146.8 ± 4.9, tot_acts = 1535 ± 55
+  P1 (kin-on > baseline under rB>C): PASS (delta = +21.3)
+
+── Step 2: kin-ON with rB<C (r_min=0.25, B=4, C=10, rB=1<C)
+  Kin ON (rB<C):  mean_n = 129.5 ± 2.7, tot_acts = 899 ± 71
+  P2 (kin-on ~ baseline or worse when rB<C): FAIL (delta = +4.0)
+
+── Step 3: r_min sweep (fixed B=10, C=2)
+  r_min=0.000: mean_n = 146.8 ± 4.9, tot_acts = 1535 ± 55
+  r_min=0.125: mean_n = 146.8 ± 4.9, tot_acts = 1535 ± 55
+  r_min=0.250: mean_n = 146.8 ± 4.9, tot_acts = 1535 ± 55
+  r_min=0.500: mean_n = 146.8 ± 4.9, tot_acts = 1535 ± 55
+  P3 (acts monotonically decrease with r_min): PASS
+
+── Step 4: cost x benefit grid (3 seeds each, r_min=0.25)
+  C= 2 B= 4 rB/C=0.50: mean_n = 134.3 ± 6.7
+  C= 5 B= 4 rB/C=0.20: mean_n = 132.9 ± 1.9
+  C=10 B= 4 rB/C=0.10: mean_n = 130.2 ± 1.0
+  C= 2 B=10 rB/C=1.25: mean_n = 146.8 ± 3.2
+  C= 5 B=10 rB/C=0.50: mean_n = 141.3 ± 1.1
+  C=10 B=10 rB/C=0.25: mean_n = 139.0 ± 2.8
+  C= 2 B=20 rB/C=2.50: mean_n = 154.0 ± 2.0
+  C= 5 B=20 rB/C=1.00: mean_n = 151.5 ± 2.2
+  C=10 B=20 rB/C=0.50: mean_n = 148.9 ± 1.2
+  P4 (Spearman rB/C vs mean_n rho = 0.88): PASS
+
+Wrote dev/audit/fidelity/figs/kin.png
+=== cooperation ===
+── Step 1: cooperation off vs on (M = 2.5, 5 seeds)
+  baseline: mean_n = 148.8
+  coop ON:  mean_n = 400.7 (ratio 2.69x)
+  P1 (coop_on > baseline * 1.2): PASS
+  Cooperation level: t=10 0.501 -> t=400 0.504 (delta +0.004)
+  P2 (tragedy of commons — small negative drift, not collapse): PASS
+
+── Step 2: multiplier sweep (coop_on, 3 seeds each)
+  M=0.5: mean_n=110.1±2.8, final_coop=0.500
+  M=1.0: mean_n=151.3±3.7, final_coop=0.507
+  M=1.5: mean_n=197.9±0.8, final_coop=0.501
+  M=2.0: mean_n=279.6±2.6, final_coop=0.514
+  M=2.5: mean_n=398.9±21.2, final_coop=0.510
+  M=3.0: mean_n=566.0±5.4, final_coop=0.504
+  M=4.0: mean_n=595.7±1.0, final_coop=0.503
+  P3 (Spearman mult vs pop rho = 1.00): PASS
+
+Wrote dev/audit/fidelity/figs/cooperation.png
+=== brain_size ===
+── brain_size grid (0.4.3): 6 combos × 2 conditions × 3 seeds
+  deficit=0.0 size_exp=1.0 care=T seed=1
+  deficit=0.0 size_exp=1.0 care=T seed=2
+  deficit=0.0 size_exp=1.0 care=T seed=3
+  deficit=0.0 size_exp=1.0 care=F seed=1
+  deficit=0.0 size_exp=1.0 care=F seed=2
+  deficit=0.0 size_exp=1.0 care=F seed=3
+  deficit=0.3 size_exp=1.0 care=T seed=1
+  deficit=0.3 size_exp=1.0 care=T seed=2
+  deficit=0.3 size_exp=1.0 care=T seed=3
+  deficit=0.3 size_exp=1.0 care=F seed=1
+  deficit=0.3 size_exp=1.0 care=F seed=2
+  deficit=0.3 size_exp=1.0 care=F seed=3
+  deficit=0.6 size_exp=1.0 care=T seed=1
+  deficit=0.6 size_exp=1.0 care=T seed=2
+  deficit=0.6 size_exp=1.0 care=T seed=3
+  deficit=0.6 size_exp=1.0 care=F seed=1
+  deficit=0.6 size_exp=1.0 care=F seed=2
+  deficit=0.6 size_exp=1.0 care=F seed=3
+  deficit=0.0 size_exp=1.5 care=T seed=1
+  deficit=0.0 size_exp=1.5 care=T seed=2
+  deficit=0.0 size_exp=1.5 care=T seed=3
+  deficit=0.0 size_exp=1.5 care=F seed=1
+  deficit=0.0 size_exp=1.5 care=F seed=2
+  deficit=0.0 size_exp=1.5 care=F seed=3
+  deficit=0.3 size_exp=1.5 care=T seed=1
+  deficit=0.3 size_exp=1.5 care=T seed=2
+  deficit=0.3 size_exp=1.5 care=T seed=3
+  deficit=0.3 size_exp=1.5 care=F seed=1
+  deficit=0.3 size_exp=1.5 care=F seed=2
+  deficit=0.3 size_exp=1.5 care=F seed=3
+  deficit=0.6 size_exp=1.5 care=T seed=1
+  deficit=0.6 size_exp=1.5 care=T seed=2
+  deficit=0.6 size_exp=1.5 care=T seed=3
+  deficit=0.6 size_exp=1.5 care=F seed=1
+  deficit=0.6 size_exp=1.5 care=F seed=2
+  deficit=0.6 size_exp=1.5 care=F seed=3
+
+Grid summary (care Δ - no-care Δ):
+  neonatal_deficit size_exp   care_delta no_care_delta  delta_delta
+6              0.6      1.5  0.011170109  -1.100780884  1.111950994
+4              0.0      1.5 -0.054208597  -0.399332841  0.345124245
+5              0.3      1.5  0.006504059  -0.066841304  0.073345363
+3              0.6      1.0  0.006852150  -0.009752870  0.016605020
+1              0.0      1.0 -0.005540133  -0.003394008 -0.002146125
+2              0.3      1.0 -0.018348177  -0.015520573 -0.002827605
+  sd_delta_delta care_final_n noc_final_n
+6     0.01249986    13.333333    0.000000
+4     0.60786969    13.000000    7.000000
+5     0.07930638     8.666667    7.333333
+3     0.03011298   152.333333  116.333333
+1     0.02210014   153.333333  133.000000
+2     0.01511405   153.000000  130.666667
+
+Best regime: deficit=0.6 size_exp=1.5  Δdelta=+1.112 ± 0.012
+P1 (parental-provisioning benefit > 0.05 at some regime): PASS
+Wrote dev/audit/fidelity/figs/brain_size.png
+=== body_size ===
+── 0.5.2 body-size P2 resolution: 16 seeds × 2 pred × 2 sensing
+  graded=FALSE n_pred= 0 seed= 1
+  graded=FALSE n_pred= 0 seed= 2
+  graded=FALSE n_pred= 0 seed= 3
+  graded=FALSE n_pred= 0 seed= 4
+  graded=FALSE n_pred= 0 seed= 5
+  graded=FALSE n_pred= 0 seed= 6
+  graded=FALSE n_pred= 0 seed= 7
+  graded=FALSE n_pred= 0 seed= 8
+  graded=FALSE n_pred= 0 seed= 9
+  graded=FALSE n_pred= 0 seed=10
+  graded=FALSE n_pred= 0 seed=11
+  graded=FALSE n_pred= 0 seed=12
+  graded=FALSE n_pred= 0 seed=13
+  graded=FALSE n_pred= 0 seed=14
+  graded=FALSE n_pred= 0 seed=15
+  graded=FALSE n_pred= 0 seed=16
+  graded=FALSE n_pred=10 seed= 1
+  graded=FALSE n_pred=10 seed= 2
+  graded=FALSE n_pred=10 seed= 3
+  graded=FALSE n_pred=10 seed= 4
+  graded=FALSE n_pred=10 seed= 5
+  graded=FALSE n_pred=10 seed= 6
+  graded=FALSE n_pred=10 seed= 7
+  graded=FALSE n_pred=10 seed= 8
+  graded=FALSE n_pred=10 seed= 9
+  graded=FALSE n_pred=10 seed=10
+  graded=FALSE n_pred=10 seed=11
+  graded=FALSE n_pred=10 seed=12
+  graded=FALSE n_pred=10 seed=13
+  graded=FALSE n_pred=10 seed=14
+  graded=FALSE n_pred=10 seed=15
+  graded=FALSE n_pred=10 seed=16
+  graded=TRUE n_pred= 0 seed= 1
+  graded=TRUE n_pred= 0 seed= 2
+  graded=TRUE n_pred= 0 seed= 3
+  graded=TRUE n_pred= 0 seed= 4
+  graded=TRUE n_pred= 0 seed= 5
+  graded=TRUE n_pred= 0 seed= 6
+  graded=TRUE n_pred= 0 seed= 7
+  graded=TRUE n_pred= 0 seed= 8
+  graded=TRUE n_pred= 0 seed= 9
+  graded=TRUE n_pred= 0 seed=10
+  graded=TRUE n_pred= 0 seed=11
+  graded=TRUE n_pred= 0 seed=12
+  graded=TRUE n_pred= 0 seed=13
+  graded=TRUE n_pred= 0 seed=14
+  graded=TRUE n_pred= 0 seed=15
+  graded=TRUE n_pred= 0 seed=16
+  graded=TRUE n_pred=10 seed= 1
+  graded=TRUE n_pred=10 seed= 2
+  graded=TRUE n_pred=10 seed= 3
+  graded=TRUE n_pred=10 seed= 4
+  graded=TRUE n_pred=10 seed= 5
+  graded=TRUE n_pred=10 seed= 6
+  graded=TRUE n_pred=10 seed= 7
+  graded=TRUE n_pred=10 seed= 8
+  graded=TRUE n_pred=10 seed= 9
+  graded=TRUE n_pred=10 seed=10
+  graded=TRUE n_pred=10 seed=11
+  graded=TRUE n_pred=10 seed=12
+  graded=TRUE n_pred=10 seed=13
+  graded=TRUE n_pred=10 seed=14
