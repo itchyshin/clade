@@ -887,7 +887,7 @@ modulation (default 0 = off). grass_rate_t = grass_rate *
 (1 + seasonal_amplitude * sin(2 * pi * t / season_length)).}
 \item{\code{season_length}}{Integer. Period of seasonal cycle in ticks
 (default 100L). Named \code{seasonal_period} in docs before 0.5.6.}
-\item{\code{winter_death_prob}}{Numeric in \link{0, 1}. Per-tick death probability
+\item{\code{winter_death_prob}}{Numeric in [0, 1]. Per-tick death probability
 during the low phase of the seasonal cycle (default 0). Only
 engages when \code{seasonal_amplitude > 0}.}
 }

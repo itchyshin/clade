@@ -195,7 +195,9 @@ res_cma <- search_cmaes(
   n_cores    = 20L
 )
 
-# MAP-Elites: quality-diversity search
+# MAP-Elites: quality-diversity search (serial — the MAP-Elites
+# loop is inherently sequential because each iteration's parent is
+# sampled from the current archive)
 res_me <- search_map_elites(
   base_specs = fast_specs(),
   params     = list(grass_rate = c(0.05, 0.45),
@@ -203,12 +205,16 @@ res_me <- search_map_elites(
   descriptors = c("grass_rate", "predator_energy_gain"),
   fitness_fn = function(env) tail(env$progress$mean_energy, 1L),
   archive_res = c(10L, 10L),
-  n_evals    = 1000L,
-  n_cores    = 20L
+  n_evals    = 1000L
 )
 ```
 
-Both algorithms use the PSOCK path internally in 0.5.6+.
+`search_cmaes()` parallelises the candidate evaluation per
+generation across the PSOCK path introduced in 0.5.6.
+`search_map_elites()` is inherently serial (each iteration's
+parent depends on the current archive); if you want to
+fan-out-run multiple MAP-Elites *searches* in parallel, wrap them
+in `batch_alife()` externally.
 
 **Checkpoint/resume for long MAP-Elites runs** (new in 0.5.6):
 pass `checkpoint_path` and the current archive + history + iteration
