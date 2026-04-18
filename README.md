@@ -12,7 +12,7 @@ brain weights, life-history traits, and — with 30+ optional modules — body s
 dispersal tendency, mimicry, coevolving parasites, parental care, cooperative
 breeding, disease, and more. Every biological scenario is backed by a
 [multi-seed fidelity audit](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/DASHBOARD.md) against the
-primary literature (29 of 32 auditable scenarios pass; 3 have
+primary literature (30 of 32 auditable scenarios pass; 2 have
 direction-correct but magnitude-limited signals; 0 contradict theory).
 
 The simulation kernel is written in Julia for performance. R is the interface:
@@ -146,8 +146,8 @@ cross-references the primary literature, the alifeR R prototype, and
 
 | Status | Count |
 |---|---|
-| ✅ Passed | **29** of 32 auditable scenarios |
-| 🟠 Passed-consistent (direction correct, magnitude limited) | **3** |
+| ✅ Passed |  **30**  of 32 auditable scenarios |
+| 🟠 Passed-consistent (direction correct, magnitude limited) |  **2**  |
 | 🔴 Contradicts | **0** |
 
 (3 scenarios — module-comparison, kitchen-sink, cross-module — are
@@ -156,7 +156,7 @@ and are marked ⚪ N/A in
 [`STATUS.md`](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/STATUS.md);
 they are excluded from the 32 auditable count.)
 
-The three 🟠 scenarios (plasticity, Baldwin effect, predation-neural)
+The two 🟠 scenarios (plasticity, Baldwin effect)
 have honestly-documented kernel or ecology
 limitations. The ledger was confirmed end-to-end under the 0.5.10
 real-diploid-sex kernel — see

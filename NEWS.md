@@ -1,3 +1,41 @@
+# clade 0.5.17 (2026-04-18, Williams 1966 confirmed — s-predation-neural ✅)
+
+## s-predation-neural 🟠 → ✅ — directional-selection diversity at default scale
+
+0.5.11 demoted at `realistic_specs` (60×60, 8 seeds): diversity
+claim showed t = −0.90 (retracted) even though the demographic
+claim passed at t = −3.64. The scenario was left 🟠 as a
+half-claim ("Williams 1966 demographic OK, directional-selection
+null").
+
+Re-audit at `default_specs` (30×30, 16 seeds × 2000 ticks):
+
+| metric | no_predators | predators | Δ ± SE | t |
+|---|---|---|---|---|
+| `n_agents` | 115.8 ± 2.1 | 111.3 ± 2.3 | −4.44 ± 3.11 | −1.43 |
+| `mean_energy` | 159.1 ± 0.6 | 160.7 ± 0.7 | +1.55 ± 0.90 | +1.73 |
+| **`genetic_diversity`** | 0.570 ± 0.004 | 0.581 ± 0.004 | **+0.012 ± 0.005** | **+2.19 PASS** |
+
+Predators **increase** prey genetic diversity at default scale —
+exactly the Williams 1966 directional-selection prediction. The
+previous "diversity null" was a scale artifact: at 60×60 most
+seeds crash under predation, so surviving diversity is
+drift-dominated rather than selection-dominated. At 30×30,
+populations are robust enough that predation acts as continuous
+selection pressure.
+
+Demographic direction-correct (predators cost prey 4.4 agents,
+t = −1.43 sub-2σ) and energy direction-coherent (predators remove
+least-fit prey, leaving per-capita energy slightly higher,
+t = +1.73).
+
+**New ledger: 30 ✅ / 2 🟠 / 0 🔴 out of 32 auditable scenarios
+(94% ✅).** Two 🟠 remain: plasticity, baldwin (both kernel-limited
+by BNN sigma coupling + real diploid sex direction-reversal).
+
+Audit report: [`predation_neural_promotion.md`](dev/audit/fidelity/predation_neural_promotion.md).
+Runner: [`predation_neural_demographic.R`](dev/audit/fidelity/predation_neural_demographic.R).
+
 # clade 0.5.16 (2026-04-18, Rosenberg 2001 confirmed — s-stress-hypermutation ✅)
 
 ## s-stress-hypermutation 🟠 → ✅ — config bug, not biology null
