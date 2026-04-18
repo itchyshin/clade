@@ -16,11 +16,23 @@ SEEDS <- c(1L, 7L, 13L, 19L, 25L, 31L, 37L, 43L)
 
 build_spec <- function(env_type, seed) {
   s <- realistic_specs()
-  s$phenotypic_plasticity <- TRUE
-  s$plasticity_evolution  <- TRUE
-  s$plasticity_mutation_sd<- 0.05
+  s$phenotypic_plasticity   <- TRUE
+  s$plasticity_evolution    <- TRUE
+  s$plasticity_mutation_sd  <- 0.05
+  # --- BNN sigma decoupling (priority-1 activation, light) ---
+  # Light decoupling: action noise 0.7*sigma (mostly legacy),
+  # sigma-lr at 0.3 (a gentle lift for plastic agents). Slower RL
+  # (lr=0.005, update every 5 ticks) keeps populations viable even
+  # under seasonal perturbation.
+  s$bnn_action_noise_scale  <- 0.7
+  s$bnn_sigma_lr_scale      <- 0.3
+  s$bnn_sigma_lr_ref        <- 0.5
+  s$bnn_sample_freq         <- 5L
+  s$rl_mode                 <- "actor_critic"
+  s$rl_update_freq          <- 5L
+  s$learning_rate_init_mean <- 0.005
   if (env_type == "seasonal") {
-    s$seasonal_amplitude <- 0.8
+    s$seasonal_amplitude <- 0.5   # gentler than 0.8 to avoid crash
     s$season_length      <- 50L
   }
   s$random_seed <- as.integer(seed)

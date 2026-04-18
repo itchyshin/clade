@@ -1,10 +1,8 @@
-# s-rl re-audit at realistic scale.
+# s-group-defense at ultra_realistic scale.
 #
-# Previous 144-run sweep (freq × lr) + 16-seed at best cell: no cell
-# gave canonical Δenergy > 0 at t ≥ 2 under fast_specs at 30×30.
-#
-# Re-audit at realistic_specs() scale + complex_landscape to give
-# RL a non-trivial foraging problem to solve.
+# At realistic_specs() (N ≈ 120), Δpop(on - off) = +10.1 at t = +1.60
+# — direction correct, sub-2σ. Selfish-herd risk dilution scales as
+# ~1/√N, so a 3× larger N should give a ~√3 ≈ 1.7× larger signal.
 
 suppressPackageStartupMessages({
   .libPaths(c("~/R/lib", .libPaths()))
@@ -15,27 +13,25 @@ suppressPackageStartupMessages({
 SEEDS <- c(1L, 7L, 13L, 19L, 25L, 31L, 37L, 43L,
            51L, 57L, 63L, 71L, 79L, 89L, 101L, 107L)
 
-build_spec <- function(mode, seed) {
-  s <- realistic_specs()
-  s$rl_mode                 <- mode
-  s$rl_update_freq          <- 5L
-  s$learning_rate_init_mean <- 0.005
-  s$complex_landscape       <- TRUE
-  # --- BNN sigma decoupling (priority-1 activation, light) ---
-  s$bnn_action_noise_scale  <- 0.7
-  s$bnn_sigma_lr_scale      <- 0.0
-  s$bnn_sample_freq         <- 5L
+build_spec <- function(gd, seed) {
+  s <- ultra_realistic_specs()
+  s$group_defense           <- gd
+  s$group_defense_strength  <- 1.0
+  s$n_predators_init        <- 80L
+  s$predator_max_agents     <- 300L
+  s$predator_energy_gain    <- 20.0
+  s$predator_attack_strength<- 40.0
   s$random_seed             <- as.integer(seed)
   s
 }
 
 specs_list <- c(
-  lapply(SEEDS, function(sd) build_spec("actor_critic", sd)),
-  lapply(SEEDS, function(sd) build_spec("none",         sd))
+  lapply(SEEDS, function(sd) build_spec(TRUE,  sd)),
+  lapply(SEEDS, function(sd) build_spec(FALSE, sd))
 )
-conditions <- c(rep("ac", length(SEEDS)), rep("none", length(SEEDS)))
+conditions <- c(rep("gd_on", length(SEEDS)), rep("gd_off", length(SEEDS)))
 
-message(sprintf("Running %d specs (2 conds x 8 seeds) at realistic scale...",
+message(sprintf("Running %d specs (2 conds x 16 seeds) at ultra scale...",
                 length(specs_list)))
 t0 <- Sys.time()
 results <- batch_alife(specs_list, n_cores = length(specs_list))
@@ -47,7 +43,7 @@ rows <- lapply(seq_along(results), function(i) {
   rd  <- get_run_data(env)
   via <- viability_report(rd)
   d   <- rd$ticks
-  keep <- d$t >= 1500
+  keep <- d$t >= 2000
   data.frame(
     condition   = conditions[i],
     seed        = specs_list[[i]]$random_seed,
@@ -58,26 +54,26 @@ rows <- lapply(seq_along(results), function(i) {
   )
 })
 tbl <- do.call(rbind, rows)
-saveRDS(tbl, "dev/audit/fidelity/rl_realistic.rds")
+saveRDS(tbl, "dev/audit/fidelity/group_defense_ultra.rds")
 
 viable <- tbl[tbl$verdict != "crashed", ]
 message("\n── Per-condition summary (viable) ──")
-for (cnd in c("ac", "none")) {
+for (cnd in c("gd_on", "gd_off")) {
   sub <- viable[viable$condition == cnd, ]
-  message(sprintf("  %-5s n=%d | energy=%.2f ± %.2f | pop=%.2f ± %.2f",
+  message(sprintf("  %-7s n=%d | pop=%.1f \u00b1 %.1f | energy=%.2f \u00b1 %.2f",
                   cnd, nrow(sub),
-                  mean(sub$mean_energy), sd(sub$mean_energy) / sqrt(nrow(sub)),
-                  mean(sub$n_agents),    sd(sub$n_agents)    / sqrt(nrow(sub))))
+                  mean(sub$n_agents),    sd(sub$n_agents)    / sqrt(nrow(sub)),
+                  mean(sub$mean_energy), sd(sub$mean_energy) / sqrt(nrow(sub))))
 }
-on  <- viable[viable$condition == "ac",   ]
-off <- viable[viable$condition == "none", ]
+on  <- viable[viable$condition == "gd_on",  ]
+off <- viable[viable$condition == "gd_off", ]
 if (nrow(on) >= 2L && nrow(off) >= 2L) {
-  for (metric in c("mean_energy", "n_agents")) {
+  for (metric in c("n_agents", "mean_energy")) {
     d_ <- mean(on[[metric]]) - mean(off[[metric]])
     se <- sqrt(var(on[[metric]]) / nrow(on) + var(off[[metric]]) / nrow(off))
     t_ <- d_ / se
     v <- if (!is.finite(t_)) "NA" else if (abs(t_) >= 2) "PASS" else "recheck"
-    message(sprintf("  %-12s  \u0394(ac - none) = %+7.3f \u00b1 %.3f   t = %+5.2f   %s",
+    message(sprintf("  %-12s  \u0394(on - off) = %+7.3f \u00b1 %.3f   t = %+5.2f   %s",
                     metric, d_, se, t_, v))
   }
 }

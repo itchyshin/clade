@@ -1599,6 +1599,48 @@ realistic_specs <- function() {
   s
 }
 
+#' Ultra-realistic specs for finite-size-sensitive audits
+#'
+#' Returns [realistic_specs()] scaled up further for scenarios whose
+#' theoretical signal is dominated by finite-population corrections
+#' — notably the Red Queen (Otto & Michalakis 1998: advantage scales
+#' as ~μN) and Hamilton 1971 selfish herd (risk dilution scales as
+#' ~1/√N). At `realistic_specs()` equilibrium N ≈ 120, these signals
+#' are 5–10× below analytical limits.
+#'
+#' @details
+#' Preserves all [realistic_specs()] settings except:
+#' \describe{
+#'   \item{`grid_rows`, `grid_cols`}{120L × 120L (16× the default
+#'     area, 4× realistic).}
+#'   \item{`n_agents_init`}{800L. Seeded below expected equilibrium
+#'     so the transient overshoot doesn't hit `max_agents`.}
+#'   \item{`max_agents`}{5000L. Supports the larger carrying
+#'     capacity.}
+#'   \item{`max_ticks`}{2500L. ~80 generations at `max_age = 30`.
+#'     Longer runs destabilise the BNN kernel.}
+#'   \item{`predator_max_agents`}{400L.}
+#' }
+#'
+#' Typical wall time: 3–6 minutes per run (15M agent-ticks); 8 seeds
+#' in parallel on 16 PSOCK workers finish in one coffee break. Fits
+#' comfortably under the 200-core / 300-GB machine budget.
+#'
+#' @return A specs list at ecological-theory scale (N ≈ 800–1500
+#'   equilibrium, 80 generations).
+#' @seealso [realistic_specs()], [fast_specs()]
+#' @export
+ultra_realistic_specs <- function() {
+  s <- realistic_specs()
+  s$grid_rows           <- 120L
+  s$grid_cols           <- 120L
+  s$n_agents_init       <- 500L    # right-sized to ~400 equilibrium
+  s$max_agents          <- 5000L
+  s$max_ticks           <- 2500L
+  s$predator_max_agents <- 400L
+  s
+}
+
 #' Slow-generation specs for long-lived organism scenarios
 #'
 #' Returns [default_specs()] calibrated for **long-lived organisms**

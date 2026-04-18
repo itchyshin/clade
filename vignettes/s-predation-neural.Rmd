@@ -36,11 +36,26 @@ pressure alters the distribution of neural genotypes across the prey population.
 | `n_agents_init` | — | Initial prey population size |
 | `max_ticks` | — | Simulation length |
 
-**Expected output.** Predation is expected to increase `genetic_diversity` in
-the prey population by imposing strong directional selection on cognition,
-thereby maintaining or generating variance in neural genotypes. Mean energy may
-decline under predation because prey pay metabolic costs of evasion and are
-more frequently killed before reaching peak foraging efficiency.
+**Two historical claims (one holds, one retracted).** This scenario
+was historically associated with two separate predictions:
+
+- **(a) Demographic top-down control** (Williams 1966, Lotka–Volterra):
+  predation reduces prey equilibrium population size directly through
+  mortality. **This claim holds** at realistic scale (t = −3.64 across
+  8 seeds × 2 conditions; see "What we found" below).
+
+- **(b) Directional-selection diversity preservation**: predation
+  maintains or generates genetic variance in neural genotypes by
+  imposing strong selection on cognition. **This claim is retracted**
+  at realistic scale (t = −0.90, null). Under clade's kernel,
+  brain-weight diversity is mutation-bounded (mutation_sd = 0.05
+  generates more variance than predation can remove), so directional
+  selection from predation cannot push diversity above the mutation
+  floor.
+
+Keeping both claims together would overstate the scenario. The
+vignette now documents only claim (a) as the primary fidelity
+signal; claim (b) is included honestly as a null finding.
 
 ```{r predation-neural}
 library(clade)

@@ -8,12 +8,30 @@ re-audit cycle.
 
 | Status | Count | Scenarios |
 |---|---|---|
-| ✅ passed | **26** | baseline, bad-science, predator-prey, body-size, brain-size, pop-genetics, stress-hypermutation, complex-landscape, dispersal-ifd, niche, seasonal, **scavenging**, kin, cooperation, signals, speciation, parental-care, life-history, clutch-size, parental-investment, pace-of-life, mimicry, disease, social-learning, map-elites, **cephalopod** |
-| 🟠 passed-consistent | **6** | mating-systems, group-defense, rl, plasticity, baldwin, **predation-neural** |
+| ✅ passed | **27** | baseline, bad-science, predator-prey, body-size, brain-size, pop-genetics, stress-hypermutation, complex-landscape, dispersal-ifd, niche, seasonal, **scavenging**, kin, cooperation, signals, speciation, parental-care, life-history, clutch-size, parental-investment, pace-of-life, mimicry, disease, social-learning, **rl**, map-elites, **cephalopod** |
+| 🟠 passed-consistent | **5** | mating-systems, group-defense, plasticity, baldwin, predation-neural |
 | ⚪ N/A | **3** | module-comparison, kitchen-sink, cross-module |
 | 🔴 contradicts | **0** | — |
 
-**Net: 26 ✅ / 6 🟠 / 0 🔴 out of 32 auditable scenarios (81% ✅).**
+**Net: 27 ✅ / 5 🟠 / 0 🔴 out of 32 auditable scenarios (84% ✅).**
+
+**What moved in the BNN-decoupling cycle (2026-04-18 afternoon):**
+- `s-rl` promoted 🟠 → ✅ at 16 seeds (realistic_specs + `bnn_action_noise_scale = 0.7`):
+  Δn_agents(actor_critic − none) = +10.9 ± 4.9 at t = +2.20 (17% larger
+  equilibrium population). Williams 1992 REINFORCE works once actions
+  are allowed to exploit the learned posterior mean.
+- `s-plasticity`, `s-baldwin`: decoupling insufficient. Trait-mode sigma
+  source is non-viable at realistic scale; heterozygosity-mode makes
+  plasticity trait a neutral marker (Δ = 0).
+
+**What moved in the ultra_realistic cycle (2026-04-18 afternoon):**
+- `s-mating-systems`: 32 seeds × ultra shows Δn = +2.4 at t = +0.41
+  — the 16-seed ultra result (+7.6) was seed noise. Finite-size ~μN
+  scaling hypothesis falsified; Red Queen magnitude is genuinely
+  ~0.7% of population across all tested scales.
+- `s-group-defense`: signal VANISHES at ultra scale (Δ = +0.66, t = +0.08).
+  Correct interpretation: selfish-herd dilution (~1/√N) means larger
+  herds need defense LESS, not more.
 
 **What moved in the `realistic_specs()` re-audit cycle (2026-04-18):**
 - `s-cephalopod` promoted ⚪ → ✅ (10 seeds × 4 lifespans at 60×60

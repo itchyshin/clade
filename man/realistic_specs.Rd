@@ -7,50 +7,46 @@
 realistic_specs()
 }
 \value{
-A specs list calibrated for larger, longer, more
-ecologically realistic audit runs.
+A specs list calibrated for larger-grid, predator-aware
+audit runs.
 }
 \description{
-Returns \code{\link[=default_specs]{default_specs()}} scaled up to a larger grid, larger
-population, and longer run so that audits can see genuine spatial
-dynamics, multiple generations, and stable predator–prey age
-structure. Designed for re-auditing scenarios where the default
-30×30 grid / 500-tick run is too small to let the biology
-express itself.
+Returns \code{\link[=fast_specs]{fast_specs()}} scaled up to a larger grid and an explicit
+predator age structure. Designed for re-auditing scenarios where
+the default 30×30 grid is too small to let genuine spatial
+dynamics (dispersal gradients, predator–prey waves, metapopulation
+structure) express themselves.
 }
 \details{
+Built on top of \code{\link[=fast_specs]{fast_specs()}} because 2000-tick / 66-generation
+runs are the longest the BNN kernel stays stable without trait
+drift degrading the population.  A 5000-tick scale-up was tested
+but produced a systematic population decline after t ≈ 1500 across
+seeds.
+
+All \code{\link[=fast_specs]{fast_specs()}} settings are preserved (\code{max_age = 30},
+\code{min_repro_energy = 60}, \code{min_repro_age = 3}, \code{grass_rate = 0.20}).
+Additional changes:
 \describe{
 \item{\code{grid_rows}, \code{grid_cols}}{60L × 60L (4× the default
 area). Enough room for metapopulation structure, dispersal
 gradients, and predator–prey waves.}
-\item{\code{n_agents_init}}{300L (6× the default). Seeded at a
-density comparable to \code{default_specs()} on the larger grid.}
-\item{\code{max_agents}}{2000L (4× the default). Supports the
-carrying capacity of the bigger grid.}
-\item{\code{max_ticks}}{5000L (10× the default). At \code{max_age = 50},
-this yields ~100 generations — plenty for selection to shift
-heritable traits meaningfully.}
-\item{\code{max_age}}{50L. Intermediate between \code{fast_specs()} (30L,
-Drosophila-like) and \code{default_specs()} (200L). A small-mammal
-lifespan on the simulation's tick scale.}
-\item{\code{min_repro_age}}{5L. Juvenile maturation gate prevents
-the newborn-reproduces-instantly artifact.}
-\item{\code{min_repro_energy}}{80. Breed after ~15 ticks of
-foraging, not ~100.}
-\item{\code{grass_rate}}{0.15. Moderate resource renewal; balanced
-for the bigger grid and higher population.}
-\item{\code{n_predators_init}}{0L. Predators still off by default;
-turn on per-scenario.}
+\item{\code{n_agents_init}}{150L. Right-sized to the post-boom
+equilibrium on the 60×60 grid; all 5 tested seeds report
+\code{viability_report() = viable}.}
+\item{\code{max_agents}}{1500L. Supports the transient population
+peak (~280) before the equilibrium sets in.}
+\item{\code{max_ticks}}{2000L. 66 generations at \code{max_age = 30}.}
 \item{\code{predator_max_agents}}{150L. 3× default; room for a
 predator guild on the larger map.}
-\item{\code{predator_max_age}}{80L. Predators outlive prey by ~1.6×
-(owl > mouse). Critical for breaking predator–prey age-
-structure degeneracy at realistic scales.}
+\item{\code{predator_max_age}}{60L. Predators outlive prey by 2×
+(owl > mouse) — biologically realistic age structure when
+predation is engaged.}
 }
 
-Typical wall time: 3–8 minutes per run depending on modules; 8
-seeds in parallel on 200 PSOCK workers fit easily in the 300 GB
-machine budget.
+Typical wall time: 30–60 seconds per run depending on modules; 8
+seeds in parallel on 16–32 PSOCK workers easily fit under the
+200-core / 300-GB machine budget.
 }
 \seealso{
 \code{\link[=default_specs]{default_specs()}}, \code{\link[=fast_specs]{fast_specs()}}, \code{\link[=slow_specs]{slow_specs()}}

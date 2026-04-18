@@ -70,21 +70,22 @@ previously-NA scenarios are now auditable:
   Reframed: the Williams 1966 demographic prediction passes; the
   diversity-preservation claim is retracted.
 
-After the full 2026-04-18 realistic_specs() re-audit cycle:
+After the full 2026-04-18 realistic_specs() + BNN-decoupling +
+ultra_realistic re-audit cycles:
 
 | Scenario | Old verdict | New verdict | Key number |
 |---|---|---|---|
-| s-cephalopod         | ⚪ | **✅** | slope(mean_lr ~ max_age) = −9.23e-05, t = −3.72 (10 seeds × 4) |
-| s-scavenging         | 🟠 | **✅** | Δenergy = +3.42, t = +4.83 with predators (8 seeds × 2) |
+| s-cephalopod         | ⚪ | **✅** | slope(mean_lr ~ max_age) = −9.23e-05, t = −3.72 (10 × 4) |
+| s-scavenging         | 🟠 | **✅** | Δenergy = +3.42, t = +4.83 with predators (8 × 2) |
+| s-rl                 | 🟠 | **✅** | Δn = +10.9, t = +2.20 at 16 seeds with `bnn_action_noise_scale = 0.7` |
 | s-predation-neural   | ⚪ | **🟠** | Δpop = −21.1, t = −3.64 (8 × 2); diversity null |
-| s-group-defense      | 🟠 (inverted) | 🟠 (direction correct) | Δpop = +10.1, t = +1.60 (8 × 2) |
-| s-mating-systems     | 🟠 | 🟠 | Δn_sex−asex = +4.1, t = +1.32 (32 × 2) |
-| s-rl                 | 🟠 | 🟠 | Δenergy = −1.6, t = −1.21 (8 × 2) |
-| s-plasticity         | 🟠 | 🟠 | Δdelta = −0.002, t = −0.40 (8 × 2) |
-| s-baldwin            | 🟠 | 🟠 | Δdelta = −0.003, t = −0.47 (8 × 2) |
+| s-group-defense      | 🟠 (inverted) | 🟠 (direction correct) | +10.1 at realistic; vanishes at ultra |
+| s-mating-systems     | 🟠 | 🟠 | +4.1→+2.4 at 32 × 2 across scales; finite-size hypothesis falsified |
+| s-plasticity         | 🟠 | 🟠 | trait-mode sigma source not viable at realistic scale |
+| s-baldwin            | 🟠 | 🟠 | same kernel limit as plasticity |
 
-Count change: **24 ✅ / 6 🟠 / 5 ⚪ → 26 ✅ / 6 🟠 / 3 ⚪** out of
-32 auditable scenarios (**81% ✅**, up from 80%).
+Count change: **24 ✅ / 6 🟠 / 5 ⚪ → 27 ✅ / 5 🟠 / 3 ⚪** out of
+32 auditable scenarios (**84% ✅**, up from 80%).
 
 | Scenario                              | Primary source                                | Status              | Report                                              | Commit  |
 |---|---|---|---|---|
@@ -105,7 +106,7 @@ Count change: **24 ✅ / 6 🟠 / 5 ⚪ → 26 ✅ / 6 🟠 / 3 ⚪** out of
 | s-signals                             | Zahavi 1975; Iwasa & Pomiankowski 1994        | ✅ passed 💥 fast-crash | [signals.md](signals.md)                            | pending |
 | s-speciation                          | Dieckmann & Doebeli 1999                      | ✅ passed           | [speciation.md](speciation.md)                      | pending |
 | s-parental-care                       | Clutton-Brock 1991                            | ✅ passed 💥 fast-crash | [parental_care.md](parental_care.md)                | pending |
-| s-mating-systems                      | Maynard Smith 1978; Hamilton 1980             | 🟠 passed-consistent (0.5.3 16-seed retraction + 2026-04-18 32-seed realistic_specs confirm: Δn_sex−asex = +4.1 at t = +1.32, direction correct but magnitude sub-2σ even at 32 seeds — Red Queen advantage is genuinely subtle in clade's kernel) | [mating_systems.md](mating_systems.md)              | pending |
+| s-mating-systems                      | Maynard Smith 1978; Hamilton 1980             | 🟠 passed-consistent (0.5.3 16-seed + 2026-04-18 32-seed realistic + 32-seed ultra_realistic: Δn_sex−asex direction correct but sub-2σ at all three scales; finite-population ~μN scaling hypothesis falsified — true magnitude is ~1–4 agents on N=120–370) | [mating_systems.md](mating_systems.md)              | pending |
 | s-life-history                        | Cole 1954; Williams 1966                      | ✅ passed           | [life_history.md](life_history.md)                  | pending |
 | s-clutch-size                         | Lack 1947; r/K (MacArthur & Wilson 1967)      | ✅ passed           | [clutch_size.md](clutch_size.md)                    | pending |
 | s-parental-investment                 | Trivers 1972                                  | ✅ passed (0.4.0 Tier 3) | [parental_investment.md](parental_investment.md) | 9b21f66 |
@@ -114,7 +115,7 @@ Count change: **24 ✅ / 6 🟠 / 5 ⚪ → 26 ✅ / 6 🟠 / 3 ⚪** out of
 | s-mimicry                             | Bates 1862; Müller 1879                       | ✅ passed (conditional, 2026-04-18: aposematism evolves at `grass_rate = 0.08` predation-dominant ecology; same classification pattern as s-dispersal-ifd / s-social-learning) | [mimicry.md](mimicry.md)                            | pending |
 | s-disease                             | Kermack & McKendrick 1927 (SIR)               | ✅ passed           | [disease.md](disease.md)                            | pending |
 | s-predation-neural                    | Williams 1966                                 | 🟠 passed-consistent (2026-04-18 realistic_specs: 8 seeds × 2 conditions, predation reduces prey n by 21.1 ± 5.8 at t = −3.64; diversity-increase claim retracted at t = −0.90) | [predation_neural.md](predation_neural.md)          | pending |
-| s-rl                                  | Williams 1992 (REINFORCE)                     | 🟠 passed-consistent (2026-04-17 144-run sweep + 2026-04-18 8-seed realistic_specs + complex_landscape: no canonical Δenergy > 0 at any tested cell; reframed to module-correctness) | [rl.md](rl.md)                                      | pending |
+| s-rl                                  | Williams 1992 (REINFORCE)                     | ✅ passed (2026-04-18 realistic_specs + BNN sigma decoupling `bnn_action_noise_scale = 0.7, bnn_sample_freq = 5`: Δn_agents(ac − none) = +10.9 ± 4.9 at t = +2.20, 16 seeds. RL produces a 17% demographic advantage once actions can exploit learned mu.) | [rl_realistic.md](rl_realistic.md)                  | pending |
 | s-social-learning                     | Boyd & Richerson 1985                         | ✅ passed (2026-04-17: 144-run freq × density sweep found `freq = 50` regime with Δenergy = +3.3, t = 2.27) | [social_learning.md](social_learning.md)            | pending |
 | s-plasticity                          | Pigliucci 2001                                | 🟠 passed-consistent (0.4.2 1500-tick, direction correct) | [plasticity.md](plasticity.md)                      | pending |
 | s-baldwin                             | Hinton & Nowlan 1987                          | 🟠 passed-consistent (kernel-limited: sigma couples to behavioural variance) | [baldwin.md](baldwin.md)                            | pending |

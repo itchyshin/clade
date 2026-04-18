@@ -1,12 +1,10 @@
-# s-baldwin re-audit at realistic scale.
+# s-plasticity trait-mode variant.
 #
-# Hinton & Nowlan 1987: in stable environments, plasticity canalises
-# into genetic specialization (Δdelta drops); in seasonal envs, it
-# remains elevated.
-#
-# Previous 🟠 verdict: direction correct but magnitude small
-# (~0.004 over 600 ticks). At 2000 ticks × 66 generations,
-# magnitude should triple.
+# The light-decoupling realistic run showed Δdelta exactly 0 —
+# because with sigma_source="heterozygosity" the plasticity trait is
+# a neutral marker. Under sigma_source="trait", the trait directly
+# sets BNN posterior width, so selection on plasticity = selection
+# on sigma = real phenotypic consequence.
 
 suppressPackageStartupMessages({
   .libPaths(c("~/R/lib", .libPaths()))
@@ -18,19 +16,19 @@ SEEDS <- c(1L, 7L, 13L, 19L, 25L, 31L, 37L, 43L)
 
 build_spec <- function(env_type, seed) {
   s <- realistic_specs()
-  s$brain_type              <- "bnn"
-  s$phenotypic_plasticity   <- TRUE
-  s$plasticity_evolution    <- TRUE
-  s$plasticity_mutation_sd  <- 0.05
-  s$brain_energy_sigma_scale<- 0.1
-  # --- BNN sigma decoupling (priority-1 activation, light) ---
-  s$bnn_action_noise_scale  <- 0.7
-  s$bnn_sigma_lr_scale      <- 0.3
-  s$bnn_sigma_lr_ref        <- 0.5
-  s$bnn_sample_freq         <- 5L
-  s$rl_mode                 <- "actor_critic"
-  s$rl_update_freq          <- 5L
-  s$learning_rate_init_mean <- 0.005
+  s$phenotypic_plasticity    <- TRUE
+  s$plasticity_evolution     <- TRUE
+  s$plasticity_init_mean     <- 0.3   # start mid-range for sigma
+  s$plasticity_mutation_sd   <- 0.10  # faster plasticity evolution
+  # --- Trait-sourced sigma + minimal decoupling ---
+  s$bnn_sigma_source         <- "trait"
+  s$bnn_action_noise_scale   <- 0.85  # minimal decoupling
+  s$bnn_sigma_lr_scale       <- 0.5
+  s$bnn_sigma_lr_ref         <- 0.3
+  s$bnn_sample_freq          <- 5L
+  s$rl_mode                  <- "actor_critic"
+  s$rl_update_freq           <- 5L
+  s$learning_rate_init_mean  <- 0.005
   if (env_type == "seasonal") {
     s$seasonal_amplitude <- 0.5
     s$season_length      <- 50L
@@ -45,7 +43,7 @@ specs_list <- c(
 )
 conditions <- c(rep("stable", length(SEEDS)), rep("seasonal", length(SEEDS)))
 
-message(sprintf("Running %d specs (2 envs x 8 seeds) at realistic scale...",
+message(sprintf("Running %d trait-mode plasticity specs at realistic scale...",
                 length(specs_list)))
 t0 <- Sys.time()
 results <- batch_alife(specs_list, n_cores = length(specs_list))
@@ -58,9 +56,7 @@ rows <- lapply(seq_along(results), function(i) {
   via <- viability_report(rd)
   d   <- rd$ticks
   keep <- d$t >= 1500
-  delta_col <- if ("mean_plasticity" %in% names(d)) "mean_plasticity"
-               else if ("mean_plasticity_delta" %in% names(d)) "mean_plasticity_delta"
-               else                                        NA_character_
+  delta_col <- if ("mean_plasticity" %in% names(d)) "mean_plasticity" else NA_character_
   data.frame(
     condition  = conditions[i],
     seed       = specs_list[[i]]$random_seed,
@@ -70,13 +66,13 @@ rows <- lapply(seq_along(results), function(i) {
   )
 })
 tbl <- do.call(rbind, rows)
-saveRDS(tbl, "dev/audit/fidelity/baldwin_realistic.rds")
+saveRDS(tbl, "dev/audit/fidelity/plasticity_trait.rds")
 
 viable <- tbl[tbl$verdict != "crashed" & !is.na(tbl$mean_delta), ]
 message("\n── Per-condition summary (viable) ──")
 for (cnd in c("stable", "seasonal")) {
   sub <- viable[viable$condition == cnd, ]
-  message(sprintf("  %-8s n=%d | delta=%.4f \u00b1 %.4f | pop=%.1f",
+  message(sprintf("  %-8s n=%d | plast=%.4f \u00b1 %.4f | pop=%.1f",
                   cnd, nrow(sub),
                   mean(sub$mean_delta), sd(sub$mean_delta) / max(1, sqrt(nrow(sub))),
                   mean(sub$n_agents)))

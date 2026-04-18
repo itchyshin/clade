@@ -1,3 +1,59 @@
+# clade 0.5.8 (2026-04-18, evening)
+
+## BNN sigma decoupling + ultra_realistic_specs audit cycle
+
+Followed up the morning's `realistic_specs()` work with the two
+priorities from the 🟠-analysis reflection: (1) activate the existing
+BNN action-noise / sigma-lr decoupling in the plasticity/Baldwin/RL
+audits, (2) add a bigger preset for finite-size-sensitive scenarios.
+
+**Promotion:**
+
+- **s-rl 🟠 → ✅** at 16 seeds × realistic_specs with
+  `bnn_action_noise_scale = 0.7, bnn_sample_freq = 5,
+  rl_update_freq = 5, learning_rate_init_mean = 0.005`:
+  Δn_agents(actor_critic − none) = +10.9 ± 4.9 at t = +2.20 (17%
+  larger equilibrium population). Williams 1992 REINFORCE works when
+  the agent can actually *exploit* its learned posterior mean;
+  legacy sigma-coupled action noise was re-randomising the policy
+  every tick and cancelling the learning signal.
+
+**New preset:**
+
+- **`ultra_realistic_specs()`** — 120×120 grid, 500 init, 5000 max,
+  2500 ticks, 400-agent equilibrium. Designed for Red-Queen-type
+  scenarios whose theoretical signal scales with N.
+
+**Null findings (honestly documented, no verdict change):**
+
+- **s-plasticity, s-baldwin**: BNN sigma decoupling with
+  `bnn_sigma_source = "trait"` is non-viable at realistic scale
+  (0–2 seeds per cell survive). In the viable `"heterozygosity"`
+  mode the plasticity trait is a neutral marker, so Δ = 0. Genuine
+  kernel limitation — decoupling infrastructure exists but the
+  trait-mode sigma source needs its own stability work.
+- **s-mating-systems**: 32 seeds × ultra_realistic_specs gives
+  Δn_sex−asex = +2.4 at t = +0.41 (smaller than the 16-seed
+  ultra result of +7.6 — that was seed noise). Otto & Michalakis
+  1998's ~μN finite-size scaling does NOT manifest in clade's
+  discrete-allele parasite kernel.
+- **s-group-defense** at ultra scale: Δ = +0.66 at t = +0.08 —
+  signal vanishes. Correct finite-size interpretation is that
+  selfish-herd risk dilution (∝ 1/√N) means *larger* herds need
+  defense less, not more.
+
+**Vignette reframe (P3):**
+
+- **s-predation-neural** — the vignette's "Expected output" section
+  was rewritten to split the two historical claims: (a) predation
+  reduces prey population (Williams 1966 demographic, ✅ at
+  t = −3.64), (b) predation maintains genetic diversity via
+  directional selection (**retracted**, t = −0.90 under clade's
+  mutation-bounded brain-weight regime).
+
+**Final ledger: 27 ✅ / 5 🟠 / 0 🔴 out of 32 auditable scenarios
+(84% ✅).** Net +3 promotions from yesterday's 24 ✅.
+
 # clade 0.5.7 (2026-04-18)
 
 ## realistic_specs() preset + audit re-runs at realistic scale

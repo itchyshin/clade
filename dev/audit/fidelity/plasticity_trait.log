@@ -1,0 +1,6 @@
+Running 16 trait-mode plasticity specs at realistic scale...
+  batch wall: 0.3 min
+
+── Per-condition summary (viable) ──
+  stable   n=1 | plast=0.3522 ± NA | pop=60.2
+  seasonal n=2 | plast=0.3397 ± 0.0055 | pop=38.2

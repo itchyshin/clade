@@ -1,0 +1,8 @@
+Running 32 specs (2 conds x 16 seeds) at ultra scale...
+  batch wall: 0.7 min
+
+── Per-condition summary (viable) ──
+  gd_on   n=16 | pop=379.8 ± 5.0 | energy=88.38 ± 0.16
+  gd_off  n=16 | pop=379.1 ± 6.2 | energy=88.28 ± 0.22
+  n_agents      Δ(on - off) =  +0.656 ± 7.975   t = +0.08   recheck
+  mean_energy   Δ(on - off) =  +0.101 ± 0.278   t = +0.37   recheck
