@@ -17,3 +17,24 @@ clade version:  0.5.9
 [brain_size            ] 59s wall | 0 verdict lines
   (no verdict lines captured — see script output)
 
+[body_size             ] 162s wall | 0 verdict lines
+  (no verdict lines captured — see script output)
+
+[parental_investment   ] 26s wall | 0 verdict lines
+  (no verdict lines captured — see script output)
+
+[clutch_size           ] 130s wall | 0 verdict lines
+  (no verdict lines captured — see script output)
+
+[life_history          ] 18s wall | 0 verdict lines
+  (no verdict lines captured — see script output)
+
+[pace_of_life          ] 29s wall | 0 verdict lines
+  (no verdict lines captured — see script output)
+
+[parental_care         ] 18s wall | 0 verdict lines
+  (no verdict lines captured — see script output)
+
+[stress_hypermutation  ] 14s wall | 0 verdict lines
+  (no verdict lines captured — see script output)
+

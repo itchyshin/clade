@@ -201,3 +201,135 @@ Wrote dev/audit/fidelity/figs/brain_size.png
   graded=TRUE n_pred=10 seed=12
   graded=TRUE n_pred=10 seed=13
   graded=TRUE n_pred=10 seed=14
+  graded=TRUE n_pred=10 seed=15
+  graded=TRUE n_pred=10 seed=16
+
+Cell summary (16 seeds each):
+  graded n_pred delta_mean   delta_sd    delta_se n_seeds
+1  FALSE      0 0.04157518 0.04346777 0.010866943      16
+2  FALSE     10 0.04109400 0.03704398 0.009260996      16
+3   TRUE      0 0.04157518 0.04346777 0.010866943      16
+4   TRUE     10 0.03031088 0.02993772 0.007484430      16
+
+P1 (Cope direction, upward drift without predators):
+  graded=FALSE: Δ = +0.0416 ± 0.0109  PASS
+  graded=TRUE: Δ = +0.0416 ± 0.0109  PASS
+
+P2 (predation effect, with 2×SE precision):
+  graded=FALSE: Δ(wp)-Δ(nop) = -0.0005 ± 0.0143  [flat within 2×SE]
+  graded=TRUE: Δ(wp)-Δ(nop) = -0.0113 ± 0.0132  [flat within 2×SE]
+Wrote dev/audit/fidelity/figs/body_size.png
+=== parental_investment ===
+── Female investment sweep (3 seeds, 500 ticks)
+  fi=0.3: births=1.23  juv=6.1  n=212  energy=115.6
+  fi=0.5: births=1.25  juv=5.0  n=219  energy=110.7
+  fi=0.7: births=1.25  juv=4.4  n=225  energy=109.4
+  fi=0.9: births=1.32  juv=3.9  n=236  energy=104.7
+
+P1 Spearman(fi, mean_juveniles) = -1.00 (Trivers: negative): PASS
+P2 Spearman(fi, mean_energy) = -1.00 (positive expected)
+P3 Spearman(fi, mean_births) = 0.80 (Trivers allows either)
+Wrote dev/audit/fidelity/figs/parental_investment.png
+=== clutch_size ===
+── Clutch size × grass_rate sweep (3 seeds, 600 ticks)
+  grass=0.05: clutch=1.61±0.03  n=108±1
+  grass=0.10: clutch=2.06±0.02  n=212±4
+  grass=0.15: clutch=2.36±0.02  n=315±2
+  grass=0.20: clutch=2.59±0.02  n=412±4
+  grass=0.30: clutch=1.83±0.02  n=500±0
+  grass=0.40: clutch=1.49±0.02  n=500±0
+
+Spearman(grass_rate, mean_clutch) = -0.20 (expect positive)
+Wrote dev/audit/fidelity/figs/clutch_size.png
+=== life_history ===
+Running 5 seeds x 2 strategies = 10 runs (400 ticks each)
+  semelparous seed 1
+  semelparous seed 2
+  semelparous seed 3
+  semelparous seed 4
+  semelparous seed 5
+  iteroparous seed 1
+  iteroparous seed 2
+  iteroparous seed 3
+  iteroparous seed 4
+  iteroparous seed 5
+Done in 16.8 s.
+
+Per-seed summary (post-burn-in t > 100):
+      strategy seed  mean_age    mean_n      var_n mean_births total_births
+1  semelparous    1  15.91683  50.41333   59.89547   1.9100000          573
+2  semelparous    2  14.96540  43.95333   49.75032   1.8333333          550
+3  semelparous    3  15.44511  47.95000   55.96070   1.8900000          567
+4  semelparous    4  14.20677  48.29667   67.76119   1.9166667          575
+5  semelparous    5  17.25888  51.65000   75.24498   1.9066667          572
+6  iteroparous    1 101.30981 153.95333 2347.59648   0.6733333          202
+7  iteroparous    2 101.58876 150.71667 2603.33417   0.6500000          195
+8  iteroparous    3 101.84827 155.52000 2279.27385   0.6733333          202
+9  iteroparous    4 103.52256 148.65667 2261.61751   0.6100000          183
+10 iteroparous    5 101.87083 149.62667 2621.36517   0.6533333          196
+   mean_energy final_n
+1     63.79057      42
+2     63.64319      35
+3     63.64820      36
+4     63.77542      40
+5     63.31217      33
+6    120.20621     150
+7    119.18798     155
+8    118.61391     155
+9    123.64049     131
+10   121.22229     144
+
+Group means (seeds pooled):
+     strategy mean_age    mean_n      var_n mean_births total_births
+1 iteroparous 102.0280 151.69467 2422.63744    0.652000        195.6
+2 semelparous  15.5586  48.45267   61.72254    1.891333        567.4
+  mean_energy final_n
+1   120.57418   147.0
+2    63.63391    37.2
+
+Predictions vs observed (signs):
+  1. mean_age:     sem (15.6) < iter (102.0)  -> PASS
+  2. births rate:  sem (1.89) > iter (0.65)  -> PASS
+  3. mean_energy:  sem (63.6) < iter (120.6)  -> PASS
+  4. pop variance: sem (62) vs iter (2423) — empirical
+
+Wrote dev/audit/fidelity/figs/life_history.png
+=== pace_of_life ===
+── metabolic_rate sweep (3 seeds, 500 ticks)
+  rate=0.5: age=232.7  n=341  births=0.59  var=5299
+  rate=1.0: age=99.1  n=177  births=0.98  var=378
+  rate=1.5: age=65.5  n=130  births=0.97  var=153
+  rate=2.0: age=50.3  n=89  births=0.87  var=68
+  rate=3.0: age=33.3  n=38  births=0.57  var=15
+
+Spearman(rate, mean_age)    = -1.00 (expect negative): PASS
+Spearman(rate, mean_births) = -0.40 (Réale gives either)
+Spearman(rate, var_n)       = -1.00 (expect positive)
+Wrote dev/audit/fidelity/figs/pace_of_life.png
+=== parental_care ===
+── baseline vs care (3 seeds, 400 ticks)
+  baseline   (no care): mean_n=213  var_n=3551  mean_juv=0.00  mean_births=0.93
+  care_dur=5 : mean_n=240  var_n=3544  mean_juv=9.18  mean_births=1.14
+  care_dur=10: mean_n=240  var_n=3544  mean_juv=9.18  mean_births=1.14
+
+P1 (care ON produces juveniles > 0): PASS (mean_juv=9.18)
+P2 (care reduces pop variance): PASS (3544 vs 3551)
+Wrote dev/audit/fidelity/figs/parental_care.png
+=== stress_hypermutation ===
+── stress_hypermutation ± at grass_rate=0.06 (4 seeds, 500 ticks)
+  baseline seed 1
+  baseline seed 2
+  baseline seed 3
+  baseline seed 4
+  hypermut seed 1
+  hypermut seed 2
+  hypermut seed 3
+  hypermut seed 4
+
+Baseline:  diversity = 0.263 ± 0.009, n = 62
+Hypermut:  diversity = 0.263 ± 0.009, n = 62
+P1 (hypermutation raises diversity): FAIL (delta = +0.000)
+Wrote dev/audit/fidelity/figs/stress_hypermutation.png
+There were 17 warnings (use warnings() to see them)
+
+Done. Summary written to: dev/audit/fidelity/post_0510_summary.txt 

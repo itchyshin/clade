@@ -470,10 +470,84 @@ this is at birth; in care-on species this happens at graduation
 
 ---
 
+## X. Mate finding — a kernel-level issue worth knowing about
+
+```julia
+function _find_mate(ag::Agent, env::Environment)::Union{Agent, Nothing}
+    specs = env.specs
+    if specs["ploidy"] == 1
+        return nothing     # haploid: asexual by genome
+    end
+    radius = Int(get(specs, "mate_search_radius", 1))
+    radius = max(radius, 1)
+    # ... collect live neighbours within Moore radius ...
+    if Int(get(specs, "signal_dims", 0)) == 0
+        return candidates[rand(env.rng, 1:length(candidates))]
+    end
+    # signal_dims > 0: pick best signal-preference match (Zahavi 1975)
+    # ...
+end
+```
+
+**What this says.** Look for a mate for agent `ag`. If haploid,
+return nothing (no mate needed). Otherwise search a Moore
+neighbourhood of configurable radius (default 1 = 3×3) for a live
+other agent. When `signal_dims == 0` (the default for scenarios
+that don't evolve signal traits), pick a random eligible neighbour
+— sexual reproduction without mate choice. When `signal_dims > 0`,
+prefer the candidate whose `signal` best matches `ag.preference`
+(Zahavi-style honest-signal mate choice).
+
+**Biology.** Real organisms search a finite area for mates, and for
+most species mate choice is either absent (random pairing among
+neighbours) or signal-based (e.g. preference for a trait like
+plumage). clade models both with a single neighbour-search loop.
+
+**Historical note — the 0.5.10 kernel fix.** Pre-0.5.10 this
+function had a **short-circuit on `signal_dims == 0`** that made
+it return `nothing` immediately without searching. Because
+`signal_dims = 0` is the default for every non-signal-evolving
+scenario, every supposedly-diploid run was actually doing asexual
+reproduction: `_find_mate` returned `nothing`, `make_offspring_genome`
+set `pat_w = Float32[]`, and the offspring was effectively haploid.
+The "diploid" ploidy flag was a no-op unless you turned on signal
+evolution.
+
+The 0.5.10 fix removes the short-circuit. When `ploidy == 2` and
+`signal_dims == 0`, `_find_mate` now picks a random live neighbour
+— which is the correct default semantics for a diploid that
+doesn't evolve signal-based mate choice.
+
+**Audit consequences.** Every `ploidy = 2` scenario whose claims
+depend on real diploid dynamics (heritability, heterozygosity,
+pedigree-based kin, speciation through mate choice, sex vs asex)
+was running on structurally-haploid mechanics before 0.5.10. The
+0.5.11 re-audit of the 12 most diploid-sensitive ✅ scenarios
+found that 11 still hold under the fixed kernel — the demographic
+predictions (Cope, Trivers, Lack, life-history, pace-of-life, etc.)
+are robust to the ploidy flip. One demotion: `s-stress-hypermutation`
+becomes 🟠 because under real diploid sex, baseline mutation input
+already equals what hypermutation adds (Δ diversity = +0.000).
+
+**Variants worth considering.**
+
+- **Broader radius.** `mate_search_radius = 2` (5×5) or `3` (7×7)
+  reduces Allee-failure rate on sparse grids. Cost: more
+  outcrossing dilutes local adaptation.
+- **Self-fertilization fallback.** When no mate is found and you
+  still want to preserve diploidy (rather than silently degrading
+  to haploid offspring), set `self_fertilization_fallback = TRUE`.
+  The second gamete is drawn from parent1 (self-fertilization),
+  which keeps `pat_w` non-empty but inbreeds the population.
+- **Outcrossed fallback** (not yet implemented). Would pick a
+  random agent from anywhere on the grid when the local search
+  fails — avoids both Allee-failure-haploid conversion and the
+  selfing-inbreeding cost.
+
+---
+
 ## What this file *doesn't* do
 
-- **Mate finding.** Defined in `_find_mate` (further down in the
-  same file).
 - **Genome operations** (crossover, mutation, dominance). Defined in
   `genome.jl`.
 - **Brain construction.** Defined in `brains/` files.
