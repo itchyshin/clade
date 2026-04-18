@@ -152,9 +152,9 @@ function make_brain(g::DiploidGenome, specs::Dict{String,Any})::AbstractBrain
     elseif bt == "random"
         make_random_brain(g.architecture)
     else
-        error("Brain type '$bt' is not yet implemented. " *
-              "Supported: \"ann\", \"bnn\", \"ctrnn\", \"grn\", \"random\". " *
-              "Transformer and Synthesis are planned for later phases.")
+        error("Unknown brain_type '$bt'. " *
+              "Supported brain types are: \"bnn\", \"ann\", \"ctrnn\", \"grn\", \"random\". " *
+              "(\"transformer\" and \"synthesis\" are reserved names, not implemented.)")
     end
     # Discrete/quantized weights: snap to allowed set when ann_weight_values is set.
     pv = get(specs, "ann_weight_values", nothing)

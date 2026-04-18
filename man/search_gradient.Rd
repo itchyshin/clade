@@ -33,8 +33,12 @@ an \code{env} list and return a numeric scalar.}
 \item{learning_rate}{Numeric. Log-scale step size for parameter updates
 (default 0.1).}
 
-\item{n_cores}{Integer. Reserved for future parallel finite-difference
-evaluation; currently unused (default 1L).}
+\item{n_cores}{Integer. Parallel cores for finite-difference evaluation
+(default 1L). Finite-difference gradient needs \code{length(params) + 1}
+evaluations per step, which are embarrassingly parallel. When \verb{> 1},
+runs them across a \code{\link[parallel:makeCluster]{parallel::makeCluster()}} PSOCK cluster (each
+worker an R session + Julia). Cluster is created once per call and
+reused across steps. 0.5.6.}
 
 \item{verbose}{Logical. Print progress (default \code{TRUE}).}
 }

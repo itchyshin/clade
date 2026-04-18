@@ -53,7 +53,6 @@
 #'   [default_specs()]) to mutate. Defaults to all numeric parameters.
 #' @param mutation_sd Numeric. Standard deviation of Gaussian perturbations to
 #'   log-transformed parameter values (default 0.1).
-#' @param n_cores Integer. Parallel cores for batch evaluation (default 1L).
 #' @param verbose Logical. Print progress (default `TRUE`).
 #' @param checkpoint_path Optional file path. If supplied, the current
 #'   archive + history + iteration index are saved to this RDS file every
@@ -106,7 +105,6 @@ search_map_elites <- function(specs_base,
                                objective        = "genetic_diversity",
                                mutation_params  = NULL,
                                mutation_sd      = 0.1,
-                               n_cores          = 1L,
                                verbose          = TRUE,
                                checkpoint_path  = NULL,
                                checkpoint_every = 100L) {
@@ -570,8 +568,12 @@ search_cmaes <- function(specs_base,
 #'   (default 0.05).
 #' @param learning_rate Numeric. Log-scale step size for parameter updates
 #'   (default 0.1).
-#' @param n_cores Integer. Reserved for future parallel finite-difference
-#'   evaluation; currently unused (default 1L).
+#' @param n_cores Integer. Parallel cores for finite-difference evaluation
+#'   (default 1L). Finite-difference gradient needs `length(params) + 1`
+#'   evaluations per step, which are embarrassingly parallel. When `> 1`,
+#'   runs them across a [parallel::makeCluster()] PSOCK cluster (each
+#'   worker an R session + Julia). Cluster is created once per call and
+#'   reused across steps. 0.5.6.
 #' @param verbose Logical. Print progress (default `TRUE`).
 #'
 #' @return A list with components:
@@ -670,24 +672,52 @@ search_gradient <- function(specs_base,
       n_steps, length(params), epsilon, learning_rate
     ))
 
+  # 0.5.6: create a single PSOCK cluster for parallel finite-difference
+  # evaluation. Each step needs length(params) + 1 run_alife() calls,
+  # all independent. Cluster lives across all steps; Julia compile cost
+  # paid once per worker. Cluster torn down on function exit.
+  n_cores <- as.integer(n_cores)
+  cl <- if (n_cores > 1L) {
+    clu <- parallel::makeCluster(n_cores)
+    on.exit(try(parallel::stopCluster(clu), silent = TRUE), add = TRUE)
+    parallel::clusterEvalQ(clu, suppressPackageStartupMessages(library(clade)))
+    parallel::clusterExport(clu,
+                            c("build_specs", "obj_fn"),
+                            envir = environment())
+    clu
+  } else NULL
+
+  # Evaluate a list of log-vector candidates, parallel or serial.
+  evaluate_many <- function(log_x_list) {
+    if (is.null(cl)) {
+      vapply(log_x_list, evaluate, numeric(1L))
+    } else {
+      unlist(parallel::parLapply(cl, log_x_list, function(lx) {
+        s <- build_specs(lx)
+        env <- tryCatch(suppressWarnings(run_alife(s, verbose = FALSE)),
+                        error = function(e) NULL)
+        if (is.null(env)) NA_real_ else obj_fn(env)
+      }))
+    }
+  }
+
   for (step in seq_len(n_steps)) {
-    score0 <- evaluate(log_x)
+    # Build the batch: baseline + perturbation along each param.
+    candidates <- c(list(log_x),
+                    lapply(seq_along(params), function(j) {
+                      lx <- log_x; lx[j] <- lx[j] + epsilon; lx
+                    }))
+    scores <- evaluate_many(candidates)
+    score0       <- scores[1L]
+    scores_plus  <- scores[-1L]
+
     if (is.finite(score0) && score0 > best_score) {
       best_score <- score0
       best_specs <- build_specs(log_x)
     }
 
-    grad <- numeric(length(params))
-    for (j in seq_along(params)) {
-      log_x_plus <- log_x
-      log_x_plus[j] <- log_x[j] + epsilon
-      score_plus <- evaluate(log_x_plus)
-      if (is.finite(score_plus) && is.finite(score0)) {
-        grad[j] <- (score_plus - score0) / epsilon
-      } else {
-        grad[j] <- 0
-      }
-    }
+    grad <- ifelse(is.finite(scores_plus) & is.finite(score0),
+                   (scores_plus - score0) / epsilon, 0)
 
     log_x <- log_x + learning_rate * grad
     for (j in seq_along(params)) {
@@ -922,6 +952,10 @@ search_random <- function(specs_base,
 #' @param objective Character or function or `NULL`. If supplied, the mean
 #'   objective score across surviving replicates is added as column
 #'   `mean_objective` (default `NULL`).
+#' @param n_cores Integer. Parallel cores for cell evaluation (default 1L).
+#'   Every `(param_x, param_y) × replicate` combination is independent, so
+#'   the grid runs across a [parallel::makeCluster()] PSOCK cluster when
+#'   `> 1`. Added 0.5.6.
 #' @param verbose Logical (default `TRUE`).
 #'
 #' @return A list with:
@@ -954,6 +988,7 @@ search_viability <- function(specs_base,
                               n_reps = 3L,
                               survival_threshold = 0.1,
                               objective = NULL,
+                              n_cores = 1L,
                               verbose = TRUE) {
   stopifnot(is.list(specs_base))
   stopifnot(is.character(param_x), length(param_x) == 1L)
@@ -983,55 +1018,71 @@ search_viability <- function(specs_base,
 
   .clade_start_julia(verbose = FALSE)
 
-  results <- vector("list", nrow(grid))
-
+  # 0.5.6: build a flat list of (cell × replicate) specs, then evaluate
+  # either serially or across a PSOCK cluster. Flattening lets us
+  # parallelise across BOTH grid cells AND replicate seeds — every
+  # combination is independent.
+  flat_specs <- list()
+  flat_meta  <- list()
   for (i in seq_len(nrow(grid))) {
-    vx <- grid$vx[i]
-    vy <- grid$vy[i]
-
-    if (verbose) {
-      if (is.null(param_y)) {
-        message(sprintf("[search_viability] %s=%.3g  (cell %d/%d)",
-                        param_x, vx, i, nrow(grid)))
-      } else {
-        message(sprintf("[search_viability] %s=%.3g  %s=%.3g  (cell %d/%d)",
-                        param_x, vx, param_y, vy, i, nrow(grid)))
-      }
-    }
-
-    survived  <- 0L
-    final_pop <- numeric(n_reps)
-    obj_vals  <- if (!is.null(obj_fn)) numeric(n_reps) else NULL
-
+    vx <- grid$vx[i]; vy <- grid$vy[i]
     for (r in seq_len(n_reps)) {
       s <- specs_base
       s[[param_x]] <- vx
       if (!is.null(param_y)) s[[param_y]] <- vy
       s$random_seed <- as.integer(r * 1000L + i)
-
-      env <- tryCatch(run_alife(s, verbose = FALSE), error = function(e) NULL)
-
-      if (!is.null(env)) {
-        n_fin  <- length(env$agents)
-        n_init <- s$n_agents_init
-        final_pop[r] <- n_fin
-        if (n_fin / n_init > survival_threshold) survived <- survived + 1L
-        if (!is.null(obj_fn))
-          obj_vals[r] <- tryCatch(obj_fn(env), error = function(e) NA_real_)
-      } else {
-        final_pop[r] <- 0L
-        if (!is.null(obj_fn)) obj_vals[r] <- NA_real_
-      }
+      flat_specs[[length(flat_specs) + 1L]] <- s
+      flat_meta[[length(flat_meta) + 1L]]   <- list(cell = i, rep = r,
+                                                     vx = vx, vy = vy)
     }
+  }
 
+  n_cores <- as.integer(n_cores)
+  if (verbose)
+    message(sprintf("[search_viability] %d cells × %d reps = %d runs (%s)",
+                    nrow(grid), n_reps, length(flat_specs),
+                    if (n_cores > 1L) sprintf("%d PSOCK cores", n_cores)
+                    else               "serial"))
+
+  eval_one <- function(s) {
+    env <- tryCatch(suppressWarnings(run_alife(s, verbose = FALSE)),
+                    error = function(e) NULL)
+    if (is.null(env)) return(list(n_fin = 0L, obj = NA_real_))
+    out <- list(n_fin = length(env$agents),
+                obj   = if (!is.null(obj_fn))
+                          tryCatch(obj_fn(env), error = function(e) NA_real_)
+                        else NA_real_)
+    out
+  }
+
+  per_run <- if (n_cores > 1L) {
+    cl <- parallel::makeCluster(n_cores)
+    on.exit(try(parallel::stopCluster(cl), silent = TRUE), add = TRUE)
+    parallel::clusterEvalQ(cl, suppressPackageStartupMessages(library(clade)))
+    parallel::clusterExport(cl, c("obj_fn"), envir = environment())
+    parallel::parLapply(cl, flat_specs, eval_one)
+  } else {
+    lapply(flat_specs, eval_one)
+  }
+
+  # Reduce to per-cell rows
+  results <- vector("list", nrow(grid))
+  for (i in seq_len(nrow(grid))) {
+    cell_idx <- which(vapply(flat_meta, function(m) m$cell, integer(1L)) == i)
+    cell_runs <- per_run[cell_idx]
+    final_pop <- vapply(cell_runs, function(r) r$n_fin, integer(1L))
+    n_init <- specs_base$n_agents_init
+    survived <- sum(final_pop / n_init > survival_threshold)
     row <- list(
-      param_x_val    = vx,
-      param_y_val    = if (is.null(param_y)) NA_real_ else vy,
+      param_x_val    = grid$vx[i],
+      param_y_val    = if (is.null(param_y)) NA_real_ else grid$vy[i],
       viability      = survived / n_reps,
       mean_final_pop = mean(final_pop, na.rm = TRUE)
     )
     if (!is.null(obj_fn))
-      row$mean_objective <- mean(obj_vals, na.rm = TRUE)
+      row$mean_objective <- mean(vapply(cell_runs,
+                                         function(r) r$obj, numeric(1L)),
+                                  na.rm = TRUE)
     results[[i]] <- as.data.frame(row, stringsAsFactors = FALSE)
   }
 

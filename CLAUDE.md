@@ -2,6 +2,74 @@
 
 Guidance for Claude Code (and other LLM assistants) working in this repository.
 
+## Coding principles
+
+Bias toward caution over speed. For trivial edits, use judgment; for anything
+substantive, these four hold. Adapted from the karpathy-skills `CLAUDE.md`
+(<https://github.com/forrestchang/andrej-karpathy-skills>).
+
+### 1. Think before coding
+
+Don't assume. Don't hide confusion. Surface tradeoffs.
+
+- State assumptions explicitly; if uncertain, ask.
+- If multiple interpretations exist, present them — don't pick silently.
+- If a simpler approach exists, say so. Push back when warranted.
+- If something is unclear, stop. Name what's confusing. Ask.
+
+In this repo this particularly means: when an audit result is ambiguous,
+flag the ambiguity instead of forcing a PASS/FAIL verdict; when an
+R-spec change implies a Julia-side change (or vice versa), say so
+before editing either side.
+
+### 2. Simplicity first
+
+Minimum code that solves the problem. Nothing speculative.
+
+- No features beyond what was asked.
+- No abstractions for single-use code.
+- No configurability that wasn't requested.
+- No error handling for impossible scenarios.
+- If you wrote 200 lines and it could be 50, rewrite it.
+
+In this repo: don't add new spec fields "for flexibility". A new spec
+is a commitment we have to test, document, and maintain forever.
+
+### 3. Surgical changes
+
+Touch only what you must. Clean up only your own mess.
+
+- Don't "improve" adjacent code, comments, or formatting.
+- Don't refactor things that aren't broken.
+- Match existing style, even if you'd do it differently.
+- If you notice unrelated dead code, mention it — don't delete it.
+- Remove imports/variables/functions *your* changes made unused.
+  Don't remove pre-existing dead code unless asked.
+
+In this repo: when fixing a single vignette or audit report, don't
+sweep nearby files for "related" issues in the same commit —
+separate PRs. And don't hand-edit `NAMESPACE` or `man/*.Rd`; run
+`devtools::document()` and commit the generated output.
+
+### 4. Goal-driven execution
+
+Define success criteria. Loop until verified.
+
+- "Add X" → "Write a test for X, then make it pass."
+- "Fix the bug" → "Write a test that reproduces it, then make it pass."
+- "Refactor X" → "Ensure tests pass before and after."
+
+For multi-step tasks, state a brief plan:
+```
+1. [step] → verify: [check]
+2. [step] → verify: [check]
+```
+
+In this repo: audit claims need 8+ seeds + `viability_report()` guard
+before being called PASS; kernel changes need the relevant
+`tests/testthat/test-*.R` to still be green; figure regenerations
+should reproduce their claimed Δ before being pushed.
+
 ## Project overview
 
 **clade** is an R package providing an agent-based evolutionary simulation with a

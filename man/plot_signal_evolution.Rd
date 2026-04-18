@@ -2,30 +2,33 @@
 % Please edit documentation in R/visualization.R
 \name{plot_signal_evolution}
 \alias{plot_signal_evolution}
-\title{Plot signal evolution (Phase 2 placeholder)}
+\title{Plot evolution of mean signal magnitude over ticks}
 \usage{
 plot_signal_evolution(run_data)
 }
 \arguments{
-\item{run_data}{A list returned by \code{\link[=get_run_data]{get_run_data()}}. Currently unused.}
+\item{run_data}{A list returned by \code{\link[=get_run_data]{get_run_data()}}. Must contain a
+\verb{$ticks} data frame with \code{t} and \code{mean_signal_magnitude} columns.}
 }
 \value{
-A \code{\link[ggplot2:ggplot]{ggplot2::ggplot()}} object with a single annotation.
+A \code{\link[ggplot2:ggplot]{ggplot2::ggplot()}} object. Returns an empty-state plot if the
+column is missing (scenario didn't log signals) or all zero.
 }
 \description{
-Placeholder returning a ggplot with a note that signal evolution plotting
-is scheduled for Phase 2. Kept here so downstream code can rely on a stable
-API while the feature is implemented.
-}
-\details{
-Plot signal evolution (Phase 2 placeholder)
+Draws \code{mean_signal_magnitude} as a function of tick \code{t}. Useful for the
+\code{s-signals} scenario under sexual selection, where the signal amplitude
+is expected to grow from its init value when \code{mate_choice_mode = "preference"} and \code{signal_cost > 0}.
 }
 \examples{
 \dontrun{
-plot_signal_evolution(get_run_data(run_clade(default_specs())))
+s <- default_specs()
+s$signal_dims <- 3L
+s$mate_choice_mode <- "preference"
+env <- run_alife(s)
+plot_signal_evolution(get_run_data(env))
 }
 
 }
 \seealso{
-\code{\link[=plot_run]{plot_run()}}
+\code{\link[=plot_run]{plot_run()}}, \code{\link[=plot_diversity]{plot_diversity()}}
 }
