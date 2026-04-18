@@ -11,7 +11,7 @@ run_alife() or search_map_elites()."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.15</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.16</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -1165,11 +1165,18 @@ hypermutation (default <code>FALSE</code>).</p></dd>
 
 <dt><code>stress_threshold</code></dt>
 <dd><p>Numeric. Energy below which an agent is
-considered "stressed" (default 20.0).</p></dd>
+considered "stressed" (default 20.0). <strong>Note</strong>: stress hypermutation
+fires at reproduction time, not per-tick. Reproduction requires
+<code>energy &gt;= min_repro_energy</code> (default 120), so <code>stress_threshold</code>
+must be GREATER than <code>min_repro_energy</code> for hypermutation to
+ever trigger. With defaults (threshold = 20, min_repro = 120),
+the module is structurally silent — set <code>stress_threshold &gt; 120</code>
+for stress-mutation to actually fire at reproduction events.</p></dd>
 
 <dt><code>stress_mutation_multiplier</code></dt>
-<dd><p>Numeric. Per-tick multiplier
-applied to <code>mutation_sd</code> when an agent is stressed (default 5.0).</p></dd>
+<dd><p>Numeric. Multiplier applied
+to <code>mutation_sd</code> at reproduction when the parent's energy is
+below <code>stress_threshold</code> (default 5.0).</p></dd>
 
 
 </dl></div>
