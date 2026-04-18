@@ -1,6 +1,6 @@
 Package: clade
 Title: Agent-Based Evolutionary Simulation with Julia Backend
-Version: 0.5.14
+Version: 0.5.15
 Authors@R:
     person("Shinichi", "Nakagawa", role = c("aut", "cre"),
            email = "s.nakagawa@unsw.edu.au")

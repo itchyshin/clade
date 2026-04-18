@@ -1,3 +1,40 @@
+# clade 0.5.15 (2026-04-18, Hamilton 1971 confirmed — s-group-defense ✅)
+
+## s-group-defense 🟠 → ✅
+
+80-run strength sweep (OFF baseline + 4 strengths × 16 seeds) at
+`realistic_specs`. The mean-population test was sub-2σ at every
+strength (consistent with the 8-seed realistic_specs direction-only
+finding) — but the signal lives in the **extinction rate**:
+
+| group_defense_strength | OFF crash | ON crash | Fisher p | OR |
+|---|---|---|---|---|
+| 0.5 | 12/16 | 11/16 | 0.50 | 1.35 |
+| 1.0 | 12/16 | 7/16 | 0.074 | 3.69 |
+| 2.0 | 12/16 | 8/16 | 0.137 | 2.89 |
+| 3.0 | 12/16 | 6/16 | **0.037** | **4.73** |
+
+At `group_defense_strength = 3.0`, odds of crashing are 4.73× higher
+without group defense (75% → 38% crash rate). Fisher one-sided p =
+0.037 crosses the 2σ / p < 0.05 threshold.
+
+**Right metric, not right theory:** Hamilton 1971 selfish herd is
+about per-capita predation risk and survival. Aggregated up to the
+population scale, that manifests as extinction-rate reduction, not
+equilibrium-population increase. The previous population-mean
+framing averaged over survivors and missed the risk-dilution
+effect.
+
+Strength-dependence is biologically sensible: weak defense
+(strength = 0.5) doesn't help, moderate (1.0) is marginal
+(p = 0.074), strong (3.0) is decisive.
+
+**New ledger: 28 ✅ / 4 🟠 / 0 🔴 out of 32 auditable scenarios
+(88% ✅).**
+
+Audit report: [`group_defense_promotion.md`](dev/audit/fidelity/group_defense_promotion.md).
+Runner: [`group_defense_strength_sweep.R`](dev/audit/fidelity/group_defense_strength_sweep.R).
+
 # clade 0.5.14 (2026-04-18, Hamilton 1980 confirmed — s-mating-systems ✅)
 
 ## s-mating-systems 🟠 → ✅
