@@ -1,3 +1,49 @@
+# clade 0.5.14 (2026-04-18, Hamilton 1980 confirmed — s-mating-systems ✅)
+
+## s-mating-systems 🟠 → ✅
+
+Swept the 2×2 Red Queen differential across `parasite_pressure ∈
+{2, 4, 6, 8}` × 16 seeds × 4 conditions = 160 runs. Hamilton 1980
+mechanism scales cleanly and monotonically with parasite pressure:
+
+| pressure | asex cost | sex cost | RQ_benefit_n | t_n |
+|---|---|---|---|---|
+| 2.0 | +8.8 | +2.1 | +6.7 | +1.02 |
+| 4.0 | +23.7 | +3.9 | +19.8 | **+2.81 PASS** |
+| 6.0 | +32.5 | +5.6 | +26.9 | **+4.97 PASS** |
+| 8.0 | +45.3 | +5.5 | +39.8 | **+6.79 PASS** |
+
+Parasites reduce asex population by +45 agents at pressure=8 but
+barely touch sex (sex stays ~40 regardless of pressure) —
+recombination continuously generates novel haplotypes that escape
+the current parasite virulence pool. This is the canonical
+Red-Queen signature.
+
+At default `parasite_pressure = 2`, the benefit is direction-correct
+but sub-2σ. At pressure ≥ 4, it decisively crosses 2σ. The test is
+s-mating-systems' formal promotion criterion.
+
+## Why single-factor sex-vs-asex still shows sex < asex
+
+Clade's 3× cost-of-sex (2-parent mate-finding filter on sparse grids)
+remains: asex ≈ 135 vs sex ≈ 45. That's a structural kernel property,
+not a Red Queen question. Hamilton 1980 asks "does sex handle
+parasites better than asex does?" — not "is sex population bigger than
+asex?". The 2×2 differential is the correct design for that; it
+unambiguously passes.
+
+If a future user wants the classical `n(sex) > n(asex)` result in
+a single-factor comparison, the path is:
+
+- `repro_cost_mode = "per_couple"` kernel spec (deferred to 0.6+)
+- OR very high parasite pressure (~15+) to overwhelm the cost.
+
+**New ledger: 27 ✅ / 5 🟠 / 0 🔴 out of 32 auditable scenarios
+(84% ✅).**
+
+Audit report: [`mating_systems_pressure_sweep.md`](dev/audit/fidelity/mating_systems_pressure_sweep.md).
+Runner: [`mating_systems_pressure_sweep.R`](dev/audit/fidelity/mating_systems_pressure_sweep.R).
+
 # clade 0.5.13 (2026-04-18, Hamilton 1980 Red Queen via 2×2 design)
 
 ## Mating-systems: Hamilton 1980 mechanism confirmed in direction
