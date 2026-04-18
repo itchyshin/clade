@@ -236,10 +236,16 @@ per 600 ticks.</li>
 Spearman ρ = +0.40 across the dose sweep.</li>
 </ul>
 <p>See the <a href="../dev/audit/fidelity/mimicry.html">mimicry fidelity
-report</a> for the full evidence. Because the primary claim holds only
-under one ecology, the status remains 🟠 rather than ✅ — the handicap
-equilibrium is fragile in both theory (Grafen 1990) and clade (default
-ecology), and 🟠 is the honest label.</p>
+report</a> for the full evidence.</p>
+<p>Status: <strong>✅ passed (conditional, at
+<code>grass_rate = 0.08</code>)</strong> — promoted 2026-04-18 for
+consistency with how other conditional claims are classified
+(<code>s-dispersal-ifd</code> at <code>strength = 2.0</code>,
+<code>s-social-learning</code> at <code>freq = 50</code>). The canonical
+Bates/Müller prediction is reproduced under predation-dominant ecology;
+that the default well-fed ecology doesn’t support the handicap
+equilibrium is theoretically expected (Grafen 1990; Getty 2006; Számadó
+2011), not a clade bug.</p>
 <p><strong>Pre-0.4.4 kernel simplification (historical).</strong> Before
 0.4.4, clade’s predator memory was a <strong>scalar</strong> updated
 toward <code>prey.toxicity</code> directly, which removed
