@@ -427,29 +427,63 @@ Grow grass according to logistic regrowth: each empty cell has probability
 function grow_grass!(env::Environment)
     rate = Float32(env.specs["grass_rate"])
     gmax = Float32(get(env.specs, "grass_max", 5.0))
-    # Seasonal modulation
-    amp  = Float32(get(env.specs, "seasonal_amplitude", 0.0))
-    if amp > 0.0f0
+    # Seasonal modulation.
+    # `seasonal_amplitude` — uniform sin(2πt/period) scaling of rate.
+    # `seasonal_spatial_bias` (0.5.18) — flips the spatial grass
+    # distribution between seasons: in summer (season > 0) grass
+    # grows preferentially in the top half of the grid; in winter
+    # grass grows in the bottom half. This implements Option C of
+    # the 2026-04-18 plasticity/Baldwin diagnosis: the optimal
+    # foraging policy now depends on the current season, so plastic
+    # agents (BNN with within-lifetime learning) should outperform
+    # canalized ones.
+    amp   = Float32(get(env.specs, "seasonal_amplitude", 0.0))
+    sbias = Float32(get(env.specs, "seasonal_spatial_bias", 0.0))
+    season = 0.0f0
+    if amp > 0.0f0 || sbias > 0.0f0
         period = Float64(get(env.specs, "season_length", 100))
-        rate *= Float32(1.0 + amp * sin(2π * Float64(env.t) / period))
-        rate  = clamp(rate, 0.0f0, 1.0f0)
+        season = Float32(sin(2π * Float64(env.t) / period))
+    end
+    base_rate = if amp > 0.0f0
+        clamp(rate * Float32(1.0 + amp * season), 0.0f0, 1.0f0)
+    else
+        rate
     end
 
     niche_on = Bool(get(env.specs, "niche_construction", false))
 
-    if niche_on
+    if sbias > 0.0f0
+        # Cell-wise loop so each cell can have its own rate.
+        rows = size(env.grass, 1)
+        cols = size(env.grass, 2)
+        half = div(rows, 2)
+        @inbounds for y in 1:cols, x in 1:rows
+            env.grass[x, y] < gmax || continue
+            # Top half (x <= half) is "north" (summer-favored).
+            # Bottom half is "south" (winter-favored).
+            sign_factor = if x <= half 1.0f0 else -1.0f0 end
+            rate_xy = clamp(base_rate * (1.0f0 + sbias * season * sign_factor),
+                            0.0f0, 1.0f0)
+            if niche_on
+                rate_xy *= niche_grass_rate_multiplier(env.shelter_map, x, y)
+            end
+            if rand(env.rng) < rate_xy
+                env.grass[x, y] = min(env.grass[x, y] + 1.0f0, gmax)
+            end
+        end
+    elseif niche_on
         rows = size(env.grass, 1)
         cols = size(env.grass, 2)
         @inbounds for y in 1:cols, x in 1:rows
             env.grass[x, y] < gmax || continue
             mult = niche_grass_rate_multiplier(env.shelter_map, x, y)
-            if rand(env.rng) < rate * mult
+            if rand(env.rng) < base_rate * mult
                 env.grass[x, y] = min(env.grass[x, y] + 1.0f0, gmax)
             end
         end
     else
         @inbounds for i in eachindex(env.grass)
-            if env.grass[i] < gmax && rand(env.rng) < rate
+            if env.grass[i] < gmax && rand(env.rng) < base_rate
                 env.grass[i] = min(env.grass[i] + 1.0f0, gmax)
             end
         end

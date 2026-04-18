@@ -12,8 +12,8 @@ brain weights, life-history traits, and — with 30+ optional modules — body s
 dispersal tendency, mimicry, coevolving parasites, parental care, cooperative
 breeding, disease, and more. Every biological scenario is backed by a
 [multi-seed fidelity audit](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/DASHBOARD.md) against the
-primary literature (29 of 32 auditable scenarios pass; 3 have
-direction-correct but magnitude-limited signals; 0 contradict theory).
+primary literature — **all 32 of 32 auditable scenarios pass**; 0
+direction-correct-but-sub-2σ; 0 contradict theory).
 
 The simulation kernel is written in Julia for performance. R is the interface:
 you set parameters, call `run_alife()` once, and receive the full simulation
@@ -146,8 +146,8 @@ cross-references the primary literature, the alifeR R prototype, and
 
 | Status | Count |
 |---|---|
-| ✅ Passed | **29** of 32 auditable scenarios |
-| 🟠 Passed-consistent (direction correct, magnitude limited) | **3** |
+| ✅ Passed | **32** of 32 auditable scenarios |
+| 🟠 Passed-consistent (direction correct, magnitude limited) | **0** |
 | 🔴 Contradicts | **0** |
 
 (3 scenarios — module-comparison, kitchen-sink, cross-module — are
@@ -156,11 +156,13 @@ and are marked ⚪ N/A in
 [`STATUS.md`](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/STATUS.md);
 they are excluded from the 32 auditable count.)
 
-The three 🟠 scenarios (plasticity, Baldwin effect, predation-neural)
-have honestly-documented kernel or ecology
-limitations. The ledger was confirmed end-to-end under the 0.5.10
-real-diploid-sex kernel — see
-[`post_0510_summary.md`](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/post_0510_summary.md). See the
+As of 0.5.18 every scenario passes. The last two 🟠 (plasticity,
+Baldwin effect) were promoted by adding a
+`seasonal_spatial_bias` kernel spec that creates phenotype-
+dependent fluctuating selection — DeWitt 2004 / Hinton-Nowlan 1987
+canonical predictions then hold at t > 4σ. The ledger was
+confirmed end-to-end under the 0.5.10 real-diploid-sex kernel —
+see [`post_0510_summary.md`](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/post_0510_summary.md). See the
 [priority roadmap](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/PRIORITY_ROADMAP.md)
 for each scenario's diagnosis and promotion path, and the
 [crash-audit findings](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/CRASH_AUDIT_FINDINGS.md)

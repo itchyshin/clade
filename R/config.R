@@ -1264,6 +1264,19 @@ default_specs <- function() {
     seasonal_amplitude          = 0.0,
     season_length               = 100L,
     winter_death_prob           = 0.0,
+    seasonal_spatial_bias       = 0.0,   # 0.5.18: when > 0, flips the
+                                         # spatial grass distribution between
+                                         # seasons. Summer (season > 0)
+                                         # concentrates grass in the top
+                                         # (north) half of the grid; winter
+                                         # concentrates it in the bottom
+                                         # (south) half. Creates fluctuating
+                                         # selection (optimal foraging
+                                         # direction flips with season), the
+                                         # regime DeWitt & Scheiner 2004 /
+                                         # Hinton & Nowlan 1987 require for
+                                         # plasticity to be favoured.
+                                         # Typical test values: 0.5–0.9.
 
     # ── Parental care ──────────────────────────────────────────────────────
     parental_care              = FALSE,
