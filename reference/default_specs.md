@@ -1324,8 +1324,8 @@ rate rises transiently. Controlled by three specs:
 
 - `winter_death_prob`:
 
-  Numeric in 0, 1. Per-tick death probability during the low phase of
-  the seasonal cycle (default 0). Only engages when
+  Numeric in \[0, 1\]. Per-tick death probability during the low phase
+  of the seasonal cycle (default 0). Only engages when
   `seasonal_amplitude > 0`.
 
 ### Speciation (genome clustering)

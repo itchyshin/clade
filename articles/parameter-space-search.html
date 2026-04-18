@@ -344,7 +344,9 @@ or quality-diversity search) use the built-in adaptive algorithms:</p>
 <span>  n_cores    <span class="op">=</span> <span class="fl">20L</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># MAP-Elites: quality-diversity search</span></span>
+<span><span class="co"># MAP-Elites: quality-diversity search (serial — the MAP-Elites</span></span>
+<span><span class="co"># loop is inherently sequential because each iteration's parent is</span></span>
+<span><span class="co"># sampled from the current archive)</span></span>
 <span><span class="va">res_me</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/search_map_elites.html">search_map_elites</a></span><span class="op">(</span></span>
 <span>  base_specs <span class="op">=</span> <span class="fu"><a href="../reference/fast_specs.html">fast_specs</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  params     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>grass_rate <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.45</span><span class="op">)</span>,</span>
@@ -352,10 +354,14 @@ or quality-diversity search) use the built-in adaptive algorithms:</p>
 <span>  descriptors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"grass_rate"</span>, <span class="st">"predator_energy_gain"</span><span class="op">)</span>,</span>
 <span>  fitness_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">env</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">env</span><span class="op">$</span><span class="va">progress</span><span class="op">$</span><span class="va">mean_energy</span>, <span class="fl">1L</span><span class="op">)</span>,</span>
 <span>  archive_res <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10L</span>, <span class="fl">10L</span><span class="op">)</span>,</span>
-<span>  n_evals    <span class="op">=</span> <span class="fl">1000L</span>,</span>
-<span>  n_cores    <span class="op">=</span> <span class="fl">20L</span></span>
+<span>  n_evals    <span class="op">=</span> <span class="fl">1000L</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p>Both algorithms use the PSOCK path internally in 0.5.6+.</p>
+<p><code><a href="../reference/search_cmaes.html">search_cmaes()</a></code> parallelises the candidate evaluation per
+generation across the PSOCK path introduced in 0.5.6.
+<code><a href="../reference/search_map_elites.html">search_map_elites()</a></code> is inherently serial (each iteration’s
+parent depends on the current archive); if you want to fan-out-run
+multiple MAP-Elites <em>searches</em> in parallel, wrap them in
+<code><a href="../reference/batch_alife.html">batch_alife()</a></code> externally.</p>
 <p><strong>Checkpoint/resume for long MAP-Elites runs</strong> (new in
 0.5.6): pass <code>checkpoint_path</code> and the current archive +
 history + iteration index are saved as an RDS every
