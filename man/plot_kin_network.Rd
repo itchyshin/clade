@@ -2,7 +2,7 @@
 % Please edit documentation in R/visualization.R
 \name{plot_kin_network}
 \alias{plot_kin_network}
-\title{Plot kin network (Phase 2 placeholder)}
+\title{Plot kin network (not yet implemented — placeholder)}
 \usage{
 plot_kin_network(run_data)
 }
@@ -10,22 +10,19 @@ plot_kin_network(run_data)
 \item{run_data}{A list returned by \code{\link[=get_run_data]{get_run_data()}}. Currently unused.}
 }
 \value{
-A \code{\link[ggplot2:ggplot]{ggplot2::ggplot()}} object with a single annotation.
+A \code{\link[ggplot2:ggplot]{ggplot2::ggplot()}} object with a single annotation stating
+the function is a placeholder.
 }
 \description{
-Placeholder returning a ggplot noting that kin network visualisation
-requires the igraph package and is scheduled for Phase 2. Matches the
-alifeR API.
-}
-\details{
-Plot kin network (Phase 2 placeholder)
-}
-\examples{
-\dontrun{
-plot_kin_network(get_run_data(run_clade(default_specs())))
-}
+\strong{Not yet implemented.} Returns a labelled empty ggplot so downstream
+code relying on a stable API doesn't error. A real implementation
+requires the igraph package (currently not a clade dependency) and
+agent-level lineage data that \code{get_run_data()} does not yet expose.
+Matches the alifeR API name for future compatibility.
 
+Do not rely on this function for analysis. Use \code{compute_relatedness()}
+directly if you need pairwise kinship values.
 }
 \seealso{
-\code{\link[=plot_run]{plot_run()}}
+\code{\link[=plot_run]{plot_run()}}, \code{\link[=compute_relatedness]{compute_relatedness()}}
 }

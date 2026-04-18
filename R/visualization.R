@@ -703,52 +703,69 @@ plot_disease_dynamics <- function(run_data) {
 
 # -- plot_signal_evolution() ---------------------------------------------------
 
-#' Plot signal evolution (Phase 2 placeholder)
+#' Plot evolution of mean signal magnitude over ticks
 #'
-#' @title Plot signal evolution (Phase 2 placeholder)
-#' @description
-#' Placeholder returning a ggplot with a note that signal evolution plotting
-#' is scheduled for Phase 2. Kept here so downstream code can rely on a stable
-#' API while the feature is implemented.
+#' Draws `mean_signal_magnitude` as a function of tick `t`. Useful for the
+#' `s-signals` scenario under sexual selection, where the signal amplitude
+#' is expected to grow from its init value when `mate_choice_mode =
+#' "preference"` and `signal_cost > 0`.
 #'
-#' @param run_data A list returned by [get_run_data()]. Currently unused.
+#' @param run_data A list returned by [get_run_data()]. Must contain a
+#'   `$ticks` data frame with `t` and `mean_signal_magnitude` columns.
 #'
-#' @return A [ggplot2::ggplot()] object with a single annotation.
+#' @return A [ggplot2::ggplot()] object. Returns an empty-state plot if the
+#'   column is missing (scenario didn't log signals) or all zero.
 #'
 #' @examples
 #' \dontrun{
-#' plot_signal_evolution(get_run_data(run_clade(default_specs())))
+#' s <- default_specs()
+#' s$signal_dims <- 3L
+#' s$mate_choice_mode <- "preference"
+#' env <- run_alife(s)
+#' plot_signal_evolution(get_run_data(env))
 #' }
 #'
-#' @seealso [plot_run()]
+#' @seealso [plot_run()], [plot_diversity()]
 #' @export
 plot_signal_evolution <- function(run_data) {
-  .plot_empty("Signal evolution: Phase 2")
+  stopifnot(is.list(run_data), !is.null(run_data$ticks))
+  d <- run_data$ticks
+  if (!"mean_signal_magnitude" %in% names(d))
+    return(.plot_empty("mean_signal_magnitude not logged (signals module inactive)"))
+  if ("t" %in% names(d)) d <- d[d$t > 0L, , drop = FALSE]
+  if (nrow(d) == 0L || all(d$mean_signal_magnitude == 0, na.rm = TRUE))
+    return(.plot_empty("Signal magnitude is zero throughout"))
+
+  ggplot2::ggplot(d, ggplot2::aes(x = t, y = mean_signal_magnitude)) +
+    ggplot2::geom_line(colour = "#984ea3", linewidth = 0.8) +
+    ggplot2::labs(title = "Signal evolution",
+                  x = "Tick", y = "Mean signal magnitude") +
+    .clade_theme()
 }
 
 # -- plot_kin_network() --------------------------------------------------------
 
-#' Plot kin network (Phase 2 placeholder)
+#' Plot kin network (not yet implemented — placeholder)
 #'
-#' @title Plot kin network (Phase 2 placeholder)
 #' @description
-#' Placeholder returning a ggplot noting that kin network visualisation
-#' requires the igraph package and is scheduled for Phase 2. Matches the
-#' alifeR API.
+#' **Not yet implemented.** Returns a labelled empty ggplot so downstream
+#' code relying on a stable API doesn't error. A real implementation
+#' requires the igraph package (currently not a clade dependency) and
+#' agent-level lineage data that `get_run_data()` does not yet expose.
+#' Matches the alifeR API name for future compatibility.
+#'
+#' Do not rely on this function for analysis. Use `compute_relatedness()`
+#' directly if you need pairwise kinship values.
 #'
 #' @param run_data A list returned by [get_run_data()]. Currently unused.
 #'
-#' @return A [ggplot2::ggplot()] object with a single annotation.
+#' @return A [ggplot2::ggplot()] object with a single annotation stating
+#'   the function is a placeholder.
 #'
-#' @examples
-#' \dontrun{
-#' plot_kin_network(get_run_data(run_clade(default_specs())))
-#' }
-#'
-#' @seealso [plot_run()]
+#' @seealso [plot_run()], [compute_relatedness()]
 #' @export
 plot_kin_network <- function(run_data) {
-  .plot_empty("Kin network: requires igraph (Phase 2)")
+  .plot_empty("plot_kin_network() is a placeholder — not yet implemented")
 }
 
 # -- plot_dead_agents() --------------------------------------------------------
