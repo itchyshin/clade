@@ -1,3 +1,58 @@
+# clade 0.5.7 (2026-04-18)
+
+## realistic_specs() preset + audit re-runs at realistic scale
+
+New exported `realistic_specs()` preset — 60×60 grid (4× default
+area), 150 init agents, 2000 ticks (66 generations at `max_age =
+30`), and explicit `predator_max_age = 60` (predators outlive prey
+2×, biologically realistic owl-vs-mouse age structure). Built on
+`fast_specs()` because 2000-tick runs are the longest the BNN
+kernel stays stable without trait drift.
+
+Used this preset to re-audit every 🟠 scenario plus the ⚪ demo
+scenarios. Two promotions and one reframe:
+
+- **s-scavenging 🟠 → ✅**: DeVault 2003 carrion-as-energy-channel
+  holds when the predator guild supplies adequate carcasses. 8
+  seeds × 2 conds: Δenergy = +3.42 ± 0.71 (t = +4.83), Δpop = +14.9
+  ± 6.1 (t = +2.46). The 2026-04-17 null was scale-limited: at
+  default 30×30 / 500-tick the predator guild is too thin to
+  generate a detectable carrion channel.
+- **s-cephalopod ⚪ → ✅**: Liedtke & Fromhage 2019's lifespan-vs-
+  learning-rate prediction reproduced. 10 seeds × 4 lifespans:
+  slope(mean_lr ~ max_age) = −9.23e-05 ± 2.48e-05 (t = −3.72).
+  Short-lived agents evolve ~22% higher learning rates.
+- **s-predation-neural ⚪ → 🟠**: honest reframe. Predation reduces
+  prey equilibrium population by 15% (t = −3.64, Williams 1966
+  demographic passes). The older "predation increases genetic
+  diversity" claim is retracted at realistic scale (t = −0.90).
+
+Also reframed (still 🟠):
+
+- **s-group-defense**: 2026-04-17 "defense inverts Hamilton 1971"
+  verdict was a default-scale artifact. At realistic scale with
+  `predator_max_age = 60`, direction is now correct (Δpop = +10.1,
+  t = +1.60) but sub-2σ.
+- **s-mating-systems**: 32-seed realistic confirms 🟠 (t = +1.32
+  direction correct, still sub-2σ). Red Queen advantage in clade's
+  kernel is genuinely subtle.
+- **s-rl / s-plasticity / s-baldwin**: kernel-limited (BNN sigma
+  coupling), not scale-limited. Realistic-scale audit produces
+  same magnitude as default-scale.
+
+Also pushed forward:
+
+- **20+ broken pkgdown links fixed** — audit reports under `dev/`
+  now use absolute `github.com/blob/main` URLs so they resolve on
+  both GitHub and the pkgdown site (previously 404'd on pkgdown
+  because `dev/` isn't shipped with the package).
+- **Stale landing-page counts fixed**: README, DASHBOARD, NEWS all
+  now match STATUS.md's actual ledger.
+
+**Final ledger: 26 ✅ / 6 🟠 / 0 🔴 out of 32 auditable scenarios
+(81% ✅).** Up from 24 ✅ / 6 🟠 / 30 auditable (80%) at the start
+of the session.
+
 # clade 0.5.6 (2026-04-17)
 
 ## Hygiene pass (late 0.5.6)

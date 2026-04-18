@@ -1,0 +1,8 @@
+Running 16 specs (2 conds x 8 seeds) at realistic scale...
+  batch wall: 0.7 min
+
+── Per-condition summary (viable) ──
+  ac    n=8 | energy=118.59 ± 1.03 | pop=195.57 ± 5.69
+  none  n=8 | energy=120.20 ± 0.85 | pop=190.83 ± 7.42
+  mean_energy   Δ(ac - none) =  -1.609 ± 1.336   t = -1.21   recheck
+  n_agents      Δ(ac - none) =  +4.746 ± 9.355   t = +0.51   recheck

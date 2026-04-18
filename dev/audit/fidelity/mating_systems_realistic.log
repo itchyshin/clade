@@ -1,0 +1,15 @@
+Running 64 specs (2 ploidies x 32 seeds) at realistic scale...
+  batch wall: 0.4 min
+
+── Viability ──
+         verdict
+condition viable
+     asex     32
+     sex      32
+
+── Per-condition summary (viable, t >= 1500) ──
+  asex   n=32 | pop=119.42 ± 2.19 | div=1.870 ± 0.004 | energy=85.68 ± 0.32
+  sex    n=32 | pop=123.48 ± 2.14 | div=1.878 ± 0.003 | energy=85.51 ± 0.28
+  n_agents        Δ(sex - asex) =  +4.057 ± 3.062   t = +1.32   recheck
+  gen_diversity   Δ(sex - asex) =  +0.007 ± 0.005   t = +1.41   recheck
+  mean_energy     Δ(sex - asex) =  -0.169 ± 0.423   t = -0.40   recheck

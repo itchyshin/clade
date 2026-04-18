@@ -70,8 +70,21 @@ previously-NA scenarios are now auditable:
   Reframed: the Williams 1966 demographic prediction passes; the
   diversity-preservation claim is retracted.
 
-Count change: **24 ✅ / 6 🟠 / 5 ⚪ → 25 ✅ / 7 🟠 / 3 ⚪** out of
-32 auditable scenarios (80% ✅).
+After the full 2026-04-18 realistic_specs() re-audit cycle:
+
+| Scenario | Old verdict | New verdict | Key number |
+|---|---|---|---|
+| s-cephalopod         | ⚪ | **✅** | slope(mean_lr ~ max_age) = −9.23e-05, t = −3.72 (10 seeds × 4) |
+| s-scavenging         | 🟠 | **✅** | Δenergy = +3.42, t = +4.83 with predators (8 seeds × 2) |
+| s-predation-neural   | ⚪ | **🟠** | Δpop = −21.1, t = −3.64 (8 × 2); diversity null |
+| s-group-defense      | 🟠 (inverted) | 🟠 (direction correct) | Δpop = +10.1, t = +1.60 (8 × 2) |
+| s-mating-systems     | 🟠 | 🟠 | Δn_sex−asex = +4.1, t = +1.32 (32 × 2) |
+| s-rl                 | 🟠 | 🟠 | Δenergy = −1.6, t = −1.21 (8 × 2) |
+| s-plasticity         | 🟠 | 🟠 | Δdelta = −0.002, t = −0.40 (8 × 2) |
+| s-baldwin            | 🟠 | 🟠 | Δdelta = −0.003, t = −0.47 (8 × 2) |
+
+Count change: **24 ✅ / 6 🟠 / 5 ⚪ → 26 ✅ / 6 🟠 / 3 ⚪** out of
+32 auditable scenarios (**81% ✅**, up from 80%).
 
 | Scenario                              | Primary source                                | Status              | Report                                              | Commit  |
 |---|---|---|---|---|
@@ -86,22 +99,22 @@ Count change: **24 ✅ / 6 🟠 / 5 ⚪ → 25 ✅ / 7 🟠 / 3 ⚪** out of
 | s-dispersal-ifd                       | Fretwell & Lucas 1970; Shine et al. 2011      | ✅ passed (2026-04-17: fast_specs + habitat_preference_strength = 2.0, Δ = +0.021 ± 0.005 across 5 seeds) | [dispersal_ifd.md](dispersal_ifd.md)                | pending |
 | s-niche                               | Odling-Smee et al. 2003                       | ✅ passed           | [niche.md](niche.md)                                | pending |
 | s-seasonal                            | Sinusoidal resource variation                 | ✅ passed           | [seasonal.md](seasonal.md)                          | pending |
-| s-scavenging                          | DeVault et al. 2003                           | 🟠 passed-consistent (2026-04-17: 192-run sweep across 12 cells — no cell gives canonical Δenergy > 0 at t ≥ 2; reframed to module-correctness) | [scavenging.md](scavenging.md)                      | pending |
+| s-scavenging                          | DeVault et al. 2003                           | ✅ passed (2026-04-18 realistic_specs + predators: Δenergy = +3.42 ± 0.71 at t = +4.83, Δpop = +14.9 ± 6.1 at t = +2.46 — DeVault 2003 holds when predator guild supplies adequate carrion) | [scavenging.md](scavenging.md)                      | pending |
 | s-kin                                 | Hamilton 1964                                 | ✅ passed           | [kin.md](kin.md)                                    | pending |
 | s-cooperation                         | Nowak & May 1992                              | ✅ passed           | [cooperation.md](cooperation.md)                    | pending |
 | s-signals                             | Zahavi 1975; Iwasa & Pomiankowski 1994        | ✅ passed 💥 fast-crash | [signals.md](signals.md)                            | pending |
 | s-speciation                          | Dieckmann & Doebeli 1999                      | ✅ passed           | [speciation.md](speciation.md)                      | pending |
 | s-parental-care                       | Clutton-Brock 1991                            | ✅ passed 💥 fast-crash | [parental_care.md](parental_care.md)                | pending |
-| s-mating-systems                      | Maynard Smith 1978; Hamilton 1980             | 🟠 passed-consistent (0.5.3 16-seed retraction: direction correct on average across 19 regimes, no cell crosses 2×SE) | [mating_systems.md](mating_systems.md)              | pending |
+| s-mating-systems                      | Maynard Smith 1978; Hamilton 1980             | 🟠 passed-consistent (0.5.3 16-seed retraction + 2026-04-18 32-seed realistic_specs confirm: Δn_sex−asex = +4.1 at t = +1.32, direction correct but magnitude sub-2σ even at 32 seeds — Red Queen advantage is genuinely subtle in clade's kernel) | [mating_systems.md](mating_systems.md)              | pending |
 | s-life-history                        | Cole 1954; Williams 1966                      | ✅ passed           | [life_history.md](life_history.md)                  | pending |
 | s-clutch-size                         | Lack 1947; r/K (MacArthur & Wilson 1967)      | ✅ passed           | [clutch_size.md](clutch_size.md)                    | pending |
 | s-parental-investment                 | Trivers 1972                                  | ✅ passed (0.4.0 Tier 3) | [parental_investment.md](parental_investment.md) | 9b21f66 |
 | s-pace-of-life                        | Réale et al. 2010                             | ✅ passed (0.4.0 Tier 2) | [pace_of_life.md](pace_of_life.md)               | 9b21f66 |
-| s-group-defense                       | Hamilton 1971 (selfish herd)                  | 🟠 passed-consistent (2026-04-17: 96-run sweep shows defense ON consistently LOWERS prey population at all 6 parameter cells; reframed — evolving predators + finite grass invert Hamilton 1971) | [group_defense.md](group_defense.md)                | pending |
+| s-group-defense                       | Hamilton 1971 (selfish herd)                  | 🟠 passed-consistent (2026-04-18 realistic_specs: direction now CORRECT at Δpop = +10.1 ± 6.4 at t = +1.60 — the 2026-04-17 inversion was a default-scale artifact. Magnitude still sub-2σ so no promotion.) | [group_defense.md](group_defense.md)                | pending |
 | s-mimicry                             | Bates 1862; Müller 1879                       | ✅ passed (conditional, 2026-04-18: aposematism evolves at `grass_rate = 0.08` predation-dominant ecology; same classification pattern as s-dispersal-ifd / s-social-learning) | [mimicry.md](mimicry.md)                            | pending |
 | s-disease                             | Kermack & McKendrick 1927 (SIR)               | ✅ passed           | [disease.md](disease.md)                            | pending |
 | s-predation-neural                    | Williams 1966                                 | 🟠 passed-consistent (2026-04-18 realistic_specs: 8 seeds × 2 conditions, predation reduces prey n by 21.1 ± 5.8 at t = −3.64; diversity-increase claim retracted at t = −0.90) | [predation_neural.md](predation_neural.md)          | pending |
-| s-rl                                  | Williams 1992 (REINFORCE)                     | 🟠 passed-consistent (2026-04-17: 144-run sweep over freq × lr, no cell gives canonical Δenergy > 0 at t ≥ 2; reframed to module-correctness) | [rl.md](rl.md)                                      | pending |
+| s-rl                                  | Williams 1992 (REINFORCE)                     | 🟠 passed-consistent (2026-04-17 144-run sweep + 2026-04-18 8-seed realistic_specs + complex_landscape: no canonical Δenergy > 0 at any tested cell; reframed to module-correctness) | [rl.md](rl.md)                                      | pending |
 | s-social-learning                     | Boyd & Richerson 1985                         | ✅ passed (2026-04-17: 144-run freq × density sweep found `freq = 50` regime with Δenergy = +3.3, t = 2.27) | [social_learning.md](social_learning.md)            | pending |
 | s-plasticity                          | Pigliucci 2001                                | 🟠 passed-consistent (0.4.2 1500-tick, direction correct) | [plasticity.md](plasticity.md)                      | pending |
 | s-baldwin                             | Hinton & Nowlan 1987                          | 🟠 passed-consistent (kernel-limited: sigma couples to behavioural variance) | [baldwin.md](baldwin.md)                            | pending |

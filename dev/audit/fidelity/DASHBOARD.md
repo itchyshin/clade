@@ -8,20 +8,34 @@ re-audit cycle.
 
 | Status | Count | Scenarios |
 |---|---|---|
-| ✅ passed | **25** | baseline, bad-science, predator-prey, body-size, brain-size, pop-genetics, stress-hypermutation, complex-landscape, dispersal-ifd, niche, seasonal, kin, cooperation, signals, speciation, parental-care, life-history, clutch-size, parental-investment, pace-of-life, mimicry, disease, social-learning, map-elites, **cephalopod** |
-| 🟠 passed-consistent | **7** | scavenging, mating-systems, group-defense, rl, plasticity, baldwin, **predation-neural** |
+| ✅ passed | **26** | baseline, bad-science, predator-prey, body-size, brain-size, pop-genetics, stress-hypermutation, complex-landscape, dispersal-ifd, niche, seasonal, **scavenging**, kin, cooperation, signals, speciation, parental-care, life-history, clutch-size, parental-investment, pace-of-life, mimicry, disease, social-learning, map-elites, **cephalopod** |
+| 🟠 passed-consistent | **6** | mating-systems, group-defense, rl, plasticity, baldwin, **predation-neural** |
 | ⚪ N/A | **3** | module-comparison, kitchen-sink, cross-module |
 | 🔴 contradicts | **0** | — |
 
-**Net: 25 ✅ / 7 🟠 / 0 🔴 out of 32 auditable scenarios (78% ✅).**
+**Net: 26 ✅ / 6 🟠 / 0 🔴 out of 32 auditable scenarios (81% ✅).**
 
 **What moved in the `realistic_specs()` re-audit cycle (2026-04-18):**
 - `s-cephalopod` promoted ⚪ → ✅ (10 seeds × 4 lifespans at 60×60
-  grid; slope = −9.23e-05, t = −3.72 — Liedtke & Fromhage 2019
-  lifespan-vs-learning prediction reproduced).
+  grid; slope(mean_lr ~ max_age) = −9.23e-05, t = −3.72 — Liedtke &
+  Fromhage 2019 lifespan-vs-learning prediction reproduced).
+- `s-scavenging` promoted 🟠 → ✅ (8 seeds × 2 conds with
+  predator guild; Δenergy = +3.42 ± 0.71 at t = +4.83, Δpop =
+  +14.9 at t = +2.46 — DeVault 2003 carrion-as-energy-channel
+  holds when the predator guild supplies adequate carcasses).
 - `s-predation-neural` promoted ⚪ → 🟠 (8 seeds × 2 conditions;
   predation reduces prey n by 21.1 at t = −3.64 — Williams 1966
-  passes; diversity-increase claim retracted).
+  demographic prediction passes; diversity-increase claim retracted).
+- `s-group-defense` reframed (still 🟠): the previous "defense
+  inverts Hamilton 1971" verdict was a default-scale artifact.
+  At realistic scale direction is now correct (Δpop = +10.1,
+  t = +1.60) — sub-2σ so no promotion, but the inversion was
+  kernel-scale-dependent.
+- `s-mating-systems` confirmed 🟠 at 32 seeds × realistic scale
+  (t = +1.32 direction correct, still sub-2σ — Red Queen advantage
+  in clade's kernel is genuinely subtle).
+- `s-rl`, `s-plasticity`, `s-baldwin` all confirmed 🟠 at realistic
+  scale — kernel-limited, not scale-limited.
 
 **What moved in the Tier C re-audit cycle (2026-04-17):**
 - `s-dispersal-ifd` promoted 🟠 → ✅ (habitat_preference_strength = 2.0,
