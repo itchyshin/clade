@@ -1,3 +1,53 @@
+# clade 0.5.18 (2026-04-18, DeWitt 2004 / Hinton-Nowlan 1987 confirmed — ledger complete)
+
+## s-plasticity + s-baldwin 🟠 → ✅ — fluctuating-selection kernel
+
+Added a new kernel spec `seasonal_spatial_bias` (default 0.0 =
+legacy) that, when > 0, flips the spatial grass distribution
+between seasons: summer → grass concentrated in the top half of the
+grid, winter → bottom half. This creates **phenotype-dependent
+fluctuating selection** — the optimal foraging direction flips
+between seasons. Canalized agents stuck with one policy starve in
+the off-season; plastic agents (BNN with within-lifetime RL) can
+track the flip.
+
+### Results (16 seeds × 3 conditions × 2000 ticks, default_specs + RL)
+
+| condition | mean_prior_sigma ± SE | pop |
+|---|---|---|
+| stable | 0.3759 ± 0.0038 | 96.9 |
+| amp_only (uniform stressor) | 0.3800 ± 0.0025 | 94.2 |
+| **flipping** (fluctuating selection) | **0.3986 ± 0.0032** | 69.4 |
+
+Differentials:
+- Δ(flipping − stable) = **+0.023 ± 0.005, t = +4.58 PASS**
+- Δ(flipping − amp_only) = **+0.019 ± 0.004, t = +4.60 PASS**
+- Δ(amp_only − stable) = +0.004, t = +0.91 (uniform stressor has no
+  plasticity signal — exactly what the earlier 0.5.10/0.5.11 tests
+  correctly documented)
+
+Both DeWitt 2004's spatial-plasticity prediction and Hinton-Nowlan
+1987's fluctuating-selection-plasticity prediction confirmed at
+> 4σ. The ~28% population cost in the flipping regime (97 → 69
+agents) is also consistent with DeWitt: plasticity has ecological
+costs.
+
+## Ledger completion
+
+With this promotion, **all 32 auditable scenarios now pass**:
+
+**32 ✅ / 0 🟠 / 0 🔴 out of 32 auditable scenarios (100% ✅).** 🎉
+
+Path from 0.5.14 (this session):
+- 0.5.14 s-mating-systems 🟠 → ✅ (Hamilton 1980 via 2×2 parasite-pressure sweep)
+- 0.5.15 s-group-defense 🟠 → ✅ (Hamilton 1971 via extinction-rate Fisher test)
+- 0.5.16 s-stress-hypermutation 🟠 → ✅ (config bug: threshold > min_repro_energy)
+- 0.5.17 s-predation-neural 🟠 → ✅ (Williams 1966 at default scale)
+- 0.5.18 s-plasticity + s-baldwin 🟠 → ✅ (fluctuating-selection kernel)
+
+Audit report: [`plasticity_baldwin_promotion.md`](dev/audit/fidelity/plasticity_baldwin_promotion.md).
+Runner: [`plasticity_fluctuating_selection.R`](dev/audit/fidelity/plasticity_fluctuating_selection.R).
+
 # clade 0.5.17 (2026-04-18, Williams 1966 confirmed — s-predation-neural ✅)
 
 ## s-predation-neural 🟠 → ✅ — directional-selection diversity at default scale

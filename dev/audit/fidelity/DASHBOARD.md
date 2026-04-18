@@ -8,12 +8,12 @@ re-audit cycle.
 
 | Status | Count | Scenarios |
 |---|---|---|
-| ✅ passed |  **30**  | baseline, bad-science, predator-prey, body-size, brain-size, pop-genetics, **stress-hypermutation**, complex-landscape, dispersal-ifd, niche, seasonal, scavenging, kin, cooperation, signals, speciation, parental-care, mating-systems, group-defense, **predation-neural**, life-history, clutch-size, parental-investment, pace-of-life, mimicry, disease, social-learning, rl, map-elites, cephalopod |
-| 🟠 passed-consistent |  **2**  | plasticity, baldwin |
-| ⚪ N/A |  **2**  | module-comparison, kitchen-sink, cross-module |
+| ✅ passed | **32** | baseline, bad-science, predator-prey, body-size, brain-size, pop-genetics, stress-hypermutation, complex-landscape, dispersal-ifd, niche, seasonal, scavenging, kin, cooperation, signals, speciation, parental-care, mating-systems, group-defense, predation-neural, life-history, clutch-size, parental-investment, pace-of-life, mimicry, disease, social-learning, rl, map-elites, cephalopod, **plasticity**, **baldwin** |
+| 🟠 passed-consistent | **0** | — |
+| ⚪ N/A | **3** | module-comparison, kitchen-sink, cross-module |
 | 🔴 contradicts | **0** | — |
 
-**Net: 30 ✅ / 2 🟠 / 0 🔴 out of 32 auditable scenarios (94% ✅).**
+**Net: 32 ✅ / 0 🟠 / 0 🔴 out of 32 auditable scenarios (100% ✅) 🎉**
 Ledger confirmed under the 0.5.10 real-diploid-sex kernel (pre-0.5.10 was
 structurally asex by default; 11 of 12 diploid-sensitive ✅ scenarios
 survived re-audit, one demotion — see `post_0510_summary.md`).
