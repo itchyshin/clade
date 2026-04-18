@@ -638,9 +638,16 @@
 #'   \item{`stress_hypermutation`}{Logical. Enable stress-induced
 #'     hypermutation (default `FALSE`).}
 #'   \item{`stress_threshold`}{Numeric. Energy below which an agent is
-#'     considered "stressed" (default 20.0).}
-#'   \item{`stress_mutation_multiplier`}{Numeric. Per-tick multiplier
-#'     applied to `mutation_sd` when an agent is stressed (default 5.0).}
+#'     considered "stressed" (default 20.0). **Note**: stress hypermutation
+#'     fires at reproduction time, not per-tick. Reproduction requires
+#'     `energy >= min_repro_energy` (default 120), so `stress_threshold`
+#'     must be GREATER than `min_repro_energy` for hypermutation to
+#'     ever trigger. With defaults (threshold = 20, min_repro = 120),
+#'     the module is structurally silent — set `stress_threshold > 120`
+#'     for stress-mutation to actually fire at reproduction events.}
+#'   \item{`stress_mutation_multiplier`}{Numeric. Multiplier applied
+#'     to `mutation_sd` at reproduction when the parent's energy is
+#'     below `stress_threshold` (default 5.0).}
 #' }
 #'
 #' ## Signal evolution and mate choice
