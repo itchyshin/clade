@@ -1,3 +1,44 @@
+# clade 0.5.12 (2026-04-18, LV discovery experiment)
+
+## Lotka-Volterra in clade — an honest null
+
+Added a discovery experiment in [`predator_prey_lv.R`](dev/audit/fidelity/predator_prey_lv.R)
+that tests whether textbook Lotka-Volterra cycles can be coaxed out
+of clade's predator kernel. Four conditions × 5 seeds × 2000 ticks
+at `realistic_specs()`:
+
+1. **evolving** (default): predator_mutation_sd = 0.1.
+2. **frozen**: predator_mutation_sd = 0 (no new brain variance).
+3. **longlived**: predator_max_age = 300 (10× prey lifespan,
+   slow-pace-of-life; lynx > hare). Ecologically natural "fixed
+   per-capita attack" approximation via slow evolution.
+4. **fast_turnover**: short-lived (max_age=20) + easy reproduction
+   (min_repro_energy=60) + frozen brains — classical LV-style
+   demographic turnover.
+
+**Result**: no condition produces textbook LV.
+
+- evolving / frozen / longlived: `pred_var = 0` from t=500 — predator
+  population flatlines at ~30 regardless of prey dynamics.
+- fast_turnover: predators explode from 40 to 10,000 (cap) while
+  prey crash to ~5. Phase plot is a one-way trajectory, not a closed
+  LV loop. Boom-bust runaway, not cycling.
+
+**Why.** LV requires `dP/dt ∝ prey × predator` — predator births
+proportional to prey density. clade's predator reproduction is
+energy-threshold-gated (reproduce when my energy ≥ X), which
+produces saturation (hard threshold) or runaway (easy threshold)
+but never density-matched cycling.
+
+The lynx-hare cycles of nature exist because mammalian reproduction
+IS density-dependent via gestation/provisioning constraints. clade's
+predator module is more like a bacterial predator than a mammalian
+carnivore. Kernel extension for 0.6+ if LV cycles become a required
+audit signal.
+
+Companion figure: `vignettes/figures/showcase_14b_predators_lv_comparison.png`.
+Vignette updated with the new discovery-experiment section.
+
 # clade 0.5.11 (2026-04-18, ledger re-audit)
 
 ## Ledger check after 0.5.10 kernel fix
