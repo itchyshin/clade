@@ -129,7 +129,7 @@ result is uninformative.
 **Known issue (0.4.0 backlog).** At default mutation, MAP-Elites
 sometimes fills only one cell — the candidate mutations produce near-
 identical behavioural descriptors. See the [s-map-elites
-audit](https://itchyshin.github.io/clade/dev/audit/fidelity/map_elites.md)
+audit](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/map_elites.md)
 for the workaround (wider mutation + broader archive bins).
 
 ------------------------------------------------------------------------

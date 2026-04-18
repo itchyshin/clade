@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.11</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -256,7 +256,7 @@ season-length sweep.
 sweep).</strong> The critical parameter turned out to be
 <code>season_length / max_age</code>: plasticity evolves in the
 DeWitt-Scheiner direction (seasonal &gt; stable) only when each agent
-experiences multiple seasonal states during its lifetime. See <a href="../dev/audit/fidelity/plasticity_within_lifetime_sweep.R">dev/audit/fidelity/plasticity_within_lifetime_sweep.R</a>
+experiences multiple seasonal states during its lifetime. See <a href="https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/plasticity_within_lifetime_sweep.R" class="external-link">dev/audit/fidelity/plasticity_within_lifetime_sweep.R</a>
 for the full sweep; results at fast_specs (<code>max_age = 30</code>,
 40×40 grid, 180 agents init, 5 seeds × 2000 ticks):</p>
 <table class="table">
@@ -336,7 +336,7 @@ needs a kernel lift (decouple plasticity cost from BNN sigma, or a
 dedicated “plasticity_cost” trait with a differential-across-individuals
 structure).</p>
 <p><strong>Earlier 0.4.2 audit state (superseded by the above).</strong>
-Full protocol: <a href="../dev/audit/fidelity/plasticity.html">dev/audit/fidelity/plasticity.md</a>.</p>
+Full protocol: <a href="https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/plasticity.md" class="external-link">dev/audit/fidelity/plasticity.md</a>.</p>
 <p>At pre-0.4.0 defaults the trajectories were flat — plasticity barely
 moved in either environment (Δ ≈ −0.001/−0.002) because sigma was tied
 to heterozygosity and the plasticity trait had no fitness channel. Two

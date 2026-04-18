@@ -11,7 +11,7 @@ parameters differ from the defaults."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.11</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -154,7 +154,7 @@ Default <code>FALSE</code>.</p></dd>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">print_specs</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -- clade specs (261 parameters) --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -- clade specs (263 parameters) --</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Grid &amp; population</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     grid_rows                              30</span>
@@ -335,6 +335,8 @@ Default <code>FALSE</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     bnn_sigma_lr_ref                       0.5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     n_chromosomes                          1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     dominance_model                        additive</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     self_fertilization_fallback            FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     mate_search_radius                     1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     mutation_rate_evolution                FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     mutation_sd_init_mean                  0.1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     mutation_sd_min                        0.001</span>
@@ -467,7 +469,7 @@ Default <code>FALSE</code>.</p></dd>
 <span class="r-in"><span><span class="va">s</span><span class="op">$</span><span class="va">kin_selection</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="va">s</span><span class="op">$</span><span class="va">complex_landscape</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="fu">print_specs</span><span class="op">(</span><span class="va">s</span>, diff_only <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -- clade specs (261 parameters) [diff only] --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -- clade specs (263 parameters) [diff only] --</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Kin selection</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     kin_selection                          TRUE *</span>

@@ -47,7 +47,7 @@ is higher, resulting in more buffered population dynamics.
 
 **What we found (2026-04-15 audit, 3 seeds × 400 ticks).** Full
 protocol:
-[dev/audit/fidelity/parental_care.md](https://itchyshin.github.io/clade/dev/audit/fidelity/parental_care.md).
+[dev/audit/fidelity/parental_care.md](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/parental_care.md).
 
 | Condition   | mean n | var(n) | mean juveniles |
 |-------------|--------|--------|----------------|

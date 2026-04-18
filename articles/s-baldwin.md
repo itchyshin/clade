@@ -70,7 +70,7 @@ paternal\|), which accumulates under neutral mutation regardless of
 selection pressure. Without a kernel change to decouple σ from
 heterozygosity or add an explicit cost on uncertainty, the Baldwin
 canalization cannot be observed at default parameters. See
-[dev/audit/fidelity/baldwin.md](https://itchyshin.github.io/clade/dev/audit/fidelity/baldwin.md).
+[dev/audit/fidelity/baldwin.md](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/baldwin.md).
 
 ``` r
 library(clade)

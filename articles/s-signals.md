@@ -101,7 +101,7 @@ Zahavi effect.
 **What we found (2026-04-15 audit).** 5-seed multi-seed run at
 `signal_dims = 3`, `signal_cost = 0.05`,
 `mate_choice_mode = "preference"`, 120 agents, 500 ticks. Full protocol:
-[dev/audit/fidelity/signals.md](https://itchyshin.github.io/clade/dev/audit/fidelity/signals.md).
+[dev/audit/fidelity/signals.md](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/signals.md).
 
 | Condition                  | final signal | final n_agents |
 |----------------------------|--------------|----------------|

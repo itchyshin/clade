@@ -46,7 +46,7 @@ ignored.** The trait is clamped at its biologically neutral value
 This catches beginners: setting `body_size_init_mean = 2.0` with
 `body_size_evolution = FALSE` has no effect. The [fidelity audit
 pace-of-life
-trace](https://itchyshin.github.io/clade/dev/audit/fidelity/pace_of_life.md)
+trace](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/pace_of_life.md)
 is a cautionary example of this exact pitfall.
 
 ------------------------------------------------------------------------

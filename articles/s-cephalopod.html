@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.11</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -270,25 +270,51 @@ with the cephalopod paradox. Genetic evolution substitutes for
 within-lifetime learning when the payback period is long enough.
 </p>
 </div>
-<p><strong>What we found.</strong> Running with
-<code>rl_mode = "actor_critic"</code>,
-<code>learning_rate = 0.05</code>, 80 agents, 25×25 grid,
-<code>grass_rate = 0.15</code>, 400 ticks, under two lifespan conditions
-(2 replicates each, seeds 41–42): short-lived agents
-(<code>max_age = 15</code>) nearly went extinct (mean population 8,
-energy 66, mean age 4.4 ticks), while long-lived agents
-(<code>max_age = 200</code>) thrived (mean population 209, energy 126,
-mean age 87 ticks). With only 4.4 ticks of experience on average,
-short-lived agents die before RL can accumulate sufficient gradient
-steps to improve foraging — they pay the startup cost of learning
-(exploration) without reaching the benefit phase (exploitation). This is
-precisely the paradox: actual cephalopods (octopuses, cuttlefish) ARE
-short-lived AND demonstrably intelligent (fast learners). The model
-predicts their strategy should fail, yet it does not. Candidate
-resolutions are compressed learning schedules (higher
-<code>learning_rate</code>), social learning transmission of trained
-policies, or epigenetic inheritance of behavioural priors — all testable
-as cross-module interactions.</p>
+<p><strong>What we found (2026-04-18, <code><a href="../reference/realistic_specs.html">realistic_specs()</a></code> +
+<code>complex_landscape = TRUE</code>, 10 seeds × 4 lifespans, 60×60
+grid, 2000 ticks).</strong> At realistic scale all 40 runs are viable
+(no extinctions). The Liedtke &amp; Fromhage 2019 prediction holds:</p>
+<table class="table">
+<thead><tr class="header">
+<th><code>max_age</code></th>
+<th>Mean evolved <code>learning_rate</code> ± SE</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>30 (cephalopod-like)</td>
+<td><strong>0.091 ± 0.003</strong></td>
+</tr>
+<tr class="even">
+<td>50</td>
+<td>0.079 ± 0.003</td>
+</tr>
+<tr class="odd">
+<td>100</td>
+<td>0.081 ± 0.003</td>
+</tr>
+<tr class="even">
+<td>200 (long-lived)</td>
+<td><strong>0.071 ± 0.004</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Linear regression of <code>mean_learning_rate</code> against
+<code>max_age</code> gives a slope of <strong>−9.23 × 10⁻⁵ ± 2.48 × 10⁻⁵
+(t = −3.72)</strong>, well past the 2 σ bar. Short lifespans select for
+~22% higher evolved learning rates than long lifespans. Genetic
+evolution substitutes for within-lifetime learning when the payback
+period is long enough, and within-lifetime learning takes over when it
+is short — the cephalopod paradox resolved exactly as Liedtke &amp;
+Fromhage predict.</p>
+<p><strong>This promotes the scenario from ⚪ N/A to ✅ passed.</strong>
+See <a href="https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/cephalopod.md" class="external-link">dev/audit/fidelity/cephalopod.md</a>
+for the full protocol and per-seed results.</p>
+<p>The earlier 2-replicate <code>max_age = 15</code> runs showing
+extinction reflected an over-short lifespan below the threshold where
+agents accumulate enough experience to train. At
+<code>max_age = 30</code> (cephalopod-like,
+<code><a href="../reference/realistic_specs.html">realistic_specs()</a></code> default) the population is robustly
+viable, and the evolved learning rate is measurably highest.</p>
 </div>
 <div class="section level3">
 <h3 id="discovery-experiments">Discovery experiments<a class="anchor" aria-label="anchor" href="#discovery-experiments"></a>

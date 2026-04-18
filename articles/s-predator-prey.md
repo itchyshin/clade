@@ -45,7 +45,7 @@ parameters below. Two distinct phases emerge:
 
 This is the documented behaviour of evolutionary predator-prey ABMs (see
 the [predator-prey fidelity
-report](https://itchyshin.github.io/clade/dev/audit/fidelity/predator_prey.md)
+report](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/predator_prey.md)
 for cross-reference to the alifeR prototype, which contains the same
 explanation in §12 of its showcase vignette). To recover textbook
 sustained sinusoidal LV, you would need a fixed-policy predator (not yet
@@ -124,7 +124,7 @@ and matches the alifeR R prototype’s documented behaviour (see
 suppress textbook LV oscillations). It is **not** Lotka 1925’s
 mean-field sustained sinusoidal result, and we no longer claim to be.
 Full cross-reference table and audit protocol:
-[dev/audit/fidelity/predator_prey.md](https://itchyshin.github.io/clade/dev/audit/fidelity/predator_prey.md).
+[dev/audit/fidelity/predator_prey.md](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/predator_prey.md).
 
 ### Discovery experiments
 

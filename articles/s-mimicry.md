@@ -43,7 +43,7 @@ aposematic pleiotropy):
   across the dose sweep.
 
 See the [mimicry fidelity
-report](https://itchyshin.github.io/clade/dev/audit/fidelity/mimicry.md)
+report](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/mimicry.md)
 for the full evidence.
 
 Status: **✅ passed (conditional, at `grass_rate = 0.08`)** — promoted
@@ -95,7 +95,7 @@ ticks). The CMA-ES result likely optimised a generic fitness signal that
 is not specific to toxicity evolution. Claim retracted; awaiting kernel
 improvement (signal-vector predator memory) before re-tuning. See
 [mimicry fidelity report
-§5](https://itchyshin.github.io/clade/dev/audit/fidelity/mimicry.html#5-verdict).
+§5](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/mimicry.md#5-verdict).
 
 ![Ecology comparison (5 seeds × 1000 ticks, full 0.4.4 machinery). Top:
 toxicity trajectories under standard ecology (grass=0.20, grey) vs

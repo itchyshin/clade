@@ -83,7 +83,7 @@ a genuine scientific finding, even though the canonical Hamilton
 direction doesn’t reach 2×SE significance — 🟠.
 
 **What we found (updated 2026-04-16 through 0.5.1).** Full protocol:
-[dev/audit/fidelity/mating_systems.md](https://itchyshin.github.io/clade/dev/audit/fidelity/mating_systems.md).
+[dev/audit/fidelity/mating_systems.md](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/mating_systems.md).
 
 The pre-0.4.0 audit tested only the stable environment and got Δdiv =
 −0.005 (sex slightly below asex). 0.4.1 added disease and seasonal

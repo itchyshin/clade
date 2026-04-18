@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.11</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -441,11 +441,48 @@ diploid genome: the maternal and paternal weights are interpreted as
 “two estimates of the optimal weight”, and the BNN sigma (uncertainty)
 is computed from their <em>difference</em> (heterozygosity). This
 couples genetic diversity to behavioural flexibility.</p>
-<p><strong>Audit findings.</strong> This BNN-sigma-from-heterozygosity
-coupling is the root cause of the 🔴 Baldwin scenario failure. Tier 5
-backlog: decouple sigma from heterozygosity, allow it to evolve as its
-own trait. (The additive expression for ANN/CTRNN/GRN brains works
-correctly.)</p>
+<p><strong>Audit findings (updated 2026-04-18, 0.5.11).</strong> The
+BNN-sigma-from-heterozygosity coupling has been the central mechanism in
+four separate audit findings worth stating together:</p>
+<ol style="list-style-type: decimal">
+<li>
+<strong>Pre-0.4.0 (🔴 Baldwin).</strong> In the earliest kernel,
+sigma was computed from heterozygosity AND controlled both (a) action
+noise and (b) the effective learning rate in <code>bnn_update!</code>.
+Under this full coupling, stable-env selection for narrower sigma
+(Baldwin canalization) fought against the behavioural-variance cost, and
+the net direction was wrong. Addressed by 0.5.5 / 0.5.6 with the
+<code>bnn_action_noise_scale</code> and <code>bnn_sigma_lr_scale</code>
+specs that let these two channels be decoupled.</li>
+<li>
+<strong>Pre-0.5.10 (silent haploid conversion).</strong>
+<code>_find_mate</code> short-circuited on <code>signal_dims = 0</code>,
+so every default-config diploid run produced offspring with
+<code>pat_w = Float32[]</code> → <code>is_haploid(g) == true</code> →
+<code>sigma = fill(bnn_sigma_init, n)</code> for all weights, regardless
+of selection. The BNN-sigma-from- heterozygosity expression was wired
+correctly but the ploidy pipeline upstream was secretly converting
+everything to haploid. Fixed in 0.5.10 (<code>_find_mate</code> rewrite
++ <code>mate_search_radius</code> spec).</li>
+<li>
+<strong>Post-0.5.10 direction.</strong> With the ploidy fix in,
+<code>mean_prior_sigma</code> now evolves from
+<code>bnn_sigma_init</code> to a selection-drift equilibrium (~0.33).
+Direction however is REVERSED from the canonical DeWitt / Hinton-Nowlan
+prediction: under tested parameters, stable envs maintain <em>more</em>
+heterozygosity than seasonal envs (t = −1.41 direction, stable &gt;
+seasonal). Either clade’s kernel produces genuinely different dynamics
+than DeWitt 2004 (for reasons worth understanding), or
+<code>seasonal_amplitude = 0.5</code> bottlenecks purge variance faster
+than stable selection preserves it.</li>
+<li>
+<strong>Current status.</strong> s-plasticity and s-baldwin remain
+🟠 with a specific, well-understood diagnosis rather than “kernel
+unknowable”. The BNN-sigma mechanism is no longer a kernel bug; it’s a
+kernel property whose predictions we can now state honestly. (The
+additive expression for ANN/CTRNN/GRN brains is unaffected by all of
+this.)</li>
+</ol>
 <hr>
 </div>
 <div class="section level3">
@@ -479,22 +516,128 @@ this rate itself become a heritable trait (Sniegowski et al. 1997).</p>
 2001) plugs in — the calling code in <code>reproduce.jl</code>
 temporarily increases <code>mutation_sd</code> for stressed parents
 before invoking meiosis.</p>
-<p><strong>Audit findings.</strong> s-stress-hypermutation ✅ —
-hypermutation raises diversity (+0.003) under scarcity, as
-predicted.</p>
+<p><strong>Audit findings (2026-04-18 update).</strong>
+s-stress-hypermutation was ✅ pre-0.5.10 but re-audited to 🟠 under the
+fixed diploid-sex kernel: baseline diversity = 0.263 ± 0.009, hypermut
+diversity = 0.263 ± 0.009 (Δ = +0.000 at 4 seeds, grass_rate = 0.06).
+Real diploid sex produces enough baseline mutation input at default
+<code>mutation_sd = 0.1</code> that hypermutation doesn’t add detectable
+diversity. Pre-0.5.10 the baseline was structurally haploid
+(single-parent gamete + mutation) which had lower effective mutation
+input; that made hypermutation look like it was adding something. With
+real diploid sex, the baseline is already at the hypermutation
+level.</p>
+<hr>
+</div>
+<div class="section level3">
+<h3 id="offspring-genome-assembly-where-ploidy-can-flip-silently">6.5. Offspring-genome assembly — where ploidy can flip silently<a class="anchor" aria-label="anchor" href="#offspring-genome-assembly-where-ploidy-can-flip-silently"></a>
+</h3>
+<div class="sourceCode" id="cb7"><pre class="sourceCode julia"><code class="sourceCode julia"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="kw">function</span> <span class="fu">make_offspring_genome</span>(parent1<span class="op">::</span><span class="dt">DiploidGenome</span>,</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>                               parent2<span class="op">::</span><span class="dt">Union{DiploidGenome, Nothing}</span>,</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>                               specs<span class="op">::</span><span class="dt">Dict{String,Any}</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>                               rng<span class="op">::</span><span class="dt">AbstractRNG</span>)<span class="op">::</span><span class="dt">DiploidGenome</span></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>    mat_w <span class="op">=</span> <span class="fu">meiosis</span>(parent1, specs, rng)</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>    mat_t <span class="op">=</span> <span class="fu">meiosis_traits</span>(parent1, specs, rng)</span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>    selfing <span class="op">=</span> <span class="fu">Bool</span>(<span class="fu">get</span>(specs, <span class="st">"self_fertilization_fallback"</span>, <span class="cn">false</span>))</span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>    <span class="cf">if</span> specs[<span class="st">"ploidy"</span>] <span class="op">==</span> <span class="fl">2</span> <span class="op">&amp;&amp;</span> parent2 <span class="op">!==</span> <span class="cn">nothing</span></span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>        pat_w <span class="op">=</span> <span class="fu">meiosis</span>(parent2, specs, rng)</span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>        pat_t <span class="op">=</span> <span class="fu">meiosis_traits</span>(parent2, specs, rng)</span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>    <span class="cf">elseif</span> specs[<span class="st">"ploidy"</span>] <span class="op">==</span> <span class="fl">2</span> <span class="op">&amp;&amp;</span> selfing</span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a>        pat_w <span class="op">=</span> <span class="fu">meiosis</span>(parent1, specs, rng)</span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a>        pat_t <span class="op">=</span> <span class="fu">meiosis_traits</span>(parent1, specs, rng)</span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a>    <span class="cf">else</span></span>
+<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a>        pat_w <span class="op">=</span> <span class="dt">Float32</span>[]      <span class="co"># &lt;-- effectively haploid offspring</span></span>
+<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a>        pat_t <span class="op">=</span> <span class="dt">Float32</span>[]</span>
+<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb7-19"><a href="#cb7-19" tabindex="-1"></a>    <span class="fu">DiploidGenome</span>(mat_w, pat_w, mat_t, pat_t,</span>
+<span id="cb7-20"><a href="#cb7-20" tabindex="-1"></a>                  parent1.architecture, parent1.n_chromosomes)</span>
+<span id="cb7-21"><a href="#cb7-21" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div>
+<p><strong>What this says.</strong> Produce an offspring genome by
+calling <code>meiosis</code> once on each parent to get the two
+haplotypes, then assembling them into a <code>DiploidGenome</code>. When
+<code>ploidy == 2</code> but no mate is available
+(<code>parent2 === nothing</code>), the behaviour depends on
+<code>self_fertilization_fallback</code>:</p>
+<ul>
+<li>
+<strong>FALSE</strong> (default): <code>pat_w = Float32[]</code>.
+The resulting <code>DiploidGenome</code> has an empty paternal side,
+which makes <code>is_haploid(g) == true</code> everywhere downstream —
+the offspring is effectively haploid even though it was produced by a
+ploidy-2 agent.</li>
+<li>
+<strong>TRUE</strong>: draw the second haplotype from parent1 via
+meiosis (self-fertilization). The offspring remains diploid with both
+alleles from the same parent.</li>
+</ul>
+<p><strong>Biology.</strong> Real organisms have at least three options
+when a mate isn’t found:</p>
+<ol style="list-style-type: decimal">
+<li>Skip reproduction this cycle.</li>
+<li>Self-fertilize (common in plants, hermaphrodite animals).</li>
+<li>Outcross at longer range (long-distance dispersal of pollen, sperm,
+etc.).</li>
+</ol>
+<p>clade’s default is effectively <strong>(1 with a twist)</strong>: the
+offspring is produced but collapses to haploid ploidy, which in
+downstream code acts like a species switch mid-reproduction.</p>
+<p><strong>Why this matters — the silent-haploid bug.</strong>
+Pre-0.5.10, <code>_find_mate</code> returned <code>nothing</code>
+whenever <code>signal_dims == 0</code> (no mate-choice trait). That
+short-circuit meant <code>parent2</code> was <code>nothing</code> for
+<em>every</em> reproduction in default-config scenarios. Every offspring
+ended up with <code>pat_w = Float32[]</code>. The whole diploid pipeline
+was a no-op: <code>is_haploid(g) == true</code> forever,
+<code>make_bnn_brain</code> took the haploid branch, sigma was pinned at
+<code>bnn_sigma_init</code>, heterozygosity-dependent inheritance
+(Hamilton’s pedigree r, Baldwin canalization, sex-vs-asex comparisons)
+was all measuring haploid dynamics under a diploid label.</p>
+<p><strong>Fixed in 0.5.10</strong> by rewriting <code>_find_mate</code>
+to actually return mates at default <code>signal_dims = 0</code> (random
+neighbour, sexual reproduction without mate choice).
+<code>self_fertilization_fallback</code> was added in 0.5.9 as a
+complementary opt-in: even if the mate search fails, keep the offspring
+diploid via selfing.</p>
+<p><strong>Audit findings.</strong> The 0.5.11 re-audit of 12
+diploid-sensitive ✅ scenarios found that 11 still hold under the fixed
+kernel (see <code>dev/audit/fidelity/post_0510_summary.md</code>). One
+demotion (<code>s-stress-hypermutation</code>, above). The bug was
+silently invalidating audits for years; the re-audit confirms the
+surviving claims are defensible under real diploid dynamics.</p>
+<p><strong>Variants worth considering.</strong></p>
+<ul>
+<li>
+<strong>Broader mate search</strong>
+(<code>mate_search_radius = 2</code> or <code>3</code>) reduces
+Allee-failure rate without requiring the selfing fallback. Ecologically
+reasonable default for most species.</li>
+<li>
+<strong>Outcrossed fallback</strong> (not implemented): random
+cross-grid donor when local search fails, avoiding both haploid
+conversion and selfing-inbreeding. Probably the best long-term
+design.</li>
+<li>
+<strong>Sex-vs-asex calibration</strong>: mating-systems found that
+real diploid sex is viability-negative at current
+<code>repro_cost</code> settings (20/32 seeds crashed in the 0.5.10
+re-audit). The cost structure was implicitly tuned for
+diploid-in-name-only (i.e. asex). Deciding what sex <em>should</em> cost
+is a separate design exercise.</li>
+</ul>
 <hr>
 </div>
 <div class="section level3">
 <h3 id="genome-distance-measuring-divergence">7. Genome distance — measuring divergence<a class="anchor" aria-label="anchor" href="#genome-distance-measuring-divergence"></a>
 </h3>
-<div class="sourceCode" id="cb7"><pre class="sourceCode julia"><code class="sourceCode julia"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="kw">function</span> <span class="fu">genome_distance</span>(g1<span class="op">::</span><span class="dt">DiploidGenome</span>, g2<span class="op">::</span><span class="dt">DiploidGenome</span>,</span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>                          dominance_model<span class="op">::</span><span class="dt">String </span><span class="op">=</span> <span class="st">"additive"</span>)<span class="op">::</span><span class="dt">Float32</span></span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>    p1 <span class="op">=</span> <span class="fu">express_weights</span>(g1, dominance_model, <span class="fu">default_rng</span>())</span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>    p2 <span class="op">=</span> <span class="fu">express_weights</span>(g2, dominance_model, <span class="fu">default_rng</span>())</span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>    n  <span class="op">=</span> <span class="fu">max</span>(<span class="fu">length</span>(p1), <span class="fu">length</span>(p2))</span>
-<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>    n <span class="op">==</span> <span class="fl">0</span> <span class="op">&amp;&amp;</span> <span class="cf">return</span> <span class="fl">0.0f0</span></span>
-<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>    <span class="fu">sqrt</span>(<span class="fu">sum</span>(abs2, p1 <span class="op">.-</span> p2)) <span class="op">/</span> <span class="fu">sqrt</span>(<span class="fu">Float32</span>(n))</span>
-<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode julia"><code class="sourceCode julia"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="kw">function</span> <span class="fu">genome_distance</span>(g1<span class="op">::</span><span class="dt">DiploidGenome</span>, g2<span class="op">::</span><span class="dt">DiploidGenome</span>,</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>                          dominance_model<span class="op">::</span><span class="dt">String </span><span class="op">=</span> <span class="st">"additive"</span>)<span class="op">::</span><span class="dt">Float32</span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>    p1 <span class="op">=</span> <span class="fu">express_weights</span>(g1, dominance_model, <span class="fu">default_rng</span>())</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>    p2 <span class="op">=</span> <span class="fu">express_weights</span>(g2, dominance_model, <span class="fu">default_rng</span>())</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>    n  <span class="op">=</span> <span class="fu">max</span>(<span class="fu">length</span>(p1), <span class="fu">length</span>(p2))</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>    n <span class="op">==</span> <span class="fl">0</span> <span class="op">&amp;&amp;</span> <span class="cf">return</span> <span class="fl">0.0f0</span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>    <span class="fu">sqrt</span>(<span class="fu">sum</span>(abs2, p1 <span class="op">.-</span> p2)) <span class="op">/</span> <span class="fu">sqrt</span>(<span class="fu">Float32</span>(n))</span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div>
 <p><strong>What this says.</strong> Compute the normalised Euclidean
 distance between two agents’ expressed weight phenotypes. Used by:</p>
 <ul>

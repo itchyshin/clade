@@ -32,6 +32,10 @@ Entry points for running and batching evolutionary simulations.
   : Fast-generation specs for evolutionary scenarios
 - [`slow_specs()`](https://itchyshin.github.io/clade/reference/slow_specs.md)
   : Slow-generation specs for long-lived organism scenarios
+- [`realistic_specs()`](https://itchyshin.github.io/clade/reference/realistic_specs.md)
+  : Realistic-scale specs for ecologically meaningful audits
+- [`ultra_realistic_specs()`](https://itchyshin.github.io/clade/reference/ultra_realistic_specs.md)
+  : Ultra-realistic specs for finite-size-sensitive audits
 - [`load_specs()`](https://itchyshin.github.io/clade/reference/load_specs.md)
   : Load simulation specs from a JSON file
 

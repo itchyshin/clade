@@ -66,6 +66,58 @@ That’s enough to read 90% of the kernel. Ask if anything else is opaque.
 
 ------------------------------------------------------------------------
 
+### Known kernel properties that affect audits
+
+Three cross-cutting findings from the 2026-04 audit cycle that users
+should know about before interpreting any scenario whose claim depends
+on diploid sex, BNN posterior sigma, or within-lifetime learning. Each
+is documented in detail in the relevant chapter (linked), plus in
+`dev/audit/fidelity/` reports.
+
+1.  **Default reproduction used to be structurally asexual for every
+    ploidy-2 scenario.** `_find_mate` short-circuited to `nothing`
+    whenever `signal_dims = 0` (the default). Offspring were produced
+    with an empty paternal haplotype, making them effectively haploid.
+    Fixed in 0.5.10. See
+    [reproduce.jl](https://itchyshin.github.io/clade/articles/k-reproduce.md)
+    §“Mate finding” and
+    [genome.jl](https://itchyshin.github.io/clade/articles/k-genome.md)
+    §6.5. Consequence: pre-0.5.10 audits of heritability,
+    heterozygosity, pedigree-kin, sex-vs-asex were all measuring haploid
+    mechanics under a diploid label. The 0.5.11 re-audit of 12
+    diploid-sensitive ✅ scenarios found 11 still hold and one demoted
+    (`stress-hypermutation`).
+
+2.  **BNN posterior sigma couples genome heterozygosity to behaviour.**
+    In `"heterozygosity"` mode (default), `sigma = |mat − pat| / 2` at
+    each weight — so genetically diverse agents act more variably.
+    Pre-0.5.5 this fully coupled three channels (action noise, learning
+    rate, posterior uncertainty) which made Baldwin / plasticity claims
+    untestable. Now decoupled via `bnn_action_noise_scale` and
+    `bnn_sigma_lr_scale`, and the Hinton-Nowlan prediction is testable —
+    but the direction in clade comes out REVERSED from DeWitt 2004
+    (stable \> seasonal) under tested seasonal amplitudes. Both
+    s-plasticity and s-baldwin sit as honest 🟠 with this diagnosis. See
+    [genome.jl](https://itchyshin.github.io/clade/articles/k-genome.md)
+    §5 BNN-sigma-from-heterozygosity.
+
+3.  **Real diploid sex is currently viability-negative under default
+    reproduction costs.** The 0.5.10 re-audit of mating-systems found
+    that with real sex enabled, 20/32 seeds crash and the sex-vs-asex
+    comparison shows Δn = −88 at t = −29. The default `repro_cost`
+    parameters were implicitly tuned for effective asex (pre-0.5.10
+    default). Sex-cost calibration is an open design question — see
+    [genome.jl](https://itchyshin.github.io/clade/articles/k-genome.md)
+    §6.5 “Variants worth considering”.
+
+These aren’t errors the user has to “work around”; they’re kernel
+properties that determine which audit claims are defensible and which
+need re-interpretation. The
+[STATUS.md](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/STATUS.md)
+ledger and the individual fidelity reports already reflect all three.
+
+------------------------------------------------------------------------
+
 ### Companion chapters
 
 - [Kernel as biology —

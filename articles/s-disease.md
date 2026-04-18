@@ -55,7 +55,7 @@ p1 / p2
 
 **What we found (2026-04-15 audit).** 5-seed run at
 `transmission_prob = 0.20`, 120 agents init, 300 ticks. Full protocol:
-[dev/audit/fidelity/disease.md](https://itchyshin.github.io/clade/dev/audit/fidelity/disease.md).
+[dev/audit/fidelity/disease.md](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/disease.md).
 
 | Metric               | Value        |
 |----------------------|--------------|

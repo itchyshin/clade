@@ -68,7 +68,7 @@ normalisation to \[0,1\], and scalar trait evolution. A handful of
 undocumented changes (eating semantics, grass-to-energy ratio, always-on
 age cap, fixed repro cost) are worth flagging for 0.4.0 review. The full
 three-way diff is in
-[dev/audit/fidelity/baseline.md](https://itchyshin.github.io/clade/dev/audit/fidelity/baseline.md)
+[dev/audit/fidelity/baseline.md](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/baseline.md)
 §3 and §6.
 
 ### Discovery experiments

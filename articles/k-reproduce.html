@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.11</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -630,12 +630,86 @@ graduation (handled in <code>parental_care.jl</code>).</p>
 <hr>
 </div>
 <div class="section level3">
+<h3 id="x--mate-finding-a-kernel-level-issue-worth-knowing-about">X. Mate finding — a kernel-level issue worth knowing about<a class="anchor" aria-label="anchor" href="#x--mate-finding-a-kernel-level-issue-worth-knowing-about"></a>
+</h3>
+<div class="sourceCode" id="cb10"><pre class="sourceCode julia"><code class="sourceCode julia"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="kw">function</span> <span class="fu">_find_mate</span>(ag<span class="op">::</span><span class="dt">Agent</span>, env<span class="op">::</span><span class="dt">Environment</span>)<span class="op">::</span><span class="dt">Union{Agent, Nothing}</span></span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>    specs <span class="op">=</span> env.specs</span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>    <span class="cf">if</span> specs[<span class="st">"ploidy"</span>] <span class="op">==</span> <span class="fl">1</span></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>        <span class="cf">return</span> <span class="cn">nothing</span>     <span class="co"># haploid: asexual by genome</span></span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>    radius <span class="op">=</span> <span class="fu">Int</span>(<span class="fu">get</span>(specs, <span class="st">"mate_search_radius"</span>, <span class="fl">1</span>))</span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a>    radius <span class="op">=</span> <span class="fu">max</span>(radius, <span class="fl">1</span>)</span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a>    <span class="co"># ... collect live neighbours within Moore radius ...</span></span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a>    <span class="cf">if</span> <span class="fu">Int</span>(<span class="fu">get</span>(specs, <span class="st">"signal_dims"</span>, <span class="fl">0</span>)) <span class="op">==</span> <span class="fl">0</span></span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a>        <span class="cf">return</span> candidates[<span class="fu">rand</span>(env.rng, <span class="fl">1</span><span class="op">:</span><span class="fu">length</span>(candidates))]</span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a>    <span class="co"># signal_dims &gt; 0: pick best signal-preference match (Zahavi 1975)</span></span>
+<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a>    <span class="co"># ...</span></span>
+<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div>
+<p><strong>What this says.</strong> Look for a mate for agent
+<code>ag</code>. If haploid, return nothing (no mate needed). Otherwise
+search a Moore neighbourhood of configurable radius (default 1 = 3×3)
+for a live other agent. When <code>signal_dims == 0</code> (the default
+for scenarios that don’t evolve signal traits), pick a random eligible
+neighbour — sexual reproduction without mate choice. When
+<code>signal_dims &gt; 0</code>, prefer the candidate whose
+<code>signal</code> best matches <code>ag.preference</code>
+(Zahavi-style honest-signal mate choice).</p>
+<p><strong>Biology.</strong> Real organisms search a finite area for
+mates, and for most species mate choice is either absent (random pairing
+among neighbours) or signal-based (e.g. preference for a trait like
+plumage). clade models both with a single neighbour-search loop.</p>
+<p><strong>Historical note — the 0.5.10 kernel fix.</strong> Pre-0.5.10
+this function had a <strong>short-circuit on
+<code>signal_dims == 0</code></strong> that made it return
+<code>nothing</code> immediately without searching. Because
+<code>signal_dims = 0</code> is the default for every
+non-signal-evolving scenario, every supposedly-diploid run was actually
+doing asexual reproduction: <code>_find_mate</code> returned
+<code>nothing</code>, <code>make_offspring_genome</code> set
+<code>pat_w = Float32[]</code>, and the offspring was effectively
+haploid. The “diploid” ploidy flag was a no-op unless you turned on
+signal evolution.</p>
+<p>The 0.5.10 fix removes the short-circuit. When
+<code>ploidy == 2</code> and <code>signal_dims == 0</code>,
+<code>_find_mate</code> now picks a random live neighbour — which is the
+correct default semantics for a diploid that doesn’t evolve signal-based
+mate choice.</p>
+<p><strong>Audit consequences.</strong> Every <code>ploidy = 2</code>
+scenario whose claims depend on real diploid dynamics (heritability,
+heterozygosity, pedigree-based kin, speciation through mate choice, sex
+vs asex) was running on structurally-haploid mechanics before 0.5.10.
+The 0.5.11 re-audit of the 12 most diploid-sensitive ✅ scenarios found
+that 11 still hold under the fixed kernel — the demographic predictions
+(Cope, Trivers, Lack, life-history, pace-of-life, etc.) are robust to
+the ploidy flip. One demotion: <code>s-stress-hypermutation</code>
+becomes 🟠 because under real diploid sex, baseline mutation input
+already equals what hypermutation adds (Δ diversity = +0.000).</p>
+<p><strong>Variants worth considering.</strong></p>
+<ul>
+<li>
+<strong>Broader radius.</strong> <code>mate_search_radius = 2</code>
+(5×5) or <code>3</code> (7×7) reduces Allee-failure rate on sparse
+grids. Cost: more outcrossing dilutes local adaptation.</li>
+<li>
+<strong>Self-fertilization fallback.</strong> When no mate is found
+and you still want to preserve diploidy (rather than silently degrading
+to haploid offspring), set
+<code>self_fertilization_fallback = TRUE</code>. The second gamete is
+drawn from parent1 (self-fertilization), which keeps <code>pat_w</code>
+non-empty but inbreeds the population.</li>
+<li>
+<strong>Outcrossed fallback</strong> (not yet implemented). Would
+pick a random agent from anywhere on the grid when the local search
+fails — avoids both Allee-failure-haploid conversion and the
+selfing-inbreeding cost.</li>
+</ul>
+<hr>
+</div>
+<div class="section level3">
 <h3 id="what-this-file-doesnt-do">What this file <em>doesn’t</em> do<a class="anchor" aria-label="anchor" href="#what-this-file-doesnt-do"></a>
 </h3>
 <ul>
-<li>
-<strong>Mate finding.</strong> Defined in <code>_find_mate</code>
-(further down in the same file).</li>
 <li>
 <strong>Genome operations</strong> (crossover, mutation, dominance).
 Defined in <code>genome.jl</code>.</li>

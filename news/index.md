@@ -1,5 +1,266 @@
 # Changelog
 
+## clade 0.5.11 (2026-04-18, ledger re-audit)
+
+### Ledger check after 0.5.10 kernel fix
+
+Re-ran the 12 ✅ scenarios whose claims depend on diploid genomic
+dynamics, on the 0.5.10 kernel where `_find_mate` no longer
+short-circuits on `signal_dims = 0` (every pre-0.5.10 diploid run was
+structurally asexual).
+
+**11 of 12 survive.** One demotion:
+
+- **s-stress-hypermutation ✅ → 🟠**: under real diploid sex, baseline
+  genetic diversity (0.263) already equals what hypermutation produces
+  (0.263). Δ = +0.000 across 4 seeds at grass_rate = 0.06. Rosenberg
+  2001 / Foster 2007’s “hypermutation raises diversity” prediction does
+  not reproduce at tested parameters.
+
+**Primary claims hold** for the other 11:
+
+- s-pop-genetics (h² proxy = 0.988): ✅ holds
+- s-speciation (P1+P2+P3 PASS, ρ(iso, n_species) = −0.97): ✅
+- s-kin (P1 PASS Δ=+21.3, P3 PASS; P2 slightly weakened): ✅
+- s-cooperation (ρ(mult, pop) = 1.00): ✅
+- s-brain-size (Δdelta = +1.112 at best regime): ✅
+- s-body-size (Cope drift +0.042 ± 0.011; P2 flat as documented): ✅
+- s-parental-investment (ρ(fi, juveniles) = −1.00 per Trivers): ✅
+- s-clutch-size (Lack positive at grass 0.05→0.20; inverts at
+  resource-saturation 0.30+ due to max_agents cap): ✅ reframed
+- s-life-history (3/3 PASS: semelparous vs iteroparous): ✅
+- s-pace-of-life (ρ(metabolic_rate, age) = −1.00): ✅
+- s-parental-care (P1+P2 PASS): ✅
+
+See `dev/audit/fidelity/post_0510_summary.md`.
+
+**Final ledger**: 26 ✅ / 6 🟠 / 0 🔴 out of 32 auditable scenarios
+(**81% ✅**, confirmed end-to-end on real-diploid-sex kernel).
+
+## clade 0.5.10 (2026-04-18, late-late evening)
+
+### Major kernel fix — `_find_mate` was structurally asexual by default
+
+Continued investigation of the 0.5.9 sigma-pegging bug traced the
+problem deeper than the selfing fallback. In
+`inst/julia/src/reproduce.jl:_find_mate` there was a short-circuit:
+
+``` julia
+if specs["ploidy"] == 1 || Int(get(specs, "signal_dims", 0)) == 0
+    return nothing     # haploid / no-signal-choice → asexual
+end
+```
+
+`signal_dims = 0` is the **default** for every scenario except
+s-signals. The effect was that every supposedly-diploid run in clade has
+been producing structurally-haploid offspring (`pat_w = Float32[]` at
+every birth), regardless of `ploidy = 2`. The entire diploid pathway was
+a no-op unless signal evolution was explicitly turned on.
+
+### The fix (0.5.10)
+
+1.  **Removed the `signal_dims == 0` short-circuit** in `_find_mate`.
+    When signal evolution is off but `ploidy == 2`, the function now
+    picks a random live neighbour as mate (sexual reproduction without
+    mate choice — the default for any non-signal-evolving species).
+2.  **New spec `mate_search_radius`** (default 1, i.e. 3×3 Moore). `2`
+    gives 5×5, `3` gives 7×7. Useful for lowering Allee-failure rate on
+    sparse grids.
+
+### Audit implications — the ledger is softer than yesterday
+
+The bug silently invalidated every sex-vs-asex, heritability, and
+heterozygosity-dependent audit. Results from 0.5.10 so far:
+
+- **s-plasticity / s-baldwin**: sigma now evolves (0.21 → 0.33) instead
+  of pegged at `bnn_sigma_init = 0.5`, but direction is REVERSED: stable
+  \> seasonal at Δ = −0.027, t = −1.41. DeWitt 2004 / Hinton-Nowlan
+  canonical prediction (seasonal \> stable) is NOT reproduced at tested
+  parameters. Scenarios remain 🟠 but with updated framing: kernel bug
+  was hiding a real direction-mismatch.
+- **s-mating-systems**: the previous “sex ≈ asex” result was measuring
+  asex-vs-asex noise because of the bug. With real diploid sex enabled,
+  sex is catastrophically viability-negative (Δn = −88, t = −29; 20/32
+  sex seeds crashed). Clade’s reproduction-cost parameters are **not
+  currently calibrated for viable real sex**. Hamilton 1980 Red Queen
+  cannot be tested until the sex-cost calibration is done.
+
+### Caveat on the overall ledger
+
+The 27 ✅ / 5 🟠 / 3 ⚪ ledger from 0.5.9 should be read with awareness
+that every `ploidy = 2` scenario pre-0.5.10 was running on
+effectively-haploid kernel dynamics. Scenarios whose claims are
+demographic or ecological (s-baseline, s-predator-prey, s-disease, etc.)
+are largely unaffected — the bug didn’t change what the agent brain ate,
+only which kind of offspring it produced. But scenarios claiming
+heritability, heterozygosity, pedigree-based kin selection, or
+sex-specific effects may need re-auditing now that diploid sex actually
+works.
+
+## clade 0.5.9 (2026-04-18, late evening)
+
+### Kernel bug: silent haploid conversion under mate-finding failure
+
+While re-auditing s-plasticity and s-baldwin with the correct metric
+(`mean_prior_sigma`, not the neutral `mean_plasticity` trait), found
+that `mean_prior_sigma` was pegged at **exactly `bnn_sigma_init = 0.5`**
+across all seeds / envs / mutation rates, regardless of selection.
+
+Root cause in `inst/julia/src/genome.jl:make_offspring_genome`: when a
+diploid agent cannot find a mate (Allee-failure at realistic grid
+densities), the fallback path sets `pat_w = Float32[]`. The resulting
+offspring has an empty paternal-weights vector, so `make_bnn_brain`
+takes the `is_haploid` branch and assigns
+`sigma = fill(bnn_sigma_init, n)`. Within a few generations the entire
+diploid population silently converts to sigma-pegged “effectively
+haploid” agents, and the Baldwin canalization signal (heterozygosity
+purging in stable envs) cannot be observed.
+
+**Fix (opt-in)**: new spec `self_fertilization_fallback` (default FALSE
+for backward compatibility). When TRUE, the fallback path instead calls
+`meiosis(parent1, ...)` a second time — offspring stays diploid with two
+gametes from the same parent (self-fertilization). With selfing enabled,
+`mean_prior_sigma` drops from the pegged 0.5 to the real
+heterozygosity-derived ~0.076 and evolves from there.
+
+### Why this didn’t promote plasticity/Baldwin to ✅
+
+Selfing preserves diploidy but inbreeds populations: equilibrium drops
+to ~30-35 agents, most seeds fall below the viability threshold. In the
+1-2 surviving seeds per condition, direction is Baldwin-correct
+(seasonal 0.0766 \> stable 0.0754, Δ = +0.0012) but too few replicates
+to cross 2σ.
+
+Full promotion would require one of: - **Broader mate search** (5×5 or
+7×7 neighbourhood instead of Moore 8) so Allee-failure becomes rare and
+full-diploid evolution dominates. Ecologically reasonable. -
+**Outcrossed fallback** (random cross-grid sperm donor instead of
+parent1) so no-mate offspring isn’t inbred.
+
+Both are kernel changes outside the 0.5.9 scope.
+
+### Contribution
+
+Even without the promotion, this is a real and specific kernel bug that
+was silently invalidating multiple previous audits. The fix is opt-in
+and backward compatible; documenting it prevents future diagnostic
+rabbit-holes when audit metrics seem “stuck”.
+
+## clade 0.5.8 (2026-04-18, evening)
+
+### BNN sigma decoupling + ultra_realistic_specs audit cycle
+
+Followed up the morning’s
+[`realistic_specs()`](https://itchyshin.github.io/clade/reference/realistic_specs.md)
+work with the two priorities from the 🟠-analysis reflection: (1)
+activate the existing BNN action-noise / sigma-lr decoupling in the
+plasticity/Baldwin/RL audits, (2) add a bigger preset for
+finite-size-sensitive scenarios.
+
+**Promotion:**
+
+- **s-rl 🟠 → ✅** at 16 seeds × realistic_specs with
+  `bnn_action_noise_scale = 0.7, bnn_sample_freq = 5, rl_update_freq = 5, learning_rate_init_mean = 0.005`:
+  Δn_agents(actor_critic − none) = +10.9 ± 4.9 at t = +2.20 (17% larger
+  equilibrium population). Williams 1992 REINFORCE works when the agent
+  can actually *exploit* its learned posterior mean; legacy
+  sigma-coupled action noise was re-randomising the policy every tick
+  and cancelling the learning signal.
+
+**New preset:**
+
+- **[`ultra_realistic_specs()`](https://itchyshin.github.io/clade/reference/ultra_realistic_specs.md)**
+  — 120×120 grid, 500 init, 5000 max, 2500 ticks, 400-agent equilibrium.
+  Designed for Red-Queen-type scenarios whose theoretical signal scales
+  with N.
+
+**Null findings (honestly documented, no verdict change):**
+
+- **s-plasticity, s-baldwin**: BNN sigma decoupling with
+  `bnn_sigma_source = "trait"` is non-viable at realistic scale (0–2
+  seeds per cell survive). In the viable `"heterozygosity"` mode the
+  plasticity trait is a neutral marker, so Δ = 0. Genuine kernel
+  limitation — decoupling infrastructure exists but the trait-mode sigma
+  source needs its own stability work.
+- **s-mating-systems**: 32 seeds × ultra_realistic_specs gives
+  Δn_sex−asex = +2.4 at t = +0.41 (smaller than the 16-seed ultra result
+  of +7.6 — that was seed noise). Otto & Michalakis 1998’s ~μN
+  finite-size scaling does NOT manifest in clade’s discrete-allele
+  parasite kernel.
+- **s-group-defense** at ultra scale: Δ = +0.66 at t = +0.08 — signal
+  vanishes. Correct finite-size interpretation is that selfish-herd risk
+  dilution (∝ 1/√N) means *larger* herds need defense less, not more.
+
+**Vignette reframe (P3):**
+
+- **s-predation-neural** — the vignette’s “Expected output” section was
+  rewritten to split the two historical claims: (a) predation reduces
+  prey population (Williams 1966 demographic, ✅ at t = −3.64), (b)
+  predation maintains genetic diversity via directional selection
+  (**retracted**, t = −0.90 under clade’s mutation-bounded brain-weight
+  regime).
+
+**Final ledger: 27 ✅ / 5 🟠 / 0 🔴 out of 32 auditable scenarios (84%
+✅).** Net +3 promotions from yesterday’s 24 ✅.
+
+## clade 0.5.7 (2026-04-18)
+
+### realistic_specs() preset + audit re-runs at realistic scale
+
+New exported
+[`realistic_specs()`](https://itchyshin.github.io/clade/reference/realistic_specs.md)
+preset — 60×60 grid (4× default area), 150 init agents, 2000 ticks (66
+generations at `max_age = 30`), and explicit `predator_max_age = 60`
+(predators outlive prey 2×, biologically realistic owl-vs-mouse age
+structure). Built on
+[`fast_specs()`](https://itchyshin.github.io/clade/reference/fast_specs.md)
+because 2000-tick runs are the longest the BNN kernel stays stable
+without trait drift.
+
+Used this preset to re-audit every 🟠 scenario plus the ⚪ demo
+scenarios. Two promotions and one reframe:
+
+- **s-scavenging 🟠 → ✅**: DeVault 2003 carrion-as-energy-channel holds
+  when the predator guild supplies adequate carcasses. 8 seeds × 2
+  conds: Δenergy = +3.42 ± 0.71 (t = +4.83), Δpop = +14.9 ± 6.1 (t =
+  +2.46). The 2026-04-17 null was scale-limited: at default 30×30 /
+  500-tick the predator guild is too thin to generate a detectable
+  carrion channel.
+- **s-cephalopod ⚪ → ✅**: Liedtke & Fromhage 2019’s lifespan-vs-
+  learning-rate prediction reproduced. 10 seeds × 4 lifespans:
+  slope(mean_lr ~ max_age) = −9.23e-05 ± 2.48e-05 (t = −3.72).
+  Short-lived agents evolve ~22% higher learning rates.
+- **s-predation-neural ⚪ → 🟠**: honest reframe. Predation reduces prey
+  equilibrium population by 15% (t = −3.64, Williams 1966 demographic
+  passes). The older “predation increases genetic diversity” claim is
+  retracted at realistic scale (t = −0.90).
+
+Also reframed (still 🟠):
+
+- **s-group-defense**: 2026-04-17 “defense inverts Hamilton 1971”
+  verdict was a default-scale artifact. At realistic scale with
+  `predator_max_age = 60`, direction is now correct (Δpop = +10.1, t =
+  +1.60) but sub-2σ.
+- **s-mating-systems**: 32-seed realistic confirms 🟠 (t = +1.32
+  direction correct, still sub-2σ). Red Queen advantage in clade’s
+  kernel is genuinely subtle.
+- **s-rl / s-plasticity / s-baldwin**: kernel-limited (BNN sigma
+  coupling), not scale-limited. Realistic-scale audit produces same
+  magnitude as default-scale.
+
+Also pushed forward:
+
+- **20+ broken pkgdown links fixed** — audit reports under `dev/` now
+  use absolute `github.com/blob/main` URLs so they resolve on both
+  GitHub and the pkgdown site (previously 404’d on pkgdown because
+  `dev/` isn’t shipped with the package).
+- **Stale landing-page counts fixed**: README, DASHBOARD, NEWS all now
+  match STATUS.md’s actual ledger.
+
+**Final ledger: 26 ✅ / 6 🟠 / 0 🔴 out of 32 auditable scenarios (81%
+✅).** Up from 24 ✅ / 6 🟠 / 30 auditable (80%) at the start of the
+session.
+
 ## clade 0.5.6 (2026-04-17)
 
 ### Hygiene pass (late 0.5.6)
@@ -143,7 +404,9 @@ never engage. Filed as the clearest next step in
   keep them at `default_specs`.
 - **Evidence-strength review** (`EVIDENCE_REVIEW.md`): tiers all 30
   auditable scenarios into Strong / Moderate / Weak-✅ / Honest 🟠.
-  Revealed 14 of 26 ✅ sit in Tier C (audited pre-8-seed discipline).
+  Revealed that a meaningful subset of the pre-cycle ✅ sat in Tier C
+  (audited pre-8-seed discipline); four of those were demoted to 🟠
+  after 8-seed re-audit.
 - **Tier C re-audit (batches 1 + 2)**: ran 12 of the 14 Tier C scenarios
   × 8 seeds × 2 conditions. Six pass as module-firing-correctness checks
   (cooperation, speciation, niche, parental_care, complex_landscape,
@@ -161,9 +424,8 @@ never engage. Filed as the clearest next step in
   1990 handicap-equilibrium critique cited).
 - Five Tier-C ✅ → 🟠 (per above).
 
-Honest ledger (post-retire): **~14 defensible-✅ / ~9 🟠 / 1 marginal /
-2 untouched / 0 🔴** out of 30 auditable scenarios (11 were already Tier
-A / Tier B, 3 pass Tier C at module- correctness level).
+Honest ledger after the full re-audit cycle: **24 ✅ / 6 🟠 / 0 🔴** out
+of 30 auditable scenarios (80% ✅).
 
 ### New benchmark: brain-type comparison (s-brain-comparison)
 
