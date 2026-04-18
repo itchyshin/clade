@@ -1,3 +1,72 @@
+# clade 0.5.16 (2026-04-18, Rosenberg 2001 confirmed — s-stress-hypermutation ✅)
+
+## s-stress-hypermutation 🟠 → ✅ — config bug, not biology null
+
+0.5.11 demoted s-stress-hypermutation on a "Δdiversity = +0.000"
+finding at 4 seeds. The hypothesis was that real diploid sex
+equalised mutation input. That hypothesis was **wrong**.
+
+Root cause was structural. In `inst/julia/src/reproduce.jl:156`,
+stress-mutation fires at reproduction time gated on parent's
+energy being **below** `stress_threshold`:
+
+```julia
+eff_mut_sd = if Bool(specs["stress_hypermutation"]) &&
+                ag.energy < stress_threshold
+    base_mut_sd * stress_mutation_multiplier
+else
+    base_mut_sd
+end
+```
+
+Reproduction itself is gated at `ag.energy ≥ min_repro_energy`
+(default 120). Default `stress_threshold = 20`. So `energy` is
+ALWAYS ≥ 120 at reproduction, and the stress condition
+(`energy < 20`) is ALWAYS false. **Stress-mutation was never
+firing under default config.** Δdiversity = 0 exactly because
+no hypermutation event ever happened.
+
+## Fix
+
+Raised `stress_threshold` to 150 (> `min_repro_energy = 120`). Re-ran
+scarcity sweep:
+
+| grass_rate | OFF div | ON div | Δ ± SE | t |
+|---|---|---|---|---|
+| 0.02 | crashed | crashed | — | — |
+| 0.03 | 2 viable | 1 viable | too few | — |
+| 0.04 | 0.252 (n=13) | 1.132 (n=12) | +0.881 ± 0.018 | **+48.9** |
+| 0.06 | 0.265 (n=16) | 1.196 (n=16) | +0.930 ± 0.010 | **+92.2** |
+
+At moderate scarcity (grass 0.04–0.06), hypermutation **quadruples**
+genetic diversity (0.25 → 1.15). Rosenberg 2001 / Foster 2007
+decisively confirmed. The t-statistics are extraordinary because
+OFF and ON distributions have essentially zero overlap — every seed
+gives the same ordering.
+
+## Config doc updated
+
+The `stress_threshold` entry in `R/config.R` now explicitly flags
+the threshold-vs-min_repro_energy requirement:
+
+> **Note**: stress hypermutation fires at reproduction time, not
+> per-tick. Reproduction requires `energy ≥ min_repro_energy`
+> (default 120), so `stress_threshold` must be GREATER than
+> `min_repro_energy` for hypermutation to ever trigger. With
+> defaults (threshold = 20, min_repro = 120), the module is
+> structurally silent — set `stress_threshold > 120` for
+> stress-mutation to actually fire.
+
+Default value retained at 20.0 for backward compatibility; users
+enabling `stress_hypermutation` should set an appropriate
+threshold explicitly.
+
+**New ledger: 29 ✅ / 3 🟠 / 0 🔴 out of 32 auditable scenarios
+(91% ✅).** Three 🟠 remain: plasticity, baldwin, predation-neural.
+
+Audit report: [`stress_hypermutation_scarcity_sweep.md`](dev/audit/fidelity/stress_hypermutation_scarcity_sweep.md).
+Runner: [`stress_hypermutation_scarcity_sweep.R`](dev/audit/fidelity/stress_hypermutation_scarcity_sweep.R).
+
 # clade 0.5.15 (2026-04-18, Hamilton 1971 confirmed — s-group-defense ✅)
 
 ## s-group-defense 🟠 → ✅

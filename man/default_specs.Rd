@@ -686,9 +686,16 @@ rate rises transiently. Controlled by three specs:
 \item{\code{stress_hypermutation}}{Logical. Enable stress-induced
 hypermutation (default \code{FALSE}).}
 \item{\code{stress_threshold}}{Numeric. Energy below which an agent is
-considered "stressed" (default 20.0).}
-\item{\code{stress_mutation_multiplier}}{Numeric. Per-tick multiplier
-applied to \code{mutation_sd} when an agent is stressed (default 5.0).}
+considered "stressed" (default 20.0). \strong{Note}: stress hypermutation
+fires at reproduction time, not per-tick. Reproduction requires
+\code{energy >= min_repro_energy} (default 120), so \code{stress_threshold}
+must be GREATER than \code{min_repro_energy} for hypermutation to
+ever trigger. With defaults (threshold = 20, min_repro = 120),
+the module is structurally silent — set \code{stress_threshold > 120}
+for stress-mutation to actually fire at reproduction events.}
+\item{\code{stress_mutation_multiplier}}{Numeric. Multiplier applied
+to \code{mutation_sd} at reproduction when the parent's energy is
+below \code{stress_threshold} (default 5.0).}
 }
 }
 
