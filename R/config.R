@@ -1116,6 +1116,13 @@ default_specs <- function() {
     n_chromosomes          = 1L,
     crossover_rate         = 1.0,
     dominance_model        = "additive",
+    self_fertilization_fallback = FALSE,   # 0.5.9: when TRUE + ploidy = 2 +
+                                           # no mate found, draw paternal
+                                           # haplotype from parent1 (self-
+                                           # fertilization) instead of making
+                                           # the offspring effectively haploid.
+                                           # Required for evolved-heterozygosity
+                                           # audits (s-plasticity, s-baldwin).
 
     # ── Mutation ───────────────────────────────────────────────────────────
     mutation_sd                = 0.1,

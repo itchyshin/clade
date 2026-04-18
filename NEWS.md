@@ -1,3 +1,54 @@
+# clade 0.5.9 (2026-04-18, late evening)
+
+## Kernel bug: silent haploid conversion under mate-finding failure
+
+While re-auditing s-plasticity and s-baldwin with the correct metric
+(`mean_prior_sigma`, not the neutral `mean_plasticity` trait), found
+that `mean_prior_sigma` was pegged at **exactly `bnn_sigma_init = 0.5`**
+across all seeds / envs / mutation rates, regardless of selection.
+
+Root cause in `inst/julia/src/genome.jl:make_offspring_genome`: when
+a diploid agent cannot find a mate (Allee-failure at realistic grid
+densities), the fallback path sets `pat_w = Float32[]`. The
+resulting offspring has an empty paternal-weights vector, so
+`make_bnn_brain` takes the `is_haploid` branch and assigns
+`sigma = fill(bnn_sigma_init, n)`. Within a few generations the
+entire diploid population silently converts to sigma-pegged
+"effectively haploid" agents, and the Baldwin canalization signal
+(heterozygosity purging in stable envs) cannot be observed.
+
+**Fix (opt-in)**: new spec `self_fertilization_fallback` (default
+FALSE for backward compatibility). When TRUE, the fallback path
+instead calls `meiosis(parent1, ...)` a second time — offspring
+stays diploid with two gametes from the same parent
+(self-fertilization). With selfing enabled, `mean_prior_sigma`
+drops from the pegged 0.5 to the real heterozygosity-derived
+~0.076 and evolves from there.
+
+## Why this didn't promote plasticity/Baldwin to ✅
+
+Selfing preserves diploidy but inbreeds populations: equilibrium
+drops to ~30-35 agents, most seeds fall below the viability
+threshold. In the 1-2 surviving seeds per condition, direction is
+Baldwin-correct (seasonal 0.0766 > stable 0.0754, Δ = +0.0012) but
+too few replicates to cross 2σ.
+
+Full promotion would require one of:
+- **Broader mate search** (5×5 or 7×7 neighbourhood instead of Moore
+  8) so Allee-failure becomes rare and full-diploid evolution
+  dominates. Ecologically reasonable.
+- **Outcrossed fallback** (random cross-grid sperm donor instead of
+  parent1) so no-mate offspring isn't inbred.
+
+Both are kernel changes outside the 0.5.9 scope.
+
+## Contribution
+
+Even without the promotion, this is a real and specific kernel
+bug that was silently invalidating multiple previous audits. The
+fix is opt-in and backward compatible; documenting it prevents
+future diagnostic rabbit-holes when audit metrics seem "stuck".
+
 # clade 0.5.8 (2026-04-18, evening)
 
 ## BNN sigma decoupling + ultra_realistic_specs audit cycle
