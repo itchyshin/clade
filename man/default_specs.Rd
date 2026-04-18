@@ -348,14 +348,15 @@ per methylated locus per tick (default 0.002).}
 co-evolve with prey.}
 \item{\code{predator_energy_init}}{Numeric. Starting energy for predators
 (default 150).}
-\item{\code{predator_attack_cost}}{Numeric. Energy deducted from predator per
-attack attempt (default 2).}
-\item{\code{predator_kill_gain}}{Numeric. Energy predator gains per successful
-kill (default 50).}
+\item{\code{predator_attack_strength}}{Numeric. Energy damage dealt to prey
+per successful predator attack (default 40). Named \code{predator_attack_cost}
+in docs before 0.5.6.}
+\item{\code{predator_energy_gain}}{Numeric. Energy predator gains per successful
+kill (default 30). Named \code{predator_kill_gain} in docs before 0.5.6.}
 \item{\code{predator_mutation_sd}}{Numeric. Mutation SD for predator brain
 weights (default 0.1).}
-\item{\code{max_predators}}{Integer. Hard cap on predator population
-(default 20L).}
+\item{\code{predator_max_agents}}{Integer. Hard cap on predator population
+(default 50L). Named \code{max_predators} in docs before 0.5.6.}
 \item{\code{predator_sense_graded}}{Logical. If \code{TRUE} (default, 0.4.2),
 prey's predator sensory input at distance \code{d} is \code{1/(d+1)} (closer
 predators produce a stronger signal). If \code{FALSE}, falls back to
@@ -567,10 +568,16 @@ Systematics} 38:231--253.}
 \describe{
 \item{\code{parental_care}}{Logical. Enable altricial parental care
 (default \code{FALSE}). Offspring remain with parent until graduation.}
-\item{\code{care_duration}}{Integer. Ticks offspring remain in parental care
-(default 5L).}
-\item{\code{care_cost_per_offspring}}{Numeric. Energy cost per carried
-offspring per tick (default 2.0).}
+\item{\code{juvenile_independence_age}}{Integer. Tick age at which an
+offspring leaves parental care (default 10L). Replaces the pre-0.4.0
+\code{care_duration} spec.}
+\item{\code{juvenile_independence_energy}}{Numeric. Energy level at which
+an offspring leaves parental care early (default 50.0).}
+\item{\code{feeding_rate}}{Numeric. Energy transferred per tick from
+carrying parent to offspring (default 5.0).}
+\item{\code{care_cost_per_tick}}{Numeric. Energy cost paid by the parent
+per tick of active care (default 1.0). Named \code{care_cost_per_offspring}
+in docs before 0.5.6.}
 \item{\code{max_clutch_size}}{Integer. Maximum offspring per reproductive
 event (default 1L).}
 \item{\code{neonatal_foraging_deficit}}{Numeric in [0, 1]. Reduction in
@@ -719,9 +726,12 @@ factors influencing habitat distribution in birds,
 \describe{
 \item{\code{seasonal_amplitude}}{Numeric. Amplitude of sinusoidal grass_rate
 modulation (default 0 = off). grass_rate_t = grass_rate *
-(1 + seasonal_amplitude * sin(2 * pi * t / seasonal_period)).}
-\item{\code{seasonal_period}}{Integer. Period of seasonal cycle in ticks
-(default 100L).}
+(1 + seasonal_amplitude * sin(2 * pi * t / season_length)).}
+\item{\code{season_length}}{Integer. Period of seasonal cycle in ticks
+(default 100L). Named \code{seasonal_period} in docs before 0.5.6.}
+\item{\code{winter_death_prob}}{Numeric in \link{0, 1}. Per-tick death probability
+during the low phase of the seasonal cycle (default 0). Only
+engages when \code{seasonal_amplitude > 0}.}
 }
 }
 
