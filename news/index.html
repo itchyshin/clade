@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.13</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.14</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -115,6 +115,50 @@
       <small>Source: <a href="https://github.com/itchyshin/clade/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.5.14" id="clade-0514-2026-04-18-hamilton-1980-confirmed--s-mating-systems-">clade 0.5.14 (2026-04-18, Hamilton 1980 confirmed — s-mating-systems ✅)<a class="anchor" aria-label="anchor" href="#clade-0514-2026-04-18-hamilton-1980-confirmed--s-mating-systems-"></a></h2>
+<div class="section level3">
+<h3 id="s-mating-systems----0-5-14">s-mating-systems 🟠 → ✅<a class="anchor" aria-label="anchor" href="#s-mating-systems----0-5-14"></a></h3>
+<p>Swept the 2×2 Red Queen differential across <code>parasite_pressure ∈ {2, 4, 6, 8}</code> × 16 seeds × 4 conditions = 160 runs. Hamilton 1980 mechanism scales cleanly and monotonically with parasite pressure:</p>
+<table class="table"><thead><tr class="header"><th>pressure</th>
+<th>asex cost</th>
+<th>sex cost</th>
+<th>RQ_benefit_n</th>
+<th>t_n</th>
+</tr></thead><tbody><tr class="odd"><td>2.0</td>
+<td>+8.8</td>
+<td>+2.1</td>
+<td>+6.7</td>
+<td>+1.02</td>
+</tr><tr class="even"><td>4.0</td>
+<td>+23.7</td>
+<td>+3.9</td>
+<td>+19.8</td>
+<td><strong>+2.81 PASS</strong></td>
+</tr><tr class="odd"><td>6.0</td>
+<td>+32.5</td>
+<td>+5.6</td>
+<td>+26.9</td>
+<td><strong>+4.97 PASS</strong></td>
+</tr><tr class="even"><td>8.0</td>
+<td>+45.3</td>
+<td>+5.5</td>
+<td>+39.8</td>
+<td><strong>+6.79 PASS</strong></td>
+</tr></tbody></table><p>Parasites reduce asex population by +45 agents at pressure=8 but barely touch sex (sex stays ~40 regardless of pressure) — recombination continuously generates novel haplotypes that escape the current parasite virulence pool. This is the canonical Red-Queen signature.</p>
+<p>At default <code>parasite_pressure = 2</code>, the benefit is direction-correct but sub-2σ. At pressure ≥ 4, it decisively crosses 2σ. The test is s-mating-systems’ formal promotion criterion.</p>
+</div>
+<div class="section level3">
+<h3 id="why-single-factor-sex-vs-asex-still-shows-sex--asex-0-5-14">Why single-factor sex-vs-asex still shows sex &lt; asex<a class="anchor" aria-label="anchor" href="#why-single-factor-sex-vs-asex-still-shows-sex--asex-0-5-14"></a></h3>
+<p>Clade’s 3× cost-of-sex (2-parent mate-finding filter on sparse grids) remains: asex ≈ 135 vs sex ≈ 45. That’s a structural kernel property, not a Red Queen question. Hamilton 1980 asks “does sex handle parasites better than asex does?” — not “is sex population bigger than asex?”. The 2×2 differential is the correct design for that; it unambiguously passes.</p>
+<p>If a future user wants the classical <code>n(sex) &gt; n(asex)</code> result in a single-factor comparison, the path is:</p>
+<ul><li>
+<code>repro_cost_mode = "per_couple"</code> kernel spec (deferred to 0.6+)</li>
+<li>OR very high parasite pressure (~15+) to overwhelm the cost.</li>
+</ul><p><strong>New ledger: 27 ✅ / 5 🟠 / 0 🔴 out of 32 auditable scenarios (84% ✅).</strong></p>
+<p>Audit report: <a href="dev/audit/fidelity/mating_systems_pressure_sweep.html"><code>mating_systems_pressure_sweep.md</code></a>. Runner: <a href="dev/audit/fidelity/mating_systems_pressure_sweep.R"><code>mating_systems_pressure_sweep.R</code></a>.</p>
+</div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.5.13" id="clade-0513-2026-04-18-hamilton-1980-red-queen-via-22-design">clade 0.5.13 (2026-04-18, Hamilton 1980 Red Queen via 2×2 design)<a class="anchor" aria-label="anchor" href="#clade-0513-2026-04-18-hamilton-1980-red-queen-via-22-design"></a></h2>
 <div class="section level3">

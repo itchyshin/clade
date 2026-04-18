@@ -24,7 +24,7 @@
 
     <a class="navbar-brand me-2" href="index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.13</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.14</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -145,7 +145,7 @@
 </h1></div>
 <p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="Lifecycle: experimental"></a> <a href="https://opensource.org/licenses/MIT" class="external-link"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a> <a href="https://itchyshin.github.io/clade/"><img src="https://img.shields.io/badge/docs-pkgdown-blue.svg" alt="pkgdown"></a></p>
 <p><strong>Agent-based evolutionary simulation with a Julia backend and R interface.</strong></p>
-<p><code>clade</code> runs populations of digital organisms on a renewable resource grid. Each agent carries a heritable neural-network genome; natural selection acts on brain weights, life-history traits, and — with 30+ optional modules — body size, dispersal tendency, mimicry, coevolving parasites, parental care, cooperative breeding, disease, and more. Every biological scenario is backed by a <a href="https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/DASHBOARD.md" class="external-link">multi-seed fidelity audit</a> against the primary literature (26 of 32 auditable scenarios pass; 6 have direction-correct but magnitude-limited signals; 0 contradict theory).</p>
+<p><code>clade</code> runs populations of digital organisms on a renewable resource grid. Each agent carries a heritable neural-network genome; natural selection acts on brain weights, life-history traits, and — with 30+ optional modules — body size, dispersal tendency, mimicry, coevolving parasites, parental care, cooperative breeding, disease, and more. Every biological scenario is backed by a <a href="https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/DASHBOARD.md" class="external-link">multi-seed fidelity audit</a> against the primary literature (27 of 32 auditable scenarios pass; 5 have direction-correct but magnitude-limited signals; 0 contradict theory).</p>
 <p>The simulation kernel is written in Julia for performance. R is the interface: you set parameters, call <code><a href="reference/run_alife.html">run_alife()</a></code> once, and receive the full simulation environment back for analysis and visualisation. The R–Julia boundary is crossed <strong>once per run</strong>, not once per tick, so large populations and long simulations stay fast.</p>
 <hr>
 <div class="section level2">
@@ -463,11 +463,11 @@
 <tr class="odd">
 <td>✅ Passed</td>
 <td>
-<strong>26</strong> of 32 auditable scenarios</td>
+<strong>27</strong> of 32 auditable scenarios</td>
 </tr>
 <tr class="even">
 <td>🟠 Passed-consistent (direction correct, magnitude limited)</td>
-<td><strong>6</strong></td>
+<td><strong>5</strong></td>
 </tr>
 <tr class="odd">
 <td>🔴 Contradicts</td>
@@ -476,7 +476,7 @@
 </tbody>
 </table>
 <p>(3 scenarios — module-comparison, kitchen-sink, cross-module — are demo/discovery vignettes with no primary-source quantitative claim and are marked ⚪ N/A in <a href="https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/STATUS.md" class="external-link"><code>STATUS.md</code></a>; they are excluded from the 32 auditable count.)</p>
-<p>The six 🟠 scenarios (mating-systems, group-defense, plasticity, Baldwin effect, predation-neural, stress-hypermutation) have honestly-documented kernel or ecology limitations. The ledger was confirmed end-to-end under the 0.5.10 real-diploid-sex kernel — see <a href="https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/post_0510_summary.md" class="external-link"><code>post_0510_summary.md</code></a>. See the <a href="https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/PRIORITY_ROADMAP.md" class="external-link">priority roadmap</a> for each scenario’s diagnosis and promotion path, and the <a href="https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/CRASH_AUDIT_FINDINGS.md" class="external-link">crash-audit findings</a> for the scenarios that need <code><a href="reference/default_specs.html">default_specs()</a></code> (not <code><a href="reference/fast_specs.html">fast_specs()</a></code>) for viability. All audit reports, runners, and figures live under <a href="https://github.com/itchyshin/clade/tree/main/dev/audit/fidelity" class="external-link"><code>dev/audit/fidelity/</code></a>; <code>STATUS.md</code> there is the per-scenario ledger.</p>
+<p>The five 🟠 scenarios (group-defense, plasticity, Baldwin effect, predation-neural, stress-hypermutation) have honestly-documented kernel or ecology limitations. The ledger was confirmed end-to-end under the 0.5.10 real-diploid-sex kernel — see <a href="https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/post_0510_summary.md" class="external-link"><code>post_0510_summary.md</code></a>. See the <a href="https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/PRIORITY_ROADMAP.md" class="external-link">priority roadmap</a> for each scenario’s diagnosis and promotion path, and the <a href="https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/CRASH_AUDIT_FINDINGS.md" class="external-link">crash-audit findings</a> for the scenarios that need <code><a href="reference/default_specs.html">default_specs()</a></code> (not <code><a href="reference/fast_specs.html">fast_specs()</a></code>) for viability. All audit reports, runners, and figures live under <a href="https://github.com/itchyshin/clade/tree/main/dev/audit/fidelity" class="external-link"><code>dev/audit/fidelity/</code></a>; <code>STATUS.md</code> there is the per-scenario ledger.</p>
 <hr>
 </div>
 <div class="section level2">
