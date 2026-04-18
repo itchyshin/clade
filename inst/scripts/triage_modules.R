@@ -113,7 +113,7 @@ run_check("niche_construction", function() {
 
 run_check("predators", function() {
   sp <- base()
-  sp$n_predators_init <- 6L; sp$max_predators <- 30L; sp
+  sp$n_predators_init <- 6L; sp$predator_max_agents <- 30L; sp
 }, function(d) {
   m <- mean_last(d$n_predators)
   ok_if(m >= 1, sprintf("mean_predators=%.1f", m))

@@ -875,10 +875,11 @@ Rscript -e %s
   int_fields <- c(
     "grid_rows", "grid_cols", "n_agents_init", "max_agents", "max_ticks",
     "n_chromosomes", "ploidy", "max_age", "disease_duration",
-    "immune_duration", "allee_threshold", "n_predators_init", "max_predators",
-    "care_duration", "max_clutch_size", "signal_dims", "n_genes",
+    "immune_duration", "allee_threshold", "n_predators_init",
+    "predator_max_agents", "predator_max_age", "predator_min_repro_age",
+    "juvenile_independence_age", "max_clutch_size", "signal_dims", "n_genes",
     "transformer_history", "transformer_heads", "synthesis_max_rules",
-    "rl_update_freq", "social_learning_freq", "seasonal_period", "log_freq",
+    "rl_update_freq", "social_learning_freq", "season_length", "log_freq",
     "fixed_patch_radius"
   )
   for (nm in int_fields) {
