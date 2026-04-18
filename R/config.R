@@ -20,6 +20,12 @@
 #'   \item{`max_agents`}{Integer. Hard cap on live agents; new offspring are
 #'     rejected if this is exceeded (default 500).}
 #'   \item{`max_ticks`}{Integer. Simulation length in ticks (default 500).}
+#'   \item{`wall_density`}{Numeric in \[0, 1\]. Fraction of grid cells
+#'     that are non-traversable walls (default 0 = open grid). Walls
+#'     block movement and foraging.}
+#'   \item{`wall_clusters`}{Logical. If `TRUE` (default), walls are
+#'     laid out in contiguous clumps; if `FALSE`, walls are scattered
+#'     cell-by-cell. Only relevant when `wall_density > 0`.}
 #' }
 #'
 #' ## Energy and metabolism
@@ -126,6 +132,20 @@
 #'   \item{`ann_regularization_lambda`}{Numeric. Scale factor for the
 #'     regularisation penalty (default 0.001). Too large a value will cause
 #'     all weights to collapse to zero within a few ticks.}
+#'   \item{`bnn_sigma_init`}{Numeric. Initial posterior SD for BNN weights
+#'     when `bnn_sigma_source = "fixed"` or `"heterozygosity"` (default 0.1).}
+#'   \item{`bnn_sigma_min`}{Numeric. Floor on per-weight BNN sigma (default
+#'     0.01). Prevents the posterior collapsing to a point estimate under
+#'     strong canalisation.}
+#'   \item{`bnn_sigma_source`}{Character. How BNN posterior sigma is derived
+#'     at each genome expression: `"heterozygosity"` (default; sigma =
+#'     |mat - pat| / 2 = half parental-allele difference), `"fixed"` (always
+#'     `bnn_sigma_init`), or `"trait"` (sigma = TRAIT_PLASTICITY). Added
+#'     0.4.0 Tier 5A.}
+#'   \item{`bnn_sample_freq`}{Integer. Ticks between BNN Thompson resample
+#'     (default 1L). With `rl_mode = "actor_critic"`, setting this to 5
+#'     lets REINFORCE gradients accumulate before the next resample.
+#'     Added 0.4.0 Tier 5B.}
 #' }
 #'
 #' ## Brain energy cost
@@ -283,6 +303,16 @@
 #'     Reference: Baldwin (1896) *American Naturalist* 30:441--451;
 #'     Weismann (1892) *Das Keimplasma*; Jablonka & Lamb (2005) *Evolution
 #'     in Four Dimensions*, MIT Press.}
+#'   \item{`phenotypic_plasticity`}{Logical. Enable heritable plasticity
+#'     trait (default `FALSE`). Gates the DeWitt & Scheiner 2004 pathway.}
+#'   \item{`plasticity_init_mean`}{Numeric. Starting mean of the plasticity
+#'     trait (default 0.3).}
+#'   \item{`plasticity_mutation_sd`}{Numeric. Per-offspring mutation SD on
+#'     the plasticity trait (default 0.05).}
+#'   \item{`plasticity_min`, `plasticity_max`}{Numeric clamps for the
+#'     heritable plasticity trait (default 0 / 1).}
+#'   \item{`plasticity_sense_radius`}{Integer. Sensory-radius bonus when
+#'     plasticity is high (default 1L). Unused at plasticity = 0.}
 #' }
 #'
 #' ## Epigenetics and transgenerational inheritance
@@ -333,6 +363,17 @@
 #'     weights (default 0.1).}
 #'   \item{`predator_max_agents`}{Integer. Hard cap on predator population
 #'     (default 50L). Named `max_predators` in docs before 0.5.6.}
+#'   \item{`predator_max_age`}{Integer. Predator-specific maximum age
+#'     (default 100L — predators typically outlive prey: owl > mouse).
+#'     Added 0.5.6.}
+#'   \item{`predator_min_repro_energy`}{Numeric. Energy threshold for
+#'     predator reproduction (default 200).}
+#'   \item{`predator_min_repro_age`}{Integer. Minimum predator age before
+#'     reproduction (default 20L).}
+#'   \item{`predator_move_energy`}{Numeric. Energy deducted per predator
+#'     move (default 1.0).}
+#'   \item{`predator_live_energy`}{Numeric. Per-tick passive energy cost
+#'     for each live predator (default 0.5).}
 #'   \item{`predator_sense_graded`}{Logical. If `TRUE` (default, 0.4.2),
 #'     prey's predator sensory input at distance `d` is `1/(d+1)` (closer
 #'     predators produce a stronger signal). If `FALSE`, falls back to
@@ -433,6 +474,12 @@
 #'   \item{`aging_rate_mutation_sd`}{Numeric. Mutation SD (default 0.05).}
 #'   \item{`aging_rate_min`}{Numeric. Minimum (default 0.01).}
 #'   \item{`aging_rate_max`}{Numeric. Maximum (default 10.0).}
+#'   \item{`senescence_shape`}{Numeric. Shape parameter of the Gompertz
+#'     senescence hazard curve (default 0). Higher values make age-hazard
+#'     steeper. 0 = no age-dependent mortality beyond `max_age`.}
+#'   \item{`max_age_scales_with_metabolism`}{Logical. If `TRUE`, effective
+#'     lifespan scales inversely with metabolic rate (pace-of-life
+#'     syndrome, Réale et al. 2010). Default `FALSE`. Added 0.4.0 Tier 2.}
 #' }
 #'
 #' ## Immune system evolution
@@ -544,6 +591,56 @@
 #'     brain hypothesis.}
 #'   \item{`neonatal_deficit_duration`}{Integer. How many ticks the
 #'     neonatal foraging deficit applies for (default 10L).}
+#'   \item{`parental_investment_evolution`}{Logical. Enable Trivers 1972
+#'     quality-quantity trade-off (default `FALSE`). Couples
+#'     `parental_investment_init_mean` to per-offspring energy allocation.}
+#'   \item{`parental_investment_init_mean`}{Numeric in \[0, 1\]. Initial
+#'     per-offspring investment fraction (default 0.5).}
+#'   \item{`female_investment`}{Numeric in \[0, 1\]. Fraction of offspring
+#'     energy cost paid by the mother (default 1.0; 0.5 = equal). Added
+#'     0.4.0 Tier 3.}
+#'   \item{`male_repro_cost`}{Numeric. Per-offspring energy cost paid by
+#'     the father when `female_investment < 1` (default 0.0).}
+#'   \item{`cooperative_breeding`}{Logical. Enable helper-at-the-nest
+#'     dynamics (default `FALSE`).}
+#'   \item{`helper_tendency_init_mean`}{Numeric in \[0, 1\]. Heritable
+#'     willingness to help (default 0.2).}
+#'   \item{`helper_tendency_mutation_sd`}{Numeric. Mutation SD on the
+#'     helper trait (default 0.05).}
+#'   \item{`helper_transfer`}{Numeric. Energy transferred per helping event
+#'     (default 3.0).}
+#'   \item{`helper_kin_threshold`}{Numeric. Minimum relatedness for a
+#'     helping attempt (default 0.125 = half-siblings).}
+#'   \item{`helper_min_energy`}{Numeric. Minimum helper energy before a
+#'     transfer is refused (default 60.0).}
+#' }
+#'
+#' ## Clutch size evolution
+#'
+#' Lack (1947) r/K clutch-size evolution.
+#'
+#' \describe{
+#'   \item{`clutch_size_evolution`}{Logical. Enable heritable clutch size
+#'     (default `FALSE`).}
+#'   \item{`clutch_size_init_mean`}{Numeric. Initial mean clutch size
+#'     (default 1.0).}
+#'   \item{`clutch_size_min`, `clutch_size_max`}{Integer clamps (default
+#'     1L / 5L).}
+#'   \item{`clutch_size_mutation_sd`}{Numeric. Mutation SD (default 0.3).}
+#' }
+#'
+#' ## Stress hypermutation
+#'
+#' Rosenberg (2001), Foster (2007): under low energy ("stress"), mutation
+#' rate rises transiently. Controlled by three specs:
+#'
+#' \describe{
+#'   \item{`stress_hypermutation`}{Logical. Enable stress-induced
+#'     hypermutation (default `FALSE`).}
+#'   \item{`stress_threshold`}{Numeric. Energy below which an agent is
+#'     considered "stressed" (default 20.0).}
+#'   \item{`stress_mutation_multiplier`}{Numeric. Per-tick multiplier
+#'     applied to `mutation_sd` when an agent is stressed (default 5.0).}
 #' }
 #'
 #' ## Signal evolution and mate choice
@@ -563,6 +660,22 @@
 #'     aposematic signal. Required to close the Bates (1862) /
 #'     Müller (1879) feedback loop in clade. Active only when
 #'     `mimicry = TRUE` and `signal_dims > 0`. Added 0.4.4.}
+#'   \item{`signal_drift_sd`}{Numeric. Neutral drift SD applied per-tick to
+#'     an agent's signal vector (default 0). At 0 the signal is fixed at
+#'     birth; > 0 lets signals drift within-lifetime.}
+#'   \item{`signal_evolution_drift`}{Numeric. Inter-generational drift SD
+#'     on the inherited signal (default 0). Separate from the sensory
+#'     mutation rate.}
+#'   \item{`signal_memory_rate`}{Numeric. Rate at which predator memory
+#'     updates toward observed prey signals (default 0.1). Relevant only
+#'     when `mimicry = TRUE` and predators are present.}
+#'   \item{`mate_choice_mode`}{Character. Mate-choice rule: `"random"`
+#'     (default), `"preference"` (choose on signal dot-product with own
+#'     evolved preference vector), or `"highest_signal"` (pick the
+#'     highest-magnitude signal neighbour).}
+#'   \item{`mate_choice_strength`}{Numeric in \[0, 1\]. Soft-max sharpness
+#'     on the mate-choice score (default 0.7). At 1, choice is greedy; at
+#'     0, uniform random.}
 #' }
 #'
 #' ## Coevolving parasites (Hamilton 1980 Red Queen, 0.5.0 / 0.5.1)
@@ -608,6 +721,19 @@
 #'     mimicry via Rescorla-Wagner learning in predators.
 #'     Reference: Rescorla & Wagner (1972) A theory of Pavlovian conditioning,
 #'     in *Classical Conditioning II*, Appleton-Century-Crofts, pp 64--99.}
+#'   \item{`batesian_mimicry`}{Logical. Enable Batesian mimicry branch
+#'     (default `FALSE`): palatable prey (`toxicity = 0`) can exploit the
+#'     predator's learned aversion to toxic signals. Predator-betrayal
+#'     decay prevents runaway cheating. Active only when `mimicry = TRUE`.}
+#'   \item{`toxicity_init_mean`}{Numeric. Starting toxicity (default 0).}
+#'   \item{`toxicity_mutation_sd`}{Numeric. Mutation SD on the toxicity
+#'     trait (default 0.05).}
+#'   \item{`toxicity_cost_per_tick`}{Numeric. Per-tick energy cost paid by
+#'     agents with `toxicity > 0` (default 2.0; Zahavi handicap).}
+#'   \item{`toxin_dose`}{Numeric. Damage dealt to the attacker per unit
+#'     of prey toxicity (default 2.0).}
+#'   \item{`avoid_threshold`}{Numeric. Predator-memory value above which
+#'     the predator chooses to avoid the prey (default 0.3).}
 #' }
 #'
 #' ## Niche construction
@@ -624,6 +750,11 @@
 #'     (default 80).}
 #'   \item{`shelter_decay_prob`}{Numeric in \[0, 1\]. Per-tick probability that
 #'     each shelter unit decays (default 0.05).}
+#'   \item{`shelter_occupancy_bonus`}{Numeric. Energy bonus per tick per
+#'     unit shelter depth for agents occupying a sheltered cell (default
+#'     0, meaning shelters don't feed their occupants). Heritable
+#'     niche-construction amplifier in the Odling-Smee et al. 2003 sense.
+#'     Added 0.3.0.}
 #' }
 #'
 #' ## Scavenging
@@ -638,6 +769,10 @@
 #'     carrion that decomposes (default 0.1).}
 #'   \item{`carrion_eat_gain`}{Numeric. Energy gained per unit of carrion
 #'     consumed (default 3).}
+#'   \item{`carrion_transmission_prob`}{Numeric in \[0, 1\]. Probability
+#'     that a scavenger feeding on infected carrion contracts the disease
+#'     (default 0; active only when `disease = TRUE` and `scavenging =
+#'     TRUE`). Cross-module fomite-transmission pathway.}
 #' }
 #'
 #' ## Group defense (dilution effect)
@@ -648,6 +783,14 @@
 #'     Reference: Foster & Treherne (1981) Evidence for the dilution effect in
 #'     the selfish herd from fish predation on a marine insect,
 #'     *Nature* 293:466--467.}
+#'   \item{`group_defense_radius`}{Integer. Moore radius for counting
+#'     neighbours when computing per-prey dilution (default 2L = 5×5
+#'     neighbourhood).}
+#'   \item{`group_defense_strength`}{Numeric in \[0, 1\]. Maximum fraction
+#'     of predator attack success reduced under maximum grouping
+#'     (default 0.3). 2026-04-17 audit found the population-level effect
+#'     inverts Hamilton 1971 at all tested values — see
+#'     `dev/audit/fidelity/group_defense_strength_sweep.R`.}
 #' }
 #'
 #' ## Habitat preference (ideal free distribution)
@@ -658,6 +801,20 @@
 #'     Reference: Fretwell & Lucas (1970) On territorial behavior and other
 #'     factors influencing habitat distribution in birds,
 #'     *Acta Biotheoretica* 19(1):16--36.}
+#'   \item{`habitat_preference_init_mean`}{Numeric in \[-1, 1\]. Initial mean
+#'     preference (default 0 — no preference). Negative values = prefer
+#'     low-grass cells; positive = prefer high-grass.}
+#'   \item{`habitat_preference_mutation_sd`}{Numeric. Mutation SD on the
+#'     preference trait (default 0.05).}
+#'   \item{`habitat_preference_min`, `habitat_preference_max`}{Numeric
+#'     clamps (default -1 / 1).}
+#'   \item{`habitat_preference_strength`}{Numeric in \[0, ∞). Scales the
+#'     probability that an agent attempts a preference-directed move per
+#'     tick (default 0.5). The 2026-04-17 audit found that the default is
+#'     below the drift floor; `strength = 2.0` is required for a detectable
+#'     Fretwell-Lucas signal at 5 seeds.}
+#'   \item{`habitat_move_cost`}{Numeric. Energy cost of a preference-directed
+#'     move (default 0, meaning the move is free).}
 #' }
 #'
 #' ## Seasonal dynamics
@@ -682,6 +839,9 @@
 #'   \item{`isolation_threshold`}{Numeric. Maximum genome distance for
 #'     successful mating (default 0.45). Species are inferred by hierarchical
 #'     clustering of genome distances at each logging tick.}
+#'   \item{`speciation_cluster_interval`}{Integer. Ticks between species-
+#'     count recomputations (default 10L). Reducing this improves temporal
+#'     resolution of the `n_species` log at a CPU cost.}
 #' }
 #'
 #' ## Social learning

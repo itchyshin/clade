@@ -78,9 +78,13 @@ test_that("no unintentional NA values in default_specs()", {
   # fixed_patch_x / fixed_patch_y = NA_integer_ by design: they MUST be
   # set by the user before enabling fixed_patch, so NA-by-default is a
   # signal of "unconfigured", not a bug.
+  # predator_max_age = NA_integer_ by design: NA means "same as prey
+  # max_age", which is the biologically natural default. Set to a real
+  # integer (e.g. 100L in fast_specs) to give predators a distinct lifespan.
   s        <- default_specs()
   s_check  <- s[!names(s) %in% c("random_seed", "world_params_to_evolve",
-                                  "fixed_patch_x", "fixed_patch_y")]
+                                  "fixed_patch_x", "fixed_patch_y",
+                                  "predator_max_age")]
   na_flags <- vapply(
     s_check,
     function(x) length(x) == 1L && is.na(x),
