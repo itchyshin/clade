@@ -487,21 +487,24 @@ as described by Jablonka & Lamb (2005).
 
   Numeric. Starting energy for predators (default 150).
 
-- `predator_attack_cost`:
+- `predator_attack_strength`:
 
-  Numeric. Energy deducted from predator per attack attempt (default 2).
+  Numeric. Energy damage dealt to prey per successful predator attack
+  (default 40). Named `predator_attack_cost` in docs before 0.5.6.
 
-- `predator_kill_gain`:
+- `predator_energy_gain`:
 
-  Numeric. Energy predator gains per successful kill (default 50).
+  Numeric. Energy predator gains per successful kill (default 30). Named
+  `predator_kill_gain` in docs before 0.5.6.
 
 - `predator_mutation_sd`:
 
   Numeric. Mutation SD for predator brain weights (default 0.1).
 
-- `max_predators`:
+- `predator_max_agents`:
 
-  Integer. Hard cap on predator population (default 20L).
+  Integer. Hard cap on predator population (default 50L). Named
+  `max_predators` in docs before 0.5.6.
 
 - `predator_sense_graded`:
 
@@ -822,13 +825,25 @@ as described by Jablonka & Lamb (2005).
   Logical. Enable altricial parental care (default `FALSE`). Offspring
   remain with parent until graduation.
 
-- `care_duration`:
+- `juvenile_independence_age`:
 
-  Integer. Ticks offspring remain in parental care (default 5L).
+  Integer. Tick age at which an offspring leaves parental care (default
+  10L). Replaces the pre-0.4.0 `care_duration` spec.
 
-- `care_cost_per_offspring`:
+- `juvenile_independence_energy`:
 
-  Numeric. Energy cost per carried offspring per tick (default 2.0).
+  Numeric. Energy level at which an offspring leaves parental care early
+  (default 50.0).
+
+- `feeding_rate`:
+
+  Numeric. Energy transferred per tick from carrying parent to offspring
+  (default 5.0).
+
+- `care_cost_per_tick`:
+
+  Numeric. Energy cost paid by the parent per tick of active care
+  (default 1.0). Named `care_cost_per_offspring` in docs before 0.5.6.
 
 - `max_clutch_size`:
 
@@ -1013,11 +1028,18 @@ as described by Jablonka & Lamb (2005).
 
   Numeric. Amplitude of sinusoidal grass_rate modulation (default 0 =
   off). grass_rate_t = grass_rate \* (1 + seasonal_amplitude \* sin(2 \*
-  pi \* t / seasonal_period)).
+  pi \* t / season_length)).
 
-- `seasonal_period`:
+- `season_length`:
 
-  Integer. Period of seasonal cycle in ticks (default 100L).
+  Integer. Period of seasonal cycle in ticks (default 100L). Named
+  `seasonal_period` in docs before 0.5.6.
+
+- `winter_death_prob`:
+
+  Numeric in 0, 1. Per-tick death probability during the low phase of
+  the seasonal cycle (default 0). Only engages when
+  `seasonal_amplitude > 0`.
 
 ### Speciation (genome clustering)
 
