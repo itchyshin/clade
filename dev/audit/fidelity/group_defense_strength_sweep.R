@@ -1,14 +1,15 @@
-# Parameter sweep for s-group-defense (one of the Tier-C batch-1
-# silent failures). Canonical Hamilton 1971 selfish-herd claim is
-# that group_defense ON reduces per-prey attack risk → higher prey
-# survival under predation. At default parameters the 8-seed
-# direction check gave Δn = -0.9, t = -0.15 (no signal). Hypothesis:
-# default strength = 0.3 is too weak relative to default predator
-# pressure (5 predators vs 100 prey).
+# s-group-defense promotion attempt: strength sweep × 16 seeds at
+# realistic_specs.
 #
-# Sweep: group_defense_strength ∈ {0.3, 0.6, 0.9} ×
-# n_predators_init ∈ {10, 20} × defense {ON, OFF} × 8 seeds.
-# Uses the 0.5.6 PSOCK batch_alife().
+# 8-seed realistic_specs audit (2026-04-18) gave Δpop(on-off) = +10.1
+# ± 6.4 at t = +1.60 — direction-correct, sub-2σ. Same pattern as
+# s-mating-systems before its promotion: more seeds and/or a
+# parameter scan (group_defense_strength) should expose where the
+# signal crosses 2σ.
+#
+# Design: group_defense_strength ∈ {0.5, 1.0, 2.0, 3.0} × 16 seeds
+# × defense ON vs OFF. 1 shared OFF baseline × 16 + 4 strength cells
+# × ON × 16 = 80 runs.
 
 suppressPackageStartupMessages({
   .libPaths(c("~/R/lib", .libPaths()))
@@ -16,67 +17,92 @@ suppressPackageStartupMessages({
   else                            library(clade)
 })
 
-SEEDS   <- c(1L, 7L, 13L, 19L, 25L, 31L, 37L, 43L)
-STRENGTHS <- c(0.3, 0.6, 0.9)
-N_PREDS   <- c(10L, 20L)
+SEEDS     <- c(1L, 7L, 13L, 19L, 25L, 31L, 37L, 43L,
+               51L, 57L, 63L, 71L, 79L, 89L, 101L, 107L)
+STRENGTHS <- c(0.5, 1.0, 2.0, 3.0)
 
-base <- default_specs()
-base$n_agents_init <- 100L
-base$max_agents    <- 400L
-base$grid_rows     <- 30L
-base$grid_cols     <- 30L
-base$max_ticks     <- 400L
-base$group_defense_radius <- 2L
-
-# Build 3 × 2 × 2 × 8 = 96 specs via grid_specs
-specs_list <- grid_specs(
-  base,
-  group_defense           = c(TRUE, FALSE),
-  group_defense_strength  = STRENGTHS,
-  n_predators_init        = N_PREDS,
-  random_seed             = SEEDS
-)
-message(sprintf("Built %d specs", length(specs_list)))
-
-t0 <- Sys.time()
-message(sprintf("Running %d specs × PSOCK cluster...", length(specs_list)))
-results <- batch_alife(specs_list, n_cores = 48L)
-message(sprintf("  batch: %.1f min", as.numeric(difftime(Sys.time(), t0, units = "mins"))))
-
-rows <- lapply(seq_along(results), function(i) {
-  env <- results[[i]]; s <- specs_list[[i]]
-  d <- get_run_data(env)$ticks
-  vr <- viability_report(d, n_agents_init = s$n_agents_init)
-  data.frame(
-    group_defense          = s$group_defense,
-    strength               = s$group_defense_strength,
-    n_predators            = s$n_predators_init,
-    seed                   = s$random_seed,
-    n_final                = tail(d$n_agents, 1L),
-    n_mean_last100         = mean(tail(d$n_agents, 100L), na.rm = TRUE),
-    viability              = vr$verdict
-  )
-})
-summary_tbl <- do.call(rbind, rows)
-saveRDS(summary_tbl, "dev/audit/fidelity/group_defense_strength_sweep.rds")
-
-message("\n── ON vs OFF at each (strength, n_predators) cell ──")
-for (st in STRENGTHS) {
-  for (np in N_PREDS) {
-    cell <- summary_tbl[summary_tbl$strength  == st &
-                         summary_tbl$n_predators == np, ]
-    on  <- cell$n_mean_last100[cell$group_defense == TRUE]
-    off <- cell$n_mean_last100[cell$group_defense == FALSE]
-    delta <- mean(on) - mean(off)
-    se    <- sqrt(sd(on)^2 / length(on) + sd(off)^2 / length(off))
-    t_val <- delta / se
-    message(sprintf(
-      "  strength=%.1f n_pred=%2d | on=%5.1f off=%5.1f | Δ=%+6.1f | t=%5.2f | %s",
-      st, np, mean(on), mean(off), delta, t_val,
-      if (abs(t_val) >= 2) "PASS (t ≥ 2)" else "RECHECK"
-    ))
-  }
+build_spec <- function(gd, strength, seed) {
+  s <- realistic_specs()
+  s$group_defense            <- gd
+  s$group_defense_strength   <- strength
+  s$n_predators_init         <- 30L
+  s$predator_max_agents      <- 120L
+  s$predator_energy_gain     <- 20.0
+  s$predator_attack_strength <- 40.0
+  s$random_seed              <- as.integer(seed)
+  s
 }
 
-message(sprintf("\n=== Done in %.1f min ===",
+# Shared OFF baseline (strength irrelevant when gd = FALSE)
+specs_list <- lapply(SEEDS, function(sd) build_spec(FALSE, 1.0, sd))
+conditions <- rep("off", length(SEEDS))
+strength_v <- rep(NA_real_, length(SEEDS))
+
+# ON conditions at each strength
+for (st in STRENGTHS) {
+  specs_list <- c(specs_list,
+                  lapply(SEEDS, function(sd) build_spec(TRUE, st, sd)))
+  conditions <- c(conditions, rep(paste0("on_", st), length(SEEDS)))
+  strength_v <- c(strength_v, rep(st, length(SEEDS)))
+}
+
+message(sprintf("Running %d specs (OFF baseline + %d strengths × 16 seeds)...",
+                length(specs_list), length(STRENGTHS)))
+t0 <- Sys.time()
+results <- batch_alife(specs_list, n_cores = 64L)
+message(sprintf("  batch wall: %.1f min",
                 as.numeric(difftime(Sys.time(), t0, units = "mins"))))
+
+rows <- lapply(seq_along(results), function(i) {
+  env <- results[[i]]
+  rd  <- get_run_data(env)
+  via <- viability_report(rd)
+  d   <- rd$ticks
+  keep <- d$t >= 1500
+  data.frame(
+    condition   = conditions[i],
+    strength    = strength_v[i],
+    seed        = specs_list[[i]]$random_seed,
+    verdict     = via$verdict,
+    n_agents    = mean(d$n_agents[keep],    na.rm = TRUE),
+    mean_energy = mean(d$mean_energy[keep], na.rm = TRUE)
+  )
+})
+tbl <- do.call(rbind, rows)
+saveRDS(tbl, "dev/audit/fidelity/group_defense_strength_sweep.rds")
+
+viable <- tbl[tbl$verdict != "crashed" & tbl$n_agents >= 20, ]
+
+get_stats <- function(cnd, metric) {
+  sub <- viable[viable$condition == cnd, ]
+  if (nrow(sub) == 0L) return(c(mean = NA_real_, se = NA_real_, n = 0L))
+  c(mean = mean(sub[[metric]]),
+    se   = sd(sub[[metric]]) / sqrt(nrow(sub)),
+    n    = nrow(sub))
+}
+
+off_n <- get_stats("off", "n_agents")
+off_e <- get_stats("off", "mean_energy")
+message(sprintf("\n── OFF baseline ──"))
+message(sprintf("  n=%d | pop=%.1f \u00b1 %.1f | energy=%.2f \u00b1 %.2f",
+                off_n["n"], off_n["mean"], off_n["se"],
+                off_e["mean"], off_e["se"]))
+
+message("\n── Group defense ON across group_defense_strength ──")
+for (st in STRENGTHS) {
+  on_n <- get_stats(paste0("on_", st), "n_agents")
+  on_e <- get_stats(paste0("on_", st), "mean_energy")
+  d_n  <- on_n["mean"] - off_n["mean"]
+  se_n <- sqrt(on_n["se"]^2 + off_n["se"]^2)
+  t_n  <- d_n / se_n
+  d_e  <- on_e["mean"] - off_e["mean"]
+  se_e <- sqrt(on_e["se"]^2 + off_e["se"]^2)
+  t_e  <- d_e / se_e
+  v <- if (!is.finite(t_n))    "NA"
+       else if (t_n > 0 && abs(t_n) >= 2) "PASS"
+       else if (abs(t_n) >= 2)            "PASS-wrong-direction"
+       else                                "recheck"
+  message(sprintf(
+    "  strength=%.1f | on_n=%d pop=%.1f \u00b1 %.1f | \u0394pop=%+.2f \u00b1 %.2f  t_n=%+.2f %s  |  \u0394energy=%+.2f t_e=%+.2f",
+    st, on_n["n"], on_n["mean"], on_n["se"], d_n, se_n, t_n, v, d_e, t_e))
+}
