@@ -277,6 +277,8 @@ reference:
       - full_specs
       - fast_specs
       - slow_specs
+      - realistic_specs
+      - ultra_realistic_specs
       - load_specs
 
   - title: "Results & visualisation"
