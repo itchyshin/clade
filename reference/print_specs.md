@@ -34,7 +34,7 @@ Invisibly, the `specs` list (for piping).
 
 ``` r
 print_specs()
-#> -- clade specs (263 parameters) --
+#> -- clade specs (264 parameters) --
 #> 
 #>   Grid & population
 #>     grid_rows                              30
@@ -276,6 +276,7 @@ print_specs()
 #>     seasonal_amplitude                     0
 #>     season_length                          100
 #>     winter_death_prob                      0
+#>     seasonal_spatial_bias                  0
 #>     max_clutch_size                        1
 #>     neonatal_foraging_deficit              0
 #>     neonatal_deficit_duration              10
@@ -349,7 +350,7 @@ s <- default_specs()
 s$kin_selection <- TRUE
 s$complex_landscape <- TRUE
 print_specs(s, diff_only = TRUE)
-#> -- clade specs (263 parameters) [diff only] --
+#> -- clade specs (264 parameters) [diff only] --
 #> 
 #>   Kin selection
 #>     kin_selection                          TRUE *

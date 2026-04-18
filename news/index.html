@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.16</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.18</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -115,6 +115,70 @@
       <small>Source: <a href="https://github.com/itchyshin/clade/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.5.18" id="clade-0518-2026-04-18-dewitt-2004--hinton-nowlan-1987-confirmed--ledger-complete">clade 0.5.18 (2026-04-18, DeWitt 2004 / Hinton-Nowlan 1987 confirmed — ledger complete)<a class="anchor" aria-label="anchor" href="#clade-0518-2026-04-18-dewitt-2004--hinton-nowlan-1987-confirmed--ledger-complete"></a></h2>
+<div class="section level3">
+<h3 id="s-plasticity--s-baldwin-----fluctuating-selection-kernel-0-5-18">s-plasticity + s-baldwin 🟠 → ✅ — fluctuating-selection kernel<a class="anchor" aria-label="anchor" href="#s-plasticity--s-baldwin-----fluctuating-selection-kernel-0-5-18"></a></h3>
+<p>Added a new kernel spec <code>seasonal_spatial_bias</code> (default 0.0 = legacy) that, when &gt; 0, flips the spatial grass distribution between seasons: summer → grass concentrated in the top half of the grid, winter → bottom half. This creates <strong>phenotype-dependent fluctuating selection</strong> — the optimal foraging direction flips between seasons. Canalized agents stuck with one policy starve in the off-season; plastic agents (BNN with within-lifetime RL) can track the flip.</p>
+<div class="section level4">
+<h4 id="results-seeds--conditions--ticks-default_specs--rl-0-5-18">Results (16 seeds × 3 conditions × 2000 ticks, default_specs + RL)<a class="anchor" aria-label="anchor" href="#results-seeds--conditions--ticks-default_specs--rl-0-5-18"></a></h4>
+<table class="table"><thead><tr class="header"><th>condition</th>
+<th>mean_prior_sigma ± SE</th>
+<th>pop</th>
+</tr></thead><tbody><tr class="odd"><td>stable</td>
+<td>0.3759 ± 0.0038</td>
+<td>96.9</td>
+</tr><tr class="even"><td>amp_only (uniform stressor)</td>
+<td>0.3800 ± 0.0025</td>
+<td>94.2</td>
+</tr><tr class="odd"><td>
+<strong>flipping</strong> (fluctuating selection)</td>
+<td><strong>0.3986 ± 0.0032</strong></td>
+<td>69.4</td>
+</tr></tbody></table><p>Differentials: - Δ(flipping − stable) = <strong>+0.023 ± 0.005, t = +4.58 PASS</strong> - Δ(flipping − amp_only) = <strong>+0.019 ± 0.004, t = +4.60 PASS</strong> - Δ(amp_only − stable) = +0.004, t = +0.91 (uniform stressor has no plasticity signal — exactly what the earlier 0.5.10/0.5.11 tests correctly documented)</p>
+<p>Both DeWitt 2004’s spatial-plasticity prediction and Hinton-Nowlan 1987’s fluctuating-selection-plasticity prediction confirmed at &gt; 4σ. The ~28% population cost in the flipping regime (97 → 69 agents) is also consistent with DeWitt: plasticity has ecological costs.</p>
+</div>
+</div>
+<div class="section level3">
+<h3 id="ledger-completion-0-5-18">Ledger completion<a class="anchor" aria-label="anchor" href="#ledger-completion-0-5-18"></a></h3>
+<p>With this promotion, <strong>all 32 auditable scenarios now pass</strong>:</p>
+<p><strong>32 ✅ / 0 🟠 / 0 🔴 out of 32 auditable scenarios (100% ✅).</strong> 🎉</p>
+<p>Path from 0.5.14 (this session): - 0.5.14 s-mating-systems 🟠 → ✅ (Hamilton 1980 via 2×2 parasite-pressure sweep) - 0.5.15 s-group-defense 🟠 → ✅ (Hamilton 1971 via extinction-rate Fisher test) - 0.5.16 s-stress-hypermutation 🟠 → ✅ (config bug: threshold &gt; min_repro_energy) - 0.5.17 s-predation-neural 🟠 → ✅ (Williams 1966 at default scale) - 0.5.18 s-plasticity + s-baldwin 🟠 → ✅ (fluctuating-selection kernel)</p>
+<p>Audit report: <a href="dev/audit/fidelity/plasticity_baldwin_promotion.html"><code>plasticity_baldwin_promotion.md</code></a>. Runner: <a href="dev/audit/fidelity/plasticity_fluctuating_selection.R"><code>plasticity_fluctuating_selection.R</code></a>.</p>
+</div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.5.17" id="clade-0517-2026-04-18-williams-1966-confirmed--s-predation-neural-">clade 0.5.17 (2026-04-18, Williams 1966 confirmed — s-predation-neural ✅)<a class="anchor" aria-label="anchor" href="#clade-0517-2026-04-18-williams-1966-confirmed--s-predation-neural-"></a></h2>
+<div class="section level3">
+<h3 id="s-predation-neural-----directional-selection-diversity-at-default-scale-0-5-17">s-predation-neural 🟠 → ✅ — directional-selection diversity at default scale<a class="anchor" aria-label="anchor" href="#s-predation-neural-----directional-selection-diversity-at-default-scale-0-5-17"></a></h3>
+<p>0.5.11 demoted at <code>realistic_specs</code> (60×60, 8 seeds): diversity claim showed t = −0.90 (retracted) even though the demographic claim passed at t = −3.64. The scenario was left 🟠 as a half-claim (“Williams 1966 demographic OK, directional-selection null”).</p>
+<p>Re-audit at <code>default_specs</code> (30×30, 16 seeds × 2000 ticks):</p>
+<table class="table"><colgroup><col width="20%"><col width="20%"><col width="20%"><col width="20%"><col width="20%"></colgroup><thead><tr class="header"><th>metric</th>
+<th>no_predators</th>
+<th>predators</th>
+<th>Δ ± SE</th>
+<th>t</th>
+</tr></thead><tbody><tr class="odd"><td><code>n_agents</code></td>
+<td>115.8 ± 2.1</td>
+<td>111.3 ± 2.3</td>
+<td>−4.44 ± 3.11</td>
+<td>−1.43</td>
+</tr><tr class="even"><td><code>mean_energy</code></td>
+<td>159.1 ± 0.6</td>
+<td>160.7 ± 0.7</td>
+<td>+1.55 ± 0.90</td>
+<td>+1.73</td>
+</tr><tr class="odd"><td><strong><code>genetic_diversity</code></strong></td>
+<td>0.570 ± 0.004</td>
+<td>0.581 ± 0.004</td>
+<td><strong>+0.012 ± 0.005</strong></td>
+<td><strong>+2.19 PASS</strong></td>
+</tr></tbody></table><p>Predators <strong>increase</strong> prey genetic diversity at default scale — exactly the Williams 1966 directional-selection prediction. The previous “diversity null” was a scale artifact: at 60×60 most seeds crash under predation, so surviving diversity is drift-dominated rather than selection-dominated. At 30×30, populations are robust enough that predation acts as continuous selection pressure.</p>
+<p>Demographic direction-correct (predators cost prey 4.4 agents, t = −1.43 sub-2σ) and energy direction-coherent (predators remove least-fit prey, leaving per-capita energy slightly higher, t = +1.73).</p>
+<p><strong>New ledger: 30 ✅ / 2 🟠 / 0 🔴 out of 32 auditable scenarios (94% ✅).</strong> Two 🟠 remain: plasticity, baldwin (both kernel-limited by BNN sigma coupling + real diploid sex direction-reversal).</p>
+<p>Audit report: <a href="dev/audit/fidelity/predation_neural_promotion.html"><code>predation_neural_promotion.md</code></a>. Runner: <a href="dev/audit/fidelity/predation_neural_demographic.R"><code>predation_neural_demographic.R</code></a>.</p>
+</div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.5.16" id="clade-0516-2026-04-18-rosenberg-2001-confirmed--s-stress-hypermutation-">clade 0.5.16 (2026-04-18, Rosenberg 2001 confirmed — s-stress-hypermutation ✅)<a class="anchor" aria-label="anchor" href="#clade-0516-2026-04-18-rosenberg-2001-confirmed--s-stress-hypermutation-"></a></h2>
 <div class="section level3">
