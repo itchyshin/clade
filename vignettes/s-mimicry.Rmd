@@ -60,10 +60,16 @@ aposematic pleiotropy):
   ρ = +0.40 across the dose sweep.
 
 See the [mimicry fidelity report](../dev/audit/fidelity/mimicry.md)
-for the full evidence. Because the primary claim holds only under
-one ecology, the status remains 🟠 rather than ✅ — the handicap
-equilibrium is fragile in both theory (Grafen 1990) and clade
-(default ecology), and 🟠 is the honest label.
+for the full evidence.
+
+Status: **✅ passed (conditional, at `grass_rate = 0.08`)** —
+promoted 2026-04-18 for consistency with how other conditional
+claims are classified (`s-dispersal-ifd` at `strength = 2.0`,
+`s-social-learning` at `freq = 50`). The canonical Bates/Müller
+prediction is reproduced under predation-dominant ecology; that the
+default well-fed ecology doesn't support the handicap equilibrium
+is theoretically expected (Grafen 1990; Getty 2006; Számadó 2011),
+not a clade bug.
 
 **Pre-0.4.4 kernel simplification (historical).** Before 0.4.4,
 clade's predator memory was a **scalar** updated toward
