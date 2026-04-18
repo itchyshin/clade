@@ -12,7 +12,7 @@ brain weights, life-history traits, and — with 30+ optional modules — body s
 dispersal tendency, mimicry, coevolving parasites, parental care, cooperative
 breeding, disease, and more. Every biological scenario is backed by a
 [multi-seed fidelity audit](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/DASHBOARD.md) against the
-primary literature (24 of 30 auditable scenarios pass; 6 have
+primary literature (25 of 32 auditable scenarios pass; 7 have
 direction-correct but magnitude-limited signals; 0 contradict theory).
 
 The simulation kernel is written in Julia for performance. R is the interface:
@@ -146,19 +146,19 @@ cross-references the primary literature, the alifeR R prototype, and
 
 | Status | Count |
 |---|---|
-| ✅ Passed | **24** of 30 auditable scenarios |
-| 🟠 Passed-consistent (direction correct, magnitude limited) | **6** |
+| ✅ Passed | **25** of 32 auditable scenarios |
+| 🟠 Passed-consistent (direction correct, magnitude limited) | **7** |
 | 🔴 Contradicts | **0** |
 
-(5 scenarios — predation-neural, cephalopod, module-comparison,
-kitchen-sink, cross-module — are demo/discovery vignettes with no
-primary-source quantitative claim and are marked ⚪ N/A in
+(3 scenarios — module-comparison, kitchen-sink, cross-module — are
+demo/discovery vignettes with no primary-source quantitative claim
+and are marked ⚪ N/A in
 [`STATUS.md`](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/STATUS.md);
-they are excluded from the 30 auditable count.)
+they are excluded from the 32 auditable count.)
 
-The six 🟠 scenarios (mating-systems, scavenging, group-defense, rl,
-plasticity, Baldwin effect) have honestly-documented kernel or ecology
-limitations. See the
+The seven 🟠 scenarios (mating-systems, scavenging, group-defense,
+rl, plasticity, Baldwin effect, predation-neural) have
+honestly-documented kernel or ecology limitations. See the
 [priority roadmap](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/PRIORITY_ROADMAP.md)
 for each scenario's diagnosis and promotion path, and the
 [crash-audit findings](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/CRASH_AUDIT_FINDINGS.md)

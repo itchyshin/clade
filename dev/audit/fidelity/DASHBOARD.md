@@ -1,20 +1,27 @@
 # Fidelity audit dashboard — updated 2026-04-18
 
 One-page summary of all 35 scenarios after the 0.4.2→0.5.6 kernel
-work and the Tier C re-audit cycle. Counts reflect the current
-STATUS.md ledger. **Read alongside `EVIDENCE_REVIEW.md`**
-(2026-04-17), which tiers each ✅ by evidence strength.
+work, the Tier C re-audit cycle, and the 2026-04-18 `realistic_specs()`
+re-audit cycle.
 
 ## Verdict counts
 
 | Status | Count | Scenarios |
 |---|---|---|
-| ✅ passed | **24** | baseline, bad-science, predator-prey, body-size, brain-size, pop-genetics, stress-hypermutation, complex-landscape, dispersal-ifd, niche, seasonal, kin, cooperation, signals, speciation, parental-care, life-history, clutch-size, parental-investment, pace-of-life, mimicry, disease, social-learning, map-elites |
-| 🟠 passed-consistent | **6** | scavenging, mating-systems, group-defense, rl, plasticity, baldwin |
-| ⚪ N/A | **5** | predation-neural, cephalopod, module-comparison, kitchen-sink, cross-module |
+| ✅ passed | **25** | baseline, bad-science, predator-prey, body-size, brain-size, pop-genetics, stress-hypermutation, complex-landscape, dispersal-ifd, niche, seasonal, kin, cooperation, signals, speciation, parental-care, life-history, clutch-size, parental-investment, pace-of-life, mimicry, disease, social-learning, map-elites, **cephalopod** |
+| 🟠 passed-consistent | **7** | scavenging, mating-systems, group-defense, rl, plasticity, baldwin, **predation-neural** |
+| ⚪ N/A | **3** | module-comparison, kitchen-sink, cross-module |
 | 🔴 contradicts | **0** | — |
 
-**Net: 24 ✅ / 6 🟠 / 0 🔴 out of 30 auditable scenarios (80% ✅).**
+**Net: 25 ✅ / 7 🟠 / 0 🔴 out of 32 auditable scenarios (78% ✅).**
+
+**What moved in the `realistic_specs()` re-audit cycle (2026-04-18):**
+- `s-cephalopod` promoted ⚪ → ✅ (10 seeds × 4 lifespans at 60×60
+  grid; slope = −9.23e-05, t = −3.72 — Liedtke & Fromhage 2019
+  lifespan-vs-learning prediction reproduced).
+- `s-predation-neural` promoted ⚪ → 🟠 (8 seeds × 2 conditions;
+  predation reduces prey n by 21.1 at t = −3.64 — Williams 1966
+  passes; diversity-increase claim retracted).
 
 **What moved in the Tier C re-audit cycle (2026-04-17):**
 - `s-dispersal-ifd` promoted 🟠 → ✅ (habitat_preference_strength = 2.0,

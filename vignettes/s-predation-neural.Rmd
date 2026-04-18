@@ -90,18 +90,32 @@ p1 / p2
 FIG("vadim_experiment")
 ```
 
-**What we found.** Running 3 replicates with 0 vs 8 predators, 80 agents, 25×25 grid,
-`grass_rate = 0.2`, 400 ticks (seeds 41–43): predation had minimal effect at these
-parameters — mean population 244 vs 248, genetic diversity 0.264 vs 0.265, mean energy
-132 vs 133, mean age 85.8 in both conditions. The near-zero effect occurs because, with
-`grass_rate = 0.2` and 80 initial agents on a 25×25 grid, the population grows rapidly
-to carrying capacity and starvation becomes the dominant mortality driver. Predation
-mortality is too small relative to starvation mortality to impose detectable directional
-selection on cognition. To observe the predicted diversity increase under predation,
-reduce grass availability (`grass_rate = 0.08`) so that predation represents a larger
-fraction of total mortality, or increase predator attack strength to create a visible
-predation bottleneck. The body size evolution scenario (Theme 1) provides a better-
-calibrated demonstration of predation's evolutionary pressure.
+**What we found (2026-04-18, `realistic_specs()`, 8 seeds × 2
+conditions, 60×60 grid, 2000 ticks).** At the realistic-scale preset
+with 30 predators vs no predators, all 16 runs are viable (no
+crashes).  Two claims were tested against the 2 σ bar:
+
+| Metric | no_predators (8 seeds) | predators (8 seeds) | Δ ± SE | t | verdict |
+|---|---|---|---|---|---|
+| Prey population (`n_agents`, last 500 ticks) | 145.5 ± 4.4 | 124.4 ± 3.8 | **−21.1 ± 5.8** | **−3.64** | **PASS** |
+| Genetic diversity                            | 1.876 ± 0.008 | 1.867 ± 0.006 | −0.009 ± 0.010 | −0.90 | null |
+| Mean energy                                  | 85.05 ± 0.42 | 85.11 ± 0.63 | +0.06 ± 0.75 | +0.08 | null |
+
+**Honest conclusion.** The demographic claim — **predation reduces
+prey equilibrium population size** (Williams 1966, standard
+predator–prey theory) — is robustly reproduced at t = −3.64, a 15%
+drop. The older framing that **predation increases genetic
+diversity** by imposing directional selection on cognition is NOT
+supported at realistic scale: diversity is essentially flat across
+both conditions. Under clade's kernel, brain-weight diversity appears
+mutation-bounded rather than selection-controlled, so the
+diversity-preservation argument doesn't emerge.
+
+This promotes the scenario from ⚪ N/A to 🟠 passed-consistent: the
+demographic prediction carries the primary claim, and the diversity
+prediction is explicitly retracted. See
+[dev/audit/fidelity/predation_neural.md](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/predation_neural.md)
+for the full protocol and per-seed results.
 
 ### Discovery experiments
 

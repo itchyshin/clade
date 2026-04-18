@@ -1,0 +1,15 @@
+Running 16 specs (2 conditions x 8 seeds) at realistic scale...
+  batch wall: 0.4 min
+
+── Viability ──
+              verdict
+condition      viable
+  no_predators      8
+  predators         8
+
+── Per-condition summary (viable runs, t >= 1500) ──
+  no_predators   n=8 | diversity=1.876 ± 0.008 | energy=85.046 ± 0.419 | prey=145.509 ± 4.406
+  predators      n=8 | diversity=1.867 ± 0.006 | energy=85.107 ± 0.627 | prey=124.400 ± 3.772
+  gen_diversity   Δ(pred - no) =  -0.009 ± 0.010   t = -0.90   recheck
+  mean_energy     Δ(pred - no) =  +0.061 ± 0.754   t = +0.08   recheck
+  n_agents        Δ(pred - no) = -21.109 ± 5.800   t = -3.64   PASS

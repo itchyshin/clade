@@ -54,6 +54,25 @@ ticks at fast_specs:
 honest reframed claims) / 1 marginal / 2 untouched / 0 🔴 out of 30
 auditable scenarios.
 
+## 2026-04-18 update — realistic_specs() re-audits
+
+New preset `realistic_specs()` (60×60 grid, fast_specs-based, explicit
+`predator_max_age = 60`) adds ecological-realism to audits. Two
+previously-NA scenarios are now auditable:
+
+- **s-cephalopod ⚪ → ✅**: 10 seeds × 4 lifespans at realistic scale.
+  Slope(mean_lr ~ max_age) = −9.23e-05 ± 2.48e-05 (t = −3.72).
+  Short-lived agents evolve higher learning rates, matching
+  Liedtke & Fromhage 2019.
+- **s-predation-neural ⚪ → 🟠**: 8 seeds × 2 conditions at realistic
+  scale. Predation reduces prey population by 21.1 agents (t = −3.64,
+  PASS) but does NOT increase genetic diversity (t = −0.90, null).
+  Reframed: the Williams 1966 demographic prediction passes; the
+  diversity-preservation claim is retracted.
+
+Count change: **24 ✅ / 6 🟠 / 5 ⚪ → 25 ✅ / 7 🟠 / 3 ⚪** out of
+32 auditable scenarios (80% ✅).
+
 | Scenario                              | Primary source                                | Status              | Report                                              | Commit  |
 |---|---|---|---|---|
 | s-baseline                            | MacArthur & Pianka 1966; Bulitko 2023 (MATLAB)| ✅ passed (three-way xref) | [baseline.md](baseline.md)                   | pending |
@@ -81,12 +100,12 @@ auditable scenarios.
 | s-group-defense                       | Hamilton 1971 (selfish herd)                  | 🟠 passed-consistent (2026-04-17: 96-run sweep shows defense ON consistently LOWERS prey population at all 6 parameter cells; reframed — evolving predators + finite grass invert Hamilton 1971) | [group_defense.md](group_defense.md)                | pending |
 | s-mimicry                             | Bates 1862; Müller 1879                       | ✅ passed (conditional, 2026-04-18: aposematism evolves at `grass_rate = 0.08` predation-dominant ecology; same classification pattern as s-dispersal-ifd / s-social-learning) | [mimicry.md](mimicry.md)                            | pending |
 | s-disease                             | Kermack & McKendrick 1927 (SIR)               | ✅ passed           | [disease.md](disease.md)                            | pending |
-| s-predation-neural                    | —                                             | ⚪ N/A              | demo-only; no fidelity claim                        |         |
+| s-predation-neural                    | Williams 1966                                 | 🟠 passed-consistent (2026-04-18 realistic_specs: 8 seeds × 2 conditions, predation reduces prey n by 21.1 ± 5.8 at t = −3.64; diversity-increase claim retracted at t = −0.90) | [predation_neural.md](predation_neural.md)          | pending |
 | s-rl                                  | Williams 1992 (REINFORCE)                     | 🟠 passed-consistent (2026-04-17: 144-run sweep over freq × lr, no cell gives canonical Δenergy > 0 at t ≥ 2; reframed to module-correctness) | [rl.md](rl.md)                                      | pending |
 | s-social-learning                     | Boyd & Richerson 1985                         | ✅ passed (2026-04-17: 144-run freq × density sweep found `freq = 50` regime with Δenergy = +3.3, t = 2.27) | [social_learning.md](social_learning.md)            | pending |
 | s-plasticity                          | Pigliucci 2001                                | 🟠 passed-consistent (0.4.2 1500-tick, direction correct) | [plasticity.md](plasticity.md)                      | pending |
 | s-baldwin                             | Hinton & Nowlan 1987                          | 🟠 passed-consistent (kernel-limited: sigma couples to behavioural variance) | [baldwin.md](baldwin.md)                            | pending |
-| s-cephalopod                          | —                                             | ⚪ N/A              | demo-only; no fidelity claim                        |         |
+| s-cephalopod                          | Liedtke & Fromhage 2019                       | ✅ passed (2026-04-18 realistic_specs: 10 seeds × 4 lifespans; slope(mean_lr ~ max_age) = −9.23e-05, t = −3.72 — short lifespan selects for faster learning) | [cephalopod.md](cephalopod.md)                      | pending |
 | s-module-comparison                   | —                                             | ⚪ N/A              |                                                     |         |
 | s-map-elites                          | Mouret & Clune 2015                           | ✅ passed (0.4.1 default-mutation fix) | [map_elites.md](map_elites.md)                      | pending |
 | s-kitchen-sink                        | —                                             | ⚪ N/A              |                                                     |         |

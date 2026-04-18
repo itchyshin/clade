@@ -1,0 +1,26 @@
+Running 8 kitchen-sink specs at realistic_specs() scale...
+  batch wall: 0.5 min
+
+── Per-seed emergence metrics ──
+  seed verdict disease_peaks   prey_osc n_shelters n_final n_pred_final
+1    1  viable             1 -0.7819804         NA     135           15
+2    7  viable             2 -0.8030440         NA     174           15
+3   13  viable             2 -0.7636297         NA     188           15
+4   19  viable             1 -0.7768573         NA     154           15
+5   25  viable             1 -0.7911824         NA     156           15
+6   31  viable             1 -0.7928097         NA     159           15
+7   37  viable             1 -0.7546500         NA     104           15
+8   43  viable             1 -0.7820166         NA     145           15
+
+── Emergence conditions met (out of 4) ──
+  seed  1: viable=1 disease=0 cycles=0 shelters=0 | met=1/4
+  seed  7: viable=1 disease=0 cycles=0 shelters=0 | met=1/4
+  seed 13: viable=1 disease=0 cycles=0 shelters=0 | met=1/4
+  seed 19: viable=1 disease=0 cycles=0 shelters=0 | met=1/4
+  seed 25: viable=1 disease=0 cycles=0 shelters=0 | met=1/4
+  seed 31: viable=1 disease=0 cycles=0 shelters=0 | met=1/4
+  seed 37: viable=1 disease=0 cycles=0 shelters=0 | met=1/4
+  seed 43: viable=1 disease=0 cycles=0 shelters=0 | met=1/4
+
+  0/8 seeds satisfy >=3/4 emergence conditions
+  recheck — emergence not multi-seed robust
