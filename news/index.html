@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.11</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.12</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -115,6 +115,27 @@
       <small>Source: <a href="https://github.com/itchyshin/clade/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.5.12" id="clade-0512-2026-04-18-lv-discovery-experiment">clade 0.5.12 (2026-04-18, LV discovery experiment)<a class="anchor" aria-label="anchor" href="#clade-0512-2026-04-18-lv-discovery-experiment"></a></h2>
+<div class="section level3">
+<h3 id="lotka-volterra-in-clade--an-honest-null-0-5-12">Lotka-Volterra in clade — an honest null<a class="anchor" aria-label="anchor" href="#lotka-volterra-in-clade--an-honest-null-0-5-12"></a></h3>
+<p>Added a discovery experiment in <a href="dev/audit/fidelity/predator_prey_lv.R"><code>predator_prey_lv.R</code></a> that tests whether textbook Lotka-Volterra cycles can be coaxed out of clade’s predator kernel. Four conditions × 5 seeds × 2000 ticks at <code><a href="../reference/realistic_specs.html">realistic_specs()</a></code>:</p>
+<ol style="list-style-type: decimal"><li>
+<strong>evolving</strong> (default): predator_mutation_sd = 0.1.</li>
+<li>
+<strong>frozen</strong>: predator_mutation_sd = 0 (no new brain variance).</li>
+<li>
+<strong>longlived</strong>: predator_max_age = 300 (10× prey lifespan, slow-pace-of-life; lynx &gt; hare). Ecologically natural “fixed per-capita attack” approximation via slow evolution.</li>
+<li>
+<strong>fast_turnover</strong>: short-lived (max_age=20) + easy reproduction (min_repro_energy=60) + frozen brains — classical LV-style demographic turnover.</li>
+</ol><p><strong>Result</strong>: no condition produces textbook LV.</p>
+<ul><li>evolving / frozen / longlived: <code>pred_var = 0</code> from t=500 — predator population flatlines at ~30 regardless of prey dynamics.</li>
+<li>fast_turnover: predators explode from 40 to 10,000 (cap) while prey crash to ~5. Phase plot is a one-way trajectory, not a closed LV loop. Boom-bust runaway, not cycling.</li>
+</ul><p><strong>Why.</strong> LV requires <code>dP/dt ∝ prey × predator</code> — predator births proportional to prey density. clade’s predator reproduction is energy-threshold-gated (reproduce when my energy ≥ X), which produces saturation (hard threshold) or runaway (easy threshold) but never density-matched cycling.</p>
+<p>The lynx-hare cycles of nature exist because mammalian reproduction IS density-dependent via gestation/provisioning constraints. clade’s predator module is more like a bacterial predator than a mammalian carnivore. Kernel extension for 0.6+ if LV cycles become a required audit signal.</p>
+<p>Companion figure: <code>vignettes/figures/showcase_14b_predators_lv_comparison.png</code>. Vignette updated with the new discovery-experiment section.</p>
+</div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.5.11" id="clade-0511-2026-04-18-ledger-re-audit">clade 0.5.11 (2026-04-18, ledger re-audit)<a class="anchor" aria-label="anchor" href="#clade-0511-2026-04-18-ledger-re-audit"></a></h2>
 <div class="section level3">

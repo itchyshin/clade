@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.11</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.12</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -311,29 +311,67 @@ Three open directions for going beyond:</p>
 <ol style="list-style-type: decimal">
 <li>
 <p><strong>Can textbook LV be recovered?</strong> Lotka 1925’s
-sinusoidal cycles require fixed, non-adaptive predators with linear
-predation rates.</p>
-<p><em>Tried it (indirectly).</em> Tested
-<code>predator_mutation_sd ∈ {0, 0.1, 1.0, 5.0}</code> × 5 seeds × 1000
-ticks, plus <code>predator_max_agents ∈ {20, 50, 200, 500}</code> × 2
-mutation rates × 5 seeds × 1500 ticks. Also checked cross-correlation
-for the LV quarter-cycle lag.</p>
-<p>Prey oscillation scores range 0.25–0.34 across all regimes (moderate,
-no textbook sinusoidal). Predator populations have <strong>zero
-variance</strong> after the bootstrap phase (sd = 0 in every condition):
-once evolved past random, predators efficiently hunt at any non-zero
-prey density and saturate at cap. Cross-correlation between prey and
-predator timeseries cannot be computed (predator series is
-constant).</p>
-<p><strong>Why.</strong> Evolved neural-network predators are adaptively
-nonlinear — they track prey efficiently regardless of density. This
-removes the quarter-cycle phase lag LV requires (textbook model assumes
-density- proportional predation). The predator-decline phase that
-creates the second half of the LV cycle never occurs because evolved
-predators are too smart to fail at hunting. This is biologically
-realistic (real predators with behavioural plasticity also suppress LV)
-but means textbook LV needs a <code>predator_evolution = FALSE</code>
-kernel spec that freezes predator brains. Deferred to 0.6+.</p>
+sinusoidal cycles require per-capita attack rates that depend on
+density, not on accumulated hunting skill. Natural LV systems
+(lynx–hare, Gause’s <em>Didinium</em>–<em>Paramecium</em>) work because
+predator hunting efficiency evolves <em>slowly</em> relative to the
+cycle period.</p>
+<p><em>Tried it (4 conditions × 5 seeds, 2000 ticks,
+realistic_specs).</em></p>
+<ul>
+<li>
+<strong>evolving</strong> (default):
+<code>predator_mutation_sd = 0.1</code>,
+<code>predator_max_age = 60</code> — predators stabilise at ~30 within
+30 ticks; <code>pred_var = 0</code> from t=500 onwards.
+Arms-race-to-equilibrium.</li>
+<li>
+<strong>frozen</strong>: <code>predator_mutation_sd = 0</code> —
+predators stabilise at ~30; <code>pred_var = 0</code>. Freezing mutation
+doesn’t help because selection on initial brain variance still runs to
+completion.</li>
+<li>
+<strong>longlived</strong> (slow pace-of-life):
+<code>predator_max_age = 300</code> (10× prey lifespan; lynx &gt; hare).
+Also <code>pred_var = 0</code>. Slower evolution still produces
+saturation.</li>
+<li>
+<strong>fast_turnover</strong>: short-lived + easy reproduction
+(<code>predator_max_age = 20</code>,
+<code>predator_min_repro_energy = 60</code>,
+<code>predator_mutation_sd = 0</code>). Predators now cycle — but the
+cycle is a boom-bust runaway, not LV: population explodes from 40 to
+10,000 (cap) by t ≈ 900 while prey crash from 150 to ~5. The phase plot
+shows a one-way trajectory, not a closed LV loop.</li>
+</ul>
+<p><strong>Why textbook LV doesn’t emerge in any of these.</strong> LV
+requires <code>dP/dt ∝ prey × predator</code> — <strong>predator births
+proportional to prey density</strong>. clade’s predator reproduction is
+energy-threshold-gated: a predator reproduces when its own energy
+exceeds <code>predator_min_repro_energy</code>, regardless of current
+prey density. That produces either <strong>saturation</strong> (if the
+threshold is hard, easy predators can always find enough to top up) or
+<strong>runaway</strong> (if the threshold is easy, boom until prey
+extinction), but never density-matched cycling. To get LV, you would
+need either:</p>
+<ul>
+<li>
+<code>predator_repro_rate = kP * mean(prey_density_in_territory)</code>
+— explicit density-dependent reproduction rate, OR</li>
+<li>A chemostat-style steady-state where predator mortality is forced to
+track prey scarcity (e.g. a harsh per-tick metabolic cost that exceeds
+what marginal kills can cover).</li>
+</ul>
+<p>Neither is in the current kernel. The lynx-hare cycles exist in
+nature because lynx reproduction IS density-dependent through
+gestation/provisioning constraints; clade’s predator module is more like
+a bacterial predator (constant metabolic cost, eat- when-encountered)
+than a mammalian carnivore. Deferred as a potential 0.6+ kernel
+extension.</p>
+<p>Companion figure:
+<code>vignettes/figures/showcase_14b_predators_lv_comparison.png</code>
+(4-panel time series + phase plot of the fast_turnover boom-bust). Audit
+script: <a href="https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/predator_prey_lv.R" class="external-link"><code>predator_prey_lv.R</code></a>.</p>
 </li>
 <li>
 <p><strong>Oscillation strength vs predator density.</strong> Does
