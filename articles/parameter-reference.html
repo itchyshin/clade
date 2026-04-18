@@ -1159,21 +1159,30 @@ clade shows sex &gt; asex.</p>
 <td>Enable carried offspring</td>
 </tr>
 <tr class="even">
-<td><code>care_duration</code></td>
-<td>5</td>
-<td>Ticks offspring are carried</td>
+<td><code>juvenile_independence_age</code></td>
+<td>10</td>
+<td>Tick age at which offspring leaves parental care. Replaces pre-0.4.0
+<code>care_duration</code>.</td>
 </tr>
 <tr class="odd">
-<td><code>care_energy_cost</code></td>
-<td>2.0</td>
-<td>Parent energy cost per juvenile per tick</td>
+<td><code>juvenile_independence_energy</code></td>
+<td>50.0</td>
+<td>Energy level at which offspring leaves early</td>
 </tr>
 <tr class="even">
-<td><code>juvenile_energy_gain</code></td>
-<td>3.0</td>
-<td>Energy transferred to juvenile per tick</td>
+<td><code>care_cost_per_tick</code></td>
+<td>1.0</td>
+<td>Parent energy cost per juvenile per tick. Replaces pre-0.5.6
+<code>care_energy_cost</code> /
+<code>care_cost_per_offspring</code>.</td>
 </tr>
 <tr class="odd">
+<td><code>feeding_rate</code></td>
+<td>5.0</td>
+<td>Energy transferred to juvenile per tick. Replaces pre-0.5.6
+<code>juvenile_energy_gain</code>.</td>
+</tr>
+<tr class="even">
 <td><code>neonatal_foraging_deficit</code></td>
 <td>0.0</td>
 <td>(0.4.3) Reduction in effective <code>max_bite</code> for newborns
@@ -1182,7 +1191,7 @@ during their first <code>neonatal_deficit_duration</code> ticks. Set
 provisioning (Aiello &amp; Wheeler 1995; Isler &amp; van Schaik
 2009).</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>neonatal_deficit_duration</code></td>
 <td>10</td>
 <td>(0.4.3) How many ticks the neonatal deficit applies for</td>

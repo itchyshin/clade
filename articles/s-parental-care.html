@@ -155,11 +155,13 @@
 <h3 id="parental-care">Parental care<a class="anchor" aria-label="anchor" href="#parental-care"></a>
 </h3>
 <p><strong>What it models.</strong> Offspring are carried by the parent
-until graduation at age <code>care_duration</code>. While carried,
-juveniles receive energy from the parent at <code>feeding_rate</code>
-per tick. If the parent dies, carried offspring die too (obligate
-altriciality). This models the evolutionary trade-off between clutch
-size and offspring quality (Smith &amp; Fretwell 1974).</p>
+until graduation at age <code>juvenile_independence_age</code> (or
+earlier if they reach <code>juvenile_independence_energy</code>). While
+carried, juveniles receive energy from the parent at
+<code>feeding_rate</code> per tick. If the parent dies, carried
+offspring die too (obligate altriciality). This models the evolutionary
+trade-off between clutch size and offspring quality (Smith &amp;
+Fretwell 1974).</p>
 <p><strong>Key parameters.</strong></p>
 <table class="table">
 <colgroup>
@@ -179,16 +181,22 @@ size and offspring quality (Smith &amp; Fretwell 1974).</p>
 <td>Enable parental care</td>
 </tr>
 <tr class="even">
-<td><code>care_duration</code></td>
-<td>5</td>
-<td>Ticks offspring are carried</td>
+<td><code>juvenile_independence_age</code></td>
+<td>10L</td>
+<td>Ticks offspring are carried. Replaces pre-0.4.0
+<code>care_duration</code>.</td>
 </tr>
 <tr class="odd">
+<td><code>juvenile_independence_energy</code></td>
+<td>50.0</td>
+<td>Energy level at which juvenile graduates early</td>
+</tr>
+<tr class="even">
 <td><code>care_cost_per_tick</code></td>
 <td>1.0</td>
 <td>Energy drained from parent per juvenile per tick</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>feeding_rate</code></td>
 <td>5.0</td>
 <td>Energy transferred to juvenile per tick</td>
@@ -201,10 +209,10 @@ can carry fewer), but juvenile survival is higher. Population dynamics
 are more buffered.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">s</span><span class="op">$</span><span class="va">parental_care</span>     <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
-<span><span class="va">s</span><span class="op">$</span><span class="va">care_duration</span>     <span class="op">&lt;-</span> <span class="fl">5L</span></span>
-<span><span class="va">s</span><span class="op">$</span><span class="va">care_cost_per_tick</span> <span class="op">&lt;-</span> <span class="fl">2.0</span></span>
-<span><span class="va">s</span><span class="op">$</span><span class="va">max_ticks</span>         <span class="op">&lt;-</span> <span class="fl">300L</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">parental_care</span>                <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">juvenile_independence_age</span>    <span class="op">&lt;-</span> <span class="fl">5L</span>    <span class="co"># was `care_duration` in docs &lt;0.5.6</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">care_cost_per_tick</span>           <span class="op">&lt;-</span> <span class="fl">2.0</span></span>
+<span><span class="va">s</span><span class="op">$</span><span class="va">max_ticks</span>                    <span class="op">&lt;-</span> <span class="fl">300L</span></span>
 <span></span>
 <span><span class="va">env</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span>
 <span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env</span><span class="op">)</span></span>

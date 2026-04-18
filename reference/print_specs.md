@@ -138,6 +138,10 @@ print_specs()
 #> 
 #>   Parental care
 #>     parental_care                          FALSE
+#>     juvenile_independence_age              10
+#>     juvenile_independence_energy           50
+#>     care_cost_per_tick                     1
+#>     feeding_rate                           5
 #> 
 #>   Cooperative breeding
 #>     cooperative_breeding                   FALSE
@@ -270,10 +274,6 @@ print_specs()
 #>     seasonal_amplitude                     0
 #>     season_length                          100
 #>     winter_death_prob                      0
-#>     care_cost_per_tick                     1
-#>     feeding_rate                           5
-#>     juvenile_independence_age              10
-#>     juvenile_independence_energy           50
 #>     max_clutch_size                        1
 #>     neonatal_foraging_deficit              0
 #>     neonatal_deficit_duration              10

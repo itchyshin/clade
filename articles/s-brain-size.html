@@ -300,10 +300,10 @@ inputs; 0 = off, 1 = linear</td>
 <span><span class="va">base</span><span class="op">$</span><span class="va">brain_size_cost_scale</span>  <span class="op">&lt;-</span> <span class="fl">5.0</span>   <span class="co"># steep metabolic burden</span></span>
 <span></span>
 <span><span class="co"># Condition 1: brain size WITH parental care (care buffers infancy)</span></span>
-<span><span class="va">s_care</span>              <span class="op">&lt;-</span> <span class="va">base</span></span>
-<span><span class="va">s_care</span><span class="op">$</span><span class="va">parental_care</span>  <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
-<span><span class="va">s_care</span><span class="op">$</span><span class="va">care_duration</span>  <span class="op">&lt;-</span> <span class="fl">20L</span></span>
-<span><span class="va">s_care</span><span class="op">$</span><span class="va">feeding_rate</span>   <span class="op">&lt;-</span> <span class="fl">4.0</span></span>
+<span><span class="va">s_care</span>                             <span class="op">&lt;-</span> <span class="va">base</span></span>
+<span><span class="va">s_care</span><span class="op">$</span><span class="va">parental_care</span>               <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
+<span><span class="va">s_care</span><span class="op">$</span><span class="va">juvenile_independence_age</span>   <span class="op">&lt;-</span> <span class="fl">20L</span>  <span class="co"># was `care_duration` in docs &lt;0.5.6</span></span>
+<span><span class="va">s_care</span><span class="op">$</span><span class="va">feeding_rate</span>                <span class="op">&lt;-</span> <span class="fl">4.0</span></span>
 <span></span>
 <span><span class="co"># Condition 2: brain size WITHOUT parental care (bootstrapping fails)</span></span>
 <span><span class="va">s_no_care</span>           <span class="op">&lt;-</span> <span class="va">base</span></span>
