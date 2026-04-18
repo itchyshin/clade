@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.12</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.13</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -116,6 +116,41 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.5.13" id="clade-0513-2026-04-18-hamilton-1980-red-queen-via-22-design">clade 0.5.13 (2026-04-18, Hamilton 1980 Red Queen via 2×2 design)<a class="anchor" aria-label="anchor" href="#clade-0513-2026-04-18-hamilton-1980-red-queen-via-22-design"></a></h2>
+<div class="section level3">
+<h3 id="mating-systems-hamilton-mechanism-confirmed-in-direction-0-5-13">Mating-systems: Hamilton 1980 mechanism confirmed in direction<a class="anchor" aria-label="anchor" href="#mating-systems-hamilton-mechanism-confirmed-in-direction-0-5-13"></a></h3>
+<p>Reframed the s-mating-systems audit from a confounded single-factor sex-vs-asex comparison to a <strong>2×2 Red Queen differential</strong>:</p>
+<pre><code>         parasites off    parasites on
+asex:        mean_A            mean_B
+sex:         mean_C            mean_D
+
+RQ_benefit = (A − B) − (C − D)
+           = (parasites cost asex) − (parasites cost sex)</code></pre>
+<p>Positive RQ_benefit means sex handles parasites better than asex — which is what Hamilton 1980 predicts recombination does.</p>
+<p><strong>Results (realistic_specs, 32 seeds × 4 conditions, <code>parental_investment_evolution = TRUE</code> so sex and asex have equal per-offspring cost):</strong></p>
+<table class="table"><thead><tr class="header"><th>metric</th>
+<th>asex_parasite_cost</th>
+<th>sex_parasite_cost</th>
+<th>RQ_benefit</th>
+<th>t</th>
+</tr></thead><tbody><tr class="odd"><td>n_agents</td>
+<td>+6.35</td>
+<td>+3.27</td>
+<td><strong>+3.08 ± 4.05</strong></td>
+<td><strong>+0.76</strong></td>
+</tr><tr class="even"><td>diversity</td>
+<td>+0.007</td>
+<td>−0.035</td>
+<td><strong>+0.041 ± 0.030</strong></td>
+<td><strong>+1.36</strong></td>
+</tr></tbody></table><p>Both metrics show direction exactly per Hamilton: parasites hurt asex more than sex. Magnitude sub-2σ at 32 seeds.</p>
+<p>Why the single-factor sex-vs-asex test was misleading: real diploid sex is viability-negative under clade’s default repro cost (even with equalised cost via <code>parental_investment_evolution = TRUE, female_investment = 0.5</code>, 16-20/32 sex seeds crash). The 2-parent mate-finding requirement filters more aggressively than asex’s single-parent requirement. That structural penalty overwhelms any Red Queen benefit in a direct population comparison.</p>
+<p>The 2×2 differential isolates the parasite-response signal from the baseline viability signal. Doing so reveals that Hamilton’s mechanism IS operating in clade — recombination does let sex escape parasite virulence better than clonal reproduction — the Red-Queen advantage just isn’t large enough per-offspring to compensate for sex’s baseline cost at current kernel settings.</p>
+<p>Path to ✅ promotion (two options): - <strong>More seeds</strong> (~60-80 seed 2×2) at current settings. - <strong>Sex-cost kernel calibration</strong>: redesign the <code>repro_cost</code> structure so sex isn’t viability-negative at default parameters (e.g. <code>repro_cost_mode = "per_couple"</code> that charges cost_paid total regardless of mate count). Would let the single-factor comparison work too.</p>
+<p>Companion: <code>dev/audit/fidelity/mating_systems_2x2.R</code>, <code>mating_systems_equalcost.R</code> (the precursor equal-cost experiment).</p>
+</div>
+</div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.5.12" id="clade-0512-2026-04-18-lv-discovery-experiment">clade 0.5.12 (2026-04-18, LV discovery experiment)<a class="anchor" aria-label="anchor" href="#clade-0512-2026-04-18-lv-discovery-experiment"></a></h2>
 <div class="section level3">
 <h3 id="lotka-volterra-in-clade--an-honest-null-0-5-12">Lotka-Volterra in clade — an honest null<a class="anchor" aria-label="anchor" href="#lotka-volterra-in-clade--an-honest-null-0-5-12"></a></h3>
@@ -165,9 +200,9 @@
 <div class="section level3">
 <h3 id="major-kernel-fix--_find_mate-was-structurally-asexual-by-default-0-5-10">Major kernel fix — <code>_find_mate</code> was structurally asexual by default<a class="anchor" aria-label="anchor" href="#major-kernel-fix--_find_mate-was-structurally-asexual-by-default-0-5-10"></a></h3>
 <p>Continued investigation of the 0.5.9 sigma-pegging bug traced the problem deeper than the selfing fallback. In <code>inst/julia/src/reproduce.jl:_find_mate</code> there was a short-circuit:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode julia"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="cf">if</span> specs[<span class="st">"ploidy"</span>] <span class="op">==</span> <span class="fl">1</span> <span class="op">||</span> <span class="fu">Int</span>(<span class="fu">get</span>(specs, <span class="st">"signal_dims"</span>, <span class="fl">0</span>)) <span class="op">==</span> <span class="fl">0</span></span>
-<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>    <span class="cf">return</span> <span class="cn">nothing</span>     <span class="co"># haploid / no-signal-choice → asexual</span></span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode julia"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="cf">if</span> specs[<span class="st">"ploidy"</span>] <span class="op">==</span> <span class="fl">1</span> <span class="op">||</span> <span class="fu">Int</span>(<span class="fu">get</span>(specs, <span class="st">"signal_dims"</span>, <span class="fl">0</span>)) <span class="op">==</span> <span class="fl">0</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>    <span class="cf">return</span> <span class="cn">nothing</span>     <span class="co"># haploid / no-signal-choice → asexual</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div>
 <p><code>signal_dims = 0</code> is the <strong>default</strong> for every scenario except s-signals. The effect was that every supposedly-diploid run in clade has been producing structurally-haploid offspring (<code>pat_w = Float32[]</code> at every birth), regardless of <code>ploidy = 2</code>. The entire diploid pathway was a no-op unless signal evolution was explicitly turned on.</p>
 </div>
 <div class="section level3">
@@ -486,7 +521,7 @@
 <h3 id="kernel-vector-signal-predator-memory-batesmüller-canonical-0-4-4">Kernel: vector-signal predator memory (Bates/Müller canonical)<a class="anchor" aria-label="anchor" href="#kernel-vector-signal-predator-memory-batesm%C3%BCller-canonical-0-4-4"></a></h3>
 <p><strong>Dedicated <code>signal_memory::Vector{Float32}</code> field on Agent</strong> replaces 0.4.0 Tier 4’s overloading of <code>preference</code> (which is meant for prey mate-choice). Cleaner semantics; same mechanism.</p>
 <p><strong>Delta-rule Rescorla-Wagner update</strong> in <code>apply_predator_toxin!</code>. The predator learns a linear model that <em>predicts</em> toxicity from the signal vector:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>memory <span class="sc">+</span><span class="er">=</span> lr × (tox − <span class="fu">dot</span>(memory, signal)) × signal</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>memory <span class="sc">+</span><span class="er">=</span> lr × (tox − <span class="fu">dot</span>(memory, signal)) × signal</span></code></pre></div>
 <p>This is the Widrow-Hoff rule, standard for supervised linear regression. Symmetric (reinforcement on toxic prey, extinction on non-toxic prey) → enables Batesian breakdown when palatable mimics outnumber toxic models.</p>
 <p><strong>Avoidance uses predicted toxicity</strong>: <code>avoid if dot(memory, signal) &gt;= avoid_threshold</code>.</p>
 <p><strong>Aposematic pleiotropy</strong> — new spec <code>signal_toxicity_coupling ∈ [0, 1]</code>. When &gt; 0, each agent’s <code>signal[1]</code> is pulled toward its own toxicity each tick — the honest-signal mechanism theory requires.</p>

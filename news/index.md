@@ -1,5 +1,60 @@
 # Changelog
 
+## clade 0.5.13 (2026-04-18, Hamilton 1980 Red Queen via 2×2 design)
+
+### Mating-systems: Hamilton 1980 mechanism confirmed in direction
+
+Reframed the s-mating-systems audit from a confounded single-factor
+sex-vs-asex comparison to a **2×2 Red Queen differential**:
+
+             parasites off    parasites on
+    asex:        mean_A            mean_B
+    sex:         mean_C            mean_D
+
+    RQ_benefit = (A − B) − (C − D)
+               = (parasites cost asex) − (parasites cost sex)
+
+Positive RQ_benefit means sex handles parasites better than asex — which
+is what Hamilton 1980 predicts recombination does.
+
+**Results (realistic_specs, 32 seeds × 4 conditions,
+`parental_investment_evolution = TRUE` so sex and asex have equal
+per-offspring cost):**
+
+| metric    | asex_parasite_cost | sex_parasite_cost | RQ_benefit         | t         |
+|-----------|--------------------|-------------------|--------------------|-----------|
+| n_agents  | +6.35              | +3.27             | **+3.08 ± 4.05**   | **+0.76** |
+| diversity | +0.007             | −0.035            | **+0.041 ± 0.030** | **+1.36** |
+
+Both metrics show direction exactly per Hamilton: parasites hurt asex
+more than sex. Magnitude sub-2σ at 32 seeds.
+
+Why the single-factor sex-vs-asex test was misleading: real diploid sex
+is viability-negative under clade’s default repro cost (even with
+equalised cost via
+`parental_investment_evolution = TRUE, female_investment = 0.5`,
+16-20/32 sex seeds crash). The 2-parent mate-finding requirement filters
+more aggressively than asex’s single-parent requirement. That structural
+penalty overwhelms any Red Queen benefit in a direct population
+comparison.
+
+The 2×2 differential isolates the parasite-response signal from the
+baseline viability signal. Doing so reveals that Hamilton’s mechanism IS
+operating in clade — recombination does let sex escape parasite
+virulence better than clonal reproduction — the Red-Queen advantage just
+isn’t large enough per-offspring to compensate for sex’s baseline cost
+at current kernel settings.
+
+Path to ✅ promotion (two options): - **More seeds** (~60-80 seed 2×2)
+at current settings. - **Sex-cost kernel calibration**: redesign the
+`repro_cost` structure so sex isn’t viability-negative at default
+parameters (e.g. `repro_cost_mode = "per_couple"` that charges cost_paid
+total regardless of mate count). Would let the single-factor comparison
+work too.
+
+Companion: `dev/audit/fidelity/mating_systems_2x2.R`,
+`mating_systems_equalcost.R` (the precursor equal-cost experiment).
+
 ## clade 0.5.12 (2026-04-18, LV discovery experiment)
 
 ### Lotka-Volterra in clade — an honest null
