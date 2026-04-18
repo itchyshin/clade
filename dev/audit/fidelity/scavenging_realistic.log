@@ -1,0 +1,14 @@
+Running 16 specs (2 conds x 8 seeds) at realistic scale...
+  batch wall: 0.4 min
+
+── Viability ──
+          verdict
+condition  viable
+  scav_off      8
+  scav_on       8
+
+── Per-condition summary (viable, t >= 1500) ──
+  scav_on   n=8 | energy=87.94 ± 0.54 | pop=147.63 ± 5.02
+  scav_off  n=8 | energy=84.53 ± 0.46 | pop=132.76 ± 3.39
+  mean_energy   Δ(on - off) =  +3.419 ± 0.708   t = +4.83   PASS
+  n_agents      Δ(on - off) = +14.876 ± 6.058   t = +2.46   PASS

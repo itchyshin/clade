@@ -102,19 +102,36 @@ s$mutation_sd                    <- 0.0068
 FIG("cephalopod_paradox")
 ```
 
-**What we found.** Running with `rl_mode = "actor_critic"`, `learning_rate = 0.05`,
-80 agents, 25×25 grid, `grass_rate = 0.15`, 400 ticks, under two lifespan conditions
-(2 replicates each, seeds 41–42): short-lived agents (`max_age = 15`) nearly went
-extinct (mean population 8, energy 66, mean age 4.4 ticks), while long-lived agents
-(`max_age = 200`) thrived (mean population 209, energy 126, mean age 87 ticks). With
-only 4.4 ticks of experience on average, short-lived agents die before RL can accumulate
-sufficient gradient steps to improve foraging — they pay the startup cost of learning
-(exploration) without reaching the benefit phase (exploitation). This is precisely the
-paradox: actual cephalopods (octopuses, cuttlefish) ARE short-lived AND demonstrably
-intelligent (fast learners). The model predicts their strategy should fail, yet it does
-not. Candidate resolutions are compressed learning schedules (higher `learning_rate`),
-social learning transmission of trained policies, or epigenetic inheritance of
-behavioural priors — all testable as cross-module interactions.
+**What we found (2026-04-18, `realistic_specs()` + `complex_landscape = TRUE`, 10 seeds × 4 lifespans, 60×60 grid, 2000 ticks).**
+At realistic scale all 40 runs are viable (no extinctions). The
+Liedtke & Fromhage 2019 prediction holds:
+
+| `max_age` | Mean evolved `learning_rate` ± SE |
+|---|---|
+| 30 (cephalopod-like)  | **0.091 ± 0.003** |
+| 50                    | 0.079 ± 0.003 |
+| 100                   | 0.081 ± 0.003 |
+| 200 (long-lived)      | **0.071 ± 0.004** |
+
+Linear regression of `mean_learning_rate` against `max_age` gives a
+slope of **−9.23 × 10⁻⁵ ± 2.48 × 10⁻⁵ (t = −3.72)**, well past
+the 2 σ bar. Short lifespans select for ~22% higher evolved
+learning rates than long lifespans. Genetic evolution substitutes
+for within-lifetime learning when the payback period is long
+enough, and within-lifetime learning takes over when it is short —
+the cephalopod paradox resolved exactly as Liedtke & Fromhage
+predict.
+
+**This promotes the scenario from ⚪ N/A to ✅ passed.** See
+[dev/audit/fidelity/cephalopod.md](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/cephalopod.md)
+for the full protocol and per-seed results.
+
+The earlier 2-replicate `max_age = 15` runs showing extinction
+reflected an over-short lifespan below the threshold where agents
+accumulate enough experience to train. At `max_age = 30`
+(cephalopod-like, `realistic_specs()` default) the population is
+robustly viable, and the evolved learning rate is measurably
+highest.
 
 ### Discovery experiments
 

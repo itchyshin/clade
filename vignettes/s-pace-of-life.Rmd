@@ -53,7 +53,7 @@ signal: Spearman(rate, mean_age) = −1.00 across 5 rates. **Note:**
 `metabolic_rate_evolution` must be `TRUE` to read `init_mean` — when
 `FALSE`, the trait is hardcoded to 1.0. Set `mutation_sd = 0` to
 freeze the rate at its init value while still reading the spec. See
-[dev/audit/fidelity/pace_of_life.md](../dev/audit/fidelity/pace_of_life.md).
+[dev/audit/fidelity/pace_of_life.md](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/pace_of_life.md).
 
 ```{r pace-of-life}
 library(clade)

@@ -117,17 +117,32 @@ s$idle_cost                      <- 1.528
 FIG("scavenging")
 ```
 
-**What we found.** Running 3 replicates with 80 agents, 25×25 grid, `grass_rate = 0.06`,
-`idle_cost = 1.0`, 400 ticks (seeds 41–43): scavenging increased final population by
-21% (mean 53 vs 44 agents) compared to no-scavenging controls under identical conditions.
-Mean population over all 400 ticks was more similar (91 vs 87, +5%), because the carrion
-buffer is most valuable during starvation troughs rather than over the full run. The
-effect was modest at higher grass rates (`grass_rate = 0.08`; +5.2% mean population)
-and negligible at `grass_rate = 0.15` where food scarcity is not the binding constraint.
-The mechanism matters: agents encounter carrion stochastically as they explore the grid
-rather than seeking it out. This limits population-level impact; directed scavenging
-behaviour (which would require RL or social learning of carrion-cell rewards) would be
-expected to produce substantially larger effects.
+**What we found (2026-04-18 `realistic_specs()` with predator
+guild, 8 seeds × 2 conds, 60×60 grid, 2000 ticks).** DeVault 2003's
+carrion-as-energy-channel prediction is robustly reproduced at
+realistic scale:
+
+| Metric | scav_off (8 seeds) | scav_on (8 seeds) | Δ (on − off) | t | verdict |
+|---|---|---|---|---|---|
+| `mean_energy` (last 500 ticks) | 84.53 ± 0.46 | **87.94 ± 0.54** | **+3.42 ± 0.71** | **+4.83** | **PASS** |
+| `n_agents` (last 500 ticks)    | 132.8 ± 3.4  | **147.6 ± 5.0**  | **+14.88 ± 6.06** | **+2.46** | **PASS** |
+
+Both metrics cross 2 σ. Scavenging gives ~4% more energy and ~11%
+more population size. **This promotes the scenario from 🟠 to ✅**
+— the earlier 2026-04-17 null result (192-run sweep × 12 cells at
+default `30×30` / 500-tick scale) was scale-limited: the predator
+guild at default scale is too sparse to generate a detectable
+carrion channel. At `realistic_specs()` scale (60×60 grid, 30
+predators with `predator_max_age = 60`, 2000 ticks) carrion
+accumulates into a measurable foraging channel. See
+[dev/audit/fidelity/scavenging_realistic.md](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/scavenging_realistic.md)
+for protocol and per-seed results.
+
+Earlier small-scale finding (3 replicates, 25×25 grid, `grass_rate
+= 0.06`, 400 ticks): scavenging increased final population by 21%
+when food was scarce and the run was short enough that a
+starvation-bottleneck dominated. The small-scale effect was real
+but conditional; the realistic-scale result is the robust claim.
 
 ### Discovery experiments
 

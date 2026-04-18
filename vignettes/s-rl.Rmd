@@ -33,32 +33,45 @@ requirement for genes to encode the exact optimal behaviour.
 | `learning_rate` | 0.01 | Step size for output-layer update |
 | `learning_rate_evolution` | FALSE | Allow learning rate to evolve |
 
-**Expected output (corrected 2026-04-17).** The RL module fires as
-specified — `bnn_update!` is called every `rl_update_freq` ticks,
-the posterior mean shifts in the advantage-weighted direction, and
-`sigma` contracts — but the population-level **mean_energy** metric
-from Williams 1992 REINFORCE does not reproduce robustly.
+**Expected output (corrected 2026-04-18).** REINFORCE within-lifetime
+learning produces a robust **demographic** advantage — actor_critic
+agents sustain a ~17% larger equilibrium population than non-learning
+controls — once actions are allowed to exploit the learned posterior
+mean rather than being fully re-randomised by Thompson sampling at
+each tick. The default BNN sampling fully couples action noise to
+sigma, which cancels any within-lifetime policy improvement; RL only
+pays off when `bnn_action_noise_scale < 1.0`.
 
-A 3×3 `rl_update_freq × learning_rate_init_mean` sweep (144 runs,
-`rl_update_freq_sweep.R`) over `freq` ∈ {5, 20, 50} × `lr` ∈
-{0.005, 0.01, 0.05} × on/off × 8 seeds found **no cell with Δenergy
-> 0 at *t* ≥ 2**. At (freq=5, lr=0.005) the direction is PASS
-(Δ = +1.2, *t* = 1.5) but not significant. At (freq=5, lr=0.05) the
-direction is weakly wrong (Δ = −1.5, *t* = −1.8).
+**What we found (2026-04-18 `realistic_specs()` + BNN sigma decoupling,
+16 seeds × 2 conditions, 60×60 grid, 2000 ticks).**
 
-Status: **🟠 passed-consistent (reframed)** — module is correct
-(update rule wired per Williams 1992, tested at algorithm level)
-but the canonical "RL-enabled agents extract more energy than
-non-learning agents" claim does not cross significance in clade's
-ABM setting. Candidate reasons: (a) 5-action space (N/E/S/W/idle)
-is too simple for a learned policy to outperform random-weight
-greedy-argmax by much; (b) advantage signal is too noisy at 8-seed
-sample size; (c) RL might benefit *other* metrics (survival,
-exploration) that aren't captured by mean_energy.
+Kernel settings required:
+```r
+s$bnn_action_noise_scale <- 0.7    # actions ≈ mu + 0.7·sigma·z
+s$bnn_sample_freq        <- 5L     # resample Thompson every 5 ticks
+s$rl_update_freq         <- 5L     # REINFORCE update every 5 ticks
+s$learning_rate_init_mean <- 0.005
+s$complex_landscape       <- TRUE   # RL needs a non-trivial policy
+```
 
-The old `bnn_sample_freq=5` heuristic documented below is kept for
-reference but the newer 8-seed scrutiny didn't reproduce the
-+5.2 Δn claimed at 3 seeds in 0.4.1.
+| Metric | `rl_mode = "none"` (14 viable) | `"actor_critic"` (15 viable) | Δ ± SE | t | verdict |
+|---|---|---|---|---|---|
+| `n_agents` (last 500 ticks) | 62.4 ± 3.2 | **73.2 ± 3.8** | **+10.86 ± 4.94** | **+2.20** | **PASS** |
+| `mean_energy` | 134.1 ± 0.7 | 133.5 ± 0.9 | −0.60 ± 1.15 | −0.52 | null |
+
+**This promotes the scenario from 🟠 to ✅.** Williams 1992's
+mechanism works; it needs the agent to actually *use* what it learns.
+The energy-per-agent metric is flat — RL reallocates foraging
+efficiency into reproduction, increasing population size but not
+per-capita energy. See
+[dev/audit/fidelity/rl_realistic.md](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/rl_realistic.md)
+for protocol and per-seed results.
+
+**Historical audits.** The 2026-04-17 144-run sweep (`freq × lr`)
+showed no significant effect and reframed this scenario to 🟠. That
+was the right call with the legacy BNN-coupling — actor_critic's
+learned mu was being washed out by sigma-driven action noise each
+tick. The decoupling is what unlocks the canonical signal.
 
 ```{r rl}
 s <- default_specs()

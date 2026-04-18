@@ -1,0 +1,19 @@
+Built 40 specs (4 lifespans x 10 seeds)
+  batch wall: 0.6 min
+
+── Viability ──
+       verdict
+max_age viable
+    30      10
+    50      10
+    100     10
+    200     10
+
+── Per-lifespan summary (viable, mean_lr_final) ──
+  max_age= 30 | n=10 | mean_lr=0.0909 ± 0.0029 | pop=NaN ± NA
+  max_age= 50 | n=10 | mean_lr=0.0793 ± 0.0025 | pop=NaN ± NA
+  max_age=100 | n=10 | mean_lr=0.0809 ± 0.0027 | pop=NaN ± NA
+  max_age=200 | n=10 | mean_lr=0.0712 ± 0.0042 | pop=NaN ± NA
+
+── Linear slope (mean_lr_final ~ max_age) ──
+  slope = -9.23e-05 ± 2.48e-05 | t = -3.72 | PASS — short lifespan selects for faster learning

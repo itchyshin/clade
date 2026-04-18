@@ -1,0 +1,6 @@
+Running 16 specs (2 envs x 8 seeds) at realistic scale...
+  batch wall: 0.6 min
+
+── Per-condition summary (viable) ──
+  stable   n=2 | delta=0.2963 ± 0.0229 | pop=44.6
+  seasonal n=1 | delta=0.2976 ± NA | pop=44.3

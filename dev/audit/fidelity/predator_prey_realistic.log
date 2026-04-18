@@ -1,0 +1,18 @@
+Running 5 specs at realistic_specs() scale (60x60, 5000 ticks)...
+  batch wall: 0.4 min
+
+── Viability per seed ──
+  seed  1: viable
+  seed  7: viable
+  seed 13: viable
+  seed 19: viable
+  seed 25: viable
+
+── Oscillation / cross-correlation diagnostics (t > 1000) ──
+
+
+
+
+
+
+Wrote vignettes/figures/showcase_14_predators_lv.png

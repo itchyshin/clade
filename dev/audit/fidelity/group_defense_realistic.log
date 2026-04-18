@@ -1,0 +1,8 @@
+Running 16 specs (2 conds x 8 seeds) at realistic scale...
+  batch wall: 0.4 min
+
+── Per-condition summary (viable) ──
+  gd_on   n=8 | pop=128.35 ± 3.87 | energy=85.36 ± 0.49
+  gd_off  n=8 | pop=118.21 ± 5.04 | energy=84.39 ± 0.49
+  n_agents      Δ(on - off) = +10.138 ± 6.356   t = +1.60   recheck
+  mean_energy   Δ(on - off) =  +0.975 ± 0.696   t = +1.40   recheck

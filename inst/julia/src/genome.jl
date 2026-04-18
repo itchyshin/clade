@@ -279,9 +279,20 @@ function make_offspring_genome(parent1::DiploidGenome, parent2::Union{DiploidGen
     mat_w = meiosis(parent1, specs, rng)
     mat_t = meiosis_traits(parent1, specs, rng)
 
+    # Paternal haplotype: usually from parent2, but when no mate is found
+    # (Allee-failure at low density) the default behaviour — `pat_w =
+    # Float32[]` — makes the offspring effectively haploid. For diploid
+    # scenarios this destroys the heterozygosity signal that BNN posterior
+    # sigma tracks. Opt-in `self_fertilization_fallback = TRUE` preserves
+    # diploidy by drawing a second gamete from parent1 (self-fertilization),
+    # so sigma-evolution audits (s-plasticity, s-baldwin) can run.
+    selfing = Bool(get(specs, "self_fertilization_fallback", false))
     if specs["ploidy"] == 2 && parent2 !== nothing
         pat_w = meiosis(parent2, specs, rng)
         pat_t = meiosis_traits(parent2, specs, rng)
+    elseif specs["ploidy"] == 2 && selfing
+        pat_w = meiosis(parent1, specs, rng)      # self-fertilization fallback
+        pat_t = meiosis_traits(parent1, specs, rng)
     else
         pat_w = Float32[]
         pat_t = Float32[]

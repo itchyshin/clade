@@ -208,36 +208,47 @@ end
 """
     _find_mate(ag, env) -> Union{Agent, Nothing}
 
-For haploid organisms or when `signal_dims == 0`: return `nothing` (asexual).
-For diploid organisms with signal evolution: find the nearest compatible mate
-within the Moore neighbourhood whose `signal` best matches `ag.preference`.
-Returns `nothing` if no eligible mate found.
+For haploid organisms (`ploidy == 1`): return `nothing` (asexual by genome).
+
+For diploid organisms (`ploidy == 2`): search for a mate within a configurable
+radius (default 1 = 3×3 Moore neighbourhood; `mate_search_radius = 2` gives
+5×5, etc.). Returns `nothing` only if no eligible mate exists in the search
+window — this is a real Allee-failure event, not the default outcome.
+
+Mate selection:
+- When `signal_dims > 0`: highest signal-preference compatibility (Zahavi 1975).
+- When `signal_dims == 0`: random choice among eligible candidates (sexual
+  reproduction without mate choice, the standard default for all diploid
+  scenarios that don't explicitly evolve signal traits).
+
+Pre-0.5.10 behaviour (bug): when `signal_dims == 0`, this function returned
+`nothing` immediately, which made every "diploid" run structurally produce
+haploid offspring (`pat_w = Float32[]` in `make_offspring_genome`). The
+entire ploidy=2 pathway was effectively a no-op unless signal evolution was
+explicitly enabled.
 """
 function _find_mate(ag::Agent, env::Environment)::Union{Agent, Nothing}
     specs = env.specs
-    if specs["ploidy"] == 1 || Int(get(specs, "signal_dims", 0)) == 0
-        # Haploid: asexual reproduction
-        return nothing
+    if specs["ploidy"] == 1
+        return nothing     # haploid: asexual by genome structure
     end
-    # Diploid: find Moore-neighbourhood agent (excluding self) with highest
-    # signal-preference compatibility
+
     rows     = Int(specs["grid_rows"])
     cols     = Int(specs["grid_cols"])
     toroidal = Bool(get(specs, "toroidal", true))
+    radius   = Int(get(specs, "mate_search_radius", 1))
+    radius   = max(radius, 1)
     x, y = Int(ag.x), Int(ag.y)
 
-    best_score = -Inf32
-    best_mate  = nothing
     candidates = Agent[]
-
-    for dx in -1:1, dy in -1:1
+    for dx in -radius:radius, dy in -radius:radius
         (dx == 0 && dy == 0) && continue
         nx = wrap_or_clamp(x + dx, rows, toroidal)
         ny = wrap_or_clamp(y + dy, cols, toroidal)
         idx = env.agent_map[nx, ny]
         idx == 0 && continue
         candidate = env.agents[idx]
-        candidate.alive      || continue
+        candidate.alive       || continue
         candidate.id == ag.id && continue
         push!(candidates, candidate)
     end
@@ -246,13 +257,20 @@ function _find_mate(ag::Agent, env::Environment)::Union{Agent, Nothing}
     candidates = speciation_filter_mates(ag, candidates, specs)
     isempty(candidates) && return nothing
 
+    # No signal dimensions → sexual reproduction without mate choice:
+    # pick any eligible neighbour at random.
+    if Int(get(specs, "signal_dims", 0)) == 0
+        return candidates[rand(env.rng, 1:length(candidates))]
+    end
+
+    # Signal-based mate choice (Zahavi 1975 preference-for-signal),
+    # optionally augmented by spatial-sorting dispersal bias.
     spatial_sort = Bool(get(specs, "spatial_sorting", false)) &&
                    Bool(get(specs, "dispersal_evolution", false))
 
+    best_score = -Inf32
+    best_mate  = nothing
     for candidate in candidates
-        # Score = negative Euclidean distance between ag.preference and
-        # candidate.signal (Zahavi 1975 — preference for signal),
-        # optionally augmented by spatial sorting dispersal bias.
         sig_score = -sum(abs2, ag.preference .- candidate.signal)
         sort_score = spatial_sort ?
                      Float32(spatial_sort_score(ag, candidate, specs)) : 0.0f0

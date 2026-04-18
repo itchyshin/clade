@@ -1116,6 +1116,20 @@ default_specs <- function() {
     n_chromosomes          = 1L,
     crossover_rate         = 1.0,
     dominance_model        = "additive",
+    self_fertilization_fallback = FALSE,   # 0.5.9: when TRUE + ploidy = 2 +
+                                           # no mate found, draw paternal
+                                           # haplotype from parent1 (self-
+                                           # fertilization) instead of making
+                                           # the offspring effectively haploid.
+                                           # Required for evolved-heterozygosity
+                                           # audits (s-plasticity, s-baldwin).
+    mate_search_radius     = 1L,           # 0.5.10: radius of Moore search for
+                                           # a mate (1 = 3x3, 2 = 5x5, 3 = 7x7).
+                                           # Increasing this reduces Allee-
+                                           # failure rate on sparse grids so
+                                           # diploid sexual reproduction
+                                           # operates reliably without the
+                                           # selfing fallback kicking in.
 
     # ── Mutation ───────────────────────────────────────────────────────────
     mutation_sd                = 0.1,
@@ -1541,6 +1555,103 @@ fast_specs <- function() {
   s$grid_cols        <- 30L
   s$max_ticks        <- 2000L     # 66 generations
   s$predator_max_age <- 100L      # predators outlive prey (owl > mouse)
+  s
+}
+
+#' Realistic-scale specs for ecologically meaningful audits
+#'
+#' Returns [fast_specs()] scaled up to a larger grid and an explicit
+#' predator age structure. Designed for re-auditing scenarios where
+#' the default 30×30 grid is too small to let genuine spatial
+#' dynamics (dispersal gradients, predator–prey waves, metapopulation
+#' structure) express themselves.
+#'
+#' Built on top of [fast_specs()] because 2000-tick / 66-generation
+#' runs are the longest the BNN kernel stays stable without trait
+#' drift degrading the population.  A 5000-tick scale-up was tested
+#' but produced a systematic population decline after t ≈ 1500 across
+#' seeds.
+#'
+#' @details
+#' All [fast_specs()] settings are preserved (`max_age = 30`,
+#' `min_repro_energy = 60`, `min_repro_age = 3`, `grass_rate = 0.20`).
+#' Additional changes:
+#' \describe{
+#'   \item{`grid_rows`, `grid_cols`}{60L × 60L (4× the default
+#'     area). Enough room for metapopulation structure, dispersal
+#'     gradients, and predator–prey waves.}
+#'   \item{`n_agents_init`}{150L. Right-sized to the post-boom
+#'     equilibrium on the 60×60 grid; all 5 tested seeds report
+#'     `viability_report() = viable`.}
+#'   \item{`max_agents`}{1500L. Supports the transient population
+#'     peak (~280) before the equilibrium sets in.}
+#'   \item{`max_ticks`}{2000L. 66 generations at `max_age = 30`.}
+#'   \item{`predator_max_agents`}{150L. 3× default; room for a
+#'     predator guild on the larger map.}
+#'   \item{`predator_max_age`}{60L. Predators outlive prey by 2×
+#'     (owl > mouse) — biologically realistic age structure when
+#'     predation is engaged.}
+#' }
+#'
+#' Typical wall time: 30–60 seconds per run depending on modules; 8
+#' seeds in parallel on 16–32 PSOCK workers easily fit under the
+#' 200-core / 300-GB machine budget.
+#'
+#' @return A specs list calibrated for larger-grid, predator-aware
+#'   audit runs.
+#' @seealso [default_specs()], [fast_specs()], [slow_specs()]
+#' @export
+realistic_specs <- function() {
+  s <- fast_specs()
+  s$grid_rows           <- 60L     # 4x the default area
+  s$grid_cols           <- 60L
+  s$n_agents_init       <- 150L    # right-sized to post-boom equilibrium
+  s$max_agents          <- 1500L
+  s$max_ticks           <- 2000L   # 66 generations at max_age=30
+  s$predator_max_agents <- 150L
+  s$predator_max_age    <- 60L     # predator outlives prey 2x (owl > mouse)
+  s
+}
+
+#' Ultra-realistic specs for finite-size-sensitive audits
+#'
+#' Returns [realistic_specs()] scaled up further for scenarios whose
+#' theoretical signal is dominated by finite-population corrections
+#' — notably the Red Queen (Otto & Michalakis 1998: advantage scales
+#' as ~μN) and Hamilton 1971 selfish herd (risk dilution scales as
+#' ~1/√N). At `realistic_specs()` equilibrium N ≈ 120, these signals
+#' are 5–10× below analytical limits.
+#'
+#' @details
+#' Preserves all [realistic_specs()] settings except:
+#' \describe{
+#'   \item{`grid_rows`, `grid_cols`}{120L × 120L (16× the default
+#'     area, 4× realistic).}
+#'   \item{`n_agents_init`}{800L. Seeded below expected equilibrium
+#'     so the transient overshoot doesn't hit `max_agents`.}
+#'   \item{`max_agents`}{5000L. Supports the larger carrying
+#'     capacity.}
+#'   \item{`max_ticks`}{2500L. ~80 generations at `max_age = 30`.
+#'     Longer runs destabilise the BNN kernel.}
+#'   \item{`predator_max_agents`}{400L.}
+#' }
+#'
+#' Typical wall time: 3–6 minutes per run (15M agent-ticks); 8 seeds
+#' in parallel on 16 PSOCK workers finish in one coffee break. Fits
+#' comfortably under the 200-core / 300-GB machine budget.
+#'
+#' @return A specs list at ecological-theory scale (N ≈ 800–1500
+#'   equilibrium, 80 generations).
+#' @seealso [realistic_specs()], [fast_specs()]
+#' @export
+ultra_realistic_specs <- function() {
+  s <- realistic_specs()
+  s$grid_rows           <- 120L
+  s$grid_cols           <- 120L
+  s$n_agents_init       <- 500L    # right-sized to ~400 equilibrium
+  s$max_agents          <- 5000L
+  s$max_ticks           <- 2500L
+  s$predator_max_agents <- 400L
   s
 }
 

@@ -1,0 +1,40 @@
+post-0.5.10 diploid-sensitive ledger check — 2026-04-18 07:26:20
+
+clade version:  0.5.9 
+
+[pop_genetics          ] 43s wall | 0 verdict lines
+  (no verdict lines captured — see script output)
+
+[speciation            ] 80s wall | 0 verdict lines
+  (no verdict lines captured — see script output)
+
+[kin                   ] 122s wall | 0 verdict lines
+  (no verdict lines captured — see script output)
+
+[cooperation           ] 116s wall | 0 verdict lines
+  (no verdict lines captured — see script output)
+
+[brain_size            ] 59s wall | 0 verdict lines
+  (no verdict lines captured — see script output)
+
+[body_size             ] 162s wall | 0 verdict lines
+  (no verdict lines captured — see script output)
+
+[parental_investment   ] 26s wall | 0 verdict lines
+  (no verdict lines captured — see script output)
+
+[clutch_size           ] 130s wall | 0 verdict lines
+  (no verdict lines captured — see script output)
+
+[life_history          ] 18s wall | 0 verdict lines
+  (no verdict lines captured — see script output)
+
+[pace_of_life          ] 29s wall | 0 verdict lines
+  (no verdict lines captured — see script output)
+
+[parental_care         ] 18s wall | 0 verdict lines
+  (no verdict lines captured — see script output)
+
+[stress_hypermutation  ] 14s wall | 0 verdict lines
+  (no verdict lines captured — see script output)
+

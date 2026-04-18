@@ -79,7 +79,7 @@ FIG("life_history")
 
 **What we found.** Multi-seed audit (5 seeds, 80 agents, 25×25 grid,
 `grass_rate = 0.15`, 400 ticks; full protocol in
-[dev/audit/fidelity/life_history.md](../dev/audit/fidelity/life_history.md)).
+[dev/audit/fidelity/life_history.md](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/life_history.md)).
 All three sign predictions from Cole (1954) and Williams (1966) hold,
 with seed-level reproducibility under 5%:
 
