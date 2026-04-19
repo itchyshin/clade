@@ -23,8 +23,15 @@ navbar:
     articles:
       text: "Guides"
       menu:
+        - text: "Why clade?"
+          href: articles/why-clade.html
         - text: "Getting started"
           href: articles/getting-started.html
+        - text: "Your first research project"
+          href: articles/first-research-project.html
+        - text: "Troubleshooting & FAQ"
+          href: articles/troubleshooting.html
+        - text: "---"
         - text: "Parameter reference"
           href: articles/parameter-reference.html
         - text: "Custom modules API"
@@ -158,8 +165,11 @@ articles:
   - title: "Overview"
     navbar: ~
     contents:
+      - why-clade
       - scenarios
       - getting-started
+      - first-research-project
+      - troubleshooting
       - parameter-reference
       - parameter-space-search
       - custom-modules
