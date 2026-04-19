@@ -1,8 +1,43 @@
-# Fidelity audit dashboard — updated 2026-04-18
+# Fidelity audit dashboard — updated 2026-04-19
 
-One-page summary of all 35 scenarios after the 0.4.2→0.5.6 kernel
-work, the Tier C re-audit cycle, and the 2026-04-18 `realistic_specs()`
-re-audit cycle.
+One-page summary of all 35 scenarios after the 0.4.2→0.5.18
+kernel work, the Tier C re-audit cycle, the 2026-04-18
+`realistic_specs()` re-audit cycle, the 0.5.14–0.5.18 🟠 → ✅
+promotion cycle, and the 2026-04-19 sweet-spot sweep cycle
+(PRs #89–92).
+
+## State as of 2026-04-19
+
+**All 32 auditable scenarios are ✅.** Five scenarios that were
+🟠 in intermediate kernel states have all been resolved to ✅ via
+specific kernel work, documented in per-scenario promotion reports:
+s-mating-systems (0.5.14), s-group-defense (0.5.15),
+s-plasticity (0.5.18), s-baldwin (0.5.18), s-scavenging
+(realistic_specs + predators).
+
+Three further ✅ promotions added 2026-04-19 via sweet-spot sweeps
+(see PRs #91, #92 and the citation-audit program):
+
+- **s-niche** heritable feedback (Odling-Smee 2003) — ✅ at
+  `shelter_occupancy_bonus > 0`, Spearman(bonus, final_n) = +0.863.
+- **s-parental-care** P2 variance buffering (Clutton-Brock 1991)
+  — ✅ conditional at `grass_rate = 0.08, care_cost = 3.0`,
+  t = −2.61.
+
+One deliberate honest-null documented, not counted against ✅
+(the citation audit classifies it as a citation-level ⚠️, not a
+fidelity null):
+
+- **s-kin invasion dynamics** (Hamilton 1964 allele invasion) —
+  drift-dominated in the current `cooperative_breeding` plumbing.
+  Demographic consequence remains ✅ (ρ = 0.97); invasion test
+  requires kin-weighted fitness accounting that the kernel does
+  not yet instantiate.
+
+Narrative sections below record the movement history by cycle —
+some 🟠 entries in earlier cycles have been subsequently
+re-promoted in later cycles; trust STATUS.md for the current
+per-scenario verdict.
 
 ## Verdict counts
 
