@@ -73,11 +73,31 @@ protocol: [dev/audit/fidelity/parental_care.md](https://github.com/itchyshin/cla
 ~1.24 with care on, 0 without. The 0.3.0 fix is confirmed working:
 offspring are carried, fed, and graduate to the adult population.
 
-**Population-level buffering (P2 FAIL).** Care does not measurably
-reduce population variance at default parameters (4625 vs 4548).
-The quality-quantity trade-off predicted by Clutton-Brock needs
-tighter resource scarcity or higher `care_cost_per_tick` to
-express visibly.
+**Population-level buffering (P2: FAIL at default, ✅ at sweet spot).**
+Care does not measurably reduce population variance at default
+parameters (4625 vs 4548). A 2026-04-19 follow-up sweep tested
+the vignette's own hypothesis — that tighter resource scarcity or
+higher `care_cost_per_tick` would reveal Clutton-Brock's 1991
+buffering signal — and found a clean pass at
+`grass_rate = 0.08, care_cost_per_tick = 3.0`:
+
+| `grass_rate` | no-care var | with-care var | Δ var | t |
+|---|---|---|---|---|
+| 0.05 (very scarce) | 19.4 | 18.3 | −1.1 | −0.12 (null; care near viability floor) |
+| **0.08 (scarce)** | **62.8** | **26.6** | **−36.2** | **−2.61 PASS** |
+| 0.12 (moderate) | 42.8 | 69.0 | +26.2 | +1.33 (null; env too stable) |
+
+At the sweet spot, care reduces absolute population variance by
+**58%** (62.8 → 26.6). The caveat Clutton-Brock's framework
+doesn't emphasise: care halves equilibrium size (mean_n 34.6 vs
+117.9), so CV (variance / mean) actually *rises* under care —
+absolute-variance buffering coexists with smaller, more
+relatively-variable populations. Full protocol:
+[dev/audit/fidelity/parental_care_buffering_sweep.md](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/parental_care_buffering_sweep.md).
+
+Same "conditional ✅" pattern as s-mimicry, s-dispersal-ifd,
+s-mating-systems, and s-niche: the theory reproduces in the
+regime the theory is about, not at an arbitrary default.
 
 ### Discovery experiments
 
