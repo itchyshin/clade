@@ -1,19 +1,25 @@
 Package: clade
-Title: Agent-Based Evolutionary Simulation with Julia Backend
+Title: Evolutionary Simulation of Behaviour, Cognition, and Sociality
 Version: 0.5.18
 Authors@R:
     person("Shinichi", "Nakagawa", role = c("aut", "cre"),
            email = "s.nakagawa@unsw.edu.au")
-Description: Agent-based simulation of evolution and foraging ecology.
+Description: Agent-based simulation of behavioural and cognitive
+    evolution. Provides a modular framework for the three classes of
+    interaction that shape behaviour, minds, and brains: between
+    conspecifics (kin selection, sexual selection, cooperation, social
+    learning), between species (predator-prey, mimicry, coevolving
+    parasites, speciation), and with the physical environment (niche
+    construction, phenotypic plasticity, seasonal dynamics, life history).
     Digital organisms carry heritable neural-network genomes (diploid or
-    haploid) and one of six brain types: Bayesian neural network (default),
+    haploid) and one of six brain architectures (Bayesian neural network,
     multilayer perceptron, continuous-time RNN, gene regulatory network,
-    transformer, or symbolic rule synthesis. Agents evolve over generations
-    via natural selection on behaviour, life history, and cognition. The
-    simulation runs entirely in Julia (via JuliaConnectoR), eliminating the
-    per-tick R-backend boundary overhead and enabling runs of 100,000 agents.
-    Provides MAP-Elites, CMA-ES (pure R, no external dependencies), and
-    finite-difference gradient parameter search.
+    transformer, or symbolic rule synthesis). Every biological scenario
+    is cross-referenced to a primary-literature prediction and
+    multi-seed audited against theory. The simulation kernel runs in
+    Julia via 'JuliaConnectoR', with the R-to-Julia boundary crossed
+    once per run. Parameter search includes MAP-Elites, CMA-ES (pure R,
+    no external dependencies), and finite-difference gradient methods.
 License: MIT + file LICENSE
 URL: https://itchyshin.github.io/clade/, https://github.com/itchyshin/clade
 BugReports: https://github.com/itchyshin/clade/issues
