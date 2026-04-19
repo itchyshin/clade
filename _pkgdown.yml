@@ -181,10 +181,17 @@ articles:
       Worked examples of taking a published behavioural-ecology
       paper, translating its quantitative prediction into a clade
       experiment, and reporting what reproduces versus what doesn't.
-      Uses the `hypothesis_sweep()` + `hypothesis_report()` helpers.
+      Each vignette uses `hypothesis_sweep()` + `hypothesis_report()`
+      plus one or more of clade's search / grid tools
+      (`grid_specs()`, `batch_alife()`, `viability_report()`) to
+      demonstrate a full research workflow.
     navbar: ~
     contents:
       - paper-kokko-brooks-2003
+      - paper-griesser-2023
+      - paper-dieckmann-doebeli-1999
+      - paper-reale-2010
+      - paper-emlen-1982
 
   - title: "Parameter search"
     desc: >
@@ -306,6 +313,8 @@ reference:
 
   - title: "Hypothesis testing"
     desc: >
+      Helpers for the sweep->test->report workflow common in
+      fidelity audits and paper reproductions.
       Helpers for the sweep->test->report workflow used in fidelity
       audits and paper reproductions. See
       `vignette("paper-kokko-brooks-2003")` for a worked example.
