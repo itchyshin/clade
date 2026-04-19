@@ -13,7 +13,11 @@ articles:
   k-reproduce: k-reproduce.html
   k-sense: k-sense.html
   k-tick: k-tick.html
+  paper-dieckmann-doebeli-1999: paper-dieckmann-doebeli-1999.html
+  paper-emlen-1982: paper-emlen-1982.html
+  paper-griesser-2023: paper-griesser-2023.html
   paper-kokko-brooks-2003: paper-kokko-brooks-2003.html
+  paper-reale-2010: paper-reale-2010.html
   parameter-reference: parameter-reference.html
   parameter-space-search: parameter-space-search.html
   ps-agent-parameters: ps-agent-parameters.html
@@ -59,7 +63,7 @@ articles:
   scenarios: scenarios.html
   troubleshooting: troubleshooting.html
   why-clade: why-clade.html
-last_built: 2026-04-19T21:00Z
+last_built: 2026-04-19T21:27Z
 urls:
   reference: https://itchyshin.github.io/clade/reference
   article: https://itchyshin.github.io/clade/articles

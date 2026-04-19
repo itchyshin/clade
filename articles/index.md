@@ -22,13 +22,25 @@
 
 Worked examples of taking a published behavioural-ecology paper,
 translating its quantitative prediction into a clade experiment, and
-reporting what reproduces versus what doesn’t. Uses the
+reporting what reproduces versus what doesn’t. Each vignette uses
 [`hypothesis_sweep()`](https://itchyshin.github.io/clade/reference/hypothesis_sweep.md) +
 [`hypothesis_report()`](https://itchyshin.github.io/clade/reference/hypothesis_report.md)
-helpers.
+plus one or more of clade’s search / grid tools
+([`grid_specs()`](https://itchyshin.github.io/clade/reference/grid_specs.md),
+[`batch_alife()`](https://itchyshin.github.io/clade/reference/batch_alife.md),
+[`viability_report()`](https://itchyshin.github.io/clade/reference/viability_report.md))
+to demonstrate a full research workflow.
 
 - [Reproducing a paper — Kokko & Brooks
   2003](https://itchyshin.github.io/clade/articles/paper-kokko-brooks-2003.md):
+- [Reproducing a paper — Griesser et al.
+  2023](https://itchyshin.github.io/clade/articles/paper-griesser-2023.md):
+- [Reproducing a paper — Dieckmann & Doebeli
+  1999](https://itchyshin.github.io/clade/articles/paper-dieckmann-doebeli-1999.md):
+- [Reproducing a paper — Réale et al.
+  2010](https://itchyshin.github.io/clade/articles/paper-reale-2010.md):
+- [Reproducing a paper — Emlen
+  1982](https://itchyshin.github.io/clade/articles/paper-emlen-1982.md):
 
 ### Parameter search
 
