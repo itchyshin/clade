@@ -1,0 +1,257 @@
+---
+title: "Troubleshooting and FAQ"
+author: "Shinichi Nakagawa"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Troubleshooting and FAQ}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment  = "#>",
+  eval     = FALSE
+)
+```
+
+*Common problems and their fixes. Organised by the symptom you're
+likely to see. If your issue isn't covered here, please [open an
+issue](https://github.com/itchyshin/clade/issues).*
+
+---
+
+## Julia and installation
+
+### `julia_is_ready()` hangs or returns `FALSE`
+
+The first call to `julia_is_ready()` compiles the Julia kernel. This
+takes **60–90 seconds** on a typical machine. Subsequent calls in the
+same R session are ~instant.
+
+If it still returns `FALSE` after 2+ minutes:
+
+1. Verify Julia is installed: `system("julia --version")` in R.
+2. Verify `JuliaConnectoR` can find it: `JuliaConnectoR::juliaSetupOk()`.
+3. On macOS, Julia installed via Homebrew can have PATH issues. Install
+   via [juliaup](https://github.com/JuliaLang/juliaup) instead —
+   `curl -fsSL https://install.julialang.org | sh`.
+4. If `JULIA_HOME` is set to an old installation, unset it:
+   `Sys.unsetenv("JULIA_HOME")` then restart R.
+
+### "Package Clade not found" or similar Julia-side errors
+
+The Julia environment lives in `inst/julia/`. If clade was recently
+updated (e.g. you pulled new kernel changes), rebuild the Julia
+environment:
+
+```bash
+cd ~/.julia/packages/  # or wherever your R library has clade installed
+cd $(R -e 'cat(system.file("julia", package = "clade"))' -s)
+julia --project=. -e 'using Pkg; Pkg.instantiate()'
+```
+
+### First-compile is extremely slow (>5 minutes)
+
+On first compile, Julia pre-compiles all kernel modules. This is
+cached per-Julia-environment. If you see >5 minute compiles every
+time, something is invalidating the cache — often a package-manager
+update or a stale `Manifest.toml`. Clean with:
+
+```julia
+using Pkg
+Pkg.resolve()
+Pkg.instantiate()
+```
+
+---
+
+## "My population crashed" — viability failures
+
+### Symptom: final `n_agents` near zero
+
+Your simulation ran but the population went extinct. Almost always
+one of:
+
+- **Mortality too high**. Check `death_prob`, `senescence_rate`,
+  `winter_death_prob`. If multiple mortality sources are on, they
+  compound.
+- **Food too scarce**. Check `grass_rate` (per-tick regrowth) and
+  `grass_max`. If `grass_rate` is below ~0.1 the world can starve.
+- **Too few initial agents** combined with high stochasticity. Try
+  `n_agents_init = 40L` minimum for a 30×30 grid.
+- **Reproduction threshold too high** relative to foraging rate.
+  Check `min_repro_energy` vs. what an agent can accumulate in its
+  lifetime.
+
+**Always use `viability_report()` before interpreting a result.**
+Extinct populations have no signal to report:
+
+```{r}
+rd  <- get_run_data(env)
+via <- viability_report(rd)
+print(via)   # populations survived? heritability non-zero?
+```
+
+### Symptom: populations survive but show `n_agents` oscillating wildly
+
+Usually **Allee effects + small grid**. Two fixes:
+
+1. Use `realistic_specs()` or `ultra_realistic_specs()` — these
+   scale the grid and initial population to reduce Allee stochasticity.
+2. Relax `min_repro_energy` slightly, or increase `max_ticks` so the
+   population has time to recover between crashes.
+
+---
+
+## Parallel runs and `batch_alife()`
+
+### "All connections are in use" or hanging mclapply
+
+**Never use `parallel::mclapply()` with clade.** `mclapply` forks the
+R process; JuliaConnectoR doesn't survive a fork and deadlocks.
+`batch_alife()` uses PSOCK by default — that's the only safe backend.
+
+### PSOCK workers don't pick up kernel changes
+
+PSOCK workers use the *installed* clade package, not your
+`devtools::load_all()` development tree. If you changed Julia kernel
+files in `inst/julia/` and tried a PSOCK batch, you'll see stale
+behaviour.
+
+Fix: reinstall before launching:
+
+```r
+devtools::install(quick = TRUE)   # then restart R and the batch job
+```
+
+### "All 64 connections are in use" on a big machine
+
+PSOCK has per-machine limits on the number of parallel R connections.
+On this project's machine we cap at `n_cores = 64` even when more
+physical cores exist. If you need more, either:
+
+1. Split the job across multiple R sessions manually.
+2. Use the `future` package with a multisession plan (more robust
+   than raw PSOCK, but slightly slower startup).
+
+---
+
+## "Direction right, magnitude wrong"
+
+### What it means
+
+The audit ledger uses three tiers:
+
+- ✅ **PASS** — direction correct, **|t| ≥ 2** at the tested number of seeds
+- 🟠 **Passed-consistent** — direction correct but **|t| < 2**
+- 🔴 **Contradicts** — direction opposite to theory
+
+If your result is 🟠, usually one of these is going on:
+
+1. **Noise dominates**: more seeds reveal a real signal. Scale from
+   8 → 16 → 32 seeds before concluding anything.
+2. **Kernel-limited**: the mechanism you need isn't in clade at
+   sufficient strength. Check whether the module has a "strength"
+   parameter that can be cranked up (e.g. `habitat_preference_strength`,
+   `parasite_pressure`).
+3. **Honest null**: theory is wrong at this parameter regime. Document
+   it. The audit ledger has several honest nulls — they're not
+   failures, they're findings.
+
+### "Signal vanishes at realistic scale"
+
+This is a real phenomenon, not a bug. Some signals (e.g. Hamilton
+1971 selfish-herd) depend on population size via 1/√N and literally
+become smaller at larger scales. Check the audit notes for the
+relevant scenario — they flag where scale matters.
+
+---
+
+## Spec conflicts
+
+### "`kin_selection` does nothing" / "`cooperation` does nothing"
+
+Many modules require other modules to be on. Common dependencies:
+
+- **`kin_selection`** needs `ploidy = 2` (diploid). It's meaningless
+  under haploid reproduction.
+- **`mate_choice`** needs `signal_mating` or `signal_evolution_drift`
+  to have something to choose on.
+- **`parental_care`** needs `neonatal_foraging_deficit > 0` to have
+  a demographic reason to care.
+- **`coevolving_parasites`** needs `signal_dims > 0` for continuous-
+  trait matching, or `n_parasite_loci > 0` for Hamming-haplotype.
+- **`cooperative_breeding`** requires `cooperation_evolution = TRUE`
+  plus a delayed-dispersal mechanism (e.g. saturated habitat).
+
+The [Parameter reference](parameter-reference.html) documents these
+dependencies per flag.
+
+### "`stress_hypermutation` produces no signal"
+
+`stress_threshold` must be **above** `min_repro_energy` or the module
+is structurally silent — agents never reach a stress state before
+reproducing. The default is set conservatively. For stress-scarcity
+studies, try `stress_threshold = 150` with default `min_repro_energy
+= 120`.
+
+---
+
+## RNG / reproducibility
+
+### "My runs don't reproduce even with `random_seed`"
+
+clade's kernel uses `random_seed` but does NOT fully reset its RNG
+between `run_alife()` calls within one R session. Consecutive runs
+share state. If you need bit-exact reproducibility:
+
+1. Restart R between runs, or
+2. Use `batch_alife()` with explicit `seeds = ...` — each worker gets
+   a fresh Julia environment.
+
+### Figure scripts don't reproduce the audit
+
+The figure-generation scripts in `vignettes/` and the audit scripts
+in `dev/audit/fidelity/` must call `run_alife()` in the **same order**
+to reproduce the exact same population. If you refactor call order,
+expect seed-level mismatch even with identical `random_seed`.
+
+---
+
+## Getting help
+
+If your problem isn't here:
+
+1. Check the [Scenarios](scenarios.html) index — your question may
+   match an audited scenario.
+2. Check the [Kernel as biology](k-README.html) articles for
+   mechanism-level documentation.
+3. Skim [open issues](https://github.com/itchyshin/clade/issues) —
+   someone may have hit the same wall.
+4. [Open a new issue](https://github.com/itchyshin/clade/issues/new)
+   with:
+   - `sessionInfo()` output
+   - The specs list you ran (redact anything sensitive)
+   - The error message / unexpected behaviour
+   - What you expected vs. what you got
+
+---
+
+## Anti-patterns to avoid
+
+- **Single-seed conclusions.** Never report a result from one seed.
+  8 minimum for pilots, 16+ for claims.
+- **Deleting the `viability_report()` check** because "the result
+  looks reasonable". A dead population produces plausible-looking
+  but meaningless final-state numbers.
+- **Citing clade without citing the underlying theory**. clade is
+  the instrument; the theory (Hamilton, Williams, DeWitt, etc.) is
+  the question. Always cite both.
+- **Running `pkgdown::build_site()` on CI** before running
+  `devtools::check()` locally — the build site rebuilds vignettes
+  and will fail in non-obvious ways if your specs have typos.
+- **`git add .`** in a clade working directory. There are often large
+  cached `.rds` files that you don't want to commit. Always add
+  specific files.
