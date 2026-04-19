@@ -38,6 +38,8 @@ navbar:
           href: articles/paper-emlen-1982.html
         - text: "Courchamp 1999 — Allee effect + custom-module gap"
           href: articles/paper-courchamp-1999.html
+        - text: "Fuller, Houle & Travis 2005 — sensory bias (kernel-limit null)"
+          href: articles/paper-fuller-2005.html
     articles:
       text: "Guides"
       menu:
@@ -210,6 +212,7 @@ articles:
       - paper-reale-2010
       - paper-emlen-1982
       - paper-courchamp-1999
+      - paper-fuller-2005
 
   - title: "Parameter search"
     desc: >
