@@ -21,6 +21,14 @@ regime with multi-seed replication. Demonstrates
 `grid_specs()`, `batch_alife()`, and `hypothesis_sweep()` working
 together on a non-trivial published prediction.*
 
+```{r fig-griesser-stage1, echo = FALSE, eval = TRUE, out.width = "100%", fig.alt = "Griesser 2023 Stage 1 grid heatmap"}
+knitr::include_graphics("figures-papers/griesser-2023-stage1.png")
+```
+
+```{r fig-griesser-stage2, echo = FALSE, eval = TRUE, out.width = "100%", fig.alt = "Griesser 2023 Stage 2 boxplot — evolved brain size across care durations"}
+knitr::include_graphics("figures-papers/griesser-2023-stage2.png")
+```
+
 ---
 
 ## The paper

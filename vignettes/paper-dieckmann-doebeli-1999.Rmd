@@ -20,6 +20,10 @@ Dieckmann & Doebeli's core prediction — sympatric speciation from
 disruptive selection + assortative mating. Demonstrates grid
 search and multi-seed validation.*
 
+```{r fig-dd, echo = FALSE, eval = TRUE, out.width = "100%", fig.alt = "Dieckmann & Doebeli 1999 — number of species rises as isolation threshold drops"}
+knitr::include_graphics("figures-papers/dieckmann-doebeli-1999.png")
+```
+
 ---
 
 ## The paper

@@ -23,6 +23,10 @@ invasion-dynamics null from PR #90 — `helper_tendency` does not
 evolve in clade's current cooperative-breeding kernel even under
 strong ecological constraint.*
 
+```{r fig-emlen, echo = FALSE, eval = TRUE, out.width = "100%", fig.alt = "Emlen 1982 — raw vs per-capita helping across resource scarcity"}
+knitr::include_graphics("figures-papers/emlen-1982.png")
+```
+
 ---
 
 ## The paper

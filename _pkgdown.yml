@@ -14,12 +14,28 @@ home:
 
 navbar:
   structure:
-    left:  [intro, articles, paramsearch, kernel, scenarios, reference, news]
+    left:  [intro, papers, articles, paramsearch, kernel, scenarios, reference, news]
     right: [github]
   components:
     intro:
       text: "Get Started"
       href: articles/getting-started.html
+    papers:
+      text: "Paper reproductions"
+      menu:
+        - text: "Template — reproduce YOUR paper"
+          href: articles/paper-template.html
+        - text: "---"
+        - text: "Kokko & Brooks 2003 — sexy to die for? (contradiction)"
+          href: articles/paper-kokko-brooks-2003.html
+        - text: "Griesser et al. 2023 — parental provisioning → brain size"
+          href: articles/paper-griesser-2023.html
+        - text: "Dieckmann & Doebeli 1999 — sympatric speciation (clean ✅)"
+          href: articles/paper-dieckmann-doebeli-1999.html
+        - text: "Réale et al. 2010 — pace-of-life syndromes"
+          href: articles/paper-reale-2010.html
+        - text: "Emlen 1982 — ecological constraints on helping"
+          href: articles/paper-emlen-1982.html
     articles:
       text: "Guides"
       menu:
