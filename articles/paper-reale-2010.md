@@ -9,6 +9,9 @@ with multi-trait metrics and
 [`viability_report()`](https://itchyshin.github.io/clade/reference/viability_report.md)
 as a diagnostic tool.*
 
+![Réale 2010 — 4 traits across metabolic rate
+gradient](figures-papers/reale-2010.png)
+
 ------------------------------------------------------------------------
 
 ## The paper

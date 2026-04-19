@@ -9,6 +9,12 @@ and
 [`hypothesis_sweep()`](https://itchyshin.github.io/clade/reference/hypothesis_sweep.md)
 working together on a non-trivial published prediction.*
 
+![Griesser 2023 Stage 1 grid
+heatmap](figures-papers/griesser-2023-stage1.png)
+
+![Griesser 2023 Stage 2 boxplot — evolved brain size across care
+durations](figures-papers/griesser-2023-stage2.png)
+
 ------------------------------------------------------------------------
 
 ## The paper

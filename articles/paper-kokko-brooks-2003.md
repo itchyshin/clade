@@ -8,6 +8,9 @@ doesn’t. Uses the
 helpers to keep the whole workflow inside clade’s vocabulary — no
 separate scripts, no bespoke plumbing.*
 
+![K&B 2003 — signals x grass rate. Signals-effect shrinks as grass
+drops.](figures-papers/kokko-brooks-2003.png)
+
 ------------------------------------------------------------------------
 
 ## The paper

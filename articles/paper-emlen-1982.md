@@ -7,6 +7,9 @@ population. Reinforces the s-kin invasion-dynamics null from PR \#90 —
 `helper_tendency` does not evolve in clade’s current
 cooperative-breeding kernel even under strong ecological constraint.*
 
+![Emlen 1982 — raw vs per-capita helping across resource
+scarcity](figures-papers/emlen-1982.png)
+
 ------------------------------------------------------------------------
 
 ## The paper
