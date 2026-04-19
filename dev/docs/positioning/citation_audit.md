@@ -880,7 +880,7 @@ direction-correct.
 
 | Scenario | Primary citation(s) in vignette | Specific claim tested | Direction predicted | clade's result | Verdict |
 |---|---|---|---|---|---|
-| **s-brain-size** | van Schaik et al. (2023) PLoS Biol 10.1371/journal.pbio.3002016; Griesser et al. (2023) PNAS 10.1073/pnas.2121467120; "Song et al. (2025)" *(cannot verify in Crossref as of 2026-04-19)* | Parental provisioning is a prerequisite for brain-size evolution (bootstrapping problem + expensive-brain hypothesis) | Brain size declines without care; stable/rises with care | At cost_scale=3.0, care_dur=15, base=0.010: Δ(body_size) = +0.118 ± 0.073 with care − no-care; biological-mechanism variant produces Δ-delta = +1.088 at `deficit=0.6, exp=1.5` (no-care extinct) | ⚠️ *See §s-brain-size* |
+| **s-brain-size** | van Schaik et al. (2023) PLoS Biol 10.1371/journal.pbio.3002016; Griesser et al. (2023) PNAS 10.1073/pnas.2121467120 *(unverifiable "Song 2025" citation removed 2026-04-19)* | Parental provisioning is a prerequisite for brain-size evolution (bootstrapping problem + expensive-brain hypothesis) | Brain size declines without care; stable/rises with care | At cost_scale=3.0, care_dur=15, base=0.010: Δ(body_size) = +0.118 ± 0.073 with care − no-care; biological-mechanism variant produces Δ-delta = +1.088 at `deficit=0.6, exp=1.5` (no-care extinct) | ⚠️ *See §s-brain-size* |
 | **s-social-learning** | Henrich & McElreath (2003) Evol Anthropol 10.1002/evan.10110; Boyd & Richerson (1985) *Culture and the Evolutionary Process* | Social copying of successful behaviours propagates useful strategies and raises mean fitness | Mean energy / population advantage with social learning enabled | Δmean_energy = +3.3, **t = 2.27** at `freq=50, n_init=150`; null at `freq ∈ {5, 20}` (over-aggressive copying noise-dominated) | ⚠️ *See §s-social-learning* |
 | **s-baldwin** | Baldwin (1896) Am Nat; Hinton & Nowlan (1987) Complex Systems; Mayley (1996) Evol Comput; Waddington (1942) Nature; Jablonka & Lamb (2005) *Evolution in Four Dimensions*; Blundell et al. (2015) ICML | Learning guides evolution — σ (BNN uncertainty) should decline over generations as learned behaviours become genetically assimilated | σ should canalize (decline monotonically) in stable environments | Transient Δ-delta = +0.007 at 600 ticks in the canonical direction; **reverses at 1500 ticks** (equilibrium ≠ canalization); MAP-Elites archive confirms no low-σ + high-gd cells exist. Acknowledged kernel limitation: σ mediates both learning capacity AND action variance | 🟠 *See §s-baldwin* |
 | **s-rl** | Williams (1992) Mach Learn — REINFORCE algorithm | Within-lifetime RL confers a demographic advantage (implicitly via the Baldwin framework: Hinton & Nowlan 1987) | Population size rises with `rl_mode = "actor_critic"` | Δn = **+10.86 ± 4.94, t = +2.20** (PASS) at `bnn_action_noise_scale = 0.7, bnn_sample_freq = 5, rl_update_freq = 5`; null without BNN decoupling | ⚠️ *See §s-rl* |
@@ -892,9 +892,9 @@ direction-correct.
 
 ## Per-scenario notes — Session 2
 
-### s-brain-size — van Schaik (2023) + Griesser (2023) + "Song 2025" ⚠️
+### s-brain-size — van Schaik (2023) + Griesser (2023) ⚠️
 
-**Verified citations**:
+**Verified citations** (both retained in vignette):
 
 > van Schaik, C. P., Song, Z., Schuppli, C., et al. (2023).
 > Extended parental provisioning and variation in vertebrate brain
@@ -905,14 +905,15 @@ direction-correct.
 > Parental provisioning drives brain size in birds. *PNAS* 120(9):
 > e2121467120. [`10.1073/pnas.2121467120`]
 
-**Unverified citation**:
-
-> "Song et al. (2025)" — no matching paper returned by Crossref
-> search (2026-04-19). Possibilities: preprint not yet indexed;
-> mis-remembered year; confusion with Song's co-authorship on van
-> Schaik et al. 2023. The vignette prose groups this as a separate
-> citation ("van Schaik et al. 2023; Griesser et al. 2023; Song et
-> al. 2025"), so it cannot be dismissed as a variant of the first.
+**Verification failure resolved (2026-04-19)**: the vignette
+previously also cited "Song et al. (2025)" as a third supporting
+reference, but no matching paper could be located in Crossref.
+Possibilities considered: preprint not yet indexed; mis-remembered
+year; confusion with Song's co-authorship on van Schaik et al.
+2023. After authorizing cleanup, the unverifiable citation was
+**removed** from the vignette prose. The two verified citations
+cover the parental-provisioning hypothesis adequately. If the
+intended Song reference is located later, it can be restored.
 
 **What the verified papers predict**:
 
@@ -932,10 +933,11 @@ gives Δ-delta = +1.088 but no-care populations go extinct.
 
 **Material notes**:
 
-1. **"Song 2025" needs DOI or year correction** — this is a
-   verifiable audit issue. The vignette attributes a claim to a
-   paper that cannot be located. Scenario author should pin the
-   DOI or remove the citation.
+1. **"Song 2025" unverifiable — resolved 2026-04-19 by removal.**
+   The vignette formerly attributed a claim to "Song et al. 2025"
+   which could not be located in Crossref. User authorised cleanup;
+   citation removed. If the intended reference is identified later
+   it can be restored.
 2. The clade result pertains to body size as a correlated proxy
    for brain investment, not brain size per se — the
    `brain_size_evolution` flag coevolves with body size under the
@@ -943,8 +945,10 @@ gives Δ-delta = +1.088 but no-care populations go extinct.
    measurement scope is broader.
 
 **Audit call**: ⚠️. Two verified citations are correct and
-direction-correct. Third cited paper (Song 2025) cannot be
-verified in Crossref — requires author clarification.
+direction-correct. The third formerly-cited paper (Song 2025) was
+removed from the vignette 2026-04-19 after Crossref could not
+locate it. The ⚠️ verdict now reflects the demographic-proxy
+scope caveat (note 2) rather than any unresolved citation issue.
 
 ### s-social-learning — Henrich & McElreath (2003) ⚠️
 
@@ -1196,7 +1200,10 @@ tempered accordingly once Sessions 2–4 complete.
 - **13 of 32 auditable scenarios audited** (plus 1 ⚪ N/A).
 - **3 ✅, 7 ⚠️, 2 🟠, 1 ⚪, 0 ❌.**
 - **Zero outright retractions** across both sessions.
-- **One verification failure** (Song 2025 on s-brain-size).
+- **One verification failure** (Song 2025 on s-brain-size) —
+  **resolved 2026-04-19 by removal** after Crossref could not locate
+  the paper. The two remaining citations (van Schaik 2023, Griesser
+  2023) cover the parental-provisioning hypothesis adequately.
 - **Five citation-precision recommendations** surfaced (Hauert
   swap and Clutton-Brock year already shipped in PR #83; HAT 1990
   also shipped; two new from Session 2: social-learning
@@ -1378,7 +1385,23 @@ With the audit complete (and the above caveats pending):
   **s-disease** is missing a citation for the SIR framework
   (Kermack & McKendrick 1927) entirely. **s-complex-landscape**
   cites Liedtke & Fromhage 2019 by structural analogy rather than
-  direct prediction match. Session 4 pending.
+  direct prediction match.
+- **2026-04-19 (post-merge closeout)** — two outstanding items
+  from earlier in the day resolved:
+  - **Song 2025 verification failure** (s-brain-size) — citation
+    could not be located in Crossref. User authorised cleanup;
+    unverifiable citation removed from the vignette. The two
+    remaining citations (van Schaik et al. 2023 PLoS Biol;
+    Griesser et al. 2023 PNAS) both verify via Crossref and cover
+    the parental-provisioning hypothesis adequately. The ⚠️
+    verdict for s-brain-size now reflects the demographic-proxy
+    scope caveat only, not any unresolved citation issue.
+  - **DASHBOARD.md consistency** — added a 2026-04-19 "state as
+    of" section at the top explaining the current 32-✅ count
+    relative to the narrative sections below, which record how
+    scenarios moved through intermediate 🟠 states during the
+    0.5.14–0.5.18 kernel cycle. STATUS.md remains the
+    per-scenario authoritative source.
 
 **Aggregate after Sessions 1 + 2 + 3** (24 scenarios audited plus
 1 ⚪ N/A): 7 ✅, 11 ⚠️, 5 🟠, 1 ⚪, 0 ❌. Zero outright retractions
