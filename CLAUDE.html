@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,7 +35,6 @@
     <li><a class="dropdown-item" href="articles/troubleshooting.html">Troubleshooting &amp; FAQ</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="articles/parameter-reference.html">Parameter reference</a></li>
-    <li><a class="dropdown-item" href="articles/custom-modules.html">Custom modules API</a></li>
   </ul></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-parameter-search" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Parameter search</button>
@@ -196,9 +195,9 @@
 </td>
 </tr><tr class="odd"><td><code>R/scenarios.R</code></td>
 <td>Pre-baked scenario specs and tuning helpers</td>
-</tr><tr class="even"><td><code>R/modules.R</code></td>
+</tr><tr class="even"><td><code>R/hypothesis.R</code></td>
 <td>
-<code><a href="reference/register_module.html">register_module()</a></code>, custom per-tick R hooks</td>
+<code><a href="reference/hypothesis_sweep.html">hypothesis_sweep()</a></code> + <code><a href="reference/hypothesis_report.html">hypothesis_report()</a></code> — researcher workflow helpers</td>
 </tr><tr class="odd"><td><code>R/analysis.R</code></td>
 <td>
 <code><a href="reference/get_run_data.html">get_run_data()</a></code>, <code><a href="reference/compute_ld.html">compute_ld()</a></code>, heritability, relatedness</td>

@@ -138,17 +138,6 @@ and parameter lists manually.
 - [`tune_iffolk()`](https://itchyshin.github.io/clade/reference/tune_iffolk.md)
   : Tune parameters for the IFfolk inclusive fitness module
 
-## Custom modules
-
-Register user-defined hook functions that run at each tick.
-
-- [`register_module()`](https://itchyshin.github.io/clade/reference/register_module.md)
-  : Register a custom module function
-- [`list_modules()`](https://itchyshin.github.io/clade/reference/list_modules.md)
-  : List registered custom modules
-- [`clear_modules()`](https://itchyshin.github.io/clade/reference/clear_modules.md)
-  : Remove all registered custom modules
-
 ## Pure-R scenarios
 
 Scenarios that run entirely in R (no Julia required).

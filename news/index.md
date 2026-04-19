@@ -1,5 +1,61 @@
 # Changelog
 
+## clade 0.6.1 (2026-04-19) — remove broken register_module() stub
+
+The `register_module()` / `list_modules()` / `clear_modules()` R API is
+removed. It was a **stub**: the registered R hooks were never called
+during the simulation — `.apply_custom_modules()` existed in
+`R/modules.R` but had no caller in the run loop. A direct empirical test
+confirmed this (the Courchamp 1999 reproduction PR).
+
+### Why remove rather than wire up
+
+clade’s design contract is that the R↔︎Julia boundary is crossed exactly
+**once per
+[`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md)
+call** — the basis of clade’s performance claim (see
+[`vignette("why-clade")`](https://itchyshin.github.io/clade/articles/why-clade.md)).
+Firing a user-supplied R function per tick would cross the boundary N
+times per run, defeating that design.
+
+A properly-wired custom-module system would need **user-written Julia**
+modules loaded at
+[`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md)
+startup, not per-tick R callbacks — candidate 0.7+ feature.
+
+### What to do instead
+
+Three boundary-level extension patterns cover the empirical research use
+cases (see
+[`paper-courchamp-1999`](https://itchyshin.github.io/clade/news/articles/paper-courchamp-1999.md)
+vignette’s methodology section for worked examples):
+
+1.  **Parameter-level composition** — combine existing module flags
+    until emergent dynamics match the target mechanism.
+2.  **Post-hoc metric computation** — any derived statistic on
+    `get_run_data()$ticks` in pure R.
+3.  **Between-run intervention** — run in chunks, extract state, modify
+    specs, restart.
+
+### Deleted
+
+- `R/modules.R`, `tests/testthat/test-custom-modules.R`,
+  `vignettes/custom-modules.Rmd`
+- Four `man/*.Rd` entries: `register_module`, `list_modules`,
+  `clear_modules`, `dot-apply_custom_modules`
+- Navbar entries for “Custom modules API” and pkgdown reference section
+  for custom modules
+- README.md + index.md links to the removed vignette
+
+### Breaking changes
+
+**Any user code calling `register_module()`, `list_modules()`, or
+`clear_modules()` will error** with `could not find function`. Since the
+API was a silent no-op, such code wasn’t doing anything useful anyway —
+migrate to the three extension patterns in the Courchamp vignette.
+
+------------------------------------------------------------------------
+
 ## clade 0.6.0 (2026-04-19) — research workflow + paper reproductions
 
 A large user-facing release. Same kernel state as 0.5.18 (32/32 fidelity

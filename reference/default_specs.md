@@ -170,9 +170,9 @@ each entry for the primary literature.
   2015); ANN = multilayer perceptron (Rumelhart et al. 1986); CTRNN =
   continuous-time recurrent network (Beer 1995); GRN = gene regulatory
   network (Kauffman 1993); random = null baseline. See
-  [`vignette("custom-modules")`](https://itchyshin.github.io/clade/articles/custom-modules.md)
-  for architecture details and `dev/benchmarks/brain_comparison.R` for a
-  side-by-side benchmark of the five working types.
+  `vignette("custom-modules")` for architecture details and
+  `dev/benchmarks/brain_comparison.R` for a side-by-side benchmark of
+  the five working types.
 
 - `hidden_layers`:
 

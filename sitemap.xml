@@ -5,7 +5,6 @@
 <url><loc>https://itchyshin.github.io/clade/LICENSE.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/SELF_HOSTED_RUNNER_SETUP.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/articles/baldwin-effect.html</loc></url>
-<url><loc>https://itchyshin.github.io/clade/articles/custom-modules.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/articles/first-research-project.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/articles/getting-started.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/articles/index.html</loc></url>
@@ -75,13 +74,11 @@
 <url><loc>https://itchyshin.github.io/clade/reference/batch_seeds.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/clade-package.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/clade-visualization.html</loc></url>
-<url><loc>https://itchyshin.github.io/clade/reference/clear_modules.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/compare_conditions.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/compute_ld.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/compute_relatedness.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/default_specs.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/diversity_landscape.html</loc></url>
-<url><loc>https://itchyshin.github.io/clade/reference/dot-apply_custom_modules.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/dot-clade_start_julia.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/dot-is_sendable_to_julia.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/dot-julia_env_to_r.html</loc></url>
@@ -106,7 +103,6 @@
 <url><loc>https://itchyshin.github.io/clade/reference/inspect_brain.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/julia_is_ready.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/julia_version.html</loc></url>
-<url><loc>https://itchyshin.github.io/clade/reference/list_modules.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/load_map.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/load_specs.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/objective_complex_landscape.html</loc></url>
@@ -130,7 +126,6 @@
 <url><loc>https://itchyshin.github.io/clade/reference/print_specs.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/quick_specs.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/realistic_specs.html</loc></url>
-<url><loc>https://itchyshin.github.io/clade/reference/register_module.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/run_alife.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/run_bad_science.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/run_clade.html</loc></url>

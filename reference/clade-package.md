@@ -51,9 +51,10 @@ precompiles the Julia kernel (~10–90 s, once per Julia session).
   [`search_gradient()`](https://itchyshin.github.io/clade/reference/search_gradient.md)
   — parameter search driven by a user-supplied fitness function.
 
-- [`register_module()`](https://itchyshin.github.io/clade/reference/register_module.md)
-  — attach a custom per-tick R hook (rarely needed — most modules live
-  on the Julia side).
+- [`hypothesis_sweep()`](https://itchyshin.github.io/clade/reference/hypothesis_sweep.md)
+  /
+  [`hypothesis_report()`](https://itchyshin.github.io/clade/reference/hypothesis_report.md)
+  — researcher- facing wrappers for the sweep-\>test-\>report workflow.
 
 ### Biological modules
 

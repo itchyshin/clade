@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,7 +35,6 @@
     <li><a class="dropdown-item" href="../articles/troubleshooting.html">Troubleshooting &amp; FAQ</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/parameter-reference.html">Parameter reference</a></li>
-    <li><a class="dropdown-item" href="../articles/custom-modules.html">Custom modules API</a></li>
   </ul></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-parameter-search" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Parameter search</button>
@@ -131,6 +130,39 @@
       <small>Source: <a href="https://github.com/itchyshin/clade/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.6.1" id="clade-061-2026-04-19--remove-broken-register_module-stub">clade 0.6.1 (2026-04-19) — remove broken register_module() stub<a class="anchor" aria-label="anchor" href="#clade-061-2026-04-19--remove-broken-register_module-stub"></a></h2>
+<p>The <code>register_module()</code> / <code>list_modules()</code> / <code>clear_modules()</code> R API is removed. It was a <strong>stub</strong>: the registered R hooks were never called during the simulation — <code>.apply_custom_modules()</code> existed in <code>R/modules.R</code> but had no caller in the run loop. A direct empirical test confirmed this (the Courchamp 1999 reproduction PR).</p>
+<div class="section level3">
+<h3 id="why-remove-rather-than-wire-up-0-6-1">Why remove rather than wire up<a class="anchor" aria-label="anchor" href="#why-remove-rather-than-wire-up-0-6-1"></a></h3>
+<p>clade’s design contract is that the R↔︎Julia boundary is crossed exactly <strong>once per <code><a href="../reference/run_alife.html">run_alife()</a></code> call</strong> — the basis of clade’s performance claim (see <code><a href="../articles/why-clade.html">vignette("why-clade")</a></code>). Firing a user-supplied R function per tick would cross the boundary N times per run, defeating that design.</p>
+<p>A properly-wired custom-module system would need <strong>user-written Julia</strong> modules loaded at <code><a href="../reference/run_alife.html">run_alife()</a></code> startup, not per-tick R callbacks — candidate 0.7+ feature.</p>
+</div>
+<div class="section level3">
+<h3 id="what-to-do-instead-0-6-1">What to do instead<a class="anchor" aria-label="anchor" href="#what-to-do-instead-0-6-1"></a></h3>
+<p>Three boundary-level extension patterns cover the empirical research use cases (see <a href="articles/paper-courchamp-1999.html"><code>paper-courchamp-1999</code></a> vignette’s methodology section for worked examples):</p>
+<ol style="list-style-type: decimal"><li>
+<strong>Parameter-level composition</strong> — combine existing module flags until emergent dynamics match the target mechanism.</li>
+<li>
+<strong>Post-hoc metric computation</strong> — any derived statistic on <code>get_run_data()$ticks</code> in pure R.</li>
+<li>
+<strong>Between-run intervention</strong> — run in chunks, extract state, modify specs, restart.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="deleted-0-6-1">Deleted<a class="anchor" aria-label="anchor" href="#deleted-0-6-1"></a></h3>
+<ul><li>
+<code>R/modules.R</code>, <code>tests/testthat/test-custom-modules.R</code>, <code>vignettes/custom-modules.Rmd</code>
+</li>
+<li>Four <code>man/*.Rd</code> entries: <code>register_module</code>, <code>list_modules</code>, <code>clear_modules</code>, <code>dot-apply_custom_modules</code>
+</li>
+<li>Navbar entries for “Custom modules API” and pkgdown reference section for custom modules</li>
+<li>README.md + index.md links to the removed vignette</li>
+</ul></div>
+<div class="section level3">
+<h3 id="breaking-changes-0-6-1">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-0-6-1"></a></h3>
+<p><strong>Any user code calling <code>register_module()</code>, <code>list_modules()</code>, or <code>clear_modules()</code> will error</strong> with <code>could not find function</code>. Since the API was a silent no-op, such code wasn’t doing anything useful anyway — migrate to the three extension patterns in the Courchamp vignette.</p>
+<hr></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.0" id="clade-060-2026-04-19--research-workflow--paper-reproductions">clade 0.6.0 (2026-04-19) — research workflow + paper reproductions<a class="anchor" aria-label="anchor" href="#clade-060-2026-04-19--research-workflow--paper-reproductions"></a></h2>
 <p>A large user-facing release. Same kernel state as 0.5.18 (32/32 fidelity ✅), but significantly more research infrastructure around it. Three major additions for behavioural-ecology and evolutionary researchers: a systematic primary-citation audit of all 32 scenarios, reusable researcher-workflow helpers (<code><a href="../reference/hypothesis_sweep.html">hypothesis_sweep()</a></code> + <code><a href="../reference/hypothesis_report.html">hypothesis_report()</a></code>), and five worked paper reproductions that double as methodology tutorials.</p>

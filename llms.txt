@@ -182,10 +182,6 @@ plot_run(get_run_data(env))   # population × energy × diversity dashboard
   reference**](https://itchyshin.github.io/clade/articles/parameter-reference.md)
   — every field in
   [`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md)
-- [**Custom
-  modules**](https://itchyshin.github.io/clade/articles/custom-modules.md)
-  — write your own per-tick R hooks with
-  [`register_module()`](https://itchyshin.github.io/clade/reference/register_module.md)
 - [**Kernel as
   biology**](https://itchyshin.github.io/clade/articles/k-README.md) —
   how the Julia kernel maps onto biological mechanism
@@ -346,17 +342,6 @@ and parameter lists manually.
 - [`tune_iffolk()`](https://itchyshin.github.io/clade/reference/tune_iffolk.md)
   : Tune parameters for the IFfolk inclusive fitness module
 
-## Custom modules
-
-Register user-defined hook functions that run at each tick.
-
-- [`register_module()`](https://itchyshin.github.io/clade/reference/register_module.md)
-  : Register a custom module function
-- [`list_modules()`](https://itchyshin.github.io/clade/reference/list_modules.md)
-  : List registered custom modules
-- [`clear_modules()`](https://itchyshin.github.io/clade/reference/clear_modules.md)
-  : Remove all registered custom modules
-
 ## Pure-R scenarios
 
 Scenarios that run entirely in R (no Julia required).
@@ -446,8 +431,6 @@ Pretty-print specs, summarise environments.
   Reference](https://itchyshin.github.io/clade/articles/parameter-reference.md):
 - [Parameter-space search at scale (parallel, resumable,
   streaming)](https://itchyshin.github.io/clade/articles/parameter-space-search.md):
-- [Custom Modules: Extending clade with Per-Tick
-  Hooks](https://itchyshin.github.io/clade/articles/custom-modules.md):
 
 ### Paper reproductions
 

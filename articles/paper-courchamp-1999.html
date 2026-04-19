@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,7 +52,6 @@
     <li><a class="dropdown-item" href="../articles/troubleshooting.html">Troubleshooting &amp; FAQ</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/parameter-reference.html">Parameter reference</a></li>
-    <li><a class="dropdown-item" href="../articles/custom-modules.html">Custom modules API</a></li>
   </ul>
 </li>
 <li class="nav-item dropdown">
@@ -171,9 +170,9 @@
     
 <p><em>Two lessons in one vignette: reproducing the Allee-effect
 signature from Courchamp, Clutton-Brock &amp; Grenfell (1999) via
-clade’s existing density-dependent dynamics — AND an honest note on
-where the <code><a href="../reference/register_module.html">register_module()</a></code> custom-module API stops
-today.</em></p>
+clade’s existing density-dependent dynamics — AND the architectural
+reason clade intentionally does NOT expose per-tick R hooks for user
+biology.</em></p>
 <p><img src="figures-papers/allee-courchamp-1999.png" class="r-plt" alt="Courchamp 1999 — equilibrium population across initial density, with extinctions at the lowest density" width="100%"></p>
 <hr>
 <div class="section level2">
@@ -199,52 +198,17 @@ equilibria than survivors of large foundings.</p>
 agent, count local neighbours; if below a threshold, apply extra
 mortality.”</em></p>
 </blockquote>
-<p>This is the canonical use case for <code><a href="../reference/register_module.html">register_module()</a></code>.
-The code even looks plausible:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/">clade</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Intuitive but currently INERT — see "API gap" section below</span></span>
-<span><span class="va">make_allee_module</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">radius</span> <span class="op">=</span> <span class="fl">3L</span>, <span class="va">threshold</span> <span class="op">=</span> <span class="fl">4L</span>,</span>
-<span>                              <span class="va">mortality</span> <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="kw">function</span><span class="op">(</span><span class="va">env</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="va">n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">env</span><span class="op">$</span><span class="va">agents</span><span class="op">)</span></span>
-<span>    <span class="va">xs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="va">env</span><span class="op">$</span><span class="va">agents</span>, <span class="va">`[[`</span>, <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></span><span class="op">(</span><span class="fl">1L</span><span class="op">)</span>, <span class="st">"x"</span><span class="op">)</span></span>
-<span>    <span class="va">ys</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="va">env</span><span class="op">$</span><span class="va">agents</span>, <span class="va">`[[`</span>, <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></span><span class="op">(</span><span class="fl">1L</span><span class="op">)</span>, <span class="st">"y"</span><span class="op">)</span></span>
-<span>    <span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>      <span class="va">dx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">xs</span> <span class="op">-</span> <span class="va">xs</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span></span>
-<span>      <span class="va">dy</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">ys</span> <span class="op">-</span> <span class="va">ys</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span></span>
-<span>      <span class="va">neighbours</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="op">(</span><span class="va">dx</span> <span class="op">&lt;=</span> <span class="va">radius</span><span class="op">)</span> <span class="op">&amp;</span> <span class="op">(</span><span class="va">dy</span> <span class="op">&lt;=</span> <span class="va">radius</span><span class="op">)</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1L</span></span>
-<span>      <span class="kw">if</span> <span class="op">(</span><span class="va">neighbours</span> <span class="op">&lt;</span> <span class="va">threshold</span> <span class="op">&amp;&amp;</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">1L</span><span class="op">)</span> <span class="op">&lt;</span> <span class="va">mortality</span><span class="op">)</span></span>
-<span>        <span class="va">env</span><span class="op">$</span><span class="va">agents</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">alive</span> <span class="op">&lt;-</span> <span class="cn">FALSE</span></span>
-<span>    <span class="op">}</span></span>
-<span>    <span class="va">env</span></span>
-<span>  <span class="op">}</span></span>
-<span><span class="op">}</span></span>
-<span></span>
-<span><span class="fu"><a href="../reference/clear_modules.html">clear_modules</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/register_module.html">register_module</a></span><span class="op">(</span>when <span class="op">=</span> <span class="st">"post_agents"</span>, name <span class="op">=</span> <span class="st">"allee"</span>,</span>
-<span>                fn <span class="op">=</span> <span class="fu">make_allee_module</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>clade intentionally does <strong>not</strong> provide that pathway.
+An earlier 0.5.x stub (<code>register_module()</code>) has been removed
+in 0.6.1 because it was never wired up and couldn’t be wired up without
+breaking clade’s core performance contract. See the architecture note
+below for the reason, and the “What actually works” section for what to
+do instead.</p>
 </div>
 <div class="section level2">
-<h2 id="the-api-gap-worth-knowing-before-you-try">The API gap — worth knowing before you try<a class="anchor" aria-label="anchor" href="#the-api-gap-worth-knowing-before-you-try"></a>
+<h2 id="why-clade-has-no-per-tick-r-hook">Why clade has no per-tick R hook<a class="anchor" aria-label="anchor" href="#why-clade-has-no-per-tick-r-hook"></a>
 </h2>
-<p><strong>As of 0.6.0, <code><a href="../reference/register_module.html">register_module()</a></code> is a stub: the R
-hook function is never called during the simulation.</strong> The
-<code><a href="../reference/dot-apply_custom_modules.html">.apply_custom_modules()</a></code> helper that would invoke it exists
-in <code>R/modules.R</code> but has no caller. A direct test:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/clear_modules.html">clear_modules</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/register_module.html">register_module</a></span><span class="op">(</span>when <span class="op">=</span> <span class="st">"post_tick"</span>, name <span class="op">=</span> <span class="st">"test"</span>,</span>
-<span>                fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">env</span><span class="op">)</span> <span class="op">{</span></span>
-<span>                  <span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"FIRED at tick %d\n"</span>, <span class="va">env</span><span class="op">$</span><span class="va">t</span><span class="op">)</span><span class="op">)</span></span>
-<span>                  <span class="va">env</span></span>
-<span>                <span class="op">}</span><span class="op">)</span></span>
-<span><span class="va">specs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span>; <span class="va">specs</span><span class="op">$</span><span class="va">max_ticks</span> <span class="op">&lt;-</span> <span class="fl">5L</span></span>
-<span><span class="va">env</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="va">specs</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="co"># Nothing printed — hook never fires.</span></span></code></pre></div>
-<p><strong>Why</strong>: clade’s design contract is that the R ↔︎ Julia
-boundary is crossed <strong>exactly once per <code><a href="../reference/run_alife.html">run_alife()</a></code>
+<p>is crossed <strong>exactly once per <code><a href="../reference/run_alife.html">run_alife()</a></code>
 call</strong>. This is the basis of clade’s performance claim (see
 <code><a href="../articles/why-clade.html">vignette("why-clade")</a></code>). Firing a user-provided R function
 per tick would require crossing the boundary per tick, which defeats
@@ -270,7 +234,7 @@ initial density.</p>
 <div class="section level2">
 <h2 id="stage-1-measure-clades-existing-density-dependent-dynamics">Stage 1: measure clade’s existing density-dependent dynamics<a class="anchor" aria-label="anchor" href="#stage-1-measure-clades-existing-density-dependent-dynamics"></a>
 </h2>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/">clade</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">base</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -386,9 +350,8 @@ runs to characterise.</p>
 <div class="section level2">
 <h2 id="methodology-three-patterns-for-extending-clade">Methodology — three patterns for extending clade<a class="anchor" aria-label="anchor" href="#methodology-three-patterns-for-extending-clade"></a>
 </h2>
-<p>Since <code><a href="../reference/register_module.html">register_module()</a></code> is currently inert, extensions
-happen at the boundary level, not inside the tick loop. Three
-patterns:</p>
+<p>Since clade has no per-tick R hook, extensions happen at the boundary
+level, not inside the tick loop. Three patterns:</p>
 <div class="section level3">
 <h3 id="parameter-level-composition-this-vignette">1. Parameter-level composition (this vignette)<a class="anchor" aria-label="anchor" href="#parameter-level-composition-this-vignette"></a>
 </h3>
@@ -423,7 +386,7 @@ to persist across calls.</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="when-would-a-true-custom-module-api-be-worth-it">When would a true custom-module API be worth it?<a class="anchor" aria-label="anchor" href="#when-would-a-true-custom-module-api-be-worth-it"></a>
+<h2 id="when-would-a-per-tick-user-hook-be-worth-it">When would a per-tick user hook be worth it?<a class="anchor" aria-label="anchor" href="#when-would-a-per-tick-user-hook-be-worth-it"></a>
 </h2>
 <p>Some mechanisms genuinely need per-tick user code — they can’t be
 expressed via existing modules or between-run interventions.
@@ -441,10 +404,14 @@ grid).</li>
 <strong>Bespoke selection pressures</strong> that don’t fit clade’s
 foraging-energy-reproduction fitness loop.</li>
 </ul>
-<p>For these, a proper wiring of <code><a href="../reference/dot-apply_custom_modules.html">.apply_custom_modules()</a></code>
-into the Julia tick loop would be needed — with the understood
-performance cost. Until then: either work within the boundary-level
-patterns above, or fork the Julia kernel for the specific mechanism.</p>
+<p>For these, the right pathway is <strong>user-written Julia
+modules</strong> (same language as clade’s own mechanism) loaded into
+the kernel at <code><a href="../reference/run_alife.html">run_alife()</a></code> startup — not per-tick R
+callbacks. That design keeps the once-per-run R↔︎Julia boundary contract
+and gets full per-tick speed. Candidate 0.7+ feature.</p>
+<p>Until then: either work within the boundary-level patterns above, or
+fork <code>inst/julia/src/modules/</code> for the specific
+mechanism.</p>
 </div>
 <div class="section level2">
 <h2 id="honest-status-summary">Honest status summary<a class="anchor" aria-label="anchor" href="#honest-status-summary"></a>
@@ -456,15 +423,13 @@ patterns above, or fork the Julia kernel for the specific mechanism.</p>
 </colgroup>
 <thead><tr class="header">
 <th>What you wanted</th>
-<th>Status as of 0.6.0</th>
+<th>Status as of 0.6.1</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td>Inject R code into the per-tick loop via
-<code><a href="../reference/register_module.html">register_module()</a></code>
-</td>
-<td>
-<strong>Stub</strong> — API present, not wired</td>
+<td>Inject R code into the per-tick loop</td>
+<td>Not supported by design (boundary-crossing defeats the performance
+contract)</td>
 </tr>
 <tr class="even">
 <td>Compose existing modules to produce custom dynamics</td>
@@ -492,16 +457,16 @@ patterns above, or fork the Julia kernel for the specific mechanism.</p>
 <div class="section level2">
 <h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
 </h2>
-<div class="sourceCode" id="cb4"><pre class="sourceCode bibtex"><code class="sourceCode bibtex"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="va">@article</span>{<span class="ot">courchamp1999inverse</span>,</span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  <span class="dt">author</span>  = {Courchamp, Franck and Clutton-Brock, Tim and Grenfell, Bryan},</span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  <span class="dt">title</span>   = {Inverse density dependence and the Allee effect},</span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>  <span class="dt">journal</span> = {Trends in Ecology &amp; Evolution},</span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>  <span class="dt">volume</span>  = {14},</span>
-<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>  <span class="dt">number</span>  = {10},</span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>  <span class="dt">pages</span>   = {405--410},</span>
-<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>  <span class="dt">year</span>    = {1999},</span>
-<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>  <span class="dt">doi</span>     = {10.1016/S0169-5347(99)01683-3}</span>
-<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bibtex"><code class="sourceCode bibtex"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="va">@article</span>{<span class="ot">courchamp1999inverse</span>,</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>  <span class="dt">author</span>  = {Courchamp, Franck and Clutton-Brock, Tim and Grenfell, Bryan},</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  <span class="dt">title</span>   = {Inverse density dependence and the Allee effect},</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>  <span class="dt">journal</span> = {Trends in Ecology &amp; Evolution},</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>  <span class="dt">volume</span>  = {14},</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>  <span class="dt">number</span>  = {10},</span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>  <span class="dt">pages</span>   = {405--410},</span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>  <span class="dt">year</span>    = {1999},</span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>  <span class="dt">doi</span>     = {10.1016/S0169-5347(99)01683-3}</span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>}</span></code></pre></div>
 <p>Full audit protocol and raw outputs: <a href="https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/custom_allee_effect.R" class="external-link">dev/audit/fidelity/custom_allee_effect.R</a>
 and <code>custom_allee_effect.rds</code>.</p>
 </div>

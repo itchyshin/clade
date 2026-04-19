@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,7 +52,6 @@
     <li><a class="dropdown-item" href="../articles/troubleshooting.html">Troubleshooting &amp; FAQ</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/parameter-reference.html">Parameter reference</a></li>
-    <li><a class="dropdown-item" href="../articles/custom-modules.html">Custom modules API</a></li>
   </ul>
 </li>
 <li class="nav-item dropdown">
@@ -911,9 +910,11 @@ simulation kernel into plain English with biological rationale and audit
 findings — the hot path (<code>tick.jl</code>, <code>sense.jl</code>,
 <code>reproduce.jl</code>, etc.), side-by-side with the code.</li>
 <li>
-<strong>Custom modules.</strong>
-<code><a href="../articles/custom-modules.html">vignette("custom-modules")</a></code> shows how to attach arbitrary R
-functions to the per-tick hook system.</li>
+<strong>Paper reproductions.</strong>
+<code><a href="../articles/paper-template.html">vignette("paper-template")</a></code> plus six worked examples
+(K&amp;B 2003, Griesser 2023, D&amp;D 1999, Réale 2010, Emlen 1982,
+Courchamp 1999) show how to reproduce a published prediction in clade
+end-to-end.</li>
 <li>
 <strong>0.4.0 kernel changes.</strong> The <a href="https://github.com/itchyshin/clade/blob/main/dev/docs/kernel-0.4.0.md" class="external-link">0.4.0
 changelog</a> documents every kernel-rule change in this release with

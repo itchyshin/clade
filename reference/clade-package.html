@@ -13,7 +13,7 @@ so the R↔Julia boundary is crossed exactly once per run_alife() call."></head>
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,7 +41,6 @@ so the R↔Julia boundary is crossed exactly once per run_alife() call."></head>
     <li><a class="dropdown-item" href="../articles/troubleshooting.html">Troubleshooting &amp; FAQ</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/parameter-reference.html">Parameter reference</a></li>
-    <li><a class="dropdown-item" href="../articles/custom-modules.html">Custom modules API</a></li>
   </ul></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-parameter-search" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Parameter search</button>
@@ -176,8 +175,8 @@ an env.</p></li>
 <li><p><code><a href="plot_run.html">plot_run()</a></code> — population / energy / diversity dashboard.</p></li>
 <li><p><code><a href="search_cmaes.html">search_cmaes()</a></code> / <code><a href="search_map_elites.html">search_map_elites()</a></code> / <code><a href="search_gradient.html">search_gradient()</a></code> —
 parameter search driven by a user-supplied fitness function.</p></li>
-<li><p><code><a href="register_module.html">register_module()</a></code> — attach a custom per-tick R hook (rarely
-needed — most modules live on the Julia side).</p></li>
+<li><p><code><a href="hypothesis_sweep.html">hypothesis_sweep()</a></code> / <code><a href="hypothesis_report.html">hypothesis_report()</a></code> — researcher-
+facing wrappers for the sweep-&gt;test-&gt;report workflow.</p></li>
 </ul></div>
 
 <div class="section">

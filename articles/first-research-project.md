@@ -260,8 +260,9 @@ gets you to “ran the baseline”. This walkthrough added:
 For the next level — parameter sweeps, MAP-Elites, CMA-ES — see the
 [Parameter
 search](https://itchyshin.github.io/clade/articles/ps-introduction.md)
-guides. For deeper modifications (custom per-tick R hooks), see [Custom
-modules](https://itchyshin.github.io/clade/articles/custom-modules.md).
+guides. For reproducing a specific published prediction, start with [the
+paper-reproduction
+template](https://itchyshin.github.io/clade/articles/paper-template.md).
 
 ------------------------------------------------------------------------
 

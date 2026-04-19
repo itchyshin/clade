@@ -2,9 +2,8 @@
 
 *Two lessons in one vignette: reproducing the Allee-effect signature
 from Courchamp, Clutton-Brock & Grenfell (1999) via clade’s existing
-density-dependent dynamics — AND an honest note on where the
-[`register_module()`](https://itchyshin.github.io/clade/reference/register_module.md)
-custom-module API stops today.*
+density-dependent dynamics — AND the architectural reason clade
+intentionally does NOT expose per-tick R hooks for user biology.*
 
 ![Courchamp 1999 — equilibrium population across initial density, with
 extinctions at the lowest
@@ -33,60 +32,15 @@ Given clade’s modular design, the first instinct is reasonable:
 > agent, count local neighbours; if below a threshold, apply extra
 > mortality.”*
 
-This is the canonical use case for
-[`register_module()`](https://itchyshin.github.io/clade/reference/register_module.md).
-The code even looks plausible:
+clade intentionally does **not** provide that pathway. An earlier 0.5.x
+stub (`register_module()`) has been removed in 0.6.1 because it was
+never wired up and couldn’t be wired up without breaking clade’s core
+performance contract. See the architecture note below for the reason,
+and the “What actually works” section for what to do instead.
 
-``` r
-library(clade)
+## Why clade has no per-tick R hook
 
-# Intuitive but currently INERT — see "API gap" section below
-make_allee_module <- function(radius = 3L, threshold = 4L,
-                              mortality = 0.05) {
-  function(env) {
-    n <- length(env$agents)
-    xs <- vapply(env$agents, `[[`, numeric(1L), "x")
-    ys <- vapply(env$agents, `[[`, numeric(1L), "y")
-    for (i in seq_len(n)) {
-      dx <- abs(xs - xs[i])
-      dy <- abs(ys - ys[i])
-      neighbours <- sum((dx <= radius) & (dy <= radius)) - 1L
-      if (neighbours < threshold && runif(1L) < mortality)
-        env$agents[[i]]$alive <- FALSE
-    }
-    env
-  }
-}
-
-clear_modules()
-register_module(when = "post_agents", name = "allee",
-                fn = make_allee_module())
-```
-
-## The API gap — worth knowing before you try
-
-**As of 0.6.0,
-[`register_module()`](https://itchyshin.github.io/clade/reference/register_module.md)
-is a stub: the R hook function is never called during the simulation.**
-The
-[`.apply_custom_modules()`](https://itchyshin.github.io/clade/reference/dot-apply_custom_modules.md)
-helper that would invoke it exists in `R/modules.R` but has no caller. A
-direct test:
-
-``` r
-clear_modules()
-register_module(when = "post_tick", name = "test",
-                fn = function(env) {
-                  cat(sprintf("FIRED at tick %d\n", env$t))
-                  env
-                })
-specs <- default_specs(); specs$max_ticks <- 5L
-env <- run_alife(specs, verbose = FALSE)
-# Nothing printed — hook never fires.
-```
-
-**Why**: clade’s design contract is that the R ↔︎ Julia boundary is
-crossed **exactly once per
+is crossed **exactly once per
 [`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md)
 call**. This is the basis of clade’s performance claim (see
 [`vignette("why-clade")`](https://itchyshin.github.io/clade/articles/why-clade.md)).
@@ -188,10 +142,8 @@ characterise.
 
 ## Methodology — three patterns for extending clade
 
-Since
-[`register_module()`](https://itchyshin.github.io/clade/reference/register_module.md)
-is currently inert, extensions happen at the boundary level, not inside
-the tick loop. Three patterns:
+Since clade has no per-tick R hook, extensions happen at the boundary
+level, not inside the tick loop. Three patterns:
 
 ### 1. Parameter-level composition (this vignette)
 
@@ -227,7 +179,7 @@ population with 70% of them, and running 500 more.
 population structure, not on per-agent traits that need to persist
 across calls.
 
-## When would a true custom-module API be worth it?
+## When would a per-tick user hook be worth it?
 
 Some mechanisms genuinely need per-tick user code — they can’t be
 expressed via existing modules or between-run interventions. Examples:
@@ -240,21 +192,25 @@ expressed via existing modules or between-run interventions. Examples:
 - **Bespoke selection pressures** that don’t fit clade’s
   foraging-energy-reproduction fitness loop.
 
-For these, a proper wiring of
-[`.apply_custom_modules()`](https://itchyshin.github.io/clade/reference/dot-apply_custom_modules.md)
-into the Julia tick loop would be needed — with the understood
-performance cost. Until then: either work within the boundary-level
-patterns above, or fork the Julia kernel for the specific mechanism.
+For these, the right pathway is **user-written Julia modules** (same
+language as clade’s own mechanism) loaded into the kernel at
+[`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md)
+startup — not per-tick R callbacks. That design keeps the once-per-run
+R↔︎Julia boundary contract and gets full per-tick speed. Candidate 0.7+
+feature.
+
+Until then: either work within the boundary-level patterns above, or
+fork `inst/julia/src/modules/` for the specific mechanism.
 
 ## Honest status summary
 
-| What you wanted                                                                                                                | Status as of 0.6.0                                       |
-|--------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------|
-| Inject R code into the per-tick loop via [`register_module()`](https://itchyshin.github.io/clade/reference/register_module.md) | **Stub** — API present, not wired                        |
-| Compose existing modules to produce custom dynamics                                                                            | ✅ Works today (this vignette)                           |
-| Compute any post-hoc metric on `get_run_data()$ticks`                                                                          | ✅ Works today                                           |
-| Between-run interventions via spec manipulation                                                                                | ✅ Works today                                           |
-| Write custom Julia modules that ship with your scenario                                                                        | Not an API but possible — fork `inst/julia/src/modules/` |
+| What you wanted                                         | Status as of 0.6.1                                                           |
+|---------------------------------------------------------|------------------------------------------------------------------------------|
+| Inject R code into the per-tick loop                    | Not supported by design (boundary-crossing defeats the performance contract) |
+| Compose existing modules to produce custom dynamics     | ✅ Works today (this vignette)                                               |
+| Compute any post-hoc metric on `get_run_data()$ticks`   | ✅ Works today                                                               |
+| Between-run interventions via spec manipulation         | ✅ Works today                                                               |
+| Write custom Julia modules that ship with your scenario | Not an API but possible — fork `inst/julia/src/modules/`                     |
 
 ## Citation
 

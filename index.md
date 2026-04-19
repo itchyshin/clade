@@ -182,10 +182,6 @@ plot_run(get_run_data(env))   # population × energy × diversity dashboard
   reference**](https://itchyshin.github.io/clade/articles/parameter-reference.md)
   — every field in
   [`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md)
-- [**Custom
-  modules**](https://itchyshin.github.io/clade/articles/custom-modules.md)
-  — write your own per-tick R hooks with
-  [`register_module()`](https://itchyshin.github.io/clade/reference/register_module.md)
 - [**Kernel as
   biology**](https://itchyshin.github.io/clade/articles/k-README.md) —
   how the Julia kernel maps onto biological mechanism
