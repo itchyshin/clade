@@ -2,11 +2,12 @@
 
 ### SIR disease
 
-**What it models.** A Susceptible-Infected-Recovered epidemic model.
-Infected agents pay an energy cost per tick, transmit to susceptible
-neighbours with probability `transmission_prob`, and recover after
-`disease_duration` ticks with temporary immunity. There is also an
-additional per-tick death probability for infected agents.
+**What it models.** A Susceptible-Infected-Recovered epidemic model, as
+formalised by Kermack & McKendrick (1927). Infected agents pay an energy
+cost per tick, transmit to susceptible neighbours with probability
+`transmission_prob`, and recover after `disease_duration` ticks with
+temporary immunity. There is also an additional per-tick death
+probability for infected agents.
 
 **Key parameters.**
 
