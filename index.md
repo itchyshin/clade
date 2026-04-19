@@ -85,6 +85,28 @@ for the per-scenario ledger.
 
 ---
 
+## Reproduce a paper in 5 lines
+
+The [Paper reproductions](articles/paper-kokko-brooks-2003.html) vignettes
+show clade working as an empirical-research tool: take a published
+behavioural-ecology paper, turn its quantitative prediction into a
+clade experiment, and report what reproduces versus what doesn't.
+Five worked examples cover clean ✅, honest null, mechanism
+mismatch, and unit-sensitivity patterns:
+
+- [**Kokko & Brooks 2003**](articles/paper-kokko-brooks-2003.html) — "Sexy to die for?" — clade contradicts the interaction direction (honest mechanism mismatch)
+- [**Griesser et al. 2023**](articles/paper-griesser-2023.html) *PNAS* — parental provisioning → brain size (direction-correct sub-threshold)
+- [**Dieckmann & Doebeli 1999**](articles/paper-dieckmann-doebeli-1999.html) *Nature* — sympatric speciation (**clean ✅, t = +3.32**)
+- [**Réale et al. 2010**](articles/paper-reale-2010.html) *Phil Trans B* — pace-of-life (lifespan Spearman = −0.98)
+- [**Emlen 1982**](articles/paper-emlen-1982.html) *Am Nat* — ecological constraints on helping (raw inverts, per-capita recovers)
+
+Each uses the new `hypothesis_sweep()` + `hypothesis_report()`
+helpers in a 3-stage workflow: grid-search the regime →
+multi-seed validate → diagnose. A researcher reproducing their
+own paper can template off these examples.
+
+---
+
 ## Quick start
 
 ```r
@@ -121,6 +143,7 @@ plot_run(get_run_data(env))   # population × energy × diversity dashboard
 
 - [**Getting started**](articles/getting-started.html) — install, first run, extracting results
 - [**Scenarios**](articles/scenarios.html) — all 36 vignettes by theme
+- [**Paper reproductions**](articles/paper-kokko-brooks-2003.html) — 5 worked examples of reproducing published behavioural-ecology predictions in clade
 - [**Parameter reference**](articles/parameter-reference.html) — every field in `default_specs()`
 - [**Custom modules**](articles/custom-modules.html) — write your own per-tick R hooks with `register_module()`
 - [**Kernel as biology**](articles/k-README.html) — how the Julia kernel maps onto biological mechanism
