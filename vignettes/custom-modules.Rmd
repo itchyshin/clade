@@ -11,6 +11,23 @@ vignette: >
 knitr::opts_chunk$set(eval = FALSE, collapse = TRUE, comment = "#>")
 ```
 
+## Important — API status as of 0.6.0
+
+> ⚠️ **The `register_module()` R hook is currently a stub.** The
+> hook functions described below are not called during the
+> simulation — the `.apply_custom_modules()` dispatcher in
+> `R/modules.R` exists but has no caller. See
+> [paper-courchamp-1999](paper-courchamp-1999.html) for a
+> verification test and the architectural reason (clade's once-
+> per-run R ↔ Julia boundary).
+>
+> The API surface is documented below for reference, and wiring
+> it into the Julia tick loop is a candidate 0.7+ feature. For
+> **today's** extension patterns, see the Courchamp 1999
+> vignette's methodology section — it covers parameter
+> composition, post-hoc metrics, and between-run intervention
+> as three working alternatives.
+
 ## 1. Concept — when to reach for a custom module
 
 `clade` exposes a module registry that lets you attach your own R functions
