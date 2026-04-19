@@ -9,6 +9,10 @@ widespread across eukaryotes (Maynard Smith 1978; Williams 1975). The
 leading explanations invoke the recombination benefits of sex: sexual
 populations generate more genotypic variation per generation, providing
 raw material for selection in fluctuating or parasitised environments.
+The coevolving-parasite regime tested here follows Hamilton’s (1980)
+conceptual framework and the discrete-allele formalisation in Hamilton,
+Axelrod & Tanese (1990), where parasites track host haplotypes and
+recombination maintains rare genotypes that parasites cannot pursue.
 This scenario compares a haploid asexual population (`ploidy = 1L`)
 against a diploid sexual population (`ploidy = 2L`,
 `crossover_rate = 0.1`) to illustrate how mating system shapes the

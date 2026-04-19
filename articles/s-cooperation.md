@@ -7,12 +7,14 @@ carries a heritable cooperation tendency trait that determines its
 contribution to a local public goods pool. The pool benefit is shared
 among all agents in the neighbourhood, scaled by
 `cooperation_multiplier`, while contributors pay a fixed
-`cooperation_cost`. This implements a spatially explicit Prisoner’s
-Dilemma: defectors (low tendency) free-ride on cooperators but, because
+`cooperation_cost`. This implements a spatially explicit public-goods
+dilemma: defectors (low tendency) free-ride on cooperators but, because
 interactions are local, spatial clustering of cooperators can shield
-them from invasion by defectors — a result established analytically by
-Nowak & May (1992) and extended to continuous strategies by Hauert et
-al. (2002).
+them from invasion by defectors. Nowak & May (1992) established this
+result analytically for the spatial pairwise Prisoner’s Dilemma; clade’s
+variant with continuous investment strategies follows the *Continuous
+Prisoner’s Dilemma* tradition (Killingback, Doebeli & Knowlton 1999;
+Hauert et al. 2006 on synergy and discounting).
 
 **Key parameters.**
 

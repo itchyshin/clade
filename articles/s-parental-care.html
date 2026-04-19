@@ -164,9 +164,14 @@ until graduation at age <code>juvenile_independence_age</code> (or
 earlier if they reach <code>juvenile_independence_energy</code>). While
 carried, juveniles receive energy from the parent at
 <code>feeding_rate</code> per tick. If the parent dies, carried
-offspring die too (obligate altriciality). This models the evolutionary
-trade-off between clutch size and offspring quality (Smith &amp;
-Fretwell 1974).</p>
+offspring die too (obligate altriciality). This models the
+clutch-size-versus-offspring- quality trade-off (Smith &amp; Fretwell
+1974) and the buffering role of care against demographic stochasticity
+(Clutton-Brock 1991). <em>Note on Clutton-Brock buffering</em>: at
+default parameters, clade reproduces the graduation pathway but
+<strong>does not</strong> show the predicted variance reduction (see
+audit results below). The buffering prediction holds only at tighter
+resource scarcity or higher <code>care_cost_per_tick</code>.</p>
 <p><strong>Key parameters.</strong></p>
 <table class="table">
 <colgroup>
