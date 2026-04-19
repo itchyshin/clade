@@ -268,11 +268,61 @@ ticks).</strong> Full protocol: <a href="https://github.com/itchyshin/clade/blob
 persist at ~1.24 with care on, 0 without. The 0.3.0 fix is confirmed
 working: offspring are carried, fed, and graduate to the adult
 population.</p>
-<p><strong>Population-level buffering (P2 FAIL).</strong> Care does not
-measurably reduce population variance at default parameters (4625 vs
-4548). The quality-quantity trade-off predicted by Clutton-Brock needs
-tighter resource scarcity or higher <code>care_cost_per_tick</code> to
-express visibly.</p>
+<p><strong>Population-level buffering (P2: FAIL at default, ✅ at sweet
+spot).</strong> Care does not measurably reduce population variance at
+default parameters (4625 vs 4548). A 2026-04-19 follow-up sweep tested
+the vignette’s own hypothesis — that tighter resource scarcity or higher
+<code>care_cost_per_tick</code> would reveal Clutton-Brock’s 1991
+buffering signal — and found a clean pass at
+<code>grass_rate = 0.08, care_cost_per_tick = 3.0</code>:</p>
+<table class="table">
+<colgroup>
+<col width="20%">
+<col width="20%">
+<col width="20%">
+<col width="20%">
+<col width="20%">
+</colgroup>
+<thead><tr class="header">
+<th><code>grass_rate</code></th>
+<th>no-care var</th>
+<th>with-care var</th>
+<th>Δ var</th>
+<th>t</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>0.05 (very scarce)</td>
+<td>19.4</td>
+<td>18.3</td>
+<td>−1.1</td>
+<td>−0.12 (null; care near viability floor)</td>
+</tr>
+<tr class="even">
+<td><strong>0.08 (scarce)</strong></td>
+<td><strong>62.8</strong></td>
+<td><strong>26.6</strong></td>
+<td><strong>−36.2</strong></td>
+<td><strong>−2.61 PASS</strong></td>
+</tr>
+<tr class="odd">
+<td>0.12 (moderate)</td>
+<td>42.8</td>
+<td>69.0</td>
+<td>+26.2</td>
+<td>+1.33 (null; env too stable)</td>
+</tr>
+</tbody>
+</table>
+<p>At the sweet spot, care reduces absolute population variance by
+<strong>58%</strong> (62.8 → 26.6). The caveat Clutton-Brock’s framework
+doesn’t emphasise: care halves equilibrium size (mean_n 34.6 vs 117.9),
+so CV (variance / mean) actually <em>rises</em> under care —
+absolute-variance buffering coexists with smaller, more
+relatively-variable populations. Full protocol: <a href="https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/parental_care_buffering_sweep.md" class="external-link">dev/audit/fidelity/parental_care_buffering_sweep.md</a>.</p>
+<p>Same “conditional ✅” pattern as s-mimicry, s-dispersal-ifd,
+s-mating-systems, and s-niche: the theory reproduces in the regime the
+theory is about, not at an arbitrary default.</p>
 </div>
 <div class="section level3">
 <h3 id="discovery-experiments">Discovery experiments<a class="anchor" aria-label="anchor" href="#discovery-experiments"></a>
