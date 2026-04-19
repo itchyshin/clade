@@ -36,12 +36,6 @@ interaction that shape behaviour, cognition, and social evolution**:
    (niche construction, phenotypic plasticity, seasonal change, life
    history, the Baldwin effect).
 
-The framing follows the canonical structure of *An Introduction to
-Behavioural Ecology* (Davies, Krebs & West, Wiley, 4th edition) and
-intersects with the cognitive-ecology program laid out in Shettleworth's
-*Cognition, Evolution, and Behavior* (OUP) and the evolutionary-origins
-perspective of Godfrey-Smith's *Other Minds*.
-
 Agents in clade carry **heritable neural-network genomes** (by default
 a Bayesian neural network; optionally a multilayer perceptron,
 continuous-time RNN, gene-regulatory network, transformer, or symbolic
@@ -183,25 +177,6 @@ Concrete pitches that actually describe clade papers:
   *the simulation matches any real species quantitatively*. The audits
   are about theoretical fidelity to published canon, not ecological
   realism.
-
----
-
-## Recommended reading
-
-The three textbooks clade's framing follows:
-
-- Davies, N. B., Krebs, J. R. & West, S. A. (2012). [*An Introduction
-  to Behavioural Ecology*](https://www.wiley.com/en-nz/An+Introduction+to+Behavioural+Ecology%2C+4th+Edition-p-9781405114165),
-  4th ed. Wiley. *— The three-pillar structure comes directly from
-  this book.*
-- Shettleworth, S. J. (2010). [*Cognition, Evolution, and Behavior*](https://global.oup.com/academic/product/cognition-evolution-and-behavior-9780195319842),
-  2nd ed. Oxford University Press. *— The cognitive-ecology spine;
-  especially useful for interpreting `s-brain-size`, `s-social-learning`,
-  `s-rl`, and `s-cephalopod`.*
-- Godfrey-Smith, P. (2016). [*Other Minds: The Octopus, the Sea, and
-  the Deep Origins of Consciousness*](https://www.amazon.ca/Other-Minds-Octopus-Origins-Consciousness/dp/0374227764).
-  Farrar, Straus and Giroux. *— The deep-origins perspective that
-  partly inspired [`s-cephalopod`](s-cephalopod.html).*
 
 ---
 
