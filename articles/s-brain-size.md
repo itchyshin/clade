@@ -4,8 +4,7 @@
 
 The **parental provisioning hypothesis** proposes that parental care is
 a prerequisite for brain size evolution (van Schaik et al. 2023;
-Griesser et al. 2023; Song et al. 2025). The mechanism has three
-components:
+Griesser et al. 2023). The mechanism has three components:
 
 1.  **Expensive brain hypothesis**: brain tissue is metabolically costly
     and cannot be down-regulated. Each unit of brain size adds to the
