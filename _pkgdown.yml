@@ -315,6 +315,9 @@ reference:
     desc: >
       Helpers for the sweep->test->report workflow common in
       fidelity audits and paper reproductions.
+      Helpers for the sweep->test->report workflow used in fidelity
+      audits and paper reproductions. See
+      `vignette("paper-kokko-brooks-2003")` for a worked example.
     contents:
       - hypothesis_sweep
       - hypothesis_report
