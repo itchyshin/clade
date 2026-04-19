@@ -22,8 +22,13 @@ FIG <- function(name, ...) {
 `juvenile_independence_age` (or earlier if they reach
 `juvenile_independence_energy`). While carried, juveniles receive energy from
 the parent at `feeding_rate` per tick. If the parent dies, carried offspring
-die too (obligate altriciality). This models the evolutionary trade-off
-between clutch size and offspring quality (Smith & Fretwell 1974).
+die too (obligate altriciality). This models the clutch-size-versus-offspring-
+quality trade-off (Smith & Fretwell 1974) and the buffering role of care
+against demographic stochasticity (Clutton-Brock 1991). *Note on Clutton-Brock
+buffering*: at default parameters, clade reproduces the graduation pathway
+but **does not** show the predicted variance reduction (see audit results
+below). The buffering prediction holds only at tighter resource scarcity or
+higher `care_cost_per_tick`.
 
 **Key parameters.**
 

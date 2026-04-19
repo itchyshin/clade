@@ -1,6 +1,7 @@
 ---
 name: Primary-citation audit
 description: Per-scenario verification that clade's cited primary literature actually predicts what clade reproduces. Multi-session. Sessions 1+2+3 complete (24/32).
+description: Per-scenario verification that clade's cited primary literature actually predicts what clade reproduces. Multi-session. Currently Session 1 + 2 complete (13/32).
 type: research
 ---
 
@@ -13,6 +14,9 @@ actually predicts the specific outcome clade reproduces. Begun
 
 **Progress: Sessions 1 + 2 + 3 complete — 24 of 32 auditable
 scenarios audited** (plus 1 marked ⚪ N/A).
+**Progress: Sessions 1 + 2 complete — 13 of 32 auditable scenarios
+audited** (plus 1 marked ⚪ N/A for having no primary-literature
+claim to verify).
 
 Verdicts:
 - ✅ **Citation correct, claim correct** — the cited paper does
@@ -646,6 +650,259 @@ within-seed sd). Spatial sorting demonstrated at invasion fronts.
 
 **Audit call**: ✅. Both citations correct, both claims reproduced
 direction-correct.
+## Session 2 — cognitive-evolution (7 scenarios)
+
+| Scenario | Primary citation(s) in vignette | Specific claim tested | Direction predicted | clade's result | Verdict |
+|---|---|---|---|---|---|
+| **s-brain-size** | van Schaik et al. (2023) PLoS Biol 10.1371/journal.pbio.3002016; Griesser et al. (2023) PNAS 10.1073/pnas.2121467120; "Song et al. (2025)" *(cannot verify in Crossref as of 2026-04-19)* | Parental provisioning is a prerequisite for brain-size evolution (bootstrapping problem + expensive-brain hypothesis) | Brain size declines without care; stable/rises with care | At cost_scale=3.0, care_dur=15, base=0.010: Δ(body_size) = +0.118 ± 0.073 with care − no-care; biological-mechanism variant produces Δ-delta = +1.088 at `deficit=0.6, exp=1.5` (no-care extinct) | ⚠️ *See §s-brain-size* |
+| **s-social-learning** | Henrich & McElreath (2003) Evol Anthropol 10.1002/evan.10110; Boyd & Richerson (1985) *Culture and the Evolutionary Process* | Social copying of successful behaviours propagates useful strategies and raises mean fitness | Mean energy / population advantage with social learning enabled | Δmean_energy = +3.3, **t = 2.27** at `freq=50, n_init=150`; null at `freq ∈ {5, 20}` (over-aggressive copying noise-dominated) | ⚠️ *See §s-social-learning* |
+| **s-baldwin** | Baldwin (1896) Am Nat; Hinton & Nowlan (1987) Complex Systems; Mayley (1996) Evol Comput; Waddington (1942) Nature; Jablonka & Lamb (2005) *Evolution in Four Dimensions*; Blundell et al. (2015) ICML | Learning guides evolution — σ (BNN uncertainty) should decline over generations as learned behaviours become genetically assimilated | σ should canalize (decline monotonically) in stable environments | Transient Δ-delta = +0.007 at 600 ticks in the canonical direction; **reverses at 1500 ticks** (equilibrium ≠ canalization); MAP-Elites archive confirms no low-σ + high-gd cells exist. Acknowledged kernel limitation: σ mediates both learning capacity AND action variance | 🟠 *See §s-baldwin* |
+| **s-rl** | Williams (1992) Mach Learn — REINFORCE algorithm | Within-lifetime RL confers a demographic advantage (implicitly via the Baldwin framework: Hinton & Nowlan 1987) | Population size rises with `rl_mode = "actor_critic"` | Δn = **+10.86 ± 4.94, t = +2.20** (PASS) at `bnn_action_noise_scale = 0.7, bnn_sample_freq = 5, rl_update_freq = 5`; null without BNN decoupling | ⚠️ *See §s-rl* |
+| **s-cephalopod** | Liedtke & Fromhage (2019) Sci Rep 10.1038/s41598-019-51652-5 — "Need for speed: Short lifespan selects for increased learning ability" | Short lifespan selects for faster evolved learning rate | Evolved learning rate declines with `max_age` | Slope = **−9.23 × 10⁻⁵ ± 2.48 × 10⁻⁵, t = −3.72**; short lifespans (30) give 22% higher evolved learning rate than long lifespans (200); all 40 runs viable | ✅ *See §s-cephalopod* |
+| **s-plasticity** | DeWitt & Scheiner (2004) *Phenotypic Plasticity: Functional and Conceptual Approaches* Oxford UP | Plasticity evolves higher in variable environments — *when within-lifetime variability exists* | Seasonal > stable when `season_length ≤ max_age` | Δ-delta = +0.014 at season_length=10 (PASS direction, sub-2σ magnitude); reverses at season_length ≥ 60 (constraint surfaced in-scenario) | ✅ *See §s-plasticity* |
+| **s-brain-comparison** | *No primary citation* — clade's own benchmark (flagged honestly in the vignette and the audit plan) | Head-to-head comparison of 5 brain architectures under the same ecology | N/A — no primary-literature prediction to verify | Benchmark results only | ⚪ N/A |
+
+---
+
+## Per-scenario notes — Session 2
+
+### s-brain-size — van Schaik (2023) + Griesser (2023) + "Song 2025" ⚠️
+
+**Verified citations**:
+
+> van Schaik, C. P., Song, Z., Schuppli, C., et al. (2023).
+> Extended parental provisioning and variation in vertebrate brain
+> sizes. *PLoS Biology* 21(2): e3002016.
+> [`10.1371/journal.pbio.3002016`]
+
+> Griesser, M., Drobniak, S. M., Graber, S. M., et al. (2023).
+> Parental provisioning drives brain size in birds. *PNAS* 120(9):
+> e2121467120. [`10.1073/pnas.2121467120`]
+
+**Unverified citation**:
+
+> "Song et al. (2025)" — no matching paper returned by Crossref
+> search (2026-04-19). Possibilities: preprint not yet indexed;
+> mis-remembered year; confusion with Song's co-authorship on van
+> Schaik et al. 2023. The vignette prose groups this as a separate
+> citation ("van Schaik et al. 2023; Griesser et al. 2023; Song et
+> al. 2025"), so it cannot be dismissed as a variant of the first.
+
+**What the verified papers predict**:
+
+- *van Schaik et al. 2023*: extended parental provisioning
+  underwrites the evolution of large brains across vertebrates —
+  the bootstrapping problem ("expensive-brain, costly-newborn"
+  logic) requires parents to buffer the early-life energy deficit.
+- *Griesser et al. 2023*: across bird species, parental provisioning
+  duration explains variation in relative brain size.
+
+**What clade reproduces**: with care, mean body size (proxy for
+brain + body allocation) rises by +0.011; without care, it falls
+by −0.108 (at cost_scale=3.0, care_dur=15, base=0.010). Δ-delta =
++0.118 ± 0.073 — direction-correct PASS. Biological-mechanism
+variant (neonatal_foraging_deficit + super-linear brain cost)
+gives Δ-delta = +1.088 but no-care populations go extinct.
+
+**Material notes**:
+
+1. **"Song 2025" needs DOI or year correction** — this is a
+   verifiable audit issue. The vignette attributes a claim to a
+   paper that cannot be located. Scenario author should pin the
+   DOI or remove the citation.
+2. The clade result pertains to body size as a correlated proxy
+   for brain investment, not brain size per se — the
+   `brain_size_evolution` flag coevolves with body size under the
+   shared energy budget. The prediction direction matches, but the
+   measurement scope is broader.
+
+**Audit call**: ⚠️. Two verified citations are correct and
+direction-correct. Third cited paper (Song 2025) cannot be
+verified in Crossref — requires author clarification.
+
+### s-social-learning — Henrich & McElreath (2003) ⚠️
+
+**Verified citation**:
+
+> Henrich, J. & McElreath, R. (2003). The evolution of cultural
+> evolution. *Evolutionary Anthropology* 12, 123–135.
+> [`10.1002/evan.10110`]
+
+**Also referenced (figure caption)**:
+
+> Boyd, R. & Richerson, P. J. (1985). *Culture and the Evolutionary
+> Process*. University of Chicago Press.
+
+**What the papers predict**:
+
+- *Henrich & McElreath 2003*: cultural transmission (imitation,
+  teaching, conformist bias) is favoured when environments are
+  variable-but-not-too-variable and social learners can identify
+  successful models. Review-level treatment.
+- *Boyd & Richerson 1985*: formal dual-inheritance theory — when
+  individual learning is costly, social learning can invade;
+  frequency-dependent selection favours conformist bias.
+
+**What clade reproduces**: Δmean_energy = +3.3, t = 2.27 at
+`freq=50, n_init=150`. Null at aggressive frequencies (5, 20) due
+to noise-dominated copying. Also: clade's social learning does not
+work on stochastic BNN brains (weights resample each tick, diluting
+copied policy).
+
+**Material gap**: clade's mechanism (energy-threshold biased
+copying of output-layer weights) is *not* the canonical
+Henrich-McElreath or Boyd-Richerson mechanism (conformist bias,
+prestige bias, model-based trust). The prediction *"social
+learning improves mean fitness"* is at the most generic level of
+the cultural-evolution literature. The specific clade mechanism is
+not the specific mechanism modelled in either paper.
+
+**Audit call**: ⚠️. Citation direction-correct for a generic
+social-learning-beats-asocial-learning claim. The specific
+mechanism clade implements (energy-weighted output-layer copy) is
+not the canonical conformist-bias or prestige-bias mechanism the
+cited literature analyses.
+
+### s-baldwin — Baldwin (1896) + Hinton & Nowlan (1987) 🟠
+
+**Citations all verifiable and correct**:
+
+- Baldwin, J. M. (1896). A new factor in evolution. *American
+  Naturalist* 30, 441–451.
+- Hinton, G. E. & Nowlan, S. J. (1987). How learning can guide
+  evolution. *Complex Systems* 1, 495–502.
+- Mayley, G. (1996). Landscapes, learning costs and genetic
+  assimilation. *Evolutionary Computation* 4(3), 213–234.
+- Waddington, C. H. (1942). Canalization of development.
+  *Nature* 150, 563–565.
+- Jablonka, E. & Lamb, M. J. (2005). *Evolution in Four
+  Dimensions*. MIT Press.
+- Blundell, C. et al. (2015). Weight uncertainty in neural
+  networks. *ICML* 32, 1613–1622.
+
+**Canonical prediction**: σ declines as learned behaviours become
+genetically assimilated (Hinton-Nowlan). In stable environments,
+canalization reduces σ to near zero; in variable environments, σ
+is maintained.
+
+**What clade reproduces**: *not* the canonical prediction at
+equilibrium. Transient Δ-delta = +0.007 in the Hinton-Nowlan
+direction at 600 ticks; the 1500-tick sweep **reverses** it
+(stable Δ=+0.001, seasonal Δ=−0.004). The MAP-Elites archive
+confirms no low-σ + high-gd cells exist anywhere in the parameter
+space tested — a necessary condition for genuine Baldwin
+assimilation. 3 × 3 factorial shows σ rises to ceiling in **every**
+tested condition; resource scarcity produces the *steepest*
+positive slope, opposite to Baldwin's direction.
+
+**Acknowledged kernel limitation**: σ in clade mediates both
+learning capacity *and* action variance. Seasonal stress kills
+high-σ (noisy-action) agents; this is selection on variance, not
+on learning capacity. Decoupling σ from behavioural variance is on
+the 0.4.3+ backlog.
+
+**Audit call**: 🟠. Citations correct and canonical. Direction NOT
+reproduced at equilibrium — contradicts the Hinton-Nowlan
+prediction under clade's current kernel. The vignette is honest
+about this ("kernel-limited"). This is the *honest null* the plan
+document flagged: a direction-correct-transient-only result that
+would have read ✅ if only 600-tick runs were audited.
+
+### s-rl — Williams (1992) ⚠️
+
+**Verified citation**:
+
+> Williams, R. J. (1992). Simple statistical gradient-following
+> algorithms for connectionist reinforcement learning. *Machine
+> Learning* 8, 229–256.
+> [`10.1007/BF00992696`]
+
+**What Williams 1992 predicts**: REINFORCE is an unbiased
+stochastic gradient estimator for expected discounted reward. It
+is an *algorithm paper*, not a biological prediction paper — it
+does not predict that within-lifetime RL would confer a population-
+level demographic advantage in an evolutionary ABM.
+
+**What clade reproduces**: Δn = +10.86 ± 4.94, t = +2.20 (PASS) at
+the kernel-decoupled regime (`bnn_action_noise_scale = 0.7`,
+`bnn_sample_freq = 5`, `rl_update_freq = 5`). Implicitly this is
+the Baldwin Effect / learning-guides-evolution prediction, which
+belongs to Hinton & Nowlan (1987).
+
+**Material gap**: the *biological* prediction that clade tests is
+not Williams 1992's — it's Hinton-Nowlan's. Williams 1992 is the
+correct algorithmic citation; the result's biological significance
+depends on a separate Baldwin-framework citation that isn't
+explicit in the vignette.
+
+**Audit call**: ⚠️. Algorithmic citation correct. Biological
+prediction comes from the Baldwin framework (Hinton-Nowlan 1987),
+which is not cited in this vignette but is cited in the sibling
+`s-baldwin` vignette. The claim direction is reproduced under
+correct kernel settings; the claim attribution could be sharper.
+
+### s-cephalopod — Liedtke & Fromhage (2019) ✅
+
+**Verified citation**:
+
+> Liedtke, J. & Fromhage, L. (2019). Need for speed: Short
+> lifespan selects for increased learning ability. *Scientific
+> Reports* 9, 15199.
+> [`10.1038/s41598-019-51652-5`]
+
+**What Liedtke & Fromhage predict**: in a model where agents
+evolve a learning rate under lifespan constraints, short lifespans
+select for faster evolved learning rates — because within-lifetime
+learning is the only viable mechanism when genetic evolution is
+too slow to track the environment.
+
+**What clade reproduces**: 4-lifespan sweep (30, 50, 100, 200) × 10
+seeds × 2000 ticks. Slope = −9.23 × 10⁻⁵ ± 2.48 × 10⁻⁵ (t =
+−3.72) — well past 2σ. 22% higher evolved learning rate at
+max_age=30 vs max_age=200. All 40 runs viable.
+
+**Audit call**: ✅. Citation correct, direction correct, magnitude
+strong (t > 3.7), no material gap. The paper's title **literally
+describes** the prediction clade reproduces ("Short lifespan
+selects for increased learning ability"). One of the cleanest
+audit matches in clade's scenario suite.
+
+### s-plasticity — DeWitt & Scheiner (2004) ✅
+
+**Verified citation**:
+
+> DeWitt, T. J. & Scheiner, S. M. (eds.) (2004). *Phenotypic
+> Plasticity: Functional and Conceptual Approaches*. Oxford
+> University Press.
+> [Vol. editor pattern: `10.1093/oso/9780195138962.003.*` per chapter.]
+
+**What DeWitt & Scheiner predict**: plasticity evolves under
+*within-lifetime* environmental variability — agents must
+experience multiple environmental states during one lifetime for
+plasticity to pay off over genetic adaptation.
+
+**What clade reproduces**: 2×5 factorial (stable vs seasonal ×
+5 season-lengths) × 5 seeds × 2000 ticks. Δ-delta = +0.014 at
+season_length=10 (PASS direction, sub-2σ magnitude by 0.02
+promotion-threshold). Direction **reverses** at season_length ≥
+60 — exactly the kind of constraint DeWitt & Scheiner highlight
+(when seasons exceed lifetime, genetic adaptation substitutes).
+
+**Audit call**: ✅. Citation correct. Direction correct within the
+constraint the paper itself specifies. Sub-2σ magnitude is honest
+and reflects mechanism-exposure, not citation-mismatch. The
+vignette prose explicitly states the within-lifetime constraint
+that DeWitt & Scheiner describe.
+
+### s-brain-comparison — ⚪ N/A (no primary literature)
+
+Explicitly flagged in the audit plan as having no single primary-
+literature claim. This is clade's own head-to-head benchmark of
+the 5 working brain architectures (BNN, ANN, CTRNN, GRN, random).
+
+**Audit call**: ⚪ N/A. Honest flag; no citation to verify. This is
+an editorially-chosen "show the tool" vignette rather than a
+reproduction of a published prediction.
 
 ---
 
@@ -678,6 +935,49 @@ tempered accordingly once Sessions 2–4 complete.
 
 ---
 
+## Session 2 summary
+
+- **7 scenarios audited** (s-brain-size, s-social-learning,
+  s-baldwin, s-rl, s-cephalopod, s-plasticity, s-brain-comparison).
+- **2 ✅, 3 ⚠️, 1 🟠, 1 ⚪**. Zero outright retractions.
+- **s-cephalopod** is a model clean match: the cited paper's
+  title literally describes the prediction clade reproduces, and
+  the magnitude passes 2σ with t = −3.72.
+- **s-baldwin** is the honest-null of Session 2: citations are
+  canonical and correct, but the Hinton-Nowlan prediction is NOT
+  reproduced at equilibrium under clade's current kernel (σ
+  couples with action variance). The vignette is honest about
+  this; the 🟠 verdict reflects direction-correct-transient-only.
+- **One verification failure**: `s-brain-size` cites "Song et al.
+  (2025)" which Crossref cannot locate. Scenario author should
+  pin a DOI or remove the citation. The other two cited papers
+  (van Schaik 2023 PLoS Biol; Griesser 2023 PNAS) are verified.
+- **Two citation-attribution precisions worth considering**:
+  - `s-social-learning` attributes "social learning helps" to
+    Henrich & McElreath 2003 / Boyd & Richerson 1985. The cited
+    papers are about conformist and prestige biases; clade's
+    mechanism is energy-threshold biased copying. Citation is at
+    the generic-claim level, not the specific-mechanism level.
+  - `s-rl` cites Williams 1992 (the REINFORCE algorithm paper)
+    for a *biological* prediction (demographic advantage). The
+    biological prediction is actually Hinton-Nowlan 1987 (Baldwin
+    framework). Williams 1992 is the algorithm; Hinton-Nowlan
+    1987 is the biology. Both belong in a fully-attributed version
+    of the vignette.
+
+## Sessions 1 + 2 aggregate summary
+
+- **13 of 32 auditable scenarios audited** (plus 1 ⚪ N/A).
+- **3 ✅, 7 ⚠️, 2 🟠, 1 ⚪, 0 ❌.**
+- **Zero outright retractions** across both sessions.
+- **One verification failure** (Song 2025 on s-brain-size).
+- **Five citation-precision recommendations** surfaced (Hauert
+  swap and Clutton-Brock year already shipped in PR #83; HAT 1990
+  also shipped; two new from Session 2: social-learning
+  mechanism-level attribution, s-rl Baldwin-framework attribution).
+
+---
+
 ## Log
 
 - **2026-04-19** — Session 1 complete. 6 scenarios audited; 1 ✅,
@@ -706,3 +1006,4 @@ tempered accordingly once Sessions 2–4 complete.
 **Aggregate after Sessions 1 + 2 + 3** (24 scenarios audited plus
 1 ⚪ N/A): 7 ✅, 11 ⚠️, 5 🟠, 1 ⚪, 0 ❌. Zero outright retractions
 across three sessions.
+  Baldwin-framework attribution). Sessions 3–4 pending.
