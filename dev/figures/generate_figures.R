@@ -5,7 +5,7 @@
 #
 # Usage:
 #   cd "<path-to-clade>"
-#   Rscript vignettes/generate_figures.R
+#   Rscript dev/figures/generate_figures.R
 #
 # Output: man/figures/showcase_XX_<name>.png
 #

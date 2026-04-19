@@ -61,7 +61,7 @@ list secondary contributors:
 Concrete diff-level actions:
 
 1. Rmd chunk edit (line range, what changes).
-2. Generator script (`vignettes/generate_figures.R` section) edit or
+2. Generator script (`dev/figures/generate_figures.R` section) edit or
    replacement with `source()`-of-chunk.
 3. PNG regeneration trigger.
 4. `What we found` rewrite (bullet the new numbers).

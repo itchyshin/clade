@@ -103,7 +103,7 @@ regressions.
 - 35 scenarios audited; 15 with meaningful CMA-ES improvements got a
   "Calibrated regime (CMA-ES discovered)" subsection.
 - Figures regenerated end-to-end by the three generator scripts under
-  `vignettes/generate_figures.R`, `gen_hn_fig.R`, `gen_fixed_patch_fig.R`.
+  `dev/figures/generate_figures.R`, `gen_hn_fig.R`, `gen_fixed_patch_fig.R`.
 
 ## Links
 

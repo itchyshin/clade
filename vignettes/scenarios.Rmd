@@ -18,7 +18,7 @@ reports what the model actually produces (with real numbers, not just code),
 and points toward experiments that go beyond existing theory.
 
 Use the navigation menu above to jump directly to any scenario. The table
-below maps all 35 scenarios to their biological theme.
+below maps all 36 scenarios to their biological theme.
 
 ---
 
@@ -103,6 +103,7 @@ below maps all 35 scenarios to their biological theme.
 | [Phenotypic plasticity](s-plasticity.html) | `plasticity_evolution` | Canalization vs flexibility trade-off |
 | [BNN uncertainty canalization](s-baldwin.html) | `epigenetics`, `brain_type = "bnn"` | Baldwin Effect via sigma evolution |
 | [Cephalopod paradox](s-cephalopod.html) | `rl_mode`, `max_age` | Short lifespan selects for fast learning |
+| [Brain architecture comparison](s-brain-comparison.html) | `brain_type` | Head-to-head benchmark across six neural architectures |
 
 ---
 
