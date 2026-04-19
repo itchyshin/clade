@@ -87,34 +87,143 @@ sense." That's precise and defensible.
 
 ---
 
-## Targeted reviews (need to locate full text)
+## Targeted reviews — abstracts retrieved
 
 ### Murphy et al. 2025 — applied ecology ABMs
 
-**Murphy, S. M., et al. (2025).** *Agent-based models in applied
-ecology: designing data-informed simulations for wildlife
-conservation and management.* Ecosphere 16.
-[`10.1002/ecs2.70342`]
+**Murphy, K. J. (2025).** *Agent-based models in applied ecology:
+designing data-informed simulations for wildlife conservation and
+management.* Ecosphere 16(9).
+[`10.1002/ecs2.70342`] — CC-BY 4.0 open access (abstract retrieved
+via Crossref 2026-04-19).
 
-- **Abstract**: not retrieved (Wiley paywall blocks WebFetch from
-  this repo). Institutional access needed.
-- **Why relevant**: if the paper proposes a typology of applied-
-  ecology ABMs, clade can be placed outside it (clade is
-  paradigmatic, not applied).
-- **Open action**: acquire PDF; extract typology + cited prior
-  reviews.
+**Abstract (verbatim)**:
 
-### Stillman et al. 2015 — behavioural-ecology IBMs
+> *"Agent-based models (ABMs) are increasingly recognized as
+> valuable tools in applied ecology for simulating species behavior,
+> ecological interactions, and responses to management. However,
+> their adoption in conservation and policy contexts has been
+> limited by a reliance on simplified representations and a lack of
+> integration with empirical data. This paper presents a structured,
+> data-informed framework for developing applied ABMs using
+> high-resolution spatial, behavioral, and environmental datasets.
+> By incorporating telemetry data, remote sensing products, and
+> site-level ecological monitoring, the framework enables realistic
+> simulations of ecological systems that can be used to virtually
+> test management strategies and policy interventions. These models
+> support real-time scenario testing, guide field data collection
+> by identifying knowledge gaps, and facilitate transparent
+> communication with stakeholders. We demonstrate the utility of
+> this framework using a published case study on badger movement
+> and bovine tuberculosis risk in a disturbance-driven landscape,
+> showing how it reveals emergent behavioral patterns with
+> implications for disease management."*
+
+**Typology proposed**: a **framework for applied / data-informed
+ABMs** with three ingredients — (i) telemetry data, (ii) remote
+sensing, (iii) site-level ecological monitoring — yielding models
+that *"virtually test management strategies and policy
+interventions"*.
+
+**Implication for clade's positioning**: Murphy 2025 is
+*unambiguously in the pragmatic ABM camp* (Grimm 1999 typology). The
+paper's framework — telemetry + remote sensing + site monitoring for
+a named management target — is exactly what clade is *not*. clade
+has no telemetry pipeline, no remote-sensing coupling, no
+single-species target, no management or policy claim. Instead clade
+tests classical behavioural-ecology predictions at the mechanistic
+level.
+
+**Positioning claim this unlocks** (with this source as evidence):
+
+> *"Applied / data-informed wildlife-management ABMs (Murphy 2025
+> framework: telemetry + remote sensing + site monitoring for a
+> management target) → not clade. clade is a paradigmatic testbed
+> for mechanisms from the behavioural-ecology literature, not a
+> conservation-decision tool."*
+
+Full reference extraction to do when time permits: the paper cites
+64 works; relevant prior reviews among them likely inform the
+broader ABM-in-ecology typology landscape.
+
+### Stillman et al. 2015 — individual-based ecology (IBE)
 
 **Stillman, R. A., Railsback, S. F., Giske, J., Berger, U. & Grimm,
 V. (2015).** *Making predictions in a changing world: the benefits
 of individual-based ecology.* BioScience 65, 140–150.
+[`10.1093/biosci/biu192`](https://academic.oup.com/bioscience/article/65/2/140/2754218)
+— open access (abstract + key quotes retrieved 2026-04-19).
 
-- **Why relevant**: single closest paper to clade's positioning
-  claim. Co-authored by Grimm. Title explicitly invokes
-  "behavioural" / "individual-based ecology".
-- **Open action**: acquire full text; check what typology they
-  propose and whether they identify a software gap clade fills.
+**Abstract (verbatim)**:
+
+> *"Ecologists urgently need a better ability to predict how
+> environmental change affects biodiversity. We examine
+> individual-based ecology (IBE), a research paradigm that promises
+> better a predictive ability by using individual-based models
+> (IBMs) to represent ecological dynamics as arising from how
+> individuals interact with their environment and with each other."*
+
+**Definition of IBM**: models that *"explicitly represent discrete
+individuals within a population and their individual life cycles"*;
+*"the behavior underlying demographic rates results from the
+individuals' behavioral decisions, which are based on fitness-
+related decision rules."*
+
+**Three-phase typology Stillman et al. propose**:
+
+1. **Conceptualization** — identifying research questions and
+   framework appropriateness.
+2. **Implementation** — developing and validating the initial IBM.
+3. **Diversification** — simplification, generalization, validation
+   across systems.
+
+**Exemplar application systems named**: stream trout (`inSTREAM`),
+coastal birds (`MORPH`), forest dynamics (mangroves, gap models),
+plant competition (`KiWi`), microbial populations. All are
+*prediction tasks for named species/systems* — applied-ecology,
+not paradigmatic.
+
+**Platforms mentioned**: *"General IBM platforms, such as
+NetLogo…have evolved with the practice of IBE"*. Also custom
+platforms (`MORPH`, `inSTREAM`, `KiWi`, `IBU`).
+
+**On behavioural ecology**: *"In behavioral ecology, the theory for
+risk-growth trade-offs was well established but only for situations
+in which the future is known."* IBE uses behavioural-ecology theory
+as a *substrate* for individual decision rules, so IBMs can predict
+novel situations via fitness-maximising logic.
+
+**Implication for clade's positioning**: Stillman et al. is the
+closest single paper to where clade could claim a position — they
+legitimise IBMs that use behavioural-ecology decision rules as
+their core mechanism. But the paper's *goal* is prediction for
+environmental-change management (ecological forecasting), whereas
+clade's goal is *mechanism testing* (does the simulator reproduce
+Hamilton's prediction given his assumptions?).
+
+The distinction that matters:
+
+- **IBE (Stillman et al. 2015)**: behavioural theory → IBM → predict
+  real-world system response. Validation via match to observed
+  ecological dynamics.
+- **clade**: behavioural theory → IBM → verify the theory's
+  mechanism reproduces under simulation. Validation via match to
+  published theoretical prediction (direction-correct, |t| ≥ 2).
+
+These are complementary, not competitive. A citation to Stillman et
+al. in a `why-clade` vignette would be appropriate *if* we frame
+clade as a paradigmatic-IBE testbed — Stillman's paradigmatic
+sibling — rather than part of the IBE-for-prediction tradition.
+
+**Positioning claim this unlocks**:
+
+> *"Individual-based ecology (Stillman et al. 2015) uses IBMs to
+> predict real-world ecological dynamics under environmental change.
+> clade shares the IBM mechanics but uses them paradigmatically —
+> to verify whether canonical behavioural-ecology predictions
+> reproduce from first principles. The two traditions are
+> complementary: Stillman IBMs consume theory for forecasting; clade
+> consumes theory for mechanism-level verification."*
 
 ### JASSS 2017 — social-ecological systems
 
@@ -193,8 +302,6 @@ holds up.
 
 ## What's missing from this research so far
 
-- **Murphy 2025 abstract + typology** — institutional access needed.
-- **Stillman 2015 typology** — institutional access needed.
 - **Polyworld / Framsticks / Evosphere current positioning** — need
   first-person fetches when user has time to guide which are worth
   comparing in detail.
@@ -211,3 +318,15 @@ holds up.
   frameworks, pragmatic-vs-paradigmatic typology. Identified Murphy
   2025 and Stillman 2015 as highest-priority targets for full-text
   review. Paywalled — deferred until user can pull the PDFs.
+- **2026-04-19 (later)** — user provided open-access URLs.
+  **Murphy 2025** abstract retrieved via Crossref (paper is CC-BY
+  4.0; Wiley's site bot-blocks so Crossref was the working route).
+  Paper is firmly pragmatic / applied — telemetry + remote sensing
+  + site monitoring → management tool. Sharpens clade's
+  not-clade column. **Stillman 2015** abstract + key quotes
+  retrieved from BioScience (Oxford Academic). Paper is a
+  behavioural-ecology-substrate IBM framework for *ecological
+  forecasting* (environmental-change prediction). clade is the
+  paradigmatic sibling — same IBM mechanics, different goal
+  (mechanism verification). Both entries above updated with
+  verbatim quotes and positioning implications.

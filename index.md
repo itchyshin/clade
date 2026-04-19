@@ -113,7 +113,6 @@ plot_run(get_run_data(env))   # population × energy × diversity dashboard
 | Coalescent / tree-sequence inference | **[msprime](https://tskit.dev/msprime/)** | clade is forward-time, phenotype-first |
 | Teaching discrete-generation IBMs in a classroom browser | **[NetLogo](https://ccl.northwestern.edu/netlogo/)** | clade assumes a working R + Julia toolchain |
 | Generic ABM (markets, traffic, opinion dynamics) | **[Mesa](https://mesa.readthedocs.io/)** | clade's primitives (genome, fitness, meiosis) are evolutionary-biology-specific |
-| Phenotype–environment-match models (e.g. Burke et al. 2020) | **custom NetLogo / Python** | clade's fitness is emergent from foraging + survival, not a matching function you define |
 | Epidemiology as the primary modelling target | specialised epi frameworks | clade has a SIR `disease` module, but it's a tool, not the target |
 
 ---
