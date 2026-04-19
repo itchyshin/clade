@@ -5,15 +5,15 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>clade — Agent-Based Evolutionary Simulation • clade</title>
+<title>clade — evolve behaviour, minds, and brains in R • clade</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="clade — Agent-Based Evolutionary Simulation">
-<meta name="description" content="Digital organisms with heritable neural-network genomes evolve on a toroidal grid. The Julia backend runs millions of agent-ticks per second; R provides the modelling interface, analysis, and visualisation layer.
+<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="clade — evolve behaviour, minds, and brains in R">
+<meta name="description" content="A modular R + Julia testbed for the intraspecific, interspecific, and environmental interactions that shape behaviour, cognition, and social evolution. 32 of 32 biological scenarios audited against primary literature.
 ">
-<meta property="og:description" content="Digital organisms with heritable neural-network genomes evolve on a toroidal grid. The Julia backend runs millions of agent-ticks per second; R provides the modelling interface, analysis, and visualisation layer.
+<meta property="og:description" content="A modular R + Julia testbed for the intraspecific, interspecific, and environmental interactions that shape behaviour, cognition, and social evolution. 32 of 32 biological scenarios audited against primary literature.
 ">
 </head>
 <body>
@@ -143,61 +143,95 @@
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header"><h1 id="clade">clade<a class="anchor" aria-label="anchor" href="#clade"></a>
 </h1></div>
-<p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="Lifecycle: experimental"></a> <a href="https://opensource.org/licenses/MIT" class="external-link"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a> <a href="https://itchyshin.github.io/clade/"><img src="https://img.shields.io/badge/docs-pkgdown-blue.svg" alt="pkgdown"></a></p>
-<p><strong>Agent-based evolutionary simulation with a Julia backend and R interface.</strong></p>
-<p><code>clade</code> runs populations of digital organisms on a renewable resource grid. Each agent carries a heritable neural-network genome; natural selection acts on brain weights, life-history traits, and — with 30+ optional modules — body size, dispersal tendency, mimicry, coevolving parasites, parental care, cooperative breeding, disease, and more. Every biological scenario is backed by a <a href="https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/DASHBOARD.md" class="external-link">multi-seed fidelity audit</a> against the primary literature — <strong>all 32 of 32 auditable scenarios pass</strong>; 0 direction-correct-but-sub-2σ; 0 contradict theory).</p>
-<p>The simulation kernel is written in Julia for performance. R is the interface: you set parameters, call <code><a href="reference/run_alife.html">run_alife()</a></code> once, and receive the full simulation environment back for analysis and visualisation. The R–Julia boundary is crossed <strong>once per run</strong>, not once per tick, so large populations and long simulations stay fast.</p>
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="Lifecycle: experimental"></a> <a href="https://opensource.org/licenses/MIT" class="external-link"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a> <a href="https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/DASHBOARD.md" class="external-link"><img src="https://img.shields.io/badge/fidelity-32%2F32-brightgreen.svg" alt="Fidelity audit: 32/32"></a></p>
+<blockquote>
+<p><strong>Evolve behaviour, minds, and brains in R — the intraspecific, interspecific, and environmental interactions that shape them. 32 / 32 scenarios audited against primary literature.</strong></p>
+</blockquote>
+<p>Behaviour, cognition, and social evolution emerge from three classes of interaction: between members of the same species, between species, and between organisms and their environment. <code>clade</code> is a modular R + Julia simulator for evolving digital organisms under any combination of those interactions. Every biological scenario is cross-referenced to a primary-literature prediction and multi-seed audited; the kernel runs in Julia so long sweeps stay fast.</p>
 <hr>
 <div class="section level2">
-<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+<h2 id="three-pillars">Three pillars<a class="anchor" aria-label="anchor" href="#three-pillars"></a>
 </h2>
-<div class="section level3">
-<h3 id="r-package">R package<a class="anchor" aria-label="anchor" href="#r-package"></a>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem;">
+<div class="section level3" markdown="1">
+<h3 id="id_-intraspecific">🤝 Intraspecific<a class="anchor" aria-label="anchor" href="#id_-intraspecific"></a>
 </h3>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># From GitHub (development version)</span></span>
-<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"itchyshin/clade"</span><span class="op">)</span></span></code></pre></div>
+<p>How conspecifics shape each other — kin, mates, rivals, allies, tutors.</p>
+<ul>
+<li>Kin selection — <a href="articles/s-kin.html"><code>s-kin</code></a>
+</li>
+<li>Sexual selection (signals, mate choice) — <a href="articles/s-signals.html"><code>s-signals</code></a>, <a href="articles/s-mating-systems.html"><code>s-mating-systems</code></a>
+</li>
+<li>Cooperation &amp; parental care — <a href="articles/s-cooperation.html"><code>s-cooperation</code></a>, <a href="articles/s-parental-care.html"><code>s-parental-care</code></a>
+</li>
+<li>Group defence &amp; social learning — <a href="articles/s-group-defense.html"><code>s-group-defense</code></a>, <a href="articles/s-social-learning.html"><code>s-social-learning</code></a>
+</li>
+</ul>
 </div>
-<div class="section level3">
-<h3 id="julia">Julia<a class="anchor" aria-label="anchor" href="#julia"></a>
+<div class="section level3" markdown="1">
+<h3 id="id_-interspecific">🦁 Interspecific<a class="anchor" aria-label="anchor" href="#id_-interspecific"></a>
 </h3>
-<p>clade requires Julia ≥ 1.9. The easiest way to install it is via <a href="https://github.com/JuliaLang/juliaup" class="external-link">juliaup</a>:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-fsSL</span> https://install.julialang.org <span class="kw">|</span> <span class="fu">sh</span></span></code></pre></div>
-<p>Or download directly from <a href="https://julialang.org/downloads/" class="external-link">julialang.org/downloads</a>.</p>
+<p>How other species shape evolution — predators, parasites, mimics, competitors.</p>
+<ul>
+<li>Predator–prey dynamics — <a href="articles/s-predator-prey.html"><code>s-predator-prey</code></a>, <a href="articles/s-predation-neural.html"><code>s-predation-neural</code></a>
+</li>
+<li>Müllerian &amp; Batesian mimicry — <a href="articles/s-mimicry.html"><code>s-mimicry</code></a>
+</li>
+<li>Coevolving parasites (Red Queen) — <a href="articles/s-mating-systems.html"><code>s-mating-systems</code></a>
+</li>
+<li>Speciation — <a href="articles/s-speciation.html"><code>s-speciation</code></a>
+</li>
+</ul>
 </div>
-<div class="section level3">
-<h3 id="first-run-compilation">First-run compilation<a class="anchor" aria-label="anchor" href="#first-run-compilation"></a>
+<div class="section level3" markdown="1">
+<h3 id="id_-environment">🌱 Environment<a class="anchor" aria-label="anchor" href="#id_-environment"></a>
 </h3>
-<p>On the first call to <code><a href="reference/run_alife.html">run_alife()</a></code>, Julia compiles the simulation kernel. This takes <strong>60–90 seconds</strong> and is cached for all subsequent runs in the same Julia environment.</p>
+<p>How physical and ecological niches shape evolution — and how organisms reshape them back.</p>
+<ul>
+<li>Niche construction — <a href="articles/s-niche.html"><code>s-niche</code></a>
+</li>
+<li>Phenotypic plasticity &amp; Baldwin effect — <a href="articles/s-plasticity.html"><code>s-plasticity</code></a>, <a href="articles/s-baldwin.html"><code>s-baldwin</code></a>
+</li>
+<li>Complex landscapes &amp; seasonal change — <a href="articles/s-complex-landscape.html"><code>s-complex-landscape</code></a>, <a href="articles/s-seasonal.html"><code>s-seasonal</code></a>
+</li>
+<li>Life history &amp; scavenging — <a href="articles/s-life-history.html"><code>s-life-history</code></a>, <a href="articles/s-scavenging.html"><code>s-scavenging</code></a>
+</li>
+</ul>
+</div>
+</div>
+<p><strong>Or combine them.</strong> The Baldwin effect (<a href="articles/s-baldwin.html"><code>s-baldwin</code></a>) emerges from learning × genetic assimilation under fluctuating environments. Cephalopod-style long-learning short-life tradeoffs (<a href="articles/s-cephalopod.html"><code>s-cephalopod</code></a>) require brain size × parental care × life history interacting at once. Pace-of-life syndromes (<a href="articles/s-pace-of-life.html"><code>s-pace-of-life</code></a>) need life-history × metabolism × cognition. clade is designed so the modules compose freely.</p>
+<blockquote>
+<p><em>The three-pillar framing — conspecifics × other species × environment — follows the canonical structure of <a href="https://www.wiley.com/en-nz/An+Introduction+to+Behavioural+Ecology%2C+4th+Edition-p-9781405114165" class="external-link">An Introduction to Behavioural Ecology</a> (Davies, Krebs &amp; West, Wiley, 4th edition). For the cognitive dimension — how brains, minds, and behaviour co-evolve with ecology — clade draws on <a href="https://global.oup.com/academic/product/cognition-evolution-and-behavior-9780195319842" class="external-link">Cognition, Evolution, and Behavior</a> (Shettleworth, Oxford University Press) and, for the deep-origins angle, Peter Godfrey-Smith’s <a href="https://www.amazon.ca/Other-Minds-Octopus-Origins-Consciousness/dp/0374227764" class="external-link">Other Minds: The Octopus, the Sea, and the Deep Origins of Consciousness</a> — which partly inspired the <a href="articles/s-cephalopod.html"><code>s-cephalopod</code></a> scenario. clade is intended to be a computational companion to these traditions.</em></p>
+</blockquote>
 <hr>
 </div>
+<div class="section level2">
+<h2 id="id_32-of-32-scenarios-pass">32 of 32 scenarios pass<a class="anchor" aria-label="anchor" href="#id_32-of-32-scenarios-pass"></a>
+</h2>
+<p>Every biological scenario is cross-referenced to a primary-literature prediction — Hamilton 1964 (kin selection), Hamilton 1980 (Red Queen), Williams 1966 (predation demography), Emlen 1982 (cooperative breeding), Hinton &amp; Nowlan 1987 (Baldwin effect), DeWitt &amp; Scheiner 2004 (plasticity), Isler &amp; van Schaik 2009 (brain cost), and more. All 32 currently pass at t &gt; 2σ on multi-seed audits. See the <a href="https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/DASHBOARD.md" class="external-link">fidelity dashboard</a> for the per-scenario ledger.</p>
+<hr>
 </div>
 <div class="section level2">
 <h2 id="quick-start">Quick start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
 </h2>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/">clade</a></span><span class="op">)</span></span>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># install.packages("remotes")</span></span>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"itchyshin/clade"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Confirm Julia is ready (compiles kernel on first call — ~60-90 s once)</span></span>
-<span><span class="fu"><a href="reference/julia_is_ready.html">julia_is_ready</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/">clade</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/julia_is_ready.html">julia_is_ready</a></span><span class="op">(</span><span class="op">)</span>              <span class="co"># first call compiles the Julia kernel (~60–90 s)</span></span>
 <span></span>
-<span><span class="co"># Set up a baseline run</span></span>
 <span><span class="va">specs</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">specs</span><span class="op">$</span><span class="va">n_agents_init</span> <span class="op">&lt;-</span> <span class="fl">40L</span></span>
 <span><span class="va">specs</span><span class="op">$</span><span class="va">max_ticks</span>     <span class="op">&lt;-</span> <span class="fl">300L</span></span>
 <span></span>
-<span><span class="co"># Run the simulation</span></span>
 <span><span class="va">env</span>  <span class="op">&lt;-</span> <span class="fu"><a href="reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="va">specs</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Extract and plot results</span></span>
-<span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env</span><span class="op">)</span></span>
-<span><span class="fu"><a href="reference/plot_run.html">plot_run</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span>   <span class="co"># population, energy, genetic diversity dashboard</span></span></code></pre></div>
+<span><span class="fu"><a href="reference/plot_run.html">plot_run</a></span><span class="op">(</span><span class="fu"><a href="reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env</span><span class="op">)</span><span class="op">)</span>   <span class="co"># population × energy × diversity dashboard</span></span></code></pre></div>
 <hr>
 </div>
 <div class="section level2">
-<h2 id="biological-modules">Biological modules<a class="anchor" aria-label="anchor" href="#biological-modules"></a>
+<h2 id="is-clade-right-for-your-question">Is clade right for your question?<a class="anchor" aria-label="anchor" href="#is-clade-right-for-your-question"></a>
 </h2>
-<p>All modules are disabled by default and enabled with a single flag in the specs list. Modules can be freely combined.</p>
 <table class="table">
 <colgroup>
 <col width="33%">
@@ -205,332 +239,80 @@
 <col width="33%">
 </colgroup>
 <thead><tr class="header">
-<th>Module</th>
-<th>Flag(s)</th>
-<th>What it models</th>
+<th>You want to study…</th>
+<th>Use</th>
+<th>Why not clade</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td>Baseline</td>
+<td>Behaviour, cognition, and social evolution with heritable neural genomes</td>
+<td><strong>clade</strong></td>
 <td>—</td>
-<td>Foraging and neural evolution on a toroidal grass grid</td>
 </tr>
 <tr class="even">
-<td>Body size</td>
-<td><code>body_size_evolution</code></td>
-<td>Metabolic scaling (approximate Kleiber); size-foraging trade-off</td>
+<td>Genome-scale population genetics with realistic recombination and demography</td>
+<td><strong><a href="https://messerlab.org/slim/" class="external-link">SLiM</a></strong></td>
+<td>clade’s genome is neural-network weights, not chromosomal loci</td>
 </tr>
 <tr class="odd">
-<td>Brain size</td>
-<td><code>brain_size_evolution</code></td>
-<td>Cognitive-bonus × metabolic-cost; bootstrapping under <code>parental_care</code>
-</td>
+<td>Coalescent / tree-sequence inference</td>
+<td><strong><a href="https://tskit.dev/msprime/" class="external-link">msprime</a></strong></td>
+<td>clade is forward-time, phenotype-first</td>
 </tr>
 <tr class="even">
-<td>Clutch size</td>
-<td><code>clutch_size_evolution</code></td>
-<td>r/K-style trade-off between clutch count and offspring quality</td>
+<td>Teaching discrete-generation IBMs in a classroom browser</td>
+<td><strong><a href="https://ccl.northwestern.edu/netlogo/" class="external-link">NetLogo</a></strong></td>
+<td>clade assumes a working R + Julia toolchain</td>
 </tr>
 <tr class="odd">
-<td>Complex landscape</td>
-<td><code>complex_landscape</code></td>
-<td>3-layer forest (grass / shrubs / canopy); wing-size evolves for canopy access</td>
+<td>Generic ABM (markets, traffic, opinion dynamics)</td>
+<td><strong><a href="https://mesa.readthedocs.io/" class="external-link">Mesa</a></strong></td>
+<td>clade’s primitives (genome, fitness, meiosis) are evolutionary-biology-specific</td>
 </tr>
 <tr class="even">
-<td>Cooperation</td>
-<td><code>cooperation_evolution</code></td>
-<td>Public-goods games with helper-tendency evolution</td>
+<td>Phenotype–environment-match models (e.g. Burke et al. 2020)</td>
+<td><strong>custom NetLogo / Python</strong></td>
+<td>clade’s fitness is emergent from foraging + survival, not a matching function you define</td>
 </tr>
 <tr class="odd">
-<td>Cooperative breeding</td>
-<td><code>cooperative_breeding</code></td>
-<td>Helpers at the nest (Emlen 1982)</td>
-</tr>
-<tr class="even">
-<td>Dispersal</td>
-<td><code>dispersal_evolution</code></td>
-<td>Heritable dispersal tendency</td>
-</tr>
-<tr class="odd">
-<td>Habitat preference</td>
-<td><code>habitat_preference_evolution</code></td>
-<td>Agents move toward preferred grass density</td>
-</tr>
-<tr class="even">
-<td>IFfolk + parliament</td>
-<td>
-<code>iffolk_selection</code>, <code>parliament_suppression</code>
-</td>
-<td>Inclusive-fitness transfers + intragenomic-conflict suppression (Haig 2000; Fromhage &amp; Jennions 2019)</td>
-</tr>
-<tr class="odd">
-<td>Kin selection</td>
-<td><code>kin_selection</code></td>
-<td>Hamilton’s rule, pedigree-based relatedness (r = 0.5 / 0.25 / 0)</td>
-</tr>
-<tr class="even">
-<td>Life history / pace of life</td>
-<td>
-<code>metabolic_rate_evolution</code>, <code>aging_rate_evolution</code>
-</td>
-<td>Metabolic rate ↔︎ lifespan trade-off</td>
-</tr>
-<tr class="odd">
-<td>Mating systems</td>
-<td>
-<code>ploidy = 2</code>, <code>mate_choice</code>
-</td>
-<td>Haploid / diploid; signal-preference assortative mating</td>
-</tr>
-<tr class="even">
-<td>Mimicry</td>
-<td><code>mimicry</code></td>
-<td>Predator signal-vector memory + delta-rule Rescorla-Wagner + aposematic pleiotropy (<code>signal_toxicity_coupling</code>). Müllerian by default; Batesian via <code>batesian_mimicry = TRUE</code>
-</td>
-</tr>
-<tr class="odd">
-<td>Mutation-rate evolution</td>
-<td><code>mutation_rate_evolution</code></td>
-<td>Per-agent heritable <code>mutation_sd</code>
-</td>
-</tr>
-<tr class="even">
-<td>Niche construction</td>
-<td><code>niche_construction</code></td>
-<td>Shelter-building modifies the selection environment (local public good). With <code>shelter_occupancy_bonus &gt; 0</code>: shelters confer a heritable metabolic benefit to occupants (Odling-Smee et al. 2003)</td>
-</tr>
-<tr class="odd">
-<td>Parental care</td>
-<td><code>parental_care</code></td>
-<td>Obligate altriciality — offspring carried, fed, and graduated</td>
-</tr>
-<tr class="even">
-<td>Neonatal foraging deficit</td>
-<td><code>neonatal_foraging_deficit &gt; 0</code></td>
-<td>Young agents can’t forage at adult efficiency; parental care bridges the gap (Aiello &amp; Wheeler 1995; Isler &amp; van Schaik 2009)</td>
-</tr>
-<tr class="odd">
-<td>Parental investment</td>
-<td><code>parental_investment_evolution</code></td>
-<td>Evolved male / offspring-quality investment</td>
-</tr>
-<tr class="even">
-<td>Phenotypic plasticity</td>
-<td><code>phenotypic_plasticity</code></td>
-<td>Environment-dependent reproduction threshold</td>
-</tr>
-<tr class="odd">
-<td>Predation</td>
-<td>
-<code>predators</code>, <code>n_predators_init &gt; 0</code>
-</td>
-<td>Co-evolving predator guild with dedicated 15-input sensory brain</td>
-</tr>
-<tr class="even">
-<td>Predator group defence</td>
-<td><code>group_defense</code></td>
-<td>Coordinated anti-predator behaviour</td>
-</tr>
-<tr class="odd">
-<td>Scavenging</td>
-<td><code>scavenging</code></td>
-<td>Carcass consumption; decay-based carcass lifetime</td>
-</tr>
-<tr class="even">
-<td>Seasonal dynamics</td>
-<td>
-<code>seasonal_amplitude &gt; 0</code>, <code>winter_death_prob</code>
-</td>
-<td>Resource oscillation + winter mortality</td>
-</tr>
-<tr class="odd">
-<td>SIR disease</td>
-<td><code>disease</code></td>
-<td>Susceptible–Infected–Recovered epidemic dynamics</td>
-</tr>
-<tr class="even">
-<td>Signals / sexual selection</td>
-<td>
-<code>signal_mating</code>, <code>signal_evolution_drift</code>
-</td>
-<td>Signal-preference coevolution (Fisher 1915; Kirkpatrick &amp; Ryan 1991)</td>
-</tr>
-<tr class="odd">
-<td>Social learning</td>
-<td><code>social_learning</code></td>
-<td>Copy successful neighbours’ brain weights</td>
-</tr>
-<tr class="even">
-<td>Spatial sorting</td>
-<td>
-<code>spatial_sorting</code> + <code>dispersal_evolution</code> + <code>toroidal = FALSE</code>
-</td>
-<td>Invasion-front dispersal assortment (Shine et al. 2011; needs bounded grid)</td>
-</tr>
-<tr class="odd">
-<td>Speciation</td>
-<td><code>speciation</code></td>
-<td>Genome-distance clustering + reproductive isolation</td>
-</tr>
-<tr class="even">
-<td>Stress hypermutation</td>
-<td><code>stress_hypermutation</code></td>
-<td>SOS-style mutation-rate spike below <code>stress_threshold</code>
-</td>
-</tr>
-<tr class="odd">
-<td>Transgenerational epigenetics</td>
-<td><code>epigenetics</code></td>
-<td>Methylation inheritance on BNN sigma (Jablonka &amp; Lamb 2005)</td>
-</tr>
-<tr class="even">
-<td>Coevolving parasites</td>
-<td><code>coevolving_parasites</code></td>
-<td>Hamilton 1980 Red Queen. Continuous-trait (signal centroid tracking) and discrete-allele (Hamming haplotype matching with Mendelian inheritance) modes</td>
-</tr>
-<tr class="odd">
-<td>Within-lifetime RL</td>
-<td><code>rl_mode = "actor_critic"</code></td>
-<td>REINFORCE score-function update on BNN posterior (Williams 1992; Blundell et al. 2015). Use <code>bnn_sample_freq = 5</code> with BNN brains.</td>
-</tr>
-<tr class="even">
-<td>Lamarckian inheritance</td>
-<td><code>lamarckian = TRUE</code></td>
-<td>RL-learned weights written back to genome before meiosis</td>
-</tr>
-<tr class="odd">
-<td>Quantised weights</td>
-<td><code>ann_weight_values</code></td>
-<td>Snap weights to a discrete set (e.g. ternary) after expression</td>
-</tr>
-</tbody>
-</table>
-<p>See the <a href="https://itchyshin.github.io/clade/articles/parameter-reference.html">Parameter Reference</a> article for the complete parameter list.</p>
-<hr>
-</div>
-<div class="section level2">
-<h2 id="brain-architectures">Brain architectures<a class="anchor" aria-label="anchor" href="#brain-architectures"></a>
-</h2>
-<p>The <code>brain_type</code> parameter selects the neural architecture. All types share the same R interface; only the forward pass and learning dynamics differ.</p>
-<table class="table">
-<colgroup>
-<col width="50%">
-<col width="50%">
-</colgroup>
-<thead><tr class="header">
-<th>Type</th>
-<th>Description</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td><code>"bnn"</code></td>
-<td>Bayesian neural network — learns a distribution over weights (default)</td>
-</tr>
-<tr class="even">
-<td><code>"ann"</code></td>
-<td>Standard multilayer perceptron</td>
-</tr>
-<tr class="odd">
-<td><code>"ctrnn"</code></td>
-<td>Continuous-time recurrent network; suited for temporally extended tasks</td>
-</tr>
-<tr class="even">
-<td><code>"grn"</code></td>
-<td>Gene regulatory network topology; sparse and biologically motivated</td>
-</tr>
-<tr class="odd">
-<td><code>"transformer"</code></td>
-<td>Self-attention architecture; highest capacity, slowest</td>
-</tr>
-<tr class="even">
-<td><code>"synthesis"</code></td>
-<td>Symbolic rule extraction from evolved weights</td>
+<td>Epidemiology as the primary modelling target</td>
+<td>specialised epi frameworks</td>
+<td>clade has a SIR <code>disease</code> module, but it’s a tool, not the target</td>
 </tr>
 </tbody>
 </table>
 <hr>
 </div>
 <div class="section level2">
-<h2 id="fidelity-audit">Fidelity audit<a class="anchor" aria-label="anchor" href="#fidelity-audit"></a>
+<h2 id="go-deeper">Go deeper<a class="anchor" aria-label="anchor" href="#go-deeper"></a>
 </h2>
-<p>Every biological scenario is backed by a multi-seed fidelity audit that cross-references the primary literature, the alifeR R prototype, and (where applicable) the MATLAB ancestor codebase. Current ledger (as of 0.5.6):</p>
-<table class="table">
-<thead><tr class="header">
-<th>Status</th>
-<th>Count</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td>✅ Passed</td>
-<td>
-<strong>32</strong> of 32 auditable scenarios</td>
-</tr>
-<tr class="even">
-<td>🟠 Passed-consistent (direction correct, magnitude limited)</td>
-<td><strong>0</strong></td>
-</tr>
-<tr class="odd">
-<td>🔴 Contradicts</td>
-<td><strong>0</strong></td>
-</tr>
-</tbody>
-</table>
-<p>(3 scenarios — module-comparison, kitchen-sink, cross-module — are demo/discovery vignettes with no primary-source quantitative claim and are marked ⚪ N/A in <a href="https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/STATUS.md" class="external-link"><code>STATUS.md</code></a>; they are excluded from the 32 auditable count.)</p>
-<p>As of 0.5.18 every scenario passes. The last two 🟠 (plasticity, Baldwin effect) were promoted by adding a <code>seasonal_spatial_bias</code> kernel spec that creates phenotype- dependent fluctuating selection — DeWitt 2004 / Hinton-Nowlan 1987 canonical predictions then hold at t &gt; 4σ. The ledger was confirmed end-to-end under the 0.5.10 real-diploid-sex kernel — see <a href="https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/post_0510_summary.md" class="external-link"><code>post_0510_summary.md</code></a>. See the <a href="https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/PRIORITY_ROADMAP.md" class="external-link">priority roadmap</a> for each scenario’s diagnosis and promotion path, and the <a href="https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/CRASH_AUDIT_FINDINGS.md" class="external-link">crash-audit findings</a> for the scenarios that need <code><a href="reference/default_specs.html">default_specs()</a></code> (not <code><a href="reference/fast_specs.html">fast_specs()</a></code>) for viability. All audit reports, runners, and figures live under <a href="https://github.com/itchyshin/clade/tree/main/dev/audit/fidelity" class="external-link"><code>dev/audit/fidelity/</code></a>; <code>STATUS.md</code> there is the per-scenario ledger.</p>
-<hr>
-</div>
-<div class="section level2">
-<h2 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
-</h2>
-<p>Full documentation is available at <strong><a href="https://itchyshin.github.io/clade/" class="uri">https://itchyshin.github.io/clade/</a></strong>.</p>
-<table class="table">
-<colgroup>
-<col width="50%">
-<col width="50%">
-</colgroup>
-<thead><tr class="header">
-<th>Article</th>
-<th>Contents</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td><a href="https://itchyshin.github.io/clade/articles/getting-started.html">Getting Started</a></td>
-<td>Installation, first run, extracting results, batch runs</td>
-</tr>
-<tr class="even">
-<td><a href="https://itchyshin.github.io/clade/articles/scenarios.html">Biological Scenarios</a></td>
-<td>Code and expected outputs for every module</td>
-</tr>
-<tr class="odd">
-<td><a href="https://itchyshin.github.io/clade/articles/custom-modules.html">Custom Modules</a></td>
-<td>Write your own per-tick hooks with <code><a href="reference/register_module.html">register_module()</a></code>
-</td>
-</tr>
-<tr class="even">
-<td><a href="https://itchyshin.github.io/clade/articles/parameter-reference.html">Parameter Reference</a></td>
-<td>Every parameter in <code><a href="reference/default_specs.html">default_specs()</a></code>, grouped by theme</td>
-</tr>
-</tbody>
-</table>
+<ul>
+<li>
+<a href="articles/getting-started.html"><strong>Getting started</strong></a> — install, first run, extracting results</li>
+<li>
+<a href="articles/scenarios.html"><strong>Scenarios</strong></a> — all 36 vignettes by theme</li>
+<li>
+<a href="articles/parameter-reference.html"><strong>Parameter reference</strong></a> — every field in <code><a href="reference/default_specs.html">default_specs()</a></code>
+</li>
+<li>
+<a href="articles/custom-modules.html"><strong>Custom modules</strong></a> — write your own per-tick R hooks with <code><a href="reference/register_module.html">register_module()</a></code>
+</li>
+<li>
+<a href="articles/k-README.html"><strong>Kernel as biology</strong></a> — how the Julia kernel maps onto biological mechanism</li>
+</ul>
 <hr>
 </div>
 <div class="section level2">
 <h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
 </h2>
-<p>If you use clade in published work, please cite:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode bibtex"><code class="sourceCode bibtex"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="va">@misc</span>{<span class="ot">clade2026</span>,</span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  <span class="dt">author</span>  = {Nakagawa, Shinichi},</span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  <span class="dt">title</span>   = {clade: Agent-based evolutionary simulation with a Julia backend},</span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>  <span class="dt">year</span>    = {2026},</span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>  <span class="dt">note</span>    = {R package version 0.5.6},</span>
-<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>  <span class="dt">url</span>     = {https://github.com/itchyshin/clade}</span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>}</span></code></pre></div>
-<hr>
-</div>
-<div class="section level2">
-<h2 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>
-</h2>
-<p>MIT — see <a href="LICENSE">LICENSE</a>.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bibtex"><code class="sourceCode bibtex"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="va">@misc</span>{<span class="ot">clade2026</span>,</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>  <span class="dt">author</span>  = {Nakagawa, Shinichi},</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  <span class="dt">title</span>   = {clade: evolve behaviour, minds, and brains in R},</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>  <span class="dt">year</span>    = {2026},</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>  <span class="dt">note</span>    = {R package},</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>  <span class="dt">url</span>     = {https://github.com/itchyshin/clade}</span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>}</span></code></pre></div>
+<p>License: <a href="https://opensource.org/licenses/MIT" class="external-link">MIT</a>.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
