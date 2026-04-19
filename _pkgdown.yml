@@ -304,6 +304,15 @@ reference:
       - ultra_realistic_specs
       - load_specs
 
+  - title: "Hypothesis testing"
+    desc: >
+      Helpers for the sweep->test->report workflow used in fidelity
+      audits and paper reproductions. See
+      `vignette("paper-kokko-brooks-2003")` for a worked example.
+    contents:
+      - hypothesis_sweep
+      - hypothesis_report
+
   - title: "Results & visualisation"
     desc: "Extract tidy output and produce plots."
     contents:
