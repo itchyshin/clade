@@ -1,3 +1,40 @@
+# clade 0.6.2 (2026-04-19) — Fuller 2005 framework metrics exposed
+
+Three new columns added to the per-tick log
+(`get_run_data(env)$ticks`) to operationalise parts of the
+**Fuller, Houle & Travis (2005)** *Am Nat* quantitative-genetic
+framework for sexual-selection models (sensory bias vs Fisherian
+runaway vs good-genes vs direct benefits vs sexual conflict):
+
+| Column | Fuller 2005 quantity | What it captures |
+|---|---|---|
+| `mean_preference_magnitude` | mean preference phenotype p̄ | Population-mean of the agent preference vector (L1 norm) |
+| `mean_signal_preference_dist` | proxy for −C_tp (preference-display covariance) | Mean L2 distance between each agent's signal and preference vectors. Shrinks under Fisher/good-genes coevolution (nonrandom mating produces C_tp > 0); stays large under sensory bias alone. |
+| `sd_signal_magnitude` | proxy for V_t (additive genetic variance in display) | Between-agent SD of signal magnitude |
+
+These unlock the sensory-bias / Fisher-runaway / handicap test
+discussed in `vignette("paper-fuller-2005")`. Before this change,
+clade's only signal-side observable was scalar
+`mean_signal_magnitude`, which couldn't distinguish coevolved
+(C_tp > 0) from independently drifted (C_tp = 0) signal-preference
+populations.
+
+All four columns are present for every run; when
+`signal_dims = 0L` they return zero rather than NA. Existing
+`mean_signal_magnitude` is unchanged; this release is purely
+additive.
+
+## Follow-up (0.6.3+ candidate)
+
+Fuller 2005's framework also distinguishes models by their cost
+structures. The right cost mechanism for the Zahavi handicap
+(Grafen 1990) is a **viability penalty** on high-signal agents
+(β_Sv < 0), not mutation-rate modulation. A `signal_cost_mortality`
+spec implementing that is candidate work once this release's
+metrics are vetted in a Fuller re-reproduction.
+
+---
+
 # clade 0.6.1 (2026-04-19) — remove broken register_module() stub
 
 The `register_module()` / `list_modules()` / `clear_modules()` R

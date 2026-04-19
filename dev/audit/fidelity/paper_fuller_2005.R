@@ -81,8 +81,14 @@ sweep <- hypothesis_sweep(
   metrics = list(
     final_signal  = function(t) mean(utils::tail(t$mean_signal_magnitude, 500L),
                                      na.rm = TRUE),
-    final_n       = function(t) mean(utils::tail(t$n_agents, 500L), na.rm = TRUE),
-    mean_energy   = function(t) mean(utils::tail(t$mean_energy, 500L), na.rm = TRUE)
+    # 0.6.2 new metrics — the Fuller 2005 distinguishing quantities
+    final_pref    = function(t) mean(utils::tail(t$mean_preference_magnitude, 500L),
+                                     na.rm = TRUE),
+    final_sp_dist = function(t) mean(utils::tail(t$mean_signal_preference_dist, 500L),
+                                     na.rm = TRUE),
+    final_sig_sd  = function(t) mean(utils::tail(t$sd_signal_magnitude, 500L),
+                                     na.rm = TRUE),
+    final_n       = function(t) mean(utils::tail(t$n_agents, 500L), na.rm = TRUE)
   ),
   n_cores = 48L
 )
@@ -111,6 +117,31 @@ agg <- aggregate(final_signal ~ condition, data = sweep$runs,
                                            mean(x, na.rm = TRUE),
                                            sd(x, na.rm = TRUE) / sqrt(length(x))))
 print(agg, row.names = FALSE)
+
+# 0.6.2 Fuller-2005 framework metrics.
+# Key diagnostic: mean_signal_preference_dist (proxy for -C_tp) should
+# SHRINK under Fisher/good-genes coevolution (nonrandom mating aligns
+# signals with preferences) and stay LARGE under sensory-bias-alone.
+cat("\n=== Fuller 2005 metrics (C_tp, V_t, p̄) ===\n")
+agg_f <- aggregate(cbind(final_pref, final_sp_dist, final_sig_sd) ~ condition,
+                   data = sweep$runs, FUN = mean)
+print(agg_f, row.names = FALSE)
+
+# Contrast: does preference-based mate choice decrease signal-preference
+# distance (C_tp > 0, Fisher coevolution) relative to random mate choice?
+cat("\n=== C_tp development test ===\n")
+rpt_ctp <- hypothesis_report(
+  sweep,
+  contrasts = list(
+    coev_nocost = c("random_no_cost", "preference_no_cost"),
+    coev_mild   = c("random_with_cost", "preference_mild"),
+    coev_strong = c("random_with_cost", "preference_strong")
+  ),
+  metric = "final_sp_dist"
+)
+print(rpt_ctp)
+cat("\nIf preference-mate choice produces C_tp > 0 (Fisher coevolution),\n")
+cat("Δ final_sp_dist should be NEGATIVE (signals aligned with preferences).\n")
 
 # Save
 saveRDS(list(sweep = sweep, report = rpt),
