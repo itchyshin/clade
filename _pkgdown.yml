@@ -52,8 +52,6 @@ navbar:
         - text: "---"
         - text: "Parameter reference"
           href: articles/parameter-reference.html
-        - text: "Custom modules API"
-          href: articles/custom-modules.html
     paramsearch:
       text: "Parameter search"
       menu:
@@ -192,7 +190,6 @@ articles:
       - troubleshooting
       - parameter-reference
       - parameter-space-search
-      - custom-modules
 
   - title: "Paper reproductions"
     desc: >
@@ -394,13 +391,6 @@ reference:
       - tune_complex_landscape
       - tune_spatial_sorting
       - tune_iffolk
-
-  - title: "Custom modules"
-    desc: "Register user-defined hook functions that run at each tick."
-    contents:
-      - register_module
-      - list_modules
-      - clear_modules
 
   - title: "Pure-R scenarios"
     desc: "Scenarios that run entirely in R (no Julia required)."

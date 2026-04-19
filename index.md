@@ -145,7 +145,6 @@ plot_run(get_run_data(env))   # population × energy × diversity dashboard
 - [**Scenarios**](articles/scenarios.html) — all 36 vignettes by theme
 - [**Paper reproductions**](articles/paper-kokko-brooks-2003.html) — 5 worked examples of reproducing published behavioural-ecology predictions in clade
 - [**Parameter reference**](articles/parameter-reference.html) — every field in `default_specs()`
-- [**Custom modules**](articles/custom-modules.html) — write your own per-tick R hooks with `register_module()`
 - [**Kernel as biology**](articles/k-README.html) — how the Julia kernel maps onto biological mechanism
 
 ---

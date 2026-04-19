@@ -90,7 +90,7 @@ Key facts:
 | `R/run.R` | `run_alife()`, `batch_alife()` — main entry points |
 | `R/config.R` | `default_specs()`, `quick_specs()`, `full_specs()`, `load_specs()` |
 | `R/scenarios.R` | Pre-baked scenario specs and tuning helpers |
-| `R/modules.R` | `register_module()`, custom per-tick R hooks |
+| `R/hypothesis.R` | `hypothesis_sweep()` + `hypothesis_report()` — researcher workflow helpers |
 | `R/analysis.R` | `get_run_data()`, `compute_ld()`, heritability, relatedness |
 | `R/visualization.R` | `plot_run()`, `plot_diversity()`, etc. |
 | `R/search.R` | `search_cmaes()`, `search_map_elites()`, `search_gradient()`, `search_viability()` |

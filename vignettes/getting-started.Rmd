@@ -449,8 +449,10 @@ return results immediately.
   simulation kernel into plain English with biological rationale and
   audit findings — the hot path (`tick.jl`, `sense.jl`, `reproduce.jl`,
   etc.), side-by-side with the code.
-- **Custom modules.** `vignette("custom-modules")` shows how to attach
-  arbitrary R functions to the per-tick hook system.
+- **Paper reproductions.** `vignette("paper-template")` plus six
+  worked examples (K&B 2003, Griesser 2023, D&D 1999, Réale 2010,
+  Emlen 1982, Courchamp 1999) show how to reproduce a published
+  prediction in clade end-to-end.
 - **0.4.0 kernel changes.** The
   [0.4.0 changelog](https://github.com/itchyshin/clade/blob/main/dev/docs/kernel-0.4.0.md)
   documents every kernel-rule change in this release with biological

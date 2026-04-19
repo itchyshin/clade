@@ -31,8 +31,8 @@
 #' - [plot_run()] — population / energy / diversity dashboard.
 #' - [search_cmaes()] / [search_map_elites()] / [search_gradient()] —
 #'   parameter search driven by a user-supplied fitness function.
-#' - [register_module()] — attach a custom per-tick R hook (rarely
-#'   needed — most modules live on the Julia side).
+#' - [hypothesis_sweep()] / [hypothesis_report()] — researcher-
+#'   facing wrappers for the sweep->test->report workflow.
 #'
 #' ## Biological modules
 #'
