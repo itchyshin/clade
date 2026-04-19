@@ -18,11 +18,14 @@ FIG <- function(name, ...) {
 
 ### Within-lifetime reinforcement learning
 
-**What it models.** Each agent uses REINFORCE-with-baseline (actor-critic) to
-update its brain's output layer based on energy reward signals during its
-lifetime. This implements the Baldwin effect: individually-learned behaviours
-can stabilise genetically over generations because learning relaxes the
-requirement for genes to encode the exact optimal behaviour.
+**What it models.** Each agent uses REINFORCE-with-baseline (actor-critic;
+Williams 1992) to update its brain's output layer based on energy reward
+signals during its lifetime. This implements the Baldwin effect (Hinton &
+Nowlan 1987): individually-learned behaviours can stabilise genetically over
+generations because learning relaxes the requirement for genes to encode the
+exact optimal behaviour. The demographic signature clade measures — population
+size rising under `actor_critic` — follows the Baldwin framework rather than
+from the algorithm paper itself.
 
 **Key parameters.**
 
