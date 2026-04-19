@@ -157,3 +157,13 @@ for this audit to be complete.
   Session 1 would begin with `s-kin` / Hamilton 1964 — a good warm-up
   because the claim ("r × benefit ≥ cost → altruism evolves") is
   crisp and the paper is well-understood.
+- **2026-04-19 (same day)** — **Session 1 complete.** 6 scenarios
+  audited: s-kin, s-cooperation, s-signals, s-mating-systems,
+  s-parental-care, s-life-history. Verdict distribution: 1 ✅, 4
+  ⚠️, 1 🟠, 0 ❌. No retractions. Three specific citation-
+  precision recommendations surfaced (see
+  [`citation_audit.md`](citation_audit.md) for the full ledger).
+  Most ⚠️ entries flag that the scenario tests a *corollary* or
+  *weaker version* of the cited paper's prediction — vignette
+  prose is usually honest about this, but aggregate landing-page
+  copy could overclaim without the caveats. Sessions 2–4 pending.
