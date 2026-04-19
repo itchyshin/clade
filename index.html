@@ -24,7 +24,7 @@
 
     <a class="navbar-brand me-2" href="index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.18</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -214,6 +214,25 @@
 <hr>
 </div>
 <div class="section level2">
+<h2 id="reproduce-a-paper-in-5-lines">Reproduce a paper in 5 lines<a class="anchor" aria-label="anchor" href="#reproduce-a-paper-in-5-lines"></a>
+</h2>
+<p>The <a href="articles/paper-kokko-brooks-2003.html">Paper reproductions</a> vignettes show clade working as an empirical-research tool: take a published behavioural-ecology paper, turn its quantitative prediction into a clade experiment, and report what reproduces versus what doesn’t. Five worked examples cover clean ✅, honest null, mechanism mismatch, and unit-sensitivity patterns:</p>
+<ul>
+<li>
+<a href="articles/paper-kokko-brooks-2003.html"><strong>Kokko &amp; Brooks 2003</strong></a> — “Sexy to die for?” — clade contradicts the interaction direction (honest mechanism mismatch)</li>
+<li>
+<a href="articles/paper-griesser-2023.html"><strong>Griesser et al. 2023</strong></a> <em>PNAS</em> — parental provisioning → brain size (direction-correct sub-threshold)</li>
+<li>
+<a href="articles/paper-dieckmann-doebeli-1999.html"><strong>Dieckmann &amp; Doebeli 1999</strong></a> <em>Nature</em> — sympatric speciation (<strong>clean ✅, t = +3.32</strong>)</li>
+<li>
+<a href="articles/paper-reale-2010.html"><strong>Réale et al. 2010</strong></a> <em>Phil Trans B</em> — pace-of-life (lifespan Spearman = −0.98)</li>
+<li>
+<a href="articles/paper-emlen-1982.html"><strong>Emlen 1982</strong></a> <em>Am Nat</em> — ecological constraints on helping (raw inverts, per-capita recovers)</li>
+</ul>
+<p>Each uses the new <code><a href="reference/hypothesis_sweep.html">hypothesis_sweep()</a></code> + <code><a href="reference/hypothesis_report.html">hypothesis_report()</a></code> helpers in a 3-stage workflow: grid-search the regime → multi-seed validate → diagnose. A researcher reproducing their own paper can template off these examples.</p>
+<hr>
+</div>
+<div class="section level2">
 <h2 id="quick-start">Quick start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
 </h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
@@ -288,6 +307,8 @@
 <a href="articles/getting-started.html"><strong>Getting started</strong></a> — install, first run, extracting results</li>
 <li>
 <a href="articles/scenarios.html"><strong>Scenarios</strong></a> — all 36 vignettes by theme</li>
+<li>
+<a href="articles/paper-kokko-brooks-2003.html"><strong>Paper reproductions</strong></a> — 5 worked examples of reproducing published behavioural-ecology predictions in clade</li>
 <li>
 <a href="articles/parameter-reference.html"><strong>Parameter reference</strong></a> — every field in <code><a href="reference/default_specs.html">default_specs()</a></code>
 </li>

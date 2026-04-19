@@ -29,8 +29,11 @@ plus one or more of clade’s search / grid tools
 ([`grid_specs()`](https://itchyshin.github.io/clade/reference/grid_specs.md),
 [`batch_alife()`](https://itchyshin.github.io/clade/reference/batch_alife.md),
 [`viability_report()`](https://itchyshin.github.io/clade/reference/viability_report.md))
-to demonstrate a full research workflow.
+to demonstrate a full research workflow. Start with the template if
+you’re reproducing your own paper.
 
+- [Reproducing YOUR paper — a
+  template](https://itchyshin.github.io/clade/articles/paper-template.md):
 - [Reproducing a paper — Kokko & Brooks
   2003](https://itchyshin.github.io/clade/articles/paper-kokko-brooks-2003.md):
 - [Reproducing a paper — Griesser et al.

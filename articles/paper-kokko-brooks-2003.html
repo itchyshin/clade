@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.18</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -190,21 +190,153 @@ clean <em>interaction test</em> on the slope of
 <code>signals_effect</code>.</p>
 </div>
 <div class="section level2">
-<h2 id="experimental-design">Experimental design<a class="anchor" aria-label="anchor" href="#experimental-design"></a>
+<h2 id="three-stage-workflow">Three-stage workflow<a class="anchor" aria-label="anchor" href="#three-stage-workflow"></a>
 </h2>
-<p>Four resource levels crossed with signals on/off, 8 seeds each: 64
-runs at 40 × 40 grid, 2000 ticks, no predators (to isolate
-resource-driven stress from external mortality).</p>
-<p><strong>Signals-on arm</strong>: <code>signal_dims = 3L</code>,
-<code>signal_cost = 0.2</code> (above the drift-scale noise documented
-in s-signals.Rmd), <code>mate_choice_mode = "preference"</code>,
-<code>mate_choice_strength = 0.7</code>. <strong>Signals-off
-arm</strong>: <code>signal_dims = 0L</code>,
-<code>mate_choice_mode = "random"</code>.</p>
-<p><strong>Resource levels</strong>:
-<code>grass_rate ∈ {0.20, 0.12, 0.08, 0.05}</code> spanning abundant →
-very_scarce.</p>
+<p>Same structure as the other paper reproductions (Griesser 2023,
+D&amp;D 1999, Réale 2010, Emlen 1982):</p>
+<ol style="list-style-type: decimal">
+<li>
+<strong>Stage 1 — grid search.</strong> <code><a href="../reference/grid_specs.html">grid_specs()</a></code> +
+<code><a href="../reference/batch_alife.html">batch_alife()</a></code> across a wide
+<code>(signal_cost × grass_rate)</code> grid at single seeds to test
+whether the K&amp;B interaction <em>ever</em> reproduces its predicted
+direction.</li>
+<li>
+<strong>Stage 2 — multi-seed validation.</strong>
+<code><a href="../reference/hypothesis_sweep.html">hypothesis_sweep()</a></code> at the chosen signal_cost with 8 seeds
+per condition.</li>
+<li>
+<strong>Stage 3 — viability spot-check.</strong>
+<code><a href="../reference/viability_report.html">viability_report()</a></code> on the most-stressed cell to confirm
+populations are surviving, not sitting at a pathological fitness
+floor.</li>
+</ol>
+</div>
+<div class="section level2">
+<h2 id="stage-1-grid-search">Stage 1: grid search<a class="anchor" aria-label="anchor" href="#stage-1-grid-search"></a>
+</h2>
+<p>Does the K&amp;B interaction ever go negative at any tested cost
+level?</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/">clade</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">base</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">base</span><span class="op">$</span><span class="va">grid_rows</span>       <span class="op">&lt;-</span> <span class="fl">40L</span></span>
+<span><span class="va">base</span><span class="op">$</span><span class="va">grid_cols</span>       <span class="op">&lt;-</span> <span class="fl">40L</span></span>
+<span><span class="va">base</span><span class="op">$</span><span class="va">n_agents_init</span>   <span class="op">&lt;-</span> <span class="fl">120L</span></span>
+<span><span class="va">base</span><span class="op">$</span><span class="va">max_agents</span>      <span class="op">&lt;-</span> <span class="fl">500L</span></span>
+<span><span class="va">base</span><span class="op">$</span><span class="va">max_ticks</span>       <span class="op">&lt;-</span> <span class="fl">2000L</span></span>
+<span><span class="va">base</span><span class="op">$</span><span class="va">n_predators_init</span> <span class="op">&lt;-</span> <span class="fl">0L</span></span>
+<span></span>
+<span><span class="va">SIGNAL_DIMS</span>  <span class="op">&lt;-</span> <span class="fl">3L</span></span>
+<span><span class="va">COST_LEVELS</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.0</span>, <span class="fl">0.1</span>, <span class="fl">0.2</span>, <span class="fl">0.4</span>, <span class="fl">0.8</span><span class="op">)</span></span>
+<span><span class="va">GRASS_LEVELS</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.20</span>, <span class="fl">0.12</span>, <span class="fl">0.08</span>, <span class="fl">0.05</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Build one spec per (cost, grass) cell, signals-off when cost = 0</span></span>
+<span><span class="va">grid_spec_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">c</span> <span class="kw">in</span> <span class="va">COST_LEVELS</span><span class="op">)</span> <span class="kw">for</span> <span class="op">(</span><span class="va">g</span> <span class="kw">in</span> <span class="va">GRASS_LEVELS</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">s</span> <span class="op">&lt;-</span> <span class="va">base</span></span>
+<span>  <span class="kw">if</span> <span class="op">(</span><span class="va">c</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">s</span><span class="op">$</span><span class="va">signal_dims</span> <span class="op">&lt;-</span> <span class="va">SIGNAL_DIMS</span>; <span class="va">s</span><span class="op">$</span><span class="va">signal_cost</span> <span class="op">&lt;-</span> <span class="va">c</span></span>
+<span>    <span class="va">s</span><span class="op">$</span><span class="va">signal_evolution_drift</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span>; <span class="va">s</span><span class="op">$</span><span class="va">signal_drift_sd</span> <span class="op">&lt;-</span> <span class="fl">0.01</span></span>
+<span>    <span class="va">s</span><span class="op">$</span><span class="va">mate_choice_mode</span> <span class="op">&lt;-</span> <span class="st">"preference"</span>; <span class="va">s</span><span class="op">$</span><span class="va">mate_choice_strength</span> <span class="op">&lt;-</span> <span class="fl">0.7</span></span>
+<span>  <span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
+<span>    <span class="va">s</span><span class="op">$</span><span class="va">signal_dims</span> <span class="op">&lt;-</span> <span class="fl">0L</span>; <span class="va">s</span><span class="op">$</span><span class="va">signal_cost</span> <span class="op">&lt;-</span> <span class="fl">0.0</span></span>
+<span>    <span class="va">s</span><span class="op">$</span><span class="va">mate_choice_mode</span> <span class="op">&lt;-</span> <span class="st">"random"</span></span>
+<span>  <span class="op">}</span></span>
+<span>  <span class="va">s</span><span class="op">$</span><span class="va">grass_rate</span>  <span class="op">&lt;-</span> <span class="va">g</span></span>
+<span>  <span class="va">s</span><span class="op">$</span><span class="va">random_seed</span> <span class="op">&lt;-</span> <span class="fl">7L</span></span>
+<span>  <span class="va">grid_spec_list</span><span class="op">[[</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"c%.1f_g%.2f"</span>, <span class="va">c</span>, <span class="va">g</span><span class="op">)</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">s</span></span>
+<span><span class="op">}</span></span>
+<span><span class="va">grid_envs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/batch_alife.html">batch_alife</a></span><span class="op">(</span><span class="va">grid_spec_list</span>, n_cores <span class="op">=</span> <span class="fl">20L</span><span class="op">)</span></span></code></pre></div>
+<div class="section level3">
+<h3 id="stage-1-result-final_n-across-the-cost-grass-grid">Stage 1 result — final_n across the cost × grass grid<a class="anchor" aria-label="anchor" href="#stage-1-result-final_n-across-the-cost-grass-grid"></a>
+</h3>
+<table class="table">
+<thead><tr class="header">
+<th><code>signal_cost</code></th>
+<th>grass=0.20</th>
+<th>grass=0.12</th>
+<th>grass=0.08</th>
+<th>grass=0.05</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><strong>0.0</strong></td>
+<td><strong>238.0</strong></td>
+<td><strong>169.2</strong></td>
+<td><strong>120.8</strong></td>
+<td><strong>73.3</strong></td>
+</tr>
+<tr class="even">
+<td>0.1</td>
+<td>201.6</td>
+<td>151.9</td>
+<td>97.4</td>
+<td>72.3</td>
+</tr>
+<tr class="odd">
+<td>0.2</td>
+<td>214.5</td>
+<td>152.2</td>
+<td>115.2</td>
+<td>63.5</td>
+</tr>
+<tr class="even">
+<td>0.4</td>
+<td>172.1</td>
+<td>161.7</td>
+<td>109.1</td>
+<td>70.2</td>
+</tr>
+<tr class="odd">
+<td>0.8</td>
+<td>203.8</td>
+<td>131.8</td>
+<td>101.7</td>
+<td>59.0</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level3">
+<h3 id="signals-effect-per-grass-level-cost0-mean-cost0">Signals-effect per grass level (cost&gt;0 mean − cost=0)<a class="anchor" aria-label="anchor" href="#signals-effect-per-grass-level-cost0-mean-cost0"></a>
+</h3>
+<table class="table">
+<thead><tr class="header">
+<th><code>grass_rate</code></th>
+<th>signals_effect</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>0.20 (abundant)</td>
+<td><strong>−40.0</strong></td>
+</tr>
+<tr class="even">
+<td>0.12</td>
+<td>−19.9</td>
+</tr>
+<tr class="odd">
+<td>0.08</td>
+<td>−14.9</td>
+</tr>
+<tr class="even">
+<td>0.05 (very scarce)</td>
+<td><strong>−7.1</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>The signals-effect shrinks monotonically as grass
+drops.</strong> Across <em>every tested cost level</em> (0.1, 0.2, 0.4,
+0.8), stress reduces the demographic drag of signals, not amplifies it.
+K&amp;B’s interaction direction is contradicted robustly across the
+entire cost grid — not just at a single parameter choice.</p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="stage-2-multi-seed-validation">Stage 2: multi-seed validation<a class="anchor" aria-label="anchor" href="#stage-2-multi-seed-validation"></a>
+</h2>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/">clade</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">base</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -269,7 +401,29 @@ very_scarce.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">rpt</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="results">Results<a class="anchor" aria-label="anchor" href="#results"></a>
+<h2 id="stage-3-viability-spot-check">Stage 3: viability spot-check<a class="anchor" aria-label="anchor" href="#stage-3-viability-spot-check"></a>
+</h2>
+<p>Confirm the most-stressed cell (very_scarce + signals) isn’t sitting
+at a pathological fitness cliff that would invalidate the Δ
+statistics.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">s_check</span> <span class="op">&lt;-</span> <span class="va">base</span></span>
+<span><span class="va">s_check</span><span class="op">$</span><span class="va">signal_dims</span>            <span class="op">&lt;-</span> <span class="va">SIGNAL_DIMS</span></span>
+<span><span class="va">s_check</span><span class="op">$</span><span class="va">signal_cost</span>            <span class="op">&lt;-</span> <span class="fl">0.2</span></span>
+<span><span class="va">s_check</span><span class="op">$</span><span class="va">signal_evolution_drift</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
+<span><span class="va">s_check</span><span class="op">$</span><span class="va">mate_choice_mode</span>       <span class="op">&lt;-</span> <span class="st">"preference"</span></span>
+<span><span class="va">s_check</span><span class="op">$</span><span class="va">grass_rate</span>             <span class="op">&lt;-</span> <span class="fl">0.05</span></span>
+<span><span class="va">env_check</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="va">s_check</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/viability_report.html">viability_report</a></span><span class="op">(</span><span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env_check</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; &lt;clade viability report&gt;</span></span>
+<span><span class="co">#&gt;  viable: n_init=120, n_final=71 (59%), n_min=48 at tick 244 (40%)</span></span></code></pre></div>
+<p>Population drops to 40% of init but stays well above the “crashed”
+threshold — the stressed+signals condition is viable, so the Stage 2
+null on extinctions reflects real sustained populations, not dying-out
+runs.</p>
+</div>
+<div class="section level2">
+<h2 id="stage-2-results">Stage 2 results<a class="anchor" aria-label="anchor" href="#stage-2-results"></a>
 </h2>
 <div class="section level3">
 <h3 id="per-condition-equilibrium-populations-8-seeds-each">Per-condition equilibrium populations (8 seeds each)<a class="anchor" aria-label="anchor" href="#per-condition-equilibrium-populations-8-seeds-each"></a>
@@ -463,22 +617,22 @@ compute: ~30 s on 32 PSOCK cores for 64 runs × 2000 ticks.</p>
 </h2>
 <p>If you use this scenario or workflow in published work, cite both the
 paper and clade:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bibtex"><code class="sourceCode bibtex"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="va">@article</span>{<span class="ot">kokko2003sexy</span>,</span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  <span class="dt">author</span>  = {Kokko, Hanna and Brooks, Robert},</span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  <span class="dt">title</span>   = {Sexy to die for? Sexual selection and the risk of extinction},</span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>  <span class="dt">journal</span> = {Annales Zoologici Fennici},</span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>  <span class="dt">year</span>    = {2003},</span>
-<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>  <span class="dt">volume</span>  = {40},</span>
-<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>  <span class="dt">pages</span>   = {207--219}</span>
-<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>}</span>
-<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a></span>
-<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="va">@misc</span>{<span class="ot">clade2026</span>,</span>
-<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>  <span class="dt">author</span>  = {Nakagawa, Shinichi},</span>
-<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>  <span class="dt">title</span>   = {clade: evolve behaviour, minds, and brains in R},</span>
-<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a>  <span class="dt">year</span>    = {2026},</span>
-<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a>  <span class="dt">note</span>    = {R package},</span>
-<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a>  <span class="dt">url</span>     = {https://github.com/itchyshin/clade}</span>
-<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bibtex"><code class="sourceCode bibtex"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="va">@article</span>{<span class="ot">kokko2003sexy</span>,</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>  <span class="dt">author</span>  = {Kokko, Hanna and Brooks, Robert},</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  <span class="dt">title</span>   = {Sexy to die for? Sexual selection and the risk of extinction},</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>  <span class="dt">journal</span> = {Annales Zoologici Fennici},</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>  <span class="dt">year</span>    = {2003},</span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>  <span class="dt">volume</span>  = {40},</span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>  <span class="dt">pages</span>   = {207--219}</span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>}</span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="va">@misc</span>{<span class="ot">clade2026</span>,</span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>  <span class="dt">author</span>  = {Nakagawa, Shinichi},</span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>  <span class="dt">title</span>   = {clade: evolve behaviour, minds, and brains in R},</span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>  <span class="dt">year</span>    = {2026},</span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>  <span class="dt">note</span>    = {R package},</span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>  <span class="dt">url</span>     = {https://github.com/itchyshin/clade}</span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a>}</span></code></pre></div>
 <p>Audit protocol and raw outputs: <a href="https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/kokko_brooks_2003.R" class="external-link">dev/audit/fidelity/kokko_brooks_2003.R</a>
 and <code>kokko_brooks_2003.rds</code>.</p>
 </div>

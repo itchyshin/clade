@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.18</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -120,6 +120,69 @@
       <small>Source: <a href="https://github.com/itchyshin/clade/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.6.0" id="clade-060-2026-04-19--research-workflow--paper-reproductions">clade 0.6.0 (2026-04-19) — research workflow + paper reproductions<a class="anchor" aria-label="anchor" href="#clade-060-2026-04-19--research-workflow--paper-reproductions"></a></h2>
+<p>A large user-facing release. Same kernel state as 0.5.18 (32/32 fidelity ✅), but significantly more research infrastructure around it. Three major additions for behavioural-ecology and evolutionary researchers: a systematic primary-citation audit of all 32 scenarios, reusable researcher-workflow helpers (<code><a href="../reference/hypothesis_sweep.html">hypothesis_sweep()</a></code> + <code><a href="../reference/hypothesis_report.html">hypothesis_report()</a></code>), and five worked paper reproductions that double as methodology tutorials.</p>
+<div class="section level3">
+<h3 id="new-user-facing-api-0-6-0">New user-facing API<a class="anchor" aria-label="anchor" href="#new-user-facing-api-0-6-0"></a></h3>
+<ul><li>
+<strong><code>hypothesis_sweep(base_specs, conditions, seeds, metrics, n_cores)</code></strong> — wrap the sweep-test-report pattern used across the fidelity audits into a single researcher-facing helper. Crosses a list of named conditions with seeds, dispatches via <code><a href="../reference/batch_alife.html">batch_alife()</a></code>, computes user-supplied metric functions on each run’s tick log, returns a tidy <code>hypothesis_sweep</code> S3 object.</li>
+<li>
+<strong><code>hypothesis_report(sweep, contrasts, metric)</code></strong> — Welch two-sample t-statistics for named pairwise contrasts. Uses the fidelity-audit 2σ screening convention (<code>|t| ≥ 2</code> → PASS, <code>1.5 ≤ |t| &lt; 2</code> → marginal, else null). Print methods render compact tables.</li>
+</ul><p>Together these turn the 5-line <code>sweep |&gt; report |&gt; interpret</code> workflow into the default researcher idiom. See <code><a href="../articles/paper-kokko-brooks-2003.html">vignette("paper-kokko-brooks-2003")</a></code> for the canonical example.</p>
+</div>
+<div class="section level3">
+<h3 id="paper-reproductions-showcase-new-vignettes-0-6-0">Paper reproductions showcase (new vignettes)<a class="anchor" aria-label="anchor" href="#paper-reproductions-showcase-new-vignettes-0-6-0"></a></h3>
+<p>Five worked examples of taking a published behavioural-ecology paper, translating its quantitative prediction into a clade experiment, and reporting what reproduces versus what doesn’t. Each vignette demonstrates the 3-stage workflow (grid-search → multi-seed validate → diagnose) and covers a different theoretical domain:</p>
+<ul><li><p><strong><code>paper-kokko-brooks-2003</code></strong> — “Sexy to die for?”. Tests whether costly sexual signals hurt populations more under environmental stress. clade <strong>contradicts</strong> K&amp;B’s interaction direction robustly across a 5 × 4 grid — mechanistic-level mismatch between linear per-tick cost (clade) and stress-multiplicative cost (K&amp;B’s theoretical framework).</p></li>
+<li><p><strong><code>paper-griesser-2023</code></strong> — “Parental provisioning drives brain size in birds” (PNAS). Grid search finds the best-signal regime (cost_scale=1.5); 8-seed validation gives Spearman = +0.25 in the predicted direction but sub-2σ. Direction-correct below-threshold — the honest outcome of many empirical in-silico verifications.</p></li>
+<li><p><strong><code>paper-dieckmann-doebeli-1999</code></strong> — “On the origin of species by sympatric speciation” (Nature). <strong>Clean ✅</strong> with decisive magnitude (t = +3.32 PASS, Spearman = −0.57). When the <code>speciation</code> kernel module matches the paper’s mechanism, reproductions are decisive.</p></li>
+<li><p><strong><code>paper-reale-2010</code></strong> — pace-of-life syndromes. Core lifespan-vs-metabolic-rate prediction reproduces at <strong>Spearman = −0.98, t = −358</strong> — one of the cleanest matches in the suite. Secondary traits (per-tick births, energy) have clade-specific nuances surfaced by multi-metric <code><a href="../reference/hypothesis_sweep.html">hypothesis_sweep()</a></code>.</p></li>
+<li><p><strong><code>paper-emlen-1982</code></strong> — ecological constraints on helping. Raw helping counts invert Emlen’s prediction; per-capita rate recovers the direction. Reinforces the s-kin invasion-dynamics honest-null from the session’s sweet-spot sweeps: <code>helper_tendency</code> does not evolve under ecological constraint in clade’s current kernel.</p></li>
+</ul></div>
+<div class="section level3">
+<h3 id="primary-citation-audit---complete-0-6-0">Primary-citation audit — 32 / 32 complete<a class="anchor" aria-label="anchor" href="#primary-citation-audit---complete-0-6-0"></a></h3>
+<p>Systematic per-scenario verification that every cited primary paper actually predicts what clade reproduces. Ledger in <code>dev/docs/positioning/citation_audit.md</code>. Distribution across the 32 auditable scenarios plus 2 ⚪ N/A:</p>
+<ul><li>
+<strong>10 ✅</strong> citation + fidelity clean</li>
+<li>
+<strong>14 ⚠️</strong> direction-correct with documented caveats (most commonly, clade reproduces a corollary of the paper’s claim rather than the claim itself)</li>
+<li>
+<strong>5 🟠</strong> direction-correct transient OR contradicted under evolving-ABM conditions where the cited theory assumes fixed-strategy predators, unlimited food, or similar</li>
+<li>
+<strong>0 ❌</strong> no outright retractions or unsupported claims</li>
+</ul><p>Three citation-precision corrections shipped in-session (Hauert 2006 / Killingback 1999 for s-cooperation’s continuous-strategy mechanism; Hamilton, Axelrod &amp; Tanese 1990 alongside Hamilton 1980 for s-mating-systems’ discrete-allele Red Queen; Kermack &amp; McKendrick 1927 for s-disease’s missing SIR citation).</p>
+</div>
+<div class="section level3">
+<h3 id="sweet-spot-sweep-methodology-new-fidelity-reports-0-6-0">Sweet-spot sweep methodology (new fidelity reports)<a class="anchor" aria-label="anchor" href="#sweet-spot-sweep-methodology-new-fidelity-reports-0-6-0"></a></h3>
+<p>Three sweeps demonstrating how to find the parameter regime where a canonical theoretical prediction expresses in clade:</p>
+<ul><li><p><strong>s-kin invasion-dynamics sweep</strong> — tested whether heritable <code>helper_tendency</code> invades from rare under Hamilton-satisfying cost regimes. Result: <strong>honest null</strong> — demographic consequence of kin altruism stands (Spearman = 0.97 across rB/C), but allele-invasion dynamics don’t reproduce in the current <code>cooperative_breeding</code> plumbing. Kernel needs kin-weighted fitness accounting.</p></li>
+<li><p><strong>s-niche heritable-feedback sweep</strong> — tested Odling-Smee et al. 2003’s heritable-niche-construction claim. <strong>Clean ✅</strong> at <code>shelter_occupancy_bonus &gt; 0</code>: Spearman(bonus, final_n) = +0.863, t = +6–8 PASS across three bonus levels. Notable finding: niche construction <em>alone</em> (bonus = 0) is a net cost; the heritable feedback is what flips it to a large benefit, exactly as Odling-Smee’s framework predicts.</p></li>
+<li><p><strong>s-parental-care variance-buffering sweep</strong> — tested Clutton-Brock 1991’s buffering prediction at tighter resource scarcity. <strong>Conditional ✅</strong> at <code>grass_rate = 0.08,   care_cost_per_tick = 3.0</code>: variance drops 58% (t = −2.61). Honest caveat: care halves equilibrium size, so CV rises even as absolute variance falls.</p></li>
+</ul><p>The sweep methodology is now the template for finding “sweet spots” for any canonical prediction — conditions under which the theory reproduces exactly versus conditions where it doesn’t. See the matching fidelity reports under <code>dev/audit/fidelity/</code>.</p>
+</div>
+<div class="section level3">
+<h3 id="documentation-and-infrastructure-0-6-0">Documentation and infrastructure<a class="anchor" aria-label="anchor" href="#documentation-and-infrastructure-0-6-0"></a></h3>
+<ul><li>
+<strong>DASHBOARD.md</strong> updated to reflect current state: 32 ✅ / 0 🟠, with a 2026-04-19 “state as of” section explaining the 0.5.14–0.5.18 promotion cycle.</li>
+<li>
+<strong>STATUS.md</strong> reconciliation with five 🟠-to-✅ promotions from the 0.5.14–0.5.18 kernel cycle surfaced in the user-facing vignettes: s-mating-systems (pressure sweep), s-baldwin + s-plasticity (<code>seasonal_spatial_bias</code>), s-group-defense (extinction-rate framing), s-scavenging (realistic_specs + predators).</li>
+<li>
+<strong><code>dev/docs/positioning/</code></strong> — research scaffolding for future landing-page claims, including competitive-landscape notes on SLiM/NetLogo/Mesa/msprime, methods-review survey (Murphy 2025, Stillman 2015), and the full 32-scenario primary-citation audit ledger.</li>
+<li>
+<strong>CI</strong> — GitHub Actions spend reduced via <code>paths-ignore</code> filter for docs-only changes; self-hosted-runner setup guide under <code>.github/SELF_HOSTED_RUNNER_SETUP.md</code> for an optional Julia- enabled runner.</li>
+<li>
+<strong>Honest correction</strong>: “Song et al. 2025” citation removed from s-brain-size — Crossref could not locate the paper; the two remaining citations (van Schaik 2023, Griesser 2023) cover the parental-provisioning hypothesis adequately.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="breaking-changes-0-6-0">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-0-6-0"></a></h3>
+<p>None. All additions. Existing scripts and specs continue to work.</p>
+</div>
+<div class="section level3">
+<h3 id="migration-notes-0-6-0">Migration notes<a class="anchor" aria-label="anchor" href="#migration-notes-0-6-0"></a></h3>
+<p>If you’ve been using batch sweeps in ad-hoc scripts, you can migrate to <code><a href="../reference/hypothesis_sweep.html">hypothesis_sweep()</a></code> for cleaner logging. The original <code><a href="../reference/batch_alife.html">batch_alife()</a></code> / <code><a href="../reference/batch_seeds.html">batch_seeds()</a></code> / <code><a href="../reference/grid_specs.html">grid_specs()</a></code> / <code><a href="../reference/summarize_batch.html">summarize_batch()</a></code> APIs are unchanged and remain the lower-level building blocks.</p>
+<hr></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.5.18" id="clade-0518-2026-04-18-dewitt-2004--hinton-nowlan-1987-confirmed--ledger-complete">clade 0.5.18 (2026-04-18, DeWitt 2004 / Hinton-Nowlan 1987 confirmed — ledger complete)<a class="anchor" aria-label="anchor" href="#clade-0518-2026-04-18-dewitt-2004--hinton-nowlan-1987-confirmed--ledger-complete"></a></h2>
 <div class="section level3">

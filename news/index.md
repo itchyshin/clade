@@ -1,5 +1,172 @@
 # Changelog
 
+## clade 0.6.0 (2026-04-19) — research workflow + paper reproductions
+
+A large user-facing release. Same kernel state as 0.5.18 (32/32 fidelity
+✅), but significantly more research infrastructure around it. Three
+major additions for behavioural-ecology and evolutionary researchers: a
+systematic primary-citation audit of all 32 scenarios, reusable
+researcher-workflow helpers
+([`hypothesis_sweep()`](https://itchyshin.github.io/clade/reference/hypothesis_sweep.md) +
+[`hypothesis_report()`](https://itchyshin.github.io/clade/reference/hypothesis_report.md)),
+and five worked paper reproductions that double as methodology
+tutorials.
+
+### New user-facing API
+
+- **`hypothesis_sweep(base_specs, conditions, seeds, metrics, n_cores)`**
+  — wrap the sweep-test-report pattern used across the fidelity audits
+  into a single researcher-facing helper. Crosses a list of named
+  conditions with seeds, dispatches via
+  [`batch_alife()`](https://itchyshin.github.io/clade/reference/batch_alife.md),
+  computes user-supplied metric functions on each run’s tick log,
+  returns a tidy `hypothesis_sweep` S3 object.
+- **`hypothesis_report(sweep, contrasts, metric)`** — Welch two-sample
+  t-statistics for named pairwise contrasts. Uses the fidelity-audit 2σ
+  screening convention (`|t| ≥ 2` → PASS, `1.5 ≤ |t| < 2` → marginal,
+  else null). Print methods render compact tables.
+
+Together these turn the 5-line `sweep |> report |> interpret` workflow
+into the default researcher idiom. See
+[`vignette("paper-kokko-brooks-2003")`](https://itchyshin.github.io/clade/articles/paper-kokko-brooks-2003.md)
+for the canonical example.
+
+### Paper reproductions showcase (new vignettes)
+
+Five worked examples of taking a published behavioural-ecology paper,
+translating its quantitative prediction into a clade experiment, and
+reporting what reproduces versus what doesn’t. Each vignette
+demonstrates the 3-stage workflow (grid-search → multi-seed validate →
+diagnose) and covers a different theoretical domain:
+
+- **`paper-kokko-brooks-2003`** — “Sexy to die for?”. Tests whether
+  costly sexual signals hurt populations more under environmental
+  stress. clade **contradicts** K&B’s interaction direction robustly
+  across a 5 × 4 grid — mechanistic-level mismatch between linear
+  per-tick cost (clade) and stress-multiplicative cost (K&B’s
+  theoretical framework).
+
+- **`paper-griesser-2023`** — “Parental provisioning drives brain size
+  in birds” (PNAS). Grid search finds the best-signal regime
+  (cost_scale=1.5); 8-seed validation gives Spearman = +0.25 in the
+  predicted direction but sub-2σ. Direction-correct below-threshold —
+  the honest outcome of many empirical in-silico verifications.
+
+- **`paper-dieckmann-doebeli-1999`** — “On the origin of species by
+  sympatric speciation” (Nature). **Clean ✅** with decisive magnitude
+  (t = +3.32 PASS, Spearman = −0.57). When the `speciation` kernel
+  module matches the paper’s mechanism, reproductions are decisive.
+
+- **`paper-reale-2010`** — pace-of-life syndromes. Core
+  lifespan-vs-metabolic-rate prediction reproduces at **Spearman =
+  −0.98, t = −358** — one of the cleanest matches in the suite.
+  Secondary traits (per-tick births, energy) have clade-specific nuances
+  surfaced by multi-metric
+  [`hypothesis_sweep()`](https://itchyshin.github.io/clade/reference/hypothesis_sweep.md).
+
+- **`paper-emlen-1982`** — ecological constraints on helping. Raw
+  helping counts invert Emlen’s prediction; per-capita rate recovers the
+  direction. Reinforces the s-kin invasion-dynamics honest-null from the
+  session’s sweet-spot sweeps: `helper_tendency` does not evolve under
+  ecological constraint in clade’s current kernel.
+
+### Primary-citation audit — 32 / 32 complete
+
+Systematic per-scenario verification that every cited primary paper
+actually predicts what clade reproduces. Ledger in
+`dev/docs/positioning/citation_audit.md`. Distribution across the 32
+auditable scenarios plus 2 ⚪ N/A:
+
+- **10 ✅** citation + fidelity clean
+- **14 ⚠️** direction-correct with documented caveats (most commonly,
+  clade reproduces a corollary of the paper’s claim rather than the
+  claim itself)
+- **5 🟠** direction-correct transient OR contradicted under
+  evolving-ABM conditions where the cited theory assumes fixed-strategy
+  predators, unlimited food, or similar
+- **0 ❌** no outright retractions or unsupported claims
+
+Three citation-precision corrections shipped in-session (Hauert 2006 /
+Killingback 1999 for s-cooperation’s continuous-strategy mechanism;
+Hamilton, Axelrod & Tanese 1990 alongside Hamilton 1980 for
+s-mating-systems’ discrete-allele Red Queen; Kermack & McKendrick 1927
+for s-disease’s missing SIR citation).
+
+### Sweet-spot sweep methodology (new fidelity reports)
+
+Three sweeps demonstrating how to find the parameter regime where a
+canonical theoretical prediction expresses in clade:
+
+- **s-kin invasion-dynamics sweep** — tested whether heritable
+  `helper_tendency` invades from rare under Hamilton-satisfying cost
+  regimes. Result: **honest null** — demographic consequence of kin
+  altruism stands (Spearman = 0.97 across rB/C), but allele-invasion
+  dynamics don’t reproduce in the current `cooperative_breeding`
+  plumbing. Kernel needs kin-weighted fitness accounting.
+
+- **s-niche heritable-feedback sweep** — tested Odling-Smee et
+  al. 2003’s heritable-niche-construction claim. **Clean ✅** at
+  `shelter_occupancy_bonus > 0`: Spearman(bonus, final_n) = +0.863, t =
+  +6–8 PASS across three bonus levels. Notable finding: niche
+  construction *alone* (bonus = 0) is a net cost; the heritable feedback
+  is what flips it to a large benefit, exactly as Odling-Smee’s
+  framework predicts.
+
+- **s-parental-care variance-buffering sweep** — tested Clutton-Brock
+  1991’s buffering prediction at tighter resource scarcity.
+  **Conditional ✅** at `grass_rate = 0.08, care_cost_per_tick = 3.0`:
+  variance drops 58% (t = −2.61). Honest caveat: care halves equilibrium
+  size, so CV rises even as absolute variance falls.
+
+The sweep methodology is now the template for finding “sweet spots” for
+any canonical prediction — conditions under which the theory reproduces
+exactly versus conditions where it doesn’t. See the matching fidelity
+reports under `dev/audit/fidelity/`.
+
+### Documentation and infrastructure
+
+- **DASHBOARD.md** updated to reflect current state: 32 ✅ / 0 🟠, with
+  a 2026-04-19 “state as of” section explaining the 0.5.14–0.5.18
+  promotion cycle.
+- **STATUS.md** reconciliation with five 🟠-to-✅ promotions from the
+  0.5.14–0.5.18 kernel cycle surfaced in the user-facing vignettes:
+  s-mating-systems (pressure sweep), s-baldwin + s-plasticity
+  (`seasonal_spatial_bias`), s-group-defense (extinction-rate framing),
+  s-scavenging (realistic_specs + predators).
+- **`dev/docs/positioning/`** — research scaffolding for future
+  landing-page claims, including competitive-landscape notes on
+  SLiM/NetLogo/Mesa/msprime, methods-review survey (Murphy 2025,
+  Stillman 2015), and the full 32-scenario primary-citation audit
+  ledger.
+- **CI** — GitHub Actions spend reduced via `paths-ignore` filter for
+  docs-only changes; self-hosted-runner setup guide under
+  `.github/SELF_HOSTED_RUNNER_SETUP.md` for an optional Julia- enabled
+  runner.
+- **Honest correction**: “Song et al. 2025” citation removed from
+  s-brain-size — Crossref could not locate the paper; the two remaining
+  citations (van Schaik 2023, Griesser 2023) cover the
+  parental-provisioning hypothesis adequately.
+
+### Breaking changes
+
+None. All additions. Existing scripts and specs continue to work.
+
+### Migration notes
+
+If you’ve been using batch sweeps in ad-hoc scripts, you can migrate to
+[`hypothesis_sweep()`](https://itchyshin.github.io/clade/reference/hypothesis_sweep.md)
+for cleaner logging. The original
+[`batch_alife()`](https://itchyshin.github.io/clade/reference/batch_alife.md)
+/
+[`batch_seeds()`](https://itchyshin.github.io/clade/reference/batch_seeds.md)
+/
+[`grid_specs()`](https://itchyshin.github.io/clade/reference/grid_specs.md)
+/
+[`summarize_batch()`](https://itchyshin.github.io/clade/reference/summarize_batch.md)
+APIs are unchanged and remain the lower-level building blocks.
+
+------------------------------------------------------------------------
+
 ## clade 0.5.18 (2026-04-18, DeWitt 2004 / Hinton-Nowlan 1987 confirmed — ledger complete)
 
 ### s-plasticity + s-baldwin 🟠 → ✅ — fluctuating-selection kernel

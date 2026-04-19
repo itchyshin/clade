@@ -97,6 +97,44 @@ for the per-scenario ledger.
 
 ------------------------------------------------------------------------
 
+## Reproduce a paper in 5 lines
+
+The [Paper
+reproductions](https://itchyshin.github.io/clade/articles/paper-kokko-brooks-2003.md)
+vignettes show clade working as an empirical-research tool: take a
+published behavioural-ecology paper, turn its quantitative prediction
+into a clade experiment, and report what reproduces versus what doesn’t.
+Five worked examples cover clean ✅, honest null, mechanism mismatch,
+and unit-sensitivity patterns:
+
+- [**Kokko & Brooks
+  2003**](https://itchyshin.github.io/clade/articles/paper-kokko-brooks-2003.md)
+  — “Sexy to die for?” — clade contradicts the interaction direction
+  (honest mechanism mismatch)
+- [**Griesser et
+  al. 2023**](https://itchyshin.github.io/clade/articles/paper-griesser-2023.md)
+  *PNAS* — parental provisioning → brain size (direction-correct
+  sub-threshold)
+- [**Dieckmann & Doebeli
+  1999**](https://itchyshin.github.io/clade/articles/paper-dieckmann-doebeli-1999.md)
+  *Nature* — sympatric speciation (**clean ✅, t = +3.32**)
+- [**Réale et
+  al. 2010**](https://itchyshin.github.io/clade/articles/paper-reale-2010.md)
+  *Phil Trans B* — pace-of-life (lifespan Spearman = −0.98)
+- [**Emlen
+  1982**](https://itchyshin.github.io/clade/articles/paper-emlen-1982.md)
+  *Am Nat* — ecological constraints on helping (raw inverts, per-capita
+  recovers)
+
+Each uses the new
+[`hypothesis_sweep()`](https://itchyshin.github.io/clade/reference/hypothesis_sweep.md) +
+[`hypothesis_report()`](https://itchyshin.github.io/clade/reference/hypothesis_report.md)
+helpers in a 3-stage workflow: grid-search the regime → multi-seed
+validate → diagnose. A researcher reproducing their own paper can
+template off these examples.
+
+------------------------------------------------------------------------
+
 ## Quick start
 
 ``` r
@@ -136,6 +174,10 @@ plot_run(get_run_data(env))   # population × energy × diversity dashboard
   — install, first run, extracting results
 - [**Scenarios**](https://itchyshin.github.io/clade/articles/scenarios.md)
   — all 36 vignettes by theme
+- [**Paper
+  reproductions**](https://itchyshin.github.io/clade/articles/paper-kokko-brooks-2003.md)
+  — 5 worked examples of reproducing published behavioural-ecology
+  predictions in clade
 - [**Parameter
   reference**](https://itchyshin.github.io/clade/articles/parameter-reference.md)
   — every field in
@@ -418,8 +460,11 @@ plus one or more of clade’s search / grid tools
 ([`grid_specs()`](https://itchyshin.github.io/clade/reference/grid_specs.md),
 [`batch_alife()`](https://itchyshin.github.io/clade/reference/batch_alife.md),
 [`viability_report()`](https://itchyshin.github.io/clade/reference/viability_report.md))
-to demonstrate a full research workflow.
+to demonstrate a full research workflow. Start with the template if
+you’re reproducing your own paper.
 
+- [Reproducing YOUR paper — a
+  template](https://itchyshin.github.io/clade/articles/paper-template.md):
 - [Reproducing a paper — Kokko & Brooks
   2003](https://itchyshin.github.io/clade/articles/paper-kokko-brooks-2003.md):
 - [Reproducing a paper — Griesser et al.
