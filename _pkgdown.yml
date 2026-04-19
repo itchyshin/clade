@@ -5,11 +5,12 @@ template:
   bootswatch: flatly
 
 home:
-  title: "clade — Agent-Based Evolutionary Simulation"
+  title: "clade — evolve behaviour, minds, and brains in R"
   description: >
-    Digital organisms with heritable neural-network genomes evolve on a
-    toroidal grid. The Julia backend runs millions of agent-ticks per second;
-    R provides the modelling interface, analysis, and visualisation layer.
+    A modular R + Julia testbed for the intraspecific, interspecific,
+    and environmental interactions that shape behaviour, cognition, and
+    social evolution. 32 of 32 biological scenarios audited against
+    primary literature.
 
 navbar:
   structure:
