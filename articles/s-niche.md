@@ -133,3 +133,22 @@ sustain a larger population than baseline. To go beyond:
     interaction.
 
 ------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+## Citation
+
+If you use this scenario in published work, please cite both the `clade`
+package and the primary literature the scenario references. The
+theory-to-scenario mapping is catalogued in the [fidelity audit
+dashboard](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/DASHBOARD.md).
+
+``` bibtex
+@misc{clade2026,
+  author  = {Nakagawa, Shinichi},
+  title   = {clade: evolve behaviour, minds, and brains in R},
+  year    = {2026},
+  note    = {R package},
+  url     = {https://github.com/itchyshin/clade}
+}
+```
