@@ -18,6 +18,18 @@
 - [Custom Modules: Extending clade with Per-Tick
   Hooks](https://itchyshin.github.io/clade/articles/custom-modules.md):
 
+### Paper reproductions
+
+Worked examples of taking a published behavioural-ecology paper,
+translating its quantitative prediction into a clade experiment, and
+reporting what reproduces versus what doesn’t. Uses the
+[`hypothesis_sweep()`](https://itchyshin.github.io/clade/reference/hypothesis_sweep.md) +
+[`hypothesis_report()`](https://itchyshin.github.io/clade/reference/hypothesis_report.md)
+helpers.
+
+- [Reproducing a paper — Kokko & Brooks
+  2003](https://itchyshin.github.io/clade/articles/paper-kokko-brooks-2003.md):
+
 ### Parameter search
 
 Automated tools for finding parameter combinations that produce target

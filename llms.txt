@@ -205,6 +205,18 @@ Entry points for running and batching evolutionary simulations.
 - [`load_specs()`](https://itchyshin.github.io/clade/reference/load_specs.md)
   : Load simulation specs from a JSON file
 
+## Hypothesis testing
+
+Helpers for the sweep-\>test-\>report workflow used in fidelity audits
+and paper reproductions. See
+[`vignette("paper-kokko-brooks-2003")`](https://itchyshin.github.io/clade/articles/paper-kokko-brooks-2003.md)
+for a worked example.
+
+- [`hypothesis_sweep()`](https://itchyshin.github.io/clade/reference/hypothesis_sweep.md)
+  : Sweep hypothesis conditions across seeds and compute per-run metrics
+- [`hypothesis_report()`](https://itchyshin.github.io/clade/reference/hypothesis_report.md)
+  : Compute contrast tests from a hypothesis_sweep
+
 ## Results & visualisation
 
 Extract tidy output and produce plots.
@@ -393,6 +405,18 @@ Pretty-print specs, summarise environments.
   streaming)](https://itchyshin.github.io/clade/articles/parameter-space-search.md):
 - [Custom Modules: Extending clade with Per-Tick
   Hooks](https://itchyshin.github.io/clade/articles/custom-modules.md):
+
+### Paper reproductions
+
+Worked examples of taking a published behavioural-ecology paper,
+translating its quantitative prediction into a clade experiment, and
+reporting what reproduces versus what doesn’t. Uses the
+[`hypothesis_sweep()`](https://itchyshin.github.io/clade/reference/hypothesis_sweep.md) +
+[`hypothesis_report()`](https://itchyshin.github.io/clade/reference/hypothesis_report.md)
+helpers.
+
+- [Reproducing a paper — Kokko & Brooks
+  2003](https://itchyshin.github.io/clade/articles/paper-kokko-brooks-2003.md):
 
 ### Parameter search
 
