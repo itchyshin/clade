@@ -44,6 +44,8 @@ you’re reproducing your own paper.
   2010](https://itchyshin.github.io/clade/articles/paper-reale-2010.md):
 - [Reproducing a paper — Emlen
   1982](https://itchyshin.github.io/clade/articles/paper-emlen-1982.md):
+- [Reproducing a paper — Courchamp et al. 1999 (and a note on custom
+  modules)](https://itchyshin.github.io/clade/articles/paper-courchamp-1999.md):
 
 ### Parameter search
 

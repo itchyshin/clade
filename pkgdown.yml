@@ -13,6 +13,7 @@ articles:
   k-reproduce: k-reproduce.html
   k-sense: k-sense.html
   k-tick: k-tick.html
+  paper-courchamp-1999: paper-courchamp-1999.html
   paper-dieckmann-doebeli-1999: paper-dieckmann-doebeli-1999.html
   paper-emlen-1982: paper-emlen-1982.html
   paper-griesser-2023: paper-griesser-2023.html
@@ -64,7 +65,7 @@ articles:
   scenarios: scenarios.html
   troubleshooting: troubleshooting.html
   why-clade: why-clade.html
-last_built: 2026-04-19T22:04Z
+last_built: 2026-04-19T22:31Z
 urls:
   reference: https://itchyshin.github.io/clade/reference
   article: https://itchyshin.github.io/clade/articles

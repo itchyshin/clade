@@ -40,6 +40,7 @@
     <li><a class="dropdown-item" href="../articles/paper-dieckmann-doebeli-1999.html">Dieckmann &amp; Doebeli 1999 — sympatric speciation (clean ✅)</a></li>
     <li><a class="dropdown-item" href="../articles/paper-reale-2010.html">Réale et al. 2010 — pace-of-life syndromes</a></li>
     <li><a class="dropdown-item" href="../articles/paper-emlen-1982.html">Emlen 1982 — ecological constraints on helping</a></li>
+    <li><a class="dropdown-item" href="../articles/paper-courchamp-1999.html">Courchamp 1999 — Allee effect + custom-module gap</a></li>
   </ul>
 </li>
 <li class="active nav-item dropdown">
@@ -168,6 +169,24 @@
 
     
     
+<div class="section level2">
+<h2 id="important-api-status-as-of-0-6-0">Important — API status as of 0.6.0<a class="anchor" aria-label="anchor" href="#important-api-status-as-of-0-6-0"></a>
+</h2>
+<blockquote>
+<p>⚠️ <strong>The <code><a href="../reference/register_module.html">register_module()</a></code> R hook is currently a
+stub.</strong> The hook functions described below are not called during
+the simulation — the <code><a href="../reference/dot-apply_custom_modules.html">.apply_custom_modules()</a></code> dispatcher in
+<code>R/modules.R</code> exists but has no caller. See <a href="paper-courchamp-1999.html">paper-courchamp-1999</a> for a
+verification test and the architectural reason (clade’s once- per-run R
+↔︎ Julia boundary).</p>
+<p>The API surface is documented below for reference, and wiring it into
+the Julia tick loop is a candidate 0.7+ feature. For
+<strong>today’s</strong> extension patterns, see the Courchamp 1999
+vignette’s methodology section — it covers parameter composition,
+post-hoc metrics, and between-run intervention as three working
+alternatives.</p>
+</blockquote>
+</div>
 <div class="section level2">
 <h2 id="concept-when-to-reach-for-a-custom-module">1. Concept — when to reach for a custom module<a class="anchor" aria-label="anchor" href="#concept-when-to-reach-for-a-custom-module"></a>
 </h2>

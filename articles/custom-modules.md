@@ -1,5 +1,23 @@
 # Custom Modules: Extending clade with Per-Tick Hooks
 
+## Important — API status as of 0.6.0
+
+> ⚠️ **The
+> [`register_module()`](https://itchyshin.github.io/clade/reference/register_module.md)
+> R hook is currently a stub.** The hook functions described below are
+> not called during the simulation — the
+> [`.apply_custom_modules()`](https://itchyshin.github.io/clade/reference/dot-apply_custom_modules.md)
+> dispatcher in `R/modules.R` exists but has no caller. See
+> [paper-courchamp-1999](https://itchyshin.github.io/clade/articles/paper-courchamp-1999.md)
+> for a verification test and the architectural reason (clade’s once-
+> per-run R ↔︎ Julia boundary).
+>
+> The API surface is documented below for reference, and wiring it into
+> the Julia tick loop is a candidate 0.7+ feature. For **today’s**
+> extension patterns, see the Courchamp 1999 vignette’s methodology
+> section — it covers parameter composition, post-hoc metrics, and
+> between-run intervention as three working alternatives.
+
 ## 1. Concept — when to reach for a custom module
 
 `clade` exposes a module registry that lets you attach your own R
