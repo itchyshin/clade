@@ -1,0 +1,342 @@
+---
+title: "Reproducing YOUR paper — a template"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Reproducing YOUR paper: a template for the 3-stage workflow}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment  = "#>",
+  eval     = FALSE
+)
+```
+
+*Skeleton for reproducing a behavioural-ecology paper in clade.
+Copy this file, replace the TODO blocks with your paper's
+specifics, run, interpret. The
+[five worked examples](paper-kokko-brooks-2003.html) use exactly
+this pattern.*
+
+---
+
+## Before you start
+
+### Pick a paper that's in-scope
+
+clade is a behavioural / cognitive / social-evolution testbed
+with a neural-brained, energy-fitness kernel. Papers **in scope**:
+
+- **Selection on a heritable trait clade already models** (brain
+  size, body size, signals, helper tendency, metabolic rate,
+  plasticity, etc. — see [scenarios](scenarios.html) for the full
+  list).
+- **Population-level predictions expressible as sweeps**
+  ("condition X → more of Y").
+- **Evolutionary-ABM predictions** — directional evolution,
+  equilibrium densities, cluster formation.
+
+Papers **out of scope** (use a different tool):
+
+- Genome-scale pop-gen (linkage, sweeps, demographic inference) —
+  [SLiM](https://messerlab.org/slim/)
+- Coalescent / tree-sequence inference —
+  [msprime](https://tskit.dev/msprime/)
+- Specific-species management models — use empirical-data ABMs
+  (Murphy 2025 framework)
+
+See the [landing page](../index.html) fit-table for the full
+"when clade fits / when it doesn't" summary.
+
+### Identify the paper's *quantitative* prediction
+
+The sharpest reproductions come from predictions that translate
+to a directional claim about a clade-measurable outcome. Examples
+from the 5 worked reproductions:
+
+| Paper | The directional claim |
+|---|---|
+| Kokko & Brooks 2003 | signals_effect becomes more negative as grass drops |
+| Griesser 2023 | `care_duration ↑ → brain_size ↑` (Spearman > 0) |
+| Dieckmann & Doebeli 1999 | `isolation_threshold ↓ → n_species ↑` (Spearman < 0) |
+| Réale 2010 | `metabolic_rate ↑ → mean_age ↓` (Spearman < 0) |
+| Emlen 1982 | `resource scarcity ↑ → helping rate ↑` |
+
+If you can't phrase your paper's claim as `X → Y at rate ρ`, the
+paper may be qualitative-only and not a clean clade fit.
+
+## The 3-stage workflow
+
+All five showcase vignettes follow the same structure:
+
+1. **Grid-search** a 2-D parameter slice to find which regime
+   makes the signal visible. Tools: `grid_specs()` + `batch_alife()`.
+2. **Multi-seed validation** at the chosen regime, computing
+   contrast statistics. Tools: `hypothesis_sweep()` +
+   `hypothesis_report()`.
+3. **Viability diagnostic** confirming populations aren't sitting
+   at a fitness cliff that would invalidate the Δ statistics.
+   Tool: `viability_report()`.
+
+Don't skip Stage 1. Naive parameter choices often give null
+results (see Griesser 2023); grid search identifies the regime
+where the predicted mechanism has room to express.
+
+## Template
+
+Copy and edit the blocks marked TODO.
+
+### Setup
+
+```{r setup-specs}
+library(clade)
+
+# TODO: pick a base regime appropriate to your paper's scale
+base <- default_specs()          # or fast_specs() / realistic_specs()
+base$grid_rows       <- 40L
+base$grid_cols       <- 40L
+base$n_agents_init   <- 120L
+base$max_agents      <- 500L
+base$max_ticks       <- 2000L
+base$grass_rate      <- 0.15
+base$n_predators_init <- 0L
+
+# TODO: enable the modules your paper's mechanism requires.
+# Examples from the 5 showcase vignettes:
+#
+#   Brain-size evolution (Griesser, s-brain-size):
+#     base$brain_size_evolution         <- TRUE
+#     base$brain_size_cost_scale        <- 2.0
+#     base$neonatal_foraging_deficit    <- 0.4
+#     base$parental_care                <- TRUE
+#
+#   Sexual selection (K&B):
+#     base$signal_dims           <- 3L
+#     base$signal_cost           <- 0.2
+#     base$mate_choice_mode      <- "preference"
+#
+#   Speciation (D&D):
+#     base$speciation                  <- TRUE
+#
+#   Life-history syndrome (Réale):
+#     base$metabolic_rate_evolution       <- TRUE
+#     base$max_age_scales_with_metabolism <- TRUE
+#
+#   Cooperative breeding (Emlen):
+#     base$cooperative_breeding          <- TRUE
+#     base$parental_care                 <- TRUE
+#
+# See ?default_specs for the full parameter catalogue.
+```
+
+### Stage 1 — grid search for the right regime
+
+```{r stage1-grid}
+# TODO: pick two parameters to vary — usually
+#   (a) one that controls the MECHANISM strength (cost, rate,
+#       threshold, etc.)
+#   (b) one that controls the ENVIRONMENT your paper varies
+#       (resource, stress, duration, etc.)
+
+specs_list <- grid_specs(
+  base,
+  param_a = c(0.5, 1.0, 1.5, 2.0),   # TODO: your parameter A
+  param_b = c(0.05, 0.10, 0.15, 0.20), # TODO: your parameter B
+  seed_from = 1L
+)
+
+results <- batch_alife(specs_list, n_cores = 16L)
+
+grid_tbl <- do.call(rbind, mapply(function(env, s) {
+  d <- get_run_data(env)$ticks
+  data.frame(
+    param_a = s$param_a,
+    param_b = s$param_b,
+    # TODO: the outcome your paper predicts
+    outcome = mean(tail(d$YOUR_OUTCOME_COLUMN, 500), na.rm = TRUE),
+    final_n = mean(tail(d$n_agents, 500), na.rm = TRUE)
+  )
+}, results, specs_list, SIMPLIFY = FALSE))
+
+# Inspect: where is the signal? Which cells are viable?
+print(grid_tbl)
+```
+
+**Common pitfall**: if your grid returns almost all `final_n` near
+zero, the regime is extinction-prone — back off on whatever
+makes selection harsh (cost scales, mutation rates, scarcity).
+See the Griesser vignette for a concrete debugging walkthrough.
+
+### Stage 2 — multi-seed validation
+
+```{r stage2-sweep}
+# Pick the cell from Stage 1 where the signal is strongest AND
+# populations are viable.
+final_base <- base
+final_base$param_a <- 1.5   # TODO: from Stage 1 winner
+
+sweep <- hypothesis_sweep(
+  base_specs = final_base,
+  conditions = list(
+    # TODO: one condition per level of the treatment you're sweeping
+    low    = list(param_b = 0.05),
+    medium = list(param_b = 0.10),
+    high   = list(param_b = 0.15),
+    very_high = list(param_b = 0.20)
+  ),
+  seeds = 1:8,
+  metrics = list(
+    # TODO: the outcome measure. Match units to your paper!
+    #   - Per-capita rate if the paper talks per-individual
+    #   - Aggregate count if the paper talks population-level
+    #   - Peak value, final value, or 500-tick mean — choose
+    #     based on what the paper reports
+    outcome = function(ticks) mean(tail(ticks$YOUR_OUTCOME_COLUMN, 500),
+                                   na.rm = TRUE),
+    final_n = function(ticks) mean(tail(ticks$n_agents, 500), na.rm = TRUE),
+    crashed = function(ticks) tail(ticks$n_agents, 1) < 10
+  ),
+  n_cores = 32L
+)
+print(sweep)
+
+# Pairwise contrasts — the direction the paper predicts
+hypothesis_report(
+  sweep,
+  contrasts = list(
+    # TODO: name the comparisons your paper makes.
+    # Convention: c(reference, test) — delta is test − reference.
+    medium_vs_low    = c("low", "medium"),
+    high_vs_low      = c("low", "high"),
+    very_high_vs_low = c("low", "very_high")
+  ),
+  metric = "outcome"
+)
+```
+
+### Stage 3 — viability diagnostic
+
+```{r stage3-viability}
+# Pick the most-stressed cell (usually the extreme of your
+# treatment sweep). Confirm populations aren't crashing.
+s_check <- final_base
+s_check$param_b     <- 0.20   # TODO: most-extreme treatment
+s_check$random_seed <- 1L
+env_check <- run_alife(s_check, verbose = FALSE)
+viability_report(get_run_data(env_check))
+```
+
+If `viability_report()` reports `"viable"`, your Stage 2
+statistics are interpretable. If it reports `"crashed"` or
+`"near-extinction"`, the conclusion about that condition is
+"mechanism triggers collapse at these parameters", not "mechanism
+produces Δ = X".
+
+## Interpretation checklist
+
+When writing up your result, check each of these **before**
+claiming the paper reproduces (or doesn't):
+
+- [ ] **Direction** — does Spearman / contrast sign match the
+      paper's prediction?
+- [ ] **Magnitude** — does any contrast pass 2σ (`|t| ≥ 2`)? Note
+      the difference between "direction-correct sub-threshold"
+      (marginal) and "direction-correct decisive" (PASS).
+- [ ] **Units** — is your metric per-individual or aggregate?
+      Raw population-level counts can invert per-capita rates
+      (the Réale and Emlen vignettes document this trap
+      explicitly).
+- [ ] **Viability** — did populations survive? A crashed
+      condition is an observation, not a failure — but it's a
+      different observation from the paper's one.
+- [ ] **Mechanism match** — does clade's kernel encode the same
+      causal structure as the paper's theoretical framework?
+      When they differ (e.g., linear per-tick cost in clade vs
+      stress-multiplicative cost in K&B's theory), the
+      interaction direction can reverse. Document this.
+- [ ] **Kernel limits** — if the reproduction is a null, does
+      the kernel have all the mechanisms the paper's theory
+      needs? The s-kin invasion honest-null (no kin-weighted
+      fitness in the cooperative_breeding module) is one example.
+
+## Common outcomes and what they mean
+
+Based on the 5 showcase reproductions:
+
+| Outcome | What it looks like | Interpretation |
+|---|---|---|
+| **Clean ✅** | Contrast t ≥ 2, Spearman strong | Kernel mechanism matches theory; paper's prediction robust. D&D 1999 is this pattern. |
+| **Conditional ✅** | Direction-correct only in specific parameter regime | Prediction works in the regime the theory is about, not at arbitrary defaults. s-mimicry, s-niche, s-parental-care are this pattern. |
+| **Direction-correct sub-threshold** | Spearman correct sign, t < 2 at tested seed count | Mechanism present but signal below noise floor. Griesser 2023 is this pattern; could strengthen with more seeds or larger populations. |
+| **Inverts on raw, recovers on per-capita** | Aggregate counts go wrong direction | Measurement-unit mismatch. Normalise by `n_agents` and re-test. Réale 2010 (per-tick births) and Emlen 1982 (raw helping counts) are this pattern. |
+| **Contradiction** | Direction opposite to paper | Mechanism-level mismatch between kernel and theory. Document honestly; look for what cost structure, feedback loop, or selection mode differs. K&B 2003 is this pattern. |
+| **Honest null** | No signal in any tested regime | Kernel may be missing a mechanism the paper requires. s-kin invasion dynamics is this pattern (needs kin-weighted reproduction). |
+
+All six outcomes are scientifically legitimate. The audit
+methodology treats null and contradiction as equally informative
+as a clean ✅ — they reveal what kernel or theory needs to
+change.
+
+## Research-paper integration
+
+When you publish a reproduction, cite:
+
+```bibtex
+@article{YOUR_PAPER_KEY,
+  author  = {YOUR AUTHOR},
+  title   = {YOUR TITLE},
+  journal = {YOUR JOURNAL},
+  year    = {YEAR},
+  doi     = {YOUR DOI}
+}
+
+@misc{clade2026,
+  author  = {Nakagawa, Shinichi},
+  title   = {clade: evolve behaviour, minds, and brains in R},
+  year    = {2026},
+  note    = {R package, version 0.6.0+},
+  url     = {https://github.com/itchyshin/clade}
+}
+```
+
+A typical results-paragraph in a published reproduction might
+read:
+
+> *"To verify the Author et al. (year) prediction in a
+> mechanistic evolutionary ABM, we reproduced the main
+> experimental contrast in clade (Nakagawa 2026). Across a
+> hypothesis_sweep with 8 seeds per condition, the direction of
+> the predicted effect reproduced with Δ = X ± SE (t = Y). A
+> grid search over (param_a × param_b) identified the
+> [concrete regime] as the parameter cell where the effect is
+> strongest. Full reproduction protocol is in [supplementary
+> script]."*
+
+## Going further
+
+Once you have a working reproduction:
+
+- Add seeds (16, 32, 64) to shrink the noise floor.
+- Add `realistic_specs()` scale (60×60, 2000 ticks, predator
+  guild) to stress-test the result.
+- Run the **inverse prediction**: show clade *doesn't* reproduce
+  the claim at parameter regimes outside the paper's
+  applicability, demonstrating where the theory actually
+  depends.
+- Publish your reproduction as a standalone vignette; consider
+  submitting it as a clade-documented contribution.
+
+## Related vignettes
+
+- [Kokko & Brooks 2003](paper-kokko-brooks-2003.html) — contradictions
+- [Griesser et al. 2023](paper-griesser-2023.html) — direction-correct sub-threshold
+- [Dieckmann & Doebeli 1999](paper-dieckmann-doebeli-1999.html) — clean ✅
+- [Réale et al. 2010](paper-reale-2010.html) — unit-sensitivity
+- [Emlen 1982](paper-emlen-1982.html) — aggregate vs per-capita
+
+Each demonstrates the same 3-stage workflow on a different
+mechanism. Cross-reference them to see how the template maps
+onto real papers.
