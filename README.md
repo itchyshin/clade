@@ -20,6 +20,12 @@ with 0 sub-2σ and 0 contradicting theory
 > Is clade for you? See the [landing page](https://itchyshin.github.io/clade/)
 > for the three-pillar overview and a "when clade fits / when it doesn't"
 > fit-table comparing it to SLiM, msprime, NetLogo, and Mesa.
+>
+> New in 0.6.0: [**5 worked paper reproductions**](https://itchyshin.github.io/clade/articles/paper-kokko-brooks-2003.html)
+> (Kokko & Brooks 2003, Griesser 2023, Dieckmann & Doebeli 1999,
+> Réale 2010, Emlen 1982) demonstrating the `hypothesis_sweep()`
+> + `hypothesis_report()` research workflow for reproducing a
+> published prediction in clade.
 
 The simulation kernel is written in Julia for performance. R is the
 interface: you set parameters, call `run_alife()` once, and receive the
