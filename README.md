@@ -92,43 +92,43 @@ list. Modules can be freely combined.
 **Domain tags**: 🤝 intraspecific · 🦁 interspecific · 🌱 environment ·
 🧠 cognition · 🐣 life history · 🧬 genetics layer.
 
-| Module | Flag(s) | What it models |
-|---|---|---|
-| Baseline | — | Foraging and neural evolution on a toroidal grass grid |
-| 🐣 Body size | `body_size_evolution` | Metabolic scaling (approximate Kleiber); size-foraging trade-off |
-| 🧠 Brain size | `brain_size_evolution` | Cognitive-bonus × metabolic-cost; bootstrapping under `parental_care` |
-| 🐣 Clutch size | `clutch_size_evolution` | r/K-style trade-off between clutch count and offspring quality |
-| 🌱 Complex landscape | `complex_landscape` | 3-layer forest (grass / shrubs / canopy); wing-size evolves for canopy access |
-| 🤝 Cooperation | `cooperation_evolution` | Public-goods games with helper-tendency evolution |
-| 🤝 Cooperative breeding | `cooperative_breeding` | Helpers at the nest (Emlen 1982) |
-| 🌱 Dispersal | `dispersal_evolution` | Heritable dispersal tendency |
-| 🌱 Habitat preference | `habitat_preference_evolution` | Agents move toward preferred grass density |
-| 🤝 IFfolk + parliament | `iffolk_selection`, `parliament_suppression` | Inclusive-fitness transfers + intragenomic-conflict suppression (Haig 2000; Fromhage & Jennions 2019) |
-| 🤝 Kin selection | `kin_selection` | Hamilton's rule, pedigree-based relatedness (r = 0.5 / 0.25 / 0) |
-| 🐣 Life history / pace of life | `metabolic_rate_evolution`, `aging_rate_evolution` | Metabolic rate ↔ lifespan trade-off |
-| 🤝 Mating systems | `ploidy = 2`, `mate_choice` | Haploid / diploid; signal-preference assortative mating |
-| 🦁 Mimicry | `mimicry` | Predator signal-vector memory + delta-rule Rescorla-Wagner + aposematic pleiotropy (`signal_toxicity_coupling`). Müllerian by default; Batesian via `batesian_mimicry = TRUE` |
-| 🧬 Mutation-rate evolution | `mutation_rate_evolution` | Per-agent heritable `mutation_sd` |
-| 🌱 Niche construction | `niche_construction` | Shelter-building modifies the selection environment (local public good). With `shelter_occupancy_bonus > 0`: shelters confer a heritable metabolic benefit to occupants (Odling-Smee et al. 2003) |
-| 🤝 Parental care | `parental_care` | Obligate altriciality — offspring carried, fed, and graduated |
-| 🐣 Neonatal foraging deficit | `neonatal_foraging_deficit > 0` | Young agents can't forage at adult efficiency; parental care bridges the gap (Aiello & Wheeler 1995; Isler & van Schaik 2009) |
-| 🤝 Parental investment | `parental_investment_evolution` | Evolved male / offspring-quality investment |
-| 🌱 Phenotypic plasticity | `phenotypic_plasticity` | Environment-dependent reproduction threshold |
-| 🦁 Predation | `predators`, `n_predators_init > 0` | Co-evolving predator guild with dedicated 15-input sensory brain |
-| 🤝 Predator group defence | `group_defense` | Coordinated anti-predator behaviour |
-| 🌱 Scavenging | `scavenging` | Carcass consumption; decay-based carcass lifetime |
-| 🌱 Seasonal dynamics | `seasonal_amplitude > 0`, `winter_death_prob` | Resource oscillation + winter mortality |
-| 🦁 SIR disease | `disease` | Susceptible–Infected–Recovered epidemic dynamics |
-| 🤝 Signals / sexual selection | `signal_mating`, `signal_evolution_drift` | Signal-preference coevolution (Fisher 1915; Kirkpatrick & Ryan 1991) |
-| 🤝 Social learning | `social_learning` | Copy successful neighbours' brain weights |
-| 🌱 Spatial sorting | `spatial_sorting` + `dispersal_evolution` + `toroidal = FALSE` | Invasion-front dispersal assortment (Shine et al. 2011; needs bounded grid) |
-| 🦁 Speciation | `speciation` | Genome-distance clustering + reproductive isolation |
-| 🧬 Stress hypermutation | `stress_hypermutation` | SOS-style mutation-rate spike below `stress_threshold` |
-| 🧬 Transgenerational epigenetics | `epigenetics` | Methylation inheritance on BNN sigma (Jablonka & Lamb 2005) |
-| 🦁 Coevolving parasites | `coevolving_parasites` | Hamilton 1980 Red Queen. Continuous-trait (signal centroid tracking) and discrete-allele (Hamming haplotype matching with Mendelian inheritance) modes |
-| 🧠 Within-lifetime RL | `rl_mode = "actor_critic"` | REINFORCE score-function update on BNN posterior (Williams 1992; Blundell et al. 2015). Use `bnn_sample_freq = 5` with BNN brains. |
-| 🧬 Lamarckian inheritance | `lamarckian = TRUE` | RL-learned weights written back to genome before meiosis |
-| 🧠 Quantised weights | `ann_weight_values` | Snap weights to a discrete set (e.g. ternary) after expression |
+| Module | Flag(s) | What it models | See |
+|---|---|---|---|
+| Baseline | — | Foraging and neural evolution on a toroidal grass grid | [`s-baseline`](https://itchyshin.github.io/clade/articles/s-baseline.html) |
+| 🐣 Body size | `body_size_evolution` | Metabolic scaling (approximate Kleiber); size-foraging trade-off | [`s-body-size`](https://itchyshin.github.io/clade/articles/s-body-size.html) |
+| 🧠 Brain size | `brain_size_evolution` | Cognitive-bonus × metabolic-cost; bootstrapping under `parental_care` | [`s-brain-size`](https://itchyshin.github.io/clade/articles/s-brain-size.html) |
+| 🐣 Clutch size | `clutch_size_evolution` | r/K-style trade-off between clutch count and offspring quality | [`s-clutch-size`](https://itchyshin.github.io/clade/articles/s-clutch-size.html) |
+| 🌱 Complex landscape | `complex_landscape` | 3-layer forest (grass / shrubs / canopy); wing-size evolves for canopy access | [`s-complex-landscape`](https://itchyshin.github.io/clade/articles/s-complex-landscape.html) |
+| 🤝 Cooperation | `cooperation_evolution` | Public-goods games with helper-tendency evolution | [`s-cooperation`](https://itchyshin.github.io/clade/articles/s-cooperation.html) |
+| 🤝 Cooperative breeding | `cooperative_breeding` | Helpers at the nest (Emlen 1982) | [`s-cooperation`](https://itchyshin.github.io/clade/articles/s-cooperation.html) |
+| 🌱 Dispersal | `dispersal_evolution` | Heritable dispersal tendency | [`s-dispersal-ifd`](https://itchyshin.github.io/clade/articles/s-dispersal-ifd.html) |
+| 🌱 Habitat preference | `habitat_preference_evolution` | Agents move toward preferred grass density | [`s-dispersal-ifd`](https://itchyshin.github.io/clade/articles/s-dispersal-ifd.html) |
+| 🤝 IFfolk + parliament | `iffolk_selection`, `parliament_suppression` | Inclusive-fitness transfers + intragenomic-conflict suppression (Haig 2000; Fromhage & Jennions 2019) | [`s-kin`](https://itchyshin.github.io/clade/articles/s-kin.html) |
+| 🤝 Kin selection | `kin_selection` | Hamilton's rule, pedigree-based relatedness (r = 0.5 / 0.25 / 0) | [`s-kin`](https://itchyshin.github.io/clade/articles/s-kin.html) |
+| 🐣 Life history / pace of life | `metabolic_rate_evolution`, `aging_rate_evolution` | Metabolic rate ↔ lifespan trade-off | [`s-life-history`](https://itchyshin.github.io/clade/articles/s-life-history.html), [`s-pace-of-life`](https://itchyshin.github.io/clade/articles/s-pace-of-life.html) |
+| 🤝 Mating systems | `ploidy = 2`, `mate_choice` | Haploid / diploid; signal-preference assortative mating | [`s-mating-systems`](https://itchyshin.github.io/clade/articles/s-mating-systems.html) |
+| 🦁 Mimicry | `mimicry` | Predator signal-vector memory + delta-rule Rescorla-Wagner + aposematic pleiotropy (`signal_toxicity_coupling`). Müllerian by default; Batesian via `batesian_mimicry = TRUE` | [`s-mimicry`](https://itchyshin.github.io/clade/articles/s-mimicry.html) |
+| 🧬 Mutation-rate evolution | `mutation_rate_evolution` | Per-agent heritable `mutation_sd` | [`s-pop-genetics`](https://itchyshin.github.io/clade/articles/s-pop-genetics.html) |
+| 🌱 Niche construction | `niche_construction` | Shelter-building modifies the selection environment (local public good). With `shelter_occupancy_bonus > 0`: shelters confer a heritable metabolic benefit to occupants (Odling-Smee et al. 2003) | [`s-niche`](https://itchyshin.github.io/clade/articles/s-niche.html) |
+| 🤝 Parental care | `parental_care` | Obligate altriciality — offspring carried, fed, and graduated | [`s-parental-care`](https://itchyshin.github.io/clade/articles/s-parental-care.html) |
+| 🐣 Neonatal foraging deficit | `neonatal_foraging_deficit > 0` | Young agents can't forage at adult efficiency; parental care bridges the gap (Aiello & Wheeler 1995; Isler & van Schaik 2009) | [`s-parental-care`](https://itchyshin.github.io/clade/articles/s-parental-care.html) |
+| 🤝 Parental investment | `parental_investment_evolution` | Evolved male / offspring-quality investment | [`s-parental-investment`](https://itchyshin.github.io/clade/articles/s-parental-investment.html) |
+| 🌱 Phenotypic plasticity | `phenotypic_plasticity` | Environment-dependent reproduction threshold | [`s-plasticity`](https://itchyshin.github.io/clade/articles/s-plasticity.html) |
+| 🦁 Predation | `predators`, `n_predators_init > 0` | Co-evolving predator guild with dedicated 15-input sensory brain | [`s-predator-prey`](https://itchyshin.github.io/clade/articles/s-predator-prey.html), [`s-predation-neural`](https://itchyshin.github.io/clade/articles/s-predation-neural.html) |
+| 🤝 Predator group defence | `group_defense` | Coordinated anti-predator behaviour | [`s-group-defense`](https://itchyshin.github.io/clade/articles/s-group-defense.html) |
+| 🌱 Scavenging | `scavenging` | Carcass consumption; decay-based carcass lifetime | [`s-scavenging`](https://itchyshin.github.io/clade/articles/s-scavenging.html) |
+| 🌱 Seasonal dynamics | `seasonal_amplitude > 0`, `winter_death_prob` | Resource oscillation + winter mortality | [`s-seasonal`](https://itchyshin.github.io/clade/articles/s-seasonal.html) |
+| 🦁 SIR disease | `disease` | Susceptible–Infected–Recovered epidemic dynamics | [`s-disease`](https://itchyshin.github.io/clade/articles/s-disease.html) |
+| 🤝 Signals / sexual selection | `signal_mating`, `signal_evolution_drift` | Signal-preference coevolution (Fisher 1915; Kirkpatrick & Ryan 1991) | [`s-signals`](https://itchyshin.github.io/clade/articles/s-signals.html) |
+| 🤝 Social learning | `social_learning` | Copy successful neighbours' brain weights | [`s-social-learning`](https://itchyshin.github.io/clade/articles/s-social-learning.html) |
+| 🌱 Spatial sorting | `spatial_sorting` + `dispersal_evolution` + `toroidal = FALSE` | Invasion-front dispersal assortment (Shine et al. 2011; needs bounded grid) | [`s-dispersal-ifd`](https://itchyshin.github.io/clade/articles/s-dispersal-ifd.html) |
+| 🦁 Speciation | `speciation` | Genome-distance clustering + reproductive isolation | [`s-speciation`](https://itchyshin.github.io/clade/articles/s-speciation.html) |
+| 🧬 Stress hypermutation | `stress_hypermutation` | SOS-style mutation-rate spike below `stress_threshold` | [`s-stress-hypermutation`](https://itchyshin.github.io/clade/articles/s-stress-hypermutation.html) |
+| 🧬 Transgenerational epigenetics | `epigenetics` | Methylation inheritance on BNN sigma (Jablonka & Lamb 2005) | [`s-baldwin`](https://itchyshin.github.io/clade/articles/s-baldwin.html) |
+| 🦁 Coevolving parasites | `coevolving_parasites` | Hamilton 1980 Red Queen. Continuous-trait (signal centroid tracking) and discrete-allele (Hamming haplotype matching with Mendelian inheritance) modes | [`s-mating-systems`](https://itchyshin.github.io/clade/articles/s-mating-systems.html) |
+| 🧠 Within-lifetime RL | `rl_mode = "actor_critic"` | REINFORCE score-function update on BNN posterior (Williams 1992; Blundell et al. 2015). Use `bnn_sample_freq = 5` with BNN brains. | [`s-rl`](https://itchyshin.github.io/clade/articles/s-rl.html) |
+| 🧬 Lamarckian inheritance | `lamarckian = TRUE` | RL-learned weights written back to genome before meiosis | [`s-rl`](https://itchyshin.github.io/clade/articles/s-rl.html) |
+| 🧠 Quantised weights | `ann_weight_values` | Snap weights to a discrete set (e.g. ternary) after expression | [`s-brain-comparison`](https://itchyshin.github.io/clade/articles/s-brain-comparison.html) |
 
 See the [Parameter Reference](https://itchyshin.github.io/clade/articles/parameter-reference.html) article for the complete parameter list.
 
