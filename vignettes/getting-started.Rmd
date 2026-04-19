@@ -434,7 +434,7 @@ return results immediately.
 ## Where to go next
 
 - **Biological scenarios.** `vignette("scenarios")` is a discovery guide
-  to all 35 pre-packaged scenarios, each with runnable code, expected
+  to all 36 pre-packaged scenarios, each with runnable code, expected
   dynamics, and follow-up experiments.
 - **Parameter search.** The [parameter search introduction](ps-introduction.html)
   explains when to use random search, MAP-Elites, CMA-ES, or viability
