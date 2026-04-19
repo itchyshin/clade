@@ -21,10 +21,6 @@ with 0 sub-2σ and 0 contradicting theory
 > for the three-pillar overview and a "when clade fits / when it doesn't"
 > fit-table comparing it to SLiM, msprime, NetLogo, and Mesa.
 
-The framing follows the *Introduction to Behavioural Ecology* (Davies /
-Krebs / West, Wiley) canon, with the cognitive-ecology spine from
-Shettleworth's *Cognition, Evolution, and Behavior* (OUP).
-
 The simulation kernel is written in Julia for performance. R is the
 interface: you set parameters, call `run_alife()` once, and receive the
 full simulation environment back for analysis and visualisation. The

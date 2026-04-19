@@ -70,21 +70,6 @@ syndromes ([`s-pace-of-life`](articles/s-pace-of-life.html)) need
 life-history × metabolism × cognition. clade is designed so the
 modules compose freely.
 
-> *The three-pillar framing — conspecifics × other species × environment —
-> follows the canonical structure of
-> [An Introduction to Behavioural Ecology](https://www.wiley.com/en-nz/An+Introduction+to+Behavioural+Ecology%2C+4th+Edition-p-9781405114165)
-> (Davies, Krebs & West, Wiley, 4th edition). For the cognitive
-> dimension — how brains, minds, and behaviour co-evolve with ecology —
-> clade draws on
-> [Cognition, Evolution, and Behavior](https://global.oup.com/academic/product/cognition-evolution-and-behavior-9780195319842)
-> (Shettleworth, Oxford University Press) and, for the deep-origins
-> angle, Peter Godfrey-Smith's
-> [Other Minds: The Octopus, the Sea, and the Deep Origins of
-> Consciousness](https://www.amazon.ca/Other-Minds-Octopus-Origins-Consciousness/dp/0374227764)
-> — which partly inspired the
-> [`s-cephalopod`](articles/s-cephalopod.html) scenario. clade is
-> intended to be a computational companion to these traditions.*
-
 ---
 
 ## 32 of 32 scenarios pass
