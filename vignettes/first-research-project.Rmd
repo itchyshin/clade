@@ -265,9 +265,9 @@ baseline". This walkthrough added:
 - **Honest plotting**: show the distribution, not just the mean.
 
 For the next level — parameter sweeps, MAP-Elites, CMA-ES — see
-the [Parameter search](ps-introduction.html) guides. For deeper
-modifications (custom per-tick R hooks), see
-[Custom modules](custom-modules.html).
+the [Parameter search](ps-introduction.html) guides. For
+reproducing a specific published prediction, start with
+[the paper-reproduction template](paper-template.html).
 
 ---
 

@@ -196,7 +196,7 @@ Full documentation is available at **<https://itchyshin.github.io/clade/>**.
 |---|---|
 | [Getting Started](https://itchyshin.github.io/clade/articles/getting-started.html) | Installation, first run, extracting results, batch runs |
 | [Biological Scenarios](https://itchyshin.github.io/clade/articles/scenarios.html) | Code and expected outputs for every module |
-| [Custom Modules](https://itchyshin.github.io/clade/articles/custom-modules.html) | Write your own per-tick hooks with `register_module()` |
+| [Paper reproductions](https://itchyshin.github.io/clade/articles/paper-template.html) | Template + 6 worked examples of reproducing a published behavioural-ecology prediction in clade |
 | [Parameter Reference](https://itchyshin.github.io/clade/articles/parameter-reference.html) | Every parameter in `default_specs()`, grouped by theme |
 
 ---

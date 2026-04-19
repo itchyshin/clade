@@ -38,8 +38,8 @@ an env.
 \item \code{\link[=plot_run]{plot_run()}} — population / energy / diversity dashboard.
 \item \code{\link[=search_cmaes]{search_cmaes()}} / \code{\link[=search_map_elites]{search_map_elites()}} / \code{\link[=search_gradient]{search_gradient()}} —
 parameter search driven by a user-supplied fitness function.
-\item \code{\link[=register_module]{register_module()}} — attach a custom per-tick R hook (rarely
-needed — most modules live on the Julia side).
+\item \code{\link[=hypothesis_sweep]{hypothesis_sweep()}} / \code{\link[=hypothesis_report]{hypothesis_report()}} — researcher-
+facing wrappers for the sweep->test->report workflow.
 }
 }
 
