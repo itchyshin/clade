@@ -2,10 +2,15 @@
 
 ### Overview
 
+- [Why clade?](https://itchyshin.github.io/clade/articles/why-clade.md):
 - [Biological Scenarios: A Discovery
   Guide](https://itchyshin.github.io/clade/articles/scenarios.md):
 - [Getting started with
   clade](https://itchyshin.github.io/clade/articles/getting-started.md):
+- [Your first research project with
+  clade](https://itchyshin.github.io/clade/articles/first-research-project.md):
+- [Troubleshooting and
+  FAQ](https://itchyshin.github.io/clade/articles/troubleshooting.md):
 - [Parameter
   Reference](https://itchyshin.github.io/clade/articles/parameter-reference.md):
 - [Parameter-space search at scale (parallel, resumable,
