@@ -22,6 +22,10 @@ nuances worth flagging. Demonstrates `hypothesis_sweep()` with
 multi-trait metrics and `viability_report()` as a diagnostic
 tool.*
 
+```{r fig-reale, echo = FALSE, eval = TRUE, out.width = "100%", fig.alt = "Réale 2010 — 4 traits across metabolic rate gradient"}
+knitr::include_graphics("figures-papers/reale-2010.png")
+```
+
 ---
 
 ## The paper
