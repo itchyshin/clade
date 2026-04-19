@@ -42,6 +42,88 @@ base$n_predators_init <- 0L
 SIGNAL_COST <- 0.2   # "high cost" arm — above audit-observed cost-of-drift
 SIGNAL_DIMS <- 3L
 
+# ---------------------------------------------------------------
+# Stage 1: grid search across (signal_cost × grass_rate)
+# ---------------------------------------------------------------
+# Before the validation sweep, use grid_specs + batch_alife to scan
+# a wider cost × stress space. This tests whether the K&B interaction
+# *ever* goes the predicted direction (negative) at any cost level.
+# If it never does, the contradiction we find in Stage 2 is robust.
+cat("=== Stage 1: 5 × 4 grid search over (signal_cost × grass_rate) ===\n")
+COST_LEVELS  <- c(0.0, 0.1, 0.2, 0.4, 0.8)
+GRASS_LEVELS <- c(0.20, 0.12, 0.08, 0.05)
+
+make_grid_spec <- function(cost, grass) {
+  s <- base
+  if (cost > 0) {
+    s$signal_dims            <- SIGNAL_DIMS
+    s$signal_cost            <- cost
+    s$signal_evolution_drift <- TRUE
+    s$signal_drift_sd        <- 0.01
+    s$mate_choice_mode       <- "preference"
+    s$mate_choice_strength   <- 0.7
+  } else {
+    s$signal_dims      <- 0L
+    s$signal_cost      <- 0.0
+    s$mate_choice_mode <- "random"
+  }
+  s$grass_rate <- grass
+  s
+}
+
+# Build 5×4=20 cells; 1 seed each for fast regime-mapping
+grid_spec_list <- list()
+grid_meta      <- data.frame(cost = numeric(0), grass = numeric(0),
+                             stringsAsFactors = FALSE)
+for (c in COST_LEVELS) for (g in GRASS_LEVELS) {
+  grid_spec_list[[sprintf("c%.1f_g%.2f", c, g)]] <- make_grid_spec(c, g)
+  grid_meta <- rbind(grid_meta, data.frame(cost = c, grass = g))
+}
+grid_spec_list <- lapply(seq_along(grid_spec_list), function(i) {
+  s <- grid_spec_list[[i]]
+  s$random_seed <- 7L
+  s
+})
+names(grid_spec_list) <- paste0(grid_meta$cost, "_", grid_meta$grass)
+
+t0 <- Sys.time()
+grid_envs <- batch_alife(grid_spec_list, n_cores = 20L, verbose = FALSE)
+cat(sprintf("  Grid complete in %.1fs\n",
+            as.numeric(difftime(Sys.time(), t0, units = "secs"))))
+
+grid_tbl <- do.call(rbind, mapply(function(env, i) {
+  d <- get_run_data(env)$ticks
+  data.frame(
+    cost = grid_meta$cost[i],
+    grass = grid_meta$grass[i],
+    final_n = mean(utils::tail(d$n_agents, 500L), na.rm = TRUE)
+  )
+}, grid_envs, seq_along(grid_envs), SIMPLIFY = FALSE))
+
+cat("\n  Grid — final_n at each (cost, grass) cell (1-seed):\n")
+grid_wide <- reshape(grid_tbl, idvar = "cost", timevar = "grass",
+                     direction = "wide")
+names(grid_wide) <- c("signal_cost", paste0("grass=", GRASS_LEVELS))
+print(grid_wide, row.names = FALSE)
+
+# Compute signals-effect slope at each grass level: Δn(cost>0) − Δn(cost=0)
+# Then see if it gets MORE negative at lower grass (K&B prediction).
+cat("\n  Signals-effect (mean of cost>0 cells minus cost=0 cell) per grass:\n")
+slopes <- do.call(rbind, lapply(GRASS_LEVELS, function(g) {
+  ref <- grid_tbl$final_n[grid_tbl$cost == 0.0 & grid_tbl$grass == g]
+  test_mean <- mean(grid_tbl$final_n[grid_tbl$cost > 0.0 & grid_tbl$grass == g],
+                    na.rm = TRUE)
+  data.frame(grass_rate = g, signals_effect_mean = test_mean - ref)
+}))
+print(slopes, row.names = FALSE)
+cat("\n  K&B predict: signals_effect grows MORE NEGATIVE as grass drops.\n")
+cat("  A positive or flat trend across the grass gradient CONTRADICTS K&B.\n")
+
+# ---------------------------------------------------------------
+# Stage 2: multi-seed validation — original 2 × 4 factorial
+# ---------------------------------------------------------------
+cat("\n=== Stage 2: hypothesis_sweep 2 × 4 factorial, 8 seeds ===\n")
+
 # Dose-response: 4 stress levels, not just 2. K&B's interaction
 # claim is that the signal-effect curve should *steepen* as stress
 # intensifies. A proper 4-level sweep lets the interaction emerge
@@ -135,7 +217,31 @@ ext_tbl <- aggregate(crashed ~ condition, data = sweep$runs,
                      FUN = function(x) sprintf("%d/%d", sum(x), length(x)))
 print(ext_tbl, row.names = FALSE)
 
-saveRDS(list(sweep = sweep, report = rpt_n,
-             interaction = list(delta = int_delta, se = int_se, t = int_t)),
-        "dev/audit/fidelity/kokko_brooks_2003.rds")
+# ---------------------------------------------------------------
+# Stage 3: viability check at the most extreme (very_scarce + signals)
+# ---------------------------------------------------------------
+# Uses viability_report() to confirm the stressed+signals condition
+# isn't sitting at a pathological fitness floor.
+cat("\n=== Stage 3: viability_report at stress+signals ===\n")
+s_check <- base
+s_check$signal_dims            <- SIGNAL_DIMS
+s_check$signal_cost            <- SIGNAL_COST
+s_check$signal_evolution_drift <- TRUE
+s_check$signal_drift_sd        <- 0.01
+s_check$mate_choice_mode       <- "preference"
+s_check$mate_choice_strength   <- 0.7
+s_check$grass_rate             <- 0.05
+s_check$random_seed            <- 1L
+env_check <- run_alife(s_check, verbose = FALSE)
+vr <- viability_report(get_run_data(env_check))
+print(vr)
+
+saveRDS(list(
+  stage1_grid   = grid_tbl,
+  stage1_slopes = slopes,
+  stage2_sweep  = sweep,
+  stage2_report = rpt_n,
+  stage2_interaction = list(delta = int_delta, se = int_se, t = int_t),
+  stage3_viability = vr
+), "dev/audit/fidelity/kokko_brooks_2003.rds")
 cat("\nSaved: dev/audit/fidelity/kokko_brooks_2003.rds\n")
