@@ -36,6 +36,8 @@ navbar:
           href: articles/paper-reale-2010.html
         - text: "Emlen 1982 — ecological constraints on helping"
           href: articles/paper-emlen-1982.html
+        - text: "Courchamp 1999 — Allee effect + custom-module gap"
+          href: articles/paper-courchamp-1999.html
     articles:
       text: "Guides"
       menu:
@@ -210,6 +212,7 @@ articles:
       - paper-dieckmann-doebeli-1999
       - paper-reale-2010
       - paper-emlen-1982
+      - paper-courchamp-1999
 
   - title: "Parameter search"
     desc: >
