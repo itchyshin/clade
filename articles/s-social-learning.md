@@ -7,7 +7,13 @@ successful neighbours (those with energy above a threshold). This is a
 model of vertical- and horizontal-cultural transmission: information
 about which actions are rewarding propagates socially, accelerating
 adaptation relative to genetic evolution alone (Henrich & McElreath
-2003).
+2003; Boyd & Richerson 1985). *Mechanism note*: clade’s copy rule is
+**energy-threshold biased** — successful neighbours are copied at higher
+rates than unsuccessful ones. This differs from the conformist-bias and
+prestige-bias mechanisms that Henrich-McElreath and Boyd-Richerson
+analyse formally. clade reproduces the generic “social-learning beats
+asocial-learning” claim from this literature, but not the specific
+bias-type predictions.
 
 **Key parameters.**
 

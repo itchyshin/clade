@@ -160,11 +160,14 @@
 <h3 id="within-lifetime-reinforcement-learning">Within-lifetime reinforcement learning<a class="anchor" aria-label="anchor" href="#within-lifetime-reinforcement-learning"></a>
 </h3>
 <p><strong>What it models.</strong> Each agent uses
-REINFORCE-with-baseline (actor-critic) to update its brain’s output
-layer based on energy reward signals during its lifetime. This
-implements the Baldwin effect: individually-learned behaviours can
-stabilise genetically over generations because learning relaxes the
-requirement for genes to encode the exact optimal behaviour.</p>
+REINFORCE-with-baseline (actor-critic; Williams 1992) to update its
+brain’s output layer based on energy reward signals during its lifetime.
+This implements the Baldwin effect (Hinton &amp; Nowlan 1987):
+individually-learned behaviours can stabilise genetically over
+generations because learning relaxes the requirement for genes to encode
+the exact optimal behaviour. The demographic signature clade measures —
+population size rising under <code>actor_critic</code> — follows the
+Baldwin framework rather than from the algorithm paper itself.</p>
 <p><strong>Key parameters.</strong></p>
 <table class="table">
 <thead><tr class="header">
