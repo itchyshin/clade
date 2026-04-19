@@ -445,7 +445,7 @@ return results immediately.
 
 - **Biological scenarios.**
   [`vignette("scenarios")`](https://itchyshin.github.io/clade/articles/scenarios.md)
-  is a discovery guide to all 35 pre-packaged scenarios, each with
+  is a discovery guide to all 36 pre-packaged scenarios, each with
   runnable code, expected dynamics, and follow-up experiments.
 - **Parameter search.** The [parameter search
   introduction](https://itchyshin.github.io/clade/articles/ps-introduction.md)

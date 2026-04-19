@@ -8,7 +8,7 @@ real numbers, not just code), and points toward experiments that go
 beyond existing theory.
 
 Use the navigation menu above to jump directly to any scenario. The
-table below maps all 35 scenarios to their biological theme.
+table below maps all 36 scenarios to their biological theme.
 
 ------------------------------------------------------------------------
 
@@ -86,13 +86,14 @@ table below maps all 35 scenarios to their biological theme.
 
 *Within-lifetime change interacting with genetic evolution.*
 
-| Scenario                                                                                | Key module                          | What it tests                            |
-|-----------------------------------------------------------------------------------------|-------------------------------------|------------------------------------------|
-| [Within-lifetime RL](https://itchyshin.github.io/clade/articles/s-rl.md)                | `rl_mode`                           | REINFORCE policy gradient during life    |
-| [Social learning](https://itchyshin.github.io/clade/articles/s-social-learning.md)      | `social_learning`                   | Prestige-biased copying                  |
-| [Phenotypic plasticity](https://itchyshin.github.io/clade/articles/s-plasticity.md)     | `plasticity_evolution`              | Canalization vs flexibility trade-off    |
-| [BNN uncertainty canalization](https://itchyshin.github.io/clade/articles/s-baldwin.md) | `epigenetics`, `brain_type = "bnn"` | Baldwin Effect via sigma evolution       |
-| [Cephalopod paradox](https://itchyshin.github.io/clade/articles/s-cephalopod.md)        | `rl_mode`, `max_age`                | Short lifespan selects for fast learning |
+| Scenario                                                                                          | Key module                          | What it tests                                          |
+|---------------------------------------------------------------------------------------------------|-------------------------------------|--------------------------------------------------------|
+| [Within-lifetime RL](https://itchyshin.github.io/clade/articles/s-rl.md)                          | `rl_mode`                           | REINFORCE policy gradient during life                  |
+| [Social learning](https://itchyshin.github.io/clade/articles/s-social-learning.md)                | `social_learning`                   | Prestige-biased copying                                |
+| [Phenotypic plasticity](https://itchyshin.github.io/clade/articles/s-plasticity.md)               | `plasticity_evolution`              | Canalization vs flexibility trade-off                  |
+| [BNN uncertainty canalization](https://itchyshin.github.io/clade/articles/s-baldwin.md)           | `epigenetics`, `brain_type = "bnn"` | Baldwin Effect via sigma evolution                     |
+| [Cephalopod paradox](https://itchyshin.github.io/clade/articles/s-cephalopod.md)                  | `rl_mode`, `max_age`                | Short lifespan selects for fast learning               |
+| [Brain architecture comparison](https://itchyshin.github.io/clade/articles/s-brain-comparison.md) | `brain_type`                        | Head-to-head benchmark across six neural architectures |
 
 ------------------------------------------------------------------------
 
