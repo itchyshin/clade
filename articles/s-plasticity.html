@@ -257,8 +257,89 @@ the signal reverses). See “What we found (2026-04-17)” for the full
 season-length sweep.
 </p>
 </div>
-<p><strong>What we found (updated 2026-04-17, season-length
-sweep).</strong> The critical parameter turned out to be
+<p><strong>Latest (0.5.18 ✅ promotion via
+<code>seasonal_spatial_bias</code> regime).</strong> Pre-0.5.18
+seasonality was a <em>uniform</em> stressor:
+<code>seasonal_amplitude</code> modulated grass_rate uniformly across
+the grid, and <code>winter_death_prob</code> applied equal mortality to
+every agent. Both phenotype-agnostic, so neither created the fluctuating
+selection DeWitt &amp; Scheiner 2004 requires. The new
+<code>seasonal_spatial_bias</code> spec makes grass growth
+<em>phenotype-relevant</em>: the optimal foraging direction flips
+between seasons (north in summer, south in winter). Plastic agents track
+the flip; canalized ones cannot.</p>
+<p>3 conditions × 16 seeds × 2000 ticks at <code>default_specs</code>
+with RL on:</p>
+<table class="table">
+<colgroup>
+<col width="25%">
+<col width="25%">
+<col width="25%">
+<col width="25%">
+</colgroup>
+<thead><tr class="header">
+<th>condition</th>
+<th><code>seasonal_amplitude</code></th>
+<th><code>seasonal_spatial_bias</code></th>
+<th>mean_prior_sigma</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>stable</td>
+<td>0</td>
+<td>0</td>
+<td>0.376</td>
+</tr>
+<tr class="even">
+<td>amp_only (uniform)</td>
+<td>0.5</td>
+<td>0</td>
+<td>0.380</td>
+</tr>
+<tr class="odd">
+<td><strong>flipping</strong></td>
+<td><strong>0.5</strong></td>
+<td><strong>0.9</strong></td>
+<td><strong>0.399</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Pairwise differentials:</p>
+<table class="table">
+<thead><tr class="header">
+<th>comparison</th>
+<th>Δσ</th>
+<th>t</th>
+<th>verdict</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>amp_only − stable</td>
+<td>+0.004</td>
+<td>+0.91</td>
+<td>uniform stressor ≈ null</td>
+</tr>
+<tr class="even">
+<td><strong>flipping − stable</strong></td>
+<td><strong>+0.0227 ± 0.0049</strong></td>
+<td><strong>+4.58 PASS</strong></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><strong>flipping − amp_only</strong></td>
+<td><strong>+0.0186 ± 0.0040</strong></td>
+<td><strong>+4.60 PASS</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Fluctuating selection raises prior σ by ~6% relative to stable —
+decisive direction + magnitude for the DeWitt-Scheiner prediction.
+Equilibrium population is ~28% lower in flipping (exploration has a
+cost), consistent with DeWitt-Scheiner’s theoretical caveat. Full
+protocol: <a href="https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/plasticity_baldwin_promotion.md" class="external-link">dev/audit/fidelity/plasticity_baldwin_promotion.md</a>.</p>
+<p><strong>Earlier (pre-0.5.18, 🟠 season-length sweep).</strong> The
+critical parameter turned out to be
 <code>season_length / max_age</code>: plasticity evolves in the
 DeWitt-Scheiner direction (seasonal &gt; stable) only when each agent
 experiences multiple seasonal states during its lifetime. See <a href="https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/plasticity_within_lifetime_sweep.R" class="external-link">dev/audit/fidelity/plasticity_within_lifetime_sweep.R</a>

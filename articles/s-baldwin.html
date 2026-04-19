@@ -322,8 +322,49 @@ generations, learned behaviours become genetically assimilated as σ
 declines.
 </p>
 </div>
-<p><strong>What we found (updated 2026-04-16, audit 🔴 → 🟠
-kernel-limited).</strong></p>
+<p><strong>Latest (0.5.18 ✅ promotion via
+<code>seasonal_spatial_bias</code> regime).</strong> The 🟠 history
+below reflects the pre-0.5.18 kernel, in which seasonality was a uniform
+stressor and σ couples with action variance. 0.5.18 adds a
+<strong>phenotype-relevant</strong> seasonal spec: the optimal foraging
+direction flips between seasons (north in summer, south in winter). This
+creates the fluctuating-selection regime Hinton &amp; Nowlan 1987
+require — plastic (high-σ) agents can track the flip, canalized agents
+cannot.</p>
+<p>16-seed × 3-condition × 2000-tick audit at <code>default_specs</code>
+with RL on:</p>
+<table class="table">
+<thead><tr class="header">
+<th>comparison</th>
+<th>Δσ</th>
+<th>t</th>
+<th>verdict</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><strong>flipping − stable</strong></td>
+<td><strong>+0.0227 ± 0.0049</strong></td>
+<td><strong>+4.58 PASS</strong></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><strong>flipping − amp_only</strong></td>
+<td><strong>+0.0186 ± 0.0040</strong></td>
+<td><strong>+4.60 PASS</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Hinton-Nowlan canonical prediction confirmed: plastic agents
+outperform canalized ones when the optimum flips, producing the expected
+rise in <code>mean_prior_sigma</code> under fluctuating selection. The
+Baldwin Effect emerges cleanly once the environment is
+phenotype-relevant rather than a uniform stressor. Full protocol: <a href="https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/plasticity_baldwin_promotion.md" class="external-link">dev/audit/fidelity/plasticity_baldwin_promotion.md</a>.</p>
+<p>The earlier experiments (1–4 below) remain a valid record of the
+pre-0.5.18 kernel limitation and how the σ-action-variance coupling was
+diagnosed. They motivated the 0.5.18 fix.</p>
+<hr>
+<p><strong>Earlier (pre-0.5.18, 🔴 → 🟠 kernel-limited).</strong></p>
 <p>The pre-0.4.0 audit showed <code>mean_prior_sigma</code> rising
 monotonically from ~0.3 to the 0.5 cap in both stable and seasonal
 environments — the <em>opposite</em> of the canonical Baldwin

@@ -77,11 +77,43 @@ prediction. Δdelta = +0.014 across 5 seeds (direction PASS, below the
 the signal reverses). See “What we found (2026-04-17)” for the full
 season-length sweep.
 
-**What we found (updated 2026-04-17, season-length sweep).** The
-critical parameter turned out to be `season_length / max_age`:
-plasticity evolves in the DeWitt-Scheiner direction (seasonal \> stable)
-only when each agent experiences multiple seasonal states during its
-lifetime. See
+**Latest (0.5.18 ✅ promotion via `seasonal_spatial_bias` regime).**
+Pre-0.5.18 seasonality was a *uniform* stressor: `seasonal_amplitude`
+modulated grass_rate uniformly across the grid, and `winter_death_prob`
+applied equal mortality to every agent. Both phenotype-agnostic, so
+neither created the fluctuating selection DeWitt & Scheiner 2004
+requires. The new `seasonal_spatial_bias` spec makes grass growth
+*phenotype-relevant*: the optimal foraging direction flips between
+seasons (north in summer, south in winter). Plastic agents track the
+flip; canalized ones cannot.
+
+3 conditions × 16 seeds × 2000 ticks at `default_specs` with RL on:
+
+| condition          | `seasonal_amplitude` | `seasonal_spatial_bias` | mean_prior_sigma |
+|--------------------|----------------------|-------------------------|------------------|
+| stable             | 0                    | 0                       | 0.376            |
+| amp_only (uniform) | 0.5                  | 0                       | 0.380            |
+| **flipping**       | **0.5**              | **0.9**                 | **0.399**        |
+
+Pairwise differentials:
+
+| comparison              | Δσ                   | t              | verdict                 |
+|-------------------------|----------------------|----------------|-------------------------|
+| amp_only − stable       | +0.004               | +0.91          | uniform stressor ≈ null |
+| **flipping − stable**   | **+0.0227 ± 0.0049** | **+4.58 PASS** |                         |
+| **flipping − amp_only** | **+0.0186 ± 0.0040** | **+4.60 PASS** |                         |
+
+Fluctuating selection raises prior σ by ~6% relative to stable —
+decisive direction + magnitude for the DeWitt-Scheiner prediction.
+Equilibrium population is ~28% lower in flipping (exploration has a
+cost), consistent with DeWitt-Scheiner’s theoretical caveat. Full
+protocol:
+[dev/audit/fidelity/plasticity_baldwin_promotion.md](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/plasticity_baldwin_promotion.md).
+
+**Earlier (pre-0.5.18, 🟠 season-length sweep).** The critical parameter
+turned out to be `season_length / max_age`: plasticity evolves in the
+DeWitt-Scheiner direction (seasonal \> stable) only when each agent
+experiences multiple seasonal states during its lifetime. See
 [dev/audit/fidelity/plasticity_within_lifetime_sweep.R](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/plasticity_within_lifetime_sweep.R)
 for the full sweep; results at fast_specs (`max_age = 30`, 40×40 grid,
 180 agents init, 5 seeds × 2000 ticks):

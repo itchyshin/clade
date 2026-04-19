@@ -215,25 +215,58 @@ advantage</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Expected output (corrected 2026-04-17).</strong> The
-scavenging module fires as specified (agents eat carrion,
-<code>n_scavenging_events &gt; 0</code>) but the canonical DeVault 2003
-claim — ON-vs-OFF in <code>mean_energy</code> under scarcity — does not
-reproduce robustly. A 2×3×2 parameter sweep (192 runs,
-<code>scavenging_strength_sweep.R</code>) over <code>grass_rate</code> ∈
-{0.05, 0.10} × <code>carrion_eat_gain</code> ∈ {3, 8, 15} ×
-<code>carrion_fraction</code> ∈ {0.5, 1.0} found <strong>no cell gives
-Δenergy &gt; 0 at <em>t</em> ≥ 2</strong> in the canonical direction.
-One cell (grass=0.05, eat_gain=15) has |<em>t</em>| = 2.96 but in the
-<em>wrong</em> direction (scavenging lowers energy, probably because
-agents on carrion sites collide with the predator that made the
-kill).</p>
-<p>Status: <strong>🟠 passed-consistent (reframed)</strong> — module is
-correct (carrion is produced, agents find and eat it) but the
-mean-energy claim from DeVault 2003 is not measurable in clade’s
-evolutionary-ABM setting at tested parameters. Use this scenario as a
-module-firing demo, not as evidence that scavenging quantitatively
-improves energy budgets.</p>
+<p><strong>Expected output (latest: 0.5.x ✅ via realistic_specs +
+predator guild).</strong> Earlier default-scale sweeps found no DeVault
+2003 energy benefit because the carrion supply was too thin (small grid,
+short runs, sparse predators). At <code>realistic_specs</code> (60×60,
+2000 ticks, 30 init predators, <code>predator_max_agents = 120</code>,
+<code>predator_energy_gain = 20</code>) the predator guild produces
+enough carrion for the scavenging channel to express as a measurable
+energy boost:</p>
+<table class="table">
+<colgroup>
+<col width="20%">
+<col width="20%">
+<col width="20%">
+<col width="20%">
+<col width="20%">
+</colgroup>
+<thead><tr class="header">
+<th>Metric</th>
+<th>scavenging OFF</th>
+<th>scavenging ON</th>
+<th>Δ ± SE</th>
+<th>t</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>
+<code>mean_energy</code> (last 500 ticks)</td>
+<td>—</td>
+<td>—</td>
+<td><strong>+3.42 ± 0.71</strong></td>
+<td><strong>+4.83 PASS</strong></td>
+</tr>
+<tr class="even">
+<td><code>n_agents</code></td>
+<td>—</td>
+<td>—</td>
+<td><strong>+14.9 ± 6.1</strong></td>
+<td><strong>+2.46 PASS</strong></td>
+</tr>
+</tbody>
+</table>
+<p>DeVault 2003 holds when the predator guild supplies adequate
+carcasses. Full protocol: <a href="https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/scavenging_realistic.md" class="external-link">dev/audit/fidelity/scavenging_realistic.md</a>.</p>
+<p><strong>Earlier (pre-realistic-specs, 🟠).</strong> A 2×3×2 parameter
+sweep (192 runs, <code>scavenging_strength_sweep.R</code>) over
+<code>grass_rate</code> ∈ {0.05, 0.10} × <code>carrion_eat_gain</code> ∈
+{3, 8, 15} × <code>carrion_fraction</code> ∈ {0.5, 1.0} found no cell
+giving Δenergy &gt; 0 at <em>t</em> ≥ 2 in the canonical direction.
+Diagnosis: carrion supply was too thin at <code>default_specs</code>
+scale (30×30 grid, 500-tick runs) — scavenging is a population-density ×
+grid-size × run-length phenomenon and needs the realistic regime to
+express.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/">clade</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>

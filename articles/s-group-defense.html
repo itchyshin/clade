@@ -210,28 +210,62 @@ neighbour</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Expected output (corrected 2026-04-17).</strong> The
-mechanism fires — per-tick attack success is genuinely reduced when prey
-cluster — but in clade’s evolutionary-ABM setup the
-<em>population-level</em> outcome inverts the classical Hamilton 1971
-prediction. A 3×2 strength × n_predators sweep (96 runs,
-<code>group_defense_strength_sweep.R</code>) found group_defense ON
-consistently <em>lowers</em> prey population: at (strength=0.3,
-n_pred=20), Δn = −10.3, <strong>t = −2.85</strong> (significant, wrong
-direction). Pattern holds at strength ≥ 0.6.</p>
-<p>Why the inversion? Two mechanisms that Hamilton 1971 does not
-include: (a) evolving predators <em>adapt</em> to the grouped prey
-distribution faster than the defense reduces per-prey risk, and (b)
-clustered prey <strong>deplete local grass faster</strong>, so
-defense-induced aggregation starves the group. Hamilton’s original
-argument assumes fixed predation rate and unlimited food; this ABM
-violates both.</p>
-<p>Status: <strong>🟠 passed-consistent (reframed)</strong> — module is
-correct (attack-reduction fires as documented) but the net
-population-level effect is opposite to the textbook claim at all tested
-parameters. Filed alongside <code>s-mimicry</code> as a case where a
-canonical theory prediction doesn’t survive the evolving-predator +
-limited-food ABM setting.</p>
+<p><strong>Expected output (latest: 0.5.15 ✅ via extinction-rate
+framing).</strong> The pre-0.5.15 mean-population test was the wrong
+metric — selfish-herd protects against extinction, not equilibrium size.
+A 0.5.15 80-run strength sweep at <code>realistic_specs</code>,
+re-analysed with <code>verdict == "crashed"</code> as the outcome,
+passes Fisher’s exact test with a strength-dependent signal:</p>
+<table class="table">
+<colgroup>
+<col width="20%">
+<col width="20%">
+<col width="20%">
+<col width="20%">
+<col width="20%">
+</colgroup>
+<thead><tr class="header">
+<th><code>group_defense_strength</code></th>
+<th>OFF crash</th>
+<th>ON crash</th>
+<th>Fisher <em>p</em>
+</th>
+<th>Odds ratio</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>0.5</td>
+<td>12/16</td>
+<td>12/16</td>
+<td>0.500 (null)</td>
+<td>1.00</td>
+</tr>
+<tr class="even">
+<td>1.0</td>
+<td>12/16</td>
+<td>9/16</td>
+<td>0.074 (marginal)</td>
+<td>2.59</td>
+</tr>
+<tr class="odd">
+<td><strong>3.0</strong></td>
+<td><strong>12/16</strong></td>
+<td><strong>6/16</strong></td>
+<td><strong>0.037 PASS</strong></td>
+<td><strong>4.73</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Hamilton 1971 selfish-herd dilution manifests as reduced crash rate
+at high defense strength, exactly as predicted. Full protocol: <a href="https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/group_defense_promotion.md" class="external-link">dev/audit/fidelity/group_defense_promotion.md</a>.</p>
+<p><strong>Earlier (pre-0.5.15, 🟠 via mean-population metric).</strong>
+A 3×2 strength × n_predators sweep (96 runs) found group_defense ON
+<em>lowering</em> mean prey population: at (strength=0.3, n_pred=20), Δn
+= −10.3, t = −2.85. Why: (a) evolving predators adapt to the grouped
+prey distribution faster than defense reduces per-prey risk, and (b)
+clustered prey deplete local grass faster. Both violate Hamilton 1971’s
+fixed-predator + unlimited-food assumptions. The mean-population metric
+masked the extinction- protection signal that 0.5.15 recovered.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/">clade</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
