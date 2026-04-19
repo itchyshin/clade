@@ -390,19 +390,6 @@ the <em>population-level consequences</em> of Hamilton’s rule, not the
 invasion dynamics of an altruistic mutant. For the evolutionary dynamics
 (heritable <code>helper_tendency</code>), see the cooperative-breeding
 and IFfolk modules below.</p>
-<p><strong>Invasion-dynamics follow-up (2026-04-19, honest
-null).</strong> A dedicated sweep tested whether
-<code>helper_tendency</code> invades from rare
-(<code>init_mean = 0.05</code>) under varying
-<code>helper_transfer</code> (C), with
-<code>cooperative_breeding = TRUE</code>. Across 64 runs × 2000–4000
-ticks, Spearman(transfer, final helper_tendency) was weakly negative
-(−0.12 to −0.20 — direction correct) but the effect was drift-dominated;
-helper_tendency <strong>does not invade from rare</strong> at any tested
-transfer level. Full protocol and interpretation: <a href="https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/kin_invasion_sweep.md" class="external-link">dev/audit/fidelity/kin_invasion_sweep.md</a>.
-This is consistent with the note above — the demographic ✅ holds; the
-invasion dynamic requires kin-weighted fitness accounting that the
-current kernel does not instantiate.</p>
 </div>
 <div class="section level3">
 <h3 id="calibrated-regime-cma-es-superseded-by-direct-hamilton-test">Calibrated regime (CMA-ES — superseded by direct Hamilton test)<a class="anchor" aria-label="anchor" href="#calibrated-regime-cma-es-superseded-by-direct-hamilton-test"></a>

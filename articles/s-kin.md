@@ -135,19 +135,6 @@ the invasion dynamics of an altruistic mutant. For the evolutionary
 dynamics (heritable `helper_tendency`), see the cooperative-breeding and
 IFfolk modules below.
 
-**Invasion-dynamics follow-up (2026-04-19, honest null).** A dedicated
-sweep tested whether `helper_tendency` invades from rare
-(`init_mean = 0.05`) under varying `helper_transfer` (C), with
-`cooperative_breeding = TRUE`. Across 64 runs × 2000–4000 ticks,
-Spearman(transfer, final helper_tendency) was weakly negative (−0.12 to
-−0.20 — direction correct) but the effect was drift-dominated;
-helper_tendency **does not invade from rare** at any tested transfer
-level. Full protocol and interpretation:
-[dev/audit/fidelity/kin_invasion_sweep.md](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/kin_invasion_sweep.md).
-This is consistent with the note above — the demographic ✅ holds; the
-invasion dynamic requires kin-weighted fitness accounting that the
-current kernel does not instantiate.
-
 ### Calibrated regime (CMA-ES — superseded by direct Hamilton test)
 
 The 2026-04-15 audit directly varied `C` and `B` across a 9-cell grid
