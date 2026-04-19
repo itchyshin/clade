@@ -460,6 +460,8 @@ you’re reproducing your own paper.
   1982](https://itchyshin.github.io/clade/articles/paper-emlen-1982.md):
 - [Reproducing a paper — Courchamp et al. 1999 (and a note on custom
   modules)](https://itchyshin.github.io/clade/articles/paper-courchamp-1999.md):
+- [Reproducing a paper — Fuller, Houle & Travis 2005 (sensory bias
+  synthesis)](https://itchyshin.github.io/clade/articles/paper-fuller-2005.md):
 
 ### Parameter search
 
