@@ -1,8 +1,6 @@
 ---
 name: Primary-citation audit
-description: Per-scenario verification that clade's cited primary literature actually predicts what clade reproduces. Sessions 1+2+3+4 complete — the 32-scenario audit finished 2026-04-19.
-description: Per-scenario verification that clade's cited primary literature actually predicts what clade reproduces. Multi-session. Sessions 1+2+3 complete (24/32).
-description: Per-scenario verification that clade's cited primary literature actually predicts what clade reproduces. Multi-session. Currently Session 1 + 2 complete (13/32).
+description: Per-scenario verification that clade's cited primary literature actually predicts what clade reproduces. Sessions 1+2+3+4 complete (2026-04-19). Subsequent STATUS.md sync reconciles stale-vignette 🟠 verdicts against the actual 0.5.14–0.5.18 fidelity state.
 type: research
 ---
 
@@ -16,8 +14,15 @@ actually predicts the specific outcome clade reproduces. Begun
 **Progress: Complete — all 32 auditable scenarios audited across 4
 sessions (2026-04-19).** Plus 2 marked ⚪ N/A (s-brain-comparison,
 s-baseline — no primary-literature claim to verify).
-**Progress: Sessions 1 + 2 + 3 complete — 24 of 32 auditable
-scenarios audited** (plus 1 marked ⚪ N/A).
+
+**2026-04-19 STATUS.md sync**: this audit read vignette prose that
+was in several places lagging the 0.5.14–0.5.18 fidelity-audit
+promotions. Five scenarios I originally flagged 🟠 (s-mating-systems,
+s-baldwin, s-group-defense, s-scavenging, s-plasticity) have all
+been promoted to ✅ in STATUS.md via targeted kernel work. See the
+"STATUS.md reconciliation" section below; the per-scenario ⚠️/🟠
+entries above are kept as a record of the vignette state at audit
+time.
 **Progress: Sessions 1 + 2 complete — 13 of 32 auditable scenarios
 audited** (plus 1 marked ⚪ N/A for having no primary-literature
 claim to verify).
@@ -1196,6 +1201,53 @@ tempered accordingly once Sessions 2–4 complete.
   swap and Clutton-Brock year already shipped in PR #83; HAT 1990
   also shipped; two new from Session 2: social-learning
   mechanism-level attribution, s-rl Baldwin-framework attribution).
+
+---
+
+## STATUS.md reconciliation (2026-04-19 post-audit)
+
+This ledger was written against the user-facing `vignettes/s-*.Rmd`
+prose at audit time. That prose was in several places lagging the
+0.5.14–0.5.18 fidelity-audit promotions recorded in
+[`dev/audit/fidelity/STATUS.md`](../../audit/fidelity/STATUS.md).
+After reconciling the two, five scenarios I originally flagged 🟠
+are **✅ in the current fidelity state** — the 🟠 entries describe
+pre-promotion regimes that the 0.5.14–0.5.18 kernel cycle resolved.
+
+| Scenario | Original 🟠 reason in this ledger | Current STATUS.md |
+|---|---|---|
+| **s-mating-systems** | "Direction-correct, sub-2σ at 16 seeds" | **✅ 0.5.14** via 2×2 Red Queen differential × `parasite_pressure`. RQ_benefit(n) = +19.8 at p=4 (t = +2.81), +39.8 at p=8 (t = +6.79). |
+| **s-baldwin** | "Canonical direction not reproduced at equilibrium; σ-action-variance coupling" | **✅ 0.5.18** via new `seasonal_spatial_bias` spec. Δσ(flipping − amp_only) = +0.019 ± 0.004, t = **+4.60**. Hinton-Nowlan canonical prediction confirmed under fluctuating selection. |
+| **s-group-defense** | "Population-level outcome inverts Hamilton 1971 (Δn = −10.3, t = −2.85)" | **✅ 0.5.15** via extinction-rate framing. At `group_defense_strength = 3.0`: OFF crash 12/16, ON crash 6/16, **Fisher p = 0.037**, OR = 4.73. |
+| **s-scavenging** | "192-run sweep — no cell at \|t\| ≥ 2 in canonical direction" | **✅ 0.5.x** via `realistic_specs` + predator guild. Δenergy = +3.42 ± 0.71, t = +4.83; Δpop = +14.9 ± 6.1, t = +2.46. |
+| **s-plasticity** | "sub-2σ at season_length sweep; kernel-limited" *(listed ✅ in this ledger under Session 2 but had residual caveat)* | **✅ 0.5.18** via `seasonal_spatial_bias`. Δσ(flipping − stable) = +0.023 ± 0.005, t = **+4.58**. Paired with s-baldwin promotion. |
+
+**s-predator-prey** is the one persistent 🟠 in my audit where STATUS.md
+says ✅ but the vignette prose still documents the LV-signature
+mismatch. The fidelity ✅ presumably reflects "sustained oscillations
+present" as the measured outcome rather than "quarter-cycle LV signature
+reproduced". Worth a follow-up confirmation by reading the
+predator-prey fidelity report.
+
+**What this means for the aggregate distribution**:
+
+Applying the STATUS.md promotions to my 🟠 entries:
+
+| Verdict | Pre-reconciliation (vignette-state) | Post-reconciliation (kernel-state) |
+|---|---|---|
+| ✅ | 10 | **≥ 14** (s-mating-systems, s-baldwin, s-group-defense, s-scavenging, possibly s-predator-prey added) |
+| ⚠️ | 14 | 14 (mechanism gaps, cross-domain analogies, demographic-vs-invasion corollaries — unchanged by the 0.5.14–0.5.18 kernel cycle) |
+| 🟠 | 6 | **≤ 1** (s-predator-prey pending; others resolved) |
+| ⚪ | 2 | 2 |
+| ❌ | 0 | 0 |
+
+The ⚠️ group is not affected by the STATUS.md sync — those entries
+flag citation-level caveats (specific-mechanism mismatches,
+citation by analogy, cross-domain applications) that a kernel
+promotion to ✅ on the fidelity side doesn't automatically resolve.
+An audit of the **citation** versus an audit of the **simulation
+fidelity** are genuinely different things: fidelity can PASS while
+citation-attribution still has a material caveat.
 
 ---
 

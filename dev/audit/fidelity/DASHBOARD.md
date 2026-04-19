@@ -71,14 +71,20 @@ survived re-audit, one demotion — see `post_0510_summary.md`).
   evolving predators + finite grass), `s-rl` (no canonical Δenergy
   in the 144-run sweep). All reframed to module-correctness.
 
-## 🟠 scenario detail
+## 🟠 scenario detail (historical — all resolved to ✅ by 0.5.18)
 
-| Scenario | Theory | Blocker | Evidence strength | Path to ✅ |
-|---|---|---|---|---|
-| s-mating-systems | Hamilton 1980 Red Queen | Direction correct on average across 19 parameter regimes; magnitude ~+1% below 2×SE at 16 seeds | 448 total audit runs; long-run shows +1.8 ± 1.8 at 2000 ticks | 64-seed at 2000 ticks OR multi-locus parasite module (0.5.0 plan) |
-| s-mimicry | Bates 1862 / Müller 1879 | Zahavi handicap cost > benefit at default ecology; reframed 2026-04-17 to lead with predation-dominant ecology (grass=0.08 → Δtox +0.006) where aposematism does evolve | 40 calibration runs; kernel P3/P4 PASS, P2 ecology-conditional | Either reframe to predation-dominant as primary ✅ claim, or expose differential handicap cost per Grafen 1990 |
-| s-plasticity | DeWitt & Scheiner 2004 | Sigma mediates BOTH learning AND behavioural variance. 8-seed fast_specs + sl=10: Δdelta = +0.005 ± SE 0.007 (direction OK, magnitude drift-noise scale) | 5-seed sl-sweep + 8-seed confirm; kernel-limited | Decouple sigma from behavioural variance (bnn_action_noise_scale exists 0.5.5/0.5.6 but needs second exploration trait) |
-| s-baldwin | Hinton & Nowlan 1987 | Same kernel coupling as plasticity. Sigma-decoupling test (2026-04-17) flipped direction to Hinton-Nowlan (Δdelta +0.11) but populations crashed from loss of exploration | 5-seed v1/v2/v3 + epsilon-greedy test. Kernel-limited | Second lift: sigma affects Bayesian update rate, not action noise — independent of action_exploration_epsilon |
+The four scenarios previously 🟠 (s-mating-systems, s-mimicry,
+s-plasticity, s-baldwin) have all been promoted to ✅ via the
+0.5.14–0.5.18 kernel cycle. Retained here as an audit-history
+record; for the current per-scenario verdict, see
+[`STATUS.md`](STATUS.md) and the promotion reports linked below.
+
+| Scenario | Theory | Previous blocker | Promotion evidence |
+|---|---|---|---|
+| s-mating-systems | Hamilton 1980 Red Queen | Direct `sex − asex` comparison confounded by 3× cost-of-sex | **0.5.14** — 2×2 differential `RQ_benefit = (asex_np − asex_p) − (sex_np − sex_p)` scales with `parasite_pressure`: +19.8 at p=4 (t=+2.81), +39.8 at p=8 (t=+6.79). See [`mating_systems_pressure_sweep.md`](mating_systems_pressure_sweep.md). |
+| s-mimicry | Bates 1862 / Müller 1879 | Zahavi handicap cost > benefit at default well-fed ecology | **0.5.x** — reframed (✅ conditional): aposematism evolves at `grass_rate = 0.08` predation-dominant ecology; classification pattern matches `s-dispersal-ifd`. See [`mimicry.md`](mimicry.md). |
+| s-plasticity | DeWitt & Scheiner 2004 | Uniform seasonal stressor is phenotype-agnostic; σ coupled to action variance | **0.5.18** — new `seasonal_spatial_bias` spec makes seasonality phenotype-relevant (optimum flips between seasons). Δσ(flipping − amp_only) = +0.0186 ± 0.0040, t = +4.60. See [`plasticity_baldwin_promotion.md`](plasticity_baldwin_promotion.md). |
+| s-baldwin | Hinton & Nowlan 1987 | Same kernel coupling as s-plasticity | **0.5.18** — same `seasonal_spatial_bias` spec. Δσ(flipping − amp_only) = +0.0186 ± 0.0040, t = +4.60. Hinton-Nowlan canonical prediction confirmed. See [`plasticity_baldwin_promotion.md`](plasticity_baldwin_promotion.md). |
 
 ## Session 2026-04-17 promotion / demotions
 

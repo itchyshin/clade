@@ -128,7 +128,37 @@ s$learning_rate_init_mean        <- 0.007
 FIG("bnn_uncertainty")
 ```
 
-**What we found (updated 2026-04-16, audit 🔴 → 🟠 kernel-limited).**
+**Latest (0.5.18 ✅ promotion via `seasonal_spatial_bias` regime).**
+The 🟠 history below reflects the pre-0.5.18 kernel, in which
+seasonality was a uniform stressor and σ couples with action
+variance. 0.5.18 adds a **phenotype-relevant** seasonal spec: the
+optimal foraging direction flips between seasons (north in summer,
+south in winter). This creates the fluctuating-selection regime
+Hinton & Nowlan 1987 require — plastic (high-σ) agents can track
+the flip, canalized agents cannot.
+
+16-seed × 3-condition × 2000-tick audit at `default_specs` with RL
+on:
+
+| comparison | Δσ | t | verdict |
+|---|---|---|---|
+| **flipping − stable** | **+0.0227 ± 0.0049** | **+4.58 PASS** | |
+| **flipping − amp_only** | **+0.0186 ± 0.0040** | **+4.60 PASS** | |
+
+Hinton-Nowlan canonical prediction confirmed: plastic agents
+outperform canalized ones when the optimum flips, producing the
+expected rise in `mean_prior_sigma` under fluctuating selection.
+The Baldwin Effect emerges cleanly once the environment is
+phenotype-relevant rather than a uniform stressor. Full protocol:
+[dev/audit/fidelity/plasticity_baldwin_promotion.md](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/plasticity_baldwin_promotion.md).
+
+The earlier experiments (1–4 below) remain a valid record of the
+pre-0.5.18 kernel limitation and how the σ-action-variance coupling
+was diagnosed. They motivated the 0.5.18 fix.
+
+---
+
+**Earlier (pre-0.5.18, 🔴 → 🟠 kernel-limited).**
 
 The pre-0.4.0 audit showed `mean_prior_sigma` rising monotonically
 from ~0.3 to the 0.5 cap in both stable and seasonal environments
