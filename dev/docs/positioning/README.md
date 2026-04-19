@@ -30,7 +30,8 @@ docs are the fix.
 |---|---|---|
 | [`competitive_landscape.md`](competitive_landscape.md) | **Draft 1** (2026-04-19) | Verbatim positioning quotes from SLiM, NetLogo, Mesa, msprime, and Railsback & Grimm. What each tool's own docs say it is for. What each explicitly does *not* claim. |
 | [`methods_reviews.md`](methods_reviews.md) | **Draft 1** | Survey of existing reviews of ABM / IBM in ecology. Typologies we can position clade within — Grimm's POM framework, ODD protocol, pragmatic-vs-paradigmatic, Murphy 2025 (applied ecology), Stillman et al. 2015 (behavioural-ecology IBMs). |
-| [`primary_citation_audit_plan.md`](primary_citation_audit_plan.md) | **Scope only** | Plan for per-scenario primary-citation verification. 32 auditable scenarios × read the cited paper × confirm clade's implementation matches the claim. Multi-session work; scope document only for now. |
+| [`primary_citation_audit_plan.md`](primary_citation_audit_plan.md) | **Scope only** | Plan for per-scenario primary-citation verification. 32 auditable scenarios × read the cited paper × confirm clade's implementation matches the claim. Multi-session work. |
+| [`citation_audit.md`](citation_audit.md) | **Session 1 complete** (2026-04-19, 6/32) | Per-scenario ledger. Session 1: s-kin, s-cooperation, s-signals, s-mating-systems, s-parental-care, s-life-history. 1 ✅, 4 ⚠️, 1 🟠, 0 ❌. Three citation-precision recommendations surfaced; no retractions needed. |
 
 ---
 
