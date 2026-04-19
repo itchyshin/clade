@@ -37,24 +37,30 @@ the cell, yielding `carrion_eat_gain` energy units.
 | `carrion_transmission_prob` | 0.0 | Probability that eating from an infected carcass transmits disease |
 | `grass_rate` | 0.05 | Set low to create resource scarcity that accentuates the scavenging advantage |
 
-**Expected output (corrected 2026-04-17).** The scavenging module fires as
-specified (agents eat carrion, `n_scavenging_events > 0`) but the
-canonical DeVault 2003 claim — ON-vs-OFF in `mean_energy` under
-scarcity — does not reproduce robustly. A 2×3×2 parameter sweep
+**Expected output (latest: 0.5.x ✅ via realistic_specs + predator guild).**
+Earlier default-scale sweeps found no DeVault 2003 energy benefit
+because the carrion supply was too thin (small grid, short runs,
+sparse predators). At `realistic_specs` (60×60, 2000 ticks, 30 init
+predators, `predator_max_agents = 120`, `predator_energy_gain = 20`)
+the predator guild produces enough carrion for the scavenging
+channel to express as a measurable energy boost:
+
+| Metric | scavenging OFF | scavenging ON | Δ ± SE | t |
+|---|---|---|---|---|
+| `mean_energy` (last 500 ticks) | — | — | **+3.42 ± 0.71** | **+4.83 PASS** |
+| `n_agents` | — | — | **+14.9 ± 6.1** | **+2.46 PASS** |
+
+DeVault 2003 holds when the predator guild supplies adequate
+carcasses. Full protocol: [dev/audit/fidelity/scavenging_realistic.md](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/scavenging_realistic.md).
+
+**Earlier (pre-realistic-specs, 🟠).** A 2×3×2 parameter sweep
 (192 runs, `scavenging_strength_sweep.R`) over `grass_rate` ∈
 {0.05, 0.10} × `carrion_eat_gain` ∈ {3, 8, 15} × `carrion_fraction`
-∈ {0.5, 1.0} found **no cell gives Δenergy > 0 at *t* ≥ 2** in the
-canonical direction. One cell (grass=0.05, eat_gain=15) has
-|*t*| = 2.96 but in the *wrong* direction (scavenging lowers
-energy, probably because agents on carrion sites collide with the
-predator that made the kill).
-
-Status: **🟠 passed-consistent (reframed)** — module is correct
-(carrion is produced, agents find and eat it) but the mean-energy
-claim from DeVault 2003 is not measurable in clade's
-evolutionary-ABM setting at tested parameters. Use this scenario
-as a module-firing demo, not as evidence that scavenging
-quantitatively improves energy budgets.
+∈ {0.5, 1.0} found no cell giving Δenergy > 0 at *t* ≥ 2 in the
+canonical direction. Diagnosis: carrion supply was too thin at
+`default_specs` scale (30×30 grid, 500-tick runs) — scavenging is a
+population-density × grid-size × run-length phenomenon and needs
+the realistic regime to express.
 
 ```{r scavenging}
 library(clade)

@@ -86,7 +86,32 @@ ggplot(df, aes(t, genetic_diversity, colour = system)) +
 FIG("mating_systems")
 ```
 
-**What we found (updated 2026-04-16 through 0.5.1).** Full
+**Latest (0.5.14, ✅ promotion via 2×2 Red Queen differential).**
+Pre-0.5.14 direct `sex − asex` comparisons were confounded by
+clade's 3× cost-of-sex (2-parent mate-finding penalty). A 2×2
+differential design isolates the Hamilton 1980 signal:
+
+```
+RQ_benefit(metric) = (asex no-parasites − asex parasites)
+                   − (sex  no-parasites − sex  parasites)
+```
+
+At 16 seeds × 4 pressure levels, `default_specs`, `RQ_benefit(n_agents)`
+scales monotonically with parasite pressure:
+
+| `parasite_pressure` | Δ differential | t |
+|---|---|---|
+| 2 | +6.7 | +1.02 (sub-2σ) |
+| 4 | +19.8 | **+2.81 PASS** |
+| 6 | +26.9 | **+4.97 PASS** |
+| 8 | +39.8 | **+6.79 PASS** |
+
+Parasites cost asexuals +8.8 → +45.3 agents as pressure rises; sex
+populations stay ~45 regardless. Recombination lets sex escape
+virulence, exactly as Hamilton 1980 predicts. Full protocol:
+[dev/audit/fidelity/mating_systems_pressure_sweep.md](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/mating_systems_pressure_sweep.md).
+
+**Earlier (pre-0.5.14, 🟠 direction-correct sub-2σ).** Full
 protocol: [dev/audit/fidelity/mating_systems.md](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/mating_systems.md).
 
 The pre-0.4.0 audit tested only the stable environment and got
