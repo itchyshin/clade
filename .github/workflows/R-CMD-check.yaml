@@ -3,8 +3,22 @@
 on:
   push:
     branches: [main, master, scenario-audit-0.2.0]
+    # Skip R-CMD-check on docs-only pushes — this repo is private and
+    # has a 3 000 min/month Actions budget. Markdown-only, dev-notes,
+    # and _pkgdown.yml changes cannot affect the package's check
+    # status. Any commit that touches R/, inst/, man/, tests/,
+    # DESCRIPTION, NAMESPACE, or vignettes/ still triggers the full
+    # check.
+    paths-ignore:
+      - '**/*.md'
+      - 'dev/**'
+      - '_pkgdown.yml'
   pull_request:
     branches: [main, master]
+    paths-ignore:
+      - '**/*.md'
+      - 'dev/**'
+      - '_pkgdown.yml'
 
 name: R-CMD-check
 
