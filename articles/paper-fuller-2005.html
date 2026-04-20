@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -169,13 +169,15 @@
 
     
     
-<p><em>Kernel-level honest null: clade’s current signal machinery is
-drift-dominated, and cannot differentiate the sensory-bias vs
-Fisherian-runaway vs Zahavi-handicap mechanisms that Fuller 2005’s
-theoretical synthesis unifies. This vignette demonstrates the “try to
-reproduce and find clade CAN’T differentiate the mechanisms” outcome as
-its own research finding.</em></p>
-<p><img src="figures-papers/fuller-2005.png" class="r-plt" alt="Fuller 2005 — all mate choice x cost combinations converge to the same signal magnitude (~1.05), with only the signals-off null at zero" width="100%"></p>
+<p><em>Partial reproduction (0.6.3). Fuller’s three-mechanism synthesis
+calls for β_Sv viability cost (Zahavi handicap), C_tp &gt; 0
+preference-display covariance (Fisher runaway), and β_N spillover from
+non-mating selection onto preferences (sensory bias sensu Ryan 1990).
+0.6.3 adds the first via <code>signal_cost_mortality</code> — a clean
+dose-response Zahavi curve is shown below. The other two remain
+documented kernel-limit nulls and are flagged for future kernel
+work.</em></p>
+<p><img src="figures-papers/fuller-2005.png" class="r-plt" alt="Fuller 2005 dose-response — left panel: signal magnitude declines from 1.06 to 0.63 as signal_cost_mortality increases from 0.000 to 0.003; right panel: population size declines from 123 to 6 over the same range, confirming the handicap is a real viability cost" width="100%"></p>
 <hr>
 <div class="section level2">
 <h2 id="the-paper-cluster">The paper cluster<a class="anchor" aria-label="anchor" href="#the-paper-cluster"></a>
@@ -199,41 +201,70 @@ túngara frog empirical landmark.</li>
 <strong>Endler, J. A. &amp; Basolo, A. L. (1998).</strong>
 <em>Sensory ecology, receiver biases and sexual selection.</em>
 <em>Trends in Ecology &amp; Evolution</em> 13, 415–420.</li>
+<li>
+<strong>Zahavi, A. (1975)</strong> and <strong>Grafen, A.
+(1990)</strong> — the handicap principle, which Fuller frames as the
+β_Sv &lt; 0 leg of the synthesis.</li>
 </ul>
 <p>Fuller et al.’s distinctive contribution is
-<strong>theoretical</strong>: they argue that “sensory bias” and
-“Fisherian coevolution” have been framed as rival explanations when in
-fact <strong>both mechanisms can operate simultaneously</strong>.
-Genetic correlations between sensory systems and mate preferences mean
-that direct selection on the sensory apparatus for non-mating functions
-(foraging, predator detection) spills over into mate-preference
-evolution, while preferences also coevolve with signals in the classic
-Fisherian sense. The two are a continuum, not a dichotomy.</p>
+<strong>theoretical</strong>: they cast sensory bias, Fisher runaway,
+and Zahavi handicap as three non-exclusive legs of one
+quantitative-genetic equation Δz̄ = G(β_N + β_S) + u, separated by which
+β terms (and which G-matrix covariances C_tp) are non-zero. clade’s job
+in this vignette is to say truthfully which of those legs its kernel can
+carry.</p>
 </div>
 <div class="section level2">
-<h2 id="what-clade-can-and-cannot-test-directly">What clade can (and cannot) test directly<a class="anchor" aria-label="anchor" href="#what-clade-can-and-cannot-test-directly"></a>
+<h2 id="three-mechanisms-one-honest-ledger">Three mechanisms, one honest ledger<a class="anchor" aria-label="anchor" href="#three-mechanisms-one-honest-ledger"></a>
 </h2>
-<p><strong>Can test</strong>: whether preference-based mate choice
-drives signal elaboration beyond what drift alone produces. If it does,
-clade would be providing a substrate for the Fuller-synthesized family
-of mechanisms to operate.</p>
-<p><strong>Cannot test</strong>: the specific Fuller distinction between
-pre-existing bias and coevolving preference. clade logs a scalar
-<code>mean_signal_magnitude</code> but not signal-direction or
-preference-direction, so we can’t measure the signal-preference
-alignment over time that would distinguish the mechanisms.</p>
-<p>That limit is important up front: even a clean positive result in
-this vignette wouldn’t settle Fuller’s question. What <em>can</em>
-happen is that clade shows <strong>no</strong> differentiation — a
-kernel-level honest null that tells us the substrate is too coarse to
-carry the question.</p>
+<table class="table">
+<colgroup>
+<col width="33%">
+<col width="33%">
+<col width="33%">
+</colgroup>
+<thead><tr class="header">
+<th>Mechanism</th>
+<th>Fuller signature</th>
+<th>Kernel status (0.6.3)</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><strong>Zahavi handicap</strong></td>
+<td>β_Sv &lt; 0: viability cost on display</td>
+<td>✅ <code>signal_cost_mortality</code> (new 0.6.3)</td>
+</tr>
+<tr class="even">
+<td><strong>Fisher runaway</strong></td>
+<td>C_tp &gt; 0: signal-preference covariance grows under preference
+mating vs drift</td>
+<td>❌ blocked — <code>mate_choice_mode</code> is a stub (see
+below)</td>
+</tr>
+<tr class="odd">
+<td>
+<strong>Sensory bias</strong> sensu Ryan 1990</td>
+<td>β_N shaped preference first; signal later exploits it</td>
+<td>❌ not implemented — no mechanism couples preferences to non-mating
+fitness</td>
+</tr>
+</tbody>
+</table>
+<p>0.6.2 (PR #106) added three Fuller-framework metrics to the tick log
+— <code>mean_preference_magnitude</code>,
+<code>mean_signal_preference_dist</code> (proxy for −C_tp),
+<code>sd_signal_magnitude</code> (V_t). 0.6.3 adds the Zahavi-leg kernel
+field <code>signal_cost_mortality</code>. This vignette reports what the
+new machinery can and cannot test.</p>
 </div>
 <div class="section level2">
-<h2 id="experiment">Experiment<a class="anchor" aria-label="anchor" href="#experiment"></a>
+<h2 id="experiment-zahavi-β_sv-dose-response">Experiment — Zahavi β_Sv dose-response<a class="anchor" aria-label="anchor" href="#experiment-zahavi-%CE%B2_sv-dose-response"></a>
 </h2>
-<p>Six conditions × 8 seeds = 48 runs, 40×40 grid, 3000 ticks,
-<code>signal_drift_sd = 0.05</code>,
-<code>mate_choice_strength = 1.0</code> (fully greedy preference).</p>
+<p>Five conditions × 8 seeds = 40 runs, 40×40 grid, 3000 ticks,
+<code>signal_dims = 3</code>, <code>signal_drift_sd = 0.05</code>. The
+dose-response sweeps <code>signal_cost_mortality</code> across {0.000,
+0.001, 0.002, 0.003}; the null has <code>signal_dims = 0</code> (signals
+off).</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/">clade</a></span><span class="op">)</span></span>
 <span></span>
@@ -251,30 +282,20 @@ carry the question.</p>
 <span><span class="va">sweep</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hypothesis_sweep.html">hypothesis_sweep</a></span><span class="op">(</span></span>
 <span>  base_specs <span class="op">=</span> <span class="va">base</span>,</span>
 <span>  conditions <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>    null_no_signals    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>signal_dims      <span class="op">=</span> <span class="fl">0L</span>,</span>
-<span>                              signal_cost      <span class="op">=</span> <span class="fl">0.0</span>,</span>
-<span>                              mate_choice_mode <span class="op">=</span> <span class="st">"random"</span><span class="op">)</span>,</span>
-<span>    random_no_cost     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>signal_cost      <span class="op">=</span> <span class="fl">0.0</span>,</span>
-<span>                              mate_choice_mode <span class="op">=</span> <span class="st">"random"</span><span class="op">)</span>,</span>
-<span>    random_with_cost   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>signal_cost      <span class="op">=</span> <span class="fl">0.2</span>,</span>
-<span>                              mate_choice_mode <span class="op">=</span> <span class="st">"random"</span><span class="op">)</span>,</span>
-<span>    preference_no_cost <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>signal_cost          <span class="op">=</span> <span class="fl">0.0</span>,</span>
-<span>                              mate_choice_mode     <span class="op">=</span> <span class="st">"preference"</span>,</span>
-<span>                              mate_choice_strength <span class="op">=</span> <span class="fl">1.0</span><span class="op">)</span>,</span>
-<span>    preference_mild    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>signal_cost          <span class="op">=</span> <span class="fl">0.1</span>,</span>
-<span>                              mate_choice_mode     <span class="op">=</span> <span class="st">"preference"</span>,</span>
-<span>                              mate_choice_strength <span class="op">=</span> <span class="fl">1.0</span><span class="op">)</span>,</span>
-<span>    preference_strong  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>signal_cost          <span class="op">=</span> <span class="fl">0.3</span>,</span>
-<span>                              mate_choice_mode     <span class="op">=</span> <span class="st">"preference"</span>,</span>
-<span>                              mate_choice_strength <span class="op">=</span> <span class="fl">1.0</span><span class="op">)</span></span>
+<span>    null_no_signals <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>signal_dims <span class="op">=</span> <span class="fl">0L</span><span class="op">)</span>,</span>
+<span>    zahavi_off      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>signal_cost_mortality <span class="op">=</span> <span class="fl">0.000</span><span class="op">)</span>,</span>
+<span>    zahavi_weak     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>signal_cost_mortality <span class="op">=</span> <span class="fl">0.001</span><span class="op">)</span>,</span>
+<span>    zahavi_mild     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>signal_cost_mortality <span class="op">=</span> <span class="fl">0.002</span><span class="op">)</span>,</span>
+<span>    zahavi_moderate <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>signal_cost_mortality <span class="op">=</span> <span class="fl">0.003</span><span class="op">)</span></span>
 <span>  <span class="op">)</span>,</span>
 <span>  seeds <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">8</span>,</span>
 <span>  metrics <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>    final_signal <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">t</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">t</span><span class="op">$</span><span class="va">mean_signal_magnitude</span>, <span class="fl">500</span><span class="op">)</span>,</span>
 <span>                                    na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
-<span>    final_n      <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">t</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">t</span><span class="op">$</span><span class="va">n_agents</span>, <span class="fl">500</span><span class="op">)</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span>    final_n      <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">t</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">t</span><span class="op">$</span><span class="va">n_agents</span>, <span class="fl">500</span><span class="op">)</span>,</span>
+<span>                                    na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span>  <span class="op">)</span>,</span>
-<span>  n_cores <span class="op">=</span> <span class="fl">48L</span></span>
+<span>  n_cores <span class="op">=</span> <span class="fl">40L</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">sweep</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -282,52 +303,48 @@ carry the question.</p>
 <h2 id="results">Results<a class="anchor" aria-label="anchor" href="#results"></a>
 </h2>
 <div class="section level3">
-<h3 id="per-condition-signal-magnitudes-8-seeds-each">Per-condition signal magnitudes (8 seeds each)<a class="anchor" aria-label="anchor" href="#per-condition-signal-magnitudes-8-seeds-each"></a>
+<h3 id="dose-response-8-seeds-per-condition">Dose-response (8 seeds per condition)<a class="anchor" aria-label="anchor" href="#dose-response-8-seeds-per-condition"></a>
 </h3>
 <table class="table">
 <thead><tr class="header">
-<th>condition</th>
+<th>β_Sv</th>
 <th>final_signal ± SE</th>
+<th>final_n ± SE</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td>null (signal_dims = 0)</td>
-<td>
-<strong>0.000</strong> ± 0.000</td>
+<td>— (signals off)</td>
+<td>0.000 ± 0.000</td>
+<td>158 ± 2.6</td>
 </tr>
 <tr class="even">
-<td>random, cost = 0</td>
-<td>1.054 ± 0.005</td>
+<td>0.000</td>
+<td><strong>1.063 ± 0.006</strong></td>
+<td>123 ± 6.8</td>
 </tr>
 <tr class="odd">
-<td>random, cost = 0.2</td>
-<td>1.049 ± 0.006</td>
+<td>0.001</td>
+<td>1.039 ± 0.010</td>
+<td>70 ± 9.7</td>
 </tr>
 <tr class="even">
-<td>preference, cost = 0</td>
-<td>1.054 ± 0.005</td>
+<td>0.002</td>
+<td>0.961 ± 0.055</td>
+<td>38 ± 6.3</td>
 </tr>
 <tr class="odd">
-<td>preference, cost = 0.1</td>
-<td>1.063 ± 0.006</td>
-</tr>
-<tr class="even">
-<td>preference, cost = 0.3</td>
-<td>1.049 ± 0.006</td>
+<td>0.003</td>
+<td><strong>0.625 ± 0.123</strong></td>
+<td>6 ± 2.0</td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section level3">
-<h3 id="contrasts">Contrasts<a class="anchor" aria-label="anchor" href="#contrasts"></a>
+<h3 id="contrasts-reference-zahavi_off-metric-final_signal">Contrasts (reference = <code>zahavi_off</code>, metric =
+<code>final_signal</code>)<a class="anchor" aria-label="anchor" href="#contrasts-reference-zahavi_off-metric-final_signal"></a>
 </h3>
 <table class="table">
-<colgroup>
-<col width="25%">
-<col width="25%">
-<col width="25%">
-<col width="25%">
-</colgroup>
 <thead><tr class="header">
 <th>contrast</th>
 <th>Δ</th>
@@ -336,108 +353,110 @@ carry the question.</p>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td>preference vs random, no cost</td>
-<td><strong>0.000 ± 0.008</strong></td>
-<td><strong>0.00</strong></td>
-<td><strong>null</strong></td>
+<td>β_Sv = 0.001</td>
+<td>−0.025 ± 0.012</td>
+<td>−2.13</td>
+<td><strong>PASS</strong></td>
 </tr>
 <tr class="even">
-<td>preference vs random, mild cost</td>
-<td>+0.015 ± 0.009</td>
-<td>+1.63</td>
+<td>β_Sv = 0.002</td>
+<td>−0.102 ± 0.056</td>
+<td>−1.84</td>
 <td>marginal</td>
+</tr>
+<tr class="odd">
+<td>β_Sv = 0.003</td>
+<td>−0.439 ± 0.123</td>
+<td>−3.57</td>
+<td><strong>PASS</strong></td>
 </tr>
 </tbody>
 </table>
+<p>Signal magnitude declines monotonically with mortality rate and the
+population declines in lockstep — the cost is real, exactly as Zahavi
+(1975) and Grafen (1990) argued the handicap must be. At β_Sv = 0.003
+the population is essentially extinct (n ≈ 6); somewhere between 0.002
+and 0.003 is the clade-specific upper bound on a survivable handicap in
+this parameter regime.</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="honest-interpretation">Honest interpretation<a class="anchor" aria-label="anchor" href="#honest-interpretation"></a>
+<h2 id="what-this-reproduction-does-and-doesnt-claim">What this reproduction does and doesn’t claim<a class="anchor" aria-label="anchor" href="#what-this-reproduction-does-and-doesnt-claim"></a>
 </h2>
-<p><strong>All six active conditions converge to the same drift
-equilibrium</strong> at signal magnitude ≈ 1.05. Mate-choice mode
-(random vs preference) makes no difference. Signal cost (0, 0.1, 0.2,
-0.3) makes no difference. Only the “signal_dims = 0” null is visibly
-different — signals that don’t exist don’t drift.</p>
-<p>Also replicated at the earlier parameter regime
-(<code>signal_drift_sd = 0.01, mate_choice_strength = 0.7</code>) with
-essentially identical result: all conditions converged to magnitude ≈
-0.22, no differentiation. The finding is robust across two parameter
-regimes.</p>
 <div class="section level3">
-<h3 id="why-this-happens-kernel-diagnosis">Why this happens — kernel diagnosis<a class="anchor" aria-label="anchor" href="#why-this-happens-kernel-diagnosis"></a>
+<h3 id="zahavi-handicap-mechanism-reproduced">✅ Zahavi handicap mechanism reproduced<a class="anchor" aria-label="anchor" href="#zahavi-handicap-mechanism-reproduced"></a>
 </h3>
-<p>clade’s per-agent signal vector drifts at rate
-<code>signal_drift_sd</code> per tick via
-<code>signal_evolution_drift = TRUE</code>. The equilibrium magnitude is
-set by the balance of (a) per-tick mutational variance and (b) the
-signal-dimensional L1 norm convergence — both independent of mate
-choice. Mate-choice by preference <em>selects</em> which signals survive
-to reproduce, but can’t push the population mean away from the drift
-attractor faster than drift itself.</p>
-<p>The same pattern was independently documented in the
-<code>s-signals</code> fidelity audit (Session 1 of the primary-citation
-audit): signal magnitude was flat across the whole tested cost range.
-This Fuller reproduction confirms it from a second angle.</p>
+<p>Adding a direct per-tick mortality probability that scales with
+signal magnitude produces the qualitative Zahavi/Grafen/Fuller
+signature: display shrinks, population shrinks, the cost is paid in
+lives. This is the β_Sv &lt; 0 leg of Fuller’s framework, now present in
+the kernel.</p>
 </div>
 <div class="section level3">
-<h3 id="what-this-means-for-fuller-2005s-question">What this means for Fuller 2005’s question<a class="anchor" aria-label="anchor" href="#what-this-means-for-fuller-2005s-question"></a>
+<h3 id="fisher-runaway-still-blocked-by-mate_choice_mode-stub">❌ Fisher runaway still blocked by <code>mate_choice_mode</code>
+stub<a class="anchor" aria-label="anchor" href="#fisher-runaway-still-blocked-by-mate_choice_mode-stub"></a>
 </h3>
-<p>clade’s current kernel cannot provide quantitative evidence for or
-against Fuller’s sensory-bias-vs-Fisher synthesis, because <strong>no
-mechanism we tested produces measurable signal elaboration</strong>.
-That’s an honest kernel-level limit, not a Fuller-is-wrong-in-clade
-finding.</p>
+<p>The 5-condition design in the original audit script tried to contrast
+preference-mating (<code>mate_choice_mode = "preference"</code>) against
+random mating (<code>"random"</code>) at zero cost. The two conditions
+came back with identical means <strong>and</strong> identical standard
+errors across all metrics. Investigation of <a href="https://github.com/itchyshin/clade/blob/main/inst/julia/src/reproduce.jl#L260-L283" class="external-link">reproduce.jl:260-283</a>
+shows the kernel has only two branches — <code>signal_dims == 0</code> →
+random, else → preference. The <code>mate_choice_mode</code> and
+<code>mate_choice_strength</code> spec fields are documented, defaulted,
+and referenced by multiple vignettes, but silently ignored by the
+simulation. Fisher C_tp cannot be tested until that stub is wired, which
+is a dedicated future kernel PR (with a re-audit of any paper
+reproduction that toggled <code>mate_choice_mode</code> — primarily
+<code>s-kokko-brooks-2003</code>, <code>s-signals</code>,
+<code>s-mating-systems</code>).</p>
 </div>
 <div class="section level3">
-<h3 id="what-clade-would-need-to-test-fuller-directly">What clade would need to test Fuller directly<a class="anchor" aria-label="anchor" href="#what-clade-would-need-to-test-fuller-directly"></a>
+<h3 id="sensory-bias-sensu-stricto-not-implemented">❌ Sensory bias sensu stricto not implemented<a class="anchor" aria-label="anchor" href="#sensory-bias-sensu-stricto-not-implemented"></a>
 </h3>
-<p>Three kernel changes that would enable a proper Fuller 2005
-reproduction:</p>
-<ol style="list-style-type: decimal">
-<li>
-<strong>Per-agent signal trait logging</strong> — expose signal and
-preference vectors in <code><a href="../reference/get_run_data.html">get_run_data()</a></code> so direction-alignment
-can be measured over time.</li>
-<li>
-<strong>Cost-selected drift</strong> — replace uniform per-tick
-<code>signal_drift_sd</code> with cost-modulated drift so
-<code>signal_cost &gt;    0</code> measurably compresses the drift
-kernel.</li>
-<li>
-<strong>Correlated sensory-preference trait</strong> — Fuller’s
-central claim needs an explicit genetic-correlation parameter between
-the sensory apparatus (foraging-relevant) and preference
-(mating-relevant) traits. clade’s BNN brain treats these as
-domain-general — pre-Fuller in design.</li>
-</ol>
-<p>None of the three are prohibitive. A 0.7+ kernel pass could enable
-the full reproduction. Until then, the Fuller vignette remains a
-documented honest null.</p>
+<p>Ryan’s (1990) sensory-exploitation mechanism is asymmetric:
+preferences exist <strong>first</strong>, shaped by non-mating selection
+(foraging, predator detection), and signals evolve
+<strong>later</strong> to exploit the pre-existing bias. clade
+initializes signal and preference vectors to zero with independent drift
+— there is no mechanism to install a preference independently of mate
+choice, and no coupling between preferences and any non-mating fitness
+component. A future kernel change could expose
+<code>preference_foraging_coupling</code> or similar to install the β_N
+leg.</p>
 </div>
+</div>
+<div class="section level2">
+<h2 id="interpretation">Interpretation<a class="anchor" aria-label="anchor" href="#interpretation"></a>
+</h2>
+<p>clade at 0.6.3 now carries one of Fuller’s three mechanisms cleanly
+and honestly. The paper’s distinctive claim — that sensory bias and
+Fisher coevolution are <strong>not</strong> mutually exclusive —
+requires both absent legs to be wired before we can test it, because the
+non-exclusivity test is a G-matrix claim about C_tp behaviour under a
+β_N gradient. The current vignette therefore stops at the honest
+partial: handicap works; the synthesis itself remains untested.</p>
 </div>
 <div class="section level2">
 <h2 id="methodology-takeaway">Methodology takeaway<a class="anchor" aria-label="anchor" href="#methodology-takeaway"></a>
 </h2>
-<p>This vignette models the <strong>third common outcome</strong>
-catalogued in the <a href="paper-template.html">paper-reproduction
-template</a> and the pattern of outcomes across the showcase:</p>
-<blockquote>
-<p>When clade’s kernel can’t differentiate the mechanisms the paper
-describes, the honest null IS the finding. Don’t force a clean ✅ by
-cherry-picking parameters that separate conditions for spurious
-reasons.</p>
-</blockquote>
-<p>It pairs nicely with the s-signals ⚠️ verdict (same underlying
-finding, documented earlier) and with the Courchamp 1999 vignette’s
-“check what clade already does before building custom extensions”
-advice: both highlight that the first step of an in-silico reproduction
-is verifying the substrate can carry the question.</p>
+<p>This vignette models the <strong>partial-reproduction</strong>
+outcome: one mechanism from a multi-mechanism paper is reproduced, the
+others are documented kernel-limit nulls with specific, actionable
+kernel gaps noted. It pairs with the <a href="paper-kokko-brooks-2003.html">Kokko &amp; Brooks 2003</a>
+mechanism- level-contradiction vignette (where the
+<code>mate_choice_mode</code> stub now casts uncertainty on the “✅
+promoted” verdict, pending the re-audit) and with <code>s-signals</code>
+(same underlying substrate, same partial coverage).</p>
 </div>
 <div class="section level2">
-<h2 id="pattern-across-the-7-paper-showcase">Pattern across the 7-paper showcase<a class="anchor" aria-label="anchor" href="#pattern-across-the-7-paper-showcase"></a>
+<h2 id="pattern-across-the-paper-reproduction-showcase">Pattern across the paper-reproduction showcase<a class="anchor" aria-label="anchor" href="#pattern-across-the-paper-reproduction-showcase"></a>
 </h2>
 <table class="table">
+<colgroup>
+<col width="50%">
+<col width="50%">
+</colgroup>
 <thead><tr class="header">
 <th>Outcome</th>
 <th>Examples</th>
@@ -452,26 +471,24 @@ is verifying the substrate can carry the question.</p>
 <td>Réale 2010 (lifespan-only)</td>
 </tr>
 <tr class="odd">
+<td>Partial ✅ (1 of n mechanisms)</td>
+<td>
+<strong>Fuller 2005</strong> (this vignette — Zahavi leg only)</td>
+</tr>
+<tr class="even">
 <td>Direction-correct sub-threshold</td>
 <td>Griesser 2023, Courchamp 1999</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Raw-inverts-on-per-capita</td>
 <td>Emlen 1982</td>
 </tr>
-<tr class="odd">
-<td>Mechanism-level contradiction</td>
-<td>K&amp;B 2003</td>
-</tr>
 <tr class="even">
-<td><strong>Kernel-level honest null</strong></td>
-<td>
-<strong>Fuller 2005</strong> (this vignette)</td>
+<td>Mechanism-level contradiction</td>
+<td>Kokko &amp; Brooks 2003</td>
 </tr>
 </tbody>
 </table>
-<p>Seven papers × six outcome patterns = researchers can template-match
-their own paper to the closest example and follow that workflow.</p>
 </div>
 <div class="section level2">
 <h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
@@ -487,37 +504,60 @@ their own paper to the closest example and follow that workflow.</p>
 <span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>  <span class="dt">doi</span>     = {10.1086/444443}</span>
 <span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>}</span>
 <span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a></span>
-<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="va">@article</span>{<span class="ot">ryan1990sexual</span>,</span>
-<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>  <span class="dt">author</span>  = {Ryan, M. J.},</span>
-<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>  <span class="dt">title</span>   = {Sexual selection, sensory systems and sensory exploitation},</span>
-<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>  <span class="dt">journal</span> = {Oxford Surveys in Evolutionary Biology},</span>
-<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a>  <span class="dt">volume</span>  = {7},</span>
-<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>  <span class="dt">pages</span>   = {157--195},</span>
-<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>  <span class="dt">year</span>    = {1990}</span>
-<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>}</span>
-<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a></span>
-<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="va">@article</span>{<span class="ot">ryan1990tungara</span>,</span>
-<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a>  <span class="dt">author</span>  = {Ryan, M. J. and Fox, J. H. and Wilczynski, W. and Rand, A. S.},</span>
-<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a>  <span class="dt">title</span>   = {Sexual selection for sensory exploitation in the frog</span>
-<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a>             {<span class="ch">\emph</span>{Physalaemus pustulosus}}},</span>
-<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a>  <span class="dt">journal</span> = {Nature},</span>
-<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a>  <span class="dt">volume</span>  = {343},</span>
-<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a>  <span class="dt">pages</span>   = {66--67},</span>
-<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a>  <span class="dt">year</span>    = {1990},</span>
-<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a>  <span class="dt">doi</span>     = {10.1038/343066a0}</span>
-<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a>}</span>
-<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a></span>
-<span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a><span class="va">@article</span>{<span class="ot">endler1998sensory</span>,</span>
-<span id="cb2-33"><a href="#cb2-33" tabindex="-1"></a>  <span class="dt">author</span>  = {Endler, J. A. and Basolo, A. L.},</span>
-<span id="cb2-34"><a href="#cb2-34" tabindex="-1"></a>  <span class="dt">title</span>   = {Sensory ecology, receiver biases and sexual selection},</span>
-<span id="cb2-35"><a href="#cb2-35" tabindex="-1"></a>  <span class="dt">journal</span> = {Trends in Ecology <span class="ch">\&amp;</span> Evolution},</span>
-<span id="cb2-36"><a href="#cb2-36" tabindex="-1"></a>  <span class="dt">volume</span>  = {13},</span>
-<span id="cb2-37"><a href="#cb2-37" tabindex="-1"></a>  <span class="dt">number</span>  = {10},</span>
-<span id="cb2-38"><a href="#cb2-38" tabindex="-1"></a>  <span class="dt">pages</span>   = {415--420},</span>
-<span id="cb2-39"><a href="#cb2-39" tabindex="-1"></a>  <span class="dt">year</span>    = {1998},</span>
-<span id="cb2-40"><a href="#cb2-40" tabindex="-1"></a>  <span class="dt">doi</span>     = {10.1016/S0169-5347(98)01471-2}</span>
-<span id="cb2-41"><a href="#cb2-41" tabindex="-1"></a>}</span></code></pre></div>
-<p>Full audit protocol and raw outputs: <a href="https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/paper_fuller_2005.R" class="external-link">dev/audit/fidelity/paper_fuller_2005.R</a>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="va">@article</span>{<span class="ot">zahavi1975mate</span>,</span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>  <span class="dt">author</span>  = {Zahavi, A.},</span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>  <span class="dt">title</span>   = {Mate selection --- a selection for a handicap},</span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>  <span class="dt">journal</span> = {Journal of Theoretical Biology},</span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a>  <span class="dt">volume</span>  = {53},</span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>  <span class="dt">number</span>  = {1},</span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>  <span class="dt">pages</span>   = {205--214},</span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>  <span class="dt">year</span>    = {1975},</span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a>  <span class="dt">doi</span>     = {10.1016/0022-5193(75)90111-3}</span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a>}</span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a></span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a><span class="va">@article</span>{<span class="ot">grafen1990handicap</span>,</span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a>  <span class="dt">author</span>  = {Grafen, A.},</span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a>  <span class="dt">title</span>   = {Biological signals as handicaps},</span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a>  <span class="dt">journal</span> = {Journal of Theoretical Biology},</span>
+<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a>  <span class="dt">volume</span>  = {144},</span>
+<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a>  <span class="dt">number</span>  = {4},</span>
+<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a>  <span class="dt">pages</span>   = {517--546},</span>
+<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a>  <span class="dt">year</span>    = {1990},</span>
+<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a>  <span class="dt">doi</span>     = {10.1016/S0022-5193(05)80088-8}</span>
+<span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a>}</span>
+<span id="cb2-33"><a href="#cb2-33" tabindex="-1"></a></span>
+<span id="cb2-34"><a href="#cb2-34" tabindex="-1"></a><span class="va">@article</span>{<span class="ot">ryan1990sexual</span>,</span>
+<span id="cb2-35"><a href="#cb2-35" tabindex="-1"></a>  <span class="dt">author</span>  = {Ryan, M. J.},</span>
+<span id="cb2-36"><a href="#cb2-36" tabindex="-1"></a>  <span class="dt">title</span>   = {Sexual selection, sensory systems and sensory exploitation},</span>
+<span id="cb2-37"><a href="#cb2-37" tabindex="-1"></a>  <span class="dt">journal</span> = {Oxford Surveys in Evolutionary Biology},</span>
+<span id="cb2-38"><a href="#cb2-38" tabindex="-1"></a>  <span class="dt">volume</span>  = {7},</span>
+<span id="cb2-39"><a href="#cb2-39" tabindex="-1"></a>  <span class="dt">pages</span>   = {157--195},</span>
+<span id="cb2-40"><a href="#cb2-40" tabindex="-1"></a>  <span class="dt">year</span>    = {1990}</span>
+<span id="cb2-41"><a href="#cb2-41" tabindex="-1"></a>}</span>
+<span id="cb2-42"><a href="#cb2-42" tabindex="-1"></a></span>
+<span id="cb2-43"><a href="#cb2-43" tabindex="-1"></a><span class="va">@article</span>{<span class="ot">ryan1990tungara</span>,</span>
+<span id="cb2-44"><a href="#cb2-44" tabindex="-1"></a>  <span class="dt">author</span>  = {Ryan, M. J. and Fox, J. H. and Wilczynski, W. and Rand, A. S.},</span>
+<span id="cb2-45"><a href="#cb2-45" tabindex="-1"></a>  <span class="dt">title</span>   = {Sexual selection for sensory exploitation in the frog</span>
+<span id="cb2-46"><a href="#cb2-46" tabindex="-1"></a>             {<span class="ch">\emph</span>{Physalaemus pustulosus}}},</span>
+<span id="cb2-47"><a href="#cb2-47" tabindex="-1"></a>  <span class="dt">journal</span> = {Nature},</span>
+<span id="cb2-48"><a href="#cb2-48" tabindex="-1"></a>  <span class="dt">volume</span>  = {343},</span>
+<span id="cb2-49"><a href="#cb2-49" tabindex="-1"></a>  <span class="dt">pages</span>   = {66--67},</span>
+<span id="cb2-50"><a href="#cb2-50" tabindex="-1"></a>  <span class="dt">year</span>    = {1990},</span>
+<span id="cb2-51"><a href="#cb2-51" tabindex="-1"></a>  <span class="dt">doi</span>     = {10.1038/343066a0}</span>
+<span id="cb2-52"><a href="#cb2-52" tabindex="-1"></a>}</span>
+<span id="cb2-53"><a href="#cb2-53" tabindex="-1"></a></span>
+<span id="cb2-54"><a href="#cb2-54" tabindex="-1"></a><span class="va">@article</span>{<span class="ot">endler1998sensory</span>,</span>
+<span id="cb2-55"><a href="#cb2-55" tabindex="-1"></a>  <span class="dt">author</span>  = {Endler, J. A. and Basolo, A. L.},</span>
+<span id="cb2-56"><a href="#cb2-56" tabindex="-1"></a>  <span class="dt">title</span>   = {Sensory ecology, receiver biases and sexual selection},</span>
+<span id="cb2-57"><a href="#cb2-57" tabindex="-1"></a>  <span class="dt">journal</span> = {Trends in Ecology <span class="ch">\&amp;</span> Evolution},</span>
+<span id="cb2-58"><a href="#cb2-58" tabindex="-1"></a>  <span class="dt">volume</span>  = {13},</span>
+<span id="cb2-59"><a href="#cb2-59" tabindex="-1"></a>  <span class="dt">number</span>  = {10},</span>
+<span id="cb2-60"><a href="#cb2-60" tabindex="-1"></a>  <span class="dt">pages</span>   = {415--420},</span>
+<span id="cb2-61"><a href="#cb2-61" tabindex="-1"></a>  <span class="dt">year</span>    = {1998},</span>
+<span id="cb2-62"><a href="#cb2-62" tabindex="-1"></a>  <span class="dt">doi</span>     = {10.1016/S0169-5347(98)01471-2}</span>
+<span id="cb2-63"><a href="#cb2-63" tabindex="-1"></a>}</span></code></pre></div>
+<p>Full audit protocol and raw outputs: <a href="https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/paper_fuller_2005.R" class="external-link">dev/audit/fidelity/paper_fuller_2005.R</a>,
+<a href="https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/fig_fuller_2005.R" class="external-link">dev/audit/fidelity/fig_fuller_2005.R</a>,
 and <code>paper_fuller_2005.rds</code>.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

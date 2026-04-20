@@ -1,15 +1,18 @@
 # Reproducing a paper — Fuller, Houle & Travis 2005 (sensory bias synthesis)
 
-*Kernel-level honest null: clade’s current signal machinery is
-drift-dominated, and cannot differentiate the sensory-bias vs
-Fisherian-runaway vs Zahavi-handicap mechanisms that Fuller 2005’s
-theoretical synthesis unifies. This vignette demonstrates the “try to
-reproduce and find clade CAN’T differentiate the mechanisms” outcome as
-its own research finding.*
+*Partial reproduction (0.6.3). Fuller’s three-mechanism synthesis calls
+for β_Sv viability cost (Zahavi handicap), C_tp \> 0 preference-display
+covariance (Fisher runaway), and β_N spillover from non-mating selection
+onto preferences (sensory bias sensu Ryan 1990). 0.6.3 adds the first
+via `signal_cost_mortality` — a clean dose-response Zahavi curve is
+shown below. The other two remain documented kernel-limit nulls and are
+flagged for future kernel work.*
 
-![Fuller 2005 — all mate choice x cost combinations converge to the same
-signal magnitude (~1.05), with only the signals-off null at
-zero](figures-papers/fuller-2005.png)
+![Fuller 2005 dose-response — left panel: signal magnitude declines from
+1.06 to 0.63 as signal_cost_mortality increases from 0.000 to 0.003;
+right panel: population size declines from 123 to 6 over the same range,
+confirming the handicap is a real viability
+cost](figures-papers/fuller-2005.png)
 
 ------------------------------------------------------------------------
 
@@ -31,40 +34,36 @@ A theoretical synthesis that ties together:
 - **Endler, J. A. & Basolo, A. L. (1998).** *Sensory ecology, receiver
   biases and sexual selection.* *Trends in Ecology & Evolution* 13,
   415–420.
+- **Zahavi, A. (1975)** and **Grafen, A. (1990)** — the handicap
+  principle, which Fuller frames as the β_Sv \< 0 leg of the synthesis.
 
-Fuller et al.’s distinctive contribution is **theoretical**: they argue
-that “sensory bias” and “Fisherian coevolution” have been framed as
-rival explanations when in fact **both mechanisms can operate
-simultaneously**. Genetic correlations between sensory systems and mate
-preferences mean that direct selection on the sensory apparatus for
-non-mating functions (foraging, predator detection) spills over into
-mate-preference evolution, while preferences also coevolve with signals
-in the classic Fisherian sense. The two are a continuum, not a
-dichotomy.
+Fuller et al.’s distinctive contribution is **theoretical**: they cast
+sensory bias, Fisher runaway, and Zahavi handicap as three non-exclusive
+legs of one quantitative-genetic equation Δz̄ = G(β_N + β_S) + u,
+separated by which β terms (and which G-matrix covariances C_tp) are
+non-zero. clade’s job in this vignette is to say truthfully which of
+those legs its kernel can carry.
 
-## What clade can (and cannot) test directly
+## Three mechanisms, one honest ledger
 
-**Can test**: whether preference-based mate choice drives signal
-elaboration beyond what drift alone produces. If it does, clade would be
-providing a substrate for the Fuller-synthesized family of mechanisms to
-operate.
+| Mechanism                        | Fuller signature                                                               | Kernel status (0.6.3)                                                       |
+|----------------------------------|--------------------------------------------------------------------------------|-----------------------------------------------------------------------------|
+| **Zahavi handicap**              | β_Sv \< 0: viability cost on display                                           | ✅ `signal_cost_mortality` (new 0.6.3)                                      |
+| **Fisher runaway**               | C_tp \> 0: signal-preference covariance grows under preference mating vs drift | ❌ blocked — `mate_choice_mode` is a stub (see below)                       |
+| **Sensory bias** sensu Ryan 1990 | β_N shaped preference first; signal later exploits it                          | ❌ not implemented — no mechanism couples preferences to non-mating fitness |
 
-**Cannot test**: the specific Fuller distinction between pre-existing
-bias and coevolving preference. clade logs a scalar
-`mean_signal_magnitude` but not signal-direction or
-preference-direction, so we can’t measure the signal-preference
-alignment over time that would distinguish the mechanisms.
+0.6.2 (PR \#106) added three Fuller-framework metrics to the tick log —
+`mean_preference_magnitude`, `mean_signal_preference_dist` (proxy for
+−C_tp), `sd_signal_magnitude` (V_t). 0.6.3 adds the Zahavi-leg kernel
+field `signal_cost_mortality`. This vignette reports what the new
+machinery can and cannot test.
 
-That limit is important up front: even a clean positive result in this
-vignette wouldn’t settle Fuller’s question. What *can* happen is that
-clade shows **no** differentiation — a kernel-level honest null that
-tells us the substrate is too coarse to carry the question.
+## Experiment — Zahavi β_Sv dose-response
 
-## Experiment
-
-Six conditions × 8 seeds = 48 runs, 40×40 grid, 3000 ticks,
-`signal_drift_sd = 0.05`, `mate_choice_strength = 1.0` (fully greedy
-preference).
+Five conditions × 8 seeds = 40 runs, 40×40 grid, 3000 ticks,
+`signal_dims = 3`, `signal_drift_sd = 0.05`. The dose-response sweeps
+`signal_cost_mortality` across {0.000, 0.001, 0.002, 0.003}; the null
+has `signal_dims = 0` (signals off).
 
 ``` r
 library(clade)
@@ -83,142 +82,120 @@ base$signal_drift_sd        <- 0.05
 sweep <- hypothesis_sweep(
   base_specs = base,
   conditions = list(
-    null_no_signals    = list(signal_dims      = 0L,
-                              signal_cost      = 0.0,
-                              mate_choice_mode = "random"),
-    random_no_cost     = list(signal_cost      = 0.0,
-                              mate_choice_mode = "random"),
-    random_with_cost   = list(signal_cost      = 0.2,
-                              mate_choice_mode = "random"),
-    preference_no_cost = list(signal_cost          = 0.0,
-                              mate_choice_mode     = "preference",
-                              mate_choice_strength = 1.0),
-    preference_mild    = list(signal_cost          = 0.1,
-                              mate_choice_mode     = "preference",
-                              mate_choice_strength = 1.0),
-    preference_strong  = list(signal_cost          = 0.3,
-                              mate_choice_mode     = "preference",
-                              mate_choice_strength = 1.0)
+    null_no_signals = list(signal_dims = 0L),
+    zahavi_off      = list(signal_cost_mortality = 0.000),
+    zahavi_weak     = list(signal_cost_mortality = 0.001),
+    zahavi_mild     = list(signal_cost_mortality = 0.002),
+    zahavi_moderate = list(signal_cost_mortality = 0.003)
   ),
   seeds = 1:8,
   metrics = list(
     final_signal = function(t) mean(tail(t$mean_signal_magnitude, 500),
                                     na.rm = TRUE),
-    final_n      = function(t) mean(tail(t$n_agents, 500), na.rm = TRUE)
+    final_n      = function(t) mean(tail(t$n_agents, 500),
+                                    na.rm = TRUE)
   ),
-  n_cores = 48L
+  n_cores = 40L
 )
 print(sweep)
 ```
 
 ## Results
 
-### Per-condition signal magnitudes (8 seeds each)
+### Dose-response (8 seeds per condition)
 
-| condition              | final_signal ± SE |
-|------------------------|-------------------|
-| null (signal_dims = 0) | **0.000** ± 0.000 |
-| random, cost = 0       | 1.054 ± 0.005     |
-| random, cost = 0.2     | 1.049 ± 0.006     |
-| preference, cost = 0   | 1.054 ± 0.005     |
-| preference, cost = 0.1 | 1.063 ± 0.006     |
-| preference, cost = 0.3 | 1.049 ± 0.006     |
+| β_Sv            | final_signal ± SE | final_n ± SE |
+|-----------------|-------------------|--------------|
+| — (signals off) | 0.000 ± 0.000     | 158 ± 2.6    |
+| 0.000           | **1.063 ± 0.006** | 123 ± 6.8    |
+| 0.001           | 1.039 ± 0.010     | 70 ± 9.7     |
+| 0.002           | 0.961 ± 0.055     | 38 ± 6.3     |
+| 0.003           | **0.625 ± 0.123** | 6 ± 2.0      |
 
-### Contrasts
+### Contrasts (reference = `zahavi_off`, metric = `final_signal`)
 
-| contrast                        | Δ                 | t        | verdict  |
-|---------------------------------|-------------------|----------|----------|
-| preference vs random, no cost   | **0.000 ± 0.008** | **0.00** | **null** |
-| preference vs random, mild cost | +0.015 ± 0.009    | +1.63    | marginal |
+| contrast     | Δ              | t     | verdict  |
+|--------------|----------------|-------|----------|
+| β_Sv = 0.001 | −0.025 ± 0.012 | −2.13 | **PASS** |
+| β_Sv = 0.002 | −0.102 ± 0.056 | −1.84 | marginal |
+| β_Sv = 0.003 | −0.439 ± 0.123 | −3.57 | **PASS** |
 
-## Honest interpretation
+Signal magnitude declines monotonically with mortality rate and the
+population declines in lockstep — the cost is real, exactly as Zahavi
+(1975) and Grafen (1990) argued the handicap must be. At β_Sv = 0.003
+the population is essentially extinct (n ≈ 6); somewhere between 0.002
+and 0.003 is the clade-specific upper bound on a survivable handicap in
+this parameter regime.
 
-**All six active conditions converge to the same drift equilibrium** at
-signal magnitude ≈ 1.05. Mate-choice mode (random vs preference) makes
-no difference. Signal cost (0, 0.1, 0.2, 0.3) makes no difference. Only
-the “signal_dims = 0” null is visibly different — signals that don’t
-exist don’t drift.
+## What this reproduction does and doesn’t claim
 
-Also replicated at the earlier parameter regime
-(`signal_drift_sd = 0.01, mate_choice_strength = 0.7`) with essentially
-identical result: all conditions converged to magnitude ≈ 0.22, no
-differentiation. The finding is robust across two parameter regimes.
+### ✅ Zahavi handicap mechanism reproduced
 
-### Why this happens — kernel diagnosis
+Adding a direct per-tick mortality probability that scales with signal
+magnitude produces the qualitative Zahavi/Grafen/Fuller signature:
+display shrinks, population shrinks, the cost is paid in lives. This is
+the β_Sv \< 0 leg of Fuller’s framework, now present in the kernel.
 
-clade’s per-agent signal vector drifts at rate `signal_drift_sd` per
-tick via `signal_evolution_drift = TRUE`. The equilibrium magnitude is
-set by the balance of (a) per-tick mutational variance and (b) the
-signal-dimensional L1 norm convergence — both independent of mate
-choice. Mate-choice by preference *selects* which signals survive to
-reproduce, but can’t push the population mean away from the drift
-attractor faster than drift itself.
+### ❌ Fisher runaway still blocked by `mate_choice_mode` stub
 
-The same pattern was independently documented in the `s-signals`
-fidelity audit (Session 1 of the primary-citation audit): signal
-magnitude was flat across the whole tested cost range. This Fuller
-reproduction confirms it from a second angle.
+The 5-condition design in the original audit script tried to contrast
+preference-mating (`mate_choice_mode = "preference"`) against random
+mating (`"random"`) at zero cost. The two conditions came back with
+identical means **and** identical standard errors across all metrics.
+Investigation of
+[reproduce.jl:260-283](https://github.com/itchyshin/clade/blob/main/inst/julia/src/reproduce.jl#L260-L283)
+shows the kernel has only two branches — `signal_dims == 0` → random,
+else → preference. The `mate_choice_mode` and `mate_choice_strength`
+spec fields are documented, defaulted, and referenced by multiple
+vignettes, but silently ignored by the simulation. Fisher C_tp cannot be
+tested until that stub is wired, which is a dedicated future kernel PR
+(with a re-audit of any paper reproduction that toggled
+`mate_choice_mode` — primarily `s-kokko-brooks-2003`, `s-signals`,
+`s-mating-systems`).
 
-### What this means for Fuller 2005’s question
+### ❌ Sensory bias sensu stricto not implemented
 
-clade’s current kernel cannot provide quantitative evidence for or
-against Fuller’s sensory-bias-vs-Fisher synthesis, because **no
-mechanism we tested produces measurable signal elaboration**. That’s an
-honest kernel-level limit, not a Fuller-is-wrong-in-clade finding.
+Ryan’s (1990) sensory-exploitation mechanism is asymmetric: preferences
+exist **first**, shaped by non-mating selection (foraging, predator
+detection), and signals evolve **later** to exploit the pre-existing
+bias. clade initializes signal and preference vectors to zero with
+independent drift — there is no mechanism to install a preference
+independently of mate choice, and no coupling between preferences and
+any non-mating fitness component. A future kernel change could expose
+`preference_foraging_coupling` or similar to install the β_N leg.
 
-### What clade would need to test Fuller directly
+## Interpretation
 
-Three kernel changes that would enable a proper Fuller 2005
-reproduction:
-
-1.  **Per-agent signal trait logging** — expose signal and preference
-    vectors in
-    [`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md)
-    so direction-alignment can be measured over time.
-2.  **Cost-selected drift** — replace uniform per-tick `signal_drift_sd`
-    with cost-modulated drift so `signal_cost > 0` measurably compresses
-    the drift kernel.
-3.  **Correlated sensory-preference trait** — Fuller’s central claim
-    needs an explicit genetic-correlation parameter between the sensory
-    apparatus (foraging-relevant) and preference (mating-relevant)
-    traits. clade’s BNN brain treats these as domain-general —
-    pre-Fuller in design.
-
-None of the three are prohibitive. A 0.7+ kernel pass could enable the
-full reproduction. Until then, the Fuller vignette remains a documented
-honest null.
+clade at 0.6.3 now carries one of Fuller’s three mechanisms cleanly and
+honestly. The paper’s distinctive claim — that sensory bias and Fisher
+coevolution are **not** mutually exclusive — requires both absent legs
+to be wired before we can test it, because the non-exclusivity test is a
+G-matrix claim about C_tp behaviour under a β_N gradient. The current
+vignette therefore stops at the honest partial: handicap works; the
+synthesis itself remains untested.
 
 ## Methodology takeaway
 
-This vignette models the **third common outcome** catalogued in the
-[paper-reproduction
-template](https://itchyshin.github.io/clade/articles/paper-template.md)
-and the pattern of outcomes across the showcase:
+This vignette models the **partial-reproduction** outcome: one mechanism
+from a multi-mechanism paper is reproduced, the others are documented
+kernel-limit nulls with specific, actionable kernel gaps noted. It pairs
+with the [Kokko & Brooks
+2003](https://itchyshin.github.io/clade/articles/paper-kokko-brooks-2003.md)
+mechanism- level-contradiction vignette (where the `mate_choice_mode`
+stub now casts uncertainty on the “✅ promoted” verdict, pending the
+re-audit) and with `s-signals` (same underlying substrate, same partial
+coverage).
 
-> When clade’s kernel can’t differentiate the mechanisms the paper
-> describes, the honest null IS the finding. Don’t force a clean ✅ by
-> cherry-picking parameters that separate conditions for spurious
-> reasons.
+## Pattern across the paper-reproduction showcase
 
-It pairs nicely with the s-signals ⚠️ verdict (same underlying finding,
-documented earlier) and with the Courchamp 1999 vignette’s “check what
-clade already does before building custom extensions” advice: both
-highlight that the first step of an in-silico reproduction is verifying
-the substrate can carry the question.
-
-## Pattern across the 7-paper showcase
-
-| Outcome                         | Examples                        |
-|---------------------------------|---------------------------------|
-| Clean ✅                        | Dieckmann & Doebeli 1999        |
-| Conditional ✅                  | Réale 2010 (lifespan-only)      |
-| Direction-correct sub-threshold | Griesser 2023, Courchamp 1999   |
-| Raw-inverts-on-per-capita       | Emlen 1982                      |
-| Mechanism-level contradiction   | K&B 2003                        |
-| **Kernel-level honest null**    | **Fuller 2005** (this vignette) |
-
-Seven papers × six outcome patterns = researchers can template-match
-their own paper to the closest example and follow that workflow.
+| Outcome                         | Examples                                          |
+|---------------------------------|---------------------------------------------------|
+| Clean ✅                        | Dieckmann & Doebeli 1999                          |
+| Conditional ✅                  | Réale 2010 (lifespan-only)                        |
+| Partial ✅ (1 of n mechanisms)  | **Fuller 2005** (this vignette — Zahavi leg only) |
+| Direction-correct sub-threshold | Griesser 2023, Courchamp 1999                     |
+| Raw-inverts-on-per-capita       | Emlen 1982                                        |
+| Mechanism-level contradiction   | Kokko & Brooks 2003                               |
 
 ## Citation
 
@@ -232,6 +209,28 @@ their own paper to the closest example and follow that workflow.
   pages   = {437--446},
   year    = {2005},
   doi     = {10.1086/444443}
+}
+
+@article{zahavi1975mate,
+  author  = {Zahavi, A.},
+  title   = {Mate selection --- a selection for a handicap},
+  journal = {Journal of Theoretical Biology},
+  volume  = {53},
+  number  = {1},
+  pages   = {205--214},
+  year    = {1975},
+  doi     = {10.1016/0022-5193(75)90111-3}
+}
+
+@article{grafen1990handicap,
+  author  = {Grafen, A.},
+  title   = {Biological signals as handicaps},
+  journal = {Journal of Theoretical Biology},
+  volume  = {144},
+  number  = {4},
+  pages   = {517--546},
+  year    = {1990},
+  doi     = {10.1016/S0022-5193(05)80088-8}
 }
 
 @article{ryan1990sexual,
@@ -267,5 +266,6 @@ their own paper to the closest example and follow that workflow.
 ```
 
 Full audit protocol and raw outputs:
-[dev/audit/fidelity/paper_fuller_2005.R](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/paper_fuller_2005.R)
+[dev/audit/fidelity/paper_fuller_2005.R](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/paper_fuller_2005.R),
+[dev/audit/fidelity/fig_fuller_2005.R](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/fig_fuller_2005.R),
 and `paper_fuller_2005.rds`.

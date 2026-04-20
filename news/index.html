@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -131,6 +131,63 @@
       <small>Source: <a href="https://github.com/itchyshin/clade/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.6.3" id="clade-063-2026-04-19--zahavi-β_sv-handicap-mechanism-in-the-kernel">clade 0.6.3 (2026-04-19) — Zahavi β_Sv handicap mechanism in the kernel<a class="anchor" aria-label="anchor" href="#clade-063-2026-04-19--zahavi-%CE%B2_sv-handicap-mechanism-in-the-kernel"></a></h2>
+<p>Adds <code>signal_cost_mortality</code> (default <code>0.0</code>) — a direct per-tick viability cost scaling linearly with signal magnitude:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>p_die ← signal_cost_mortality × Σ <span class="sc">|</span>signal_i<span class="sc">|</span></span></code></pre></div>
+<p>implemented in <a href="https://github.com/itchyshin/clade/blob/main/inst/julia/src/modules/signals.jl" class="external-link">signals.jl</a>. This is the Fuller, Houle &amp; Travis (2005) β_Sv &lt; 0 viability-selection gradient, i.e. the kernel mechanism that Zahavi (1975) and Grafen (1990) argue <em>must</em> be present for costly honest signalling to be selected for. Distinct from <code>signal_cost</code> (which only drains energy and is easily masked by <code>signal_drift_sd</code>).</p>
+<div class="section level3">
+<h3 id="fuller-reproduction--partial--0-6-3">Fuller 2005 reproduction — partial ✅<a class="anchor" aria-label="anchor" href="#fuller-reproduction--partial--0-6-3"></a></h3>
+<p><code><a href="../articles/paper-fuller-2005.html">vignette("paper-fuller-2005")</a></code> rewritten. The Zahavi dose-response leg now reproduces cleanly:</p>
+<table class="table"><thead><tr class="header"><th>signal_cost_mortality</th>
+<th>final_signal ± SE</th>
+<th>final_n ± SE</th>
+</tr></thead><tbody><tr class="odd"><td>0.000</td>
+<td>1.063 ± 0.006</td>
+<td>123 ± 6.8</td>
+</tr><tr class="even"><td>0.001</td>
+<td>1.039 ± 0.010</td>
+<td>70 ± 9.7</td>
+</tr><tr class="odd"><td>0.002</td>
+<td>0.961 ± 0.055</td>
+<td>38 ± 6.3</td>
+</tr><tr class="even"><td>0.003</td>
+<td>0.625 ± 0.123</td>
+<td>6 ± 2.0</td>
+</tr></tbody></table><p>Signal and population decline monotonically with β_Sv — the cost is paid in lives, as Zahavi / Grafen / Fuller require.</p>
+<p>The Fisher-runaway leg and sensory-bias-sensu-Ryan-1990 leg of Fuller’s three-mechanism synthesis remain documented kernel-limit nulls with specific gaps flagged in the vignette (Fisher needs the <code>mate_choice_mode</code> stub wired; sensory bias needs a preference↔︎non-mating-fitness coupling mechanism).</p>
+</div>
+<div class="section level3">
+<h3 id="known-issue-surfaced-while-auditing-mate_choice_mode-is-a-stub-0-6-3">Known issue surfaced while auditing: <code>mate_choice_mode</code> is a stub<a class="anchor" aria-label="anchor" href="#known-issue-surfaced-while-auditing-mate_choice_mode-is-a-stub-0-6-3"></a></h3>
+<p>During the 5-condition audit, <code>drift_only</code> (random mating) and <code>fisher_pure</code> (preference mating) produced bit-identical results. <a href="https://github.com/itchyshin/clade/blob/main/inst/julia/src/reproduce.jl#L260-L283" class="external-link">reproduce.jl:260-283</a> only branches on <code>signal_dims</code>: <code>== 0</code> → random, <code>&gt; 0</code> → always preference. The <code>mate_choice_mode</code> and <code>mate_choice_strength</code> spec fields are documented and defaulted but silently ignored by the kernel. Downstream paper reproductions that toggled <code>mate_choice_mode</code> — primarily <code>s-kokko-brooks-2003</code>, <code>s-signals</code>, <code>s-mating-systems</code> — will need re-audit when the stub is wired. Flagged here for transparency; a dedicated PR to fix is next.</p>
+</div>
+<div class="section level3">
+<h3 id="backward-compatibility-0-6-3">Backward-compatibility<a class="anchor" aria-label="anchor" href="#backward-compatibility-0-6-3"></a></h3>
+<p>Fully backward-compatible. <code>signal_cost_mortality = 0.0</code> default means existing specs are unchanged. Add the field explicitly to opt into the handicap mechanism.</p>
+<hr></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.6.2" id="clade-062-2026-04-19--fuller-2005-framework-metrics-exposed">clade 0.6.2 (2026-04-19) — Fuller 2005 framework metrics exposed<a class="anchor" aria-label="anchor" href="#clade-062-2026-04-19--fuller-2005-framework-metrics-exposed"></a></h2>
+<p>Three new columns added to the per-tick log (<code>get_run_data(env)$ticks</code>) to operationalise parts of the <strong>Fuller, Houle &amp; Travis (2005)</strong> <em>Am Nat</em> quantitative-genetic framework for sexual-selection models (sensory bias vs Fisherian runaway vs good-genes vs direct benefits vs sexual conflict):</p>
+<table class="table"><colgroup><col width="33%"><col width="33%"><col width="33%"></colgroup><thead><tr class="header"><th>Column</th>
+<th>Fuller 2005 quantity</th>
+<th>What it captures</th>
+</tr></thead><tbody><tr class="odd"><td><code>mean_preference_magnitude</code></td>
+<td>mean preference phenotype p̄</td>
+<td>Population-mean of the agent preference vector (L1 norm)</td>
+</tr><tr class="even"><td><code>mean_signal_preference_dist</code></td>
+<td>proxy for −C_tp (preference-display covariance)</td>
+<td>Mean L2 distance between each agent’s signal and preference vectors. Shrinks under Fisher/good-genes coevolution (nonrandom mating produces C_tp &gt; 0); stays large under sensory bias alone.</td>
+</tr><tr class="odd"><td><code>sd_signal_magnitude</code></td>
+<td>proxy for V_t (additive genetic variance in display)</td>
+<td>Between-agent SD of signal magnitude</td>
+</tr></tbody></table><p>These unlock the sensory-bias / Fisher-runaway / handicap test discussed in <code><a href="../articles/paper-fuller-2005.html">vignette("paper-fuller-2005")</a></code>. Before this change, clade’s only signal-side observable was scalar <code>mean_signal_magnitude</code>, which couldn’t distinguish coevolved (C_tp &gt; 0) from independently drifted (C_tp = 0) signal-preference populations.</p>
+<p>All four columns are present for every run; when <code>signal_dims = 0L</code> they return zero rather than NA. Existing <code>mean_signal_magnitude</code> is unchanged; this release is purely additive.</p>
+<div class="section level3">
+<h3 id="follow-up-candidate-0-6-2">Follow-up (0.6.3+ candidate)<a class="anchor" aria-label="anchor" href="#follow-up-candidate-0-6-2"></a></h3>
+<p>Fuller 2005’s framework also distinguishes models by their cost structures. The right cost mechanism for the Zahavi handicap (Grafen 1990) is a <strong>viability penalty</strong> on high-signal agents (β_Sv &lt; 0), not mutation-rate modulation. A <code>signal_cost_mortality</code> spec implementing that is candidate work once this release’s metrics are vetted in a Fuller re-reproduction.</p>
+<hr></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.1" id="clade-061-2026-04-19--remove-broken-register_module-stub">clade 0.6.1 (2026-04-19) — remove broken register_module() stub<a class="anchor" aria-label="anchor" href="#clade-061-2026-04-19--remove-broken-register_module-stub"></a></h2>
 <p>The <code>register_module()</code> / <code>list_modules()</code> / <code>clear_modules()</code> R API is removed. It was a <strong>stub</strong>: the registered R hooks were never called during the simulation — <code>.apply_custom_modules()</code> existed in <code>R/modules.R</code> but had no caller in the run loop. A direct empirical test confirmed this (the Courchamp 1999 reproduction PR).</p>
@@ -297,12 +354,12 @@
 <h3 id="s-stress-hypermutation-----config-bug-not-biology-null-0-5-16">s-stress-hypermutation 🟠 → ✅ — config bug, not biology null<a class="anchor" aria-label="anchor" href="#s-stress-hypermutation-----config-bug-not-biology-null-0-5-16"></a></h3>
 <p>0.5.11 demoted s-stress-hypermutation on a “Δdiversity = +0.000” finding at 4 seeds. The hypothesis was that real diploid sex equalised mutation input. That hypothesis was <strong>wrong</strong>.</p>
 <p>Root cause was structural. In <code>inst/julia/src/reproduce.jl:156</code>, stress-mutation fires at reproduction time gated on parent’s energy being <strong>below</strong> <code>stress_threshold</code>:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode julia"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>eff_mut_sd <span class="op">=</span> <span class="cf">if</span> <span class="fu">Bool</span>(specs[<span class="st">"stress_hypermutation"</span>]) <span class="op">&amp;&amp;</span></span>
-<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>                ag.energy <span class="op">&lt;</span> stress_threshold</span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>    base_mut_sd <span class="op">*</span> stress_mutation_multiplier</span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="cf">else</span></span>
-<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>    base_mut_sd</span>
-<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode julia"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>eff_mut_sd <span class="op">=</span> <span class="cf">if</span> <span class="fu">Bool</span>(specs[<span class="st">"stress_hypermutation"</span>]) <span class="op">&amp;&amp;</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>                ag.energy <span class="op">&lt;</span> stress_threshold</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>    base_mut_sd <span class="op">*</span> stress_mutation_multiplier</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="cf">else</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>    base_mut_sd</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div>
 <p>Reproduction itself is gated at <code>ag.energy ≥ min_repro_energy</code> (default 120). Default <code>stress_threshold = 20</code>. So <code>energy</code> is ALWAYS ≥ 120 at reproduction, and the stress condition (<code>energy &lt; 20</code>) is ALWAYS false. <strong>Stress-mutation was never firing under default config.</strong> Δdiversity = 0 exactly because no hypermutation event ever happened.</p>
 </div>
 <div class="section level3">
@@ -512,9 +569,9 @@ RQ_benefit = (A − B) − (C − D)
 <div class="section level3">
 <h3 id="major-kernel-fix--_find_mate-was-structurally-asexual-by-default-0-5-10">Major kernel fix — <code>_find_mate</code> was structurally asexual by default<a class="anchor" aria-label="anchor" href="#major-kernel-fix--_find_mate-was-structurally-asexual-by-default-0-5-10"></a></h3>
 <p>Continued investigation of the 0.5.9 sigma-pegging bug traced the problem deeper than the selfing fallback. In <code>inst/julia/src/reproduce.jl:_find_mate</code> there was a short-circuit:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode julia"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="cf">if</span> specs[<span class="st">"ploidy"</span>] <span class="op">==</span> <span class="fl">1</span> <span class="op">||</span> <span class="fu">Int</span>(<span class="fu">get</span>(specs, <span class="st">"signal_dims"</span>, <span class="fl">0</span>)) <span class="op">==</span> <span class="fl">0</span></span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>    <span class="cf">return</span> <span class="cn">nothing</span>     <span class="co"># haploid / no-signal-choice → asexual</span></span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode julia"><code class="sourceCode julia"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="cf">if</span> specs[<span class="st">"ploidy"</span>] <span class="op">==</span> <span class="fl">1</span> <span class="op">||</span> <span class="fu">Int</span>(<span class="fu">get</span>(specs, <span class="st">"signal_dims"</span>, <span class="fl">0</span>)) <span class="op">==</span> <span class="fl">0</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>    <span class="cf">return</span> <span class="cn">nothing</span>     <span class="co"># haploid / no-signal-choice → asexual</span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div>
 <p><code>signal_dims = 0</code> is the <strong>default</strong> for every scenario except s-signals. The effect was that every supposedly-diploid run in clade has been producing structurally-haploid offspring (<code>pat_w = Float32[]</code> at every birth), regardless of <code>ploidy = 2</code>. The entire diploid pathway was a no-op unless signal evolution was explicitly turned on.</p>
 </div>
 <div class="section level3">
@@ -833,7 +890,7 @@ RQ_benefit = (A − B) − (C − D)
 <h3 id="kernel-vector-signal-predator-memory-batesmüller-canonical-0-4-4">Kernel: vector-signal predator memory (Bates/Müller canonical)<a class="anchor" aria-label="anchor" href="#kernel-vector-signal-predator-memory-batesm%C3%BCller-canonical-0-4-4"></a></h3>
 <p><strong>Dedicated <code>signal_memory::Vector{Float32}</code> field on Agent</strong> replaces 0.4.0 Tier 4’s overloading of <code>preference</code> (which is meant for prey mate-choice). Cleaner semantics; same mechanism.</p>
 <p><strong>Delta-rule Rescorla-Wagner update</strong> in <code>apply_predator_toxin!</code>. The predator learns a linear model that <em>predicts</em> toxicity from the signal vector:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>memory <span class="sc">+</span><span class="er">=</span> lr × (tox − <span class="fu">dot</span>(memory, signal)) × signal</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>memory <span class="sc">+</span><span class="er">=</span> lr × (tox − <span class="fu">dot</span>(memory, signal)) × signal</span></code></pre></div>
 <p>This is the Widrow-Hoff rule, standard for supervised linear regression. Symmetric (reinforcement on toxic prey, extinction on non-toxic prey) → enables Batesian breakdown when palatable mimics outnumber toxic models.</p>
 <p><strong>Avoidance uses predicted toxicity</strong>: <code>avoid if dot(memory, signal) &gt;= avoid_threshold</code>.</p>
 <p><strong>Aposematic pleiotropy</strong> — new spec <code>signal_toxicity_coupling ∈ [0, 1]</code>. When &gt; 0, each agent’s <code>signal[1]</code> is pulled toward its own toxicity each tick — the honest-signal mechanism theory requires.</p>

@@ -1058,9 +1058,23 @@ rate rises transiently. Controlled by three specs:
 - `signal_cost`:
 
   Numeric. Energy cost per unit of signal magnitude per tick (default
-  0.1). Models honest signalling costs (Zahavi 1975). Reference:
+  0.1). Indirect handicap cost — high-signal agents lose energy and
+  starve faster. Often masked by drift at realistic parameters; see also
+  `signal_cost_mortality` for direct viability cost. Reference:
   Zahavi (1975) Mate selection – a selection for a handicap, *Journal of
   Theoretical Biology* 53(1):205–214.
+
+- `signal_cost_mortality`:
+
+  Numeric in \[0, 1\]. Direct per-tick mortality probability scaling
+  with signal magnitude (default 0.0 = off). Implements the Zahavi
+  handicap as the Fuller, Houle & Travis (2005) β_Sv viability-selection
+  gradient — the right cost mechanism for distinguishing Fisher runaway
+  from sensory bias from Zahavi handicap. Distinct from `signal_cost`
+  (which only drains energy). References: Grafen (1990) Biological
+  signals as handicaps, *JTB* 144:517–546. Fuller, Houle & Travis (2005)
+  Sensory bias as an explanation for the evolution of mate preferences,
+  *Am Nat* 166:437–446. Added 0.6.3.
 
 - `signal_toxicity_coupling`:
 
