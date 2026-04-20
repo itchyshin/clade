@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -175,7 +175,22 @@ what doesn’t. Uses the <code><a href="../reference/hypothesis_sweep.html">hypo
 <code><a href="../reference/hypothesis_report.html">hypothesis_report()</a></code> helpers to keep the whole workflow
 inside clade’s vocabulary — no separate scripts, no bespoke
 plumbing.</em></p>
-<p><img src="figures-papers/kokko-brooks-2003.png" class="r-plt" alt="K&amp;B 2003 — signals x grass rate. Signals-effect shrinks as grass drops." width="100%"></p>
+<p><img src="figures-papers/kokko-brooks-2003.png" class="r-plt" alt="K&amp;B 2003 — signals × grass rate, 0.6.4 kernel. Signals effect is weak and non-monotonic; the interaction previously reported as PASS is now null." width="100%"></p>
+<blockquote>
+<p><strong>0.6.4 re-audit note.</strong> Numbers on this page are from
+the 0.6.4 kernel, which wires <code>mate_choice_mode</code> /
+<code>mate_choice_strength</code> for the first time (before 0.6.4 these
+were silently ignored — <code>signal_dims &gt; 0</code> always produced
+hard argmax regardless of <code>strength</code>). This audit script sets
+<code>mate_choice_strength = 0.7</code>, which now actually runs as
+softmax sampling. The pre-0.6.4 numbers (clean monotonic
+<code>signals_effect</code> shrinking with stress, interaction
+<code>t = +2.81 PASS</code>) depended on the implicit argmax that the
+stub produced. Under honest softmax at <code>strength = 0.7</code>, the
+signals effect is weaker and the interaction goes null — clade can no
+longer adjudicate K&amp;B’s interaction in this parameter regime. See
+<code>NEWS.md</code> 0.6.4 for the full migration note.</p>
+</blockquote>
 <hr>
 <div class="section level2">
 <h2 id="the-paper">The paper<a class="anchor" aria-label="anchor" href="#the-paper"></a>
@@ -264,7 +279,7 @@ level?</p>
 <span><span class="op">}</span></span>
 <span><span class="va">grid_envs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/batch_alife.html">batch_alife</a></span><span class="op">(</span><span class="va">grid_spec_list</span>, n_cores <span class="op">=</span> <span class="fl">20L</span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
-<h3 id="stage-1-result-final_n-across-the-cost-grass-grid">Stage 1 result — final_n across the cost × grass grid<a class="anchor" aria-label="anchor" href="#stage-1-result-final_n-across-the-cost-grass-grid"></a>
+<h3 id="stage-1-result-final_n-across-the-cost-grass-grid-0-6-4">Stage 1 result — final_n across the cost × grass grid (0.6.4)<a class="anchor" aria-label="anchor" href="#stage-1-result-final_n-across-the-cost-grass-grid-0-6-4"></a>
 </h3>
 <table class="table">
 <thead><tr class="header">
@@ -284,31 +299,31 @@ level?</p>
 </tr>
 <tr class="even">
 <td>0.1</td>
-<td>201.6</td>
-<td>151.9</td>
-<td>97.4</td>
-<td>72.3</td>
+<td>232.2</td>
+<td>154.5</td>
+<td>111.8</td>
+<td>68.5</td>
 </tr>
 <tr class="odd">
 <td>0.2</td>
-<td>214.5</td>
-<td>152.2</td>
-<td>115.2</td>
-<td>63.5</td>
+<td>238.8</td>
+<td>151.9</td>
+<td>115.3</td>
+<td>74.3</td>
 </tr>
 <tr class="even">
 <td>0.4</td>
-<td>172.1</td>
-<td>161.7</td>
-<td>109.1</td>
-<td>70.2</td>
+<td>230.2</td>
+<td>138.5</td>
+<td>108.6</td>
+<td>63.4</td>
 </tr>
 <tr class="odd">
 <td>0.8</td>
-<td>203.8</td>
-<td>131.8</td>
-<td>101.7</td>
-<td>59.0</td>
+<td>241.4</td>
+<td>150.7</td>
+<td>101.9</td>
+<td>60.8</td>
 </tr>
 </tbody>
 </table>
@@ -324,27 +339,30 @@ level?</p>
 <tbody>
 <tr class="odd">
 <td>0.20 (abundant)</td>
-<td><strong>−40.0</strong></td>
+<td>−2.4</td>
 </tr>
 <tr class="even">
 <td>0.12</td>
-<td>−19.9</td>
+<td>−20.3</td>
 </tr>
 <tr class="odd">
 <td>0.08</td>
-<td>−14.9</td>
+<td>−11.4</td>
 </tr>
 <tr class="even">
 <td>0.05 (very scarce)</td>
-<td><strong>−7.1</strong></td>
+<td>−6.5</td>
 </tr>
 </tbody>
 </table>
-<p><strong>The signals-effect shrinks monotonically as grass
-drops.</strong> Across <em>every tested cost level</em> (0.1, 0.2, 0.4,
-0.8), stress reduces the demographic drag of signals, not amplifies it.
-K&amp;B’s interaction direction is contradicted robustly across the
-entire cost grid — not just at a single parameter choice.</p>
+<p><strong>The signals-effect is non-monotonic and weak.</strong> The
+biggest drag appears at mid-grass (0.12), not at either extreme. This is
+a regime where clade’s mate choice does not produce robust
+distinguishable signal costs across the stress gradient. Compare to the
+pre-0.6.4 numbers in git history (commit <code>3ede433</code>), where
+the implicit-argmax stub produced a clean monotonic shrinking pattern at
+roughly 3× the magnitude — a result we now know was partly an artifact
+of <code>mate_choice_strength</code> being ignored.</p>
 </div>
 </div>
 <div class="section level2">
@@ -430,17 +448,17 @@ statistics.</p>
 <span><span class="va">env_check</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_alife.html">run_alife</a></span><span class="op">(</span><span class="va">s_check</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/viability_report.html">viability_report</a></span><span class="op">(</span><span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env_check</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;clade viability report&gt;</span></span>
-<span><span class="co">#&gt;  viable: n_init=120, n_final=71 (59%), n_min=48 at tick 244 (40%)</span></span></code></pre></div>
-<p>Population drops to 40% of init but stays well above the “crashed”
-threshold — the stressed+signals condition is viable, so the Stage 2
-null on extinctions reflects real sustained populations, not dying-out
-runs.</p>
+<span><span class="co">#&gt;  viable: n_init=120, n_final=64 (53%), n_min=35 at tick 232 (29%)</span></span></code></pre></div>
+<p>Population drops to 29% of init at its minimum but stays above the
+“crashed” threshold — the stressed+signals condition is viable, so the
+Stage 2 null on extinctions reflects real sustained populations, not
+dying-out runs.</p>
 </div>
 <div class="section level2">
 <h2 id="stage-2-results">Stage 2 results<a class="anchor" aria-label="anchor" href="#stage-2-results"></a>
 </h2>
 <div class="section level3">
-<h3 id="per-condition-equilibrium-populations-8-seeds-each">Per-condition equilibrium populations (8 seeds each)<a class="anchor" aria-label="anchor" href="#per-condition-equilibrium-populations-8-seeds-each"></a>
+<h3 id="per-condition-equilibrium-populations-8-seeds-each-0-6-4">Per-condition equilibrium populations (8 seeds each, 0.6.4)<a class="anchor" aria-label="anchor" href="#per-condition-equilibrium-populations-8-seeds-each-0-6-4"></a>
 </h3>
 <table class="table">
 <thead><tr class="header">
@@ -452,22 +470,22 @@ runs.</p>
 <tr class="odd">
 <td>abundant (0.20)</td>
 <td>237.7 ± 5.3</td>
-<td>210.8 ± 3.7</td>
+<td>229.1 ± 5.2</td>
 </tr>
 <tr class="even">
 <td>mid (0.12)</td>
 <td>157.8 ± 3.2</td>
-<td>150.4 ± 3.9</td>
+<td>160.6 ± 3.2</td>
 </tr>
 <tr class="odd">
 <td>scarce (0.08)</td>
 <td>120.6 ± 2.3</td>
-<td>109.9 ± 1.6</td>
+<td>110.2 ± 1.4</td>
 </tr>
 <tr class="even">
 <td>very_scarce (0.05)</td>
 <td>70.2 ± 4.9</td>
-<td>67.1 ± 2.6</td>
+<td>68.8 ± 1.9</td>
 </tr>
 </tbody>
 </table>
@@ -487,26 +505,26 @@ cuts equilibrium population by ~70% regardless of signals.</p>
 <tbody>
 <tr class="odd">
 <td>abundant</td>
-<td><strong>−26.90 ± 6.46</strong></td>
-<td><strong>−4.17</strong></td>
-<td><strong>PASS</strong></td>
+<td>−8.66 ± 7.41</td>
+<td>−1.17</td>
+<td>null</td>
 </tr>
 <tr class="even">
 <td>mid</td>
-<td>−7.36 ± 5.06</td>
-<td>−1.46</td>
+<td>+2.86 ± 4.49</td>
+<td>+0.64</td>
 <td>null</td>
 </tr>
 <tr class="odd">
 <td>scarce</td>
-<td><strong>−10.77 ± 2.82</strong></td>
-<td><strong>−3.82</strong></td>
+<td><strong>−10.43 ± 2.72</strong></td>
+<td><strong>−3.83</strong></td>
 <td><strong>PASS</strong></td>
 </tr>
 <tr class="even">
 <td>very_scarce</td>
-<td>−3.11 ± 5.49</td>
-<td>−0.57</td>
+<td>−1.43 ± 5.22</td>
+<td>−0.27</td>
 <td>null</td>
 </tr>
 </tbody>
@@ -518,14 +536,17 @@ cuts equilibrium population by ~70% regardless of signals.</p>
 <p>K&amp;B predict: <code>signals_effect @ very_scarce</code> should be
 <em>more negative</em> than <code>signals_effect @ abundant</code> — the
 sexual-selection drag gets worse under stress.</p>
-<p>clade shows the opposite:</p>
-<pre><code>signals_effect @ abundant    = -26.90 ± 6.46
-signals_effect @ very_scarce =  -3.11 ± 5.49
-Δ(very_scarce - abundant)    = +23.79 ± 8.48, t = +2.81  [PASS]</code></pre>
-<p><strong>The interaction is positive and statistically
-significant.</strong> In clade, costly signals are a <em>larger</em>
-absolute demographic drag on abundant populations than on stressed ones
-— the opposite of the K&amp;B prediction.</p>
+<p>Under 0.6.4 (softmax-sampled preference mating at
+<code>strength = 0.7</code>):</p>
+<pre><code>signals_effect @ abundant    = -8.66 ± 7.41
+signals_effect @ very_scarce = -1.43 ± 5.22
+Δ(very_scarce - abundant)    = +7.22 ± 9.07, t = +0.80  [null]</code></pre>
+<p><strong>The interaction is null.</strong> The direction trend is
+still positive (wrong way for K&amp;B) but no longer statistically
+distinguishable from zero. The pre-0.6.4 “PASS” verdict on
+direction-wrong interaction (<code>t = +2.81</code>) depended on the
+implicit-argmax stub and does not survive honest softmax mate
+choice.</p>
 </div>
 <div class="section level3">
 <h3 id="extinction-rates">Extinction rates<a class="anchor" aria-label="anchor" href="#extinction-rates"></a>
@@ -541,36 +562,50 @@ not expressible in this regime.</p>
 </h2>
 <p>Three observations stand apart:</p>
 <ol style="list-style-type: decimal">
-<li><p><strong>The direction of the main effect matches K&amp;B
-qualitatively:</strong> at the signals-on arm, the population is smaller
-than the control. Zahavi-style handicap costs measurable in
-clade.</p></li>
-<li><p><strong>The interaction direction does NOT match.</strong> The
-sexual- selection cost is <em>diluted</em> by resource scarcity in
-clade: when the population is already energy-limited (low equilibrium),
-each agent’s per-tick <code>signal_cost = 0.2</code> removes less total
-energy from the system than at the high equilibrium. The signals-effect
-curve is concave, not steepening.</p></li>
+<li><p><strong>Signal effects are weak or null at most resource
+levels.</strong> Only <code>scarce</code> (grass=0.08) shows a
+significant signals drag (<code>t = −3.83</code>). abundant, mid, and
+very_scarce are all null. Under honest softmax mate choice,
+<code>signal_cost = 0.2</code> produces only marginal demographic drag
+at most stress levels.</p></li>
+<li><p><strong>The interaction direction is no longer distinguishable
+from zero.</strong> Pre-0.6.4 this audit reported
+<code>t = +2.81 PASS</code> on a direction-wrong interaction (“clade
+contradicts K&amp;B direction”). That verdict was specific to the
+implicit-argmax mate choice that the <code>mate_choice_mode</code> stub
+produced. With the wiring fixed, <code>t = +0.80 null</code> — clade
+can’t adjudicate K&amp;B’s interaction in this parameter
+regime.</p></li>
 <li><p><strong>No extinctions.</strong> K&amp;B’s primary outcome is not
 observed because clade’s dynamics produce stable low-density equilibria
 rather than demographic collapse even at the most extreme tested
 resource level.</p></li>
 </ol>
 <div class="section level3">
-<h3 id="why-the-mismatch">Why the mismatch?<a class="anchor" aria-label="anchor" href="#why-the-mismatch"></a>
+<h3 id="why-weaker-signals-effects-now">Why weaker signals effects now?<a class="anchor" aria-label="anchor" href="#why-weaker-signals-effects-now"></a>
 </h3>
-<p>clade’s signal cost is a <strong>per-tick per-agent linear energy
-drain</strong> on the agent’s own budget. K&amp;B’s theoretical
-framework (built on allele-dynamic models) assumes costs that interact
-multiplicatively with stress — for example, signal-maintenance costs
-that reduce an individual’s fasting tolerance under scarcity. These are
-different mechanistic claims dressed in the same surface-level “costly
-trait” vocabulary.</p>
-<p>This is <strong>scientifically informative, not a failure</strong>.
-The audit methodology surfaces exactly this kind of mechanism-level
-mismatch. A behavioural-ecology researcher reading K&amp;B’s paper and
-asking “would my empirical system show this?” can use clade to find out
-whether their modelled mechanism carries the claim through or not.</p>
+<p>Two reasons compound:</p>
+<ul>
+<li><p><strong>Softmax vs argmax mate choice.</strong> Pre-0.6.4, the
+kernel silently did argmax (always pick the single best
+preference-matching mate). Argmax creates strong selection: only the
+best-match signals propagate. With <code>strength = 0.7</code> softmax
+(the documented intent of this audit), many partial matches also
+reproduce, dramatically diluting the selective pressure on signals. Less
+selection → smaller demographic drag from
+<code>signal_cost</code>.</p></li>
+<li><p><strong>Mechanistic framework gap.</strong> clade’s signal cost
+is a <strong>per-tick per-agent linear energy drain</strong>. K&amp;B’s
+theoretical framework (built on allele-dynamic models) assumes costs
+that interact <em>multiplicatively</em> with stress — signal-maintenance
+costs reducing fasting tolerance under scarcity. These are different
+mechanistic claims dressed in the same surface “costly trait”
+vocabulary.</p></li>
+</ul>
+<p>Both findings are scientifically informative — the audit methodology
+surfaced both the framework-level mismatch (still true) and the
+stub-artifact bonus that had previously made the direction-contradiction
+look more decisive than it actually was.</p>
 </div>
 <div class="section level3">
 <h3 id="paths-to-a-clade-side-kb-reproduction">Paths to a clade-side K&amp;B reproduction<a class="anchor" aria-label="anchor" href="#paths-to-a-clade-side-kb-reproduction"></a>

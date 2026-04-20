@@ -11,7 +11,7 @@ run_alife() or search_map_elites()."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -1252,15 +1252,23 @@ updates toward observed prey signals (default 0.1). Relevant only
 when <code>mimicry = TRUE</code> and predators are present.</p></dd>
 
 <dt><code>mate_choice_mode</code></dt>
-<dd><p>Character. Mate-choice rule: <code>"random"</code>
-(default), <code>"preference"</code> (choose on signal dot-product with own
-evolved preference vector), or <code>"highest_signal"</code> (pick the
-highest-magnitude signal neighbour).</p></dd>
+<dd><p>Character. Mate-choice rule:
+<code>"preference"</code> (default, score on -||preference - candidate
+signal||^2 and sample softmax), <code>"random"</code> (uniform random
+among eligible neighbours), or <code>"highest_signal"</code> (score on
+signal magnitude). Wired in 0.6.4; before then this field was
+a latent stub and <code>signal_dims &gt; 0</code> always produced hard argmax
+on preference-distance regardless of mode. See <code>NEWS.md</code> 0.6.4
+for migration notes.</p></dd>
 
 <dt><code>mate_choice_strength</code></dt>
-<dd><p>Numeric in [0, 1]. Soft-max sharpness
-on the mate-choice score (default 0.7). At 1, choice is greedy; at
-0, uniform random.</p></dd>
+<dd><p>Numeric in [0, 1]. Softmax
+temperature parameter (default 1.0, greedy argmax). At 1, choice
+is a hard argmax on the mode-specific score (preserves pre-0.6.4
+observed behaviour); at 0, uniform random regardless of mode;
+intermediate values sample softmax with temperature
+<code>1 / mate_choice_strength</code>. Ignored when
+<code>mate_choice_mode = "random"</code>.</p></dd>
 
 
 </dl></div>

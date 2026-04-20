@@ -19,14 +19,14 @@ with runaway dynamics).
 
 **Key parameters.**
 
-| Parameter                | Default    | Effect                                                                                                       |
-|--------------------------|------------|--------------------------------------------------------------------------------------------------------------|
-| `signal_dims`            | 0L         | Number of heritable signal dimensions                                                                        |
-| `signal_cost`            | 0.1        | Energy cost per unit of total signal magnitude                                                               |
-| `signal_evolution_drift` | TRUE       | Adds stochastic drift to signal trait; **required** for signals to evolve away from their initial value of 0 |
-| `signal_drift_sd`        | 0.01       | Standard deviation of the per-tick drift perturbation                                                        |
-| `mate_choice_mode`       | `"random"` | `"preference"` enables directional mate choice                                                               |
-| `mate_choice_strength`   | 0.5        | Weight given to signal match in mate selection                                                               |
+| Parameter                | Default        | Effect                                                                                                                                                                                      |
+|--------------------------|----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `signal_dims`            | 0L             | Number of heritable signal dimensions                                                                                                                                                       |
+| `signal_cost`            | 0.1            | Energy cost per unit of total signal magnitude                                                                                                                                              |
+| `signal_evolution_drift` | TRUE           | Adds stochastic drift to signal trait; **required** for signals to evolve away from their initial value of 0                                                                                |
+| `signal_drift_sd`        | 0.01           | Standard deviation of the per-tick drift perturbation                                                                                                                                       |
+| `mate_choice_mode`       | `"preference"` | `"preference"` (default), `"random"`, or `"highest_signal"`. Wired to the kernel in 0.6.4 — before then the field was silently ignored and `signal_dims > 0` always used preference-argmax. |
+| `mate_choice_strength`   | 1.0            | Softmax temperature on the mate-choice score: `1.0` = greedy argmax (default, preserves pre-0.6.4 observed behaviour), `0.0` = uniform random. Wired in 0.6.4.                              |
 
 **Expected output.** `mean_signal_magnitude` increases over time as
 sexual selection drives signal elaboration. When `signal_cost` is

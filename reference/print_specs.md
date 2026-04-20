@@ -287,8 +287,8 @@ print_specs()
 #>     signal_cost_mortality                  0
 #>     signal_evolution_drift                 TRUE
 #>     signal_drift_sd                        0.01
-#>     mate_choice_mode                       random
-#>     mate_choice_strength                   0.5
+#>     mate_choice_mode                       preference
+#>     mate_choice_strength                   1
 #>     signal_toxicity_coupling               0
 #>     coevolving_parasites                   FALSE
 #>     parasite_match_mode                    auto

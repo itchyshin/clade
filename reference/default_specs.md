@@ -1105,14 +1105,22 @@ rate rises transiently. Controlled by three specs:
 
 - `mate_choice_mode`:
 
-  Character. Mate-choice rule: `"random"` (default), `"preference"`
-  (choose on signal dot-product with own evolved preference vector), or
-  `"highest_signal"` (pick the highest-magnitude signal neighbour).
+  Character. Mate-choice rule: `"preference"` (default, score on
+  -\|\|preference - candidate signal\|\|^2 and sample softmax),
+  `"random"` (uniform random among eligible neighbours), or
+  `"highest_signal"` (score on signal magnitude). Wired in 0.6.4; before
+  then this field was a latent stub and `signal_dims > 0` always
+  produced hard argmax on preference-distance regardless of mode. See
+  `NEWS.md` 0.6.4 for migration notes.
 
 - `mate_choice_strength`:
 
-  Numeric in \[0, 1\]. Soft-max sharpness on the mate-choice score
-  (default 0.7). At 1, choice is greedy; at 0, uniform random.
+  Numeric in \[0, 1\]. Softmax temperature parameter (default 1.0,
+  greedy argmax). At 1, choice is a hard argmax on the mode-specific
+  score (preserves pre-0.6.4 observed behaviour); at 0, uniform random
+  regardless of mode; intermediate values sample softmax with
+  temperature `1 / mate_choice_strength`. Ignored when
+  `mate_choice_mode = "random"`.
 
 ### Coevolving parasites (Hamilton 1980 Red Queen, 0.5.0 / 0.5.1)
 

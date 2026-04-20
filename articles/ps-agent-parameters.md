@@ -120,21 +120,21 @@ now produces.
 
 ## Signals, mate choice, social behaviour
 
-| Parameter                | Default    | Role                                                      |
-|--------------------------|------------|-----------------------------------------------------------|
-| `signal_dims`            | `0L`       | Length of heritable signal vector; 0 disables signals     |
-| `signal_init_mean`       | `0.0`      | Starting signal magnitude                                 |
-| `signal_cost`            | `0.1`      | Per-tick energy cost per unit magnitude (Zahavi handicap) |
-| `signal_evolution_drift` | `FALSE`    | Add mutation to signals each tick                         |
-| `mate_choice_mode`       | `"random"` | `"random"` or `"preference"`                              |
-| `avoid_threshold`        | `0.5`      | Aposematic avoidance trigger (mimicry)                    |
-| `kin_altruism_cost`      | `2.0`      | Donor cost                                                |
-| `kin_altruism_benefit`   | `10.0`     | Recipient benefit                                         |
-| `kin_altruism_r_min`     | `0.25`     | Relatedness threshold                                     |
-| `iffolk_transfer`        | `3.0`      | Inclusive-fitness transfer amount                         |
-| `parliament_suppression` | `FALSE`    | Penalise defectors among cooperators                      |
-| `parliament_cost`        | `0.5`      | Defector penalty                                          |
-| `cooperation_multiplier` | `2.0`      | Public-goods payoff (Nowak & May 1992)                    |
+| Parameter                | Default        | Role                                                            |
+|--------------------------|----------------|-----------------------------------------------------------------|
+| `signal_dims`            | `0L`           | Length of heritable signal vector; 0 disables signals           |
+| `signal_init_mean`       | `0.0`          | Starting signal magnitude                                       |
+| `signal_cost`            | `0.1`          | Per-tick energy cost per unit magnitude (Zahavi handicap)       |
+| `signal_evolution_drift` | `FALSE`        | Add mutation to signals each tick                               |
+| `mate_choice_mode`       | `"preference"` | `"preference"`, `"random"`, or `"highest_signal"` (wired 0.6.4) |
+| `avoid_threshold`        | `0.5`          | Aposematic avoidance trigger (mimicry)                          |
+| `kin_altruism_cost`      | `2.0`          | Donor cost                                                      |
+| `kin_altruism_benefit`   | `10.0`         | Recipient benefit                                               |
+| `kin_altruism_r_min`     | `0.25`         | Relatedness threshold                                           |
+| `iffolk_transfer`        | `3.0`          | Inclusive-fitness transfer amount                               |
+| `parliament_suppression` | `FALSE`        | Penalise defectors among cooperators                            |
+| `parliament_cost`        | `0.5`          | Defector penalty                                                |
+| `cooperation_multiplier` | `2.0`          | Public-goods payoff (Nowak & May 1992)                          |
 
 Kin altruism is the textbook case for a clean parameter search: a 9-cell
 `B × C` grid at fixed `r_min = 0.25` recovers Hamilton’s rule with

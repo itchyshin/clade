@@ -8,8 +8,22 @@ doesn’t. Uses the
 helpers to keep the whole workflow inside clade’s vocabulary — no
 separate scripts, no bespoke plumbing.*
 
-![K&B 2003 — signals x grass rate. Signals-effect shrinks as grass
-drops.](figures-papers/kokko-brooks-2003.png)
+![K&B 2003 — signals × grass rate, 0.6.4 kernel. Signals effect is weak
+and non-monotonic; the interaction previously reported as PASS is now
+null.](figures-papers/kokko-brooks-2003.png)
+
+> **0.6.4 re-audit note.** Numbers on this page are from the 0.6.4
+> kernel, which wires `mate_choice_mode` / `mate_choice_strength` for
+> the first time (before 0.6.4 these were silently ignored —
+> `signal_dims > 0` always produced hard argmax regardless of
+> `strength`). This audit script sets `mate_choice_strength = 0.7`,
+> which now actually runs as softmax sampling. The pre-0.6.4 numbers
+> (clean monotonic `signals_effect` shrinking with stress, interaction
+> `t = +2.81 PASS`) depended on the implicit argmax that the stub
+> produced. Under honest softmax at `strength = 0.7`, the signals effect
+> is weaker and the interaction goes null — clade can no longer
+> adjudicate K&B’s interaction in this parameter regime. See `NEWS.md`
+> 0.6.4 for the full migration note.
 
 ------------------------------------------------------------------------
 
@@ -94,30 +108,33 @@ for (c in COST_LEVELS) for (g in GRASS_LEVELS) {
 grid_envs <- batch_alife(grid_spec_list, n_cores = 20L)
 ```
 
-### Stage 1 result — final_n across the cost × grass grid
+### Stage 1 result — final_n across the cost × grass grid (0.6.4)
 
 | `signal_cost` | grass=0.20 | grass=0.12 | grass=0.08 | grass=0.05 |
 |---------------|------------|------------|------------|------------|
 | **0.0**       | **238.0**  | **169.2**  | **120.8**  | **73.3**   |
-| 0.1           | 201.6      | 151.9      | 97.4       | 72.3       |
-| 0.2           | 214.5      | 152.2      | 115.2      | 63.5       |
-| 0.4           | 172.1      | 161.7      | 109.1      | 70.2       |
-| 0.8           | 203.8      | 131.8      | 101.7      | 59.0       |
+| 0.1           | 232.2      | 154.5      | 111.8      | 68.5       |
+| 0.2           | 238.8      | 151.9      | 115.3      | 74.3       |
+| 0.4           | 230.2      | 138.5      | 108.6      | 63.4       |
+| 0.8           | 241.4      | 150.7      | 101.9      | 60.8       |
 
 ### Signals-effect per grass level (cost\>0 mean − cost=0)
 
 | `grass_rate`       | signals_effect |
 |--------------------|----------------|
-| 0.20 (abundant)    | **−40.0**      |
-| 0.12               | −19.9          |
-| 0.08               | −14.9          |
-| 0.05 (very scarce) | **−7.1**       |
+| 0.20 (abundant)    | −2.4           |
+| 0.12               | −20.3          |
+| 0.08               | −11.4          |
+| 0.05 (very scarce) | −6.5           |
 
-**The signals-effect shrinks monotonically as grass drops.** Across
-*every tested cost level* (0.1, 0.2, 0.4, 0.8), stress reduces the
-demographic drag of signals, not amplifies it. K&B’s interaction
-direction is contradicted robustly across the entire cost grid — not
-just at a single parameter choice.
+**The signals-effect is non-monotonic and weak.** The biggest drag
+appears at mid-grass (0.12), not at either extreme. This is a regime
+where clade’s mate choice does not produce robust distinguishable signal
+costs across the stress gradient. Compare to the pre-0.6.4 numbers in
+git history (commit `3ede433`), where the implicit-argmax stub produced
+a clean monotonic shrinking pattern at roughly 3× the magnitude — a
+result we now know was partly an artifact of `mate_choice_strength`
+being ignored.
 
 ## Stage 2: multi-seed validation
 
@@ -201,24 +218,24 @@ s_check$grass_rate             <- 0.05
 env_check <- run_alife(s_check, verbose = FALSE)
 viability_report(get_run_data(env_check))
 #> <clade viability report>
-#>  viable: n_init=120, n_final=71 (59%), n_min=48 at tick 244 (40%)
+#>  viable: n_init=120, n_final=64 (53%), n_min=35 at tick 232 (29%)
 ```
 
-Population drops to 40% of init but stays well above the “crashed”
-threshold — the stressed+signals condition is viable, so the Stage 2
-null on extinctions reflects real sustained populations, not dying-out
-runs.
+Population drops to 29% of init at its minimum but stays above the
+“crashed” threshold — the stressed+signals condition is viable, so the
+Stage 2 null on extinctions reflects real sustained populations, not
+dying-out runs.
 
 ## Stage 2 results
 
-### Per-condition equilibrium populations (8 seeds each)
+### Per-condition equilibrium populations (8 seeds each, 0.6.4)
 
 | grass_rate         | signals OFF | signals ON  |
 |--------------------|-------------|-------------|
-| abundant (0.20)    | 237.7 ± 5.3 | 210.8 ± 3.7 |
-| mid (0.12)         | 157.8 ± 3.2 | 150.4 ± 3.9 |
-| scarce (0.08)      | 120.6 ± 2.3 | 109.9 ± 1.6 |
-| very_scarce (0.05) | 70.2 ± 4.9  | 67.1 ± 2.6  |
+| abundant (0.20)    | 237.7 ± 5.3 | 229.1 ± 5.2 |
+| mid (0.12)         | 157.8 ± 3.2 | 160.6 ± 3.2 |
+| scarce (0.08)      | 120.6 ± 2.3 | 110.2 ± 1.4 |
+| very_scarce (0.05) | 70.2 ± 4.9  | 68.8 ± 1.9  |
 
 Main effect of resource: massive. Going from abundant to very_scarce
 cuts equilibrium population by ~70% regardless of signals.
@@ -227,10 +244,10 @@ cuts equilibrium population by ~70% regardless of signals.
 
 | resource level | Δ (signals − no signals) ± SE | t         | verdict  |
 |----------------|-------------------------------|-----------|----------|
-| abundant       | **−26.90 ± 6.46**             | **−4.17** | **PASS** |
-| mid            | −7.36 ± 5.06                  | −1.46     | null     |
-| scarce         | **−10.77 ± 2.82**             | **−3.82** | **PASS** |
-| very_scarce    | −3.11 ± 5.49                  | −0.57     | null     |
+| abundant       | −8.66 ± 7.41                  | −1.17     | null     |
+| mid            | +2.86 ± 4.49                  | +0.64     | null     |
+| scarce         | **−10.43 ± 2.72**             | **−3.83** | **PASS** |
+| very_scarce    | −1.43 ± 5.22                  | −0.27     | null     |
 
 ### The K&B interaction
 
@@ -238,15 +255,17 @@ K&B predict: `signals_effect @ very_scarce` should be *more negative*
 than `signals_effect @ abundant` — the sexual-selection drag gets worse
 under stress.
 
-clade shows the opposite:
+Under 0.6.4 (softmax-sampled preference mating at `strength = 0.7`):
 
-    signals_effect @ abundant    = -26.90 ± 6.46
-    signals_effect @ very_scarce =  -3.11 ± 5.49
-    Δ(very_scarce - abundant)    = +23.79 ± 8.48, t = +2.81  [PASS]
+    signals_effect @ abundant    = -8.66 ± 7.41
+    signals_effect @ very_scarce = -1.43 ± 5.22
+    Δ(very_scarce - abundant)    = +7.22 ± 9.07, t = +0.80  [null]
 
-**The interaction is positive and statistically significant.** In clade,
-costly signals are a *larger* absolute demographic drag on abundant
-populations than on stressed ones — the opposite of the K&B prediction.
+**The interaction is null.** The direction trend is still positive
+(wrong way for K&B) but no longer statistically distinguishable from
+zero. The pre-0.6.4 “PASS” verdict on direction-wrong interaction
+(`t = +2.81`) depended on the implicit-argmax stub and does not survive
+honest softmax mate choice.
 
 ### Extinction rates
 
@@ -259,36 +278,47 @@ expressible in this regime.
 
 Three observations stand apart:
 
-1.  **The direction of the main effect matches K&B qualitatively:** at
-    the signals-on arm, the population is smaller than the control.
-    Zahavi-style handicap costs measurable in clade.
+1.  **Signal effects are weak or null at most resource levels.** Only
+    `scarce` (grass=0.08) shows a significant signals drag
+    (`t = −3.83`). abundant, mid, and very_scarce are all null. Under
+    honest softmax mate choice, `signal_cost = 0.2` produces only
+    marginal demographic drag at most stress levels.
 
-2.  **The interaction direction does NOT match.** The sexual- selection
-    cost is *diluted* by resource scarcity in clade: when the population
-    is already energy-limited (low equilibrium), each agent’s per-tick
-    `signal_cost = 0.2` removes less total energy from the system than
-    at the high equilibrium. The signals-effect curve is concave, not
-    steepening.
+2.  **The interaction direction is no longer distinguishable from
+    zero.** Pre-0.6.4 this audit reported `t = +2.81 PASS` on a
+    direction-wrong interaction (“clade contradicts K&B direction”).
+    That verdict was specific to the implicit-argmax mate choice that
+    the `mate_choice_mode` stub produced. With the wiring fixed,
+    `t = +0.80 null` — clade can’t adjudicate K&B’s interaction in this
+    parameter regime.
 
 3.  **No extinctions.** K&B’s primary outcome is not observed because
     clade’s dynamics produce stable low-density equilibria rather than
     demographic collapse even at the most extreme tested resource level.
 
-### Why the mismatch?
+### Why weaker signals effects now?
 
-clade’s signal cost is a **per-tick per-agent linear energy drain** on
-the agent’s own budget. K&B’s theoretical framework (built on
-allele-dynamic models) assumes costs that interact multiplicatively with
-stress — for example, signal-maintenance costs that reduce an
-individual’s fasting tolerance under scarcity. These are different
-mechanistic claims dressed in the same surface-level “costly trait”
-vocabulary.
+Two reasons compound:
 
-This is **scientifically informative, not a failure**. The audit
-methodology surfaces exactly this kind of mechanism-level mismatch. A
-behavioural-ecology researcher reading K&B’s paper and asking “would my
-empirical system show this?” can use clade to find out whether their
-modelled mechanism carries the claim through or not.
+- **Softmax vs argmax mate choice.** Pre-0.6.4, the kernel silently did
+  argmax (always pick the single best preference-matching mate). Argmax
+  creates strong selection: only the best-match signals propagate. With
+  `strength = 0.7` softmax (the documented intent of this audit), many
+  partial matches also reproduce, dramatically diluting the selective
+  pressure on signals. Less selection → smaller demographic drag from
+  `signal_cost`.
+
+- **Mechanistic framework gap.** clade’s signal cost is a **per-tick
+  per-agent linear energy drain**. K&B’s theoretical framework (built on
+  allele-dynamic models) assumes costs that interact *multiplicatively*
+  with stress — signal-maintenance costs reducing fasting tolerance
+  under scarcity. These are different mechanistic claims dressed in the
+  same surface “costly trait” vocabulary.
+
+Both findings are scientifically informative — the audit methodology
+surfaced both the framework-level mismatch (still true) and the
+stub-artifact bonus that had previously made the direction-contradiction
+look more decisive than it actually was.
 
 ### Paths to a clade-side K&B reproduction
 

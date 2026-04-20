@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -169,14 +169,19 @@
 
     
     
-<p><em>Partial reproduction (0.6.3). Fuller’s three-mechanism synthesis
+<p><em>Partial reproduction (0.6.4). Fuller’s three-mechanism synthesis
 calls for β_Sv viability cost (Zahavi handicap), C_tp &gt; 0
 preference-display covariance (Fisher runaway), and β_N spillover from
 non-mating selection onto preferences (sensory bias sensu Ryan 1990).
-0.6.3 adds the first via <code>signal_cost_mortality</code> — a clean
-dose-response Zahavi curve is shown below. The other two remain
-documented kernel-limit nulls and are flagged for future kernel
-work.</em></p>
+0.6.3 added the first via <code>signal_cost_mortality</code> — a clean
+dose-response Zahavi curve is shown below. 0.6.4 wired the
+<code>mate_choice_mode</code> kernel stub which should have unblocked
+the Fisher leg, but the Fisher signature is
+<strong>direction-wrong</strong>: a deeper kernel gap (no genetic
+linkage between signal and preference loci) prevents C_tp from building
+up via mate choice alone. Sensory bias remains not implemented. Both
+non-Zahavi legs therefore remain documented kernel-limit nulls, with
+their specific required kernel work flagged below.</em></p>
 <p><img src="figures-papers/fuller-2005.png" class="r-plt" alt="Fuller 2005 dose-response — left panel: signal magnitude declines from 1.06 to 0.63 as signal_cost_mortality increases from 0.000 to 0.003; right panel: population size declines from 123 to 6 over the same range, confirming the handicap is a real viability cost" width="100%"></p>
 <hr>
 <div class="section level2">
@@ -238,8 +243,9 @@ carry.</p>
 <td><strong>Fisher runaway</strong></td>
 <td>C_tp &gt; 0: signal-preference covariance grows under preference
 mating vs drift</td>
-<td>❌ blocked — <code>mate_choice_mode</code> is a stub (see
-below)</td>
+<td>❌ direction-wrong — 0.6.4 wired <code>mate_choice_mode</code>, test
+now runs but signal and preference are independently inherited, so C_tp
+can’t build up (see below)</td>
 </tr>
 <tr class="odd">
 <td>
@@ -393,23 +399,55 @@ lives. This is the β_Sv &lt; 0 leg of Fuller’s framework, now present in
 the kernel.</p>
 </div>
 <div class="section level3">
-<h3 id="fisher-runaway-still-blocked-by-mate_choice_mode-stub">❌ Fisher runaway still blocked by <code>mate_choice_mode</code>
-stub<a class="anchor" aria-label="anchor" href="#fisher-runaway-still-blocked-by-mate_choice_mode-stub"></a>
+<h3 id="fisher-runaway-direction-wrong-deeper-kernel-gap-exposed-by-0-6-4">❌ Fisher runaway: direction-wrong — deeper kernel gap exposed by
+0.6.4<a class="anchor" aria-label="anchor" href="#fisher-runaway-direction-wrong-deeper-kernel-gap-exposed-by-0-6-4"></a>
 </h3>
-<p>The 5-condition design in the original audit script tried to contrast
-preference-mating (<code>mate_choice_mode = "preference"</code>) against
-random mating (<code>"random"</code>) at zero cost. The two conditions
-came back with identical means <strong>and</strong> identical standard
-errors across all metrics. Investigation of <a href="https://github.com/itchyshin/clade/blob/main/inst/julia/src/reproduce.jl#L260-L283" class="external-link">reproduce.jl:260-283</a>
-shows the kernel has only two branches — <code>signal_dims == 0</code> →
-random, else → preference. The <code>mate_choice_mode</code> and
-<code>mate_choice_strength</code> spec fields are documented, defaulted,
-and referenced by multiple vignettes, but silently ignored by the
-simulation. Fisher C_tp cannot be tested until that stub is wired, which
-is a dedicated future kernel PR (with a re-audit of any paper
-reproduction that toggled <code>mate_choice_mode</code> — primarily
-<code>s-kokko-brooks-2003</code>, <code>s-signals</code>,
-<code>s-mating-systems</code>).</p>
+<p>0.6.3 flagged <code>mate_choice_mode</code> as a latent stub. 0.6.4
+wired the stub and the re-audit of kokko-brooks-2003 demoted its “clade
+contradicts K&amp;B” verdict. But the Fisher C_tp test itself did NOT
+pass — the signature is direction-wrong:</p>
+<table class="table">
+<colgroup>
+<col width="25%">
+<col width="25%">
+<col width="25%">
+<col width="25%">
+</colgroup>
+<thead><tr class="header">
+<th>contrast</th>
+<th>Δ final_sp_dist</th>
+<th>t</th>
+<th>verdict</th>
+</tr></thead>
+<tbody><tr class="odd">
+<td>fisher_pure (preference mating) vs drift_only (random mating), no
+cost</td>
+<td><strong>+0.019 ± 0.007</strong></td>
+<td><strong>+2.51</strong></td>
+<td>direction-wrong</td>
+</tr></tbody>
+</table>
+<p>Fisher runaway predicts <code>Δ sp_dist &lt; 0</code> — preference
+mating should build up C_tp &gt; 0 (within-agent alignment of preference
+and signal). clade gives a small <strong>positive</strong> Δ: preference
+mating makes agents’ own preferences and signals slightly less aligned
+than random mating does.</p>
+<p>The underlying reason is a separate kernel gap that the
+mate-choice-mode wiring exposed rather than caused: <strong>clade has no
+genetic linkage between signal and preference loci.</strong> Meiosis
+inherits signal from (mother, father) and preference from (mother,
+father) independently. Mate choice selects parents for (A-preference
+matches B-signal) pairings, but offspring’s (preference, signal) vectors
+come from mean of parental vectors via meiosis, which decorrelates them.
+Without a recombination-rate or shared-chromosome mechanism coupling the
+two loci, Fisher’s C_tp cannot build up — the runaway has no substrate
+to run on.</p>
+<p>That’s a legitimate kernel-limit finding that’s only now visible
+because 0.6.4 let the mate-choice logic run. A proper Fisher-leg kernel
+change would need either (a) signal and preference on the same
+chromosome with tight linkage, or (b) a direct heritable correlation
+(e.g., pleiotropic mutation), neither of which clade currently
+provides.</p>
 </div>
 <div class="section level3">
 <h3 id="sensory-bias-sensu-stricto-not-implemented">❌ Sensory bias sensu stricto not implemented<a class="anchor" aria-label="anchor" href="#sensory-bias-sensu-stricto-not-implemented"></a>

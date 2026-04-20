@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -222,14 +222,19 @@ signals to evolve away from their initial value of 0</td>
 </tr>
 <tr class="odd">
 <td><code>mate_choice_mode</code></td>
-<td><code>"random"</code></td>
+<td><code>"preference"</code></td>
 <td>
-<code>"preference"</code> enables directional mate choice</td>
+<code>"preference"</code> (default), <code>"random"</code>, or
+<code>"highest_signal"</code>. Wired to the kernel in 0.6.4 — before
+then the field was silently ignored and <code>signal_dims &gt; 0</code>
+always used preference-argmax.</td>
 </tr>
 <tr class="even">
 <td><code>mate_choice_strength</code></td>
-<td>0.5</td>
-<td>Weight given to signal match in mate selection</td>
+<td>1.0</td>
+<td>Softmax temperature on the mate-choice score: <code>1.0</code> =
+greedy argmax (default, preserves pre-0.6.4 observed behaviour),
+<code>0.0</code> = uniform random. Wired in 0.6.4.</td>
 </tr>
 </tbody>
 </table>

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -131,6 +131,67 @@
       <small>Source: <a href="https://github.com/itchyshin/clade/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.6.4" id="clade-064-2026-04-20--mate_choice_mode-stub-wired-two-downstream-audits-shift">clade 0.6.4 (2026-04-20) — <code>mate_choice_mode</code> stub wired; two downstream audits shift<a class="anchor" aria-label="anchor" href="#clade-064-2026-04-20--mate_choice_mode-stub-wired-two-downstream-audits-shift"></a></h2>
+<div class="section level3">
+<h3 id="the-fix-0-6-4">The fix<a class="anchor" aria-label="anchor" href="#the-fix-0-6-4"></a></h3>
+<p><a href="https://github.com/itchyshin/clade/blob/main/inst/julia/src/reproduce.jl#L208-L325" class="external-link">reproduce.jl</a> is patched so <code>mate_choice_mode</code> and <code>mate_choice_strength</code> actually influence mate selection. Before 0.6.4 these fields were documented, defaulted, tested (R-side only), and referenced by multiple vignettes — but the kernel only branched on <code>signal_dims</code> (<code>== 0</code> → random, <code>&gt; 0</code> → argmax on preference-distance), silently ignoring both spec fields. Surfaced while auditing PR <a href="https://github.com/itchyshin/clade/issues/107" class="external-link">#107</a>; fix is here.</p>
+<p>New semantics:</p>
+<ul><li>
+<code>mate_choice_mode = "random"</code> — uniform random among eligible neighbours (ignores signals).</li>
+<li>
+<code>mate_choice_mode = "preference"</code> — score by <code>-||preference - candidate.signal||^2</code>, softmax-sampled.</li>
+<li>
+<code>mate_choice_mode = "highest_signal"</code> — score by <code>Σ|candidate.signal_i|</code>, softmax-sampled.</li>
+<li>
+<code>mate_choice_strength</code> — softmax temperature. <code>1.0</code> = argmax (greedy), <code>0.0</code> = uniform random, intermediate values sample softmax.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="default-change-0-6-4">Default change<a class="anchor" aria-label="anchor" href="#default-change-0-6-4"></a></h3>
+<ul><li>
+<code>mate_choice_mode</code>: <code>"random"</code> → <strong><code>"preference"</code></strong>
+</li>
+<li>
+<code>mate_choice_strength</code>: <code>0.5</code> → <strong><code>1.0</code></strong>
+</li>
+</ul><p>The new defaults <strong>exactly preserve pre-0.6.4 observed behaviour</strong> for every caller that had <code>signal_dims &gt; 0</code>: the kernel was already doing preference-argmax regardless of mode, and strength 1.0 is argmax. Callers that explicitly set <code>mate_choice_mode = "random"</code> or a strength &lt; 1 now get the semantics they asked for.</p>
+</div>
+<div class="section level3">
+<h3 id="downstream-audits-re-run-0-6-4">Downstream audits re-run<a class="anchor" aria-label="anchor" href="#downstream-audits-re-run-0-6-4"></a></h3>
+<table class="table"><colgroup><col width="33%"><col width="33%"><col width="33%"></colgroup><thead><tr class="header"><th>vignette / scenario</th>
+<th>pre-0.6.4 verdict</th>
+<th>post-0.6.4 verdict</th>
+</tr></thead><tbody><tr class="odd"><td>
+<a href="paper-kokko-brooks-2003.html"><code>s-kokko-brooks-2003</code></a> K&amp;B interaction</td>
+<td>PASS (direction-wrong, t = +2.81)</td>
+<td>
+<strong>null (t = +0.80)</strong> — previously claimed “clade contradicts K&amp;B direction” demoted</td>
+</tr><tr class="even"><td>
+<a href="paper-fuller-2005.html"><code>paper-fuller-2005</code></a> Fisher C_tp</td>
+<td>kernel-limit null (test couldn’t run)</td>
+<td>direction-wrong (Δ = +0.019, t = +2.51) — new kernel-limit finding: no genetic linkage between signal and preference loci</td>
+</tr><tr class="odd"><td>
+<code>s-signals</code> P2 (preference &gt; random)</td>
+<td>FAIL</td>
+<td>FAIL (unchanged; now reliably FAIL rather than trivially FAIL)</td>
+</tr><tr class="even"><td><code>s-mating-systems</code></td>
+<td>—</td>
+<td>not affected (uses <code>ploidy</code>, not <code>mate_choice_mode</code>)</td>
+</tr></tbody></table><p>The kokko-brooks demotion is the larger scientific impact: the previously-reported “clade robustly contradicts K&amp;B” result depended on the implicit-argmax stub. Under honest softmax mate choice at <code>strength = 0.7</code>, <code>signal_cost = 0.2</code> no longer produces the demographic drag pattern that generated the interaction signal.</p>
+<p>The Fuller Fisher direction-wrong finding is a fresh kernel-limit null that 0.6.4 exposed rather than caused: mate choice selects parents whose (A-preference) matches (B-signal), but offspring inherit preference and signal independently via meiosis. Without a genetic-linkage mechanism, C_tp cannot build up. A future kernel PR could add shared-chromosome linkage or pleiotropic mutation; without it, Fisher runaway is not an available mechanism in clade.</p>
+</div>
+<div class="section level3">
+<h3 id="regression-tests-0-6-4">Regression tests<a class="anchor" aria-label="anchor" href="#regression-tests-0-6-4"></a></h3>
+<p>New tests in <a href="https://github.com/itchyshin/clade/blob/main/tests/testthat/test-signals-matechoice.R" class="external-link">test-signals-matechoice.R</a>:</p>
+<ul><li><code>mate_choice_mode is wired: random vs preference produce different trajectories</code></li>
+<li><code>mate_choice_strength is wired: strength=1.0 ≠ strength=0.0 under preference mode</code></li>
+</ul><p>Both would have caught the 0.6.4 bug. They are now regression guards — any future kernel refactor that breaks the wiring will fail these directly.</p>
+</div>
+<div class="section level3">
+<h3 id="backward-compatibility-0-6-4">Backward-compatibility<a class="anchor" aria-label="anchor" href="#backward-compatibility-0-6-4"></a></h3>
+<p>Default behaviour unchanged for every spec that had <code>signal_dims &gt; 0</code>. Breaking change only for specs that had <code>mate_choice_mode = "random"</code> or <code>mate_choice_strength &lt; 1</code> explicitly set — in which case the fix delivers the documented semantics (the old behaviour was the bug).</p>
+<hr></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.3" id="clade-063-2026-04-19--zahavi-β_sv-handicap-mechanism-in-the-kernel">clade 0.6.3 (2026-04-19) — Zahavi β_Sv handicap mechanism in the kernel<a class="anchor" aria-label="anchor" href="#clade-063-2026-04-19--zahavi-%CE%B2_sv-handicap-mechanism-in-the-kernel"></a></h2>
 <p>Adds <code>signal_cost_mortality</code> (default <code>0.0</code>) — a direct per-tick viability cost scaling linearly with signal magnitude:</p>
