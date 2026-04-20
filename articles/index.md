@@ -46,6 +46,8 @@ workflow. Start with the template if you’re reproducing your own paper.
   modules)](https://itchyshin.github.io/clade/articles/paper-courchamp-1999.md):
 - [Reproducing a paper — Fuller, Houle & Travis 2005 (sensory bias
   synthesis)](https://itchyshin.github.io/clade/articles/paper-fuller-2005.md):
+- [Reproducing a paper — Ryan 1990 (sensory
+  exploitation)](https://itchyshin.github.io/clade/articles/paper-ryan-1990.md):
 
 ### Parameter search
 

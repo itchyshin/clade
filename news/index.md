@@ -1,5 +1,88 @@
 # Changelog
 
+## clade 0.6.5 (2026-04-20) — sensory-bias β_N installed (Ryan 1990 half-PASS)
+
+### The mechanism
+
+Adds `preference_bias_target` (numeric vector, length `signal_dims`,
+default `NULL`) and `preference_bias_strength` (numeric in `[0, 1]`,
+default `0.0`). When both are set, each agent’s preference vector is
+pulled each tick toward the target:
+
+``` R
+preference[i] ← (1 - κ) × preference[i] + κ × target[i]
+```
+
+Implemented in
+[signals.jl](https://github.com/itchyshin/clade/blob/main/inst/julia/src/modules/signals.jl)
+as `apply_preference_bias!`, wired into the tick loop in
+[Clade.jl](https://github.com/itchyshin/clade/blob/main/inst/julia/src/Clade.jl).
+
+Why this matters: Ryan (1990) and Fuller et al. (2005) argue that
+preferences are shaped by selection on the sensory system for non-mating
+purposes (foraging, predator detection) — this is the β_N leg of the
+Fuller framework. Without a mechanism that installs preferences
+independently of mate choice, clade could not represent β_N at all. That
+gap is closed in 0.6.5.
+
+### Ryan 1990 half-reproduction (new vignette)
+
+[`vignette("paper-ryan-1990")`](https://itchyshin.github.io/clade/articles/paper-ryan-1990.md)
+runs a 4 × 4 dose-response with `bias_target = [1, 0, 0]` and
+`κ ∈ {0, 0.02, 0.05, 0.10}`:
+
+| `preference_bias_strength` | mean preference\[1\] | mean signal\[1\] |
+|----------------------------|----------------------|------------------|
+| 0.00                       | 0.015                | 0.004            |
+| 0.02                       | **0.694**            | 0.031            |
+| 0.05                       | **0.814**            | 0.064            |
+| 0.10                       | **0.893**            | −0.005           |
+
+- H1 (preferences track bias): t = +4.75, p = 0.0003 — **PASS ✅**.
+- H2 (signals evolve to exploit bias): t = −0.36, p = 0.73 — null.
+
+The preference-side mechanism is clean. The Ryan-punch-line signal
+response does not emerge because of the same kernel gap that blocks
+Fisher runaway: **no genetic linkage between signal and preference
+loci.** Meiosis inherits signal and preference independently, so mate
+choice’s directional selection on signals is recombined every
+generation.
+
+Both Fisher C_tp and Ryan β_N-downstream now point to the same missing
+feature. A future PR adding shared-chromosome linkage or pleiotropic
+mutation would unlock both.
+
+### Fuller 2005 vignette updated
+
+[`vignette("paper-fuller-2005")`](https://itchyshin.github.io/clade/articles/paper-fuller-2005.md)
+rewritten to reflect 0.6.5 coverage of all three legs:
+
+| leg                        | status                                           | version                 |
+|----------------------------|--------------------------------------------------|-------------------------|
+| Zahavi handicap (β_Sv)     | ✅ reproduced                                    | 0.6.3                   |
+| Fisher runaway (C_tp \> 0) | ❌ direction-wrong (needs linkage)               | 0.6.4 wired mate choice |
+| Sensory bias (β_N)         | ⚠️ half (preferences PASS; signal response null) | 0.6.5                   |
+
+### Regression tests
+
+New in
+[test-signals-matechoice.R](https://github.com/itchyshin/clade/blob/main/tests/testthat/test-signals-matechoice.R):
+
+- `preference_bias_strength defaults to 0 (off)`
+- `preference_bias_target defaults to NULL (off)`
+- `preference_bias_target + strength > 0 pulls preferences toward target`
+  — 500-tick run asserts `mean preference[1] > 0.3` when
+  `bias_target = [1, 0, 0]` and `bias_strength = 0.05`.
+
+### Backward-compatibility
+
+Fully backward-compatible. Defaults (`NULL`, `0.0`) mean
+`apply_preference_bias!` is a no-op; existing specs and audits are
+unchanged. To activate, set both `preference_bias_target` (length
+`signal_dims`) and `preference_bias_strength > 0`.
+
+------------------------------------------------------------------------
+
 ## clade 0.6.4 (2026-04-20) — `mate_choice_mode` stub wired; two downstream audits shift
 
 ### The fix

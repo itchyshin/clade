@@ -1,17 +1,26 @@
 # Reproducing a paper — Fuller, Houle & Travis 2005 (sensory bias synthesis)
 
-*Partial reproduction (0.6.4). Fuller’s three-mechanism synthesis calls
+*Partial reproduction (0.6.5). Fuller’s three-mechanism synthesis calls
 for β_Sv viability cost (Zahavi handicap), C_tp \> 0 preference-display
 covariance (Fisher runaway), and β_N spillover from non-mating selection
-onto preferences (sensory bias sensu Ryan 1990). 0.6.3 added the first
-via `signal_cost_mortality` — a clean dose-response Zahavi curve is
-shown below. 0.6.4 wired the `mate_choice_mode` kernel stub which should
-have unblocked the Fisher leg, but the Fisher signature is
-**direction-wrong**: a deeper kernel gap (no genetic linkage between
-signal and preference loci) prevents C_tp from building up via mate
-choice alone. Sensory bias remains not implemented. Both non-Zahavi legs
-therefore remain documented kernel-limit nulls, with their specific
-required kernel work flagged below.*
+onto preferences (sensory bias sensu Ryan 1990).*
+
+- *0.6.3 implemented the Zahavi leg via `signal_cost_mortality` (clean
+  dose-response, below).*
+- *0.6.4 wired the `mate_choice_mode` kernel stub that was blocking the
+  Fisher leg — the test now runs but is direction- wrong because of a
+  deeper gap (no genetic linkage between signal and preference loci).*
+- *0.6.5 added `preference_bias_target` + `preference_bias_strength` to
+  install the β_N leg. Preferences now respond correctly to a
+  pre-existing bias (strong PASS in
+  [`paper-ryan-1990`](https://itchyshin.github.io/clade/articles/paper-ryan-1990.md));
+  signal response to the bias is direction-correct but sub-threshold,
+  blocked by the same linkage gap.*
+
+*The two remaining limit nulls (Fisher C_tp, Ryan signal-side β_N) share
+one kernel gap: no linkage between signal and preference loci. A future
+kernel change — shared chromosome or pleiotropic mutation — would unlock
+both simultaneously.*
 
 ![Fuller 2005 dose-response — left panel: signal magnitude declines from
 1.06 to 0.63 as signal_cost_mortality increases from 0.000 to 0.003;
@@ -51,11 +60,11 @@ those legs its kernel can carry.
 
 ## Three mechanisms, one honest ledger
 
-| Mechanism                        | Fuller signature                                                               | Kernel status (0.6.3)                                                                                                                                        |
-|----------------------------------|--------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Zahavi handicap**              | β_Sv \< 0: viability cost on display                                           | ✅ `signal_cost_mortality` (new 0.6.3)                                                                                                                       |
-| **Fisher runaway**               | C_tp \> 0: signal-preference covariance grows under preference mating vs drift | ❌ direction-wrong — 0.6.4 wired `mate_choice_mode`, test now runs but signal and preference are independently inherited, so C_tp can’t build up (see below) |
-| **Sensory bias** sensu Ryan 1990 | β_N shaped preference first; signal later exploits it                          | ❌ not implemented — no mechanism couples preferences to non-mating fitness                                                                                  |
+| Mechanism                        | Fuller signature                                                               | Kernel status (0.6.3)                                                                                                                                                                                                                                                            |
+|----------------------------------|--------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Zahavi handicap**              | β_Sv \< 0: viability cost on display                                           | ✅ `signal_cost_mortality` (new 0.6.3)                                                                                                                                                                                                                                           |
+| **Fisher runaway**               | C_tp \> 0: signal-preference covariance grows under preference mating vs drift | ❌ direction-wrong — 0.6.4 wired `mate_choice_mode`, test now runs but signal and preference are independently inherited, so C_tp can’t build up (see below)                                                                                                                     |
+| **Sensory bias** sensu Ryan 1990 | β_N shaped preference first; signal later exploits it                          | ⚠️ half implemented (0.6.5) — `preference_bias_target` + `preference_bias_strength` install pre-existing bias on preferences, but signal response blocked by same linkage gap as Fisher. See [`paper-ryan-1990`](https://itchyshin.github.io/clade/articles/paper-ryan-1990.md). |
 
 0.6.2 (PR \#106) added three Fuller-framework metrics to the tick log —
 `mean_preference_magnitude`, `mean_signal_preference_dist` (proxy for
@@ -173,16 +182,29 @@ would need either (a) signal and preference on the same chromosome with
 tight linkage, or (b) a direct heritable correlation (e.g., pleiotropic
 mutation), neither of which clade currently provides.
 
-### ❌ Sensory bias sensu stricto not implemented
+### ⚠️ Sensory bias sensu Ryan 1990 — half implemented (0.6.5)
 
-Ryan’s (1990) sensory-exploitation mechanism is asymmetric: preferences
-exist **first**, shaped by non-mating selection (foraging, predator
-detection), and signals evolve **later** to exploit the pre-existing
-bias. clade initializes signal and preference vectors to zero with
-independent drift — there is no mechanism to install a preference
-independently of mate choice, and no coupling between preferences and
-any non-mating fitness component. A future kernel change could expose
-`preference_foraging_coupling` or similar to install the β_N leg.
+0.6.5 adds `preference_bias_target` and `preference_bias_strength`: each
+tick, agent preferences are pulled toward a fixed target vector,
+installing a pre-existing bias (the β_N leg of this framework). The
+preference response is direct and strong — with `bias_strength = 0.05`
+and `bias_target = [1, 0, 0]`, mean preference\[1\] saturates above 0.8
+within 3000 ticks.
+
+The *downstream* half — signals evolving to exploit the bias (Ryan’s
+sensory-exploitation punchline) — is blocked by the same genetic-linkage
+gap that blocked Fisher. Mate choice selects parents whose signal
+matches the prevailing preference, but offspring inherit signal and
+preference independently via meiosis, so the directional selection on
+signals doesn’t accumulate. The
+[`paper-ryan-1990`](https://itchyshin.github.io/clade/articles/paper-ryan-1990.md)
+vignette shows the preference-side signature as a clean PASS and reports
+the signal-side response as direction-correct but sub-threshold for a
+3000-tick run.
+
+Both remaining kernel-limit nulls (Fisher C_tp and Ryan’s signal-side
+β_N response) point to the same missing mechanism: **genetic linkage
+between signal and preference loci**.
 
 ## Interpretation
 

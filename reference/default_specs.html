@@ -11,7 +11,7 @@ run_alife() or search_map_elites()."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -30,7 +30,8 @@ run_alife() or search_map_elites()."></head><body>
     <li><a class="dropdown-item" href="../articles/paper-reale-2010.html">Réale et al. 2010 — pace-of-life syndromes</a></li>
     <li><a class="dropdown-item" href="../articles/paper-emlen-1982.html">Emlen 1982 — ecological constraints on helping</a></li>
     <li><a class="dropdown-item" href="../articles/paper-courchamp-1999.html">Courchamp 1999 — Allee effect + custom-module gap</a></li>
-    <li><a class="dropdown-item" href="../articles/paper-fuller-2005.html">Fuller, Houle &amp; Travis 2005 — sensory bias (kernel-limit null)</a></li>
+    <li><a class="dropdown-item" href="../articles/paper-fuller-2005.html">Fuller, Houle &amp; Travis 2005 — sensory bias synthesis (Zahavi leg PASS)</a></li>
+    <li><a class="dropdown-item" href="../articles/paper-ryan-1990.html">Ryan 1990 — sensory exploitation (β_N leg PASS; signal downstream null)</a></li>
   </ul></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-guides" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Guides</button>
@@ -1225,6 +1226,26 @@ References: Grafen (1990) Biological signals as handicaps, <em>JTB</em>
 144:517–546. Fuller, Houle &amp; Travis (2005) Sensory bias as an
 explanation for the evolution of mate preferences, <em>Am Nat</em>
 166:437–446. Added 0.6.3.</p></dd>
+
+<dt><code>preference_bias_target</code></dt>
+<dd><p>Numeric vector of length
+<code>signal_dims</code>, or <code>NULL</code> (default). A fixed target vector that
+agent preferences are pulled toward each tick. Installs a
+<em>pre-existing</em> sensory bias — the Ryan (1990) sensory-
+exploitation mechanism and the β_N leg of Fuller, Houle &amp;
+Travis (2005). Signals under preference-based mate choice
+should evolve to match this target over generations. Active
+only when <code>preference_bias_strength &gt; 0</code> and <code>signal_dims &gt; 0</code>.
+Added 0.6.5.</p></dd>
+
+<dt><code>preference_bias_strength</code></dt>
+<dd><p>Numeric in [0, 1]. Per-tick
+pull strength κ on the preference vector toward
+<code>preference_bias_target</code> (default 0.0 = off, opt-in). The
+update is <code>preference[i] ← (1 - κ) × preference[i] + κ × target[i]</code>, clamped to [-1, 1]. κ = 0.01 is a weak bias;
+0.1 is strong. References: Ryan (1990) <em>Oxford Surveys in
+Evolutionary Biology</em> 7:157–195; Endler &amp; Basolo (1998)
+<em>TREE</em> 13:415–420. Added 0.6.5.</p></dd>
 
 <dt><code>signal_toxicity_coupling</code></dt>
 <dd><p>Numeric in [0, 1]. Strength of

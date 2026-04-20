@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,7 +41,8 @@
     <li><a class="dropdown-item" href="../articles/paper-reale-2010.html">Réale et al. 2010 — pace-of-life syndromes</a></li>
     <li><a class="dropdown-item" href="../articles/paper-emlen-1982.html">Emlen 1982 — ecological constraints on helping</a></li>
     <li><a class="dropdown-item" href="../articles/paper-courchamp-1999.html">Courchamp 1999 — Allee effect + custom-module gap</a></li>
-    <li><a class="dropdown-item" href="../articles/paper-fuller-2005.html">Fuller, Houle &amp; Travis 2005 — sensory bias (kernel-limit null)</a></li>
+    <li><a class="dropdown-item" href="../articles/paper-fuller-2005.html">Fuller, Houle &amp; Travis 2005 — sensory bias synthesis (Zahavi leg PASS)</a></li>
+    <li><a class="dropdown-item" href="../articles/paper-ryan-1990.html">Ryan 1990 — sensory exploitation (β_N leg PASS; signal downstream null)</a></li>
   </ul>
 </li>
 <li class="active nav-item dropdown">
@@ -1566,62 +1567,63 @@ combined with <code>iffolk_selection = TRUE</code>.</p>
 <span><span class="co">#&gt; [155] "helper_kin_threshold"           "helper_tendency_init_mean"     </span></span>
 <span><span class="co">#&gt; [157] "helper_tendency_mutation_sd"    "signal_dims"                   </span></span>
 <span><span class="co">#&gt; [159] "signal_cost"                    "signal_cost_mortality"         </span></span>
-<span><span class="co">#&gt; [161] "signal_evolution_drift"         "signal_drift_sd"               </span></span>
-<span><span class="co">#&gt; [163] "mate_choice_mode"               "mate_choice_strength"          </span></span>
-<span><span class="co">#&gt; [165] "signal_toxicity_coupling"       "coevolving_parasites"          </span></span>
-<span><span class="co">#&gt; [167] "parasite_match_mode"            "parasite_virulence_rate"       </span></span>
-<span><span class="co">#&gt; [169] "parasite_pressure"              "parasite_distance_scale"       </span></span>
-<span><span class="co">#&gt; [171] "n_parasite_loci"                "parasite_mutation_rate"        </span></span>
-<span><span class="co">#&gt; [173] "parasite_discrete_exponent"     "speciation"                    </span></span>
-<span><span class="co">#&gt; [175] "isolation_threshold"            "speciation_cluster_interval"   </span></span>
-<span><span class="co">#&gt; [177] "n_predators_init"               "predator_energy_init"          </span></span>
-<span><span class="co">#&gt; [179] "predator_live_energy"           "predator_move_energy"          </span></span>
-<span><span class="co">#&gt; [181] "predator_attack_strength"       "predator_energy_gain"          </span></span>
-<span><span class="co">#&gt; [183] "predator_min_repro_energy"      "predator_min_repro_age"        </span></span>
-<span><span class="co">#&gt; [185] "predator_mutation_sd"           "predator_max_agents"           </span></span>
-<span><span class="co">#&gt; [187] "predator_max_age"               "predator_sense_graded"         </span></span>
-<span><span class="co">#&gt; [189] "mimicry"                        "batesian_mimicry"              </span></span>
-<span><span class="co">#&gt; [191] "toxicity_cost_per_tick"         "toxin_dose"                    </span></span>
-<span><span class="co">#&gt; [193] "signal_memory_rate"             "avoid_threshold"               </span></span>
-<span><span class="co">#&gt; [195] "toxicity_init_mean"             "toxicity_mutation_sd"          </span></span>
-<span><span class="co">#&gt; [197] "phenotypic_plasticity"          "plasticity_sense_radius"       </span></span>
-<span><span class="co">#&gt; [199] "plasticity_init_mean"           "plasticity_mutation_sd"        </span></span>
-<span><span class="co">#&gt; [201] "plasticity_min"                 "plasticity_max"                </span></span>
-<span><span class="co">#&gt; [203] "niche_construction"             "shelter_build_prob"            </span></span>
-<span><span class="co">#&gt; [205] "shelter_max_depth"              "shelter_min_energy"            </span></span>
-<span><span class="co">#&gt; [207] "shelter_decay_prob"             "shelter_occupancy_bonus"       </span></span>
-<span><span class="co">#&gt; [209] "scavenging"                     "carrion_fraction"              </span></span>
-<span><span class="co">#&gt; [211] "carrion_decay_rate"             "carrion_eat_gain"              </span></span>
-<span><span class="co">#&gt; [213] "carrion_transmission_prob"      "social_learning"               </span></span>
-<span><span class="co">#&gt; [215] "social_learning_freq"           "social_learning_rate"          </span></span>
-<span><span class="co">#&gt; [217] "clutch_size_evolution"          "clutch_size_init_mean"         </span></span>
-<span><span class="co">#&gt; [219] "clutch_size_min"                "clutch_size_max"               </span></span>
-<span><span class="co">#&gt; [221] "clutch_size_mutation_sd"        "parental_investment_evolution" </span></span>
-<span><span class="co">#&gt; [223] "parental_investment_init_mean"  "female_investment"             </span></span>
-<span><span class="co">#&gt; [225] "male_repro_cost"                "stress_hypermutation"          </span></span>
-<span><span class="co">#&gt; [227] "stress_mutation_multiplier"     "stress_threshold"              </span></span>
-<span><span class="co">#&gt; [229] "senescence_shape"               "min_repro_age"                 </span></span>
-<span><span class="co">#&gt; [231] "wall_density"                   "wall_clusters"                 </span></span>
-<span><span class="co">#&gt; [233] "world_evolution"                "world_mutation_sd"             </span></span>
-<span><span class="co">#&gt; [235] "world_params_to_evolve"         "complex_landscape"             </span></span>
-<span><span class="co">#&gt; [237] "shrub_density"                  "shrub_growth_rate"             </span></span>
-<span><span class="co">#&gt; [239] "shrub_energy"                   "canopy_density"                </span></span>
-<span><span class="co">#&gt; [241] "canopy_growth_rate"             "canopy_energy"                 </span></span>
-<span><span class="co">#&gt; [243] "canopy_threshold"               "wing_size_init_mean"           </span></span>
-<span><span class="co">#&gt; [245] "wing_size_mutation_sd"          "wing_size_min"                 </span></span>
-<span><span class="co">#&gt; [247] "wing_size_max"                  "spatial_sorting"               </span></span>
-<span><span class="co">#&gt; [249] "sorting_front_threshold"        "sorting_mating_boost"          </span></span>
-<span><span class="co">#&gt; [251] "iffolk_selection"               "iffolk_r_min"                  </span></span>
-<span><span class="co">#&gt; [253] "iffolk_radius"                  "iffolk_transfer"               </span></span>
-<span><span class="co">#&gt; [255] "iffolk_min_energy"              "parliament_suppression"        </span></span>
-<span><span class="co">#&gt; [257] "parliament_cost"                "fixed_patch"                   </span></span>
-<span><span class="co">#&gt; [259] "fixed_patch_value"              "fixed_patch_x"                 </span></span>
-<span><span class="co">#&gt; [261] "fixed_patch_y"                  "fixed_patch_radius"            </span></span>
-<span><span class="co">#&gt; [263] "log_freq"                       "log_genomes"                   </span></span>
-<span><span class="co">#&gt; [265] "random_seed"</span></span>
+<span><span class="co">#&gt; [161] "preference_bias_target"         "preference_bias_strength"      </span></span>
+<span><span class="co">#&gt; [163] "signal_evolution_drift"         "signal_drift_sd"               </span></span>
+<span><span class="co">#&gt; [165] "mate_choice_mode"               "mate_choice_strength"          </span></span>
+<span><span class="co">#&gt; [167] "signal_toxicity_coupling"       "coevolving_parasites"          </span></span>
+<span><span class="co">#&gt; [169] "parasite_match_mode"            "parasite_virulence_rate"       </span></span>
+<span><span class="co">#&gt; [171] "parasite_pressure"              "parasite_distance_scale"       </span></span>
+<span><span class="co">#&gt; [173] "n_parasite_loci"                "parasite_mutation_rate"        </span></span>
+<span><span class="co">#&gt; [175] "parasite_discrete_exponent"     "speciation"                    </span></span>
+<span><span class="co">#&gt; [177] "isolation_threshold"            "speciation_cluster_interval"   </span></span>
+<span><span class="co">#&gt; [179] "n_predators_init"               "predator_energy_init"          </span></span>
+<span><span class="co">#&gt; [181] "predator_live_energy"           "predator_move_energy"          </span></span>
+<span><span class="co">#&gt; [183] "predator_attack_strength"       "predator_energy_gain"          </span></span>
+<span><span class="co">#&gt; [185] "predator_min_repro_energy"      "predator_min_repro_age"        </span></span>
+<span><span class="co">#&gt; [187] "predator_mutation_sd"           "predator_max_agents"           </span></span>
+<span><span class="co">#&gt; [189] "predator_max_age"               "predator_sense_graded"         </span></span>
+<span><span class="co">#&gt; [191] "mimicry"                        "batesian_mimicry"              </span></span>
+<span><span class="co">#&gt; [193] "toxicity_cost_per_tick"         "toxin_dose"                    </span></span>
+<span><span class="co">#&gt; [195] "signal_memory_rate"             "avoid_threshold"               </span></span>
+<span><span class="co">#&gt; [197] "toxicity_init_mean"             "toxicity_mutation_sd"          </span></span>
+<span><span class="co">#&gt; [199] "phenotypic_plasticity"          "plasticity_sense_radius"       </span></span>
+<span><span class="co">#&gt; [201] "plasticity_init_mean"           "plasticity_mutation_sd"        </span></span>
+<span><span class="co">#&gt; [203] "plasticity_min"                 "plasticity_max"                </span></span>
+<span><span class="co">#&gt; [205] "niche_construction"             "shelter_build_prob"            </span></span>
+<span><span class="co">#&gt; [207] "shelter_max_depth"              "shelter_min_energy"            </span></span>
+<span><span class="co">#&gt; [209] "shelter_decay_prob"             "shelter_occupancy_bonus"       </span></span>
+<span><span class="co">#&gt; [211] "scavenging"                     "carrion_fraction"              </span></span>
+<span><span class="co">#&gt; [213] "carrion_decay_rate"             "carrion_eat_gain"              </span></span>
+<span><span class="co">#&gt; [215] "carrion_transmission_prob"      "social_learning"               </span></span>
+<span><span class="co">#&gt; [217] "social_learning_freq"           "social_learning_rate"          </span></span>
+<span><span class="co">#&gt; [219] "clutch_size_evolution"          "clutch_size_init_mean"         </span></span>
+<span><span class="co">#&gt; [221] "clutch_size_min"                "clutch_size_max"               </span></span>
+<span><span class="co">#&gt; [223] "clutch_size_mutation_sd"        "parental_investment_evolution" </span></span>
+<span><span class="co">#&gt; [225] "parental_investment_init_mean"  "female_investment"             </span></span>
+<span><span class="co">#&gt; [227] "male_repro_cost"                "stress_hypermutation"          </span></span>
+<span><span class="co">#&gt; [229] "stress_mutation_multiplier"     "stress_threshold"              </span></span>
+<span><span class="co">#&gt; [231] "senescence_shape"               "min_repro_age"                 </span></span>
+<span><span class="co">#&gt; [233] "wall_density"                   "wall_clusters"                 </span></span>
+<span><span class="co">#&gt; [235] "world_evolution"                "world_mutation_sd"             </span></span>
+<span><span class="co">#&gt; [237] "world_params_to_evolve"         "complex_landscape"             </span></span>
+<span><span class="co">#&gt; [239] "shrub_density"                  "shrub_growth_rate"             </span></span>
+<span><span class="co">#&gt; [241] "shrub_energy"                   "canopy_density"                </span></span>
+<span><span class="co">#&gt; [243] "canopy_growth_rate"             "canopy_energy"                 </span></span>
+<span><span class="co">#&gt; [245] "canopy_threshold"               "wing_size_init_mean"           </span></span>
+<span><span class="co">#&gt; [247] "wing_size_mutation_sd"          "wing_size_min"                 </span></span>
+<span><span class="co">#&gt; [249] "wing_size_max"                  "spatial_sorting"               </span></span>
+<span><span class="co">#&gt; [251] "sorting_front_threshold"        "sorting_mating_boost"          </span></span>
+<span><span class="co">#&gt; [253] "iffolk_selection"               "iffolk_r_min"                  </span></span>
+<span><span class="co">#&gt; [255] "iffolk_radius"                  "iffolk_transfer"               </span></span>
+<span><span class="co">#&gt; [257] "iffolk_min_energy"              "parliament_suppression"        </span></span>
+<span><span class="co">#&gt; [259] "parliament_cost"                "fixed_patch"                   </span></span>
+<span><span class="co">#&gt; [261] "fixed_patch_value"              "fixed_patch_x"                 </span></span>
+<span><span class="co">#&gt; [263] "fixed_patch_y"                  "fixed_patch_radius"            </span></span>
+<span><span class="co">#&gt; [265] "log_freq"                       "log_genomes"                   </span></span>
+<span><span class="co">#&gt; [267] "random_seed"</span></span>
 <span><span class="co"># All parameters with their values</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">defs</span>, max.level <span class="op">=</span> <span class="fl">1</span>, give.attr <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; List of 265</span></span>
+<span><span class="co">#&gt; List of 267</span></span>
 <span><span class="co">#&gt;  $ grid_rows                     : int 30</span></span>
 <span><span class="co">#&gt;  $ grid_cols                     : int 30</span></span>
 <span><span class="co">#&gt;  $ toroidal                      : logi TRUE</span></span>

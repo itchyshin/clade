@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,7 +41,8 @@
     <li><a class="dropdown-item" href="../articles/paper-reale-2010.html">Réale et al. 2010 — pace-of-life syndromes</a></li>
     <li><a class="dropdown-item" href="../articles/paper-emlen-1982.html">Emlen 1982 — ecological constraints on helping</a></li>
     <li><a class="dropdown-item" href="../articles/paper-courchamp-1999.html">Courchamp 1999 — Allee effect + custom-module gap</a></li>
-    <li><a class="dropdown-item" href="../articles/paper-fuller-2005.html">Fuller, Houle &amp; Travis 2005 — sensory bias (kernel-limit null)</a></li>
+    <li><a class="dropdown-item" href="../articles/paper-fuller-2005.html">Fuller, Houle &amp; Travis 2005 — sensory bias synthesis (Zahavi leg PASS)</a></li>
+    <li><a class="dropdown-item" href="../articles/paper-ryan-1990.html">Ryan 1990 — sensory exploitation (β_N leg PASS; signal downstream null)</a></li>
   </ul>
 </li>
 <li class="nav-item dropdown">
@@ -169,19 +170,30 @@
 
     
     
-<p><em>Partial reproduction (0.6.4). Fuller’s three-mechanism synthesis
+<p><em>Partial reproduction (0.6.5). Fuller’s three-mechanism synthesis
 calls for β_Sv viability cost (Zahavi handicap), C_tp &gt; 0
 preference-display covariance (Fisher runaway), and β_N spillover from
-non-mating selection onto preferences (sensory bias sensu Ryan 1990).
-0.6.3 added the first via <code>signal_cost_mortality</code> — a clean
-dose-response Zahavi curve is shown below. 0.6.4 wired the
-<code>mate_choice_mode</code> kernel stub which should have unblocked
-the Fisher leg, but the Fisher signature is
-<strong>direction-wrong</strong>: a deeper kernel gap (no genetic
-linkage between signal and preference loci) prevents C_tp from building
-up via mate choice alone. Sensory bias remains not implemented. Both
-non-Zahavi legs therefore remain documented kernel-limit nulls, with
-their specific required kernel work flagged below.</em></p>
+non-mating selection onto preferences (sensory bias sensu Ryan
+1990).</em></p>
+<ul>
+<li><em>0.6.3 implemented the Zahavi leg via
+<code>signal_cost_mortality</code> (clean dose-response,
+below).</em></li>
+<li><em>0.6.4 wired the <code>mate_choice_mode</code> kernel stub that
+was blocking the Fisher leg — the test now runs but is direction- wrong
+because of a deeper gap (no genetic linkage between signal and
+preference loci).</em></li>
+<li><em>0.6.5 added <code>preference_bias_target</code> +
+<code>preference_bias_strength</code> to install the β_N leg.
+Preferences now respond correctly to a pre-existing bias (strong PASS in
+<a href="paper-ryan-1990.html"><code>paper-ryan-1990</code></a>); signal
+response to the bias is direction-correct but sub-threshold, blocked by
+the same linkage gap.</em></li>
+</ul>
+<p><em>The two remaining limit nulls (Fisher C_tp, Ryan signal-side β_N)
+share one kernel gap: no linkage between signal and preference loci. A
+future kernel change — shared chromosome or pleiotropic mutation — would
+unlock both simultaneously.</em></p>
 <p><img src="figures-papers/fuller-2005.png" class="r-plt" alt="Fuller 2005 dose-response — left panel: signal magnitude declines from 1.06 to 0.63 as signal_cost_mortality increases from 0.000 to 0.003; right panel: population size declines from 123 to 6 over the same range, confirming the handicap is a real viability cost" width="100%"></p>
 <hr>
 <div class="section level2">
@@ -251,8 +263,10 @@ can’t build up (see below)</td>
 <td>
 <strong>Sensory bias</strong> sensu Ryan 1990</td>
 <td>β_N shaped preference first; signal later exploits it</td>
-<td>❌ not implemented — no mechanism couples preferences to non-mating
-fitness</td>
+<td>⚠️ half implemented (0.6.5) — <code>preference_bias_target</code> +
+<code>preference_bias_strength</code> install pre-existing bias on
+preferences, but signal response blocked by same linkage gap as Fisher.
+See <a href="paper-ryan-1990.html"><code>paper-ryan-1990</code></a>.</td>
 </tr>
 </tbody>
 </table>
@@ -450,18 +464,27 @@ chromosome with tight linkage, or (b) a direct heritable correlation
 provides.</p>
 </div>
 <div class="section level3">
-<h3 id="sensory-bias-sensu-stricto-not-implemented">❌ Sensory bias sensu stricto not implemented<a class="anchor" aria-label="anchor" href="#sensory-bias-sensu-stricto-not-implemented"></a>
+<h3 id="sensory-bias-sensu-ryan-1990-half-implemented-0-6-5">⚠️ Sensory bias sensu Ryan 1990 — half implemented (0.6.5)<a class="anchor" aria-label="anchor" href="#sensory-bias-sensu-ryan-1990-half-implemented-0-6-5"></a>
 </h3>
-<p>Ryan’s (1990) sensory-exploitation mechanism is asymmetric:
-preferences exist <strong>first</strong>, shaped by non-mating selection
-(foraging, predator detection), and signals evolve
-<strong>later</strong> to exploit the pre-existing bias. clade
-initializes signal and preference vectors to zero with independent drift
-— there is no mechanism to install a preference independently of mate
-choice, and no coupling between preferences and any non-mating fitness
-component. A future kernel change could expose
-<code>preference_foraging_coupling</code> or similar to install the β_N
-leg.</p>
+<p>0.6.5 adds <code>preference_bias_target</code> and
+<code>preference_bias_strength</code>: each tick, agent preferences are
+pulled toward a fixed target vector, installing a pre-existing bias (the
+β_N leg of this framework). The preference response is direct and strong
+— with <code>bias_strength = 0.05</code> and
+<code>bias_target = [1, 0, 0]</code>, mean preference[1] saturates above
+0.8 within 3000 ticks.</p>
+<p>The <em>downstream</em> half — signals evolving to exploit the bias
+(Ryan’s sensory-exploitation punchline) — is blocked by the same
+genetic-linkage gap that blocked Fisher. Mate choice selects parents
+whose signal matches the prevailing preference, but offspring inherit
+signal and preference independently via meiosis, so the directional
+selection on signals doesn’t accumulate. The <a href="paper-ryan-1990.html"><code>paper-ryan-1990</code></a> vignette
+shows the preference-side signature as a clean PASS and reports the
+signal-side response as direction-correct but sub-threshold for a
+3000-tick run.</p>
+<p>Both remaining kernel-limit nulls (Fisher C_tp and Ryan’s signal-side
+β_N response) point to the same missing mechanism: <strong>genetic
+linkage between signal and preference loci</strong>.</p>
 </div>
 </div>
 <div class="section level2">
