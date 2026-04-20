@@ -360,7 +360,8 @@ function run_clade(specs::Dict{String,Any})
         apply_habitat_preference!(env)    # secondary move toward preferred habitat
         apply_seasonal_mortality!(env)    # winter death probability
         apply_toxicity_costs!(env)        # mimicry: per-tick toxicity energy cost
-        apply_signal_costs!(env)          # signal evolution: per-tick signal cost
+        apply_signal_costs!(env)          # signal evolution: per-tick signal energy cost
+        apply_signal_mortality!(env)      # 0.6.3: Zahavi β_Sv viability penalty
         apply_signal_evolution!(env)      # signal drift mutation (when enabled)
         apply_signal_toxicity_pleiotropy!(env)  # 0.4.4: aposematic coupling
         apply_coevolving_parasites!(env)  # 0.5.0: Hamilton 1980 Red Queen

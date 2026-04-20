@@ -1,3 +1,59 @@
+# clade 0.6.3 (2026-04-19) — Zahavi β_Sv handicap mechanism in the kernel
+
+Adds `signal_cost_mortality` (default `0.0`) — a direct per-tick
+viability cost scaling linearly with signal magnitude:
+
+    p_die ← signal_cost_mortality × Σ |signal_i|
+
+implemented in [signals.jl](https://github.com/itchyshin/clade/blob/main/inst/julia/src/modules/signals.jl).
+This is the Fuller, Houle & Travis (2005) β_Sv < 0 viability-selection
+gradient, i.e. the kernel mechanism that Zahavi (1975) and Grafen
+(1990) argue *must* be present for costly honest signalling to be
+selected for. Distinct from `signal_cost` (which only drains
+energy and is easily masked by `signal_drift_sd`).
+
+## Fuller 2005 reproduction — partial ✅
+
+`vignette("paper-fuller-2005")` rewritten. The Zahavi dose-response
+leg now reproduces cleanly:
+
+| signal_cost_mortality | final_signal ± SE | final_n ± SE |
+|---|---|---|
+| 0.000 | 1.063 ± 0.006 | 123 ± 6.8 |
+| 0.001 | 1.039 ± 0.010 | 70 ± 9.7 |
+| 0.002 | 0.961 ± 0.055 | 38 ± 6.3 |
+| 0.003 | 0.625 ± 0.123 | 6 ± 2.0 |
+
+Signal and population decline monotonically with β_Sv — the cost
+is paid in lives, as Zahavi / Grafen / Fuller require.
+
+The Fisher-runaway leg and sensory-bias-sensu-Ryan-1990 leg of
+Fuller's three-mechanism synthesis remain documented kernel-limit
+nulls with specific gaps flagged in the vignette (Fisher needs
+the `mate_choice_mode` stub wired; sensory bias needs a
+preference↔non-mating-fitness coupling mechanism).
+
+## Known issue surfaced while auditing: `mate_choice_mode` is a stub
+
+During the 5-condition audit, `drift_only` (random mating) and
+`fisher_pure` (preference mating) produced bit-identical results.
+[reproduce.jl:260-283](https://github.com/itchyshin/clade/blob/main/inst/julia/src/reproduce.jl#L260-L283)
+only branches on `signal_dims`: `== 0` → random, `> 0` → always
+preference. The `mate_choice_mode` and `mate_choice_strength`
+spec fields are documented and defaulted but silently ignored
+by the kernel. Downstream paper reproductions that toggled
+`mate_choice_mode` — primarily `s-kokko-brooks-2003`, `s-signals`,
+`s-mating-systems` — will need re-audit when the stub is wired.
+Flagged here for transparency; a dedicated PR to fix is next.
+
+## Backward-compatibility
+
+Fully backward-compatible. `signal_cost_mortality = 0.0` default
+means existing specs are unchanged. Add the field explicitly to
+opt into the handicap mechanism.
+
+---
+
 # clade 0.6.2 (2026-04-19) — Fuller 2005 framework metrics exposed
 
 Three new columns added to the per-tick log

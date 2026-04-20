@@ -656,9 +656,21 @@
 #'     When > 0, each agent evolves a heritable signal vector and a preference
 #'     vector; mates are chosen by proximity of signal to preference.}
 #'   \item{`signal_cost`}{Numeric. Energy cost per unit of signal magnitude
-#'     per tick (default 0.1). Models honest signalling costs (Zahavi 1975).
-#'     Reference: Zahavi (1975) Mate selection -- a selection for a handicap,
-#'     *Journal of Theoretical Biology* 53(1):205--214.}
+#'     per tick (default 0.1). Indirect handicap cost — high-signal agents
+#'     lose energy and starve faster. Often masked by drift at realistic
+#'     parameters; see also `signal_cost_mortality` for direct viability
+#'     cost. Reference: Zahavi (1975) Mate selection -- a selection for a
+#'     handicap, *Journal of Theoretical Biology* 53(1):205--214.}
+#'   \item{`signal_cost_mortality`}{Numeric in \[0, 1\]. Direct per-tick
+#'     mortality probability scaling with signal magnitude (default 0.0 =
+#'     off). Implements the Zahavi handicap as the Fuller, Houle & Travis
+#'     (2005) β_Sv viability-selection gradient — the right cost mechanism
+#'     for distinguishing Fisher runaway from sensory bias from Zahavi
+#'     handicap. Distinct from `signal_cost` (which only drains energy).
+#'     References: Grafen (1990) Biological signals as handicaps, *JTB*
+#'     144:517--546. Fuller, Houle & Travis (2005) Sensory bias as an
+#'     explanation for the evolution of mate preferences, *Am Nat*
+#'     166:437--446. Added 0.6.3.}
 #'   \item{`signal_toxicity_coupling`}{Numeric in \[0, 1\]. Strength of
 #'     aposematic pleiotropy between the first signal dimension and the
 #'     heritable `toxicity` trait. At 0 (default) signal and toxicity
@@ -1306,6 +1318,16 @@ default_specs <- function() {
     # ── Signal evolution and mate choice ──────────────────────────────────
     signal_dims                = 0L,
     signal_cost                = 0.1,
+    # 0.6.3: direct viability cost on signals, implementing the
+    # Zahavi (1975) / Grafen (1990) handicap principle as the Fuller,
+    # Houle & Travis (2005) β_Sv selection gradient. At each tick:
+    #   p_die ← signal_cost_mortality × Σ |signal_i|
+    # At 0.0 (default) only the energy drain of `signal_cost` operates
+    # (backward-compatible). At > 0, agents carrying larger signals
+    # face a direct per-tick mortality probability — the mechanism
+    # required to differentiate Fisher runaway from sensory bias from
+    # Zahavi handicap in the Fuller 2005 framework.
+    signal_cost_mortality      = 0.0,
     signal_evolution_drift     = TRUE,
     signal_drift_sd            = 0.01,
     mate_choice_mode           = "random",
