@@ -738,13 +738,21 @@ mutation rate.}
 \item{\code{signal_memory_rate}}{Numeric. Rate at which predator memory
 updates toward observed prey signals (default 0.1). Relevant only
 when \code{mimicry = TRUE} and predators are present.}
-\item{\code{mate_choice_mode}}{Character. Mate-choice rule: \code{"random"}
-(default), \code{"preference"} (choose on signal dot-product with own
-evolved preference vector), or \code{"highest_signal"} (pick the
-highest-magnitude signal neighbour).}
-\item{\code{mate_choice_strength}}{Numeric in [0, 1]. Soft-max sharpness
-on the mate-choice score (default 0.7). At 1, choice is greedy; at
-0, uniform random.}
+\item{\code{mate_choice_mode}}{Character. Mate-choice rule:
+\code{"preference"} (default, score on -||preference - candidate
+signal||^2 and sample softmax), \code{"random"} (uniform random
+among eligible neighbours), or \code{"highest_signal"} (score on
+signal magnitude). Wired in 0.6.4; before then this field was
+a latent stub and \code{signal_dims > 0} always produced hard argmax
+on preference-distance regardless of mode. See \code{NEWS.md} 0.6.4
+for migration notes.}
+\item{\code{mate_choice_strength}}{Numeric in [0, 1]. Softmax
+temperature parameter (default 1.0, greedy argmax). At 1, choice
+is a hard argmax on the mode-specific score (preserves pre-0.6.4
+observed behaviour); at 0, uniform random regardless of mode;
+intermediate values sample softmax with temperature
+\code{1 / mate_choice_strength}. Ignored when
+\code{mate_choice_mode = "random"}.}
 }
 }
 

@@ -99,6 +99,44 @@ rpt <- hypothesis_report(
 print(rpt)
 cat("\nPASS verdicts → handicap mechanism reproducibly shrinks display.\n")
 
-saveRDS(list(sweep = sweep, report = rpt),
+# -----------------------------------------------------------------------------
+# 0.6.4 Fisher C_tp test — direction-wrong finding
+# -----------------------------------------------------------------------------
+# With `mate_choice_mode` wired (0.6.4), we can now contrast random mating
+# (drift_only) against preference-argmax mating (fisher_pure). Fisher runaway
+# predicts final_sp_dist SHRINKS under preference mating (C_tp > 0 builds up).
+# Result: direction-wrong — clade has no genetic linkage between signal and
+# preference loci, so C_tp cannot accumulate via mate choice alone.
+cat("\n=== Fisher C_tp test (0.6.4 — mate_choice_mode wired) ===\n")
+sweep_fisher <- hypothesis_sweep(
+  base_specs = base,
+  conditions = list(
+    drift_only  = list(mate_choice_mode = "random"),
+    fisher_pure = list(mate_choice_mode = "preference",
+                       mate_choice_strength = 1.0)
+  ),
+  seeds = 1:8,
+  metrics = list(
+    final_signal  = function(t) mean(utils::tail(t$mean_signal_magnitude, 500L),
+                                     na.rm = TRUE),
+    final_sp_dist = function(t) mean(utils::tail(t$mean_signal_preference_dist, 500L),
+                                     na.rm = TRUE)
+  ),
+  n_cores = 16L
+)
+rpt_fisher <- hypothesis_report(
+  sweep_fisher,
+  contrasts = list(fisher_ctp = c("drift_only", "fisher_pure")),
+  metric    = "final_sp_dist"
+)
+print(rpt_fisher)
+cat("\nFisher prediction: Δ final_sp_dist < 0 (preference mating builds C_tp > 0).\n")
+cat("Observed: Δ > 0 (direction-wrong) — kernel has no genetic linkage between\n")
+cat("signal and preference loci, so C_tp cannot accumulate via mate choice.\n")
+
+saveRDS(list(sweep        = sweep,
+             report       = rpt,
+             sweep_fisher = sweep_fisher,
+             rpt_fisher   = rpt_fisher),
         "dev/audit/fidelity/paper_fuller_2005.rds")
 cat("\nSaved: dev/audit/fidelity/paper_fuller_2005.rds\n")

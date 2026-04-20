@@ -48,7 +48,7 @@ p_kb <- ggplot(kb_df, aes(x = grass, y = final_n,
        y = "Final population size (last 500 ticks)",
        fill = NULL, colour = NULL,
        title = "Kokko & Brooks 2003 — signals × stress 2×4 factorial",
-       subtitle = "signals_effect SHRINKS as grass drops (opposite of K&B's interaction)") +
+       subtitle = "0.6.4 kernel: mate_choice_strength now softmax'd — signals effect weak, interaction null") +
   my_theme()
 save_gg(p_kb, "kokko-brooks-2003")
 

@@ -15,14 +15,19 @@ knitr::opts_chunk$set(
 )
 ```
 
-*Partial reproduction (0.6.3). Fuller's three-mechanism synthesis
+*Partial reproduction (0.6.4). Fuller's three-mechanism synthesis
 calls for β_Sv viability cost (Zahavi handicap), C_tp > 0
 preference-display covariance (Fisher runaway), and β_N spillover
 from non-mating selection onto preferences (sensory bias sensu
-Ryan 1990). 0.6.3 adds the first via `signal_cost_mortality` — a
-clean dose-response Zahavi curve is shown below. The other two
-remain documented kernel-limit nulls and are flagged for future
-kernel work.*
+Ryan 1990). 0.6.3 added the first via `signal_cost_mortality` — a
+clean dose-response Zahavi curve is shown below. 0.6.4 wired the
+`mate_choice_mode` kernel stub which should have unblocked the
+Fisher leg, but the Fisher signature is **direction-wrong**: a
+deeper kernel gap (no genetic linkage between signal and
+preference loci) prevents C_tp from building up via mate choice
+alone. Sensory bias remains not implemented. Both non-Zahavi legs
+therefore remain documented kernel-limit nulls, with their
+specific required kernel work flagged below.*
 
 ```{r fig-fuller, echo = FALSE, eval = TRUE, out.width = "100%", fig.alt = "Fuller 2005 dose-response — left panel: signal magnitude declines from 1.06 to 0.63 as signal_cost_mortality increases from 0.000 to 0.003; right panel: population size declines from 123 to 6 over the same range, confirming the handicap is a real viability cost"}
 knitr::include_graphics("figures-papers/fuller-2005.png")
@@ -65,7 +70,7 @@ carry.
 | Mechanism | Fuller signature | Kernel status (0.6.3) |
 |---|---|---|
 | **Zahavi handicap** | β_Sv < 0: viability cost on display | ✅ `signal_cost_mortality` (new 0.6.3) |
-| **Fisher runaway**  | C_tp > 0: signal-preference covariance grows under preference mating vs drift | ❌ blocked — `mate_choice_mode` is a stub (see below) |
+| **Fisher runaway**  | C_tp > 0: signal-preference covariance grows under preference mating vs drift | ❌ direction-wrong — 0.6.4 wired `mate_choice_mode`, test now runs but signal and preference are independently inherited, so C_tp can't build up (see below) |
 | **Sensory bias** sensu Ryan 1990 | β_N shaped preference first; signal later exploits it | ❌ not implemented — no mechanism couples preferences to non-mating fitness |
 
 0.6.2 (PR #106) added three Fuller-framework metrics to the tick
@@ -153,23 +158,41 @@ signature: display shrinks, population shrinks, the cost is paid
 in lives. This is the β_Sv < 0 leg of Fuller's framework, now
 present in the kernel.
 
-### ❌ Fisher runaway still blocked by `mate_choice_mode` stub
+### ❌ Fisher runaway: direction-wrong — deeper kernel gap exposed by 0.6.4
 
-The 5-condition design in the original audit script tried to
-contrast preference-mating (`mate_choice_mode = "preference"`)
-against random mating (`"random"`) at zero cost. The two
-conditions came back with identical means **and** identical
-standard errors across all metrics. Investigation of
-[reproduce.jl:260-283](https://github.com/itchyshin/clade/blob/main/inst/julia/src/reproduce.jl#L260-L283)
-shows the kernel has only two branches — `signal_dims == 0` →
-random, else → preference. The `mate_choice_mode` and
-`mate_choice_strength` spec fields are documented, defaulted, and
-referenced by multiple vignettes, but silently ignored by the
-simulation. Fisher C_tp cannot be tested until that stub is
-wired, which is a dedicated future kernel PR (with a re-audit of
-any paper reproduction that toggled `mate_choice_mode` —
-primarily `s-kokko-brooks-2003`, `s-signals`,
-`s-mating-systems`).
+0.6.3 flagged `mate_choice_mode` as a latent stub. 0.6.4 wired
+the stub and the re-audit of kokko-brooks-2003 demoted its
+"clade contradicts K&B" verdict. But the Fisher C_tp test
+itself did NOT pass — the signature is direction-wrong:
+
+| contrast | Δ final_sp_dist | t | verdict |
+|---|---|---|---|
+| fisher_pure (preference mating) vs drift_only (random mating), no cost | **+0.019 ± 0.007** | **+2.51** | direction-wrong |
+
+Fisher runaway predicts `Δ sp_dist < 0` — preference mating
+should build up C_tp > 0 (within-agent alignment of preference
+and signal). clade gives a small **positive** Δ: preference
+mating makes agents' own preferences and signals slightly less
+aligned than random mating does.
+
+The underlying reason is a separate kernel gap that the
+mate-choice-mode wiring exposed rather than caused:
+**clade has no genetic linkage between signal and preference
+loci.** Meiosis inherits signal from (mother, father) and
+preference from (mother, father) independently. Mate choice
+selects parents for (A-preference matches B-signal) pairings,
+but offspring's (preference, signal) vectors come from mean of
+parental vectors via meiosis, which decorrelates them. Without
+a recombination-rate or shared-chromosome mechanism coupling
+the two loci, Fisher's C_tp cannot build up — the runaway has
+no substrate to run on.
+
+That's a legitimate kernel-limit finding that's only now
+visible because 0.6.4 let the mate-choice logic run. A proper
+Fisher-leg kernel change would need either (a) signal and
+preference on the same chromosome with tight linkage, or (b) a
+direct heritable correlation (e.g., pleiotropic mutation),
+neither of which clade currently provides.
 
 ### ❌ Sensory bias sensu stricto not implemented
 
