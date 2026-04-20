@@ -671,6 +671,23 @@
 #'     144:517--546. Fuller, Houle & Travis (2005) Sensory bias as an
 #'     explanation for the evolution of mate preferences, *Am Nat*
 #'     166:437--446. Added 0.6.3.}
+#'   \item{`preference_bias_target`}{Numeric vector of length
+#'     `signal_dims`, or `NULL` (default). A fixed target vector that
+#'     agent preferences are pulled toward each tick. Installs a
+#'     *pre-existing* sensory bias — the Ryan (1990) sensory-
+#'     exploitation mechanism and the β_N leg of Fuller, Houle &
+#'     Travis (2005). Signals under preference-based mate choice
+#'     should evolve to match this target over generations. Active
+#'     only when `preference_bias_strength > 0` and `signal_dims > 0`.
+#'     Added 0.6.5.}
+#'   \item{`preference_bias_strength`}{Numeric in \[0, 1\]. Per-tick
+#'     pull strength κ on the preference vector toward
+#'     `preference_bias_target` (default 0.0 = off, opt-in). The
+#'     update is `preference[i] ← (1 - κ) × preference[i] +
+#'     κ × target[i]`, clamped to \[-1, 1\]. κ = 0.01 is a weak bias;
+#'     0.1 is strong. References: Ryan (1990) *Oxford Surveys in
+#'     Evolutionary Biology* 7:157--195; Endler & Basolo (1998)
+#'     *TREE* 13:415--420. Added 0.6.5.}
 #'   \item{`signal_toxicity_coupling`}{Numeric in \[0, 1\]. Strength of
 #'     aposematic pleiotropy between the first signal dimension and the
 #'     heritable `toxicity` trait. At 0 (default) signal and toxicity
@@ -1336,6 +1353,14 @@ default_specs <- function() {
     # required to differentiate Fisher runaway from sensory bias from
     # Zahavi handicap in the Fuller 2005 framework.
     signal_cost_mortality      = 0.0,
+    # 0.6.5: sensory bias sensu Ryan 1990 — preference is pulled
+    # toward a fixed target each tick, installing a pre-existing
+    # bias that signals later evolve to exploit. The β_N leg of
+    # Fuller 2005. Opt-in: default target is NULL and strength 0.
+    # To activate, set both preference_bias_target (numeric of
+    # length signal_dims) and preference_bias_strength > 0.
+    preference_bias_target     = NULL,
+    preference_bias_strength   = 0.0,
     signal_evolution_drift     = TRUE,
     signal_drift_sd            = 0.01,
     # 0.6.4: mate_choice_mode and mate_choice_strength are now wired

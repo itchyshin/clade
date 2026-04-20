@@ -721,6 +721,22 @@ References: Grafen (1990) Biological signals as handicaps, \emph{JTB}
 144:517--546. Fuller, Houle & Travis (2005) Sensory bias as an
 explanation for the evolution of mate preferences, \emph{Am Nat}
 166:437--446. Added 0.6.3.}
+\item{\code{preference_bias_target}}{Numeric vector of length
+\code{signal_dims}, or \code{NULL} (default). A fixed target vector that
+agent preferences are pulled toward each tick. Installs a
+\emph{pre-existing} sensory bias — the Ryan (1990) sensory-
+exploitation mechanism and the β_N leg of Fuller, Houle &
+Travis (2005). Signals under preference-based mate choice
+should evolve to match this target over generations. Active
+only when \code{preference_bias_strength > 0} and \code{signal_dims > 0}.
+Added 0.6.5.}
+\item{\code{preference_bias_strength}}{Numeric in [0, 1]. Per-tick
+pull strength κ on the preference vector toward
+\code{preference_bias_target} (default 0.0 = off, opt-in). The
+update is \verb{preference[i] ← (1 - κ) × preference[i] + κ × target[i]}, clamped to [-1, 1]. κ = 0.01 is a weak bias;
+0.1 is strong. References: Ryan (1990) \emph{Oxford Surveys in
+Evolutionary Biology} 7:157--195; Endler & Basolo (1998)
+\emph{TREE} 13:415--420. Added 0.6.5.}
 \item{\code{signal_toxicity_coupling}}{Numeric in [0, 1]. Strength of
 aposematic pleiotropy between the first signal dimension and the
 heritable \code{toxicity} trait. At 0 (default) signal and toxicity
