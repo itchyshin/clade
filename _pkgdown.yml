@@ -201,6 +201,7 @@ articles:
       Each vignette uses `hypothesis_sweep()` + `hypothesis_report()`
       plus one or more of clade's search / grid tools
       (`grid_specs()`, `batch_alife()`, `viability_report()`) to
+      demonstrate a full research workflow.
       demonstrate a full research workflow. Start with the
       template if you're reproducing your own paper.
     navbar: ~
