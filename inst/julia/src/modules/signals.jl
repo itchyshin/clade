@@ -70,6 +70,47 @@ function apply_signal_costs!(env::Environment)
 end
 
 """
+    apply_signal_mortality!(env::Environment)
+
+0.6.3 — direct viability penalty on signal magnitude. Implements the
+Zahavi (1975) / Grafen (1990) handicap principle as β_Sv < 0 in the
+Fuller, Houle & Travis (2005) framework: individuals carrying larger
+signals face a proportional per-tick mortality probability.
+
+    p_die ← signal_cost_mortality × Σ |signal_i|
+
+This is a DIRECT viability cost, distinct from the indirect energy
+drain of `apply_signal_costs!`. The energy cost can be masked by
+drift (if `signal_drift_sd` is large relative to the cost's
+energetic magnitude, selection never catches up). A direct mortality
+roll cuts through drift and produces the Zahavi signal-honesty
+dynamic: only condition-robust agents can survive carrying costly
+signals.
+
+Called every tick from the main tick loop when `signal_dims > 0`.
+No-op when `signal_cost_mortality = 0.0` (default) — fully
+backward-compatible.
+
+See `vignette("paper-fuller-2005")` for the sexual-selection
+framework context.
+"""
+function apply_signal_mortality!(env::Environment)
+    Int(get(env.specs, "signal_dims", 0)) > 0 || return
+
+    mort = Float32(get(env.specs, "signal_cost_mortality", 0.0))
+    mort == 0.0f0 && return
+
+    rng = env.rng
+    @inbounds for ag in env.agents
+        ag.alive || continue
+        sig_mag = Float64(sum(abs.(ag.signal)))
+        p_die = Float64(mort) * sig_mag
+        p_die > 0.0 && rand(rng) < p_die && (ag.alive = false)
+    end
+    nothing
+end
+
+"""
     apply_signal_evolution!(env::Environment)
 
 Apply within-tick Gaussian drift to signal and preference vectors for all

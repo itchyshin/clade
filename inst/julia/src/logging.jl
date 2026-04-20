@@ -62,6 +62,21 @@ function _init_progress(specs::Dict{String,Any}, n_ticks::Int)::Dict{String,Vect
         "n_toxic_attacks"        => copy(iz),
         "n_avoided_attacks"      => copy(iz),
         "mean_signal_magnitude"  => copy(fz),
+        # 0.6.2 — preference and signal-preference dynamics.
+        # These three metrics operationalise quantities from the
+        # Fuller, Houle & Travis (2005) *Am Nat* unified quantitative-
+        # genetic framework for sexual-selection models:
+        #   mean_preference_magnitude   ≈ mean preference phenotype p̄
+        #   mean_signal_preference_dist ≈ proxy for −C_tp (preference-
+        #       display covariance); shrinks under Fisher/good-genes
+        #       coevolution, stays large under sensory bias alone
+        #   sd_signal_magnitude         ≈ proxy for V_t (additive
+        #       genetic variance in the display trait)
+        # Together they distinguish Fisher runaway, sensory bias,
+        # and drift-only outcomes in the Fuller 2005 framework.
+        "mean_preference_magnitude"  => copy(fz),
+        "mean_signal_preference_dist" => copy(fz),
+        "sd_signal_magnitude"         => copy(fz),
         "mean_toxicity"          => copy(fz),
         "mean_plasticity"        => copy(fz),
         "mean_helper_tendency"   => copy(fz),
@@ -200,8 +215,26 @@ function log_tick!(env::Environment)
     p["n_toxic_attacks"][t]     = Int(env.n_toxic_attacks)
     p["n_avoided_attacks"][t]   = Int(env.n_avoided_attacks)
     sig_dims = Int(get(env.specs, "signal_dims", 0))
-    p["mean_signal_magnitude"][t] = sig_dims > 0 ?
-        mean(sum(abs.(ag.signal)) for ag in ags) : 0.0
+    if sig_dims > 0 && n > 0
+        sig_mags = Float64[sum(abs.(ag.signal)) for ag in ags]
+        pref_mags = Float64[sum(abs.(ag.preference)) for ag in ags]
+        # Per-agent L2 distance between signal and preference vectors.
+        # Direct measure of signal-preference coevolution:
+        #   - small distance ⇒ signals track preferences (Fisher runaway)
+        #   - large distance ⇒ signals and preferences drift independently
+        sp_dists = Float64[sqrt(sum(abs2, ag.signal .- ag.preference)) for ag in ags]
+        p["mean_signal_magnitude"][t]       = mean(sig_mags)
+        p["sd_signal_magnitude"][t]         = length(sig_mags) > 1 ? std(sig_mags) : 0.0
+        p["mean_preference_magnitude"][t]   = mean(pref_mags)
+        p["mean_signal_preference_dist"][t] = mean(sp_dists)
+    else
+        # signal_dims == 0 ⇒ signals/preferences vectors are empty;
+        # all four metrics are identically zero.
+        p["mean_signal_magnitude"][t]       = 0.0
+        p["sd_signal_magnitude"][t]         = 0.0
+        p["mean_preference_magnitude"][t]   = 0.0
+        p["mean_signal_preference_dist"][t] = 0.0
+    end
     p["mean_toxicity"][t]       = mean(ag.toxicity for ag in ags)
     p["mean_plasticity"][t]     = mean(ag.plasticity for ag in ags)
     p["mean_helper_tendency"][t]    = mean(ag.helper_tendency for ag in ags)

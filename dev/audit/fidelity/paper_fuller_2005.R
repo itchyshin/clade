@@ -7,112 +7,98 @@
 # Part of a cluster with Ryan 1990, Ryan et al. 1990 Nature
 # (túngara frog chuck preference), Endler & Basolo 1998.
 #
-# Fuller's theoretical point: "sensory bias" and "Fisherian
-# coevolution" are NOT mutually exclusive — both mechanisms can
-# contribute simultaneously. Genetic correlations between sensory
-# systems and mate preferences mean that selection on the sensory
-# system (for non-mating functions) spills into mate-preference
-# evolution, and vice versa.
+# Fuller's quantitative-genetic framework Δz̄ = G(β_N + β_S) + u
+# separates three mechanisms by which β and G terms take non-zero
+# values:
+#   - Sensory bias (Ryan 1990)       — preferences shaped by β_N
+#                                       on sensory system, then signals
+#                                       evolve to exploit them
+#   - Fisher runaway (Fisher 1930)   — signal-preference coevolution,
+#                                       C_tp > 0 in the G-matrix
+#   - Zahavi handicap (Zahavi 1975)  — β_Sv < 0, viability cost on
+#                                       display
 #
-# What clade can test directly:
-#   - Does preference-based mate choice drive signal elaboration
-#     beyond neutral drift? (the outcome: elaborate signals)
-#   - How does `signal_cost` modulate that elaboration?
+# Kernel coverage as of 0.6.3:
+#   - Zahavi handicap: implemented via `signal_cost_mortality` (added
+#     0.6.3 — direct per-tick mortality scaling with signal magnitude).
+#     THIS VIGNETTE demonstrates the dose-response signature.
+#   - Fisher runaway: blocked. `mate_choice_mode` is a documented-but-
+#     unwired spec field; reproduce.jl always uses preference-based
+#     mate choice when signal_dims > 0 (see reproduce.jl:260-283).
+#     The Fisher-vs-drift contrast is not currently testable.
+#   - Sensory bias (sensu stricto): not implemented. Requires a
+#     mechanism that installs preferences independently of mate choice
+#     (e.g., coupling preferences to a non-mating fitness gradient).
 #
-# What clade CAN'T test here:
-#   - Signal-direction vs preference-direction alignment
-#     (clade logs scalar `mean_signal_magnitude` only)
-#   - Pre-existing bias signatures without a per-agent trait dump
-#   - Genetic correlations between sensory and preference systems
-#     (no preference trait in default log output)
-#
-# The vignette will be honest about this split.
+# This script audits the Zahavi dose-response only. Both Fisher and
+# sensory bias remain documented kernel-limit nulls in the vignette.
 
 suppressPackageStartupMessages({
-  if (requireNamespace("devtools", quietly = TRUE))
-    devtools::load_all(quiet = TRUE)
-  else
-    library(clade)
+  library(clade)
 })
 
 base <- default_specs()
-base$grid_rows       <- 40L
-base$grid_cols       <- 40L
-base$n_agents_init   <- 120L
-base$max_agents      <- 500L
-base$max_ticks       <- 3000L
-base$grass_rate      <- 0.15
-base$n_predators_init <- 0L
-base$signal_dims     <- 3L
+base$grid_rows              <- 40L
+base$grid_cols              <- 40L
+base$n_agents_init          <- 120L
+base$max_agents             <- 500L
+base$max_ticks              <- 3000L
+base$grass_rate             <- 0.15
+base$n_predators_init       <- 0L
+base$signal_dims            <- 3L
 base$signal_evolution_drift <- TRUE
-base$signal_drift_sd <- 0.05   # larger drift so selection has room to act
+base$signal_drift_sd        <- 0.05
 
-# Fuller's point: elaborate signals can arise from multiple
-# selection regimes. Test 2x3 factorial on mate-choice mode x cost.
-# - random + cost=0        : null (drift alone)
-# - random + cost>0        : cost without mate-choice — signals should erode
-# - preference + cost=0    : pure Fisherian coevolution (runaway regime)
-# - preference + cost=0.1  : Fisher + mild cost (pre-Zahavi)
-# - preference + cost=0.3  : Fisher + strong cost (handicap regime)
-# (+ null for sanity: signal_dims=0 baseline)
-
-cat("=== Fuller 2005 — mate choice x cost signal-elaboration sweep ===\n")
+cat("=== Fuller 2005 — Zahavi β_Sv dose-response audit ===\n")
+cat("    (0.6.2 framework metrics + 0.6.3 signal_cost_mortality)\n\n")
 
 sweep <- hypothesis_sweep(
   base_specs = base,
   conditions = list(
-    null_no_signals    = list(signal_dims = 0L, signal_cost = 0.0,
-                               mate_choice_mode = "random"),
-    random_no_cost     = list(signal_cost = 0.0,
-                               mate_choice_mode = "random"),
-    random_with_cost   = list(signal_cost = 0.2,
-                               mate_choice_mode = "random"),
-    preference_no_cost = list(signal_cost = 0.0,
-                               mate_choice_mode = "preference",
-                               mate_choice_strength = 1.0),
-    preference_mild    = list(signal_cost = 0.1,
-                               mate_choice_mode = "preference",
-                               mate_choice_strength = 1.0),
-    preference_strong  = list(signal_cost = 0.3,
-                               mate_choice_mode = "preference",
-                               mate_choice_strength = 1.0)
+    null_no_signals = list(signal_dims = 0L),
+    zahavi_off      = list(signal_cost_mortality = 0.000),
+    zahavi_weak     = list(signal_cost_mortality = 0.001),
+    zahavi_mild     = list(signal_cost_mortality = 0.002),
+    zahavi_moderate = list(signal_cost_mortality = 0.003)
   ),
   seeds = 1:8,
   metrics = list(
     final_signal  = function(t) mean(utils::tail(t$mean_signal_magnitude, 500L),
                                      na.rm = TRUE),
-    final_n       = function(t) mean(utils::tail(t$n_agents, 500L), na.rm = TRUE),
-    mean_energy   = function(t) mean(utils::tail(t$mean_energy, 500L), na.rm = TRUE)
+    final_pref    = function(t) mean(utils::tail(t$mean_preference_magnitude, 500L),
+                                     na.rm = TRUE),
+    final_sp_dist = function(t) mean(utils::tail(t$mean_signal_preference_dist, 500L),
+                                     na.rm = TRUE),
+    final_sig_sd  = function(t) mean(utils::tail(t$sd_signal_magnitude, 500L),
+                                     na.rm = TRUE),
+    final_n       = function(t) mean(utils::tail(t$n_agents, 500L), na.rm = TRUE)
   ),
-  n_cores = 48L
+  n_cores = 40L
 )
 print(sweep)
 
-# Pairwise contrasts: does preference-mate-choice beat random at the
-# same cost level?
-rpt <- hypothesis_report(
-  sweep,
-  contrasts = list(
-    # Fuller's core comparison: does mate-choice regime drive
-    # signal elaboration beyond drift?
-    pref_vs_random_nocost = c("random_no_cost", "preference_no_cost"),
-    # And under cost? (the Zahavi-ish regime)
-    pref_vs_random_mildcost = c("random_with_cost", "preference_mild")
-  ),
-  metric = "final_signal"
-)
-cat("\n=== Signal-elaboration contrasts ===\n")
-print(rpt)
-
-# How much does signal grow under each regime?
-cat("\n=== Per-condition signal magnitudes ===\n")
-agg <- aggregate(final_signal ~ condition, data = sweep$runs,
+cat("\n=== Dose-response: mortality × signal magnitude (mean ± SE, 8 seeds) ===\n")
+agg <- aggregate(cbind(final_signal, final_pref, final_sp_dist,
+                       final_sig_sd, final_n) ~ condition,
+                 data = sweep$runs,
                  FUN = function(x) sprintf("%.3f ± %.3f",
                                            mean(x, na.rm = TRUE),
                                            sd(x, na.rm = TRUE) / sqrt(length(x))))
 print(agg, row.names = FALSE)
 
-# Save
+cat("\n=== Zahavi β_Sv signature: signal declines with mortality ===\n")
+rpt <- hypothesis_report(
+  sweep,
+  contrasts = list(
+    weak_vs_off     = c("zahavi_off", "zahavi_weak"),
+    mild_vs_off     = c("zahavi_off", "zahavi_mild"),
+    moderate_vs_off = c("zahavi_off", "zahavi_moderate")
+  ),
+  metric = "final_signal"
+)
+print(rpt)
+cat("\nPASS verdicts → handicap mechanism reproducibly shrinks display.\n")
+
 saveRDS(list(sweep = sweep, report = rpt),
         "dev/audit/fidelity/paper_fuller_2005.rds")
 cat("\nSaved: dev/audit/fidelity/paper_fuller_2005.rds\n")
