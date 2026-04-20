@@ -2,7 +2,7 @@
 title: "Reproducing a paper — Fuller, Houle & Travis 2005 (sensory bias synthesis)"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Reproducing a paper: Fuller, Houle & Travis 2005 (Zahavi handicap partial; Fisher + sensory bias still kernel-limit nulls)}
+  %\VignetteIndexEntry{Reproducing a paper: Fuller, Houle & Travis 2005 (Zahavi ✅, β_N half, Fisher direction-wrong — needs linkage)}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -241,14 +241,16 @@ synthesis itself remains untested.
 ## Methodology takeaway
 
 This vignette models the **partial-reproduction** outcome: one
-mechanism from a multi-mechanism paper is reproduced, the others
-are documented kernel-limit nulls with specific, actionable
-kernel gaps noted. It pairs with the
-[Kokko & Brooks 2003](paper-kokko-brooks-2003.html) mechanism-
-level-contradiction vignette (where the `mate_choice_mode` stub
-now casts uncertainty on the "✅ promoted" verdict, pending the
-re-audit) and with `s-signals` (same underlying substrate, same
-partial coverage).
+mechanism from a multi-mechanism paper is reproduced, one is
+half-implemented (β_N preferences respond, signals don't), one
+is direction-wrong for a specific kernel gap (Fisher C_tp needs
+genetic linkage). Every gap is named with a concrete kernel
+change that would close it. It pairs with
+[paper-ryan-1990](paper-ryan-1990.html) (the β_N half-PASS
+companion) and
+[paper-kokko-brooks-2003](paper-kokko-brooks-2003.html) (whose
+0.6.4 re-audit under real softmax mate choice demoted its
+interaction verdict to null).
 
 ## Pattern across the paper-reproduction showcase
 
@@ -256,10 +258,11 @@ partial coverage).
 |---|---|
 | Clean ✅ | Dieckmann & Doebeli 1999 |
 | Conditional ✅ | Réale 2010 (lifespan-only) |
-| Partial ✅ (1 of n mechanisms) | **Fuller 2005** (this vignette — Zahavi leg only) |
+| Partial ✅ (1 of n mechanisms) | **Fuller 2005** (this vignette — Zahavi leg ✅, β_N half, Fisher direction-wrong) |
+| Half ✅ (1 of 2 stages) | Ryan 1990 (β_N on preferences ✅, signal downstream null) |
 | Direction-correct sub-threshold | Griesser 2023, Courchamp 1999 |
 | Raw-inverts-on-per-capita | Emlen 1982 |
-| Mechanism-level contradiction | Kokko & Brooks 2003 |
+| Null under corrected kernel | Kokko & Brooks 2003 (0.6.4 demoted) |
 
 ## Citation
 

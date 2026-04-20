@@ -94,7 +94,9 @@ clade experiment, and report what reproduces versus what doesn't.
 Five worked examples cover clean ✅, honest null, mechanism
 mismatch, and unit-sensitivity patterns:
 
-- [**Kokko & Brooks 2003**](articles/paper-kokko-brooks-2003.html) — "Sexy to die for?" — clade contradicts the interaction direction (honest mechanism mismatch)
+- [**Kokko & Brooks 2003**](articles/paper-kokko-brooks-2003.html) — "Sexy to die for?" — interaction null under 0.6.4 corrected kernel (previous contradiction was a stub artifact)
+- [**Fuller, Houle & Travis 2005**](articles/paper-fuller-2005.html) *Am Nat* — sensory-bias synthesis (Zahavi ✅, β_N half, Fisher needs linkage)
+- [**Ryan 1990**](articles/paper-ryan-1990.html) *Oxford Surv Evol Biol* — sensory exploitation (preferences ✅, signal downstream null)
 - [**Griesser et al. 2023**](articles/paper-griesser-2023.html) *PNAS* — parental provisioning → brain size (direction-correct sub-threshold)
 - [**Dieckmann & Doebeli 1999**](articles/paper-dieckmann-doebeli-1999.html) *Nature* — sympatric speciation (**clean ✅, t = +3.32**)
 - [**Réale et al. 2010**](articles/paper-reale-2010.html) *Phil Trans B* — pace-of-life (lifespan Spearman = −0.98)
