@@ -688,13 +688,21 @@
 #'   \item{`signal_memory_rate`}{Numeric. Rate at which predator memory
 #'     updates toward observed prey signals (default 0.1). Relevant only
 #'     when `mimicry = TRUE` and predators are present.}
-#'   \item{`mate_choice_mode`}{Character. Mate-choice rule: `"random"`
-#'     (default), `"preference"` (choose on signal dot-product with own
-#'     evolved preference vector), or `"highest_signal"` (pick the
-#'     highest-magnitude signal neighbour).}
-#'   \item{`mate_choice_strength`}{Numeric in \[0, 1\]. Soft-max sharpness
-#'     on the mate-choice score (default 0.7). At 1, choice is greedy; at
-#'     0, uniform random.}
+#'   \item{`mate_choice_mode`}{Character. Mate-choice rule:
+#'     `"preference"` (default, score on -||preference - candidate
+#'     signal||^2 and sample softmax), `"random"` (uniform random
+#'     among eligible neighbours), or `"highest_signal"` (score on
+#'     signal magnitude). Wired in 0.6.4; before then this field was
+#'     a latent stub and `signal_dims > 0` always produced hard argmax
+#'     on preference-distance regardless of mode. See `NEWS.md` 0.6.4
+#'     for migration notes.}
+#'   \item{`mate_choice_strength`}{Numeric in \[0, 1\]. Softmax
+#'     temperature parameter (default 1.0, greedy argmax). At 1, choice
+#'     is a hard argmax on the mode-specific score (preserves pre-0.6.4
+#'     observed behaviour); at 0, uniform random regardless of mode;
+#'     intermediate values sample softmax with temperature
+#'     `1 / mate_choice_strength`. Ignored when
+#'     `mate_choice_mode = "random"`.}
 #' }
 #'
 #' ## Coevolving parasites (Hamilton 1980 Red Queen, 0.5.0 / 0.5.1)
@@ -1330,8 +1338,15 @@ default_specs <- function() {
     signal_cost_mortality      = 0.0,
     signal_evolution_drift     = TRUE,
     signal_drift_sd            = 0.01,
-    mate_choice_mode           = "random",
-    mate_choice_strength       = 0.5,
+    # 0.6.4: mate_choice_mode and mate_choice_strength are now wired
+    # in reproduce.jl (were silently ignored before). The defaults
+    # ("preference", 1.0) exactly preserve pre-0.6.4 observed behaviour
+    # for every caller that had signal_dims > 0 — the kernel always
+    # argmax'd on preference-distance regardless of mode. Callers that
+    # explicitly set mate_choice_mode = "random" or a strength < 1
+    # now get the semantics they asked for (see NEWS 0.6.4).
+    mate_choice_mode           = "preference",
+    mate_choice_strength       = 1.0,
     # 0.4.4: aposematic honest signalling. When > 0, each agent's
     # `signal[1]` is pulled per tick toward its own `toxicity` value
     # (`signal[1] ← (1-coupling)*signal[1] + coupling*toxicity`).

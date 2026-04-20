@@ -1,3 +1,84 @@
+# clade 0.6.4 (2026-04-20) — `mate_choice_mode` stub wired; two downstream audits shift
+
+## The fix
+
+[reproduce.jl](https://github.com/itchyshin/clade/blob/main/inst/julia/src/reproduce.jl#L208-L325)
+is patched so `mate_choice_mode` and `mate_choice_strength` actually
+influence mate selection. Before 0.6.4 these fields were documented,
+defaulted, tested (R-side only), and referenced by multiple vignettes
+— but the kernel only branched on `signal_dims` (`== 0` → random,
+`> 0` → argmax on preference-distance), silently ignoring both
+spec fields. Surfaced while auditing PR #107; fix is here.
+
+New semantics:
+
+- `mate_choice_mode = "random"` — uniform random among eligible
+  neighbours (ignores signals).
+- `mate_choice_mode = "preference"` — score by
+  `-||preference - candidate.signal||^2`, softmax-sampled.
+- `mate_choice_mode = "highest_signal"` — score by
+  `Σ|candidate.signal_i|`, softmax-sampled.
+- `mate_choice_strength` — softmax temperature. `1.0` = argmax
+  (greedy), `0.0` = uniform random, intermediate values sample
+  softmax.
+
+## Default change
+
+- `mate_choice_mode`: `"random"` → **`"preference"`**
+- `mate_choice_strength`: `0.5` → **`1.0`**
+
+The new defaults **exactly preserve pre-0.6.4 observed behaviour**
+for every caller that had `signal_dims > 0`: the kernel was already
+doing preference-argmax regardless of mode, and strength 1.0 is
+argmax. Callers that explicitly set `mate_choice_mode = "random"` or
+a strength < 1 now get the semantics they asked for.
+
+## Downstream audits re-run
+
+| vignette / scenario | pre-0.6.4 verdict | post-0.6.4 verdict |
+|---|---|---|
+| [`s-kokko-brooks-2003`](paper-kokko-brooks-2003.html) K&B interaction | PASS (direction-wrong, t = +2.81) | **null (t = +0.80)** — previously claimed "clade contradicts K&B direction" demoted |
+| [`paper-fuller-2005`](paper-fuller-2005.html) Fisher C_tp | kernel-limit null (test couldn't run) | direction-wrong (Δ = +0.019, t = +2.51) — new kernel-limit finding: no genetic linkage between signal and preference loci |
+| `s-signals` P2 (preference > random) | FAIL | FAIL (unchanged; now reliably FAIL rather than trivially FAIL) |
+| `s-mating-systems` | — | not affected (uses `ploidy`, not `mate_choice_mode`) |
+
+The kokko-brooks demotion is the larger scientific impact: the
+previously-reported "clade robustly contradicts K&B" result
+depended on the implicit-argmax stub. Under honest softmax mate
+choice at `strength = 0.7`, `signal_cost = 0.2` no longer
+produces the demographic drag pattern that generated the
+interaction signal.
+
+The Fuller Fisher direction-wrong finding is a fresh kernel-limit
+null that 0.6.4 exposed rather than caused: mate choice selects
+parents whose (A-preference) matches (B-signal), but offspring
+inherit preference and signal independently via meiosis. Without
+a genetic-linkage mechanism, C_tp cannot build up. A future
+kernel PR could add shared-chromosome linkage or pleiotropic
+mutation; without it, Fisher runaway is not an available
+mechanism in clade.
+
+## Regression tests
+
+New tests in [test-signals-matechoice.R](https://github.com/itchyshin/clade/blob/main/tests/testthat/test-signals-matechoice.R):
+
+- `mate_choice_mode is wired: random vs preference produce different trajectories`
+- `mate_choice_strength is wired: strength=1.0 ≠ strength=0.0 under preference mode`
+
+Both would have caught the 0.6.4 bug. They are now regression
+guards — any future kernel refactor that breaks the wiring will
+fail these directly.
+
+## Backward-compatibility
+
+Default behaviour unchanged for every spec that had `signal_dims > 0`.
+Breaking change only for specs that had `mate_choice_mode = "random"`
+or `mate_choice_strength < 1` explicitly set — in which case the
+fix delivers the documented semantics (the old behaviour was the
+bug).
+
+---
+
 # clade 0.6.3 (2026-04-19) — Zahavi β_Sv handicap mechanism in the kernel
 
 Adds `signal_cost_mortality` (default `0.0`) — a direct per-tick

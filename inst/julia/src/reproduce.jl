@@ -215,11 +215,29 @@ radius (default 1 = 3×3 Moore neighbourhood; `mate_search_radius = 2` gives
 5×5, etc.). Returns `nothing` only if no eligible mate exists in the search
 window — this is a real Allee-failure event, not the default outcome.
 
-Mate selection:
-- When `signal_dims > 0`: highest signal-preference compatibility (Zahavi 1975).
-- When `signal_dims == 0`: random choice among eligible candidates (sexual
-  reproduction without mate choice, the standard default for all diploid
-  scenarios that don't explicitly evolve signal traits).
+Mate selection (0.6.4 — `mate_choice_mode` and `mate_choice_strength` wired):
+- `signal_dims == 0`: random choice among eligible candidates (sexual
+  reproduction without mate choice).
+- `signal_dims > 0` branches on `mate_choice_mode`:
+    - `"random"`        — uniform random (ignores signals).
+    - `"preference"`    — score by -||preference - candidate.signal||^2
+                          (Zahavi / Fuller β_S).
+    - `"highest_signal"` — score by Σ|candidate.signal_i| (magnitude).
+  The per-candidate score is then sampled via softmax with temperature
+  `1 / mate_choice_strength`:
+    - `strength = 1.0`  — argmax (legacy behaviour, preserved).
+    - `0 < strength < 1` — softmax sampling (noisier choice).
+    - `strength = 0.0`  — uniform random (equivalent to `mode = "random"`).
+
+Pre-0.6.4: `mate_choice_mode` and `mate_choice_strength` were documented
+spec fields but silently ignored; `signal_dims > 0` always produced hard
+argmax on preference-distance regardless of mode or strength. Fixed in
+0.6.4 so the documented semantics actually run. Default
+`mate_choice_mode = "preference"` and `mate_choice_strength = 1.0`
+exactly reproduce pre-0.6.4 behaviour for all existing callers that set
+`signal_dims > 0`; callers that explicitly set `"random"` or a strength
+< 1 now get the behaviour they asked for (this may shift paper
+reproductions that toggled these fields — flagged in NEWS 0.6.4).
 
 Pre-0.5.10 behaviour (bug): when `signal_dims == 0`, this function returned
 `nothing` immediately, which made every "diploid" run structurally produce
@@ -263,24 +281,63 @@ function _find_mate(ag::Agent, env::Environment)::Union{Agent, Nothing}
         return candidates[rand(env.rng, 1:length(candidates))]
     end
 
-    # Signal-based mate choice (Zahavi 1975 preference-for-signal),
-    # optionally augmented by spatial-sorting dispersal bias.
+    mode     = String(get(specs, "mate_choice_mode", "preference"))
+    strength = Float32(get(specs, "mate_choice_strength", 1.0))
+
+    # "random" mode or zero strength → uniform random.
+    if mode == "random" || strength <= 0.0f0
+        return candidates[rand(env.rng, 1:length(candidates))]
+    end
+
     spatial_sort = Bool(get(specs, "spatial_sorting", false)) &&
                    Bool(get(specs, "dispersal_evolution", false))
 
-    best_score = -Inf32
-    best_mate  = nothing
-    for candidate in candidates
-        sig_score = -sum(abs2, ag.preference .- candidate.signal)
-        sort_score = spatial_sort ?
-                     Float32(spatial_sort_score(ag, candidate, specs)) : 0.0f0
-        score = sig_score + sort_score
-        if score > best_score
-            best_score = score
-            best_mate  = candidate
+    # Per-candidate score.
+    scores = Vector{Float32}(undef, length(candidates))
+    @inbounds for i in eachindex(candidates)
+        c = candidates[i]
+        s = if mode == "highest_signal"
+            Float32(sum(abs, c.signal))
+        else  # "preference" (default) or unrecognised → preference semantics
+            -sum(abs2, ag.preference .- c.signal)
+        end
+        if spatial_sort
+            s += Float32(spatial_sort_score(ag, c, specs))
+        end
+        scores[i] = s
+    end
+
+    # Greedy short-circuit at strength >= 1 — exact argmax preserves the
+    # pre-0.6.4 observed behaviour for callers that kept default strength.
+    if strength >= 1.0f0
+        best_score = -Inf32
+        best_mate  = candidates[1]
+        @inbounds for i in eachindex(candidates)
+            if scores[i] > best_score
+                best_score = scores[i]
+                best_mate  = candidates[i]
+            end
+        end
+        return best_mate
+    end
+
+    # Softmax sampling with temperature 1/strength. Subtract max for
+    # numerical stability (classic log-sum-exp trick).
+    smax = maximum(scores)
+    total = 0.0f0
+    @inbounds for i in eachindex(scores)
+        scores[i] = exp(strength * (scores[i] - smax))
+        total    += scores[i]
+    end
+    r = rand(env.rng) * total
+    cum = 0.0f0
+    @inbounds for i in eachindex(candidates)
+        cum += scores[i]
+        if r <= cum
+            return candidates[i]
         end
     end
-    best_mate
+    candidates[end]  # floating-point fallthrough
 end
 
 """

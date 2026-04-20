@@ -6,12 +6,12 @@ test_that("signal_cost defaults to 0.1", {
   expect_equal(default_specs()$signal_cost, 0.1)
 })
 
-test_that("mate_choice_mode defaults to 'random'", {
-  expect_equal(default_specs()$mate_choice_mode, "random")
+test_that("mate_choice_mode defaults to 'preference' (0.6.4 wiring)", {
+  expect_equal(default_specs()$mate_choice_mode, "preference")
 })
 
-test_that("mate_choice_strength defaults to 0.5", {
-  expect_equal(default_specs()$mate_choice_strength, 0.5)
+test_that("mate_choice_strength defaults to 1.0 (greedy argmax, preserves pre-0.6.4 behaviour)", {
+  expect_equal(default_specs()$mate_choice_strength, 1.0)
 })
 
 test_that("signal_dims is integer-like", {
@@ -32,7 +32,7 @@ test_that("mate_choice_strength is in [0, 1]", {
 
 test_that("mate_choice_mode is a recognised mode", {
   m <- default_specs()$mate_choice_mode
-  expect_true(m %in% c("random", "energy", "signal", "genetic"))
+  expect_true(m %in% c("random", "preference", "highest_signal"))
 })
 
 test_that("signal_dims is non-negative", {
@@ -68,11 +68,9 @@ test_that("signal vector length equals signal_dims (zeros initialisation)", {
   expect_equal(length(sig), dims)
 })
 
-test_that("mate_choice_strength closer to 0 means less randomness (documented)", {
-  # strength = 0 → fully selective; strength = 1 → fully random
-  # verify that 0.5 is strictly between the bounds, consistent with documentation
+test_that("mate_choice_strength default is in [0, 1]", {
   m <- default_specs()$mate_choice_strength
-  expect_true(m > 0 && m < 1)
+  expect_true(m >= 0 && m <= 1)
 })
 
 test_that("signal_dims can be set to 2L without error", {
@@ -145,9 +143,9 @@ test_that("signal cost scales linearly with magnitude", {
   expect_equal(total_cost, cost_per_unit * 2.0)
 })
 
-test_that("mate_choice_strength = 0.5 is strictly interior", {
+test_that("mate_choice_strength default is a valid [0, 1] scalar", {
   m <- default_specs()$mate_choice_strength
-  expect_true(m > 0.0 && m < 1.0)
+  expect_true(is.numeric(m) && m >= 0 && m <= 1)
 })
 
 test_that("all signal and mate-choice params present in default_specs names", {
@@ -194,6 +192,72 @@ test_that("run_clade with signal_dims = 2 has mean_signal_magnitude column", {
   d   <- get_run_data(env)$ticks
   expect_true("mean_signal_magnitude" %in% names(d))
   expect_true(all(d$mean_signal_magnitude >= 0))
+})
+
+test_that("mate_choice_mode is wired: random vs preference produce different trajectories", {
+  # Regression test for the 0.6.4 fix. Before 0.6.4, reproduce.jl ignored
+  # mate_choice_mode and always used preference-argmax when signal_dims > 0.
+  # This test fails against the pre-0.6.4 kernel because both conditions
+  # would produce bit-identical trajectories.
+  skip_if_not(requireNamespace("JuliaConnectoR", quietly = TRUE),
+              "JuliaConnectoR not available")
+  skip_if_not(JuliaConnectoR::juliaSetupOk(),
+              "Julia toolchain not available")
+
+  run_with <- function(mode) {
+    s <- default_specs()
+    s$grid_rows              <- 30L
+    s$grid_cols              <- 30L
+    s$n_agents_init          <- 80L
+    s$max_agents             <- 200L
+    s$max_ticks              <- 400L
+    s$grass_rate             <- 0.15
+    s$n_predators_init       <- 0L
+    s$signal_dims            <- 3L
+    s$signal_evolution_drift <- TRUE
+    s$signal_drift_sd        <- 0.05
+    s$mate_choice_mode       <- mode
+    s$mate_choice_strength   <- 1.0
+    s$random_seed            <- 7L
+    suppressWarnings(get_run_data(run_alife(s))$ticks$mean_signal_magnitude)
+  }
+
+  traj_random <- run_with("random")
+  traj_pref   <- run_with("preference")
+
+  # The trajectories must differ somewhere. If they match exactly at every
+  # tick, the kernel is ignoring mate_choice_mode (the 0.6.4 bug).
+  expect_false(isTRUE(all.equal(traj_random, traj_pref, tolerance = 0)))
+})
+
+test_that("mate_choice_strength is wired: strength=1.0 ≠ strength=0.0 under preference mode", {
+  skip_if_not(requireNamespace("JuliaConnectoR", quietly = TRUE),
+              "JuliaConnectoR not available")
+  skip_if_not(JuliaConnectoR::juliaSetupOk(),
+              "Julia toolchain not available")
+
+  run_with <- function(strength) {
+    s <- default_specs()
+    s$grid_rows              <- 30L
+    s$grid_cols              <- 30L
+    s$n_agents_init          <- 80L
+    s$max_agents             <- 200L
+    s$max_ticks              <- 400L
+    s$grass_rate             <- 0.15
+    s$n_predators_init       <- 0L
+    s$signal_dims            <- 3L
+    s$signal_evolution_drift <- TRUE
+    s$signal_drift_sd        <- 0.05
+    s$mate_choice_mode       <- "preference"
+    s$mate_choice_strength   <- strength
+    s$random_seed            <- 11L
+    suppressWarnings(get_run_data(run_alife(s))$ticks$mean_signal_magnitude)
+  }
+
+  traj_greedy <- run_with(1.0)
+  traj_random <- run_with(0.0)
+
+  expect_false(isTRUE(all.equal(traj_greedy, traj_random, tolerance = 0)))
 })
 
 test_that("run_clade with signal_dims = 0 has mean_signal_magnitude == 0 always", {
