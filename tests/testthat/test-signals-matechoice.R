@@ -194,6 +194,54 @@ test_that("run_clade with signal_dims = 2 has mean_signal_magnitude column", {
   expect_true(all(d$mean_signal_magnitude >= 0))
 })
 
+test_that("preference_bias_strength defaults to 0 (off)", {
+  expect_equal(default_specs()$preference_bias_strength, 0.0)
+})
+
+test_that("preference_bias_target defaults to NULL (off)", {
+  expect_null(default_specs()$preference_bias_target)
+})
+
+test_that("preference_bias_target + strength > 0 pulls preferences toward target", {
+  # 0.6.5 regression test: Ryan 1990 β_N mechanism. With bias active,
+  # mean agent preference should converge on the target over time.
+  # Fails if apply_preference_bias! is not hooked into the tick loop.
+  skip_if_not(requireNamespace("JuliaConnectoR", quietly = TRUE),
+              "JuliaConnectoR not available")
+  skip_if_not(JuliaConnectoR::juliaSetupOk(),
+              "Julia toolchain not available")
+
+  s <- default_specs()
+  s$grid_rows              <- 30L
+  s$grid_cols              <- 30L
+  s$n_agents_init          <- 60L
+  s$max_agents             <- 150L
+  s$max_ticks              <- 500L
+  s$grass_rate             <- 0.15
+  s$n_predators_init       <- 0L
+  s$signal_dims            <- 3L
+  s$signal_evolution_drift <- TRUE
+  s$signal_drift_sd        <- 0.05
+  s$preference_bias_strength <- 0.05
+  s$preference_bias_target   <- c(1.0, 0.0, 0.0)
+  s$random_seed            <- 42L
+
+  env <- suppressWarnings(run_alife(s))
+  # Mean preference[1] should be positive and substantially away from 0.
+  pref_sum <- 0; n_alive <- 0L
+  for (i in seq_len(length(env$agents))) {
+    ag <- env$agents[[i]]
+    if (isTRUE(ag$alive)) {
+      pref_sum <- pref_sum + as.numeric(ag$preference)[1]
+      n_alive  <- n_alive + 1L
+    }
+  }
+  expect_gt(n_alive, 0L)
+  mean_pref_d1 <- pref_sum / n_alive
+  # With κ = 0.05 for 500 ticks, preference[1] should saturate above 0.3.
+  expect_gt(mean_pref_d1, 0.3)
+})
+
 test_that("mate_choice_mode is wired: random vs preference produce different trajectories", {
   # Regression test for the 0.6.4 fix. Before 0.6.4, reproduce.jl ignored
   # mate_choice_mode and always used preference-argmax when signal_dims > 0.

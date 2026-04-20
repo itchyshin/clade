@@ -38,8 +38,10 @@ navbar:
           href: articles/paper-emlen-1982.html
         - text: "Courchamp 1999 — Allee effect + custom-module gap"
           href: articles/paper-courchamp-1999.html
-        - text: "Fuller, Houle & Travis 2005 — sensory bias (kernel-limit null)"
+        - text: "Fuller, Houle & Travis 2005 — sensory bias synthesis (Zahavi leg PASS)"
           href: articles/paper-fuller-2005.html
+        - text: "Ryan 1990 — sensory exploitation (β_N leg PASS; signal downstream null)"
+          href: articles/paper-ryan-1990.html
     articles:
       text: "Guides"
       menu:
@@ -214,6 +216,7 @@ articles:
       - paper-emlen-1982
       - paper-courchamp-1999
       - paper-fuller-2005
+      - paper-ryan-1990
 
   - title: "Parameter search"
     desc: >

@@ -111,6 +111,65 @@ function apply_signal_mortality!(env::Environment)
 end
 
 """
+    apply_preference_bias!(env::Environment)
+
+0.6.5 — sensory bias sensu Ryan 1990. Each tick, each agent's
+`preference` vector is pulled toward a fixed target vector
+`preference_bias_target` with per-tick pull strength
+`preference_bias_strength`:
+
+    preference[i] ← (1 - κ) × preference[i] + κ × target[i]
+
+Models a pre-existing receiver bias — a preference shaped by
+non-mating selection (e.g. foraging cue detection, predator
+avoidance) that exists *before* any signal evolves to exploit
+it. Under preference-based mate choice (the 0.6.4 wiring),
+signals should drift toward the target direction because
+agents whose signals happen to point that way get
+preferentially chosen as mates. This is the β_N leg of the
+Fuller, Houle & Travis (2005) framework — selection on
+preferences that spills over into signal evolution.
+
+No-op when `signal_dims == 0`, `preference_bias_strength == 0`
+(default), or `preference_bias_target` is empty / missing.
+
+Components are clamped to [-1, 1] after each pull.
+
+References
+----------
+Ryan, M. J. (1990). Sexual selection, sensory systems and
+    sensory exploitation. *Oxford Surveys in Evolutionary
+    Biology* 7:157-195.
+Endler, J. A. & Basolo, A. L. (1998). Sensory ecology,
+    receiver biases and sexual selection. *TREE* 13:415-420.
+Fuller, R. C., Houle, D. & Travis, J. (2005). Sensory bias as
+    an explanation for the evolution of mate preferences.
+    *Am Nat* 166:437-446.
+"""
+function apply_preference_bias!(env::Environment)
+    Int(get(env.specs, "signal_dims", 0)) > 0 || return
+
+    kappa = Float32(get(env.specs, "preference_bias_strength", 0.0))
+    kappa > 0.0f0 || return
+
+    raw = get(env.specs, "preference_bias_target", nothing)
+    raw === nothing && return
+    target = Float32[Float32(x) for x in raw]
+    isempty(target) && return
+
+    @inbounds for ag in env.agents
+        ag.alive || continue
+        n = min(length(ag.preference), length(target))
+        for i in 1:n
+            ag.preference[i] = (1.0f0 - kappa) * ag.preference[i] +
+                                kappa * target[i]
+            ag.preference[i] = clamp(ag.preference[i], -1.0f0, 1.0f0)
+        end
+    end
+    nothing
+end
+
+"""
     apply_signal_evolution!(env::Environment)
 
 Apply within-tick Gaussian drift to signal and preference vectors for all

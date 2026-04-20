@@ -362,6 +362,7 @@ function run_clade(specs::Dict{String,Any})
         apply_toxicity_costs!(env)        # mimicry: per-tick toxicity energy cost
         apply_signal_costs!(env)          # signal evolution: per-tick signal energy cost
         apply_signal_mortality!(env)      # 0.6.3: Zahavi β_Sv viability penalty
+        apply_preference_bias!(env)       # 0.6.5: Ryan 1990 sensory bias β_N
         apply_signal_evolution!(env)      # signal drift mutation (when enabled)
         apply_signal_toxicity_pleiotropy!(env)  # 0.4.4: aposematic coupling
         apply_coevolving_parasites!(env)  # 0.5.0: Hamilton 1980 Red Queen
