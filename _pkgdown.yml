@@ -14,12 +14,32 @@ home:
 
 navbar:
   structure:
-    left:  [intro, articles, paramsearch, kernel, scenarios, reference, news]
+    left:  [intro, papers, articles, paramsearch, kernel, scenarios, reference, news]
     right: [github]
   components:
     intro:
       text: "Get Started"
       href: articles/getting-started.html
+    papers:
+      text: "Paper reproductions"
+      menu:
+        - text: "Template — reproduce YOUR paper"
+          href: articles/paper-template.html
+        - text: "---"
+        - text: "Kokko & Brooks 2003 — sexy to die for? (contradiction)"
+          href: articles/paper-kokko-brooks-2003.html
+        - text: "Griesser et al. 2023 — parental provisioning → brain size"
+          href: articles/paper-griesser-2023.html
+        - text: "Dieckmann & Doebeli 1999 — sympatric speciation (clean ✅)"
+          href: articles/paper-dieckmann-doebeli-1999.html
+        - text: "Réale et al. 2010 — pace-of-life syndromes"
+          href: articles/paper-reale-2010.html
+        - text: "Emlen 1982 — ecological constraints on helping"
+          href: articles/paper-emlen-1982.html
+        - text: "Courchamp 1999 — Allee effect + custom-module gap"
+          href: articles/paper-courchamp-1999.html
+        - text: "Fuller, Houle & Travis 2005 — sensory bias (kernel-limit null)"
+          href: articles/paper-fuller-2005.html
     articles:
       text: "Guides"
       menu:
@@ -34,8 +54,6 @@ navbar:
         - text: "---"
         - text: "Parameter reference"
           href: articles/parameter-reference.html
-        - text: "Custom modules API"
-          href: articles/custom-modules.html
     paramsearch:
       text: "Parameter search"
       menu:
@@ -174,7 +192,6 @@ articles:
       - troubleshooting
       - parameter-reference
       - parameter-space-search
-      - custom-modules
 
   - title: "Paper reproductions"
     desc: >
@@ -185,13 +202,18 @@ articles:
       plus one or more of clade's search / grid tools
       (`grid_specs()`, `batch_alife()`, `viability_report()`) to
       demonstrate a full research workflow.
+      demonstrate a full research workflow. Start with the
+      template if you're reproducing your own paper.
     navbar: ~
     contents:
+      - paper-template
       - paper-kokko-brooks-2003
       - paper-griesser-2023
       - paper-dieckmann-doebeli-1999
       - paper-reale-2010
       - paper-emlen-1982
+      - paper-courchamp-1999
+      - paper-fuller-2005
 
   - title: "Parameter search"
     desc: >
@@ -373,13 +395,6 @@ reference:
       - tune_complex_landscape
       - tune_spatial_sorting
       - tune_iffolk
-
-  - title: "Custom modules"
-    desc: "Register user-defined hook functions that run at each tick."
-    contents:
-      - register_module
-      - list_modules
-      - clear_modules
 
   - title: "Pure-R scenarios"
     desc: "Scenarios that run entirely in R (no Julia required)."

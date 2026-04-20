@@ -21,6 +21,10 @@ reproduces and what doesn't. Uses the `hypothesis_sweep()` +
 `hypothesis_report()` helpers to keep the whole workflow inside
 clade's vocabulary — no separate scripts, no bespoke plumbing.*
 
+```{r fig-kb, echo = FALSE, eval = TRUE, out.width = "100%", fig.alt = "K&B 2003 — signals x grass rate. Signals-effect shrinks as grass drops."}
+knitr::include_graphics("figures-papers/kokko-brooks-2003.png")
+```
+
 ---
 
 ## The paper
