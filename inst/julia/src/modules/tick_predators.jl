@@ -124,7 +124,10 @@ function seed_predators!(env::Environment)
             # Wing size, niche layer (predators always ground-layer)
             0.0f0, Int32(1),
             # Brain size (predators use reference value; do not evolve brain_size)
-            1.0f0
+            1.0f0,
+            # 0.7.0: Wolf 2007 personality syndrome — predators don't participate
+            # in prey-side games; default 0.5 / 0.0.
+            0.5f0, 0.5f0, 0.5f0, 0.0f0
         )
 
         push!(env.predators, pred)
@@ -498,7 +501,10 @@ function _predator_reproduction!(env::Environment)
             # Wing size, niche layer (predators always ground-layer)
             0.0f0, Int32(1),
             # Brain size (reference value; predators do not evolve brain_size)
-            1.0f0
+            1.0f0,
+            # 0.7.0: Wolf 2007 personality syndrome — predators don't participate
+            # in prey-side hawk-dove or anti-predator games; default 0.5 / 0.0.
+            0.5f0, 0.5f0, 0.5f0, 0.0f0
         )
 
         pred.energy  -= off_energy

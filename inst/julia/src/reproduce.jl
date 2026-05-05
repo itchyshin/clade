@@ -496,6 +496,10 @@ function _make_offspring(id::Int64, g::DiploidGenome, brain::AbstractBrain,
     bsz        = express_trait(g, TRAIT_BRAIN_SIZE, dm,
                                Float32(get(specs,"brain_size_min",0.1)),
                                Float32(get(specs,"brain_size_max",3.0)), rng)
+    # 0.7.0: Wolf 2007 personality syndrome — heritable [0,1] traits.
+    explor     = express_trait(g, TRAIT_EXPLORATION,    dm, 0.0f0, 1.0f0, rng)
+    bold       = express_trait(g, TRAIT_BOLDNESS,       dm, 0.0f0, 1.0f0, rng)
+    aggro      = express_trait(g, TRAIT_AGGRESSIVENESS, dm, 0.0f0, 1.0f0, rng)
 
     off = Agent(
         id, parent.id, mate_id,
@@ -517,7 +521,9 @@ function _make_offspring(id::Int64, g::DiploidGenome, brain::AbstractBrain,
         helper_t,        # helper_tendency
         plasticity,      # plasticity
         wing, Int32(1),  # wing_size, niche_layer (1=ground)
-        bsz              # brain_size
+        bsz,             # brain_size
+        # 0.7.0: Wolf 2007 personality syndrome
+        explor, bold, aggro, 0.0f0   # exploration, boldness, aggressiveness, wolf_payoff_accum
     )
     apply_epigenetic_inheritance!(off, parent, specs, rng)
     off

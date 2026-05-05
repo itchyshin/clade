@@ -179,3 +179,64 @@ run_bad_science <- function(n_labs                   = 200L,
 
   out
 }
+
+# ── Wolf et al. 2007 Nature personality syndrome (added 0.7.0) ───────────────
+
+#' Spec preset for the Wolf 2007 personality reproduction
+#'
+#' Returns a specs list configured to reproduce the boldness-aggressiveness
+#' syndrome from Wolf, van Doorn, Leimar & Weissing (2007) Nature 447:581-584,
+#' implemented in clade's spatially-explicit framework. See the vignette
+#' `paper-wolf2007.Rmd` for the full reproduction context and discussion of
+#' the spatially-explicit interpretation (vs Wolf's mean-field model).
+#'
+#' Key parameter choices vs `default_specs()`:
+#' \describe{
+#'   \item{`personality_syndrome = TRUE`}{Enable the module.}
+#'   \item{`min_repro_energy = 1e9`}{Disable clade's standard energy-triggered
+#'     reproduction so only Wolf age-windowed reproduction fires.}
+#'   \item{`min_repro_age = 0L`}{Defer reproduction control to the
+#'     personality module's age windows.}
+#'   \item{`max_age = 999L`}{Defer death control to the personality module
+#'     (year-2 reproduction kills the parent).}
+#'   \item{`grid_rows`/`grid_cols = 30L`}{Standard density (Wolf used a
+#'     non-spatial population; clade needs a grid large enough for
+#'     one-per-cell + neighborhood encounters).}
+#'   \item{`n_agents_init = 60L`}{Initial density ~7%.}
+#'   \item{`max_agents = 500L`}{Standard cap.}
+#'   \item{`max_ticks = 2000L`}{20 generations at the default
+#'     `wolf_year2_repro_age = 100`. Wolf used 50,000 generations for his
+#'     paper figures — for an exact reproduction, scale much higher.}
+#'   \item{`ploidy = 1L`}{Haploid asexual genetics, matching Wolf's basic
+#'     model (Methods §"Basic model"). The diploid quantitative-genetics
+#'     extension (Wolf's Fig 4) can be enabled by setting `ploidy = 2L`.}
+#' }
+#'
+#' @details
+#' Wolf-specific parameters (β, f_high, f_low, V, δ, b, γ, year ages,
+#' per-tick game frequencies) inherit their defaults from `default_specs()`.
+#' Override individual fields after calling this function:
+#' ```r
+#' s <- wolf_personality_specs()
+#' s$personality_hawkdove_radius <- 2L   # widen pairing neighborhood
+#' s$max_ticks <- 5000L                   # longer evolution
+#' env <- run_alife(s)
+#' ```
+#'
+#' @return A specs list ready for `run_alife()`.
+#' @seealso [default_specs()], [run_alife()].
+#' @export
+wolf_personality_specs <- function() {
+  s <- default_specs()
+  s$personality_syndrome <- TRUE
+  s$min_repro_energy     <- 1e9          # disable standard energy-triggered repro
+  s$min_repro_age        <- 0L
+  s$max_age              <- 999L         # let personality module handle death
+  s$grid_rows            <- 30L
+  s$grid_cols            <- 30L
+  s$n_agents_init        <- 60L
+  s$max_agents           <- 500L
+  s$max_ticks            <- 2000L
+  s$ploidy               <- 1L           # Wolf's haploid basic model
+  s
+}

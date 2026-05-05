@@ -110,7 +110,7 @@ struct DiploidGenome
 end
 
 """Number of scalar traits stored per haplotype in `DiploidGenome`."""
-const N_SCALAR_TRAITS = 15
+const N_SCALAR_TRAITS = 18
 
 # Scalar trait indices (into maternal_traits / paternal_traits)
 const TRAIT_BODY_SIZE             = 1
@@ -128,6 +128,17 @@ const TRAIT_PLASTICITY            = 12
 const TRAIT_TOXICITY              = 13
 const TRAIT_WING_SIZE             = 14
 const TRAIT_BRAIN_SIZE            = 15
+# Wolf et al. 2007 Nature personality syndrome (added 0.7.0). All clamped
+# to [0,1] in expression. Spatially-explicit clade interpretation: games
+# fire on real spatial encounters (neighborhood mates for hawk-dove,
+# real predator presence for anti-predator), not Wolf's mean-field
+# random pairing. See dev/docs/kernel-as-biology/personality.md.
+#   TRAIT_EXPLORATION    — x in Wolf's notation (future-vs-current reproduction)
+#   TRAIT_BOLDNESS       — disposition in anti-predator games
+#   TRAIT_AGGRESSIVENESS — disposition in hawk-dove games
+const TRAIT_EXPLORATION           = 16
+const TRAIT_BOLDNESS              = 17
+const TRAIT_AGGRESSIVENESS        = 18
 
 """
     is_haploid(g::DiploidGenome) -> Bool
@@ -323,6 +334,16 @@ mutable struct Agent
 
     # Brain size evolution (parental provisioning hypothesis)
     brain_size         ::Float32   # heritable cognitive capacity trait (1.0 = reference)
+
+    # Wolf et al. 2007 Nature personality syndrome (added 0.7.0). Always
+    # allocated; zero-valued and unused when `personality_syndrome` is off.
+    # Spatially-explicit clade interpretation: games fire on real spatial
+    # encounters, not Wolf's mean-field random pairing. See
+    # inst/julia/src/modules/personality.jl for the mechanism.
+    exploration        ::Float32   # x in Wolf's notation: [0,1]
+    boldness           ::Float32   # anti-predator disposition: [0,1]
+    aggressiveness     ::Float32   # hawk-dove disposition: [0,1]
+    wolf_payoff_accum  ::Float32   # accumulated game payoff during between-phase
 end
 
 # ── Environment ────────────────────────────────────────────────────────────────

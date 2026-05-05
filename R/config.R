@@ -1244,6 +1244,51 @@ default_specs <- function() {
     brain_size_cost_scale       = 1.0,
     brain_size_sensing_exponent = 0.3,
 
+    # ── Wolf et al. 2007 Nature personality syndrome (added 0.7.0) ────────
+    # Spatially-explicit clade interpretation: hawk-dove pairs from Moore
+    # neighborhood (mate_search_radius style); anti-predator fires only when
+    # a real predator is within sensing range of the focal agent. The
+    # life-history trade-off (g(x) = (1-x)^β) is preserved from Wolf 2007.
+    # See inst/julia/src/modules/personality.jl for the mechanism and
+    # vignettes/paper-wolf2007.Rmd for the reproduction context.
+    personality_syndrome           = FALSE,
+    # Trait initial means + mutation SDs
+    exploration_init_mean          = 0.5,
+    exploration_mutation_sd        = 0.05,
+    boldness_init_mean             = 0.5,
+    boldness_mutation_sd           = 0.05,
+    aggressiveness_init_mean       = 0.5,
+    aggressiveness_mutation_sd     = 0.05,
+    # Wolf 2007 life-history trade-off curve g(x) = (1-x)^β
+    personality_beta               = 1.25,
+    # Year-1/year-2 reproduction event ages (in clade ticks). Wolf doesn't
+    # specify because his model is fecundity-based; clade needs concrete tick
+    # counts. Defaults assume one tick ≈ a day for a small mammal.
+    wolf_year1_repro_age           = 50L,
+    wolf_year2_repro_age           = 100L,
+    # Year-2 fecundity payoffs. Tuned so 2*f_low > f_high > 1 (Wolf's
+    # dimorphism condition). Empirical calibration recommended for any
+    # specific scenario; see vignette discussion.
+    personality_f_high             = 3.0,
+    personality_f_low              = 2.0,
+    # Anti-predator game (per encounter): bold gets b energy, dies prob γ.
+    # Scaled to be small relative to f_low (Wolf's V/f_high ≈ 3%); a single
+    # game adds ≈ 0.25 expected offspring at year-2 reproduction.
+    personality_b                  = 0.5,
+    personality_gamma              = 0.1,
+    # Hawk-dove game (per encounter): hawks fight for V, hawk-hawk loser
+    # dies prob δ. Same scale rationale as personality_b.
+    personality_V                  = 0.5,
+    personality_delta              = 0.5,
+    # Per-tick game frequencies during the between-phase (year1 < age < year2).
+    # Wolf's "one or more games" → probabilistic per-tick firing.
+    personality_hawkdove_per_tick  = 0.1,
+    personality_antipred_per_tick  = 0.5,
+    # Hawk-dove pairing radius (Moore neighborhood). Setting > 0 is the
+    # spatially-explicit clade interpretation (vs Wolf's mean-field random
+    # pairing). Default 1 = immediate neighbours.
+    personality_hawkdove_radius    = 1L,
+
     # ── Metabolic rate evolution ───────────────────────────────────────────
     metabolic_rate_evolution   = FALSE,
     metabolic_rate_init_mean   = 1.0,

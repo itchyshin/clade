@@ -176,6 +176,19 @@ function _sample_traits(specs::Dict{String,Any}, rng::AbstractRNG)::Vector{Float
                get(specs, "brain_size_min", 0.1),
                get(specs, "brain_size_max", 3.0)) : 1.0f0
 
+    # Wolf 2007 personality syndrome (0.7.0). Disabled traits default to
+    # 0.5 (intermediate; harmless when not consulted by personality.jl).
+    pers_on = Bool(get(specs, "personality_syndrome", false))
+    t[TRAIT_EXPLORATION]    = pers_on ?
+        sample(get(specs, "exploration_init_mean",    0.5),
+               get(specs, "exploration_mutation_sd",  0.05), 0.0, 1.0) : 0.5f0
+    t[TRAIT_BOLDNESS]       = pers_on ?
+        sample(get(specs, "boldness_init_mean",       0.5),
+               get(specs, "boldness_mutation_sd",     0.05), 0.0, 1.0) : 0.5f0
+    t[TRAIT_AGGRESSIVENESS] = pers_on ?
+        sample(get(specs, "aggressiveness_init_mean", 0.5),
+               get(specs, "aggressiveness_mutation_sd", 0.05), 0.0, 1.0) : 0.5f0
+
     t
 end
 
@@ -517,6 +530,16 @@ function _mutate_traits(t::Vector{Float32}, specs::Dict{String,Any},
                       get(specs, "brain_size_mutation_sd", 0.05),
                       get(specs, "brain_size_min", 0.1),
                       get(specs, "brain_size_max", 3.0))
+
+    # Wolf 2007 personality syndrome (0.7.0). All clamped to [0,1].
+    if Bool(get(specs, "personality_syndrome", false))
+        maybe_mutate!(TRAIT_EXPLORATION,
+                      get(specs, "exploration_mutation_sd",    0.05), 0.0, 1.0)
+        maybe_mutate!(TRAIT_BOLDNESS,
+                      get(specs, "boldness_mutation_sd",       0.05), 0.0, 1.0)
+        maybe_mutate!(TRAIT_AGGRESSIVENESS,
+                      get(specs, "aggressiveness_mutation_sd", 0.05), 0.0, 1.0)
+    end
 
     t
 end
