@@ -2,8 +2,11 @@ test_that("mimicry defaults to FALSE", {
   expect_false(default_specs()$mimicry)
 })
 
-test_that("toxicity_cost_per_tick defaults to 0.5", {
-  expect_equal(default_specs()$toxicity_cost_per_tick, 0.5)
+test_that("toxicity_cost_per_tick defaults to 2.0 (Zahavi handicap)", {
+  # Default was raised from 0.5 to 2.0 to make the Zahavi cost biologically
+  # meaningful (see roxygen in R/config.R). Test value updated 0.7.0 to
+  # match the config; previously stale.
+  expect_equal(default_specs()$toxicity_cost_per_tick, 2.0)
 })
 
 test_that("toxin_dose defaults to 30.0", {
@@ -91,7 +94,7 @@ test_that("mean_toxicity is non-negative at all ticks when mimicry = TRUE", {
 test_that("mimicry params round-trip correctly through default_specs()", {
   s <- default_specs()
   expect_false(s$mimicry)
-  expect_equal(s$toxicity_cost_per_tick, 0.5)
+  expect_equal(s$toxicity_cost_per_tick, 2.0)   # see test at line 5 — updated 0.7.0
   expect_equal(s$toxin_dose,             30.0)
   expect_equal(s$signal_memory_rate,     0.3)
   expect_equal(s$avoid_threshold,        0.5)
