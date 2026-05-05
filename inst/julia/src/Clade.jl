@@ -103,6 +103,8 @@ include("modules/ann_regularization.jl")
 include("modules/personality.jl")
 # 0.7.0: Trivers 1971 reciprocal altruism
 include("modules/reciprocity.jl")
+# 0.7.0: Wolf 2008 responsive personalities
+include("modules/responsiveness.jl")
 
 # ── R-to-Julia specs bridge ───────────────────────────────────────────────────
 
@@ -357,6 +359,10 @@ function run_clade(specs::Dict{String,Any})
         # Seed predators on first tick if enabled
         t == 1 && seed_predators!(env)
         tick_agents!(env)
+        # 0.7.0: Wolf 2008 responsive personalities — runs immediately after
+        # tick_agents! so responsive agents can override their move toward
+        # the richest free cardinal-neighbour cell. No-op when off.
+        apply_responsive_personalities!(env)
         tick_predators!(env)              # predator sense-decide-act loop
         apply_body_size!(env)             # metabolic + foraging correction
         apply_brain_size_evolution!(env)  # expensive brain + cognitive foraging
@@ -689,6 +695,8 @@ function _make_founder_agent(id::Int64, g::DiploidGenome, brain::AbstractBrain,
     rec_init  = express_trait(g, TRAIT_RECIPROCITY_INITIAL,     dm, 0.0f0, 1.0f0, rng)
     rec_ret   = express_trait(g, TRAIT_RECIPROCITY_RETALIATION, dm, 0.0f0, 1.0f0, rng)
     rec_forg  = express_trait(g, TRAIT_RECIPROCITY_FORGIVENESS, dm, 0.0f0, 1.0f0, rng)
+    # 0.7.0: Wolf 2008 responsiveness trait.
+    resp      = express_trait(g, TRAIT_RESPONSIVENESS,          dm, 0.0f0, 1.0f0, rng)
 
     sig_dims = Int(get(specs, "signal_dims", 0))
 
@@ -734,7 +742,9 @@ function _make_founder_agent(id::Int64, g::DiploidGenome, brain::AbstractBrain,
         # 0.7.0: Wolf 2007 personality syndrome
         explor, bold, aggro, 0.0f0,  # exploration, boldness, aggressiveness, wolf_payoff_accum
         # 0.7.0: Trivers 1971 reciprocal altruism (partner memory lazy-init in module)
-        rec_init, rec_ret, rec_forg, Int64[], Int8[]
+        rec_init, rec_ret, rec_forg, Int64[], Int8[],
+        # 0.7.0: Wolf 2008 responsive personalities
+        resp
     )
 end
 
@@ -821,7 +831,9 @@ function _agents_to_records(agents::Vector{Agent})
             # 0.7.0: Trivers 1971 reciprocal altruism
             reciprocity_initial     = Float64(ag.reciprocity_initial),
             reciprocity_retaliation = Float64(ag.reciprocity_retaliation),
-            reciprocity_forgiveness = Float64(ag.reciprocity_forgiveness)
+            reciprocity_forgiveness = Float64(ag.reciprocity_forgiveness),
+            # 0.7.0: Wolf 2008 responsive personalities
+            responsiveness          = Float64(ag.responsiveness)
         )
     end
 end

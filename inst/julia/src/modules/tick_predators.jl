@@ -129,7 +129,9 @@ function seed_predators!(env::Environment)
             # in prey-side games; default 0.5 / 0.0.
             0.5f0, 0.5f0, 0.5f0, 0.0f0,
             # 0.7.0: Trivers reciprocal altruism — predators don't participate.
-            0.5f0, 0.5f0, 0.0f0, Int64[], Int8[]
+            0.5f0, 0.5f0, 0.0f0, Int64[], Int8[],
+            # 0.7.0: Wolf 2008 responsiveness — predators don't participate.
+            0.5f0
         )
 
         push!(env.predators, pred)
@@ -508,7 +510,9 @@ function _predator_reproduction!(env::Environment)
             # in prey-side hawk-dove or anti-predator games; default 0.5 / 0.0.
             0.5f0, 0.5f0, 0.5f0, 0.0f0,
             # 0.7.0: Trivers reciprocal altruism — predators don't participate.
-            0.5f0, 0.5f0, 0.0f0, Int64[], Int8[]
+            0.5f0, 0.5f0, 0.0f0, Int64[], Int8[],
+            # 0.7.0: Wolf 2008 responsiveness — predators don't participate.
+            0.5f0
         )
 
         pred.energy  -= off_energy

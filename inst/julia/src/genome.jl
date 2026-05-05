@@ -204,6 +204,13 @@ function _sample_traits(specs::Dict{String,Any}, rng::AbstractRNG)::Vector{Float
         sample(get(specs, "reciprocity_forgiveness_init_mean",   0.1),
                get(specs, "reciprocity_forgiveness_mutation_sd", 0.05), 0.0, 1.0) : 0.0f0
 
+    # Wolf 2008 responsive personalities (0.7.0). Default 0.5 when off
+    # (intermediate; harmless when not consulted by responsiveness module).
+    resp_on = Bool(get(specs, "responsive_personalities", false))
+    t[TRAIT_RESPONSIVENESS] = resp_on ?
+        sample(get(specs, "responsiveness_init_mean",    0.5),
+               get(specs, "responsiveness_mutation_sd",  0.05), 0.0, 1.0) : 0.5f0
+
     t
 end
 
@@ -565,6 +572,11 @@ function _mutate_traits(t::Vector{Float32}, specs::Dict{String,Any},
         maybe_mutate!(TRAIT_RECIPROCITY_FORGIVENESS,
                       get(specs, "reciprocity_forgiveness_mutation_sd", 0.05), 0.0, 1.0)
     end
+
+    # Wolf 2008 responsive personalities (0.7.0). Clamped to [0,1].
+    Bool(get(specs, "responsive_personalities", false)) &&
+        maybe_mutate!(TRAIT_RESPONSIVENESS,
+                      get(specs, "responsiveness_mutation_sd", 0.05), 0.0, 1.0)
 
     t
 end

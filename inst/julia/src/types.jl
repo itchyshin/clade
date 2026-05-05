@@ -110,7 +110,7 @@ struct DiploidGenome
 end
 
 """Number of scalar traits stored per haplotype in `DiploidGenome`."""
-const N_SCALAR_TRAITS = 21
+const N_SCALAR_TRAITS = 22
 
 # Scalar trait indices (into maternal_traits / paternal_traits)
 const TRAIT_BODY_SIZE             = 1
@@ -150,6 +150,13 @@ const TRAIT_AGGRESSIVENESS        = 18
 const TRAIT_RECIPROCITY_INITIAL      = 19
 const TRAIT_RECIPROCITY_RETALIATION  = 20
 const TRAIT_RECIPROCITY_FORGIVENESS  = 21
+# Wolf et al. 2008 PNAS responsive/unresponsive personalities (added 0.7.0).
+# Single trait controlling Pr(sample environment + override action with
+# greedy-grass move). Frequency-dependent benefit emerges from grass
+# competition: when many agents are responsive, rich cells get depleted
+# (handling time) and the per-game payoff to being responsive declines.
+# See inst/julia/src/modules/responsiveness.jl and paper-wolf2008.Rmd.
+const TRAIT_RESPONSIVENESS           = 22
 
 """
     is_haploid(g::DiploidGenome) -> Bool
@@ -369,6 +376,12 @@ mutable struct Agent
     # Int64 to match Agent.id (Int64).
     partner_ids        ::Vector{Int64}
     partner_actions    ::Vector{Int8}
+
+    # Wolf et al. 2008 PNAS responsive personalities (added 0.7.0). Single
+    # heritable trait in [0,1] = Pr(this agent samples local state + over-
+    # rides its action toward the richest cardinal-neighbour cell on a
+    # given tick). Inert when `responsive_personalities` is off.
+    responsiveness     ::Float32
 end
 
 # ── Environment ────────────────────────────────────────────────────────────────

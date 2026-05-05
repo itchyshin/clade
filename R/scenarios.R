@@ -302,3 +302,60 @@ trivers_reciprocity_specs <- function() {
   s$ploidy               <- 1L
   s
 }
+
+# ── Wolf et al. 2008 PNAS responsive personalities (added 0.7.0) ─────────────
+
+#' Spec preset for the Wolf 2008 responsive-personalities reproduction
+#'
+#' Returns a specs list configured to test the negative-frequency-dependent-
+#' selection mechanism from Wolf, van Doorn & Weissing (2008) PNAS
+#' 105:15825-15830, in clade's spatially-explicit framework. See the
+#' vignette `paper-wolf2008.Rmd` for the full reproduction context.
+#'
+#' Key parameter choices vs `default_specs()`:
+#' \describe{
+#'   \item{`responsive_personalities = TRUE`}{Enable the module.}
+#'   \item{`grid_rows`/`grid_cols = 30L`}{Standard grid; rich-cell
+#'     competition emerges naturally from clade's grass economy.}
+#'   \item{`n_agents_init = 200L`}{Density 22% — high enough that
+#'     responsiveness's frequency-dependent cost actually bites.}
+#'   \item{`max_agents = 800L`}{Room for population growth; the regulator
+#'     is grass + handling time, not max_agents.}
+#'   \item{`max_ticks = 3000L`}{30 generations at default max_age = 100.
+#'     Long enough for the responsiveness trait to evolve to its
+#'     equilibrium frequency.}
+#'   \item{`ploidy = 1L`}{Haploid asexual; cleaner trait dynamics.}
+#' }
+#'
+#' @details
+#' Wolf 2008-specific parameters (responsiveness_init_mean, mutation_sd,
+#' responsiveness_cost) inherit from `default_specs()`. To probe the
+#' density-dependent benefit (Wolf's headline mechanism):
+#' ```r
+#' for (n_init in c(50L, 100L, 200L, 400L)) {
+#'   s <- wolf2008_responsiveness_specs()
+#'   s$n_agents_init <- n_init
+#'   env <- run_alife(s)
+#'   # ... compute mean responsiveness at end and plot vs n_init
+#' }
+#' ```
+#'
+#' @return A specs list ready for `run_alife()`.
+#' @seealso [default_specs()], [run_alife()], [wolf_personality_specs()].
+#' @export
+wolf2008_responsiveness_specs <- function() {
+  s <- default_specs()
+  s$responsive_personalities <- TRUE
+  # Calibrated cost. Default of 0.4 in default_specs() is steep; the
+  # Wolf 2008 preset uses a smaller cost (0.1) so populations don't
+  # collapse during the trait-evolution period. The headline mechanism
+  # is preserved either way; this is just a sustainability tuning.
+  s$responsiveness_cost      <- 0.1
+  s$grid_rows                <- 30L
+  s$grid_cols                <- 30L
+  s$n_agents_init            <- 200L
+  s$max_agents               <- 800L
+  s$max_ticks                <- 3000L
+  s$ploidy                   <- 1L
+  s
+}

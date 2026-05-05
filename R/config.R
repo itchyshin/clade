@@ -1327,6 +1327,22 @@ default_specs <- function() {
     # likely to re-encounter the same partner (weakens reciprocity).
     reciprocity_radius              = 1L,
 
+    # ── Wolf et al. 2008 PNAS responsive personalities (added 0.7.0) ──────
+    # Spatially-explicit clade interpretation: responsive agents pay
+    # `responsiveness_cost` energy per tick to sample local grass and
+    # override their action toward the richest cardinal neighbour.
+    # Frequency-dependent benefit emerges from grass competition (handling
+    # time): when many agents are responsive, rich cells get depleted
+    # and per-agent payoff to being responsive declines.
+    # See inst/julia/src/modules/responsiveness.jl and paper-wolf2008.Rmd.
+    responsive_personalities       = FALSE,
+    responsiveness_init_mean       = 0.5,
+    responsiveness_mutation_sd     = 0.05,
+    # Per-tick energy cost paid by an agent that opts to sample. Wolf 2008
+    # uses C=0.2 in his Methods; clade scale chosen so a moderate-
+    # responsive agent (resp=0.5) loses ~0.2 energy per tick on average.
+    responsiveness_cost            = 0.4,
+
     # ── Metabolic rate evolution ───────────────────────────────────────────
     metabolic_rate_evolution   = FALSE,
     metabolic_rate_init_mean   = 1.0,
