@@ -45,6 +45,11 @@ test_that("wolf_personality_specs() returns a valid spec list with personality_s
   expect_true("wolf_year1_repro_age" %in% names(s))
   expect_true("wolf_year2_repro_age" %in% names(s))
   expect_true(s$wolf_year1_repro_age < s$wolf_year2_repro_age)
+  # Phase 6: Wolf's (1+α·N_i) per-strategy competition denominator.
+  # Default α=0.005 is Wolf's published value; setting to 0.0 recovers
+  # legacy 0.7.0 behaviour at first release of the personality module.
+  expect_true("personality_alpha" %in% names(s))
+  expect_equal(s$personality_alpha, 0.005)
 })
 
 test_that("personality_syndrome defaults to FALSE in default_specs()", {

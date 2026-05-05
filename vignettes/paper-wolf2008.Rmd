@@ -176,14 +176,16 @@ and clade's spatial implementation — see "honest discussion" below.
 Wolf 2008 reports clean coexistence of responsive + unresponsive types
 at intermediate `C` (Fig. 2c). clade's implementation produces selection
 on the responsiveness trait but does NOT cleanly reproduce Wolf's
-polymorphic equilibrium. Two reasons (the same as Phase 3a Wolf 2007):
+polymorphic equilibrium. Two reasons:
 
-1. **No per-resource competition denominator**. Wolf's `(1+α·N_i)` in
-   the patch-choice payoff is the mathematical machinery that makes
-   per-agent benefit decline smoothly with the fraction of responders.
-   clade's spatial competition (handling time + one-per-cell) is more
-   discrete: the first responsive agent to a rich cell gets all the
-   benefit; later movers get nothing. This produces *winner-take-all*
+1. **No per-resource competition denominator** (Wolf 2008 only — Wolf
+   2007's denominator was added in Phase 6 of the 0.7.0 work; the
+   responsiveness module here does not yet have an analogue). Wolf's
+   `(1+α·N_i)` in the patch-choice payoff is the mathematical machinery
+   that makes per-agent benefit decline smoothly with the fraction of
+   responders. clade's spatial competition (handling time + one-per-cell)
+   is more discrete: the first responsive agent to a rich cell gets all
+   the benefit; later movers get nothing. This produces *winner-take-all*
    rather than *smoothly frequency-dependent*.
 
 2. **Population dynamics**. clade's grass-economy regulator interacts

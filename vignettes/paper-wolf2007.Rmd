@@ -175,27 +175,34 @@ correlations of order 0.1. Why the difference?
    between-phase, so actual game encounters are sparser than Wolf's mean-
    field rate.
 
-2. **No `(1 + α·N_i)` competition denominator**. Wolf's per-resource
-   competition denominator is the mathematical machinery that makes
-   year-2 reproduction PAYOFF DEPENDENT on the number of competitors at
-   the high-quality patch. Without it, the year-1 strategy (always
-   reproduce) dominates over the year-2 strategy (gamble on high-quality
-   patch), and the population is mostly low-x. Wolf's bimodality at x=0
-   and x=1 doesn't appear — exploration evolves toward 0 instead.
+2. **The `(1 + α·N_i)` competition denominator (Phase 6 refinement)**.
+   clade now applies Wolf's per-strategy denominator with
+   `N_high ≈ N·mean(x)` and `N_low ≈ N·mean(1-x)`, snapshotted once per
+   tick. This strengthened the bold-aggro syndrome from +0.10 to +0.31,
+   but did not produce Wolf's year-1-vs-year-2 dimorphism: the population
+   still locks at x≈0 because the snapshot-once-per-tick approximation
+   plus clade's spatial competition is coarser than Wolf's continuous
+   per-individual evaluation. The asset-protection signs (exp ↔ bold,
+   exp ↔ aggro) are weaker / sign-flipped in the locked equilibrium.
 
 3. **Population dynamics**. clade's energy economy regulates carrying
-   capacity, but doesn't generate the strict frequency-dependent payoffs
-   Wolf's denominator does.
+   capacity in addition to the (1+α·N) denominator. The two interact:
+   the energy economy already prevents runaway growth, so the
+   denominator's regulating role is partly redundant and the resulting
+   selection gradient on *x* is weaker than in Wolf's pure mean-field
+   model.
 
 These are real interpretation choices, not bugs. clade's value is that
 it embeds Wolf's mechanism in a richer biological setting; the trade-off
-is weaker selection signal.
+is weaker / sign-flipped asset-protection signal even though the
+defining bold-aggro syndrome is preserved.
 
 ## What's left for follow-up work
 
-- **Implement the `(1 + α·N_i)` denominator** to recover Wolf's
-  bimodality at x=0 and x=1 — would either need to track per-resource
-  population counts (high vs low quality) or a global density proxy.
+- **Per-individual (not snapshot) frequency evaluation** — switch to
+  per-agent re-computation of `(1+α·N_high)` / `(1+α·N_low)` to recover
+  the smoothness Wolf's continuous model assumes. Restructures
+  `apply_lifehistory_tradeoff!`.
 - **Diploid quantitative-genetics extension** (Wolf's Fig 4) — set
   `ploidy = 2L` in the preset; the existing genome.jl supports it. Wolf
   reports stronger correlations (r ≈ 0.65) in the diploid version.
