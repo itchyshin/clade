@@ -136,7 +136,31 @@ function apply_lifehistory_tradeoff!(env::Environment)
     f_high   = Float32(get(specs, "personality_f_high", 3.0))
     f_low    = Float32(get(specs, "personality_f_low",  2.0))
     beta     = Float32(get(specs, "personality_beta",   1.25))
+    alpha    = Float32(get(specs, "personality_alpha",  0.005))
     max_ag   = Int(get(specs, "max_agents",            500))
+
+    # Wolf 2007 per-resource competition denominator F_i = f_i / (1+α·N_i).
+    # Wolf splits N into N_high (year-2 thorough-explorer cohort) and N_low
+    # (year-1 superficial cohort) — the resource-specific competition is
+    # what drives the stable dimorphism (Wolf's Methods, "Anti-predator
+    # games and aggressive encounters" §). clade approximates per-resource
+    # competition as: N_high ≈ N · mean(x), N_low ≈ N · mean(1-x).
+    # Snapshotted once per tick (not per agent) for efficiency. When mean(x)
+    # is small (few thorough explorers), N_high is small → f_high uncrowded
+    # → year-2 strategy attractive → x is selected upward → frequency-
+    # dependent stabilising selection toward the mixed-strategy equilibrium.
+    n_live = 0
+    sum_x  = 0.0f0
+    @inbounds for a in env.agents
+        if a.alive
+            n_live += 1
+            sum_x  += a.exploration
+        end
+    end
+    mean_x   = n_live > 0 ? sum_x / Float32(n_live) : 0.5f0
+    n_live_f = Float32(n_live)
+    f_high_eff = f_high / (1.0f0 + alpha * n_live_f * mean_x)
+    f_low_eff  = f_low  / (1.0f0 + alpha * n_live_f * (1.0f0 - mean_x))
 
     n_ag       = length(env.agents)
     rand_order = Bool(get(specs, "random_tick_order", true))
@@ -150,8 +174,9 @@ function apply_lifehistory_tradeoff!(env::Environment)
             # Year-1 reproduction. Wolf's games fire BETWEEN year 1 and
             # year 2, so payoff_accum is zero at this point and contributes
             # nothing here (kept for completeness; will reset anyway).
+            # Density-regulated fecundity per Wolf 2007 (1 + α·N denominator).
             x     = ag.exploration
-            n_off = _stochastic_round((1.0f0 - x)^beta * f_low, env.rng)
+            n_off = _stochastic_round((1.0f0 - x)^beta * f_low_eff, env.rng)
             n_off = max(0, n_off)
             _wolf_emit_offspring!(ag, env, n_off, rows, cols, toroidal, max_ag)
             ag.wolf_payoff_accum = 0.0f0
@@ -163,8 +188,11 @@ function apply_lifehistory_tradeoff!(env::Environment)
             # fecundity but accumulate over the between-phase. The
             # accumulator is divided by `f_low` to keep `payoff_bonus`
             # on the same scale as the discrete fecundity numbers.
+            # Density-regulated fecundity (1 + α·N denominator) applies to
+            # f_high and f_low; the game payoff bonus is NOT density-scaled
+            # because it represents already-realised gains during between-phase.
             x            = ag.exploration
-            f_i          = rand(env.rng) < Float64(x) ? f_high : f_low
+            f_i          = rand(env.rng) < Float64(x) ? f_high_eff : f_low_eff
             payoff_bonus = ag.wolf_payoff_accum / max(f_low, 1.0f-3)
             n_off        = _stochastic_round(f_i + payoff_bonus, env.rng)
             n_off        = max(0, n_off)

@@ -119,15 +119,20 @@ cor(bo, ag)   # predicted positive — boldness-aggressiveness syndrome
 
 Typical values at this configuration (seed = 42):
 
-| Correlation | Predicted | Observed |
-|---|---|---|
-| Pearson(exploration, boldness)        | < 0 | −0.21 |
-| Pearson(exploration, aggressiveness)  | < 0 | −0.09 |
-| Pearson(boldness, aggressiveness)     | > 0 | +0.10 |
+| Correlation | Predicted | Phase 3a (no denominator) | Phase 6 (with `α=0.005`) |
+|---|---|---|---|
+| Pearson(exploration, boldness)        | < 0 | −0.21 | +0.04 |
+| Pearson(exploration, aggressiveness)  | < 0 | −0.09 | −0.01 |
+| Pearson(boldness, aggressiveness)     | > 0 | +0.10 | **+0.31** |
 
-All three signs match Wolf's prediction. Magnitudes are weaker than
-Wolf's mean-field model (where r typically exceeds 0.5) — see "Honest
-discussion of magnitudes" below.
+The defining prediction of Wolf 2007 — the **boldness-aggressiveness
+syndrome** — is reliably positive and grew threefold when the
+`(1+α·N_i)` denominator was added in Phase 6. The asset-protection
+signs (exp ↔ bold, exp ↔ aggro) are weaker / sign-flipped because the
+denominator regulates year-2 reward and the equilibrium population
+structure clade reaches doesn't develop the year-1-vs-year-2 dimorphism
+that Wolf's mean-field model predicts. See "Honest discussion of
+magnitudes" below.
 
 ## Visualising the trait distribution
 

@@ -1261,6 +1261,13 @@ default_specs <- function() {
     aggressiveness_mutation_sd     = 0.05,
     # Wolf 2007 life-history trade-off curve g(x) = (1-x)^β
     personality_beta               = 1.25,
+    # Wolf 2007 per-resource competition denominator: F_i = f_i / (1 + α·N).
+    # In Wolf 2007, α·N regulates per-individual fecundity by total population
+    # density at the resource. clade uses total live-agent count as N (Wolf's
+    # f_i / (1+α·N_i) reduces to this when the population is well-mixed).
+    # Set to 0.0 to disable the denominator (legacy 0.7.0 behaviour at first
+    # release of the personality module). Wolf's original value is 0.005.
+    personality_alpha              = 0.005,
     # Year-1/year-2 reproduction event ages (in clade ticks). Wolf doesn't
     # specify because his model is fecundity-based; clade needs concrete tick
     # counts. Defaults assume one tick ≈ a day for a small mammal.
