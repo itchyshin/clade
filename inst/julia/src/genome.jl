@@ -189,6 +189,21 @@ function _sample_traits(specs::Dict{String,Any}, rng::AbstractRNG)::Vector{Float
         sample(get(specs, "aggressiveness_init_mean", 0.5),
                get(specs, "aggressiveness_mutation_sd", 0.05), 0.0, 1.0) : 0.5f0
 
+    # Trivers 1971 reciprocal altruism (0.7.0). Disabled traits default to
+    # Pure-TFT initial values: initial=1 (cooperate first), retaliation=1
+    # (defect after defection), forgiveness=0 (no return). When off, traits
+    # are inert (the reciprocity module is gated separately).
+    recip_on = Bool(get(specs, "reciprocal_altruism", false))
+    t[TRAIT_RECIPROCITY_INITIAL]     = recip_on ?
+        sample(get(specs, "reciprocity_initial_init_mean",     0.5),
+               get(specs, "reciprocity_initial_mutation_sd",   0.05), 0.0, 1.0) : 0.5f0
+    t[TRAIT_RECIPROCITY_RETALIATION] = recip_on ?
+        sample(get(specs, "reciprocity_retaliation_init_mean",   0.5),
+               get(specs, "reciprocity_retaliation_mutation_sd", 0.05), 0.0, 1.0) : 0.5f0
+    t[TRAIT_RECIPROCITY_FORGIVENESS] = recip_on ?
+        sample(get(specs, "reciprocity_forgiveness_init_mean",   0.1),
+               get(specs, "reciprocity_forgiveness_mutation_sd", 0.05), 0.0, 1.0) : 0.0f0
+
     t
 end
 
@@ -539,6 +554,16 @@ function _mutate_traits(t::Vector{Float32}, specs::Dict{String,Any},
                       get(specs, "boldness_mutation_sd",       0.05), 0.0, 1.0)
         maybe_mutate!(TRAIT_AGGRESSIVENESS,
                       get(specs, "aggressiveness_mutation_sd", 0.05), 0.0, 1.0)
+    end
+
+    # Trivers 1971 reciprocal altruism (0.7.0). All clamped to [0,1].
+    if Bool(get(specs, "reciprocal_altruism", false))
+        maybe_mutate!(TRAIT_RECIPROCITY_INITIAL,
+                      get(specs, "reciprocity_initial_mutation_sd",     0.05), 0.0, 1.0)
+        maybe_mutate!(TRAIT_RECIPROCITY_RETALIATION,
+                      get(specs, "reciprocity_retaliation_mutation_sd", 0.05), 0.0, 1.0)
+        maybe_mutate!(TRAIT_RECIPROCITY_FORGIVENESS,
+                      get(specs, "reciprocity_forgiveness_mutation_sd", 0.05), 0.0, 1.0)
     end
 
     t

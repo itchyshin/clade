@@ -101,6 +101,8 @@ include("modules/ann_regularization.jl")
 
 # 0.7.0: Wolf 2007 personality syndrome
 include("modules/personality.jl")
+# 0.7.0: Trivers 1971 reciprocal altruism
+include("modules/reciprocity.jl")
 
 # ── R-to-Julia specs bridge ───────────────────────────────────────────────────
 
@@ -407,6 +409,11 @@ function run_clade(specs::Dict{String,Any})
         apply_antipredator_game!(env)
         apply_hawkdove_game!(env)
 
+        # 0.7.0: Trivers 1971 reciprocal altruism (no-op when off). Adjacent
+        # agents play conditional cooperation; partner memory enables TFT
+        # to evolve under low dispersal.
+        apply_reciprocal_altruism!(env)
+
         # ── Death and reproduction ───────────────────────────────────────
         kill_dead!(env)
         remove_dead!(env)
@@ -678,6 +685,10 @@ function _make_founder_agent(id::Int64, g::DiploidGenome, brain::AbstractBrain,
     explor    = express_trait(g, TRAIT_EXPLORATION,    dm, 0.0f0, 1.0f0, rng)
     bold      = express_trait(g, TRAIT_BOLDNESS,       dm, 0.0f0, 1.0f0, rng)
     aggro     = express_trait(g, TRAIT_AGGRESSIVENESS, dm, 0.0f0, 1.0f0, rng)
+    # 0.7.0: Trivers 1971 reciprocity traits.
+    rec_init  = express_trait(g, TRAIT_RECIPROCITY_INITIAL,     dm, 0.0f0, 1.0f0, rng)
+    rec_ret   = express_trait(g, TRAIT_RECIPROCITY_RETALIATION, dm, 0.0f0, 1.0f0, rng)
+    rec_forg  = express_trait(g, TRAIT_RECIPROCITY_FORGIVENESS, dm, 0.0f0, 1.0f0, rng)
 
     sig_dims = Int(get(specs, "signal_dims", 0))
 
@@ -721,7 +732,9 @@ function _make_founder_agent(id::Int64, g::DiploidGenome, brain::AbstractBrain,
         # Brain size evolution
         bsz,
         # 0.7.0: Wolf 2007 personality syndrome
-        explor, bold, aggro, 0.0f0   # exploration, boldness, aggressiveness, wolf_payoff_accum
+        explor, bold, aggro, 0.0f0,  # exploration, boldness, aggressiveness, wolf_payoff_accum
+        # 0.7.0: Trivers 1971 reciprocal altruism (partner memory lazy-init in module)
+        rec_init, rec_ret, rec_forg, Int64[], Int8[]
     )
 end
 
@@ -804,7 +817,11 @@ function _agents_to_records(agents::Vector{Agent})
             exploration       = Float64(ag.exploration),
             boldness          = Float64(ag.boldness),
             aggressiveness    = Float64(ag.aggressiveness),
-            wolf_payoff_accum = Float64(ag.wolf_payoff_accum)
+            wolf_payoff_accum = Float64(ag.wolf_payoff_accum),
+            # 0.7.0: Trivers 1971 reciprocal altruism
+            reciprocity_initial     = Float64(ag.reciprocity_initial),
+            reciprocity_retaliation = Float64(ag.reciprocity_retaliation),
+            reciprocity_forgiveness = Float64(ag.reciprocity_forgiveness)
         )
     end
 end

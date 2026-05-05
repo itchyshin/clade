@@ -240,3 +240,65 @@ wolf_personality_specs <- function() {
   s$ploidy               <- 1L           # Wolf's haploid basic model
   s
 }
+
+# ── Trivers 1971 reciprocal altruism (added 0.7.0) ───────────────────────────
+
+#' Spec preset for the Trivers 1971 reciprocal-altruism reproduction
+#'
+#' Returns a specs list configured to demonstrate the conditions Trivers
+#' (1971) identified for the evolution of conditional cooperation:
+#' long lifespan, low dispersal, partner recognition, cheater
+#' discrimination. See the vignette `paper-trivers1971.Rmd` for the
+#' full discussion and the dispersal sweep that maps the
+#' cooperation-vs-defection regime boundary.
+#'
+#' Key parameter choices vs `default_specs()`:
+#' \describe{
+#'   \item{`reciprocal_altruism = TRUE`}{Enable the module.}
+#'   \item{`max_age = 500L`}{Long lifespan (Trivers condition 1) — many
+#'     opportunities for repeat encounters.}
+#'   \item{`dispersal_evolution = FALSE`}{Low dispersal (Trivers condition
+#'     2) — partners stay nearby, so re-encounter rate is high.}
+#'   \item{`grid_rows`/`grid_cols = 30L`}{Standard density. The
+#'     reciprocity radius defaults to 1 (Moore neighborhood).}
+#'   \item{`n_agents_init = 200L`}{Higher density (~22%) → more frequent
+#'     adjacency encounters.}
+#'   \item{`max_agents = 800L`}{Room for the population to grow under
+#'     mutual cooperation.}
+#'   \item{`max_ticks = 2000L`}{Long enough for selection on the three
+#'     reciprocity traits to act.}
+#'   \item{`ploidy = 1L`}{Haploid asexual; cleaner trait dynamics.}
+#' }
+#'
+#' @details
+#' Trivers-specific parameters (cost, benefit ratio, interaction rate,
+#' partner memory size, encounter radius, trait init means/SDs) inherit
+#' their defaults from `default_specs()`. To run the dispersal-rate
+#' sweep that demonstrates the regime boundary:
+#' ```r
+#' for (rate in c(0, 0.1, 0.3, 0.5)) {
+#'   s <- trivers_reciprocity_specs()
+#'   s$dispersal_evolution    <- TRUE
+#'   s$dispersal_init_mean    <- rate
+#'   s$dispersal_mutation_sd  <- 0   # lock dispersal at this rate
+#'   env <- run_alife(s)
+#'   # ... compute mean cooperation rate from final agent traits
+#' }
+#' ```
+#'
+#' @return A specs list ready for `run_alife()`.
+#' @seealso [default_specs()], [run_alife()].
+#' @export
+trivers_reciprocity_specs <- function() {
+  s <- default_specs()
+  s$reciprocal_altruism  <- TRUE
+  s$max_age              <- 500L          # long lifespan (Trivers condition 1)
+  s$dispersal_evolution  <- FALSE         # low dispersal (Trivers condition 2)
+  s$grid_rows            <- 30L
+  s$grid_cols            <- 30L
+  s$n_agents_init        <- 200L
+  s$max_agents           <- 800L
+  s$max_ticks            <- 2000L
+  s$ploidy               <- 1L
+  s
+}

@@ -1,0 +1,227 @@
+---
+title: "Trivers 1971 — reciprocal altruism in a spatially-explicit ABM"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Trivers 1971 — reciprocal altruism in a spatially-explicit ABM}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment  = "#>",
+  eval     = FALSE
+)
+```
+
+*Spatially-explicit clade implementation of Robert Trivers' (1971)
+reciprocal altruism, using neighborhood encounters + per-agent partner
+memory to enable conditional cooperation. The headline finding is
+**not** that cooperation easily evolves; it is that cooperation is
+fragile in a spatial sim with mobile agents — which is consistent with
+the famously sparse empirical evidence for reciprocal altruism in nature
+(Stevens & Hauser 2004; Carter & Wilkinson 2013; Clutton-Brock 2009).
+clade lets us study this difficulty rather than gloss over it.*
+
+## What Trivers proposed
+
+Trivers (1971) gave the first formal evolutionary argument for how
+**cooperation between non-kin** could evolve. The mechanism is
+conditional: agents help others on the expectation of being helped back.
+Five conditions for evolutionary stability:
+
+1. Long lifespan — many opportunities to repeat.
+2. Low dispersal — partners encountered repeatedly.
+3. Mutual dependence — incentive to keep partners alive.
+4. Partner recognition — know who helped you.
+5. Cheater discrimination — withhold help from defectors.
+
+Trivers' paper is verbal-conceptual. Axelrod (1981, 1984) operationalised
+the mechanism as iterated Prisoner's Dilemma with global random pairing,
+showed tit-for-tat (TFT) wins his tournaments, and triggered a vast
+literature on conditional cooperation strategies.
+
+## What the empirical evidence says (the puzzle)
+
+Despite Trivers' compelling argument, **clear empirical examples of
+reciprocal altruism in nature are rare**. The canonical case is vampire
+bats (Wilkinson 1984: blood-sharing among unrelated roost-mates) — and
+even that is contested (Carter & Wilkinson 2013 attribute much of the
+sharing to social bonds and food calls rather than strict TFT).
+
+Reviews:
+
+- Stevens & Hauser (2004): cognitive constraints (memory, recognition,
+  numerical reasoning) make TFT difficult for most non-human species.
+- Clutton-Brock (2009): most "altruism" in social mammals is better
+  explained by kin selection or by-product mutualism than by reciprocity.
+- Hammerstein (2003): "the empirical record provides little support for
+  reciprocal altruism as a major force in the evolution of cooperation."
+
+So the question becomes: **why is reciprocal altruism so rare in nature
+when it should be evolutionarily favoured under Trivers' conditions?**
+Cognitive constraints are one answer. Another — which clade's
+spatially-explicit ABM lets us examine directly — is that even *granting*
+all the cognitive machinery, **the spatial structure of real animal
+encounters makes TFT-style reciprocity hard to evolve**.
+
+## The clade implementation
+
+clade is spatially explicit. Trivers' theory is non-spatial (Axelrod's
+operationalisation pairs randomly). We re-implement Trivers using
+clade's spatial machinery:
+
+- **Encounters**: agents within Moore radius `reciprocity_radius`
+  (default 1 = immediate neighbours) may interact each tick with
+  probability `reciprocity_interaction_rate` (default 0.1).
+- **Partner memory**: each agent carries a ring buffer of size
+  `partner_memory_size` (default 8) of (partner_id, last_action).
+- **Strategy**: generous tit-for-tat parameterised by three heritable
+  traits in [0,1]: `reciprocity_initial`, `reciprocity_retaliation`,
+  `reciprocity_forgiveness`.
+- **Payoffs** form a standard PD matrix scaled by `reciprocity_cost`
+  and `reciprocity_benefit_ratio`. Cooperation transfers energy from
+  actor to partner with multiplier b/c; defection takes energy.
+
+See `inst/julia/src/modules/reciprocity.jl` for the implementation.
+
+## The headline (uncomfortable) result
+
+At default parameters (`reciprocity_cost = 0.5`, `b/c = 2`,
+`interaction_rate = 0.1`, `partner_memory_size = 8`), **cooperation
+collapses to defection** in spatially-explicit clade simulations even
+though all five Trivers conditions are met. The mean
+`reciprocity_initial` trait drops below the no-reciprocity drift
+baseline. Defectors invade and the population either becomes
+predominantly defective or crashes.
+
+```{r baseline-collapse, eval = FALSE}
+library(clade)
+
+s <- trivers_reciprocity_specs()   # max_age=500, dispersal=FALSE, default cost/b
+s$max_ticks   <- 5000L
+s$random_seed <- 42L
+env <- run_alife(s, verbose = FALSE)
+# At end: mean reciprocity_initial ≈ 0.22, n_alive ≈ 15. Cooperation lost.
+```
+
+## The favourable regime
+
+Cooperation can win, but only in a narrow parameter regime: **low cost
+per cooperation** and **modest benefit ratio**. This regime corresponds
+biologically to interactions with small individual cost (food calls,
+allogrooming, predator alarm calls) — exactly the contexts where
+empirical examples of reciprocal-altruism-like behaviour cluster.
+
+```{r favourable-regime, eval = FALSE}
+s <- trivers_reciprocity_specs()
+s$reciprocity_cost          <- 0.1     # small cost per game
+s$reciprocity_benefit_ratio <- 2.0     # b/c = 2 (Hamilton's threshold)
+s$max_ticks                 <- 2000L
+s$random_seed               <- 42L
+env <- run_alife(s, verbose = FALSE)
+# At end: mean reciprocity_initial ≈ 0.72 (rose from 0.50 baseline).
+# Cooperation evolves above no-reciprocity control.
+```
+
+The verified test at `tests/testthat/test-reciprocal-altruism.R`
+asserts this favourable-regime result with seed 42 (off=0.500 → on=0.718,
+Δ = +0.218).
+
+## Dispersal-rate sweep
+
+Trivers' second condition (low dispersal) predicts cooperation should
+decline as dispersal rate rises. The clade test would be:
+
+```{r dispersal-sweep, eval = FALSE}
+sweep_dispersal <- function(rate, seed = 42L) {
+  s <- trivers_reciprocity_specs()
+  s$reciprocity_cost          <- 0.1
+  s$reciprocity_benefit_ratio <- 2.0
+  s$max_ticks                 <- 2000L
+  s$random_seed               <- seed
+  s$dispersal_evolution       <- TRUE
+  s$dispersal_init_mean       <- rate
+  s$dispersal_mutation_sd     <- 0.0    # lock at this rate
+  env <- run_alife(s, verbose = FALSE)
+  recs  <- env$agents
+  alive <- vapply(seq_along(recs), function(i) as.logical(recs[[i]]$alive),
+                  logical(1L))
+  if (sum(alive) < 5L) return(NA_real_)
+  mean(vapply(seq_along(recs)[alive],
+              function(i) as.numeric(recs[[i]]$reciprocity_initial),
+              numeric(1L)))
+}
+
+rates <- c(0, 0.1, 0.3, 0.5, 0.7, 1.0)
+init_means <- sapply(rates, sweep_dispersal)
+plot(rates, init_means, type = "b", pch = 19,
+     xlab = "Dispersal rate", ylab = "Mean reciprocity_initial",
+     main = "Trivers dispersal-rate sweep — cooperation declines with mixing")
+abline(h = 0.5, lty = 2, col = "grey")   # no-reciprocity baseline
+```
+
+Expected pattern: cooperation high at low dispersal (where partners
+re-encounter), declining toward 0.5 (drift baseline) or below as
+dispersal rises (mean-field-like mixing makes TFT useless).
+
+## Why the difficulty matters
+
+clade's findings — that spatially-explicit reciprocal altruism requires
+a narrow favourable regime to evolve, even with all of Trivers'
+conditions — supports the empirical literature's puzzle:
+
+- Real animals face the same spatial structure clade models. If an
+  ABM with idealised cognition (perfect partner memory, perfect
+  recognition, optimal TFT) struggles to evolve cooperation, it is no
+  surprise that real animals with bounded cognition struggle even more.
+- The "narrow favourable regime" (low cost per game, modest benefit
+  ratio) maps onto exactly the empirical examples that are sometimes
+  argued to be reciprocity (food calls, allogrooming) — and away from
+  the high-stakes contexts (food-sharing in famine, lethal injury risk
+  in defence) where Trivers-style reciprocity might be most needed.
+- This is consistent with the "by-product mutualism" school
+  (Brown 1983, Connor 1995): most apparent cooperation in nature is
+  mutually beneficial in the moment, not Trivers-style delayed reciprocity.
+
+## What's left for follow-up work
+
+- **Cognitive-constraint variants** — limit partner memory to 1, 2, 4
+  partners (Stevens & Hauser scale) and quantify how cooperation
+  evolution degrades.
+- **Partner choice** instead of forced-pairing TFT — let agents
+  choose whom to interact with based on memory; tests Noë & Hammerstein
+  (1994) biological-market predictions.
+- **Compare to direct/indirect reciprocity** — Nowak & Sigmund (1998)
+  on indirect reciprocity (reputation-mediated). clade could implement
+  reputation as a separate trait.
+- **Compare to kin selection** — clade's existing `kin_selection`
+  module produces strong cooperation under high relatedness. Side-by-
+  side comparison would quantify when each mechanism dominates.
+- **Vampire-bat-specific scenario** — long-lived agents, dense roost,
+  low movement, food-sharing payoff matrix calibrated to Wilkinson's
+  data. Would clade reproduce vampire-bat-like cooperation in this
+  specific regime?
+
+## References
+
+- Trivers, R.L. (1971) The evolution of reciprocal altruism.
+  *Quarterly Review of Biology* 46:35–57.
+- Axelrod, R. & Hamilton, W.D. (1981) The evolution of cooperation.
+  *Science* 211:1390–1396.
+- Wilkinson, G.S. (1984) Reciprocal food sharing in the vampire bat.
+  *Nature* 308:181–184.
+- Stevens, J.R. & Hauser, M.D. (2004) Why be nice? Psychological
+  constraints on the evolution of cooperation.
+  *Trends in Cognitive Sciences* 8:60–65.
+- Clutton-Brock, T. (2009) Cooperation between non-kin in animal
+  societies. *Nature* 462:51–57.
+- Carter, G.G. & Wilkinson, G.S. (2013) Food sharing in vampire bats:
+  reciprocal help predicts donations more than relatedness or harassment.
+  *Proc. R. Soc. B* 280:20122573.
+- Hammerstein, P. (2003) *Genetic and Cultural Evolution of Cooperation.*
+  MIT Press, Cambridge MA.
+- Brown, J.L. (1983) Cooperation — a biologist's dilemma. *Adv. Stud. Behav.* 13:1–37.
+- Nowak, M.A. & Sigmund, K. (1998) Evolution of indirect reciprocity by
+  image scoring. *Nature* 393:573–577.

@@ -1289,6 +1289,44 @@ default_specs <- function() {
     # pairing). Default 1 = immediate neighbours.
     personality_hawkdove_radius    = 1L,
 
+    # ── Trivers 1971 reciprocal altruism (added 0.7.0) ────────────────────
+    # Spatially-explicit clade interpretation: encounters happen between
+    # agents in the same Moore neighborhood (one-per-cell rule means no
+    # co-occupancy, so the trigger is adjacency). Each agent carries a
+    # ring-buffer partner memory; conditional cooperation strategies (TFT,
+    # generous TFT) emerge under low dispersal + high partner re-encounter.
+    # See inst/julia/src/modules/reciprocity.jl and paper-trivers1971.Rmd.
+    reciprocal_altruism            = FALSE,
+    # Trait initial means and mutation SDs. Wolf-style narrow normal init
+    # (mean 0.5, sd 0.05) lets selection move them. Forgiveness defaults
+    # to a low init mean (0.1) — pure TFT is the canonical "winning"
+    # strategy in Axelrod tournaments.
+    reciprocity_initial_init_mean        = 0.5,
+    reciprocity_initial_mutation_sd      = 0.05,
+    reciprocity_retaliation_init_mean    = 0.5,
+    reciprocity_retaliation_mutation_sd  = 0.05,
+    reciprocity_forgiveness_init_mean    = 0.1,
+    reciprocity_forgiveness_mutation_sd  = 0.05,
+    # Cooperation cost + benefit-to-cost ratio. Hamilton's rule: b > c
+    # for kin selection; for reciprocal altruism, b > c is also required
+    # but the gain comes from reciprocation rather than relatedness.
+    reciprocity_cost                = 0.5,
+    reciprocity_benefit_ratio       = 2.0,
+    # Per-tick interaction probability. Two adjacent agents play one game
+    # with this probability per tick (avoids degenerate every-tick games
+    # between stationary neighbours). Default 0.1 ≈ one game per 10 ticks
+    # of contact.
+    reciprocity_interaction_rate    = 0.1,
+    # Partner memory ring-buffer size. Default 8 = remember last 8
+    # distinct partners. Larger = more stable conditional cooperation;
+    # smaller = more "forgetful" (Axelrod's TFT in iterated PD assumes
+    # perfect memory of one partner).
+    partner_memory_size             = 8L,
+    # Encounter neighborhood radius. Default 1 = immediate Moore
+    # neighbours. Larger radius = more potential partners but less
+    # likely to re-encounter the same partner (weakens reciprocity).
+    reciprocity_radius              = 1L,
+
     # ── Metabolic rate evolution ───────────────────────────────────────────
     metabolic_rate_evolution   = FALSE,
     metabolic_rate_init_mean   = 1.0,

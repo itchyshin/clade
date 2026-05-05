@@ -500,6 +500,10 @@ function _make_offspring(id::Int64, g::DiploidGenome, brain::AbstractBrain,
     explor     = express_trait(g, TRAIT_EXPLORATION,    dm, 0.0f0, 1.0f0, rng)
     bold       = express_trait(g, TRAIT_BOLDNESS,       dm, 0.0f0, 1.0f0, rng)
     aggro      = express_trait(g, TRAIT_AGGRESSIVENESS, dm, 0.0f0, 1.0f0, rng)
+    # 0.7.0: Trivers 1971 reciprocity traits.
+    rec_init   = express_trait(g, TRAIT_RECIPROCITY_INITIAL,     dm, 0.0f0, 1.0f0, rng)
+    rec_ret    = express_trait(g, TRAIT_RECIPROCITY_RETALIATION, dm, 0.0f0, 1.0f0, rng)
+    rec_forg   = express_trait(g, TRAIT_RECIPROCITY_FORGIVENESS, dm, 0.0f0, 1.0f0, rng)
 
     off = Agent(
         id, parent.id, mate_id,
@@ -523,7 +527,9 @@ function _make_offspring(id::Int64, g::DiploidGenome, brain::AbstractBrain,
         wing, Int32(1),  # wing_size, niche_layer (1=ground)
         bsz,             # brain_size
         # 0.7.0: Wolf 2007 personality syndrome
-        explor, bold, aggro, 0.0f0   # exploration, boldness, aggressiveness, wolf_payoff_accum
+        explor, bold, aggro, 0.0f0,  # exploration, boldness, aggressiveness, wolf_payoff_accum
+        # 0.7.0: Trivers 1971 reciprocal altruism (partner memory lazy-init in module)
+        rec_init, rec_ret, rec_forg, Int64[], Int8[]
     )
     apply_epigenetic_inheritance!(off, parent, specs, rng)
     off

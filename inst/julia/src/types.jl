@@ -110,7 +110,7 @@ struct DiploidGenome
 end
 
 """Number of scalar traits stored per haplotype in `DiploidGenome`."""
-const N_SCALAR_TRAITS = 18
+const N_SCALAR_TRAITS = 21
 
 # Scalar trait indices (into maternal_traits / paternal_traits)
 const TRAIT_BODY_SIZE             = 1
@@ -139,6 +139,17 @@ const TRAIT_BRAIN_SIZE            = 15
 const TRAIT_EXPLORATION           = 16
 const TRAIT_BOLDNESS              = 17
 const TRAIT_AGGRESSIVENESS        = 18
+# Trivers 1971 reciprocal altruism (added 0.7.0). All clamped to [0,1].
+# Spatially-explicit clade interpretation: encounters happen when two
+# agents are in the same Moore neighborhood (one-per-cell rule means no
+# co-occupancy, so the trigger is adjacency, not cell sharing). See
+# inst/julia/src/modules/reciprocity.jl and vignettes/paper-trivers1971.Rmd.
+#   TRAIT_RECIPROCITY_INITIAL      — Pr(cooperate on first encounter)
+#   TRAIT_RECIPROCITY_RETALIATION  — Pr(defect after partner defected)
+#   TRAIT_RECIPROCITY_FORGIVENESS  — Pr(return to cooperate after retaliating)
+const TRAIT_RECIPROCITY_INITIAL      = 19
+const TRAIT_RECIPROCITY_RETALIATION  = 20
+const TRAIT_RECIPROCITY_FORGIVENESS  = 21
 
 """
     is_haploid(g::DiploidGenome) -> Bool
@@ -344,6 +355,20 @@ mutable struct Agent
     boldness           ::Float32   # anti-predator disposition: [0,1]
     aggressiveness     ::Float32   # hawk-dove disposition: [0,1]
     wolf_payoff_accum  ::Float32   # accumulated game payoff during between-phase
+
+    # Trivers 1971 reciprocal altruism (added 0.7.0). Always allocated;
+    # zero-valued and unused when `reciprocal_altruism` is off. See
+    # inst/julia/src/modules/reciprocity.jl for the mechanism.
+    reciprocity_initial      ::Float32   # Pr(cooperate on first encounter)
+    reciprocity_retaliation  ::Float32   # Pr(defect after partner defected)
+    reciprocity_forgiveness  ::Float32   # Pr(return to cooperate after retaliating)
+    # Partner memory: ring buffer of (partner_id, last_action). last_action
+    # encoding: +1 = cooperate, -1 = defect, 0 = empty slot. Capped at
+    # `partner_memory_size` (spec field). Always allocated as Vector for
+    # simplicity; empty when reciprocal_altruism is off. partner_ids is
+    # Int64 to match Agent.id (Int64).
+    partner_ids        ::Vector{Int64}
+    partner_actions    ::Vector{Int8}
 end
 
 # ── Environment ────────────────────────────────────────────────────────────────

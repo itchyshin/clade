@@ -147,23 +147,23 @@ test_that("ann.jl defines ANNBrain and _softmax()", {
 })
 
 # ── 9. N_SCALAR_TRAITS constant matches expected count ─────────────────────────
-# 0.7.0: bumped from 15 to 18 with the Wolf 2007 personality syndrome
-# (TRAIT_EXPLORATION, TRAIT_BOLDNESS, TRAIT_AGGRESSIVENESS).
-test_that("N_SCALAR_TRAITS is defined as 18 in types.jl", {
+# 0.7.0: bumped from 15 → 18 (Wolf 2007 personality) → 21 (Trivers 1971
+# reciprocal altruism: TRAIT_RECIPROCITY_INITIAL/RETALIATION/FORGIVENESS).
+test_that("N_SCALAR_TRAITS is defined as 21 in types.jl", {
   skip_no_julia_src()
   types_jl <- paste(readLines(file.path(JULIA_SRC, "types.jl")), collapse = "\n")
-  expect_true(grepl("N_SCALAR_TRAITS = 18", types_jl, fixed = TRUE))
+  expect_true(grepl("N_SCALAR_TRAITS = 21", types_jl, fixed = TRUE))
 })
 
-# ── 10. Trait indices are all distinct 1..18 ───────────────────────────────────
-test_that("TRAIT_* indices in types.jl are distinct and cover 1..18", {
+# ── 10. Trait indices are all distinct 1..21 ───────────────────────────────────
+test_that("TRAIT_* indices in types.jl are distinct and cover 1..21", {
   skip_no_julia_src()
   types_jl <- readLines(file.path(JULIA_SRC, "types.jl"))
   trait_lines <- grep("^const TRAIT_", types_jl, value = TRUE)
-  expect_equal(length(trait_lines), 18L,
-               info = paste("Expected 18 TRAIT_ constants, got", length(trait_lines)))
+  expect_equal(length(trait_lines), 21L,
+               info = paste("Expected 21 TRAIT_ constants, got", length(trait_lines)))
   indices <- as.integer(sub(".*= (\\d+)$", "\\1", trait_lines))
-  expect_equal(sort(indices), 1L:18L)
+  expect_equal(sort(indices), 1L:21L)
 })
 
 # ── 11. ctrnn.jl defines CTRNNBrain struct and required functions ─────────────
