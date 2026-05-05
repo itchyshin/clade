@@ -85,7 +85,18 @@ function apply_scavenging!(env::Environment)
     carrion_tprob = Float32(get(env.specs, "carrion_transmission_prob", 0.0))
     eat_gain > 0.0f0 || return
 
-    @inbounds for ag in env.agents
+    # 0.7.0: random asynchronous scheduling (see tick.jl). The docstring claim
+    # above (lines 75–78) that agent_map enforces uniqueness was a regression
+    # in clade ≤ 0.6.x (it stored only the LAST agent per cell and didn't gate
+    # movement); Phase 2 of the consolidation work restored the MATLAB/alifeR
+    # one-per-cell rule at movement time, so the docstring is now correct
+    # again. See dev/docs/consolidation-audit.md.
+    n_ag       = length(env.agents)
+    rand_order = Bool(get(env.specs, "random_tick_order", true))
+    order      = rand_order ? randperm(env.rng, n_ag) : (1:n_ag)
+
+    @inbounds for i in order
+        ag = env.agents[i]
         ag.alive || continue
         x, y = Int(ag.x), Int(ag.y)
         available = env.carrion_map[x, y]

@@ -167,7 +167,15 @@ function tick_predators!(env::Environment)
     n_prey   = length(env.agents)
     damage   = zeros(Float32, n_prey)   # accumulated damage per prey this tick
 
-    for pred in env.predators
+    # 0.7.0: random asynchronous scheduling (see tick.jl). Direct analogue of
+    # the agent loop: first-array predators otherwise sense, move, and attack
+    # first; later predators face a depleted prey field.
+    n_pred     = length(env.predators)
+    rand_order = Bool(get(specs, "random_tick_order", true))
+    pred_order = rand_order ? randperm(env.rng, n_pred) : (1:n_pred)
+
+    for i in pred_order
+        pred = env.predators[i]
         pred.alive || continue
 
         # 1. Sense
@@ -299,9 +307,15 @@ Move `pred` by one cell in the direction encoded by `action`:
     1 = N (x − 1)   2 = E (y + 1)   3 = S (x + 1)   4 = W (y − 1)
 
 Uses toroidal wrap via `mod1`. The `predator_map` is cleared for the old cell
-and set to 1 at the new cell. Multiple predators may share a cell; the map
-records occupation rather than exact index (rebuilt in full after the loop in
-`tick_predators!`).
+and set at the new cell.
+
+**0.7.0 Phase 2**: one-predator-per-cell at movement, mirroring the prey
+one-per-cell rule in `tick.jl`. If the target cell is already occupied by
+another predator, this predator stays put. Predators can still move onto
+prey cells (that's how attacks happen). Restored alongside the agent
+one-per-cell fix; pre-0.7.0 silently allowed multiple predators per cell
+(the docstring used to admit this as design — it was actually a regression
+from the implicit MATLAB/alifeR one-per-cell discipline).
 """
 function _move_predator!(pred::Agent, action::Int, rows::Int, cols::Int,
                           env::Environment)
@@ -309,13 +323,22 @@ function _move_predator!(pred::Agent, action::Int, rows::Int, cols::Int,
     DY      = (Int32(0),  Int32(1),  Int32(0), Int32(-1))
     toroidal = Bool(get(env.specs, "toroidal", true))
 
-    nx = Int32(wrap_or_clamp(Int(pred.x) + Int(DX[action]), rows, toroidal))
-    ny = Int32(wrap_or_clamp(Int(pred.y) + Int(DY[action]), cols, toroidal))
+    sx, sy = pred.x, pred.y
+    nx = Int32(wrap_or_clamp(Int(sx) + Int(DX[action]), rows, toroidal))
+    ny = Int32(wrap_or_clamp(Int(sy) + Int(DY[action]), cols, toroidal))
 
-    env.predator_map[pred.x, pred.y] = 0
-    pred.x = nx
-    pred.y = ny
-    env.predator_map[nx, ny] = 1
+    # 0.7.0 Phase 2: one-per-cell — block move if target predator-occupied.
+    if (nx != sx || ny != sy) && env.predator_map[nx, ny] != 0
+        nx = sx
+        ny = sy
+    end
+
+    if nx != sx || ny != sy
+        env.predator_map[sx, sy] = 0
+        env.predator_map[nx, ny] = 1
+        pred.x = nx
+        pred.y = ny
+    end
 end
 
 """
@@ -415,7 +438,15 @@ function _predator_reproduction!(env::Environment)
 
     new_preds = Agent[]
 
-    for pred in env.predators
+    # 0.7.0: random asynchronous scheduling (see tick.jl). Order-sensitive cap:
+    # `length(env.predators) + length(new_preds) >= max_preds && break` would
+    # otherwise systematically favour first-array predators when reproducing.
+    n_pred     = length(env.predators)
+    rand_order = Bool(get(specs, "random_tick_order", true))
+    pred_order = rand_order ? randperm(env.rng, n_pred) : (1:n_pred)
+
+    for i in pred_order
+        pred = env.predators[i]
         length(env.predators) + length(new_preds) >= max_preds && break
         pred.alive              || continue
         pred.energy < min_energy && continue

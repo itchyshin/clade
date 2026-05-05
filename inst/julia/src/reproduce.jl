@@ -56,7 +56,14 @@ function create_offspring!(env::Environment)
     # Collect reproducers before iterating (avoid modifying during loop)
     new_agents = Agent[]
 
-    for ag in env.agents
+    # 0.7.0: random asynchronous scheduling (see tick.jl for rationale).
+    # First-array-position agents otherwise picked first available mate.
+    n_ag       = length(env.agents)
+    rand_order = Bool(get(specs, "random_tick_order", true))
+    order      = rand_order ? randperm(env.rng, n_ag) : (1:n_ag)
+
+    for i in order
+        ag = env.agents[i]
         ag.alive              || continue
         ag.reproduced         && continue
         ag.age < min_repro_age && continue

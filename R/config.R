@@ -16,6 +16,18 @@
 #'     where corner/edge effects matter. Used by movement, sensing,
 #'     dispersal, kin-scan, group-defense, and cooperative-breeding
 #'     code paths via `wrap_or_clamp()`.}
+#'   \item{`random_tick_order`}{Logical. `TRUE` (default, since 0.7.0)
+#'     shuffles agent and predator iteration order each tick — random
+#'     asynchronous scheduling per Grimm & Railsback (2005) and the
+#'     IBM literature. **This restores the original behaviour from the
+#'     MATLAB ancestor** (Bulitko 2023, `alife.m:324`:
+#'     `env.agent = env.agent(randperm(length(env.agent)))`), which was
+#'     lost in the alifeR R port and inherited as a regression by clade.
+#'     `FALSE` restores the legacy fixed-array-order scheduling, which
+#'     biased every clade simulation prior to 0.7.0 (earlier-array
+#'     agents systematically had first access to foraging, mates, free
+#'     cells, and prey). Only set FALSE to reproduce pre-0.7.0 results.
+#'     See `dev/docs/consolidation-audit.md` for the full ancestor diff.}
 #'   \item{`n_agents_init`}{Integer. Number of agents at tick 0 (default 50).}
 #'   \item{`max_agents`}{Integer. Hard cap on live agents; new offspring are
 #'     rejected if this is exceeded (default 500).}
@@ -1055,6 +1067,7 @@ default_specs <- function() {
     grid_rows              = 30L,
     grid_cols              = 30L,
     toroidal               = TRUE,      # D1: FALSE = boundary edges, TRUE = wrap-around
+    random_tick_order      = TRUE,      # 0.7.0: random asynchronous scheduling per Grimm & Railsback 2005. FALSE = legacy fixed array order.
     n_agents_init          = 50L,
     max_agents             = 500L,
     max_ticks              = 500L,
