@@ -208,7 +208,7 @@ in hot-path code when the corresponding module is disabled.
 - `metabolic_rate::Float32` — scales move_cost and idle_cost.
 - `aging_rate::Float32` — scales the Gompertz senescence exponent.
 - `repro_threshold::Float32` — minimum energy required to attempt
-  reproduction (may differ from specs when life_history_evolution = true).
+  reproduction.
 - `mutation_sd::Float32` — mutational variance for this individual's
   offspring (when mutation_rate_evolution = true).
 - `learning_rate::Float32` — within-lifetime RL step size (when

@@ -58,7 +58,6 @@ test_that("default_specs() contains all required parameters", {
     "parental_investment_evolution", "female_investment", "male_repro_cost",
     "stress_hypermutation", "stress_mutation_multiplier", "stress_threshold",
     "senescence_shape", "min_repro_age",
-    "wall_density", "wall_clusters",
     "fixed_patch", "fixed_patch_value", "fixed_patch_x",
     "fixed_patch_y", "fixed_patch_radius",
     "log_freq", "log_genomes", "random_seed"
@@ -89,7 +88,7 @@ test_that("all boolean module flags default to FALSE", {
     "aging_rate_evolution", "immune_evolution", "dispersal_evolution",
     "epigenetics", "log_genomes",
     "mutation_rate_evolution", "learning_rate_evolution",
-    "life_history_evolution", "fixed_patch"
+    "fixed_patch"
   )
   for (nm in bool_flags) {
     expect_false(s[[nm]], info = sprintf("specs$%s should default to FALSE", nm))

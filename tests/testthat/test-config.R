@@ -117,7 +117,7 @@ test_that("module logical flags that should be FALSE by default are FALSE", {
     "habitat_preference_evolution", "group_defense", "parental_care",
     "cooperative_breeding", "mimicry", "niche_construction",
     "scavenging", "social_learning", "speciation",
-    "life_history_evolution", "phenotypic_plasticity",
+    "phenotypic_plasticity",
     "clutch_size_evolution", "parental_investment_evolution",
     "stress_hypermutation", "log_genomes"
   )
