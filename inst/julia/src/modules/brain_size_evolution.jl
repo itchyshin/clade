@@ -89,7 +89,15 @@ function apply_brain_size_evolution!(env::Environment)
     eat_gain   = Float32(get(specs, "eat_gain",              5.0))
     cost_scale = Float32(get(specs, "brain_size_cost_scale", 1.0))
 
-    @inbounds for ag in env.agents
+    # 0.7.0: random asynchronous scheduling (see tick.jl). Large-brained agents
+    # take extra grass from the cell; first agent gets the bonus, later ones get
+    # the residual. Order matters when multiple large-brained agents share a cell.
+    n_ag       = length(env.agents)
+    rand_order = Bool(get(specs, "random_tick_order", true))
+    order      = rand_order ? randperm(env.rng, n_ag) : (1:n_ag)
+
+    @inbounds for i in order
+        ag = env.agents[i]
         ag.alive || continue
         bs = ag.brain_size
         bs == 1.0f0 && continue   # reference size: no correction

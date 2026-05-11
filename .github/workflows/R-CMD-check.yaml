@@ -1,20 +1,22 @@
 # Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
 # For help debugging build failures open an issue on the r-lib/actions repo.
+#
+# 0.7.0 (2026-05-05): pull_request trigger disabled. The author runs
+# devtools::check() locally per project CLAUDE.md guidance and only
+# wants Actions for (a) pushes to main (post-merge verification) and
+# (b) manual workflow_dispatch (release-time check). Removing the
+# PR trigger drops the per-PR runner spend to zero; the local Mac
+# already runs the same check faster.
 on:
+  workflow_dispatch:
   push:
-    branches: [main, master, scenario-audit-0.2.0]
+    branches: [main, master]
     # Skip R-CMD-check on docs-only pushes — this repo is private and
     # has a 3 000 min/month Actions budget. Markdown-only, dev-notes,
     # and _pkgdown.yml changes cannot affect the package's check
     # status. Any commit that touches R/, inst/, man/, tests/,
     # DESCRIPTION, NAMESPACE, or vignettes/ still triggers the full
     # check.
-    paths-ignore:
-      - '**/*.md'
-      - 'dev/**'
-      - '_pkgdown.yml'
-  pull_request:
-    branches: [main, master]
     paths-ignore:
       - '**/*.md'
       - 'dev/**'

@@ -50,7 +50,13 @@ function apply_habitat_preference!(env::Environment)
     DX = (Int32(-1), Int32(0),  Int32(1), Int32(0))
     DY = (Int32(0),  Int32(1),  Int32(0), Int32(-1))
 
-    for ag in env.agents
+    # 0.7.0: random asynchronous scheduling (see tick.jl).
+    n_ag       = length(env.agents)
+    rand_order = Bool(get(specs, "random_tick_order", true))
+    order      = rand_order ? randperm(env.rng, n_ag) : (1:n_ag)
+
+    for i in order
+        ag = env.agents[i]
         ag.alive || continue
         hp = ag.habitat_preference
         hp == 0.0f0 && continue

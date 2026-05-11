@@ -99,6 +99,13 @@ include("modules/fixed_patch.jl")
 include("modules/lamarckian.jl")
 include("modules/ann_regularization.jl")
 
+# 0.7.0: Wolf 2007 personality syndrome
+include("modules/personality.jl")
+# 0.7.0: Trivers 1971 reciprocal altruism
+include("modules/reciprocity.jl")
+# 0.7.0: Wolf 2008 responsive personalities
+include("modules/responsiveness.jl")
+
 # ── R-to-Julia specs bridge ───────────────────────────────────────────────────
 
 """
@@ -352,6 +359,10 @@ function run_clade(specs::Dict{String,Any})
         # Seed predators on first tick if enabled
         t == 1 && seed_predators!(env)
         tick_agents!(env)
+        # 0.7.0: Wolf 2008 responsive personalities — runs immediately after
+        # tick_agents! so responsive agents can override their move toward
+        # the richest free cardinal-neighbour cell. No-op when off.
+        apply_responsive_personalities!(env)
         tick_predators!(env)              # predator sense-decide-act loop
         apply_body_size!(env)             # metabolic + foraging correction
         apply_brain_size_evolution!(env)  # expensive brain + cognitive foraging
@@ -398,10 +409,27 @@ function run_clade(specs::Dict{String,Any})
         # Speciation clustering every N ticks
         assign_species!(env)
 
+        # 0.7.0: Wolf 2007 personality syndrome (no-op when off). Anti-predator
+        # and hawk-dove games fire during the between-phase (year1 < age <
+        # year2) and accumulate into wolf_payoff_accum.
+        apply_antipredator_game!(env)
+        apply_hawkdove_game!(env)
+
+        # 0.7.0: Trivers 1971 reciprocal altruism (no-op when off). Adjacent
+        # agents play conditional cooperation; partner memory enables TFT
+        # to evolve under low dispersal.
+        apply_reciprocal_altruism!(env)
+
         # ── Death and reproduction ───────────────────────────────────────
         kill_dead!(env)
         remove_dead!(env)
         graduate_offspring!(env)          # parental care: promote juveniles
+        # 0.7.0: Wolf 2007 age-windowed reproduction must run BEFORE the
+        # standard create_offspring! so dying year-2 agents are not also
+        # eligible to reproduce by the energy-threshold rule. The wolf
+        # preset sets min_repro_energy very high so the standard call
+        # below is a no-op anyway, but the ordering documents intent.
+        apply_lifehistory_tradeoff!(env)
         create_offspring!(env)
 
         # ── Logging ──────────────────────────────────────────────────────
@@ -658,6 +686,17 @@ function _make_founder_agent(id::Int64, g::DiploidGenome, brain::AbstractBrain,
     bsz       = express_trait(g, TRAIT_BRAIN_SIZE, dm,
                               Float32(get(specs, "brain_size_min", 0.1)),
                               Float32(get(specs, "brain_size_max", 3.0)), rng)
+    # 0.7.0: Wolf 2007 personality traits — always expressed (cheap), used
+    # only when `personality_syndrome` is on. All clamped to [0,1].
+    explor    = express_trait(g, TRAIT_EXPLORATION,    dm, 0.0f0, 1.0f0, rng)
+    bold      = express_trait(g, TRAIT_BOLDNESS,       dm, 0.0f0, 1.0f0, rng)
+    aggro     = express_trait(g, TRAIT_AGGRESSIVENESS, dm, 0.0f0, 1.0f0, rng)
+    # 0.7.0: Trivers 1971 reciprocity traits.
+    rec_init  = express_trait(g, TRAIT_RECIPROCITY_INITIAL,     dm, 0.0f0, 1.0f0, rng)
+    rec_ret   = express_trait(g, TRAIT_RECIPROCITY_RETALIATION, dm, 0.0f0, 1.0f0, rng)
+    rec_forg  = express_trait(g, TRAIT_RECIPROCITY_FORGIVENESS, dm, 0.0f0, 1.0f0, rng)
+    # 0.7.0: Wolf 2008 responsiveness trait.
+    resp      = express_trait(g, TRAIT_RESPONSIVENESS,          dm, 0.0f0, 1.0f0, rng)
 
     sig_dims = Int(get(specs, "signal_dims", 0))
 
@@ -699,7 +738,13 @@ function _make_founder_agent(id::Int64, g::DiploidGenome, brain::AbstractBrain,
         # Complex landscape traits
         wing, Int32(1),   # wing_size, niche_layer (1=ground)
         # Brain size evolution
-        bsz
+        bsz,
+        # 0.7.0: Wolf 2007 personality syndrome
+        explor, bold, aggro, 0.0f0,  # exploration, boldness, aggressiveness, wolf_payoff_accum
+        # 0.7.0: Trivers 1971 reciprocal altruism (partner memory lazy-init in module)
+        rec_init, rec_ret, rec_forg, Int64[], Int8[],
+        # 0.7.0: Wolf 2008 responsive personalities
+        resp
     )
 end
 
@@ -777,7 +822,18 @@ function _agents_to_records(agents::Vector{Agent})
             brain_size         = Float64(ag.brain_size),
             infected       = ag.infected,
             immune         = ag.immune,
-            care_load      = Int(ag.care_load)
+            care_load      = Int(ag.care_load),
+            # 0.7.0: Wolf 2007 personality syndrome
+            exploration       = Float64(ag.exploration),
+            boldness          = Float64(ag.boldness),
+            aggressiveness    = Float64(ag.aggressiveness),
+            wolf_payoff_accum = Float64(ag.wolf_payoff_accum),
+            # 0.7.0: Trivers 1971 reciprocal altruism
+            reciprocity_initial     = Float64(ag.reciprocity_initial),
+            reciprocity_retaliation = Float64(ag.reciprocity_retaliation),
+            reciprocity_forgiveness = Float64(ag.reciprocity_forgiveness),
+            # 0.7.0: Wolf 2008 responsive personalities
+            responsiveness          = Float64(ag.responsiveness)
         )
     end
 end

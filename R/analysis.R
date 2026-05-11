@@ -1032,7 +1032,17 @@ viability_report <- function(run_data,
   frac_final  <- n_final / max(1L, n_init)
   frac_min    <- n_min   / max(1L, n_init)
 
-  verdict <- if (n_final < min_n || frac_final < crashed_frac) {
+  # 0.7.0: only apply the absolute `min_n` threshold when the run STARTED
+  # above it. A run that started small (e.g. n_init = 5 in a unit test)
+  # and stayed small is *stable*, not crashed; the fractional check
+  # (`frac_final < crashed_frac`) handles actual collapse correctly.
+  # Pre-0.7.0, viability_report flagged every small-population test as
+  # "crashed" regardless of dynamics, producing spurious warnings that
+  # broke `expect_silent` / `expect_no_error` tests in test-brains.R and
+  # elsewhere.
+  abs_check_applies <- n_init >= min_n
+  verdict <- if ((abs_check_applies && n_final < min_n) ||
+                 frac_final < crashed_frac) {
     "crashed"
   } else if (frac_final < weak_frac) {
     "weak"

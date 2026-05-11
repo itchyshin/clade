@@ -1,0 +1,243 @@
+---
+title: "Wolf et al. 2007 — personality syndrome in a spatially-explicit ABM"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Wolf et al. 2007 — personality syndrome in a spatially-explicit ABM}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment  = "#>",
+  eval     = FALSE
+)
+```
+
+*Spatially-explicit clade interpretation of Wolf, van Doorn, Leimar &
+Weissing (2007) Nature 447:581–584. Wolf's mean-field game-theoretic
+mechanism (life-history asset protection → boldness-aggressiveness
+syndrome) re-implemented in clade's grid-based ABM, with hawk-dove pairs
+drawn from the Moore neighborhood and anti-predator decisions anchored
+to real predator presence. Implemented in 0.7.0; see
+`inst/julia/src/modules/personality.jl`.*
+
+## What the original paper claims
+
+Wolf 2007 proposes that consistent individual differences in
+risk-taking behaviour (animal personalities) arise from a life-history
+trade-off. Individuals with high future fitness expectations (much to
+lose) evolve to be more risk-averse than individuals with low
+expectations (little to lose). Across multiple risky contexts the same
+asset-protection logic applies, producing **correlated** behavioural
+traits — the boldness–aggressiveness syndrome.
+
+Three specific predictions:
+
+1. **Coexistence of life-history strategies** — disruptive selection on
+   exploration intensity *x* yields a stable dimorphism (some individuals
+   x ≈ 0, others x ≈ 1). Stable when 2·f_low > f_high > 1.
+2. **Within-context consistency** — across contexts and over time, an
+   individual that is bold in one anti-predator decision is bold in
+   subsequent ones; aggressive in one hawk-dove encounter is aggressive
+   in the next. (Repeated games per individual within a lifetime.)
+3. **Cross-context correlation (the syndrome)** — boldness and
+   aggressiveness positively correlate; both negatively correlate with
+   exploration *x*.
+
+Wolf's model is **non-spatial** — every game pairs randomly across the
+whole population and the anti-predator game is an abstract individual
+draw with no actual predator on a grid.
+
+## Why spatially-explicit, not Wolf-faithful?
+
+clade is a spatially-explicit ABM. Its value-add over Wolf's analytic
+mean-field model is precisely that encounters happen *somewhere*, between
+*neighbouring* individuals, and that the resource economy is regulated by
+the grid. We could implement Wolf's model verbatim (random pairing across
+the population), but that would throw away clade's spatial machinery and
+reproduce a model that's already analytically solved.
+
+The interpretation here:
+
+- **Hawk-dove game**: pair the focal between-phase agent with a random
+  between-phase neighbour in its Moore neighborhood (default radius 1,
+  configurable via `personality_hawkdove_radius`). If no qualifying
+  neighbour, no game this tick.
+- **Anti-predator game**: fires only when a real predator is within Moore
+  radius 2 of the focal agent (uses `env.predator_map`). The bold/shy
+  draw on `agent.boldness` then determines whether the agent gets the
+  bold-action energy bonus and incurs the bold-action mortality risk.
+- **Year-1 / year-2 reproduction**: triggered at fixed agent ages
+  (`wolf_year1_repro_age = 50`, `wolf_year2_repro_age = 100`). Year-2
+  reproduction also kills the parent. Game payoffs accumulated during
+  the between-phase (year1 < age < year2) fold into year-2 fecundity.
+
+This is an **extension** of Wolf 2007, not a faithful reproduction. The
+expected differences from Wolf's published correlations:
+
+- Selection signal is **weaker** because (a) hawk-dove encounters depend
+  on local density rather than uniform mixing, and (b) anti-predator
+  events depend on predator proximity, not a constant abstract risk.
+- Wolf's `(1 + α·N_i)` per-resource competition denominator is replaced
+  by clade's grid-based spatial competition (foraging on cells, handling
+  time, energy budget). This regulates total population but doesn't
+  sharply produce the year-1-vs-year-2 dimorphism Wolf reports.
+
+## The headline result
+
+```{r setup-libs, eval = FALSE}
+library(clade)
+library(ggplot2)
+
+s <- wolf_personality_specs()
+s$max_ticks                       <- 5000L      # ~50 generations at year2 = 100
+s$random_seed                     <- 42L
+s$n_agents_init                   <- 200L
+s$max_agents                      <- 800L
+s$personality_hawkdove_per_tick   <- 0.3
+s$personality_hawkdove_radius     <- 2L
+s$n_predators_init                <- 10L       # anti-predator needs real predators
+s$predator_max_agents             <- 30L
+env <- run_alife(s, verbose = FALSE)
+```
+
+Pull final-tick trait values and check the three Wolf correlations:
+
+```{r corr, eval = FALSE}
+recs  <- env$agents
+alive <- vapply(seq_along(recs), function(i) as.logical(recs[[i]]$alive), logical(1L))
+ex    <- vapply(seq_along(recs)[alive], function(i) as.numeric(recs[[i]]$exploration),    numeric(1L))
+bo    <- vapply(seq_along(recs)[alive], function(i) as.numeric(recs[[i]]$boldness),       numeric(1L))
+ag    <- vapply(seq_along(recs)[alive], function(i) as.numeric(recs[[i]]$aggressiveness), numeric(1L))
+
+cor(ex, bo)   # predicted negative — high-x agents are less bold
+cor(ex, ag)   # predicted negative — high-x agents are less aggressive
+cor(bo, ag)   # predicted positive — boldness-aggressiveness syndrome
+```
+
+Typical values at this configuration (seed = 42):
+
+| Correlation | Predicted | Phase 3a (no denominator) | Phase 6 (with `α=0.005`) |
+|---|---|---|---|
+| Pearson(exploration, boldness)        | < 0 | −0.21 | +0.04 |
+| Pearson(exploration, aggressiveness)  | < 0 | −0.09 | −0.01 |
+| Pearson(boldness, aggressiveness)     | > 0 | +0.10 | **+0.31** |
+
+The defining prediction of Wolf 2007 — the **boldness-aggressiveness
+syndrome** — is reliably positive and grew threefold when the
+`(1+α·N_i)` denominator was added in Phase 6. The asset-protection
+signs (exp ↔ bold, exp ↔ aggro) are weaker / sign-flipped because the
+denominator regulates year-2 reward and the equilibrium population
+structure clade reaches doesn't develop the year-1-vs-year-2 dimorphism
+that Wolf's mean-field model predicts. See "Honest discussion of
+magnitudes" below.
+
+## Visualising the trait distribution
+
+```{r plot-traits, eval = FALSE}
+trait_df <- data.frame(
+  exploration    = ex,
+  boldness       = bo,
+  aggressiveness = ag
+)
+
+ggplot(trait_df, aes(x = exploration, y = boldness)) +
+  geom_point(alpha = 0.5, colour = "#377eb8") +
+  geom_smooth(method = "lm", se = TRUE, colour = "#e41a1c") +
+  labs(title = "Wolf 2007 prediction: high exploration → low boldness",
+       subtitle = sprintf("n = %d  Pearson r = %+.3f", length(ex), cor(ex, bo)),
+       x = "Exploration trait (x in Wolf's notation)",
+       y = "Boldness") +
+  theme_classic(base_size = 12)
+
+ggplot(trait_df, aes(x = boldness, y = aggressiveness)) +
+  geom_point(alpha = 0.5, colour = "#984ea3") +
+  geom_smooth(method = "lm", se = TRUE, colour = "#e41a1c") +
+  labs(title = "Wolf 2007 syndrome: boldness and aggressiveness positively correlate",
+       subtitle = sprintf("n = %d  Pearson r = %+.3f", length(ex), cor(bo, ag)),
+       x = "Boldness", y = "Aggressiveness") +
+  theme_classic(base_size = 12)
+```
+
+## Honest discussion of magnitudes
+
+Wolf 2007 reports correlations typically > 0.5 in his Fig 4 quantitative-
+genetics extension. clade's spatially-explicit interpretation produces
+correlations of order 0.1. Why the difference?
+
+1. **Encounter rate**. Wolf's mean-field model has every agent paired
+   with another every game tick. clade's neighborhood pairing depends on
+   local density. At 200 initial agents on 30×30 = 900 cells (~22%
+   density), an agent's Moore-radius-2 neighborhood (24 cells) contains
+   ~5 other agents on average — but only some of those will be in the
+   between-phase, so actual game encounters are sparser than Wolf's mean-
+   field rate.
+
+2. **The `(1 + α·N_i)` competition denominator (Phase 6 refinement)**.
+   clade now applies Wolf's per-strategy denominator with
+   `N_high ≈ N·mean(x)` and `N_low ≈ N·mean(1-x)`, snapshotted once per
+   tick. This strengthened the bold-aggro syndrome from +0.10 to +0.31,
+   but did not produce Wolf's year-1-vs-year-2 dimorphism: the population
+   still locks at x≈0 because the snapshot-once-per-tick approximation
+   plus clade's spatial competition is coarser than Wolf's continuous
+   per-individual evaluation. The asset-protection signs (exp ↔ bold,
+   exp ↔ aggro) are weaker / sign-flipped in the locked equilibrium.
+
+3. **Population dynamics**. clade's energy economy regulates carrying
+   capacity in addition to the (1+α·N) denominator. The two interact:
+   the energy economy already prevents runaway growth, so the
+   denominator's regulating role is partly redundant and the resulting
+   selection gradient on *x* is weaker than in Wolf's pure mean-field
+   model.
+
+These are real interpretation choices, not bugs. clade's value is that
+it embeds Wolf's mechanism in a richer biological setting; the trade-off
+is weaker / sign-flipped asset-protection signal even though the
+defining bold-aggro syndrome is preserved.
+
+## What's left for follow-up work
+
+- **Per-individual (not snapshot) frequency evaluation** — switch to
+  per-agent re-computation of `(1+α·N_high)` / `(1+α·N_low)` to recover
+  the smoothness Wolf's continuous model assumes. Restructures
+  `apply_lifehistory_tradeoff!`.
+- **Diploid quantitative-genetics extension** (Wolf's Fig 4) — set
+  `ploidy = 2L` in the preset; the existing genome.jl supports it. Wolf
+  reports stronger correlations (r ≈ 0.65) in the diploid version.
+- **Spatial vs random pairing comparison** — run side-by-side with
+  `personality_hawkdove_radius = 1` (clade-native) vs an alternative
+  global-pairing implementation (Wolf-faithful) to quantify the cost of
+  spatial restriction.
+- **Sensitivity to game frequency** — the
+  `personality_hawkdove_per_tick` and `personality_antipred_per_tick`
+  parameters control encounter rate; sweeping these would map the
+  encounter-rate-to-syndrome-strength relationship.
+
+## Critique-aware framing
+
+Two published critiques of Wolf 2007 are directly testable in clade:
+
+- **Massol & Crochet (2008)** Nature 451:doi:10.1038/nature06744 —
+  argue the dimorphism depends critically on β (the trade-off shape).
+  In clade you can sweep `personality_beta` and check.
+- **McElreath, Luttbeg, Fogarty, Brodin & Sih (2007)** Nature
+  450:doi:10.1038/nature06326 — argue asset protection is a
+  *negative-feedback* mechanism that erodes individual differences over
+  time. clade's longer simulations could test this directly.
+
+Both are explicit follow-up vignettes the package could add.
+
+## References
+
+- Wolf, M., van Doorn, G.S., Leimar, O. & Weissing, F.J. (2007)
+  Life-history trade-offs favour the evolution of animal personalities.
+  *Nature* 447:581–584. doi:10.1038/nature05835.
+- Massol, F. & Crochet, P. (2008) Do animal personalities emerge?
+  *Nature* 451 (Brief Communications Arising). doi:10.1038/nature06744.
+- McElreath, R., Luttbeg, B., Fogarty, S.P., Brodin, T. & Sih, A. (2007)
+  Evolution of animal personalities. *Nature* 450 (Brief Communications
+  Arising). doi:10.1038/nature06326.
+- Clark, C.W. (1994) Antipredator behavior and the asset-protection
+  principle. *Behavioral Ecology* 5:159–170.

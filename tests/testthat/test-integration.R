@@ -229,15 +229,29 @@ test_that("batch_alife() returns one env per spec", {
   }
 })
 
-# ── 21. Tick-1 mean energy never exceeds initial energy ──────────────────────
-# Agents can only lose or maintain energy on tick 1 (cost of living +
-# possibly eating), never exceed `energy_init` in a fresh population.
-# We allow a small numerical tolerance.
-test_that("tick-1 mean_energy does not exceed energy_init", {
+# ── 21. Tick-1 mean energy is in a plausible range ───────────────────────────
+# The original assertion (`mean_energy[1] <= energy_init + 1e-6`) was *wrong*.
+# Agents pay move/idle cost (~ 1.0/0.5) but can eat up to `eat_gain * max_bite`
+# (~ 5 * 2 = 10) per tick, so a well-fed agent gains net energy on tick 1 and
+# can exceed `energy_init`. The fixed-array-order tick scheduling bias (lost in
+# 0.7.0 — see dev/docs/consolidation-audit.md) was masking this by
+# concentrating eating on a few first-array agents, producing low mean energy.
+# With the random-asynchronous scheduling restored from MATLAB, eating is
+# distributed more evenly and mean energy can sit above `energy_init`.
+#
+# The honest invariant is a range: each agent can lose at most `move_cost`
+# and gain at most `eat_gain * max_bite`, so the mean must lie within those
+# absolute bounds. (Body-size scaling at the eat source — 0.5.6 — pushes the
+# upper bound slightly higher; we allow a generous margin.)
+test_that("tick-1 mean_energy lies in a plausible range", {
   skip_no_julia()
   s   <- .quick_specs(energy_init = 100.0, random_seed = 12L)
   env <- run_alife(s, verbose = FALSE)
-  expect_lte(env$progress$mean_energy[1], s$energy_init + 1e-6)
+  m1  <- env$progress$mean_energy[1]
+  lo  <- s$energy_init - s$move_cost - 1e-6
+  hi  <- s$energy_init + s$eat_gain * s$max_bite + 1e-6
+  expect_gte(m1, lo)
+  expect_lte(m1, hi)
 })
 
 # ── 22. Performance: a 200 agent, 500 tick run finishes quickly ──────────────

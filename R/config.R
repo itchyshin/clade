@@ -16,6 +16,18 @@
 #'     where corner/edge effects matter. Used by movement, sensing,
 #'     dispersal, kin-scan, group-defense, and cooperative-breeding
 #'     code paths via `wrap_or_clamp()`.}
+#'   \item{`random_tick_order`}{Logical. `TRUE` (default, since 0.7.0)
+#'     shuffles agent and predator iteration order each tick — random
+#'     asynchronous scheduling per Grimm & Railsback (2005) and the
+#'     IBM literature. **This restores the original behaviour from the
+#'     MATLAB ancestor** (Bulitko 2023, `alife.m:324`:
+#'     `env.agent = env.agent(randperm(length(env.agent)))`), which was
+#'     lost in the alifeR R port and inherited as a regression by clade.
+#'     `FALSE` restores the legacy fixed-array-order scheduling, which
+#'     biased every clade simulation prior to 0.7.0 (earlier-array
+#'     agents systematically had first access to foraging, mates, free
+#'     cells, and prey). Only set FALSE to reproduce pre-0.7.0 results.
+#'     See `dev/docs/consolidation-audit.md` for the full ancestor diff.}
 #'   \item{`n_agents_init`}{Integer. Number of agents at tick 0 (default 50).}
 #'   \item{`max_agents`}{Integer. Hard cap on live agents; new offspring are
 #'     rejected if this is exceeded (default 500).}
@@ -1055,6 +1067,7 @@ default_specs <- function() {
     grid_rows              = 30L,
     grid_cols              = 30L,
     toroidal               = TRUE,      # D1: FALSE = boundary edges, TRUE = wrap-around
+    random_tick_order      = TRUE,      # 0.7.0: random asynchronous scheduling per Grimm & Railsback 2005. FALSE = legacy fixed array order.
     n_agents_init          = 50L,
     max_agents             = 500L,
     max_ticks              = 500L,
@@ -1230,6 +1243,112 @@ default_specs <- function() {
     brain_size_max             = 3.0,
     brain_size_cost_scale       = 1.0,
     brain_size_sensing_exponent = 0.3,
+
+    # ── Wolf et al. 2007 Nature personality syndrome (added 0.7.0) ────────
+    # Spatially-explicit clade interpretation: hawk-dove pairs from Moore
+    # neighborhood (mate_search_radius style); anti-predator fires only when
+    # a real predator is within sensing range of the focal agent. The
+    # life-history trade-off (g(x) = (1-x)^β) is preserved from Wolf 2007.
+    # See inst/julia/src/modules/personality.jl for the mechanism and
+    # vignettes/paper-wolf2007.Rmd for the reproduction context.
+    personality_syndrome           = FALSE,
+    # Trait initial means + mutation SDs
+    exploration_init_mean          = 0.5,
+    exploration_mutation_sd        = 0.05,
+    boldness_init_mean             = 0.5,
+    boldness_mutation_sd           = 0.05,
+    aggressiveness_init_mean       = 0.5,
+    aggressiveness_mutation_sd     = 0.05,
+    # Wolf 2007 life-history trade-off curve g(x) = (1-x)^β
+    personality_beta               = 1.25,
+    # Wolf 2007 per-resource competition denominator: F_i = f_i / (1 + α·N).
+    # In Wolf 2007, α·N regulates per-individual fecundity by total population
+    # density at the resource. clade uses total live-agent count as N (Wolf's
+    # f_i / (1+α·N_i) reduces to this when the population is well-mixed).
+    # Set to 0.0 to disable the denominator (legacy 0.7.0 behaviour at first
+    # release of the personality module). Wolf's original value is 0.005.
+    personality_alpha              = 0.005,
+    # Year-1/year-2 reproduction event ages (in clade ticks). Wolf doesn't
+    # specify because his model is fecundity-based; clade needs concrete tick
+    # counts. Defaults assume one tick ≈ a day for a small mammal.
+    wolf_year1_repro_age           = 50L,
+    wolf_year2_repro_age           = 100L,
+    # Year-2 fecundity payoffs. Tuned so 2*f_low > f_high > 1 (Wolf's
+    # dimorphism condition). Empirical calibration recommended for any
+    # specific scenario; see vignette discussion.
+    personality_f_high             = 3.0,
+    personality_f_low              = 2.0,
+    # Anti-predator game (per encounter): bold gets b energy, dies prob γ.
+    # Scaled to be small relative to f_low (Wolf's V/f_high ≈ 3%); a single
+    # game adds ≈ 0.25 expected offspring at year-2 reproduction.
+    personality_b                  = 0.5,
+    personality_gamma              = 0.1,
+    # Hawk-dove game (per encounter): hawks fight for V, hawk-hawk loser
+    # dies prob δ. Same scale rationale as personality_b.
+    personality_V                  = 0.5,
+    personality_delta              = 0.5,
+    # Per-tick game frequencies during the between-phase (year1 < age < year2).
+    # Wolf's "one or more games" → probabilistic per-tick firing.
+    personality_hawkdove_per_tick  = 0.1,
+    personality_antipred_per_tick  = 0.5,
+    # Hawk-dove pairing radius (Moore neighborhood). Setting > 0 is the
+    # spatially-explicit clade interpretation (vs Wolf's mean-field random
+    # pairing). Default 1 = immediate neighbours.
+    personality_hawkdove_radius    = 1L,
+
+    # ── Trivers 1971 reciprocal altruism (added 0.7.0) ────────────────────
+    # Spatially-explicit clade interpretation: encounters happen between
+    # agents in the same Moore neighborhood (one-per-cell rule means no
+    # co-occupancy, so the trigger is adjacency). Each agent carries a
+    # ring-buffer partner memory; conditional cooperation strategies (TFT,
+    # generous TFT) emerge under low dispersal + high partner re-encounter.
+    # See inst/julia/src/modules/reciprocity.jl and paper-trivers1971.Rmd.
+    reciprocal_altruism            = FALSE,
+    # Trait initial means and mutation SDs. Wolf-style narrow normal init
+    # (mean 0.5, sd 0.05) lets selection move them. Forgiveness defaults
+    # to a low init mean (0.1) — pure TFT is the canonical "winning"
+    # strategy in Axelrod tournaments.
+    reciprocity_initial_init_mean        = 0.5,
+    reciprocity_initial_mutation_sd      = 0.05,
+    reciprocity_retaliation_init_mean    = 0.5,
+    reciprocity_retaliation_mutation_sd  = 0.05,
+    reciprocity_forgiveness_init_mean    = 0.1,
+    reciprocity_forgiveness_mutation_sd  = 0.05,
+    # Cooperation cost + benefit-to-cost ratio. Hamilton's rule: b > c
+    # for kin selection; for reciprocal altruism, b > c is also required
+    # but the gain comes from reciprocation rather than relatedness.
+    reciprocity_cost                = 0.5,
+    reciprocity_benefit_ratio       = 2.0,
+    # Per-tick interaction probability. Two adjacent agents play one game
+    # with this probability per tick (avoids degenerate every-tick games
+    # between stationary neighbours). Default 0.1 ≈ one game per 10 ticks
+    # of contact.
+    reciprocity_interaction_rate    = 0.1,
+    # Partner memory ring-buffer size. Default 8 = remember last 8
+    # distinct partners. Larger = more stable conditional cooperation;
+    # smaller = more "forgetful" (Axelrod's TFT in iterated PD assumes
+    # perfect memory of one partner).
+    partner_memory_size             = 8L,
+    # Encounter neighborhood radius. Default 1 = immediate Moore
+    # neighbours. Larger radius = more potential partners but less
+    # likely to re-encounter the same partner (weakens reciprocity).
+    reciprocity_radius              = 1L,
+
+    # ── Wolf et al. 2008 PNAS responsive personalities (added 0.7.0) ──────
+    # Spatially-explicit clade interpretation: responsive agents pay
+    # `responsiveness_cost` energy per tick to sample local grass and
+    # override their action toward the richest cardinal neighbour.
+    # Frequency-dependent benefit emerges from grass competition (handling
+    # time): when many agents are responsive, rich cells get depleted
+    # and per-agent payoff to being responsive declines.
+    # See inst/julia/src/modules/responsiveness.jl and paper-wolf2008.Rmd.
+    responsive_personalities       = FALSE,
+    responsiveness_init_mean       = 0.5,
+    responsiveness_mutation_sd     = 0.05,
+    # Per-tick energy cost paid by an agent that opts to sample. Wolf 2008
+    # uses C=0.2 in his Methods; clade scale chosen so a moderate-
+    # responsive agent (resp=0.5) loses ~0.2 energy per tick on average.
+    responsiveness_cost            = 0.4,
 
     # ── Metabolic rate evolution ───────────────────────────────────────────
     metabolic_rate_evolution   = FALSE,

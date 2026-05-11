@@ -176,6 +176,41 @@ function _sample_traits(specs::Dict{String,Any}, rng::AbstractRNG)::Vector{Float
                get(specs, "brain_size_min", 0.1),
                get(specs, "brain_size_max", 3.0)) : 1.0f0
 
+    # Wolf 2007 personality syndrome (0.7.0). Disabled traits default to
+    # 0.5 (intermediate; harmless when not consulted by personality.jl).
+    pers_on = Bool(get(specs, "personality_syndrome", false))
+    t[TRAIT_EXPLORATION]    = pers_on ?
+        sample(get(specs, "exploration_init_mean",    0.5),
+               get(specs, "exploration_mutation_sd",  0.05), 0.0, 1.0) : 0.5f0
+    t[TRAIT_BOLDNESS]       = pers_on ?
+        sample(get(specs, "boldness_init_mean",       0.5),
+               get(specs, "boldness_mutation_sd",     0.05), 0.0, 1.0) : 0.5f0
+    t[TRAIT_AGGRESSIVENESS] = pers_on ?
+        sample(get(specs, "aggressiveness_init_mean", 0.5),
+               get(specs, "aggressiveness_mutation_sd", 0.05), 0.0, 1.0) : 0.5f0
+
+    # Trivers 1971 reciprocal altruism (0.7.0). Disabled traits default to
+    # Pure-TFT initial values: initial=1 (cooperate first), retaliation=1
+    # (defect after defection), forgiveness=0 (no return). When off, traits
+    # are inert (the reciprocity module is gated separately).
+    recip_on = Bool(get(specs, "reciprocal_altruism", false))
+    t[TRAIT_RECIPROCITY_INITIAL]     = recip_on ?
+        sample(get(specs, "reciprocity_initial_init_mean",     0.5),
+               get(specs, "reciprocity_initial_mutation_sd",   0.05), 0.0, 1.0) : 0.5f0
+    t[TRAIT_RECIPROCITY_RETALIATION] = recip_on ?
+        sample(get(specs, "reciprocity_retaliation_init_mean",   0.5),
+               get(specs, "reciprocity_retaliation_mutation_sd", 0.05), 0.0, 1.0) : 0.5f0
+    t[TRAIT_RECIPROCITY_FORGIVENESS] = recip_on ?
+        sample(get(specs, "reciprocity_forgiveness_init_mean",   0.1),
+               get(specs, "reciprocity_forgiveness_mutation_sd", 0.05), 0.0, 1.0) : 0.0f0
+
+    # Wolf 2008 responsive personalities (0.7.0). Default 0.5 when off
+    # (intermediate; harmless when not consulted by responsiveness module).
+    resp_on = Bool(get(specs, "responsive_personalities", false))
+    t[TRAIT_RESPONSIVENESS] = resp_on ?
+        sample(get(specs, "responsiveness_init_mean",    0.5),
+               get(specs, "responsiveness_mutation_sd",  0.05), 0.0, 1.0) : 0.5f0
+
     t
 end
 
@@ -517,6 +552,31 @@ function _mutate_traits(t::Vector{Float32}, specs::Dict{String,Any},
                       get(specs, "brain_size_mutation_sd", 0.05),
                       get(specs, "brain_size_min", 0.1),
                       get(specs, "brain_size_max", 3.0))
+
+    # Wolf 2007 personality syndrome (0.7.0). All clamped to [0,1].
+    if Bool(get(specs, "personality_syndrome", false))
+        maybe_mutate!(TRAIT_EXPLORATION,
+                      get(specs, "exploration_mutation_sd",    0.05), 0.0, 1.0)
+        maybe_mutate!(TRAIT_BOLDNESS,
+                      get(specs, "boldness_mutation_sd",       0.05), 0.0, 1.0)
+        maybe_mutate!(TRAIT_AGGRESSIVENESS,
+                      get(specs, "aggressiveness_mutation_sd", 0.05), 0.0, 1.0)
+    end
+
+    # Trivers 1971 reciprocal altruism (0.7.0). All clamped to [0,1].
+    if Bool(get(specs, "reciprocal_altruism", false))
+        maybe_mutate!(TRAIT_RECIPROCITY_INITIAL,
+                      get(specs, "reciprocity_initial_mutation_sd",     0.05), 0.0, 1.0)
+        maybe_mutate!(TRAIT_RECIPROCITY_RETALIATION,
+                      get(specs, "reciprocity_retaliation_mutation_sd", 0.05), 0.0, 1.0)
+        maybe_mutate!(TRAIT_RECIPROCITY_FORGIVENESS,
+                      get(specs, "reciprocity_forgiveness_mutation_sd", 0.05), 0.0, 1.0)
+    end
+
+    # Wolf 2008 responsive personalities (0.7.0). Clamped to [0,1].
+    Bool(get(specs, "responsive_personalities", false)) &&
+        maybe_mutate!(TRAIT_RESPONSIVENESS,
+                      get(specs, "responsiveness_mutation_sd", 0.05), 0.0, 1.0)
 
     t
 end

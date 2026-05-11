@@ -58,7 +58,14 @@ function apply_shelter_building!(env::Environment)
 
     (p_build > 0.0f0 && max_d > 0) || return
 
-    @inbounds for ag in env.agents
+    # 0.7.0: random asynchronous scheduling (see tick.jl). Per-cell shelter cap
+    # means later agents may be blocked from building if earlier ones filled it.
+    n_ag       = length(env.agents)
+    rand_order = Bool(get(env.specs, "random_tick_order", true))
+    order      = rand_order ? randperm(env.rng, n_ag) : (1:n_ag)
+
+    @inbounds for i in order
+        ag = env.agents[i]
         ag.alive || continue
         ag.energy > min_e || continue
         rand(env.rng) < p_build || continue

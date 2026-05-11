@@ -31,6 +31,9 @@ Scan all live agents and create offspring for eligible reproducers.
 """
 function create_offspring!(env::Environment)
     specs     = env.specs
+    rows      = Int(specs["grid_rows"])
+    cols      = Int(specs["grid_cols"])
+    toroidal  = Bool(get(specs, "toroidal", true))
     # Spatial sorting: refresh centroid cache once before mate-finding loop
     refresh_sorting_centroid!(env)
     # 0.4.0: parental cost can be either fixed (legacy) or proportional to
@@ -53,16 +56,20 @@ function create_offspring!(env::Environment)
     do_lamarck = Bool(get(specs, "lamarckian", false)) &&
                  get(specs, "rl_mode", "none") != "none"
 
-    # Collect reproducers before iterating (avoid modifying during loop)
-    new_agents = Agent[]
+    # 0.7.0: random asynchronous scheduling (see tick.jl for rationale).
+    # First-array-position agents otherwise picked first available mate.
+    n_ag       = length(env.agents)
+    rand_order = Bool(get(specs, "random_tick_order", true))
+    order      = rand_order ? randperm(env.rng, n_ag) : (1:n_ag)
 
-    for ag in env.agents
+    for i in order
+        ag = env.agents[i]
         ag.alive              || continue
         ag.reproduced         && continue
         ag.age < min_repro_age && continue
         # Per-agent threshold: evolved repro_threshold, plasticity-adjusted
         ag.energy < effective_repro_threshold(ag, env) && continue
-        length(env.agents) + length(new_agents) >= max_ag && break
+        length(env.agents) >= max_ag && break
 
         # Allee effect: count neighbours
         if allee_th > 0
@@ -85,7 +92,27 @@ function create_offspring!(env::Environment)
         env.n_clutch_total += Int32(clutch)
 
         for _ in 1:clutch
-            length(env.agents) + length(new_agents) >= max_ag && break
+            length(env.agents) >= max_ag && break
+
+            # 0.7.0: pre-check for a free adjacent cell BEFORE paying any
+            # reproductive cost. Mirrors MATLAB createOffspring.m:33-49 +
+            # alifeR neighborhood_i(): parents only pay reproductive cost
+            # when placement actually succeeds. care=TRUE offspring don't
+            # need a grid cell — juveniles ride on the parent.
+            if !care
+                px, py = Int(ag.x), Int(ag.y)
+                any_free = false
+                @inbounds for dx in -1:1, dy in -1:1
+                    (dx == 0 && dy == 0) && continue
+                    nx = wrap_or_clamp(px + dx, rows, toroidal)
+                    ny = wrap_or_clamp(py + dy, cols, toroidal)
+                    if env.agent_map[nx, ny] == 0
+                        any_free = true
+                        break
+                    end
+                end
+                any_free || break   # no space adjacent → no more births this tick
+            end
 
             # Find mate (or reproduce asexually)
             mate = _find_mate(ag, env)
@@ -174,7 +201,7 @@ function create_offspring!(env::Environment)
 
             off_brain = make_brain(off_genome, specs)
             off = _make_offspring(env.next_id, off_genome, off_brain,
-                                   ag, mate, off_energy_actual, specs, env.rng)
+                                   ag, mate, off_energy_actual, env, env.rng)
             env.next_id += Int64(1)
 
             ag.num_offspring += Int32(1)
@@ -191,15 +218,18 @@ function create_offspring!(env::Environment)
                 push!(ag.carried_offspring, off)
                 ag.care_load += Int32(1)
             else
-                push!(new_agents, off)
+                # 0.7.0: push directly to env.agents and update agent_map
+                # within the loop so subsequent _place_offspring scans see
+                # this offspring (matches MATLAB createOffspring.m:52
+                # which marks the cell as taken inline). Pre-0.7.0 used a
+                # batched commit at the end which left agent_map stale and
+                # could put two offspring on the same cell when two parents
+                # tried to place into the same neighbour cell within one
+                # call to create_offspring!.
+                push!(env.agents, off)
+                env.agent_map[off.x, off.y] = length(env.agents)
             end
         end
-    end
-
-    # Add all new agents to env
-    for off in new_agents
-        push!(env.agents, off)
-        env.agent_map[off.x, off.y] = length(env.agents)
     end
 end
 
@@ -415,15 +445,17 @@ adjacent to the parent, or the parent's cell if all neighbours are occupied.
 """
 function _make_offspring(id::Int64, g::DiploidGenome, brain::AbstractBrain,
                           parent::Agent, mate::Union{Agent,Nothing},
-                          energy::Float32, specs::Dict{String,Any},
+                          energy::Float32, env::Environment,
                           rng)::Agent
+    specs    = env.specs
     rows     = Int(specs["grid_rows"])
     cols     = Int(specs["grid_cols"])
     dm       = get(specs, "dominance_model", "additive")
     toroidal = Bool(get(specs, "toroidal", true))
 
-    # Place at an empty adjacent cell if possible
-    x, y = _place_offspring(parent, rows, cols, rng; toroidal = toroidal)
+    # 0.7.0: pick a free adjacent cell. Caller (create_offspring!) is
+    # responsible for the pre-check that a free cell exists.
+    x, y = _place_offspring(parent, env, rows, cols, rng; toroidal = toroidal)
 
     mate_id = mate !== nothing ? mate.id : Int64(0)
     sig_dims = Int(get(specs, "signal_dims", 0))
@@ -464,6 +496,16 @@ function _make_offspring(id::Int64, g::DiploidGenome, brain::AbstractBrain,
     bsz        = express_trait(g, TRAIT_BRAIN_SIZE, dm,
                                Float32(get(specs,"brain_size_min",0.1)),
                                Float32(get(specs,"brain_size_max",3.0)), rng)
+    # 0.7.0: Wolf 2007 personality syndrome — heritable [0,1] traits.
+    explor     = express_trait(g, TRAIT_EXPLORATION,    dm, 0.0f0, 1.0f0, rng)
+    bold       = express_trait(g, TRAIT_BOLDNESS,       dm, 0.0f0, 1.0f0, rng)
+    aggro      = express_trait(g, TRAIT_AGGRESSIVENESS, dm, 0.0f0, 1.0f0, rng)
+    # 0.7.0: Trivers 1971 reciprocity traits.
+    rec_init   = express_trait(g, TRAIT_RECIPROCITY_INITIAL,     dm, 0.0f0, 1.0f0, rng)
+    rec_ret    = express_trait(g, TRAIT_RECIPROCITY_RETALIATION, dm, 0.0f0, 1.0f0, rng)
+    rec_forg   = express_trait(g, TRAIT_RECIPROCITY_FORGIVENESS, dm, 0.0f0, 1.0f0, rng)
+    # 0.7.0: Wolf 2008 responsiveness trait.
+    resp       = express_trait(g, TRAIT_RESPONSIVENESS,          dm, 0.0f0, 1.0f0, rng)
 
     off = Agent(
         id, parent.id, mate_id,
@@ -485,22 +527,45 @@ function _make_offspring(id::Int64, g::DiploidGenome, brain::AbstractBrain,
         helper_t,        # helper_tendency
         plasticity,      # plasticity
         wing, Int32(1),  # wing_size, niche_layer (1=ground)
-        bsz              # brain_size
+        bsz,             # brain_size
+        # 0.7.0: Wolf 2007 personality syndrome
+        explor, bold, aggro, 0.0f0,  # exploration, boldness, aggressiveness, wolf_payoff_accum
+        # 0.7.0: Trivers 1971 reciprocal altruism (partner memory lazy-init in module)
+        rec_init, rec_ret, rec_forg, Int64[], Int8[],
+        # 0.7.0: Wolf 2008 responsive personalities
+        resp
     )
     apply_epigenetic_inheritance!(off, parent, specs, rng)
     off
 end
 
 """
-    _place_offspring(parent, rows, cols, rng) -> Tuple{Int, Int}
+    _place_offspring(parent, env, rows, cols, rng; toroidal=true)
+        -> Tuple{Int, Int}
 
-Return (x, y) for the offspring. Chooses a random adjacent cell (toroidal
-wrap). The caller passes `env.rng` so that seeded runs are reproducible.
+Pick a free Moore-neighbour cell for the offspring. Mirrors MATLAB
+`createOffspring.m:33-49` and alifeR's `neighborhood_i()` — scans the 8
+neighbours (NOT including the parent's own cell), filters to cells where
+`env.agent_map[nx, ny] == 0`, and picks one at random.
+
+This function should only be called when at least one free neighbour
+exists (the caller's responsibility — `create_offspring!` checks this
+in its clutch loop pre-check). If no free cell is found this falls back
+to the parent's own cell, which violates the one-per-cell rule and
+should never happen in correct usage.
 """
-function _place_offspring(parent::Agent, rows::Int, cols::Int, rng;
-                           toroidal::Bool = true)::Tuple{Int, Int}
-    x, y = Int(parent.x), Int(parent.y)
-    dx = rand(rng, -1:1)
-    dy = rand(rng, -1:1)
-    (wrap_or_clamp(x + dx, rows, toroidal), wrap_or_clamp(y + dy, cols, toroidal))
+function _place_offspring(parent::Agent, env::Environment, rows::Int, cols::Int,
+                           rng; toroidal::Bool = true)::Tuple{Int, Int}
+    px, py = Int(parent.x), Int(parent.y)
+    free_cells = Tuple{Int,Int}[]
+    for dx in -1:1, dy in -1:1
+        (dx == 0 && dy == 0) && continue
+        nx = wrap_or_clamp(px + dx, rows, toroidal)
+        ny = wrap_or_clamp(py + dy, cols, toroidal)
+        if env.agent_map[nx, ny] == 0
+            push!(free_cells, (nx, ny))
+        end
+    end
+    isempty(free_cells) && return (px, py)   # defensive fallback (caller should pre-check)
+    free_cells[rand(rng, 1:length(free_cells))]
 end

@@ -1,3 +1,100 @@
+# clade 0.7.0 (2026-05-05) — kernel discipline + three personality/cooperation papers
+
+## Two MATLAB-ancestor regressions fixed in the kernel
+
+clade descends from the Bulitko-group MATLAB code via the alifeR R port.
+Cross-codebase audit ([dev/docs/consolidation-audit.md](dev/docs/consolidation-audit.md))
+found two systematic biases the chain of ports lost:
+
+1. **Random-asynchronous agent scheduling** (Grimm & Railsback 2005;
+   MATLAB `alife.m:324`). clade was iterating `env.agents` in array
+   order every tick — earlier-array agents systematically moved/ate/
+   mated first. Fixed at 9 sites across 8 files; new spec field
+   `random_tick_order` (default TRUE) controls. With FALSE, legacy
+   behaviour is recoverable for reproducibility.
+2. **One-per-cell movement** (MATLAB `takeAction.m:79`). clade allowed
+   silent agent stacking on a single cell; movement now rejects when
+   the target cell is occupied. New `cell_to_agents` Matrix on
+   Environment for true multi-occupancy lookup at sites that need it.
+   Spec field `max_agents_per_cell` (default 1) controls.
+3. Bonus: **offspring placement** also enforced one-per-cell. Previously
+   newborns landed on the parent's cell, immediately stacking. Fixed at
+   `_place_offspring` to scan the Moore neighbourhood and pick a free
+   cell; if none, no offspring (matching MATLAB).
+
+`viability_report()` learned to skip the absolute `min_n` check on
+flat-population scenarios (`n_init >= min_n`); 2 stale test assertions
+unrelated to the kernel fixes were corrected at the same time.
+
+## Three new paper reproductions
+
+All three are *spatially-explicit* clade interpretations rather than
+faithful re-implementations of the analytic mean-field models — clade's
+value-add is precisely that encounters happen between *neighbouring*
+agents and resources are regulated by the grid, not abstract patches.
+Each vignette is honest about where the interpretation strengthens or
+weakens the original prediction.
+
+### Wolf et al. 2007 Nature — personality syndrome
+
+`vignette("paper-wolf2007")`. Hawk-dove pairs from the Moore
+neighbourhood; anti-predator games anchored to real predator positions;
+year-1/year-2 reproduction at fixed agent ages with the life-history
+trade-off `g(x) = (1-x)^β`. Nine traits added to the genome
+(`exploration`, `boldness`, `aggressiveness` plus six gating fields).
+
+**Phase 6 refinement** (separate commit): added Wolf's
+`(1 + α·N_i)` per-strategy competition denominator with
+`N_high ≈ N·mean(x)`, `N_low ≈ N·mean(1-x)`. Effect on the
+defining bold-aggro syndrome: **+0.10 → +0.31** (3× stronger).
+The asset-protection signs (exp ↔ bold, exp ↔ aggro) are weaker /
+sign-flipped because clade's spatial population doesn't reach the
+year-1-vs-year-2 dimorphism Wolf's mean-field model predicts. The
+test asserts only the bold-aggro syndrome (the *defining* prediction);
+the asset-protection signs are diagnostics in the vignette.
+
+### Trivers 1971 QRB — reciprocal altruism
+
+`vignette("paper-trivers1971")`. Generous-TFT decision via three
+heritable traits (`reciprocity_initial`, `reciprocity_retaliation`,
+`reciprocity_forgiveness`); per-agent partner memory (ring buffer);
+PD payoff with `b/c > 1` per Hamilton's rule. Cooperation rises from
+the drift baseline of 0.500 to 0.718 in the favourable regime
+(`reciprocity_cost = 0.1`, `reciprocity_benefit_ratio = 2`).
+
+The vignette frames this as the empirical-scarcity finding: reciprocal
+altruism is intuitive but rare in nature (Stevens & Hauser 2004,
+Clutton-Brock 2009, Hammerstein 2003). clade's parameter space confirms
+this — cooperation is robust only in narrow regimes.
+
+### Wolf et al. 2008 PNAS — responsive personalities
+
+`vignette("paper-wolf2008")`. Single new trait `responsiveness`;
+agents pay an energy cost to override their action toward the richest
+free Moore-neighbour cell. Frequency-dependent benefit emerges from
+clade's existing one-per-cell + handling-time economy: many
+responders → all flock to rich cells → first-mover wins, others waste
+the cost. Selection signal: 0.500 → 0.669 (+0.169).
+
+The density sweep is *non-monotonic* in clade (peak at intermediate
+density), unlike Wolf's monotonically-decreasing prediction — clade's
+spatial winner-take-all differs from Wolf's smooth `(1+α·N_i)`
+denominator. Documented in the vignette.
+
+## Spec fields added (~30 total)
+
+- `random_tick_order` (default `TRUE`)
+- `max_agents_per_cell` (default `1L`)
+- 16 `personality_*` fields (Wolf 2007), including `personality_alpha`
+- 12 `reciprocity_*` fields (Trivers)
+- 4 `responsive_*` fields (Wolf 2008)
+
+## Test suite
+
+1987 tests, 0 failures. Five new test files: `test-tick-order.R`,
+`test-cell-occupancy.R`, `test-personality-syndrome.R`,
+`test-reciprocal-altruism.R`, `test-responsive-personalities.R`.
+
 # clade 0.6.5 (2026-04-20) — sensory-bias β_N installed (Ryan 1990 half-PASS)
 
 ## The mechanism

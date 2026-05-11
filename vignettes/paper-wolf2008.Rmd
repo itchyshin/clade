@@ -1,0 +1,228 @@
+---
+title: "Wolf et al. 2008 — responsive personalities in a spatially-explicit ABM"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Wolf et al. 2008 — responsive personalities in a spatially-explicit ABM}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment  = "#>",
+  eval     = FALSE
+)
+```
+
+*Spatially-explicit clade interpretation of Wolf, van Doorn & Weissing
+(2008) PNAS 105:15825–15830, "Evolutionary emergence of responsive and
+unresponsive personalities". Captures the **frequency-dependent benefit
+of sampling** mechanism using clade's grass economy and one-per-cell
+movement rule. The implementation is more compact than Wolf 2007's
+(one trait, one module); the cross-context-consistency extension and
+the two-stage positive-feedback model from Wolf 2008 §3 are deferred
+follow-up work.*
+
+## What the original paper proposes
+
+Wolf 2008 extends Wolf 2007's life-history mechanism with a different
+question: when should an agent be "responsive" (sample environmental
+state, then choose action conditional on it) versus "unresponsive"
+(use a fixed general-purpose action)? Two key ingredients:
+
+1. **Negative frequency-dependent benefits of responsiveness**
+   (Methods Eq. 1). When responsiveness is rare, a responsive agent
+   exploits cues with little competition — high benefit. When
+   responsiveness is common, all responsives flock to the same
+   resources — competition erodes the benefit. This produces stable
+   *coexistence* of responsive and unresponsive types.
+
+2. **Positive feedback on cost-of-responsiveness** (Methods §3). An
+   agent that was responsive in stage 1 pays a *lower* cost to be
+   responsive in stage 2 (because it has already incurred the
+   start-up costs). Even tiny cost-reductions produce strong
+   cross-context consistency: agents responsive in one context tend
+   to be responsive in others.
+
+Wolf 2008 thus links the two empirical phenomena that defined the
+"animal personality" literature: **coexistence of behavioural types**
+(why polymorphism, not optimal monomorphism) and **cross-context
+consistency** (why agents are predictable across situations).
+
+## clade implementation
+
+clade is spatially explicit. Wolf 2008 is non-spatial (50-island mean-
+field). We re-implement the **frequency-dependent benefit** mechanism
+using clade's spatial machinery; the two-stage cross-context
+consistency extension is left for follow-up work.
+
+**One new heritable trait** in `[0, 1]`:
+
+- `responsiveness` = Pr(this agent samples local state and overrides
+  its action toward the richest free cardinal-neighbour cell on a
+  given tick).
+
+**Sampling cost**:
+
+- Per-tick energy drain `responsiveness_cost` paid by the agent
+  whenever it samples (regardless of whether the resulting move
+  succeeds or whether it improves on the current cell).
+
+**Frequency-dependence emerges from clade's existing economy**:
+
+- Many responsive agents → all flock to richest neighbours → handling-
+  time depletes those cells → first-mover wins, others waste cost.
+  Combined with one-per-cell movement (Phase 2), responsive agents at
+  high density frequently find their richest target occupied and end
+  up paying cost without moving.
+- Few responsive agents → rich cells stay rich → first-mover advantage
+  yields net gain → trait selected for.
+
+This is the *same* `dE/dp_r < 0` condition Wolf states in Methods
+Eq. 1, realised via spatial competition rather than the abstract
+patch-choice denominator `f_i = p_r·l_i + (1-p_r)·l̄`.
+
+See `inst/julia/src/modules/responsiveness.jl`.
+
+## What's NOT implemented (deliberate)
+
+- **Two-stage cross-context consistency** (Wolf 2008 §3). Would need
+  a per-agent `times_responsive` counter and a positive-feedback rule
+  that lowers cost after prior responsiveness. clade has the
+  infrastructure; this is a one-day follow-up task.
+- **Per-resource (1+α·N_i) competition denominator**. The same
+  decision as Phase 3a (Wolf 2007). Would clean up the polymorphism
+  result but isn't essential for the headline mechanism.
+- **Cost-of-uncertainty**. Wolf 2008's `C` is a single parameter; in
+  reality cost might scale with environmental volatility, partial
+  information, etc. Not modelled here.
+
+## The headline result
+
+```{r setup-libs, eval = FALSE}
+library(clade)
+
+s <- wolf2008_responsiveness_specs()
+s$max_ticks   <- 2000L
+s$random_seed <- 42L
+env <- suppressWarnings(run_alife(s, verbose = FALSE))
+```
+
+Pull final-tick responsiveness:
+
+```{r mean-resp, eval = FALSE}
+recs  <- env$agents
+alive <- vapply(seq_along(recs), function(i) as.logical(recs[[i]]$alive),
+                logical(1L))
+resp  <- vapply(seq_along(recs)[alive],
+                function(i) as.numeric(recs[[i]]$responsiveness),
+                numeric(1L))
+mean(resp)   # selection moves the trait above the no-module baseline of 0.5
+```
+
+Typical values at this configuration (seed = 42):
+
+| Condition | Mean `responsiveness` |
+|---|---|
+| No module (drift baseline) | 0.500 |
+| Module on (selection)      | 0.669 |
+| Δ                           | +0.169 |
+
+The trait rises above the drift baseline — selection on `responsiveness`
+is real. The verified test at
+`tests/testthat/test-responsive-personalities.R` asserts this
+selection signal with seed 42.
+
+## Density-dependence sweep (Wolf's headline mechanism)
+
+Wolf's prediction: responsiveness should DECREASE at higher density
+(more competition for rich cells erodes the benefit). The clade test:
+
+```{r density-sweep, eval = FALSE}
+sweep_density <- function(n_init, seed = 42L) {
+  s <- wolf2008_responsiveness_specs()
+  s$n_agents_init <- n_init
+  s$max_agents    <- max(800L, 2L * n_init)
+  s$max_ticks     <- 2000L
+  s$random_seed   <- seed
+  env <- suppressWarnings(run_alife(s, verbose = FALSE))
+  recs  <- env$agents
+  alive <- vapply(seq_along(recs), function(i) as.logical(recs[[i]]$alive),
+                  logical(1L))
+  if (sum(alive) < 5L) return(NA_real_)
+  mean(vapply(seq_along(recs)[alive],
+              function(i) as.numeric(recs[[i]]$responsiveness),
+              numeric(1L)))
+}
+
+n_inits <- c(50L, 100L, 200L, 350L, 500L)
+resp_means <- sapply(n_inits, sweep_density)
+plot(n_inits, resp_means, type = "b", pch = 19,
+     xlab = "Initial population density",
+     ylab = "Mean responsiveness at tick 2000",
+     main = "Wolf 2008 density sweep — clade implementation")
+abline(h = 0.5, lty = 2, col = "grey")
+```
+
+Expected pattern (per Wolf): monotonically decreasing. **Observed in
+clade**: non-monotonic, with strongest selection-for-responsiveness at
+intermediate density. At very high density, populations crash before
+the trait equilibrates. This is the gap between Wolf's mean-field model
+and clade's spatial implementation — see "honest discussion" below.
+
+## Honest discussion (continuing the Phase 4 theme)
+
+Wolf 2008 reports clean coexistence of responsive + unresponsive types
+at intermediate `C` (Fig. 2c). clade's implementation produces selection
+on the responsiveness trait but does NOT cleanly reproduce Wolf's
+polymorphic equilibrium. Two reasons:
+
+1. **No per-resource competition denominator** (Wolf 2008 only — Wolf
+   2007's denominator was added in Phase 6 of the 0.7.0 work; the
+   responsiveness module here does not yet have an analogue). Wolf's
+   `(1+α·N_i)` in the patch-choice payoff is the mathematical machinery
+   that makes per-agent benefit decline smoothly with the fraction of
+   responders. clade's spatial competition (handling time + one-per-cell)
+   is more discrete: the first responsive agent to a rich cell gets all
+   the benefit; later movers get nothing. This produces *winner-take-all*
+   rather than *smoothly frequency-dependent*.
+
+2. **Population dynamics**. clade's grass-economy regulator interacts
+   with the responsiveness trait in ways Wolf's model doesn't see. At
+   high density, the population crashes before the trait equilibrates
+   — and trait-mean interpretations on a crashing population are
+   unreliable (`viability_report()` flags this).
+
+Like Phase 4 (Trivers): clade's implementation captures the mechanism
+but the spatial setting changes the dynamics in ways that are
+themselves biologically interesting.
+
+## What's left for follow-up
+
+- **Two-context cross-consistency test** (Wolf 2008 §3): pair the
+  responsiveness module with the existing kin-altruism or hawk-dove
+  modules; quantify whether agents responsive in foraging are also
+  responsive in social contexts.
+- **Positive-feedback cost reduction**: implement `times_responsive`
+  counter; cost in stage 2 = `C × (1 − k × times_responsive)`.
+- **Tunable per-resource denominator**: optional `(1+α·N_i)` payoff
+  scaling driven by per-cell agent density (cheap to compute via
+  `cell_to_agents`-style enumeration that we already designed during
+  Phase 2 even if Policy A wasn't ultimately taken).
+- **Compare with Wolf 2007**: pair the responsiveness module with
+  Wolf 2007 personality syndrome — does responsiveness correlate
+  with the boldness-aggressiveness syndrome under both selection
+  pressures?
+
+## References
+
+- Wolf, M., van Doorn, G.S. & Weissing, F.J. (2008) Evolutionary
+  emergence of responsive and unresponsive personalities.
+  *Proc. Natl. Acad. Sci. USA* 105:15825–15830. doi:10.1073/pnas.0805473105.
+- DeWitt, T.J., Sih, A. & Wilson, D.S. (1998) Costs and limits of
+  phenotypic plasticity. *Trends in Ecology & Evolution* 13:77–81.
+- Sih, A., Bell, A.M., Johnson, J.C. & Ziemba, R.E. (2004) Behavioral
+  syndromes: an integrative overview. *Q. Rev. Biol.* 79:241–277.
+- Bell, A.M. (2007) Future directions in behavioural syndromes
+  research. *Proc. R. Soc. B* 82:755–761.

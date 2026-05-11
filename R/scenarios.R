@@ -179,3 +179,183 @@ run_bad_science <- function(n_labs                   = 200L,
 
   out
 }
+
+# ── Wolf et al. 2007 Nature personality syndrome (added 0.7.0) ───────────────
+
+#' Spec preset for the Wolf 2007 personality reproduction
+#'
+#' Returns a specs list configured to reproduce the boldness-aggressiveness
+#' syndrome from Wolf, van Doorn, Leimar & Weissing (2007) Nature 447:581-584,
+#' implemented in clade's spatially-explicit framework. See the vignette
+#' `paper-wolf2007.Rmd` for the full reproduction context and discussion of
+#' the spatially-explicit interpretation (vs Wolf's mean-field model).
+#'
+#' Key parameter choices vs `default_specs()`:
+#' \describe{
+#'   \item{`personality_syndrome = TRUE`}{Enable the module.}
+#'   \item{`min_repro_energy = 1e9`}{Disable clade's standard energy-triggered
+#'     reproduction so only Wolf age-windowed reproduction fires.}
+#'   \item{`min_repro_age = 0L`}{Defer reproduction control to the
+#'     personality module's age windows.}
+#'   \item{`max_age = 999L`}{Defer death control to the personality module
+#'     (year-2 reproduction kills the parent).}
+#'   \item{`grid_rows`/`grid_cols = 30L`}{Standard density (Wolf used a
+#'     non-spatial population; clade needs a grid large enough for
+#'     one-per-cell + neighborhood encounters).}
+#'   \item{`n_agents_init = 60L`}{Initial density ~7%.}
+#'   \item{`max_agents = 500L`}{Standard cap.}
+#'   \item{`max_ticks = 2000L`}{20 generations at the default
+#'     `wolf_year2_repro_age = 100`. Wolf used 50,000 generations for his
+#'     paper figures — for an exact reproduction, scale much higher.}
+#'   \item{`ploidy = 1L`}{Haploid asexual genetics, matching Wolf's basic
+#'     model (Methods §"Basic model"). The diploid quantitative-genetics
+#'     extension (Wolf's Fig 4) can be enabled by setting `ploidy = 2L`.}
+#' }
+#'
+#' @details
+#' Wolf-specific parameters (β, f_high, f_low, V, δ, b, γ, year ages,
+#' per-tick game frequencies) inherit their defaults from `default_specs()`.
+#' Override individual fields after calling this function:
+#' ```r
+#' s <- wolf_personality_specs()
+#' s$personality_hawkdove_radius <- 2L   # widen pairing neighborhood
+#' s$max_ticks <- 5000L                   # longer evolution
+#' env <- run_alife(s)
+#' ```
+#'
+#' @return A specs list ready for `run_alife()`.
+#' @seealso [default_specs()], [run_alife()].
+#' @export
+wolf_personality_specs <- function() {
+  s <- default_specs()
+  s$personality_syndrome <- TRUE
+  s$min_repro_energy     <- 1e9          # disable standard energy-triggered repro
+  s$min_repro_age        <- 0L
+  s$max_age              <- 999L         # let personality module handle death
+  s$grid_rows            <- 30L
+  s$grid_cols            <- 30L
+  s$n_agents_init        <- 60L
+  s$max_agents           <- 500L
+  s$max_ticks            <- 2000L
+  s$ploidy               <- 1L           # Wolf's haploid basic model
+  s
+}
+
+# ── Trivers 1971 reciprocal altruism (added 0.7.0) ───────────────────────────
+
+#' Spec preset for the Trivers 1971 reciprocal-altruism reproduction
+#'
+#' Returns a specs list configured to demonstrate the conditions Trivers
+#' (1971) identified for the evolution of conditional cooperation:
+#' long lifespan, low dispersal, partner recognition, cheater
+#' discrimination. See the vignette `paper-trivers1971.Rmd` for the
+#' full discussion and the dispersal sweep that maps the
+#' cooperation-vs-defection regime boundary.
+#'
+#' Key parameter choices vs `default_specs()`:
+#' \describe{
+#'   \item{`reciprocal_altruism = TRUE`}{Enable the module.}
+#'   \item{`max_age = 500L`}{Long lifespan (Trivers condition 1) — many
+#'     opportunities for repeat encounters.}
+#'   \item{`dispersal_evolution = FALSE`}{Low dispersal (Trivers condition
+#'     2) — partners stay nearby, so re-encounter rate is high.}
+#'   \item{`grid_rows`/`grid_cols = 30L`}{Standard density. The
+#'     reciprocity radius defaults to 1 (Moore neighborhood).}
+#'   \item{`n_agents_init = 200L`}{Higher density (~22%) → more frequent
+#'     adjacency encounters.}
+#'   \item{`max_agents = 800L`}{Room for the population to grow under
+#'     mutual cooperation.}
+#'   \item{`max_ticks = 2000L`}{Long enough for selection on the three
+#'     reciprocity traits to act.}
+#'   \item{`ploidy = 1L`}{Haploid asexual; cleaner trait dynamics.}
+#' }
+#'
+#' @details
+#' Trivers-specific parameters (cost, benefit ratio, interaction rate,
+#' partner memory size, encounter radius, trait init means/SDs) inherit
+#' their defaults from `default_specs()`. To run the dispersal-rate
+#' sweep that demonstrates the regime boundary:
+#' ```r
+#' for (rate in c(0, 0.1, 0.3, 0.5)) {
+#'   s <- trivers_reciprocity_specs()
+#'   s$dispersal_evolution    <- TRUE
+#'   s$dispersal_init_mean    <- rate
+#'   s$dispersal_mutation_sd  <- 0   # lock dispersal at this rate
+#'   env <- run_alife(s)
+#'   # ... compute mean cooperation rate from final agent traits
+#' }
+#' ```
+#'
+#' @return A specs list ready for `run_alife()`.
+#' @seealso [default_specs()], [run_alife()].
+#' @export
+trivers_reciprocity_specs <- function() {
+  s <- default_specs()
+  s$reciprocal_altruism  <- TRUE
+  s$max_age              <- 500L          # long lifespan (Trivers condition 1)
+  s$dispersal_evolution  <- FALSE         # low dispersal (Trivers condition 2)
+  s$grid_rows            <- 30L
+  s$grid_cols            <- 30L
+  s$n_agents_init        <- 200L
+  s$max_agents           <- 800L
+  s$max_ticks            <- 2000L
+  s$ploidy               <- 1L
+  s
+}
+
+# ── Wolf et al. 2008 PNAS responsive personalities (added 0.7.0) ─────────────
+
+#' Spec preset for the Wolf 2008 responsive-personalities reproduction
+#'
+#' Returns a specs list configured to test the negative-frequency-dependent-
+#' selection mechanism from Wolf, van Doorn & Weissing (2008) PNAS
+#' 105:15825-15830, in clade's spatially-explicit framework. See the
+#' vignette `paper-wolf2008.Rmd` for the full reproduction context.
+#'
+#' Key parameter choices vs `default_specs()`:
+#' \describe{
+#'   \item{`responsive_personalities = TRUE`}{Enable the module.}
+#'   \item{`grid_rows`/`grid_cols = 30L`}{Standard grid; rich-cell
+#'     competition emerges naturally from clade's grass economy.}
+#'   \item{`n_agents_init = 200L`}{Density 22% — high enough that
+#'     responsiveness's frequency-dependent cost actually bites.}
+#'   \item{`max_agents = 800L`}{Room for population growth; the regulator
+#'     is grass + handling time, not max_agents.}
+#'   \item{`max_ticks = 3000L`}{30 generations at default max_age = 100.
+#'     Long enough for the responsiveness trait to evolve to its
+#'     equilibrium frequency.}
+#'   \item{`ploidy = 1L`}{Haploid asexual; cleaner trait dynamics.}
+#' }
+#'
+#' @details
+#' Wolf 2008-specific parameters (responsiveness_init_mean, mutation_sd,
+#' responsiveness_cost) inherit from `default_specs()`. To probe the
+#' density-dependent benefit (Wolf's headline mechanism):
+#' ```r
+#' for (n_init in c(50L, 100L, 200L, 400L)) {
+#'   s <- wolf2008_responsiveness_specs()
+#'   s$n_agents_init <- n_init
+#'   env <- run_alife(s)
+#'   # ... compute mean responsiveness at end and plot vs n_init
+#' }
+#' ```
+#'
+#' @return A specs list ready for `run_alife()`.
+#' @seealso [default_specs()], [run_alife()], [wolf_personality_specs()].
+#' @export
+wolf2008_responsiveness_specs <- function() {
+  s <- default_specs()
+  s$responsive_personalities <- TRUE
+  # Calibrated cost. Default of 0.4 in default_specs() is steep; the
+  # Wolf 2008 preset uses a smaller cost (0.1) so populations don't
+  # collapse during the trait-evolution period. The headline mechanism
+  # is preserved either way; this is just a sustainability tuning.
+  s$responsiveness_cost      <- 0.1
+  s$grid_rows                <- 30L
+  s$grid_cols                <- 30L
+  s$n_agents_init            <- 200L
+  s$max_agents               <- 800L
+  s$max_ticks                <- 3000L
+  s$ploidy                   <- 1L
+  s
+}

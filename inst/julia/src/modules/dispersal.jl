@@ -63,7 +63,14 @@ function apply_dispersal!(env::Environment)
     cols     = Int(specs["grid_cols"])
     toroidal = Bool(get(specs, "toroidal", true))
 
-    @inbounds for ag in env.agents
+    # 0.7.0: random asynchronous scheduling (see tick.jl). First-array
+    # agents otherwise claimed the best free cardinal cell first.
+    n_ag       = length(env.agents)
+    rand_order = Bool(get(specs, "random_tick_order", true))
+    order      = rand_order ? randperm(env.rng, n_ag) : (1:n_ag)
+
+    @inbounds for i in order
+        ag = env.agents[i]
         ag.alive || continue
         ag.dispersal_tendency <= 0.0f0 && continue
         # Don't disperse if energy is too low

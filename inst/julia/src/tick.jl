@@ -114,10 +114,38 @@ function tick_agents!(env::Environment)
     # variability. See dev/audit/fidelity/baldwin_sigma_decoupled.R.
     action_epsilon = Float32(get(specs, "action_exploration_epsilon", 0.0))
 
-    # Clear agent map before moves (rebuild below)
+    # 0.7.0 Phase 2: initialise agent_map from current positions BEFORE the
+    # loop, so (a) agents can sense each other within their own tick and
+    # (b) the one-per-cell movement check below sees correct occupancy.
+    # MATLAB does this via markAgents(env) called at alife.m:334. alifeR's
+    # Rcpp tick receives an already-populated agent_map. Pre-0.7.0 clade
+    # cleared the map at the start of the loop, leaving sensing blind to
+    # neighbours within the same tick — a regression we are now fixing.
     fill!(env.agent_map, Int64(0))
+    @inbounds for (idx, ag) in enumerate(env.agents)
+        ag.alive && (env.agent_map[ag.x, ag.y] = idx)
+    end
 
-    for ag in env.agents
+    # 0.7.0: random asynchronous scheduling — restored from MATLAB ancestor.
+    #   - MATLAB (Bulitko 2023) alife.m:324:
+    #       env.agent = env.agent(randperm(length(env.agent)));
+    #     done once per tick at the top of the loop.
+    #   - alifeR R port: regression — array order, no shuffle.
+    #   - clade ≤ 0.6.x: regression inherited from alifeR.
+    # See dev/docs/consolidation-audit.md for the full ancestor diff and
+    # dev/audit/iteration-sites.md for the full call-site catalogue.
+    # Iterating in fixed array order biased foraging toward earlier-array
+    # agents (handling-time means later agents got less grass from the same
+    # cell). Per-site shuffle in clade (vs MATLAB's once-per-tick top-level
+    # shuffle) is functionally equivalent — clade has more dispatched modules
+    # so per-site is the cleaner adaptation. Set random_tick_order = FALSE
+    # to restore the pre-0.7.0 fixed-order bias for reproducibility audits.
+    n_ag       = length(env.agents)
+    rand_order = Bool(get(specs, "random_tick_order", true))
+    order      = rand_order ? randperm(env.rng, n_ag) : (1:n_ag)
+
+    for i in order
+        ag = env.agents[i]
         ag.alive || continue
         ag.age += Int32(1)
 
@@ -136,23 +164,49 @@ function tick_agents!(env::Environment)
         end
 
         # ── Move ──────────────────────────────────────────────────────────
+        # 0.7.0 Phase 2: one-agent-per-cell at movement — restored from the
+        # MATLAB ancestor (Bulitko, takeAction.m:79: ... && env.agents(newy,newx)
+        # == 0) and alifeR (tick_agents.cpp:257). pre-0.7.0 clade silently
+        # allowed co-occupancy. If the target cell is occupied by another
+        # agent, this agent stays put. Movement cost is still paid (matches
+        # alifeR comment "always paid, even when staying" and MATLAB which
+        # calls moveAgent with the unchanged coordinates in the blocked case).
         ag.energy_last_tick = ag.energy
-        x, y = Int(ag.x), Int(ag.y)
+        sx, sy = Int(ag.x), Int(ag.y)
         if action == 1      # N
-            x = wrap_or_clamp(x - 1, rows, toroidal)
+            tx = wrap_or_clamp(sx - 1, rows, toroidal); ty = sy
             ag.energy -= move_cost * ag.metabolic_rate
         elseif action == 2  # E
-            y = wrap_or_clamp(y + 1, cols, toroidal)
+            tx = sx; ty = wrap_or_clamp(sy + 1, cols, toroidal)
             ag.energy -= move_cost * ag.metabolic_rate
         elseif action == 3  # S
-            x = wrap_or_clamp(x + 1, rows, toroidal)
+            tx = wrap_or_clamp(sx + 1, rows, toroidal); ty = sy
             ag.energy -= move_cost * ag.metabolic_rate
         elseif action == 4  # W
-            y = wrap_or_clamp(y - 1, cols, toroidal)
+            tx = sx; ty = wrap_or_clamp(sy - 1, cols, toroidal)
             ag.energy -= move_cost * ag.metabolic_rate
         else                # idle
+            tx = sx; ty = sy
             ag.energy -= idle_cost * ag.metabolic_rate
         end
+
+        # One-per-cell check: only test occupancy when actually attempting to move.
+        # `(tx != sx || ty != sy)` covers boundary cases where wrap_or_clamp
+        # returns the same cell on a non-toroidal edge.
+        if action != 5 && (tx != sx || ty != sy) && env.agent_map[tx, ty] != 0
+            tx = sx
+            ty = sy
+        end
+
+        # Update agent_map incrementally so subsequent agents in this tick see
+        # the new positions (matches MATLAB and alifeR semantics).
+        if tx != sx || ty != sy
+            env.agent_map[sx, sy] = Int64(0)
+            env.agent_map[tx, ty] = Int64(i)
+        end
+
+        x = tx
+        y = ty
         ag.x = Int32(x)
         ag.y = Int32(y)
 
@@ -193,7 +247,11 @@ function tick_agents!(env::Environment)
                                           e_sigma, sigma_min, e_size_exp)
     end
 
-    # Rebuild agent map after all moves
+    # 0.7.0 Phase 2: defensive rebuild after all moves. With one-per-cell
+    # enforcement at movement time and incremental updates within the loop,
+    # the agent_map should already be consistent at this point. Keep the
+    # rebuild as belt-and-braces: cheap (O(n)), catches any future bugs
+    # where a module modifies agent positions outside the move code.
     for (idx, ag) in enumerate(env.agents)
         ag.alive && (env.agent_map[ag.x, ag.y] = idx)
     end
