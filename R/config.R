@@ -32,12 +32,6 @@
 #'   \item{`max_agents`}{Integer. Hard cap on live agents; new offspring are
 #'     rejected if this is exceeded (default 500).}
 #'   \item{`max_ticks`}{Integer. Simulation length in ticks (default 500).}
-#'   \item{`wall_density`}{Numeric in \[0, 1\]. Fraction of grid cells
-#'     that are non-traversable walls (default 0 = open grid). Walls
-#'     block movement and foraging.}
-#'   \item{`wall_clusters`}{Logical. If `TRUE` (default), walls are
-#'     laid out in contiguous clumps; if `FALSE`, walls are scattered
-#'     cell-by-cell. Only relevant when `wall_density > 0`.}
 #' }
 #'
 #' ## Energy and metabolism
@@ -410,11 +404,6 @@
 #'     Reference: Gompertz (1825) On the nature of the function expressive of
 #'     the law of human mortality, *Philosophical Transactions of the Royal
 #'     Society* 115:513--583.}
-#'   \item{`repro_senescence`}{Numeric in \[0, 1\]. Per-tick decline in
-#'     reproduction probability with age (default 0 = no reproductive
-#'     senescence).}
-#'   \item{`life_history_evolution`}{Logical. If `TRUE`, `max_age` and
-#'     `senescence_rate` are heritable diploid traits (default `FALSE`).}
 #'   \item{`allee_threshold`}{Integer. Minimum local density for reproduction
 #'     (default 0L = Allee effects off). When > 0, agents require at least
 #'     this many conspecifics in their Moore neighbourhood to reproduce.
@@ -604,10 +593,11 @@
 #'   \item{`neonatal_deficit_duration`}{Integer. How many ticks the
 #'     neonatal foraging deficit applies for (default 10L).}
 #'   \item{`parental_investment_evolution`}{Logical. Enable Trivers 1972
-#'     quality-quantity trade-off (default `FALSE`). Couples
-#'     `parental_investment_init_mean` to per-offspring energy allocation.}
-#'   \item{`parental_investment_init_mean`}{Numeric in \[0, 1\]. Initial
-#'     per-offspring investment fraction (default 0.5).}
+#'     quality-quantity trade-off (default `FALSE`). When `TRUE`, the
+#'     female (focal agent) bears `female_investment` of the per-offspring
+#'     cost and the male bears `1 - female_investment`; offspring birth
+#'     energy also scales by `2 * female_investment`. See
+#'     `inst/julia/src/reproduce.jl` for the implementation.}
 #'   \item{`female_investment`}{Numeric in \[0, 1\]. Fraction of offspring
 #'     energy cost paid by the mother (default 1.0; 0.5 = equal). Added
 #'     0.4.0 Tier 3.}
@@ -912,25 +902,6 @@
 #'     copied (default 0.1).}
 #' }
 #'
-#' ## World evolution (parameter co-evolution)
-#'
-#' When `world_evolution = TRUE`, the environment parameters listed in
-#' `world_params_to_evolve` are treated as evolvable quantities that change
-#' via random drift each tick, allowing the environment to co-evolve with
-#' agents. This extends the MAP-Elites search into a joint agent-environment
-#' space.
-#'
-#' \describe{
-#'   \item{`world_evolution`}{Logical. Enable world parameter evolution
-#'     (default `FALSE`).}
-#'   \item{`world_mutation_sd`}{Numeric. Standard deviation of Gaussian
-#'     perturbations to world parameters per tick (default 0.02).}
-#'   \item{`world_params_to_evolve`}{Character vector. Names of parameters in
-#'     `default_specs()` to treat as evolvable. Example:
-#'     `c("grass_rate", "disease_death_prob")`. Defaults to
-#'     `character(0)` (none).}
-#' }
-#'
 #' ## Complex multi-resource landscape (Tier 1)
 #'
 #' Adds shrub and canopy resource layers on top of ground grass.
@@ -1224,8 +1195,6 @@ default_specs <- function() {
     life_history               = "iteroparous",
     max_age                    = 200L,
     senescence_rate            = 0.0,
-    repro_senescence           = 0.0,
-    life_history_evolution     = FALSE,
     allee_threshold            = 0L,
 
     # ── Body size evolution ────────────────────────────────────────────────
@@ -1590,9 +1559,8 @@ default_specs <- function() {
     clutch_size_max            = 5L,
     clutch_size_mutation_sd    = 0.3,
 
-    # ── Parental investment evolution ──────────────────────────────────────
+    # ── Parental investment evolution (Trivers 1972) ──────────────────────
     parental_investment_evolution = FALSE,
-    parental_investment_init_mean = 0.5,
     female_investment          = 0.7,
     male_repro_cost            = 0.3,
 
@@ -1606,15 +1574,6 @@ default_specs <- function() {
 
     # ── Reproduction ──────────────────────────────────────────────────────
     min_repro_age              = 0L,
-
-    # ── Map generation (walls/barriers) ───────────────────────────────────
-    wall_density               = 0.0,
-    wall_clusters              = TRUE,
-
-    # ── World evolution ────────────────────────────────────────────────────
-    world_evolution            = FALSE,
-    world_mutation_sd          = 0.02,
-    world_params_to_evolve     = character(0L),
 
     # ── Complex multi-resource landscape (Tier 1) ─────────────────────────
     complex_landscape           = FALSE,

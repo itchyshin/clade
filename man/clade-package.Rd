@@ -61,9 +61,12 @@ al. 2015).
 \item \code{"ann"} — standard multilayer perceptron.
 \item \code{"ctrnn"} — continuous-time recurrent network (Beer 1995).
 \item \code{"grn"} — sparse gene-regulatory network topology.
-\item \code{"transformer"} — self-attention (highest capacity, slowest).
-\item \code{"synthesis"} — symbolic rule extraction from evolved weights.
+\item \code{"random"} — null-baseline architecture for sanity checks.
 }
+
+Two further names are reserved for future implementation and currently
+error if requested: \code{"transformer"} (self-attention) and \code{"synthesis"}
+(symbolic rule extraction from evolved weights).
 }
 
 \subsection{Citation}{
@@ -84,6 +87,11 @@ Useful links:
 }
 \author{
 \strong{Maintainer}: Shinichi Nakagawa \email{s.nakagawa@unsw.edu.au}
+
+Authors:
+\itemize{
+  \item Shinichi Nakagawa \email{s.nakagawa@unsw.edu.au}
+}
 
 }
 \keyword{internal}

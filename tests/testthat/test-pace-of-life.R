@@ -18,22 +18,7 @@ test_that("senescence_rate default is non-negative", {
   expect_gte(default_specs()$senescence_rate, 0.0)
 })
 
-# ── 3. repro_senescence defaults to 0 ────────────────────────────────────────
-test_that("repro_senescence defaults to 0", {
-  expect_equal(default_specs()$repro_senescence, 0.0)
-})
-
-# ── 4. life_history_evolution defaults to FALSE ───────────────────────────────
-test_that("life_history_evolution defaults to FALSE", {
-  expect_false(default_specs()$life_history_evolution)
-})
-
-# ── 5. life_history_evolution is logical ─────────────────────────────────────
-test_that("life_history_evolution is logical", {
-  expect_type(default_specs()$life_history_evolution, "logical")
-})
-
-# ── 6. aging_rate_evolution is logical ───────────────────────────────────────
+# ── 3. aging_rate_evolution is logical ───────────────────────────────────────
 test_that("aging_rate_evolution is logical", {
   expect_type(default_specs()$aging_rate_evolution, "logical")
 })

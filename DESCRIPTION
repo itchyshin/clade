@@ -12,9 +12,9 @@ Description: Agent-based simulation of behavioural and cognitive
     parasites, speciation), and with the physical environment (niche
     construction, phenotypic plasticity, seasonal dynamics, life history).
     Digital organisms carry heritable neural-network genomes (diploid or
-    haploid) and one of six brain architectures (Bayesian neural network,
-    multilayer perceptron, continuous-time RNN, gene regulatory network,
-    transformer, or symbolic rule synthesis). Every biological scenario
+    haploid) and one of four brain architectures (Bayesian neural network,
+    multilayer perceptron, continuous-time RNN, or gene regulatory
+    network). Every biological scenario
     is cross-referenced to a primary-literature prediction and
     multi-seed audited against theory. The simulation kernel runs in
     Julia via 'JuliaConnectoR', with the R-to-Julia boundary crossed
@@ -25,7 +25,6 @@ URL: https://itchyshin.github.io/clade/, https://github.com/itchyshin/clade
 BugReports: https://github.com/itchyshin/clade/issues
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.3
 Depends:
     R (>= 4.1.0)
 Imports:
@@ -43,3 +42,4 @@ Suggests:
     tidyr
 Config/testthat/edition: 3
 VignetteBuilder: knitr
+Config/roxygen2/version: 8.0.0

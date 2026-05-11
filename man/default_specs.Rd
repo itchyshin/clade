@@ -27,16 +27,22 @@ Huffaker-1958-style spatial-refugia dynamics and any scenario
 where corner/edge effects matter. Used by movement, sensing,
 dispersal, kin-scan, group-defense, and cooperative-breeding
 code paths via \code{wrap_or_clamp()}.}
+\item{\code{random_tick_order}}{Logical. \code{TRUE} (default, since 0.7.0)
+shuffles agent and predator iteration order each tick — random
+asynchronous scheduling per Grimm & Railsback (2005) and the
+IBM literature. \strong{This restores the original behaviour from the
+MATLAB ancestor} (Bulitko 2023, \code{alife.m:324}:
+\code{env.agent = env.agent(randperm(length(env.agent)))}), which was
+lost in the alifeR R port and inherited as a regression by clade.
+\code{FALSE} restores the legacy fixed-array-order scheduling, which
+biased every clade simulation prior to 0.7.0 (earlier-array
+agents systematically had first access to foraging, mates, free
+cells, and prey). Only set FALSE to reproduce pre-0.7.0 results.
+See \code{dev/docs/consolidation-audit.md} for the full ancestor diff.}
 \item{\code{n_agents_init}}{Integer. Number of agents at tick 0 (default 50).}
 \item{\code{max_agents}}{Integer. Hard cap on live agents; new offspring are
 rejected if this is exceeded (default 500).}
 \item{\code{max_ticks}}{Integer. Simulation length in ticks (default 500).}
-\item{\code{wall_density}}{Numeric in [0, 1]. Fraction of grid cells
-that are non-traversable walls (default 0 = open grid). Walls
-block movement and foraging.}
-\item{\code{wall_clusters}}{Logical. If \code{TRUE} (default), walls are
-laid out in contiguous clumps; if \code{FALSE}, walls are scattered
-cell-by-cell. Only relevant when \code{wall_density > 0}.}
 }
 }
 
@@ -424,11 +430,6 @@ hard cap (0.4.2).
 Reference: Gompertz (1825) On the nature of the function expressive of
 the law of human mortality, \emph{Philosophical Transactions of the Royal
 Society} 115:513--583.}
-\item{\code{repro_senescence}}{Numeric in [0, 1]. Per-tick decline in
-reproduction probability with age (default 0 = no reproductive
-senescence).}
-\item{\code{life_history_evolution}}{Logical. If \code{TRUE}, \code{max_age} and
-\code{senescence_rate} are heritable diploid traits (default \code{FALSE}).}
 \item{\code{allee_threshold}}{Integer. Minimum local density for reproduction
 (default 0L = Allee effects off). When > 0, agents require at least
 this many conspecifics in their Moore neighbourhood to reproduce.
@@ -638,10 +639,11 @@ brain hypothesis.}
 \item{\code{neonatal_deficit_duration}}{Integer. How many ticks the
 neonatal foraging deficit applies for (default 10L).}
 \item{\code{parental_investment_evolution}}{Logical. Enable Trivers 1972
-quality-quantity trade-off (default \code{FALSE}). Couples
-\code{parental_investment_init_mean} to per-offspring energy allocation.}
-\item{\code{parental_investment_init_mean}}{Numeric in [0, 1]. Initial
-per-offspring investment fraction (default 0.5).}
+quality-quantity trade-off (default \code{FALSE}). When \code{TRUE}, the
+female (focal agent) bears \code{female_investment} of the per-offspring
+cost and the male bears \code{1 - female_investment}; offspring birth
+energy also scales by \code{2 * female_investment}. See
+\code{inst/julia/src/reproduce.jl} for the implementation.}
 \item{\code{female_investment}}{Numeric in [0, 1]. Fraction of offspring
 energy cost paid by the mother (default 1.0; 0.5 = equal). Added
 0.4.0 Tier 3.}
@@ -964,26 +966,6 @@ Reference: Laland (2004) Social learning strategies,
 many ticks (default 10L).}
 \item{\code{social_learning_rate}}{Numeric. Fraction of neighbour weights
 copied (default 0.1).}
-}
-}
-
-\subsection{World evolution (parameter co-evolution)}{
-
-When \code{world_evolution = TRUE}, the environment parameters listed in
-\code{world_params_to_evolve} are treated as evolvable quantities that change
-via random drift each tick, allowing the environment to co-evolve with
-agents. This extends the MAP-Elites search into a joint agent-environment
-space.
-
-\describe{
-\item{\code{world_evolution}}{Logical. Enable world parameter evolution
-(default \code{FALSE}).}
-\item{\code{world_mutation_sd}}{Numeric. Standard deviation of Gaussian
-perturbations to world parameters per tick (default 0.02).}
-\item{\code{world_params_to_evolve}}{Character vector. Names of parameters in
-\code{default_specs()} to treat as evolvable. Example:
-\code{c("grass_rate", "disease_death_prob")}. Defaults to
-\code{character(0)} (none).}
 }
 }
 

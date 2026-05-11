@@ -90,7 +90,6 @@ include("modules/cooperative_breeding.jl")
 include("modules/body_size.jl")
 include("modules/brain_size_evolution.jl")
 include("modules/plasticity.jl")
-# include("modules/world_evolution.jl")
 
 # Tier 1–2 new modules
 include("modules/complex_landscape.jl")

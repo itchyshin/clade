@@ -19,8 +19,7 @@ An \code{env} list with components:
 \describe{
 \item{\verb{$agents}}{A list of agent lists, one per surviving agent.}
 \item{\verb{$t}}{Final tick number (equals \code{specs$max_ticks}).}
-\item{\verb{$specs}}{The specs list used for this run (may differ from input
-if \code{world_evolution = TRUE}).}
+\item{\verb{$specs}}{The specs list used for this run.}
 \item{\verb{$progress}}{A data frame of per-tick logged statistics (same as
 \code{get_run_data(env)$ticks}).}
 \item{\verb{$deaths}}{A data frame of per-death records (same as
