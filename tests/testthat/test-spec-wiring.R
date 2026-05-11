@@ -27,12 +27,7 @@ library(testthat)
   # implementations will use. See R/clade-package.R and README.md.
   "transformer_history",
   "transformer_heads",
-  "synthesis_max_rules",
-
-  # Plasticity energy cost. plasticity.jl exists and implements
-  # phenotypic plasticity but does not currently charge an energy cost.
-  # Kept for future wiring.
-  "plasticity_cost"
+  "synthesis_max_rules"
 )
 
 test_that("every default_specs() field has a Julia consumer (R↔Julia wiring guard)", {

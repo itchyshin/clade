@@ -382,3 +382,31 @@ test_that("Lamarckian is no-op when rl_mode = 'none'", {
   # Population trajectories should be identical (same RNG seed, no RL delta)
   expect_equal(env_f$progress$n_agents, env_t$progress$n_agents)
 })
+
+# ── Plasticity cost wired ────────────────────────────────────────────────────
+#
+# Wired in 0.7.x. With rl_mode = "actor_critic" the per-tick energy
+# drain `plasticity_cost * learning_rate` applies. Test that turning
+# the cost off vs on at the same seed produces a measurable difference
+# in mean agent energy at the end of the run.
+
+test_that("plasticity_cost > 0 reduces mean energy vs cost = 0 under RL", {
+  skip_no_julia()
+  run_one <- function(cost) {
+    s <- .rl_specs(rl_mode = "actor_critic",
+                   learning_rate_init_mean = 0.3,
+                   learning_rate_min       = 0.3,
+                   learning_rate_max       = 0.3,    # fix to 0.3 (no heritability)
+                   plasticity_cost         = cost,
+                   max_ticks               = 60L)
+    env <- run_alife(s, verbose = FALSE)
+    p   <- get_run_data(env)$ticks
+    # Compare mean(mean_energy) over the final 20 ticks for stability.
+    tail_idx <- max(1L, nrow(p) - 19L):nrow(p)
+    mean(p$mean_energy[tail_idx], na.rm = TRUE)
+  }
+  e_off <- run_one(0.0)
+  e_on  <- run_one(0.5)   # 0.5 * 0.3 = 0.15 energy/tick — well above noise
+  expect_true(e_off > e_on,
+              info = sprintf("mean_energy off=%.3f, on=%.3f", e_off, e_on))
+})
