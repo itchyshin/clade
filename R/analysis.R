@@ -19,6 +19,10 @@
 #'     `n_altruistic_acts`, `n_shelters_built`.}
 #'   \item{`$deaths`}{A data frame with one row per agent death and columns:
 #'     `id`, `t`, `age`, `energy`, `cause`, `body_size`, `num_offspring`.}
+#'   \item{`$genomes`}{A long data frame with one row per (tick, agent) and
+#'     columns `t`, `agent_id`, `trait_1`..`trait_N`. `NULL` unless
+#'     `specs$log_genomes = TRUE` was set for the run. Consumed by
+#'     [plot_tsne_genomes()].}
 #' }
 #'
 #' @examples
@@ -34,8 +38,11 @@
 get_run_data <- function(env) {
   stopifnot(is.list(env), !is.null(env$progress), !is.null(env$deaths))
   list(
-    ticks  = as.data.frame(lapply(env$progress, unlist)),
-    deaths = as.data.frame(lapply(env$deaths,   unlist))
+    ticks   = as.data.frame(lapply(env$progress, unlist)),
+    deaths  = as.data.frame(lapply(env$deaths,   unlist)),
+    # Optional: present iff specs$log_genomes was TRUE during the run.
+    # NULL when log_genomes was off, matching plot_tsne_genomes()'s guard.
+    genomes = .compose_genome_dataframe(env$genome_log)
   )
 }
 
@@ -49,9 +56,10 @@ get_run_data <- function(env) {
 #'
 #' @return A list with components:
 #' \describe{
-#'   \item{`$genomes`}{A list of matrices (one per logged tick). Each matrix
-#'     has one row per agent and one column per genome position. `NULL` when
-#'     `specs$log_genomes = FALSE`.}
+#'   \item{`$genomes`}{A long data frame with one row per (tick, agent),
+#'     columns `t`, `agent_id`, and `trait_1`..`trait_N` (N = number of
+#'     scalar traits in the Julia kernel, currently 22). `NULL` when
+#'     `specs$log_genomes = FALSE` or no snapshots were taken.}
 #'   \item{`$heterozygosity`}{Reserved field — currently returns
 #'     `numeric(0L)`. Future versions will compute mean per-locus
 #'     heterozygosity across logged ticks.}
@@ -79,10 +87,43 @@ get_genome_data <- function(env) {
   stopifnot(is.list(env))
   glog <- env$genome_log
   list(
-    genomes        = if (length(glog) > 0) glog else NULL,
+    genomes        = .compose_genome_dataframe(glog),
     heterozygosity = numeric(0L),
     fst            = numeric(0L)
   )
+}
+
+# Internal: convert env$genome_log (a JuliaArrayProxy of per-tick Dicts)
+# into a single long data.frame with cols (t, agent_id, trait_1..trait_N).
+# Returns NULL when no snapshots were taken or Julia isn't running.
+.compose_genome_dataframe <- function(glog) {
+  if (is.null(glog) || length(glog) == 0L) return(NULL)
+  # JuliaConnectoR returns Julia Dicts as JuliaStructProxy objects whose
+  # native conversion (juliaGet) yields a list with $keys and $values.
+  # Convert each entry to a named list keyed by field name.
+  .unpack <- function(entry) {
+    g <- tryCatch(JuliaConnectoR::juliaGet(entry), error = function(e) NULL)
+    if (is.null(g) || is.null(g$keys) || is.null(g$values)) return(NULL)
+    nm <- unlist(g$keys, use.names = FALSE)
+    setNames(g$values, nm)
+  }
+  # `glog` is a JuliaArrayProxy; iterate via [[i]] (lapply/as.list both
+  # try to coerce the proxy to a list and fail).
+  per_tick <- vector("list", length(glog))
+  for (i in seq_along(glog)) {
+    e <- .unpack(glog[[i]])
+    if (is.null(e)) next
+    mat <- e$traits
+    if (is.null(mat) || !is.matrix(mat) || nrow(mat) == 0L) next
+    df  <- as.data.frame(mat)
+    colnames(df) <- paste0("trait_", seq_len(ncol(mat)))
+    df$t        <- as.integer(e$t)
+    df$agent_id <- as.integer(e$agent_ids)
+    per_tick[[i]] <- df[, c("t", "agent_id", paste0("trait_", seq_len(ncol(mat))))]
+  }
+  per_tick <- Filter(Negate(is.null), per_tick)
+  if (length(per_tick) == 0L) return(NULL)
+  do.call(rbind, per_tick)
 }
 
 #' Estimate narrow-sense heritability from a logged trait time-series

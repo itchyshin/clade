@@ -435,6 +435,9 @@ function run_clade(specs::Dict{String,Any})
         log_freq = Int(get(specs, "log_freq", 1))
         if t % log_freq == 0
             log_tick!(env)
+            # Genome snapshot: same log_freq cadence; self-gates on the
+            # log_genomes spec flag so this is a no-op when off.
+            log_genomes!(env)
         end
 
         if verbose && t % 100 == 0
