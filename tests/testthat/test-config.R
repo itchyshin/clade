@@ -73,8 +73,6 @@ test_that("min_repro_energy is strictly positive", {
 # ── 12. No unintentional NA values in defaults ───────────────────────────────
 test_that("no unintentional NA values in default_specs()", {
   # random_seed = NA_integer_ is intentional — excluded.
-  # world_params_to_evolve = character(0) is length 0, not NA — harmless,
-  # but we exclude it too so the vapply stays length-1 safe.
   # fixed_patch_x / fixed_patch_y = NA_integer_ by design: they MUST be
   # set by the user before enabling fixed_patch, so NA-by-default is a
   # signal of "unconfigured", not a bug.
@@ -82,7 +80,7 @@ test_that("no unintentional NA values in default_specs()", {
   # max_age", which is the biologically natural default. Set to a real
   # integer (e.g. 100L in fast_specs) to give predators a distinct lifespan.
   s        <- default_specs()
-  s_check  <- s[!names(s) %in% c("random_seed", "world_params_to_evolve",
+  s_check  <- s[!names(s) %in% c("random_seed",
                                   "fixed_patch_x", "fixed_patch_y",
                                   "predator_max_age")]
   na_flags <- vapply(
@@ -121,7 +119,7 @@ test_that("module logical flags that should be FALSE by default are FALSE", {
     "scavenging", "social_learning", "speciation",
     "life_history_evolution", "phenotypic_plasticity",
     "clutch_size_evolution", "parental_investment_evolution",
-    "stress_hypermutation", "world_evolution", "log_genomes"
+    "stress_hypermutation", "log_genomes"
   )
   for (nm in should_be_false) {
     expect_false(s[[nm]], label = paste("specs$", nm, "== FALSE"))

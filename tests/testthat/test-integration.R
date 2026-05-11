@@ -331,13 +331,15 @@ test_that(".specs_to_julia() silently drops NA and character(0)", {
   skip_no_julia()
   JuliaConnectoR::juliaEval("_clade_test_has(d, k) = haskey(d, k)")
   s <- .quick_specs()
-  s$random_seed            <- NA_integer_
-  s$world_params_to_evolve <- character(0L)
+  s$random_seed       <- NA_integer_
+  # Synthetic character(0) — exercises the drop-empty-character logic
+  # without depending on any specific spec field.
+  s$_empty_char_test  <- character(0L)
   expect_no_error(d <- clade:::.specs_to_julia(s))
   expect_false(as.logical(JuliaConnectoR::juliaCall(
     "_clade_test_has", d, "random_seed")))
   expect_false(as.logical(JuliaConnectoR::juliaCall(
-    "_clade_test_has", d, "world_params_to_evolve")))
+    "_clade_test_has", d, "_empty_char_test")))
   # A normal key remains present
   expect_true(as.logical(JuliaConnectoR::juliaCall(
     "_clade_test_has", d, "grid_rows")))

@@ -59,7 +59,6 @@ test_that("default_specs() contains all required parameters", {
     "stress_hypermutation", "stress_mutation_multiplier", "stress_threshold",
     "senescence_shape", "min_repro_age",
     "wall_density", "wall_clusters",
-    "world_evolution", "world_mutation_sd", "world_params_to_evolve",
     "fixed_patch", "fixed_patch_value", "fixed_patch_x",
     "fixed_patch_y", "fixed_patch_radius",
     "log_freq", "log_genomes", "random_seed"
@@ -88,7 +87,7 @@ test_that("all boolean module flags default to FALSE", {
     "habitat_preference_evolution", "parental_care", "mimicry",
     "social_learning", "body_size_evolution", "metabolic_rate_evolution",
     "aging_rate_evolution", "immune_evolution", "dispersal_evolution",
-    "epigenetics", "world_evolution", "log_genomes",
+    "epigenetics", "log_genomes",
     "mutation_rate_evolution", "learning_rate_evolution",
     "life_history_evolution", "fixed_patch"
   )
@@ -159,13 +158,7 @@ test_that("crossover_rate = 1 passes validation", {
   expect_silent(clade:::.validate_specs(s))
 })
 
-# ── 15. world_params_to_evolve defaults to character(0) ──────────────────────
-test_that("world_params_to_evolve defaults to character(0)", {
-  s <- default_specs()
-  expect_equal(s$world_params_to_evolve, character(0L))
-})
-
-# ── 16. hidden_layers defaults to c(8L) ──────────────────────────────────────
+# ── 15. hidden_layers defaults to c(8L) ──────────────────────────────────────
 test_that("hidden_layers defaults to c(8L)", {
   s <- default_specs()
   expect_equal(s$hidden_layers, c(8L))

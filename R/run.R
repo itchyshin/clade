@@ -19,8 +19,7 @@
 #' \describe{
 #'   \item{`$agents`}{A list of agent lists, one per surviving agent.}
 #'   \item{`$t`}{Final tick number (equals `specs$max_ticks`).}
-#'   \item{`$specs`}{The specs list used for this run (may differ from input
-#'     if `world_evolution = TRUE`).}
+#'   \item{`$specs`}{The specs list used for this run.}
 #'   \item{`$progress`}{A data frame of per-tick logged statistics (same as
 #'     `get_run_data(env)$ticks`).}
 #'   \item{`$deaths`}{A data frame of per-death records (same as

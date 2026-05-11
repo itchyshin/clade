@@ -979,26 +979,6 @@ copied (default 0.1).}
 }
 }
 
-\subsection{World evolution (parameter co-evolution)}{
-
-When \code{world_evolution = TRUE}, the environment parameters listed in
-\code{world_params_to_evolve} are treated as evolvable quantities that change
-via random drift each tick, allowing the environment to co-evolve with
-agents. This extends the MAP-Elites search into a joint agent-environment
-space.
-
-\describe{
-\item{\code{world_evolution}}{Logical. Enable world parameter evolution
-(default \code{FALSE}).}
-\item{\code{world_mutation_sd}}{Numeric. Standard deviation of Gaussian
-perturbations to world parameters per tick (default 0.02).}
-\item{\code{world_params_to_evolve}}{Character vector. Names of parameters in
-\code{default_specs()} to treat as evolvable. Example:
-\code{c("grass_rate", "disease_death_prob")}. Defaults to
-\code{character(0)} (none).}
-}
-}
-
 \subsection{Complex multi-resource landscape (Tier 1)}{
 
 Adds shrub and canopy resource layers on top of ground grass.

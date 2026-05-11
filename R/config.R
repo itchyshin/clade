@@ -912,25 +912,6 @@
 #'     copied (default 0.1).}
 #' }
 #'
-#' ## World evolution (parameter co-evolution)
-#'
-#' When `world_evolution = TRUE`, the environment parameters listed in
-#' `world_params_to_evolve` are treated as evolvable quantities that change
-#' via random drift each tick, allowing the environment to co-evolve with
-#' agents. This extends the MAP-Elites search into a joint agent-environment
-#' space.
-#'
-#' \describe{
-#'   \item{`world_evolution`}{Logical. Enable world parameter evolution
-#'     (default `FALSE`).}
-#'   \item{`world_mutation_sd`}{Numeric. Standard deviation of Gaussian
-#'     perturbations to world parameters per tick (default 0.02).}
-#'   \item{`world_params_to_evolve`}{Character vector. Names of parameters in
-#'     `default_specs()` to treat as evolvable. Example:
-#'     `c("grass_rate", "disease_death_prob")`. Defaults to
-#'     `character(0)` (none).}
-#' }
-#'
 #' ## Complex multi-resource landscape (Tier 1)
 #'
 #' Adds shrub and canopy resource layers on top of ground grass.
@@ -1610,11 +1591,6 @@ default_specs <- function() {
     # ── Map generation (walls/barriers) ───────────────────────────────────
     wall_density               = 0.0,
     wall_clusters              = TRUE,
-
-    # ── World evolution ────────────────────────────────────────────────────
-    world_evolution            = FALSE,
-    world_mutation_sd          = 0.02,
-    world_params_to_evolve     = character(0L),
 
     # ── Complex multi-resource landscape (Tier 1) ─────────────────────────
     complex_landscape           = FALSE,
