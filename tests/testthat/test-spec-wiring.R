@@ -29,11 +29,6 @@ library(testthat)
   "transformer_heads",
   "synthesis_max_rules",
 
-  # Senescence shape parameter for a future 2-parameter Gompertz model.
-  # death.jl currently uses senescence_rate only. Kept so the test
-  # threshold doesn't have to change when the 2-param model lands.
-  "senescence_shape",
-
   # Plasticity energy cost. plasticity.jl exists and implements
   # phenotypic plasticity but does not currently charge an energy cost.
   # Kept for future wiring.
