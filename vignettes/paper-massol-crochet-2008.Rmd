@@ -1,0 +1,175 @@
+---
+title: "Massol & Crochet 2008 — does Wolf's syndrome depend on β?"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Massol & Crochet 2008 — does Wolf's syndrome depend on β?}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment  = "#>",
+  eval     = FALSE
+)
+```
+
+*A direct test in clade of Massol & Crochet's (2008) critique of Wolf
+et al. 2007: the dimorphism in exploration intensity x depends critically
+on the trade-off shape parameter β in g(x) = (1-x)^β. Implemented as
+a β sweep over the spatially-explicit Wolf 2007 scenario added in 0.7.0.
+Companion to `vignette("paper-wolf2007")`.*
+
+## The critique
+
+Wolf et al. (2007) report a stable dimorphism in exploration intensity
+*x* under disruptive selection at year-2 reproduction. The trade-off
+between year-1 and year-2 fecundity is parameterised by
+
+\[ g(x) = (1 - x)^\beta \]
+
+so that year-1 fecundity scales as (1-x)^β · f_low and year-2 fecundity
+as x · f_high (plus the (1-x) leg). Wolf uses β = 1.25.
+
+Massol & Crochet (2008, *Nature* 451, brief communications arising;
+`doi:10.1038/nature06744`) argued that this dimorphism is not robust:
+shift β much above or below Wolf's value and the bimodal x distribution
+collapses. Their critique is mathematical (the conditions for stability
+of the mixed equilibrium have a narrow β range) but easy to test in
+a simulation.
+
+clade's Wolf scenario exposes β as `personality_beta`. Sweeping it
+across [0.5, 3.0] at fixed seed gives a direct probe of the critique.
+
+## The sweep
+
+```{r setup-libs, eval = FALSE}
+library(clade)
+
+run_one <- function(beta_val, seed = 42L) {
+  s <- wolf_personality_specs()
+  s$personality_beta                <- beta_val
+  s$max_ticks                       <- 5000L
+  s$random_seed                     <- seed
+  s$n_agents_init                   <- 200L
+  s$max_agents                      <- 800L
+  s$personality_hawkdove_per_tick   <- 0.3
+  s$personality_hawkdove_radius     <- 2L
+  s$n_predators_init                <- 10L
+  s$predator_max_agents             <- 30L
+  env <- run_alife(s, verbose = FALSE)
+
+  recs  <- env$agents
+  alive <- vapply(seq_along(recs), function(i) as.logical(recs[[i]]$alive),
+                  logical(1L))
+  if (sum(alive) < 30L) return(NULL)
+
+  ex <- vapply(seq_along(recs)[alive],
+               function(i) as.numeric(recs[[i]]$exploration), numeric(1L))
+  bo <- vapply(seq_along(recs)[alive],
+               function(i) as.numeric(recs[[i]]$boldness), numeric(1L))
+  ag <- vapply(seq_along(recs)[alive],
+               function(i) as.numeric(recs[[i]]$aggressiveness), numeric(1L))
+  list(
+    beta   = beta_val,
+    n      = length(ex),
+    r_eb   = suppressWarnings(cor(ex, bo)),
+    r_ea   = suppressWarnings(cor(ex, ag)),
+    r_ba   = suppressWarnings(cor(bo, ag)),
+    mean_x = mean(ex)
+  )
+}
+
+betas   <- c(0.5, 1.0, 1.25, 2.0, 3.0)
+results <- lapply(betas, run_one)
+```
+
+## Observed pattern (seed 42, single replicate)
+
+| β     | n   | cor(exp, bold) | cor(exp, aggro) | cor(bold, aggro) | mean(x) |
+|------:|----:|---------------:|----------------:|-----------------:|--------:|
+| 0.50  | 676 |  +0.017        |  +0.058         |  **+0.188**      | 0.103   |
+| 1.00  | 639 |  +0.071        |  −0.142         |  −0.025          | 0.102   |
+| 1.25  | 670 |  +0.044        |  −0.005         |  **+0.307**      | 0.094   |
+| 2.00  | 676 |  −0.054        |  +0.075         |  **+0.124**      | 0.097   |
+| 3.00  | 641 |  −0.132        |  −0.063         |  −0.081          | 0.077   |
+
+Three of five β values produce the predicted positive bold-aggro
+syndrome; two produce essentially-zero or negative values. The
+syndrome strength varies by **0.39 in correlation units across the
+β range** (peak −0.08 at β = 3.0 to peak +0.31 at β = 1.25).
+
+The asset-protection signs (cor(exp, bold) and cor(exp, aggro))
+also shift with β: weakly positive at β = 0.5, becoming clearly
+negative at β = 3.0. This is in Wolf's predicted direction
+(high-x agents should be less bold / less aggressive) but only
+emerges at the high end of the β range tested.
+
+## Reading the result
+
+Massol & Crochet's critique is **partially borne out** in clade's
+spatially-explicit implementation:
+
+1. **The syndrome is β-sensitive.** Wolf reports the bold-aggro
+   correlation as the defining prediction of his model; varying β
+   over a biologically plausible range moves that correlation by
+   ~0.4. Not constant.
+2. **The peak coincides with Wolf's published value.** β = 1.25
+   gives the strongest syndrome in the sweep (+0.307). This is
+   consistent with Wolf having chosen a parameter that maximised
+   the headline result — defensible publication practice, but the
+   result is fragile to that choice.
+3. **The asset-protection signs become Wolf-predicted only at high β.**
+   At β = 0.5 (weak penalty on high-x agents) the signs are wrong;
+   they flip to Wolf's predicted negative direction by β = 3.0. This
+   is the *opposite* fragility: the asset-protection mechanism is
+   strongest at high β, but at that same β the bold-aggro syndrome
+   collapses.
+
+The two-correlation tension (syndrome peaks at intermediate β; asset-
+protection signs strengthen at high β) suggests clade's spatial
+implementation produces **two distinct selection regimes** rather
+than one coherent dimorphism. Massol & Crochet's framing — that the
+mathematical conditions for stable dimorphism are narrow — is
+consistent with what we see, but the spatial implementation adds
+its own structure: the population locks at x ≈ 0.1 at every β tested,
+so the *true* x dimorphism Wolf predicts (x ≈ 0 vs x ≈ 1 modes) is
+absent regardless.
+
+## Caveats
+
+- **Single seed** (42). The numbers above will move with seed-to-seed
+  variation. A proper test would run 5–10 seeds per β and report
+  distributions. The pattern is suggestive, not definitive.
+- **Phase 6 denominator on.** The runs include the per-strategy
+  `(1+α·N_i)` competition denominator that strengthens the bold-aggro
+  syndrome at Wolf's β = 1.25 (see `vignette("paper-wolf2007")`,
+  "Honest discussion of magnitudes"). Setting `personality_alpha = 0`
+  reverts to Phase 3a behaviour and would shift these numbers.
+- **No bimodality at any β.** Wolf's headline result is a stable
+  dimorphism (x ≈ 0 mode + x ≈ 1 mode). clade's mean(x) ≈ 0.1 at
+  every β; the population is unimodal at low x throughout the sweep.
+  This matches the Phase 6 finding in paper-wolf2007.Rmd — clade's
+  spatial competition + one-per-cell offspring placement constrain
+  the equilibrium to a single attractor.
+
+## What this implies for the Wolf 2007 reproduction
+
+The 0.7.0 implementation of Wolf 2007 *did* reproduce the defining
+bold-aggro syndrome at Wolf's parameter values. This vignette shows
+that **the syndrome's strength is genuinely sensitive to β** — which
+is exactly what Massol & Crochet predicted. Future users of the Wolf
+scenario should treat the syndrome strength as parameter-dependent,
+not as a fixed property of the mechanism.
+
+## References
+
+- Massol, F. & Crochet, P. (2008) Do animal personalities emerge?
+  *Nature* 451 (Brief Communications Arising). doi:10.1038/nature06744.
+- Wolf, M., van Doorn, G.S., Leimar, O. & Weissing, F.J. (2007)
+  Life-history trade-offs favour the evolution of animal personalities.
+  *Nature* 447:581–584. doi:10.1038/nature05835.
+- See also `vignette("paper-wolf2007")` for the base reproduction and
+  the Phase 6 (1+α·N_i) denominator refinement that strengthens the
+  syndrome at Wolf's β = 1.25.
