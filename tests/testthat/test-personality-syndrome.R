@@ -119,3 +119,50 @@ test_that("Wolf scenario produces the boldness-aggressiveness syndrome (signs on
     "  asset-protection diagnostics: exp-bold=%+.3f exp-aggro=%+.3f (sign reflects equilibrium structure)",
     r_eb, r_ea))
 })
+
+test_that("Wolf scenario with ploidy = 2 (diploid) runs without crashing", {
+  skip_no_julia()
+  skip_on_cran()
+  # Wolf 2007 Fig 4 reports r ≈ 0.65 in the diploid quantitative-genetics
+  # extension. clade's spatial implementation does NOT recover that
+  # magnitude — recombination plus spatial selection kills the bold-aggro
+  # syndrome (r_ba ≈ 0 at seed 42), although the exp ↔ bold/aggro signs
+  # flip toward Wolf's predicted negative direction. See the diploid
+  # subsection in vignettes/paper-wolf2007.Rmd.
+  #
+  # This test asserts only that the scenario completes without crashing
+  # at ploidy = 2 and yields enough live agents to compute correlations.
+  # The specific syndrome direction is documented in the vignette but not
+  # asserted here, because the empirical finding is that it disappears.
+  s <- wolf_personality_specs()
+  s$ploidy                          <- 2L
+  s$max_ticks                       <- .WOLF_SYNDROME_TICKS
+  s$random_seed                     <- .WOLF_SYNDROME_SEED
+  s$n_agents_init                   <- 200L
+  s$max_agents                      <- 800L
+  s$personality_hawkdove_per_tick   <- 0.3
+  s$personality_hawkdove_radius     <- 2L
+  s$n_predators_init                <- 10L
+  s$predator_max_agents             <- 30L
+  expect_no_error(env <- run_alife(s, verbose = FALSE))
+
+  recs  <- env$agents
+  alive <- vapply(seq_along(recs), function(i) as.logical(recs[[i]]$alive),
+                  logical(1L))
+  expect_true(sum(alive) >= 50L,
+              info = "diploid Wolf scenario should support a viable population")
+
+  # Compute correlations purely as a diagnostic record — not asserted.
+  ex <- vapply(seq_along(recs)[alive],
+               function(i) as.numeric(recs[[i]]$exploration), numeric(1L))
+  bo <- vapply(seq_along(recs)[alive],
+               function(i) as.numeric(recs[[i]]$boldness), numeric(1L))
+  ag <- vapply(seq_along(recs)[alive],
+               function(i) as.numeric(recs[[i]]$aggressiveness), numeric(1L))
+  message(sprintf(
+    "Wolf diploid (Fig 4 extension): n=%d  cor(exp,bold)=%+.3f  cor(exp,aggro)=%+.3f  cor(bold,aggro)=%+.3f",
+    length(ex),
+    suppressWarnings(stats::cor(ex, bo)),
+    suppressWarnings(stats::cor(ex, ag)),
+    suppressWarnings(stats::cor(bo, ag))))
+})

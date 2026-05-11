@@ -197,15 +197,65 @@ it embeds Wolf's mechanism in a richer biological setting; the trade-off
 is weaker / sign-flipped asset-protection signal even though the
 defining bold-aggro syndrome is preserved.
 
+## Diploid extension (Wolf 2007 Fig 4) — clade does NOT recover the syndrome
+
+Wolf 2007 §"Genetic architecture" reports that the diploid quantitative-
+genetics version of his model yields **stronger** correlations
+(r ≈ 0.65) than the haploid basic model. The conventional explanation is
+that diploidy + Mendelian inheritance buffers selection and allows
+genetic variation to accumulate at the asset-protection equilibrium.
+
+clade supports diploidy out of the box — the `genome.jl` meiosis logic
+handles ploidy = 2 — so testing this is one line in the preset:
+
+```{r diploid, eval = FALSE}
+s <- wolf_personality_specs()
+s$ploidy <- 2L            # diploid; Wolf Fig 4 setting
+env <- run_alife(s, verbose = FALSE)
+```
+
+**Observed result at seed 42 (5000 ticks, otherwise identical
+configuration)**:
+
+| Correlation | Predicted | Haploid (Phase 6) | Diploid |
+|---|---|---:|---:|
+| Pearson(exploration, boldness)        | < 0 | +0.044 | **−0.075** |
+| Pearson(exploration, aggressiveness)  | < 0 | −0.005 | **−0.068** |
+| Pearson(boldness, aggressiveness)     | > 0 | **+0.307** | −0.003 |
+
+The diploid extension produces the **opposite** trade-off from haploid
+Phase 6:
+
+- The **bold-aggro syndrome disappears** (+0.307 → −0.003). Recombination
+  decouples the two trait expressions across generations, so the
+  shared-asset-protection mechanism that links them in haploid mode
+  no longer produces a correlation.
+- The **asset-protection signs flip toward the right direction**
+  (−0.075, −0.068). Diploidy seems to push the population into a
+  different equilibrium structure where exploration *does* trade off
+  against risk-taking, in line with Wolf's prediction.
+
+Neither pattern is what Wolf reports for his analytic diploid model.
+Wolf's *all three* correlations strengthen together; clade's diploid
+extension produces a *swap* — losing one and gaining the others.
+
+The most likely explanation is the same as the haploid Phase 6 trade-off:
+clade's grid-based competition and one-per-cell offspring placement
+constrain the equilibrium population structure in ways Wolf's mean-field
+model doesn't see. Diploid recombination interacts with this
+spatially-imposed structure to produce a new attractor.
+
+The test at `tests/testthat/test-personality-syndrome.R` asserts only
+that the diploid scenario completes without crashing and produces a
+viable population; the specific correlation magnitudes are documented
+here as honest findings rather than enforced.
+
 ## What's left for follow-up work
 
 - **Per-individual (not snapshot) frequency evaluation** — switch to
   per-agent re-computation of `(1+α·N_high)` / `(1+α·N_low)` to recover
   the smoothness Wolf's continuous model assumes. Restructures
   `apply_lifehistory_tradeoff!`.
-- **Diploid quantitative-genetics extension** (Wolf's Fig 4) — set
-  `ploidy = 2L` in the preset; the existing genome.jl supports it. Wolf
-  reports stronger correlations (r ≈ 0.65) in the diploid version.
 - **Spatial vs random pairing comparison** — run side-by-side with
   `personality_hawkdove_radius = 1` (clade-native) vs an alternative
   global-pairing implementation (Wolf-faithful) to quantify the cost of
