@@ -27,6 +27,18 @@ Huffaker-1958-style spatial-refugia dynamics and any scenario
 where corner/edge effects matter. Used by movement, sensing,
 dispersal, kin-scan, group-defense, and cooperative-breeding
 code paths via \code{wrap_or_clamp()}.}
+\item{\code{random_tick_order}}{Logical. \code{TRUE} (default, since 0.7.0)
+shuffles agent and predator iteration order each tick — random
+asynchronous scheduling per Grimm & Railsback (2005) and the
+IBM literature. \strong{This restores the original behaviour from the
+MATLAB ancestor} (Bulitko 2023, \code{alife.m:324}:
+\code{env.agent = env.agent(randperm(length(env.agent)))}), which was
+lost in the alifeR R port and inherited as a regression by clade.
+\code{FALSE} restores the legacy fixed-array-order scheduling, which
+biased every clade simulation prior to 0.7.0 (earlier-array
+agents systematically had first access to foraging, mates, free
+cells, and prey). Only set FALSE to reproduce pre-0.7.0 results.
+See \code{dev/docs/consolidation-audit.md} for the full ancestor diff.}
 \item{\code{n_agents_init}}{Integer. Number of agents at tick 0 (default 50).}
 \item{\code{max_agents}}{Integer. Hard cap on live agents; new offspring are
 rejected if this is exceeded (default 500).}

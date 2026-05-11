@@ -147,8 +147,11 @@ same R interface; only the forward pass and learning dynamics differ.
 | `"ann"` | Standard multilayer perceptron |
 | `"ctrnn"` | Continuous-time recurrent network; suited for temporally extended tasks |
 | `"grn"` | Gene regulatory network topology; sparse and biologically motivated |
-| `"transformer"` | Self-attention architecture; highest capacity, slowest |
-| `"synthesis"` | Symbolic rule extraction from evolved weights |
+| `"random"` | Null-baseline architecture for sanity checks |
+
+`"transformer"` (self-attention) and `"synthesis"` (symbolic rule extraction)
+are reserved for future implementation; the kernel errors if either is
+requested at present.
 
 ---
 

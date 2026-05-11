@@ -51,8 +51,11 @@
 #' - `"ann"` — standard multilayer perceptron.
 #' - `"ctrnn"` — continuous-time recurrent network (Beer 1995).
 #' - `"grn"` — sparse gene-regulatory network topology.
-#' - `"transformer"` — self-attention (highest capacity, slowest).
-#' - `"synthesis"` — symbolic rule extraction from evolved weights.
+#' - `"random"` — null-baseline architecture for sanity checks.
+#'
+#' Two further names are reserved for future implementation and currently
+#' error if requested: `"transformer"` (self-attention) and `"synthesis"`
+#' (symbolic rule extraction from evolved weights).
 #'
 #' ## Citation
 #'
