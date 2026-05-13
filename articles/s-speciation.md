@@ -17,11 +17,11 @@ divergence over the course of the run.
 
 **Key parameters.**
 
-| Parameter                     | Default | Effect                                                       |
-|-------------------------------|---------|--------------------------------------------------------------|
-| `speciation`                  | FALSE   | Enable genetic-cluster detection and isolation               |
-| `isolation_threshold`         | 0.5     | Minimum genetic distance required for reproductive isolation |
-| `speciation_cluster_interval` | 10L     | Ticks between cluster re-detection passes                    |
+| Parameter | Default | Effect |
+|----|----|----|
+| `speciation` | FALSE | Enable genetic-cluster detection and isolation |
+| `isolation_threshold` | 0.5 | Minimum genetic distance required for reproductive isolation |
+| `speciation_cluster_interval` | 10L | Ticks between cluster re-detection passes |
 
 **Expected output.** `n_species` starts at 1 and rises to 2–4 as
 accumulated genome divergence exceeds `isolation_threshold` in
@@ -32,6 +32,7 @@ population size, mutation rate, and the stringency of
 `isolation_threshold`.
 
 ``` r
+
 library(clade)
 library(ggplot2)
 
@@ -64,6 +65,7 @@ produces a fitness improvement of **189.1x** over the defaults above.
 See `dev/audit/calibration/RESULTS.md` for the full CMA-ES results.
 
 ``` r
+
 # Parameter overrides discovered by CMA-ES (see dev/audit/calibration/):
 s <- default_specs()
 s$isolation_threshold            <- 0.5127

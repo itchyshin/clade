@@ -76,6 +76,7 @@ before interpreting a result.** Extinct populations have no signal to
 report:
 
 ``` r
+
 rd  <- get_run_data(env)
 via <- viability_report(rd)
 print(via)   # populations survived? heritability non-zero?
@@ -117,6 +118,7 @@ tried a PSOCK batch, you’ll see stale behaviour.
 Fix: reinstall before launching:
 
 ``` r
+
 devtools::install(quick = TRUE)   # then restart R and the batch job
 ```
 

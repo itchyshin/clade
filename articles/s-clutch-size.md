@@ -14,13 +14,13 @@ two contrasting resource environments.
 
 **Key parameters.**
 
-| Parameter                 | Default | Effect                                            |
-|---------------------------|---------|---------------------------------------------------|
-| `clutch_size_evolution`   | FALSE   | Enable heritable clutch size                      |
-| `clutch_size_min`         | 1L      | Minimum evolvable clutch size                     |
-| `clutch_size_max`         | 5L      | Maximum evolvable clutch size                     |
-| `clutch_size_mutation_sd` | 0.3     | Gaussian noise on clutch size per offspring       |
-| `grass_rate`              | 0.10    | Resource renewal rate (varied between conditions) |
+| Parameter | Default | Effect |
+|----|----|----|
+| `clutch_size_evolution` | FALSE | Enable heritable clutch size |
+| `clutch_size_min` | 1L | Minimum evolvable clutch size |
+| `clutch_size_max` | 5L | Maximum evolvable clutch size |
+| `clutch_size_mutation_sd` | 0.3 | Gaussian noise on clutch size per offspring |
+| `grass_rate` | 0.10 | Resource renewal rate (varied between conditions) |
 
 **Expected output.** Under rich resources (`grass_rate = 0.4`), per-tick
 births are higher as large clutches are sustainable. Under scarce
@@ -30,6 +30,7 @@ r/K continuum. The two conditions diverge substantially after
 approximately 150 ticks.
 
 ``` r
+
 library(clade)
 library(ggplot2)
 
@@ -72,6 +73,7 @@ produces a fitness improvement of **4.0x** over the defaults above. See
 `dev/audit/calibration/RESULTS.md` for the full CMA-ES results.
 
 ``` r
+
 # Parameter overrides discovered by CMA-ES (see dev/audit/calibration/):
 s <- default_specs()
 s$clutch_size_mutation_sd        <- 0.6538

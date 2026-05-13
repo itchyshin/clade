@@ -16,12 +16,12 @@ age structure and birth-rate dynamics.
 
 **Key parameters.**
 
-| Parameter          | Default         | Effect                                           |
-|--------------------|-----------------|--------------------------------------------------|
-| `life_history`     | `"iteroparous"` | `"semelparous"` triggers post-reproductive death |
-| `max_age`          | 200L            | Maximum attainable age (iteroparous bound)       |
-| `senescence_rate`  | 0.0             | Gompertz senescence coefficient                  |
-| `repro_senescence` | 0.0             | Reproductive decline rate with age               |
+| Parameter | Default | Effect |
+|----|----|----|
+| `life_history` | `"iteroparous"` | `"semelparous"` triggers post-reproductive death |
+| `max_age` | 200L | Maximum attainable age (iteroparous bound) |
+| `senescence_rate` | 0.0 | Gompertz senescence coefficient |
+| `repro_senescence` | 0.0 | Reproductive decline rate with age |
 
 **Expected output.** The semelparous population shows a shorter
 `mean_age` and episodic bursts in `n_births` coinciding with cohort
@@ -30,6 +30,7 @@ continuous birth rate and a higher `mean_age`, with population size
 fluctuating less dramatically between generations.
 
 ``` r
+
 library(clade)
 library(ggplot2)
 
@@ -73,13 +74,13 @@ higher mean age and a smoother birth-rate trajectory.
 All three sign predictions from Cole (1954) and Williams (1966) hold,
 with seed-level reproducibility under 5%:
 
-| Metric                 | Semelparous | Iteroparous | Theory predicted              |
-|------------------------|-------------|-------------|-------------------------------|
-| `mean_age`             | 13.0        | 101.5       | sem \< iter ✓                 |
-| `n_births` per tick    | 4.20        | 0.89        | sem \> iter ✓                 |
-| `mean_energy`          | 84.7        | 127.1       | sem \< iter (Williams 1966) ✓ |
-| equilibrium `n_agents` | 84          | 209         | empirical                     |
-| population variance    | 3.9         | 2,628       | empirical                     |
+| Metric | Semelparous | Iteroparous | Theory predicted |
+|----|----|----|----|
+| `mean_age` | 13.0 | 101.5 | sem \< iter ✓ |
+| `n_births` per tick | 4.20 | 0.89 | sem \> iter ✓ |
+| `mean_energy` | 84.7 | 127.1 | sem \< iter (Williams 1966) ✓ |
+| equilibrium `n_agents` | 84 | 209 | empirical |
+| population variance | 3.9 | 2,628 | empirical |
 
 The most striking emergent finding is that **semelparous populations are
 674× more stable** (lower variance) than iteroparous, despite 4.7×

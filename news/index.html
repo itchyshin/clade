@@ -129,9 +129,56 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/itchyshin/clade/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/itchyshin/clade/blob/claude/ci-public-repo/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.7.0" id="clade-070-2026-05-05--kernel-discipline--three-personalitycooperation-papers">clade 0.7.0 (2026-05-05) — kernel discipline + three personality/cooperation papers<a class="anchor" aria-label="anchor" href="#clade-070-2026-05-05--kernel-discipline--three-personalitycooperation-papers"></a></h2>
+<div class="section level3">
+<h3 id="two-matlab-ancestor-regressions-fixed-in-the-kernel-0-7-0">Two MATLAB-ancestor regressions fixed in the kernel<a class="anchor" aria-label="anchor" href="#two-matlab-ancestor-regressions-fixed-in-the-kernel-0-7-0"></a></h3>
+<p>clade descends from the Bulitko-group MATLAB code via the alifeR R port. Cross-codebase audit (<a href="dev/docs/consolidation-audit.html">dev/docs/consolidation-audit.md</a>) found two systematic biases the chain of ports lost:</p>
+<ol style="list-style-type: decimal"><li>
+<strong>Random-asynchronous agent scheduling</strong> (Grimm &amp; Railsback 2005; MATLAB <code>alife.m:324</code>). clade was iterating <code>env.agents</code> in array order every tick — earlier-array agents systematically moved/ate/ mated first. Fixed at 9 sites across 8 files; new spec field <code>random_tick_order</code> (default TRUE) controls. With FALSE, legacy behaviour is recoverable for reproducibility.</li>
+<li>
+<strong>One-per-cell movement</strong> (MATLAB <code>takeAction.m:79</code>). clade allowed silent agent stacking on a single cell; movement now rejects when the target cell is occupied. New <code>cell_to_agents</code> Matrix on Environment for true multi-occupancy lookup at sites that need it. Spec field <code>max_agents_per_cell</code> (default 1) controls.</li>
+<li>Bonus: <strong>offspring placement</strong> also enforced one-per-cell. Previously newborns landed on the parent’s cell, immediately stacking. Fixed at <code>_place_offspring</code> to scan the Moore neighbourhood and pick a free cell; if none, no offspring (matching MATLAB).</li>
+</ol><p><code><a href="../reference/viability_report.html">viability_report()</a></code> learned to skip the absolute <code>min_n</code> check on flat-population scenarios (<code>n_init &gt;= min_n</code>); 2 stale test assertions unrelated to the kernel fixes were corrected at the same time.</p>
+</div>
+<div class="section level3">
+<h3 id="three-new-paper-reproductions-0-7-0">Three new paper reproductions<a class="anchor" aria-label="anchor" href="#three-new-paper-reproductions-0-7-0"></a></h3>
+<p>All three are <em>spatially-explicit</em> clade interpretations rather than faithful re-implementations of the analytic mean-field models — clade’s value-add is precisely that encounters happen between <em>neighbouring</em> agents and resources are regulated by the grid, not abstract patches. Each vignette is honest about where the interpretation strengthens or weakens the original prediction.</p>
+<div class="section level4">
+<h4 id="wolf-et-al-nature--personality-syndrome-0-7-0">Wolf et al. 2007 Nature — personality syndrome<a class="anchor" aria-label="anchor" href="#wolf-et-al-nature--personality-syndrome-0-7-0"></a></h4>
+<p><code><a href="../articles/paper-wolf2007.html">vignette("paper-wolf2007")</a></code>. Hawk-dove pairs from the Moore neighbourhood; anti-predator games anchored to real predator positions; year-1/year-2 reproduction at fixed agent ages with the life-history trade-off <code>g(x) = (1-x)^β</code>. Nine traits added to the genome (<code>exploration</code>, <code>boldness</code>, <code>aggressiveness</code> plus six gating fields).</p>
+<p><strong>Phase 6 refinement</strong> (separate commit): added Wolf’s <code>(1 + α·N_i)</code> per-strategy competition denominator with <code>N_high ≈ N·mean(x)</code>, <code>N_low ≈ N·mean(1-x)</code>. Effect on the defining bold-aggro syndrome: <strong>+0.10 → +0.31</strong> (3× stronger). The asset-protection signs (exp ↔︎ bold, exp ↔︎ aggro) are weaker / sign-flipped because clade’s spatial population doesn’t reach the year-1-vs-year-2 dimorphism Wolf’s mean-field model predicts. The test asserts only the bold-aggro syndrome (the <em>defining</em> prediction); the asset-protection signs are diagnostics in the vignette.</p>
+</div>
+<div class="section level4">
+<h4 id="trivers-qrb--reciprocal-altruism-0-7-0">Trivers 1971 QRB — reciprocal altruism<a class="anchor" aria-label="anchor" href="#trivers-qrb--reciprocal-altruism-0-7-0"></a></h4>
+<p><code><a href="../articles/paper-trivers1971.html">vignette("paper-trivers1971")</a></code>. Generous-TFT decision via three heritable traits (<code>reciprocity_initial</code>, <code>reciprocity_retaliation</code>, <code>reciprocity_forgiveness</code>); per-agent partner memory (ring buffer); PD payoff with <code>b/c &gt; 1</code> per Hamilton’s rule. Cooperation rises from the drift baseline of 0.500 to 0.718 in the favourable regime (<code>reciprocity_cost = 0.1</code>, <code>reciprocity_benefit_ratio = 2</code>).</p>
+<p>The vignette frames this as the empirical-scarcity finding: reciprocal altruism is intuitive but rare in nature (Stevens &amp; Hauser 2004, Clutton-Brock 2009, Hammerstein 2003). clade’s parameter space confirms this — cooperation is robust only in narrow regimes.</p>
+</div>
+<div class="section level4">
+<h4 id="wolf-et-al-pnas--responsive-personalities-0-7-0">Wolf et al. 2008 PNAS — responsive personalities<a class="anchor" aria-label="anchor" href="#wolf-et-al-pnas--responsive-personalities-0-7-0"></a></h4>
+<p><code><a href="../articles/paper-wolf2008.html">vignette("paper-wolf2008")</a></code>. Single new trait <code>responsiveness</code>; agents pay an energy cost to override their action toward the richest free Moore-neighbour cell. Frequency-dependent benefit emerges from clade’s existing one-per-cell + handling-time economy: many responders → all flock to rich cells → first-mover wins, others waste the cost. Selection signal: 0.500 → 0.669 (+0.169).</p>
+<p>The density sweep is <em>non-monotonic</em> in clade (peak at intermediate density), unlike Wolf’s monotonically-decreasing prediction — clade’s spatial winner-take-all differs from Wolf’s smooth <code>(1+α·N_i)</code> denominator. Documented in the vignette.</p>
+</div>
+</div>
+<div class="section level3">
+<h3 id="spec-fields-added-total-0-7-0">Spec fields added (~30 total)<a class="anchor" aria-label="anchor" href="#spec-fields-added-total-0-7-0"></a></h3>
+<ul><li>
+<code>random_tick_order</code> (default <code>TRUE</code>)</li>
+<li>
+<code>max_agents_per_cell</code> (default <code>1L</code>)</li>
+<li>16 <code>personality_*</code> fields (Wolf 2007), including <code>personality_alpha</code>
+</li>
+<li>12 <code>reciprocity_*</code> fields (Trivers)</li>
+<li>4 <code>responsive_*</code> fields (Wolf 2008)</li>
+</ul></div>
+<div class="section level3">
+<h3 id="test-suite-0-7-0">Test suite<a class="anchor" aria-label="anchor" href="#test-suite-0-7-0"></a></h3>
+<p>1987 tests, 0 failures. Five new test files: <code>test-tick-order.R</code>, <code>test-cell-occupancy.R</code>, <code>test-personality-syndrome.R</code>, <code>test-reciprocal-altruism.R</code>, <code>test-responsive-personalities.R</code>.</p>
+</div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.5" id="clade-065-2026-04-20--sensory-bias-β_n-installed-ryan-1990-half-pass">clade 0.6.5 (2026-04-20) — sensory-bias β_N installed (Ryan 1990 half-PASS)<a class="anchor" aria-label="anchor" href="#clade-065-2026-04-20--sensory-bias-%CE%B2_n-installed-ryan-1990-half-pass"></a></h2>
 <div class="section level3">
@@ -144,19 +191,19 @@
 <div class="section level3">
 <h3 id="ryan-half-reproduction-new-vignette-0-6-5">Ryan 1990 half-reproduction (new vignette)<a class="anchor" aria-label="anchor" href="#ryan-half-reproduction-new-vignette-0-6-5"></a></h3>
 <p><code><a href="../articles/paper-ryan-1990.html">vignette("paper-ryan-1990")</a></code> runs a 4 × 4 dose-response with <code>bias_target = [1, 0, 0]</code> and <code>κ ∈ {0, 0.02, 0.05, 0.10}</code>:</p>
-<table class="table"><thead><tr class="header"><th><code>preference_bias_strength</code></th>
+<table class="table"><thead><tr><th><code>preference_bias_strength</code></th>
 <th>mean preference[1]</th>
 <th>mean signal[1]</th>
-</tr></thead><tbody><tr class="odd"><td>0.00</td>
+</tr></thead><tbody><tr><td>0.00</td>
 <td>0.015</td>
 <td>0.004</td>
-</tr><tr class="even"><td>0.02</td>
+</tr><tr><td>0.02</td>
 <td><strong>0.694</strong></td>
 <td>0.031</td>
-</tr><tr class="odd"><td>0.05</td>
+</tr><tr><td>0.05</td>
 <td><strong>0.814</strong></td>
 <td>0.064</td>
-</tr><tr class="even"><td>0.10</td>
+</tr><tr><td>0.10</td>
 <td><strong>0.893</strong></td>
 <td>−0.005</td>
 </tr></tbody></table><ul><li>H1 (preferences track bias): t = +4.75, p = 0.0003 — <strong>PASS ✅</strong>.</li>
@@ -167,16 +214,16 @@
 <div class="section level3">
 <h3 id="fuller-vignette-updated-0-6-5">Fuller 2005 vignette updated<a class="anchor" aria-label="anchor" href="#fuller-vignette-updated-0-6-5"></a></h3>
 <p><code><a href="../articles/paper-fuller-2005.html">vignette("paper-fuller-2005")</a></code> rewritten to reflect 0.6.5 coverage of all three legs:</p>
-<table class="table"><colgroup><col width="33%"><col width="33%"><col width="33%"></colgroup><thead><tr class="header"><th>leg</th>
+<table class="table"><colgroup><col width="33%"><col width="33%"><col width="33%"></colgroup><thead><tr><th>leg</th>
 <th>status</th>
 <th>version</th>
-</tr></thead><tbody><tr class="odd"><td>Zahavi handicap (β_Sv)</td>
+</tr></thead><tbody><tr><td>Zahavi handicap (β_Sv)</td>
 <td>✅ reproduced</td>
 <td>0.6.3</td>
-</tr><tr class="even"><td>Fisher runaway (C_tp &gt; 0)</td>
+</tr><tr><td>Fisher runaway (C_tp &gt; 0)</td>
 <td>❌ direction-wrong (needs linkage)</td>
 <td>0.6.4 wired mate choice</td>
-</tr><tr class="odd"><td>Sensory bias (β_N)</td>
+</tr><tr><td>Sensory bias (β_N)</td>
 <td>⚠️ half (preferences PASS; signal response null)</td>
 <td>0.6.5</td>
 </tr></tbody></table></div>
@@ -220,23 +267,23 @@
 </div>
 <div class="section level3">
 <h3 id="downstream-audits-re-run-0-6-4">Downstream audits re-run<a class="anchor" aria-label="anchor" href="#downstream-audits-re-run-0-6-4"></a></h3>
-<table class="table"><colgroup><col width="33%"><col width="33%"><col width="33%"></colgroup><thead><tr class="header"><th>vignette / scenario</th>
+<table class="table"><colgroup><col width="33%"><col width="33%"><col width="33%"></colgroup><thead><tr><th>vignette / scenario</th>
 <th>pre-0.6.4 verdict</th>
 <th>post-0.6.4 verdict</th>
-</tr></thead><tbody><tr class="odd"><td>
+</tr></thead><tbody><tr><td>
 <a href="paper-kokko-brooks-2003.html"><code>s-kokko-brooks-2003</code></a> K&amp;B interaction</td>
 <td>PASS (direction-wrong, t = +2.81)</td>
 <td>
 <strong>null (t = +0.80)</strong> — previously claimed “clade contradicts K&amp;B direction” demoted</td>
-</tr><tr class="even"><td>
+</tr><tr><td>
 <a href="paper-fuller-2005.html"><code>paper-fuller-2005</code></a> Fisher C_tp</td>
 <td>kernel-limit null (test couldn’t run)</td>
 <td>direction-wrong (Δ = +0.019, t = +2.51) — new kernel-limit finding: no genetic linkage between signal and preference loci</td>
-</tr><tr class="odd"><td>
+</tr><tr><td>
 <code>s-signals</code> P2 (preference &gt; random)</td>
 <td>FAIL</td>
 <td>FAIL (unchanged; now reliably FAIL rather than trivially FAIL)</td>
-</tr><tr class="even"><td><code>s-mating-systems</code></td>
+</tr><tr><td><code>s-mating-systems</code></td>
 <td>—</td>
 <td>not affected (uses <code>ploidy</code>, not <code>mate_choice_mode</code>)</td>
 </tr></tbody></table><p>The kokko-brooks demotion is the larger scientific impact: the previously-reported “clade robustly contradicts K&amp;B” result depended on the implicit-argmax stub. Under honest softmax mate choice at <code>strength = 0.7</code>, <code>signal_cost = 0.2</code> no longer produces the demographic drag pattern that generated the interaction signal.</p>
@@ -260,21 +307,21 @@
 <div class="sourceCode" id="cb2"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>p_die ← signal_cost_mortality × Σ <span class="sc">|</span>signal_i<span class="sc">|</span></span></code></pre></div>
 <p>implemented in <a href="https://github.com/itchyshin/clade/blob/main/inst/julia/src/modules/signals.jl" class="external-link">signals.jl</a>. This is the Fuller, Houle &amp; Travis (2005) β_Sv &lt; 0 viability-selection gradient, i.e. the kernel mechanism that Zahavi (1975) and Grafen (1990) argue <em>must</em> be present for costly honest signalling to be selected for. Distinct from <code>signal_cost</code> (which only drains energy and is easily masked by <code>signal_drift_sd</code>).</p>
 <div class="section level3">
-<h3 id="fuller-reproduction--partial--0-6-3">Fuller 2005 reproduction — partial ✅<a class="anchor" aria-label="anchor" href="#fuller-reproduction--partial--0-6-3"></a></h3>
+<h3 id="fuller-reproduction--partial-white_check_mark-0-6-3">Fuller 2005 reproduction — partial ✅<a class="anchor" aria-label="anchor" href="#fuller-reproduction--partial-white_check_mark-0-6-3"></a></h3>
 <p><code><a href="../articles/paper-fuller-2005.html">vignette("paper-fuller-2005")</a></code> rewritten. The Zahavi dose-response leg now reproduces cleanly:</p>
-<table class="table"><thead><tr class="header"><th>signal_cost_mortality</th>
+<table class="table"><thead><tr><th>signal_cost_mortality</th>
 <th>final_signal ± SE</th>
 <th>final_n ± SE</th>
-</tr></thead><tbody><tr class="odd"><td>0.000</td>
+</tr></thead><tbody><tr><td>0.000</td>
 <td>1.063 ± 0.006</td>
 <td>123 ± 6.8</td>
-</tr><tr class="even"><td>0.001</td>
+</tr><tr><td>0.001</td>
 <td>1.039 ± 0.010</td>
 <td>70 ± 9.7</td>
-</tr><tr class="odd"><td>0.002</td>
+</tr><tr><td>0.002</td>
 <td>0.961 ± 0.055</td>
 <td>38 ± 6.3</td>
-</tr><tr class="even"><td>0.003</td>
+</tr><tr><td>0.003</td>
 <td>0.625 ± 0.123</td>
 <td>6 ± 2.0</td>
 </tr></tbody></table><p>Signal and population decline monotonically with β_Sv — the cost is paid in lives, as Zahavi / Grafen / Fuller require.</p>
@@ -292,16 +339,16 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.2" id="clade-062-2026-04-19--fuller-2005-framework-metrics-exposed">clade 0.6.2 (2026-04-19) — Fuller 2005 framework metrics exposed<a class="anchor" aria-label="anchor" href="#clade-062-2026-04-19--fuller-2005-framework-metrics-exposed"></a></h2>
 <p>Three new columns added to the per-tick log (<code>get_run_data(env)$ticks</code>) to operationalise parts of the <strong>Fuller, Houle &amp; Travis (2005)</strong> <em>Am Nat</em> quantitative-genetic framework for sexual-selection models (sensory bias vs Fisherian runaway vs good-genes vs direct benefits vs sexual conflict):</p>
-<table class="table"><colgroup><col width="33%"><col width="33%"><col width="33%"></colgroup><thead><tr class="header"><th>Column</th>
+<table class="table"><colgroup><col width="33%"><col width="33%"><col width="33%"></colgroup><thead><tr><th>Column</th>
 <th>Fuller 2005 quantity</th>
 <th>What it captures</th>
-</tr></thead><tbody><tr class="odd"><td><code>mean_preference_magnitude</code></td>
+</tr></thead><tbody><tr><td><code>mean_preference_magnitude</code></td>
 <td>mean preference phenotype p̄</td>
 <td>Population-mean of the agent preference vector (L1 norm)</td>
-</tr><tr class="even"><td><code>mean_signal_preference_dist</code></td>
+</tr><tr><td><code>mean_signal_preference_dist</code></td>
 <td>proxy for −C_tp (preference-display covariance)</td>
 <td>Mean L2 distance between each agent’s signal and preference vectors. Shrinks under Fisher/good-genes coevolution (nonrandom mating produces C_tp &gt; 0); stays large under sensory bias alone.</td>
-</tr><tr class="odd"><td><code>sd_signal_magnitude</code></td>
+</tr><tr><td><code>sd_signal_magnitude</code></td>
 <td>proxy for V_t (additive genetic variance in display)</td>
 <td>Between-agent SD of signal magnitude</td>
 </tr></tbody></table><p>These unlock the sensory-bias / Fisher-runaway / handicap test discussed in <code><a href="../articles/paper-fuller-2005.html">vignette("paper-fuller-2005")</a></code>. Before this change, clade’s only signal-side observable was scalar <code>mean_signal_magnitude</code>, which couldn’t distinguish coevolved (C_tp &gt; 0) from independently drifted (C_tp = 0) signal-preference populations.</p>
@@ -382,7 +429,7 @@
 <p>Three sweeps demonstrating how to find the parameter regime where a canonical theoretical prediction expresses in clade:</p>
 <ul><li><p><strong>s-kin invasion-dynamics sweep</strong> — tested whether heritable <code>helper_tendency</code> invades from rare under Hamilton-satisfying cost regimes. Result: <strong>honest null</strong> — demographic consequence of kin altruism stands (Spearman = 0.97 across rB/C), but allele-invasion dynamics don’t reproduce in the current <code>cooperative_breeding</code> plumbing. Kernel needs kin-weighted fitness accounting.</p></li>
 <li><p><strong>s-niche heritable-feedback sweep</strong> — tested Odling-Smee et al. 2003’s heritable-niche-construction claim. <strong>Clean ✅</strong> at <code>shelter_occupancy_bonus &gt; 0</code>: Spearman(bonus, final_n) = +0.863, t = +6–8 PASS across three bonus levels. Notable finding: niche construction <em>alone</em> (bonus = 0) is a net cost; the heritable feedback is what flips it to a large benefit, exactly as Odling-Smee’s framework predicts.</p></li>
-<li><p><strong>s-parental-care variance-buffering sweep</strong> — tested Clutton-Brock 1991’s buffering prediction at tighter resource scarcity. <strong>Conditional ✅</strong> at <code>grass_rate = 0.08,   care_cost_per_tick = 3.0</code>: variance drops 58% (t = −2.61). Honest caveat: care halves equilibrium size, so CV rises even as absolute variance falls.</p></li>
+<li><p><strong>s-parental-care variance-buffering sweep</strong> — tested Clutton-Brock 1991’s buffering prediction at tighter resource scarcity. <strong>Conditional ✅</strong> at <code>grass_rate = 0.08, care_cost_per_tick = 3.0</code>: variance drops 58% (t = −2.61). Honest caveat: care halves equilibrium size, so CV rises even as absolute variance falls.</p></li>
 </ul><p>The sweep methodology is now the template for finding “sweet spots” for any canonical prediction — conditions under which the theory reproduces exactly versus conditions where it doesn’t. See the matching fidelity reports under <code>dev/audit/fidelity/</code>.</p>
 </div>
 <div class="section level3">
@@ -410,20 +457,20 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.5.18" id="clade-0518-2026-04-18-dewitt-2004--hinton-nowlan-1987-confirmed--ledger-complete">clade 0.5.18 (2026-04-18, DeWitt 2004 / Hinton-Nowlan 1987 confirmed — ledger complete)<a class="anchor" aria-label="anchor" href="#clade-0518-2026-04-18-dewitt-2004--hinton-nowlan-1987-confirmed--ledger-complete"></a></h2>
 <div class="section level3">
-<h3 id="s-plasticity--s-baldwin-----fluctuating-selection-kernel-0-5-18">s-plasticity + s-baldwin 🟠 → ✅ — fluctuating-selection kernel<a class="anchor" aria-label="anchor" href="#s-plasticity--s-baldwin-----fluctuating-selection-kernel-0-5-18"></a></h3>
+<h3 id="s-plasticity--s-baldwin-orange_circle--white_check_mark--fluctuating-selection-kernel-0-5-18">s-plasticity + s-baldwin 🟠 → ✅ — fluctuating-selection kernel<a class="anchor" aria-label="anchor" href="#s-plasticity--s-baldwin-orange_circle--white_check_mark--fluctuating-selection-kernel-0-5-18"></a></h3>
 <p>Added a new kernel spec <code>seasonal_spatial_bias</code> (default 0.0 = legacy) that, when &gt; 0, flips the spatial grass distribution between seasons: summer → grass concentrated in the top half of the grid, winter → bottom half. This creates <strong>phenotype-dependent fluctuating selection</strong> — the optimal foraging direction flips between seasons. Canalized agents stuck with one policy starve in the off-season; plastic agents (BNN with within-lifetime RL) can track the flip.</p>
 <div class="section level4">
 <h4 id="results-seeds--conditions--ticks-default_specs--rl-0-5-18">Results (16 seeds × 3 conditions × 2000 ticks, default_specs + RL)<a class="anchor" aria-label="anchor" href="#results-seeds--conditions--ticks-default_specs--rl-0-5-18"></a></h4>
-<table class="table"><thead><tr class="header"><th>condition</th>
+<table class="table"><thead><tr><th>condition</th>
 <th>mean_prior_sigma ± SE</th>
 <th>pop</th>
-</tr></thead><tbody><tr class="odd"><td>stable</td>
+</tr></thead><tbody><tr><td>stable</td>
 <td>0.3759 ± 0.0038</td>
 <td>96.9</td>
-</tr><tr class="even"><td>amp_only (uniform stressor)</td>
+</tr><tr><td>amp_only (uniform stressor)</td>
 <td>0.3800 ± 0.0025</td>
 <td>94.2</td>
-</tr><tr class="odd"><td>
+</tr><tr><td>
 <strong>flipping</strong> (fluctuating selection)</td>
 <td><strong>0.3986 ± 0.0032</strong></td>
 <td>69.4</td>
@@ -440,27 +487,27 @@
 </div>
 </div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.5.17" id="clade-0517-2026-04-18-williams-1966-confirmed--s-predation-neural-">clade 0.5.17 (2026-04-18, Williams 1966 confirmed — s-predation-neural ✅)<a class="anchor" aria-label="anchor" href="#clade-0517-2026-04-18-williams-1966-confirmed--s-predation-neural-"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.5.17" id="clade-0517-2026-04-18-williams-1966-confirmed--s-predation-neural-white_check_mark">clade 0.5.17 (2026-04-18, Williams 1966 confirmed — s-predation-neural ✅)<a class="anchor" aria-label="anchor" href="#clade-0517-2026-04-18-williams-1966-confirmed--s-predation-neural-white_check_mark"></a></h2>
 <div class="section level3">
-<h3 id="s-predation-neural-----directional-selection-diversity-at-default-scale-0-5-17">s-predation-neural 🟠 → ✅ — directional-selection diversity at default scale<a class="anchor" aria-label="anchor" href="#s-predation-neural-----directional-selection-diversity-at-default-scale-0-5-17"></a></h3>
+<h3 id="s-predation-neural-orange_circle--white_check_mark--directional-selection-diversity-at-default-scale-0-5-17">s-predation-neural 🟠 → ✅ — directional-selection diversity at default scale<a class="anchor" aria-label="anchor" href="#s-predation-neural-orange_circle--white_check_mark--directional-selection-diversity-at-default-scale-0-5-17"></a></h3>
 <p>0.5.11 demoted at <code>realistic_specs</code> (60×60, 8 seeds): diversity claim showed t = −0.90 (retracted) even though the demographic claim passed at t = −3.64. The scenario was left 🟠 as a half-claim (“Williams 1966 demographic OK, directional-selection null”).</p>
 <p>Re-audit at <code>default_specs</code> (30×30, 16 seeds × 2000 ticks):</p>
-<table class="table"><colgroup><col width="20%"><col width="20%"><col width="20%"><col width="20%"><col width="20%"></colgroup><thead><tr class="header"><th>metric</th>
+<table class="table"><colgroup><col width="20%"><col width="20%"><col width="20%"><col width="20%"><col width="20%"></colgroup><thead><tr><th>metric</th>
 <th>no_predators</th>
 <th>predators</th>
 <th>Δ ± SE</th>
 <th>t</th>
-</tr></thead><tbody><tr class="odd"><td><code>n_agents</code></td>
+</tr></thead><tbody><tr><td><code>n_agents</code></td>
 <td>115.8 ± 2.1</td>
 <td>111.3 ± 2.3</td>
 <td>−4.44 ± 3.11</td>
 <td>−1.43</td>
-</tr><tr class="even"><td><code>mean_energy</code></td>
+</tr><tr><td><code>mean_energy</code></td>
 <td>159.1 ± 0.6</td>
 <td>160.7 ± 0.7</td>
 <td>+1.55 ± 0.90</td>
 <td>+1.73</td>
-</tr><tr class="odd"><td><strong><code>genetic_diversity</code></strong></td>
+</tr><tr><td><strong><code>genetic_diversity</code></strong></td>
 <td>0.570 ± 0.004</td>
 <td>0.581 ± 0.004</td>
 <td><strong>+0.012 ± 0.005</strong></td>
@@ -472,9 +519,9 @@
 </div>
 </div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.5.16" id="clade-0516-2026-04-18-rosenberg-2001-confirmed--s-stress-hypermutation-">clade 0.5.16 (2026-04-18, Rosenberg 2001 confirmed — s-stress-hypermutation ✅)<a class="anchor" aria-label="anchor" href="#clade-0516-2026-04-18-rosenberg-2001-confirmed--s-stress-hypermutation-"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.5.16" id="clade-0516-2026-04-18-rosenberg-2001-confirmed--s-stress-hypermutation-white_check_mark">clade 0.5.16 (2026-04-18, Rosenberg 2001 confirmed — s-stress-hypermutation ✅)<a class="anchor" aria-label="anchor" href="#clade-0516-2026-04-18-rosenberg-2001-confirmed--s-stress-hypermutation-white_check_mark"></a></h2>
 <div class="section level3">
-<h3 id="s-stress-hypermutation-----config-bug-not-biology-null-0-5-16">s-stress-hypermutation 🟠 → ✅ — config bug, not biology null<a class="anchor" aria-label="anchor" href="#s-stress-hypermutation-----config-bug-not-biology-null-0-5-16"></a></h3>
+<h3 id="s-stress-hypermutation-orange_circle--white_check_mark--config-bug-not-biology-null-0-5-16">s-stress-hypermutation 🟠 → ✅ — config bug, not biology null<a class="anchor" aria-label="anchor" href="#s-stress-hypermutation-orange_circle--white_check_mark--config-bug-not-biology-null-0-5-16"></a></h3>
 <p>0.5.11 demoted s-stress-hypermutation on a “Δdiversity = +0.000” finding at 4 seeds. The hypothesis was that real diploid sex equalised mutation input. That hypothesis was <strong>wrong</strong>.</p>
 <p>Root cause was structural. In <code>inst/julia/src/reproduce.jl:156</code>, stress-mutation fires at reproduction time gated on parent’s energy being <strong>below</strong> <code>stress_threshold</code>:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode julia"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>eff_mut_sd <span class="op">=</span> <span class="cf">if</span> <span class="fu">Bool</span>(specs[<span class="st">"stress_hypermutation"</span>]) <span class="op">&amp;&amp;</span></span>
@@ -488,27 +535,27 @@
 <div class="section level3">
 <h3 id="fix-0-5-16">Fix<a class="anchor" aria-label="anchor" href="#fix-0-5-16"></a></h3>
 <p>Raised <code>stress_threshold</code> to 150 (&gt; <code>min_repro_energy = 120</code>). Re-ran scarcity sweep:</p>
-<table class="table"><thead><tr class="header"><th>grass_rate</th>
+<table class="table"><thead><tr><th>grass_rate</th>
 <th>OFF div</th>
 <th>ON div</th>
 <th>Δ ± SE</th>
 <th>t</th>
-</tr></thead><tbody><tr class="odd"><td>0.02</td>
+</tr></thead><tbody><tr><td>0.02</td>
 <td>crashed</td>
 <td>crashed</td>
 <td>—</td>
 <td>—</td>
-</tr><tr class="even"><td>0.03</td>
+</tr><tr><td>0.03</td>
 <td>2 viable</td>
 <td>1 viable</td>
 <td>too few</td>
 <td>—</td>
-</tr><tr class="odd"><td>0.04</td>
+</tr><tr><td>0.04</td>
 <td>0.252 (n=13)</td>
 <td>1.132 (n=12)</td>
 <td>+0.881 ± 0.018</td>
 <td><strong>+48.9</strong></td>
-</tr><tr class="even"><td>0.06</td>
+</tr><tr><td>0.06</td>
 <td>0.265 (n=16)</td>
 <td>1.196 (n=16)</td>
 <td>+0.930 ± 0.010</td>
@@ -527,31 +574,31 @@
 </div>
 </div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.5.15" id="clade-0515-2026-04-18-hamilton-1971-confirmed--s-group-defense-">clade 0.5.15 (2026-04-18, Hamilton 1971 confirmed — s-group-defense ✅)<a class="anchor" aria-label="anchor" href="#clade-0515-2026-04-18-hamilton-1971-confirmed--s-group-defense-"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.5.15" id="clade-0515-2026-04-18-hamilton-1971-confirmed--s-group-defense-white_check_mark">clade 0.5.15 (2026-04-18, Hamilton 1971 confirmed — s-group-defense ✅)<a class="anchor" aria-label="anchor" href="#clade-0515-2026-04-18-hamilton-1971-confirmed--s-group-defense-white_check_mark"></a></h2>
 <div class="section level3">
-<h3 id="s-group-defense----0-5-15">s-group-defense 🟠 → ✅<a class="anchor" aria-label="anchor" href="#s-group-defense----0-5-15"></a></h3>
+<h3 id="s-group-defense-orange_circle--white_check_mark-0-5-15">s-group-defense 🟠 → ✅<a class="anchor" aria-label="anchor" href="#s-group-defense-orange_circle--white_check_mark-0-5-15"></a></h3>
 <p>80-run strength sweep (OFF baseline + 4 strengths × 16 seeds) at <code>realistic_specs</code>. The mean-population test was sub-2σ at every strength (consistent with the 8-seed realistic_specs direction-only finding) — but the signal lives in the <strong>extinction rate</strong>:</p>
-<table class="table"><thead><tr class="header"><th>group_defense_strength</th>
+<table class="table"><thead><tr><th>group_defense_strength</th>
 <th>OFF crash</th>
 <th>ON crash</th>
 <th>Fisher p</th>
 <th>OR</th>
-</tr></thead><tbody><tr class="odd"><td>0.5</td>
+</tr></thead><tbody><tr><td>0.5</td>
 <td>12/16</td>
 <td>11/16</td>
 <td>0.50</td>
 <td>1.35</td>
-</tr><tr class="even"><td>1.0</td>
+</tr><tr><td>1.0</td>
 <td>12/16</td>
 <td>7/16</td>
 <td>0.074</td>
 <td>3.69</td>
-</tr><tr class="odd"><td>2.0</td>
+</tr><tr><td>2.0</td>
 <td>12/16</td>
 <td>8/16</td>
 <td>0.137</td>
 <td>2.89</td>
-</tr><tr class="even"><td>3.0</td>
+</tr><tr><td>3.0</td>
 <td>12/16</td>
 <td>6/16</td>
 <td><strong>0.037</strong></td>
@@ -564,31 +611,31 @@
 </div>
 </div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.5.14" id="clade-0514-2026-04-18-hamilton-1980-confirmed--s-mating-systems-">clade 0.5.14 (2026-04-18, Hamilton 1980 confirmed — s-mating-systems ✅)<a class="anchor" aria-label="anchor" href="#clade-0514-2026-04-18-hamilton-1980-confirmed--s-mating-systems-"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.5.14" id="clade-0514-2026-04-18-hamilton-1980-confirmed--s-mating-systems-white_check_mark">clade 0.5.14 (2026-04-18, Hamilton 1980 confirmed — s-mating-systems ✅)<a class="anchor" aria-label="anchor" href="#clade-0514-2026-04-18-hamilton-1980-confirmed--s-mating-systems-white_check_mark"></a></h2>
 <div class="section level3">
-<h3 id="s-mating-systems----0-5-14">s-mating-systems 🟠 → ✅<a class="anchor" aria-label="anchor" href="#s-mating-systems----0-5-14"></a></h3>
+<h3 id="s-mating-systems-orange_circle--white_check_mark-0-5-14">s-mating-systems 🟠 → ✅<a class="anchor" aria-label="anchor" href="#s-mating-systems-orange_circle--white_check_mark-0-5-14"></a></h3>
 <p>Swept the 2×2 Red Queen differential across <code>parasite_pressure ∈ {2, 4, 6, 8}</code> × 16 seeds × 4 conditions = 160 runs. Hamilton 1980 mechanism scales cleanly and monotonically with parasite pressure:</p>
-<table class="table"><thead><tr class="header"><th>pressure</th>
+<table class="table"><thead><tr><th>pressure</th>
 <th>asex cost</th>
 <th>sex cost</th>
 <th>RQ_benefit_n</th>
 <th>t_n</th>
-</tr></thead><tbody><tr class="odd"><td>2.0</td>
+</tr></thead><tbody><tr><td>2.0</td>
 <td>+8.8</td>
 <td>+2.1</td>
 <td>+6.7</td>
 <td>+1.02</td>
-</tr><tr class="even"><td>4.0</td>
+</tr><tr><td>4.0</td>
 <td>+23.7</td>
 <td>+3.9</td>
 <td>+19.8</td>
 <td><strong>+2.81 PASS</strong></td>
-</tr><tr class="odd"><td>6.0</td>
+</tr><tr><td>6.0</td>
 <td>+32.5</td>
 <td>+5.6</td>
 <td>+26.9</td>
 <td><strong>+4.97 PASS</strong></td>
-</tr><tr class="even"><td>8.0</td>
+</tr><tr><td>8.0</td>
 <td>+45.3</td>
 <td>+5.5</td>
 <td>+39.8</td>
@@ -620,17 +667,17 @@ RQ_benefit = (A − B) − (C − D)
            = (parasites cost asex) − (parasites cost sex)</code></pre>
 <p>Positive RQ_benefit means sex handles parasites better than asex — which is what Hamilton 1980 predicts recombination does.</p>
 <p><strong>Results (realistic_specs, 32 seeds × 4 conditions, <code>parental_investment_evolution = TRUE</code> so sex and asex have equal per-offspring cost):</strong></p>
-<table class="table"><thead><tr class="header"><th>metric</th>
+<table class="table"><thead><tr><th>metric</th>
 <th>asex_parasite_cost</th>
 <th>sex_parasite_cost</th>
 <th>RQ_benefit</th>
 <th>t</th>
-</tr></thead><tbody><tr class="odd"><td>n_agents</td>
+</tr></thead><tbody><tr><td>n_agents</td>
 <td>+6.35</td>
 <td>+3.27</td>
 <td><strong>+3.08 ± 4.05</strong></td>
 <td><strong>+0.76</strong></td>
-</tr><tr class="even"><td>diversity</td>
+</tr><tr><td>diversity</td>
 <td>+0.007</td>
 <td>−0.035</td>
 <td><strong>+0.041 ± 0.030</strong></td>
@@ -726,7 +773,7 @@ RQ_benefit = (A − B) − (C − D)
 <p><strong>Fix (opt-in)</strong>: new spec <code>self_fertilization_fallback</code> (default FALSE for backward compatibility). When TRUE, the fallback path instead calls <code>meiosis(parent1, ...)</code> a second time — offspring stays diploid with two gametes from the same parent (self-fertilization). With selfing enabled, <code>mean_prior_sigma</code> drops from the pegged 0.5 to the real heterozygosity-derived ~0.076 and evolves from there.</p>
 </div>
 <div class="section level3">
-<h3 id="why-this-didnt-promote-plasticitybaldwin-to--0-5-9">Why this didn’t promote plasticity/Baldwin to ✅<a class="anchor" aria-label="anchor" href="#why-this-didnt-promote-plasticitybaldwin-to--0-5-9"></a></h3>
+<h3 id="why-this-didnt-promote-plasticitybaldwin-to-white_check_mark-0-5-9">Why this didn’t promote plasticity/Baldwin to ✅<a class="anchor" aria-label="anchor" href="#why-this-didnt-promote-plasticitybaldwin-to-white_check_mark-0-5-9"></a></h3>
 <p>Selfing preserves diploidy but inbreeds populations: equilibrium drops to ~30-35 agents, most seeds fall below the viability threshold. In the 1-2 surviving seeds per condition, direction is Baldwin-correct (seasonal 0.0766 &gt; stable 0.0754, Δ = +0.0012) but too few replicates to cross 2σ.</p>
 <p>Full promotion would require one of: - <strong>Broader mate search</strong> (5×5 or 7×7 neighbourhood instead of Moore 8) so Allee-failure becomes rare and full-diploid evolution dominates. Ecologically reasonable. - <strong>Outcrossed fallback</strong> (random cross-grid sperm donor instead of parent1) so no-mate offspring isn’t inbred.</p>
 <p>Both are kernel changes outside the 0.5.9 scope.</p>
@@ -743,7 +790,7 @@ RQ_benefit = (A − B) − (C − D)
 <p>Followed up the morning’s <code><a href="../reference/realistic_specs.html">realistic_specs()</a></code> work with the two priorities from the 🟠-analysis reflection: (1) activate the existing BNN action-noise / sigma-lr decoupling in the plasticity/Baldwin/RL audits, (2) add a bigger preset for finite-size-sensitive scenarios.</p>
 <p><strong>Promotion:</strong></p>
 <ul><li>
-<strong>s-rl 🟠 → ✅</strong> at 16 seeds × realistic_specs with <code>bnn_action_noise_scale = 0.7, bnn_sample_freq = 5,   rl_update_freq = 5, learning_rate_init_mean = 0.005</code>: Δn_agents(actor_critic − none) = +10.9 ± 4.9 at t = +2.20 (17% larger equilibrium population). Williams 1992 REINFORCE works when the agent can actually <em>exploit</em> its learned posterior mean; legacy sigma-coupled action noise was re-randomising the policy every tick and cancelling the learning signal.</li>
+<strong>s-rl 🟠 → ✅</strong> at 16 seeds × realistic_specs with <code>bnn_action_noise_scale = 0.7, bnn_sample_freq = 5, rl_update_freq = 5, learning_rate_init_mean = 0.005</code>: Δn_agents(actor_critic − none) = +10.9 ± 4.9 at t = +2.20 (17% larger equilibrium population). Williams 1992 REINFORCE works when the agent can actually <em>exploit</em> its learned posterior mean; legacy sigma-coupled action noise was re-randomising the policy every tick and cancelling the learning signal.</li>
 </ul><p><strong>New preset:</strong></p>
 <ul><li>
 <strong><code><a href="../reference/ultra_realistic_specs.html">ultra_realistic_specs()</a></code></strong> — 120×120 grid, 500 init, 5000 max, 2500 ticks, 400-agent equilibrium. Designed for Red-Queen-type scenarios whose theoretical signal scales with N.</li>
@@ -801,7 +848,7 @@ RQ_benefit = (A − B) − (C − D)
 <li>
 <strong><code>search_map_elites(n_cores)</code> removed</strong> — the argument was accepted but silently ignored (the MAP-Elites loop is inherently serial because each candidate’s parent is selected from the current archive). Callers passing <code>n_cores</code> to this function now error, which is correct: previously they were lied to. If you want parallelism across MAP-Elites <em>searches</em>, use <code>batch_alife(list_of_search_calls, n_cores = N)</code> externally.</li>
 <li>
-<strong><code>search_viability(n_cores)</code></strong> — added. Every <code>(param_x,   param_y) × replicate</code> combination is independent; grid now parallelises via PSOCK. Backward-compatible (default <code>n_cores =   1L</code>). Also flattened the evaluation loop so parallelism works across both grid cells AND replicate seeds, not just one.</li>
+<strong><code>search_viability(n_cores)</code></strong> — added. Every <code>(param_x, param_y) × replicate</code> combination is independent; grid now parallelises via PSOCK. Backward-compatible (default <code>n_cores = 1L</code>). Also flattened the evaluation loop so parallelism works across both grid cells AND replicate seeds, not just one.</li>
 <li>
 <strong>Julia brain-type error message</strong> — was “Transformer and Synthesis are planned for later phases” (promises implementation that isn’t coming in 0.5.x). Now: “‘transformer’ and ‘synthesis’ are reserved names, not implemented.” Matches the corrected R-side doc.</li>
 <li>

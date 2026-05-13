@@ -24,26 +24,26 @@ of defection.
 
 **Hamilton’s kin altruism parameters.**
 
-| Parameter                       | Default | Effect                                   |
-|---------------------------------|---------|------------------------------------------|
-| `kin_selection`                 | FALSE   | Enable kin altruism                      |
-| `kin_altruism_r_min`            | 0.25    | Minimum relatedness to donate (siblings) |
-| `kin_altruism_cost`             | 2.0     | Energy transferred per act               |
-| `kin_altruism_min_donor_energy` | 50.0    | Donor energy floor                       |
+| Parameter | Default | Effect |
+|----|----|----|
+| `kin_selection` | FALSE | Enable kin altruism |
+| `kin_altruism_r_min` | 0.25 | Minimum relatedness to donate (siblings) |
+| `kin_altruism_cost` | 2.0 | Energy transferred per act |
+| `kin_altruism_min_donor_energy` | 50.0 | Donor energy floor |
 
 **IFfolk and parliament parameters.**
 
-| Parameter                   | Default | Effect                                   |
-|-----------------------------|---------|------------------------------------------|
-| `iffolk_selection`          | FALSE   | Enable IFfolk transfers                  |
-| `iffolk_r_min`              | 0.125   | Minimum relatedness (cousins and closer) |
-| `iffolk_radius`             | 5       | Neighbourhood radius for kin search      |
-| `iffolk_transfer`           | 3.0     | Energy transferred per act               |
-| `iffolk_min_energy`         | 60.0    | Donor must exceed this energy            |
-| `parliament_suppression`    | FALSE   | Penalise defectors among cooperators     |
-| `parliament_cost`           | 0.5     | Energy penalty for defectors             |
-| `cooperative_breeding`      | FALSE   | Enable `helper_tendency` trait           |
-| `helper_tendency_init_mean` | 0.2     | Starting helper tendency                 |
+| Parameter | Default | Effect |
+|----|----|----|
+| `iffolk_selection` | FALSE | Enable IFfolk transfers |
+| `iffolk_r_min` | 0.125 | Minimum relatedness (cousins and closer) |
+| `iffolk_radius` | 5 | Neighbourhood radius for kin search |
+| `iffolk_transfer` | 3.0 | Energy transferred per act |
+| `iffolk_min_energy` | 60.0 | Donor must exceed this energy |
+| `parliament_suppression` | FALSE | Penalise defectors among cooperators |
+| `parliament_cost` | 0.5 | Energy penalty for defectors |
+| `cooperative_breeding` | FALSE | Enable `helper_tendency` trait |
+| `helper_tendency_init_mean` | 0.2 | Starting helper tendency |
 
 **Expected outputs.** (1) Kin altruism: `n_altruistic_acts` is positive;
 population size is generally higher than baseline; genetic diversity may
@@ -55,6 +55,7 @@ near 1.0.
 **Example: Hamilton kin altruism.**
 
 ``` r
+
 library(clade)
 library(ggplot2)
 library(patchwork)
@@ -171,6 +172,7 @@ are highest when resources are tight and related neighbours are present.
 **Example: IFfolk with parliament suppression.**
 
 ``` r
+
 s <- default_specs()
 s$iffolk_selection        <- TRUE
 s$iffolk_r_min            <- 0.125

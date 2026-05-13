@@ -32,14 +32,14 @@ acquire more energy, survive longer, and leave more offspring.
 
 **Spatial sorting parameters.**
 
-| Parameter                 | Default | Effect                                     |
-|---------------------------|---------|--------------------------------------------|
-| `dispersal_evolution`     | FALSE   | Enable heritable dispersal tendency        |
-| `dispersal_init_mean`     | 0.5     | Starting dispersal probability             |
-| `dispersal_mutation_sd`   | 0.05    | Mutation rate for dispersal                |
-| `spatial_sorting`         | FALSE   | Enable invasion-front mating assortment    |
-| `sorting_front_threshold` | 0.75    | Fraction from front to define “front zone” |
-| `sorting_mating_boost`    | 3.0     | Fold-increase in mate encounters at front  |
+| Parameter | Default | Effect |
+|----|----|----|
+| `dispersal_evolution` | FALSE | Enable heritable dispersal tendency |
+| `dispersal_init_mean` | 0.5 | Starting dispersal probability |
+| `dispersal_mutation_sd` | 0.05 | Mutation rate for dispersal |
+| `spatial_sorting` | FALSE | Enable invasion-front mating assortment |
+| `sorting_front_threshold` | 0.75 | Fraction from front to define “front zone” |
+| `sorting_mating_boost` | 3.0 | Fold-increase in mate encounters at front |
 
 **Dispersal evolution parameters.**
 
@@ -52,12 +52,12 @@ acquire more energy, survive longer, and leave more offspring.
 
 **Habitat preference parameters.**
 
-| Parameter                        | Default | Effect                                            |
-|----------------------------------|---------|---------------------------------------------------|
-| `habitat_preference_evolution`   | FALSE   | Enables evolution of the habitat preference trait |
-| `habitat_preference_init_mean`   | 0.0     | Starting mean preference (0 = no bias)            |
-| `habitat_preference_mutation_sd` | 0.03    | Mutational step size per generation               |
-| `habitat_preference_strength`    | 0.5     | Strength of bias applied to movement decisions    |
+| Parameter | Default | Effect |
+|----|----|----|
+| `habitat_preference_evolution` | FALSE | Enables evolution of the habitat preference trait |
+| `habitat_preference_init_mean` | 0.0 | Starting mean preference (0 = no bias) |
+| `habitat_preference_mutation_sd` | 0.03 | Mutational step size per generation |
+| `habitat_preference_strength` | 0.5 | Strength of bias applied to movement decisions |
 
 **Expected outputs.** (1) Spatial sorting: `mean_front_dispersal`
 diverges upward from `mean_rear_dispersal` over time. (2) Dispersal
@@ -124,6 +124,7 @@ strength of spatial sorting. Rear dispersal may drift downward if there
 is any cost to dispersal.
 
 ``` r
+
 s <- default_specs()
 s$dispersal_evolution   <- TRUE
 s$dispersal_init_mean   <- 0.3
@@ -167,6 +168,7 @@ Spatial plots at the end of the run should show agents concentrated near
 dense grass patches, consistent with the IFD prediction.
 
 ``` r
+
 library(clade)
 library(ggplot2)
 
@@ -239,6 +241,7 @@ Phillips et al. 2008).
 | `toroidal` | TRUE    | Set to FALSE for a linear habitat with hard boundaries |
 
 ``` r
+
 library(clade)
 library(ggplot2)
 

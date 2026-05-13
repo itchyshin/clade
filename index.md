@@ -109,8 +109,16 @@ and unit-sensitivity patterns:
 
 - [**Kokko & Brooks
   2003**](https://itchyshin.github.io/clade/articles/paper-kokko-brooks-2003.md)
-  — “Sexy to die for?” — clade contradicts the interaction direction
-  (honest mechanism mismatch)
+  — “Sexy to die for?” — interaction null under 0.6.4 corrected kernel
+  (previous contradiction was a stub artifact)
+- [**Fuller, Houle & Travis
+  2005**](https://itchyshin.github.io/clade/articles/paper-fuller-2005.md)
+  *Am Nat* — sensory-bias synthesis (Zahavi ✅, β_N half, Fisher needs
+  linkage)
+- [**Ryan
+  1990**](https://itchyshin.github.io/clade/articles/paper-ryan-1990.md)
+  *Oxford Surv Evol Biol* — sensory exploitation (preferences ✅, signal
+  downstream null)
 - [**Griesser et
   al. 2023**](https://itchyshin.github.io/clade/articles/paper-griesser-2023.md)
   *PNAS* — parental provisioning → brain size (direction-correct
@@ -138,6 +146,7 @@ template off these examples.
 ## Quick start
 
 ``` r
+
 # install.packages("remotes")
 remotes::install_github("itchyshin/clade")
 
@@ -156,14 +165,14 @@ plot_run(get_run_data(env))   # population × energy × diversity dashboard
 
 ## Is clade right for your question?
 
-| You want to study…                                                           | Use                                                  | Why not clade                                                                   |
-|------------------------------------------------------------------------------|------------------------------------------------------|---------------------------------------------------------------------------------|
-| Behaviour, cognition, and social evolution with heritable neural genomes     | **clade**                                            | —                                                                               |
-| Genome-scale population genetics with realistic recombination and demography | **[SLiM](https://messerlab.org/slim/)**              | clade’s genome is neural-network weights, not chromosomal loci                  |
-| Coalescent / tree-sequence inference                                         | **[msprime](https://tskit.dev/msprime/)**            | clade is forward-time, phenotype-first                                          |
-| Teaching discrete-generation IBMs in a classroom browser                     | **[NetLogo](https://ccl.northwestern.edu/netlogo/)** | clade assumes a working R + Julia toolchain                                     |
-| Generic ABM (markets, traffic, opinion dynamics)                             | **[Mesa](https://mesa.readthedocs.io/)**             | clade’s primitives (genome, fitness, meiosis) are evolutionary-biology-specific |
-| Epidemiology as the primary modelling target                                 | specialised epi frameworks                           | clade has a SIR `disease` module, but it’s a tool, not the target               |
+| You want to study… | Use | Why not clade |
+|----|----|----|
+| Behaviour, cognition, and social evolution with heritable neural genomes | **clade** | — |
+| Genome-scale population genetics with realistic recombination and demography | **[SLiM](https://messerlab.org/slim/)** | clade’s genome is neural-network weights, not chromosomal loci |
+| Coalescent / tree-sequence inference | **[msprime](https://tskit.dev/msprime/)** | clade is forward-time, phenotype-first |
+| Teaching discrete-generation IBMs in a classroom browser | **[NetLogo](https://ccl.northwestern.edu/netlogo/)** | clade assumes a working R + Julia toolchain |
+| Generic ABM (markets, traffic, opinion dynamics) | **[Mesa](https://mesa.readthedocs.io/)** | clade’s primitives (genome, fitness, meiosis) are evolutionary-biology-specific |
+| Epidemiology as the primary modelling target | specialised epi frameworks | clade has a SIR `disease` module, but it’s a tool, not the target |
 
 ------------------------------------------------------------------------
 

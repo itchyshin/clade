@@ -135,7 +135,7 @@ so the R↔Julia boundary is crossed exactly once per run_alife() call."></head>
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>clade: Agent-Based Evolutionary Simulation with Julia Backend</h1>
-      <small class="dont-index">Source: <a href="https://github.com/itchyshin/clade/blob/main/R/clade-package.R" class="external-link"><code>R/clade-package.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/itchyshin/clade/blob/claude/ci-public-repo/R/clade-package.R" class="external-link"><code>R/clade-package.R</code></a></small>
       <div class="d-none name"><code>clade-package.Rd</code></div>
     </div>
 
@@ -201,9 +201,11 @@ al. 2015).</p></li>
 <li><p><code>"ann"</code> — standard multilayer perceptron.</p></li>
 <li><p><code>"ctrnn"</code> — continuous-time recurrent network (Beer 1995).</p></li>
 <li><p><code>"grn"</code> — sparse gene-regulatory network topology.</p></li>
-<li><p><code>"transformer"</code> — self-attention (highest capacity, slowest).</p></li>
-<li><p><code>"synthesis"</code> — symbolic rule extraction from evolved weights.</p></li>
-</ul></div>
+<li><p><code>"random"</code> — null-baseline architecture for sanity checks.</p></li>
+</ul><p>Two further names are reserved for future implementation and currently
+error if requested: <code>"transformer"</code> (self-attention) and <code>"synthesis"</code>
+(symbolic rule extraction from evolved weights).</p>
+</div>
 
 <div class="section">
 <h3 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a></h3>
@@ -225,7 +227,8 @@ a Julia backend. R package version 0.5.6.
     <div class="section level2">
     <h2 id="author">Author<a class="anchor" aria-label="anchor" href="#author"></a></h2>
     <p><strong>Maintainer</strong>: Shinichi Nakagawa <a href="mailto:s.nakagawa@unsw.edu.au">s.nakagawa@unsw.edu.au</a></p>
-    </div>
+<p>Authors:</p><ul><li><p>Shinichi Nakagawa <a href="mailto:s.nakagawa@unsw.edu.au">s.nakagawa@unsw.edu.au</a></p></li>
+</ul></div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

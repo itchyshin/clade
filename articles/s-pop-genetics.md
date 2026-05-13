@@ -17,10 +17,10 @@ a suitable target for heritability analysis within a single run.
 
 **Key parameters.**
 
-| Parameter             | Default | Effect                                             |
-|-----------------------|---------|----------------------------------------------------|
-| `body_size_evolution` | FALSE   | Enables heritable, evolving body size              |
-| `max_ticks`           | —       | Longer runs accumulate more parent-offspring pairs |
+| Parameter | Default | Effect |
+|----|----|----|
+| `body_size_evolution` | FALSE | Enables heritable, evolving body size |
+| `max_ticks` | — | Longer runs accumulate more parent-offspring pairs |
 
 **Expected output.** h² for `body_size` should be substantially positive
 (0.3–0.7) early in the run, reflecting the strong additive genetic
@@ -31,6 +31,7 @@ selection erodes genetic variance, h² may decline in later ticks. The
 by the local environment.
 
 ``` r
+
 library(clade)
 
 s <- fast_specs()                     # ~66 generations in 2000 ticks

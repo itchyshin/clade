@@ -34,7 +34,7 @@ Invisibly, the `specs` list (for piping).
 
 ``` r
 print_specs()
-#> -- clade specs (267 parameters) --
+#> -- clade specs (296 parameters) --
 #> 
 #>   Grid & population
 #>     grid_rows                              30
@@ -74,7 +74,6 @@ print_specs()
 #>     max_age                                200
 #>     life_history                           iteroparous
 #>     senescence_rate                        0
-#>     repro_senescence                       0
 #> 
 #>   Body size
 #>     body_size_evolution                    FALSE
@@ -187,6 +186,7 @@ print_specs()
 #> 
 #>   Other
 #>     toroidal                               TRUE
+#>     random_tick_order                      TRUE
 #>     max_bite                               2
 #>     repro_cost_mode                        proportional
 #>     repro_cost_fraction                    0.5
@@ -232,7 +232,6 @@ print_specs()
 #>     epigenetic_effect_size                 0.2
 #>     methylation_rate                       0.001
 #>     demethylation_rate                     0.002
-#>     life_history_evolution                 FALSE
 #>     allee_threshold                        0
 #>     brain_size_evolution                   FALSE
 #>     brain_size_init_mean                   1
@@ -241,6 +240,42 @@ print_specs()
 #>     brain_size_max                         3
 #>     brain_size_cost_scale                  1
 #>     brain_size_sensing_exponent            0.3
+#>     personality_syndrome                   FALSE
+#>     exploration_init_mean                  0.5
+#>     exploration_mutation_sd                0.05
+#>     boldness_init_mean                     0.5
+#>     boldness_mutation_sd                   0.05
+#>     aggressiveness_init_mean               0.5
+#>     aggressiveness_mutation_sd             0.05
+#>     personality_beta                       1.25
+#>     personality_alpha                      0.005
+#>     wolf_year1_repro_age                   50
+#>     wolf_year2_repro_age                   100
+#>     personality_f_high                     3
+#>     personality_f_low                      2
+#>     personality_b                          0.5
+#>     personality_gamma                      0.1
+#>     personality_V                          0.5
+#>     personality_delta                      0.5
+#>     personality_hawkdove_per_tick          0.1
+#>     personality_antipred_per_tick          0.5
+#>     personality_hawkdove_radius            1
+#>     reciprocal_altruism                    FALSE
+#>     reciprocity_initial_init_mean          0.5
+#>     reciprocity_initial_mutation_sd        0.05
+#>     reciprocity_retaliation_init_mean      0.5
+#>     reciprocity_retaliation_mutation_sd    0.05
+#>     reciprocity_forgiveness_init_mean      0.1
+#>     reciprocity_forgiveness_mutation_sd    0.05
+#>     reciprocity_cost                       0.5
+#>     reciprocity_benefit_ratio              2
+#>     reciprocity_interaction_rate           0.1
+#>     partner_memory_size                    8
+#>     reciprocity_radius                     1
+#>     responsive_personalities               FALSE
+#>     responsiveness_init_mean               0.5
+#>     responsiveness_mutation_sd             0.05
+#>     responsiveness_cost                    0.4
 #>     metabolic_rate_evolution               FALSE
 #>     metabolic_rate_init_mean               1
 #>     metabolic_rate_mutation_sd             0.05
@@ -331,17 +366,12 @@ print_specs()
 #>     clutch_size_max                        5
 #>     clutch_size_mutation_sd                0.3
 #>     parental_investment_evolution          FALSE
-#>     parental_investment_init_mean          0.5
 #>     female_investment                      0.7
 #>     male_repro_cost                        0.3
 #>     stress_hypermutation                   FALSE
 #>     stress_mutation_multiplier             3
 #>     stress_threshold                       20
 #>     senescence_shape                       2
-#>     wall_density                           0
-#>     wall_clusters                          TRUE
-#>     world_evolution                        FALSE
-#>     world_mutation_sd                      0.02
 #>     fixed_patch                            FALSE
 #>     fixed_patch_value                      5
 #>     fixed_patch_x                          NA
@@ -352,7 +382,7 @@ s <- default_specs()
 s$kin_selection <- TRUE
 s$complex_landscape <- TRUE
 print_specs(s, diff_only = TRUE)
-#> -- clade specs (267 parameters) [diff only] --
+#> -- clade specs (296 parameters) [diff only] --
 #> 
 #>   Kin selection
 #>     kin_selection                          TRUE *

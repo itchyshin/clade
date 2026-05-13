@@ -13,14 +13,14 @@ consumed by any agent that moves onto the cell, yielding
 
 **Key parameters.**
 
-| Parameter                   | Default | Effect                                                                        |
-|-----------------------------|---------|-------------------------------------------------------------------------------|
-| `scavenging`                | FALSE   | Enables carrion deposition and consumption                                    |
-| `carrion_fraction`          | 0.5     | Fraction of a dead agent’s energy deposited as carrion                        |
-| `carrion_decay_rate`        | 0.1     | Proportional decay of carrion per tick                                        |
-| `carrion_eat_gain`          | 3.0     | Energy gained by a scavenger per unit of carrion consumed                     |
-| `carrion_transmission_prob` | 0.0     | Probability that eating from an infected carcass transmits disease            |
-| `grass_rate`                | 0.05    | Set low to create resource scarcity that accentuates the scavenging advantage |
+| Parameter | Default | Effect |
+|----|----|----|
+| `scavenging` | FALSE | Enables carrion deposition and consumption |
+| `carrion_fraction` | 0.5 | Fraction of a dead agent’s energy deposited as carrion |
+| `carrion_decay_rate` | 0.1 | Proportional decay of carrion per tick |
+| `carrion_eat_gain` | 3.0 | Energy gained by a scavenger per unit of carrion consumed |
+| `carrion_transmission_prob` | 0.0 | Probability that eating from an infected carcass transmits disease |
+| `grass_rate` | 0.05 | Set low to create resource scarcity that accentuates the scavenging advantage |
 
 **Expected output (latest: 0.5.x ✅ via realistic_specs + predator
 guild).** Earlier default-scale sweeps found no DeVault 2003 energy
@@ -30,10 +30,10 @@ predators, `predator_max_agents = 120`, `predator_energy_gain = 20`) the
 predator guild produces enough carrion for the scavenging channel to
 express as a measurable energy boost:
 
-| Metric                         | scavenging OFF | scavenging ON | Δ ± SE           | t              |
-|--------------------------------|----------------|---------------|------------------|----------------|
-| `mean_energy` (last 500 ticks) | —              | —             | **+3.42 ± 0.71** | **+4.83 PASS** |
-| `n_agents`                     | —              | —             | **+14.9 ± 6.1**  | **+2.46 PASS** |
+| Metric | scavenging OFF | scavenging ON | Δ ± SE | t |
+|----|----|----|----|----|
+| `mean_energy` (last 500 ticks) | — | — | **+3.42 ± 0.71** | **+4.83 PASS** |
+| `n_agents` | — | — | **+14.9 ± 6.1** | **+2.46 PASS** |
 
 DeVault 2003 holds when the predator guild supplies adequate carcasses.
 Full protocol:
@@ -48,6 +48,7 @@ grid, 500-tick runs) — scavenging is a population-density × grid-size ×
 run-length phenomenon and needs the realistic regime to express.
 
 ``` r
+
 library(clade)
 library(ggplot2)
 
@@ -97,6 +98,7 @@ produces a fitness improvement of **12.0x** over the defaults above. See
 `dev/audit/calibration/RESULTS.md` for the full CMA-ES results.
 
 ``` r
+
 # Parameter overrides discovered by CMA-ES (see dev/audit/calibration/):
 s <- default_specs()
 s$grass_rate                     <- 1
@@ -119,10 +121,10 @@ with predator guild, 8 seeds × 2 conds, 60×60 grid, 2000 ticks).**
 DeVault 2003’s carrion-as-energy-channel prediction is robustly
 reproduced at realistic scale:
 
-| Metric                         | scav_off (8 seeds) | scav_on (8 seeds) | Δ (on − off)      | t         | verdict  |
-|--------------------------------|--------------------|-------------------|-------------------|-----------|----------|
-| `mean_energy` (last 500 ticks) | 84.53 ± 0.46       | **87.94 ± 0.54**  | **+3.42 ± 0.71**  | **+4.83** | **PASS** |
-| `n_agents` (last 500 ticks)    | 132.8 ± 3.4        | **147.6 ± 5.0**   | **+14.88 ± 6.06** | **+2.46** | **PASS** |
+| Metric | scav_off (8 seeds) | scav_on (8 seeds) | Δ (on − off) | t | verdict |
+|----|----|----|----|----|----|
+| `mean_energy` (last 500 ticks) | 84.53 ± 0.46 | **87.94 ± 0.54** | **+3.42 ± 0.71** | **+4.83** | **PASS** |
+| `n_agents` (last 500 ticks) | 132.8 ± 3.4 | **147.6 ± 5.0** | **+14.88 ± 6.06** | **+2.46** | **PASS** |
 
 Both metrics cross 2 σ. Scavenging gives ~4% more energy and ~11% more
 population size. **This promotes the scenario from 🟠 to ✅** — the
@@ -156,6 +158,7 @@ than baseline under identical low-grass conditions. To go beyond:
     scavenging?
 
 ``` r
+
 library(clade)
 library(ggplot2)
 

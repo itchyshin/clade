@@ -1,5 +1,108 @@
 # Changelog
 
+## clade 0.7.0 (2026-05-05) — kernel discipline + three personality/cooperation papers
+
+### Two MATLAB-ancestor regressions fixed in the kernel
+
+clade descends from the Bulitko-group MATLAB code via the alifeR R port.
+Cross-codebase audit
+([dev/docs/consolidation-audit.md](https://itchyshin.github.io/clade/news/dev/docs/consolidation-audit.md))
+found two systematic biases the chain of ports lost:
+
+1.  **Random-asynchronous agent scheduling** (Grimm & Railsback 2005;
+    MATLAB `alife.m:324`). clade was iterating `env.agents` in array
+    order every tick — earlier-array agents systematically moved/ate/
+    mated first. Fixed at 9 sites across 8 files; new spec field
+    `random_tick_order` (default TRUE) controls. With FALSE, legacy
+    behaviour is recoverable for reproducibility.
+2.  **One-per-cell movement** (MATLAB `takeAction.m:79`). clade allowed
+    silent agent stacking on a single cell; movement now rejects when
+    the target cell is occupied. New `cell_to_agents` Matrix on
+    Environment for true multi-occupancy lookup at sites that need it.
+    Spec field `max_agents_per_cell` (default 1) controls.
+3.  Bonus: **offspring placement** also enforced one-per-cell.
+    Previously newborns landed on the parent’s cell, immediately
+    stacking. Fixed at `_place_offspring` to scan the Moore
+    neighbourhood and pick a free cell; if none, no offspring (matching
+    MATLAB).
+
+[`viability_report()`](https://itchyshin.github.io/clade/reference/viability_report.md)
+learned to skip the absolute `min_n` check on flat-population scenarios
+(`n_init >= min_n`); 2 stale test assertions unrelated to the kernel
+fixes were corrected at the same time.
+
+### Three new paper reproductions
+
+All three are *spatially-explicit* clade interpretations rather than
+faithful re-implementations of the analytic mean-field models — clade’s
+value-add is precisely that encounters happen between *neighbouring*
+agents and resources are regulated by the grid, not abstract patches.
+Each vignette is honest about where the interpretation strengthens or
+weakens the original prediction.
+
+#### Wolf et al. 2007 Nature — personality syndrome
+
+[`vignette("paper-wolf2007")`](https://itchyshin.github.io/clade/articles/paper-wolf2007.md).
+Hawk-dove pairs from the Moore neighbourhood; anti-predator games
+anchored to real predator positions; year-1/year-2 reproduction at fixed
+agent ages with the life-history trade-off `g(x) = (1-x)^β`. Nine traits
+added to the genome (`exploration`, `boldness`, `aggressiveness` plus
+six gating fields).
+
+**Phase 6 refinement** (separate commit): added Wolf’s `(1 + α·N_i)`
+per-strategy competition denominator with `N_high ≈ N·mean(x)`,
+`N_low ≈ N·mean(1-x)`. Effect on the defining bold-aggro syndrome:
+**+0.10 → +0.31** (3× stronger). The asset-protection signs (exp ↔︎ bold,
+exp ↔︎ aggro) are weaker / sign-flipped because clade’s spatial
+population doesn’t reach the year-1-vs-year-2 dimorphism Wolf’s
+mean-field model predicts. The test asserts only the bold-aggro syndrome
+(the *defining* prediction); the asset-protection signs are diagnostics
+in the vignette.
+
+#### Trivers 1971 QRB — reciprocal altruism
+
+[`vignette("paper-trivers1971")`](https://itchyshin.github.io/clade/articles/paper-trivers1971.md).
+Generous-TFT decision via three heritable traits (`reciprocity_initial`,
+`reciprocity_retaliation`, `reciprocity_forgiveness`); per-agent partner
+memory (ring buffer); PD payoff with `b/c > 1` per Hamilton’s rule.
+Cooperation rises from the drift baseline of 0.500 to 0.718 in the
+favourable regime (`reciprocity_cost = 0.1`,
+`reciprocity_benefit_ratio = 2`).
+
+The vignette frames this as the empirical-scarcity finding: reciprocal
+altruism is intuitive but rare in nature (Stevens & Hauser 2004,
+Clutton-Brock 2009, Hammerstein 2003). clade’s parameter space confirms
+this — cooperation is robust only in narrow regimes.
+
+#### Wolf et al. 2008 PNAS — responsive personalities
+
+[`vignette("paper-wolf2008")`](https://itchyshin.github.io/clade/articles/paper-wolf2008.md).
+Single new trait `responsiveness`; agents pay an energy cost to override
+their action toward the richest free Moore-neighbour cell.
+Frequency-dependent benefit emerges from clade’s existing one-per-cell +
+handling-time economy: many responders → all flock to rich cells →
+first-mover wins, others waste the cost. Selection signal: 0.500 → 0.669
+(+0.169).
+
+The density sweep is *non-monotonic* in clade (peak at intermediate
+density), unlike Wolf’s monotonically-decreasing prediction — clade’s
+spatial winner-take-all differs from Wolf’s smooth `(1+α·N_i)`
+denominator. Documented in the vignette.
+
+### Spec fields added (~30 total)
+
+- `random_tick_order` (default `TRUE`)
+- `max_agents_per_cell` (default `1L`)
+- 16 `personality_*` fields (Wolf 2007), including `personality_alpha`
+- 12 `reciprocity_*` fields (Trivers)
+- 4 `responsive_*` fields (Wolf 2008)
+
+### Test suite
+
+1987 tests, 0 failures. Five new test files: `test-tick-order.R`,
+`test-cell-occupancy.R`, `test-personality-syndrome.R`,
+`test-reciprocal-altruism.R`, `test-responsive-personalities.R`.
+
 ## clade 0.6.5 (2026-04-20) — sensory-bias β_N installed (Ryan 1990 half-PASS)
 
 ### The mechanism
@@ -57,11 +160,11 @@ mutation would unlock both.
 [`vignette("paper-fuller-2005")`](https://itchyshin.github.io/clade/articles/paper-fuller-2005.md)
 rewritten to reflect 0.6.5 coverage of all three legs:
 
-| leg                        | status                                           | version                 |
-|----------------------------|--------------------------------------------------|-------------------------|
-| Zahavi handicap (β_Sv)     | ✅ reproduced                                    | 0.6.3                   |
-| Fisher runaway (C_tp \> 0) | ❌ direction-wrong (needs linkage)               | 0.6.4 wired mate choice |
-| Sensory bias (β_N)         | ⚠️ half (preferences PASS; signal response null) | 0.6.5                   |
+| leg | status | version |
+|----|----|----|
+| Zahavi handicap (β_Sv) | ✅ reproduced | 0.6.3 |
+| Fisher runaway (C_tp \> 0) | ❌ direction-wrong (needs linkage) | 0.6.4 wired mate choice |
+| Sensory bias (β_N) | ⚠️ half (preferences PASS; signal response null) | 0.6.5 |
 
 ### Regression tests
 
@@ -120,12 +223,12 @@ Callers that explicitly set `mate_choice_mode = "random"` or a strength
 
 ### Downstream audits re-run
 
-| vignette / scenario                                                                                        | pre-0.6.4 verdict                     | post-0.6.4 verdict                                                                                                        |
-|------------------------------------------------------------------------------------------------------------|---------------------------------------|---------------------------------------------------------------------------------------------------------------------------|
-| [`s-kokko-brooks-2003`](https://itchyshin.github.io/clade/news/paper-kokko-brooks-2003.md) K&B interaction | PASS (direction-wrong, t = +2.81)     | **null (t = +0.80)** — previously claimed “clade contradicts K&B direction” demoted                                       |
-| [`paper-fuller-2005`](https://itchyshin.github.io/clade/news/paper-fuller-2005.md) Fisher C_tp             | kernel-limit null (test couldn’t run) | direction-wrong (Δ = +0.019, t = +2.51) — new kernel-limit finding: no genetic linkage between signal and preference loci |
-| `s-signals` P2 (preference \> random)                                                                      | FAIL                                  | FAIL (unchanged; now reliably FAIL rather than trivially FAIL)                                                            |
-| `s-mating-systems`                                                                                         | —                                     | not affected (uses `ploidy`, not `mate_choice_mode`)                                                                      |
+| vignette / scenario | pre-0.6.4 verdict | post-0.6.4 verdict |
+|----|----|----|
+| [`s-kokko-brooks-2003`](https://itchyshin.github.io/clade/news/paper-kokko-brooks-2003.md) K&B interaction | PASS (direction-wrong, t = +2.81) | **null (t = +0.80)** — previously claimed “clade contradicts K&B direction” demoted |
+| [`paper-fuller-2005`](https://itchyshin.github.io/clade/news/paper-fuller-2005.md) Fisher C_tp | kernel-limit null (test couldn’t run) | direction-wrong (Δ = +0.019, t = +2.51) — new kernel-limit finding: no genetic linkage between signal and preference loci |
+| `s-signals` P2 (preference \> random) | FAIL | FAIL (unchanged; now reliably FAIL rather than trivially FAIL) |
+| `s-mating-systems` | — | not affected (uses `ploidy`, not `mate_choice_mode`) |
 
 The kokko-brooks demotion is the larger scientific impact: the
 previously-reported “clade robustly contradicts K&B” result depended on
@@ -229,11 +332,11 @@ Nat* quantitative-genetic framework for sexual-selection models (sensory
 bias vs Fisherian runaway vs good-genes vs direct benefits vs sexual
 conflict):
 
-| Column                        | Fuller 2005 quantity                                 | What it captures                                                                                                                                                                              |
-|-------------------------------|------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `mean_preference_magnitude`   | mean preference phenotype p̄                          | Population-mean of the agent preference vector (L1 norm)                                                                                                                                      |
-| `mean_signal_preference_dist` | proxy for −C_tp (preference-display covariance)      | Mean L2 distance between each agent’s signal and preference vectors. Shrinks under Fisher/good-genes coevolution (nonrandom mating produces C_tp \> 0); stays large under sensory bias alone. |
-| `sd_signal_magnitude`         | proxy for V_t (additive genetic variance in display) | Between-agent SD of signal magnitude                                                                                                                                                          |
+| Column | Fuller 2005 quantity | What it captures |
+|----|----|----|
+| `mean_preference_magnitude` | mean preference phenotype p̄ | Population-mean of the agent preference vector (L1 norm) |
+| `mean_signal_preference_dist` | proxy for −C_tp (preference-display covariance) | Mean L2 distance between each agent’s signal and preference vectors. Shrinks under Fisher/good-genes coevolution (nonrandom mating produces C_tp \> 0); stays large under sensory bias alone. |
+| `sd_signal_magnitude` | proxy for V_t (additive genetic variance in display) | Between-agent SD of signal magnitude |
 
 These unlock the sensory-bias / Fisher-runaway / handicap test discussed
 in
@@ -541,10 +644,10 @@ demographic OK, directional-selection null”).
 
 Re-audit at `default_specs` (30×30, 16 seeds × 2000 ticks):
 
-| metric                  | no_predators  | predators     | Δ ± SE             | t              |
-|-------------------------|---------------|---------------|--------------------|----------------|
-| `n_agents`              | 115.8 ± 2.1   | 111.3 ± 2.3   | −4.44 ± 3.11       | −1.43          |
-| `mean_energy`           | 159.1 ± 0.6   | 160.7 ± 0.7   | +1.55 ± 0.90       | +1.73          |
+| metric | no_predators | predators | Δ ± SE | t |
+|----|----|----|----|----|
+| `n_agents` | 115.8 ± 2.1 | 111.3 ± 2.3 | −4.44 ± 3.11 | −1.43 |
+| `mean_energy` | 159.1 ± 0.6 | 160.7 ± 0.7 | +1.55 ± 0.90 | +1.73 |
 | **`genetic_diversity`** | 0.570 ± 0.004 | 0.581 ± 0.004 | **+0.012 ± 0.005** | **+2.19 PASS** |
 
 Predators **increase** prey genetic diversity at default scale — exactly

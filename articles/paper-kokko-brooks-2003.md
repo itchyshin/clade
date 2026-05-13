@@ -75,6 +75,7 @@ Same structure as the other paper reproductions (Griesser 2023, D&D
 Does the K&B interaction ever go negative at any tested cost level?
 
 ``` r
+
 library(clade)
 
 base <- default_specs()
@@ -139,6 +140,7 @@ being ignored.
 ## Stage 2: multi-seed validation
 
 ``` r
+
 library(clade)
 
 base <- default_specs()
@@ -209,6 +211,7 @@ Confirm the most-stressed cell (very_scarce + signals) isn’t sitting at
 a pathological fitness cliff that would invalidate the Δ statistics.
 
 ``` r
+
 s_check <- base
 s_check$signal_dims            <- SIGNAL_DIMS
 s_check$signal_cost            <- 0.2

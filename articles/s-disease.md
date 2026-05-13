@@ -11,15 +11,15 @@ probability for infected agents.
 
 **Key parameters.**
 
-| Parameter             | Default | Effect                                                |
-|-----------------------|---------|-------------------------------------------------------|
-| `disease`             | FALSE   | Enable SIR dynamics                                   |
-| `transmission_prob`   | 0.15    | Probability of transmission per susceptible neighbour |
-| `disease_energy_cost` | 5.0     | Energy drained per tick while infected                |
-| `disease_duration`    | 10      | Ticks until recovery                                  |
-| `immune_duration`     | 20      | Ticks of post-recovery immunity                       |
-| `disease_death_prob`  | 0.01    | Extra mortality per tick while infected               |
-| `disease_seed_prob`   | 0.02    | Fraction infected at tick 1                           |
+| Parameter | Default | Effect |
+|----|----|----|
+| `disease` | FALSE | Enable SIR dynamics |
+| `transmission_prob` | 0.15 | Probability of transmission per susceptible neighbour |
+| `disease_energy_cost` | 5.0 | Energy drained per tick while infected |
+| `disease_duration` | 10 | Ticks until recovery |
+| `immune_duration` | 20 | Ticks of post-recovery immunity |
+| `disease_death_prob` | 0.01 | Extra mortality per tick while infected |
+| `disease_seed_prob` | 0.02 | Fraction infected at tick 1 |
 
 **Expected output.** `n_infected` rises sharply in the first 10–30 ticks
 as the pathogen spreads through the susceptible population, then
@@ -27,6 +27,7 @@ declines as agents recover and acquire temporary immunity. Population
 size drops noticeably during the outbreak.
 
 ``` r
+
 library(clade)
 library(ggplot2)
 library(patchwork)
@@ -84,6 +85,7 @@ produces a fitness improvement of **45.2x** over the defaults above. See
 `dev/audit/calibration/RESULTS.md` for the full CMA-ES results.
 
 ``` r
+
 # Parameter overrides discovered by CMA-ES (see dev/audit/calibration/):
 s <- default_specs()
 s$transmission_prob              <- 0.9001

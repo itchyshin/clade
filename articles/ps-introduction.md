@@ -29,15 +29,15 @@ Each of these questions maps to a different search algorithm. A single
 
 ## The four tools at a glance
 
-| Function            | Strategy                                        | When                                                                |
-|:--------------------|:------------------------------------------------|:--------------------------------------------------------------------|
-| search_random()     | Stochastic sweep                                | Fast initial screen — before you know what to tune                  |
-| search_map_elites() | Quality-diversity archive (Mouret & Clune 2015) | Illuminate the achievable behavioural space, not a single optimum   |
-| search_cmaes()      | CMA-ES optimisation (Hansen 2006)               | Find the single best parameter combination for one scalar objective |
-| search_viability()  | Rectangular viability map                       | Identify which parameter region keeps the population alive at all   |
-| search_gradient()   | Finite-difference gradient ascent               | Local refinement of an already-good parameter set                   |
+| Function | Strategy | When |
+|:---|:---|:---|
+| search_random() | Stochastic sweep | Fast initial screen — before you know what to tune |
+| search_map_elites() | Quality-diversity archive (Mouret & Clune 2015) | Illuminate the achievable behavioural space, not a single optimum |
+| search_cmaes() | CMA-ES optimisation (Hansen 2006) | Find the single best parameter combination for one scalar objective |
+| search_viability() | Rectangular viability map | Identify which parameter region keeps the population alive at all |
+| search_gradient() | Finite-difference gradient ascent | Local refinement of an already-good parameter set |
 
-`clade` parameter search functions at a glance.
+`clade` parameter search functions at a glance. {.table}
 
 A typical workflow moves from coarse to fine:
 
@@ -119,6 +119,7 @@ tick 50 should not be rewarded for its transient high diversity. The
 canonical pattern is:
 
 ``` r
+
 custom_obj <- function(env) {
   d   <- get_run_data(env)$ticks
   div <- mean(d$genetic_diversity, na.rm = TRUE)

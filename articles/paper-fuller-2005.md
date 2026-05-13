@@ -60,11 +60,11 @@ those legs its kernel can carry.
 
 ## Three mechanisms, one honest ledger
 
-| Mechanism                        | Fuller signature                                                               | Kernel status (0.6.3)                                                                                                                                                                                                                                                            |
-|----------------------------------|--------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Zahavi handicap**              | β_Sv \< 0: viability cost on display                                           | ✅ `signal_cost_mortality` (new 0.6.3)                                                                                                                                                                                                                                           |
-| **Fisher runaway**               | C_tp \> 0: signal-preference covariance grows under preference mating vs drift | ❌ direction-wrong — 0.6.4 wired `mate_choice_mode`, test now runs but signal and preference are independently inherited, so C_tp can’t build up (see below)                                                                                                                     |
-| **Sensory bias** sensu Ryan 1990 | β_N shaped preference first; signal later exploits it                          | ⚠️ half implemented (0.6.5) — `preference_bias_target` + `preference_bias_strength` install pre-existing bias on preferences, but signal response blocked by same linkage gap as Fisher. See [`paper-ryan-1990`](https://itchyshin.github.io/clade/articles/paper-ryan-1990.md). |
+| Mechanism | Fuller signature | Kernel status (0.6.3) |
+|----|----|----|
+| **Zahavi handicap** | β_Sv \< 0: viability cost on display | ✅ `signal_cost_mortality` (new 0.6.3) |
+| **Fisher runaway** | C_tp \> 0: signal-preference covariance grows under preference mating vs drift | ❌ direction-wrong — 0.6.4 wired `mate_choice_mode`, test now runs but signal and preference are independently inherited, so C_tp can’t build up (see below) |
+| **Sensory bias** sensu Ryan 1990 | β_N shaped preference first; signal later exploits it | ⚠️ half implemented (0.6.5) — `preference_bias_target` + `preference_bias_strength` install pre-existing bias on preferences, but signal response blocked by same linkage gap as Fisher. See [`paper-ryan-1990`](https://itchyshin.github.io/clade/articles/paper-ryan-1990.md). |
 
 0.6.2 (PR \#106) added three Fuller-framework metrics to the tick log —
 `mean_preference_magnitude`, `mean_signal_preference_dist` (proxy for
@@ -80,6 +80,7 @@ Five conditions × 8 seeds = 40 runs, 40×40 grid, 3000 ticks,
 has `signal_dims = 0` (signals off).
 
 ``` r
+
 library(clade)
 
 base <- default_specs()
@@ -157,8 +158,8 @@ and the re-audit of kokko-brooks-2003 demoted its “clade contradicts
 K&B” verdict. But the Fisher C_tp test itself did NOT pass — the
 signature is direction-wrong:
 
-| contrast                                                               | Δ final_sp_dist    | t         | verdict         |
-|------------------------------------------------------------------------|--------------------|-----------|-----------------|
+| contrast | Δ final_sp_dist | t | verdict |
+|----|----|----|----|
 | fisher_pure (preference mating) vs drift_only (random mating), no cost | **+0.019 ± 0.007** | **+2.51** | direction-wrong |
 
 Fisher runaway predicts `Δ sp_dist < 0` — preference mating should build
@@ -219,25 +220,27 @@ synthesis itself remains untested.
 ## Methodology takeaway
 
 This vignette models the **partial-reproduction** outcome: one mechanism
-from a multi-mechanism paper is reproduced, the others are documented
-kernel-limit nulls with specific, actionable kernel gaps noted. It pairs
-with the [Kokko & Brooks
-2003](https://itchyshin.github.io/clade/articles/paper-kokko-brooks-2003.md)
-mechanism- level-contradiction vignette (where the `mate_choice_mode`
-stub now casts uncertainty on the “✅ promoted” verdict, pending the
-re-audit) and with `s-signals` (same underlying substrate, same partial
-coverage).
+from a multi-mechanism paper is reproduced, one is half-implemented (β_N
+preferences respond, signals don’t), one is direction-wrong for a
+specific kernel gap (Fisher C_tp needs genetic linkage). Every gap is
+named with a concrete kernel change that would close it. It pairs with
+[paper-ryan-1990](https://itchyshin.github.io/clade/articles/paper-ryan-1990.md)
+(the β_N half-PASS companion) and
+[paper-kokko-brooks-2003](https://itchyshin.github.io/clade/articles/paper-kokko-brooks-2003.md)
+(whose 0.6.4 re-audit under real softmax mate choice demoted its
+interaction verdict to null).
 
 ## Pattern across the paper-reproduction showcase
 
-| Outcome                         | Examples                                          |
-|---------------------------------|---------------------------------------------------|
-| Clean ✅                        | Dieckmann & Doebeli 1999                          |
-| Conditional ✅                  | Réale 2010 (lifespan-only)                        |
-| Partial ✅ (1 of n mechanisms)  | **Fuller 2005** (this vignette — Zahavi leg only) |
-| Direction-correct sub-threshold | Griesser 2023, Courchamp 1999                     |
-| Raw-inverts-on-per-capita       | Emlen 1982                                        |
-| Mechanism-level contradiction   | Kokko & Brooks 2003                               |
+| Outcome | Examples |
+|----|----|
+| Clean ✅ | Dieckmann & Doebeli 1999 |
+| Conditional ✅ | Réale 2010 (lifespan-only) |
+| Partial ✅ (1 of n mechanisms) | **Fuller 2005** (this vignette — Zahavi leg ✅, β_N half, Fisher direction-wrong) |
+| Half ✅ (1 of 2 stages) | Ryan 1990 (β_N on preferences ✅, signal downstream null) |
+| Direction-correct sub-threshold | Griesser 2023, Courchamp 1999 |
+| Raw-inverts-on-per-capita | Emlen 1982 |
+| Null under corrected kernel | Kokko & Brooks 2003 (0.6.4 demoted) |
 
 ## Citation
 

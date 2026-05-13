@@ -17,19 +17,20 @@ buffering prediction holds only at tighter resource scarcity or higher
 
 **Key parameters.**
 
-| Parameter                      | Default | Effect                                                           |
-|--------------------------------|---------|------------------------------------------------------------------|
-| `parental_care`                | FALSE   | Enable parental care                                             |
-| `juvenile_independence_age`    | 10L     | Ticks offspring are carried. Replaces pre-0.4.0 `care_duration`. |
-| `juvenile_independence_energy` | 50.0    | Energy level at which juvenile graduates early                   |
-| `care_cost_per_tick`           | 1.0     | Energy drained from parent per juvenile per tick                 |
-| `feeding_rate`                 | 5.0     | Energy transferred to juvenile per tick                          |
+| Parameter | Default | Effect |
+|----|----|----|
+| `parental_care` | FALSE | Enable parental care |
+| `juvenile_independence_age` | 10L | Ticks offspring are carried. Replaces pre-0.4.0 `care_duration`. |
+| `juvenile_independence_energy` | 50.0 | Energy level at which juvenile graduates early |
+| `care_cost_per_tick` | 1.0 | Energy drained from parent per juvenile per tick |
+| `feeding_rate` | 5.0 | Energy transferred to juvenile per tick |
 
 **Expected output.** `n_juveniles` is positive. Per-capita offspring
 count may be lower than baseline (parents can carry fewer), but juvenile
 survival is higher. Population dynamics are more buffered.
 
 ``` r
+
 s <- default_specs()
 s$parental_care                <- TRUE
 s$juvenile_independence_age    <- 5L    # was `care_duration` in docs <0.5.6
@@ -72,11 +73,11 @@ vignette’s own hypothesis — that tighter resource scarcity or higher
 — and found a clean pass at
 `grass_rate = 0.08, care_cost_per_tick = 3.0`:
 
-| `grass_rate`       | no-care var | with-care var | Δ var     | t                                       |
-|--------------------|-------------|---------------|-----------|-----------------------------------------|
-| 0.05 (very scarce) | 19.4        | 18.3          | −1.1      | −0.12 (null; care near viability floor) |
-| **0.08 (scarce)**  | **62.8**    | **26.6**      | **−36.2** | **−2.61 PASS**                          |
-| 0.12 (moderate)    | 42.8        | 69.0          | +26.2     | +1.33 (null; env too stable)            |
+| `grass_rate` | no-care var | with-care var | Δ var | t |
+|----|----|----|----|----|
+| 0.05 (very scarce) | 19.4 | 18.3 | −1.1 | −0.12 (null; care near viability floor) |
+| **0.08 (scarce)** | **62.8** | **26.6** | **−36.2** | **−2.61 PASS** |
+| 0.12 (moderate) | 42.8 | 69.0 | +26.2 | +1.33 (null; env too stable) |
 
 At the sweet spot, care reduces absolute population variance by **58%**
 (62.8 → 26.6). The caveat Clutton-Brock’s framework doesn’t emphasise:

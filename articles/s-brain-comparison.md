@@ -37,6 +37,7 @@ covers the five working types.
 distilled to a readable form:
 
 ``` r
+
 library(clade)
 library(ggplot2); library(patchwork)
 

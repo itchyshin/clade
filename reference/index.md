@@ -38,6 +38,12 @@ Entry points for running and batching evolutionary simulations.
   : Ultra-realistic specs for finite-size-sensitive audits
 - [`load_specs()`](https://itchyshin.github.io/clade/reference/load_specs.md)
   : Load simulation specs from a JSON file
+- [`wolf_personality_specs()`](https://itchyshin.github.io/clade/reference/wolf_personality_specs.md)
+  : Spec preset for the Wolf 2007 personality reproduction
+- [`trivers_reciprocity_specs()`](https://itchyshin.github.io/clade/reference/trivers_reciprocity_specs.md)
+  : Spec preset for the Trivers 1971 reciprocal-altruism reproduction
+- [`wolf2008_responsiveness_specs()`](https://itchyshin.github.io/clade/reference/wolf2008_responsiveness_specs.md)
+  : Spec preset for the Wolf 2008 responsive-personalities reproduction
 
 ## Hypothesis testing
 

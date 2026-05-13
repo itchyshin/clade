@@ -16,12 +16,12 @@ frequent enough to detect the effect within a tractable run length.
 
 **Key parameters.**
 
-| Parameter                    | Default | Effect                                                    |
-|------------------------------|---------|-----------------------------------------------------------|
-| `stress_hypermutation`       | FALSE   | Enables condition-dependent mutation rate elevation       |
-| `stress_threshold`           | 20.0    | Energy level below which hypermutation activates          |
-| `stress_mutation_multiplier` | 3.0     | Factor by which mutation rate is scaled under stress      |
-| `grass_rate`                 | —       | Resource regrowth rate; reduce to impose chronic scarcity |
+| Parameter | Default | Effect |
+|----|----|----|
+| `stress_hypermutation` | FALSE | Enables condition-dependent mutation rate elevation |
+| `stress_threshold` | 20.0 | Energy level below which hypermutation activates |
+| `stress_mutation_multiplier` | 3.0 | Factor by which mutation rate is scaled under stress |
+| `grass_rate` | — | Resource regrowth rate; reduce to impose chronic scarcity |
 
 **Expected output.** Compare `genetic_diversity` trajectories across the
 two conditions. Under stress hypermutation, diversity should spike
@@ -31,6 +31,7 @@ condition should show slower, smoother recovery after equivalent
 crashes.
 
 ``` r
+
 library(clade)
 library(ggplot2)
 
@@ -78,6 +79,7 @@ produces a fitness improvement of **3.8x** over the defaults above. See
 `dev/audit/calibration/RESULTS.md` for the full CMA-ES results.
 
 ``` r
+
 # Parameter overrides discovered by CMA-ES (see dev/audit/calibration/):
 s <- default_specs()
 s$stress_threshold               <- 5L

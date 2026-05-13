@@ -20,12 +20,12 @@ trajectory of genetic diversity.
 
 **Key parameters.**
 
-| Parameter         | Default      | Effect                                                         |
-|-------------------|--------------|----------------------------------------------------------------|
-| `ploidy`          | 2L           | 1 = haploid asexual; 2 = diploid sexual                        |
-| `crossover_rate`  | 0.0          | Probability of crossover per chromosome per reproduction event |
-| `n_chromosomes`   | 1L           | Number of chromosome pairs (diploid only)                      |
-| `dominance_model` | `"additive"` | How alleles at the same locus combine                          |
+| Parameter | Default | Effect |
+|----|----|----|
+| `ploidy` | 2L | 1 = haploid asexual; 2 = diploid sexual |
+| `crossover_rate` | 0.0 | Probability of crossover per chromosome per reproduction event |
+| `n_chromosomes` | 1L | Number of chromosome pairs (diploid only) |
+| `dominance_model` | `"additive"` | How alleles at the same locus combine |
 
 **Expected output (updated 0.5.3).** At default parameters,
 Shannon-style `genetic_diversity` is actually *lower* in the sexual
@@ -38,6 +38,7 @@ no regime crosses 2×SE at 16 seeds. See “What we found” below for the
 full 0.5.3 resolution.
 
 ``` r
+
 library(clade)
 library(ggplot2)
 

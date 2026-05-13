@@ -35,6 +35,7 @@ start with
 already reproduces Hamilton’s rule under default conditions.
 
 ``` r
+
 library(clade)
 
 # The baseline: audited to reproduce Hamilton 1964 / Hamilton's rule
@@ -58,6 +59,7 @@ reference](https://itchyshin.github.io/clade/articles/parameter-reference.md)
 for the exact flag name:
 
 ``` r
+
 # Active neonatal foraging deficit: young agents forage at 50% of adult rate
 # until they graduate at t_graduation ticks old
 specs$neonatal_foraging_deficit <- 0.5
@@ -67,6 +69,7 @@ specs$parental_care             <- TRUE    # required for offspring to survive t
 Now create a second specs list for the null comparison (deficit off):
 
 ``` r
+
 specs_null            <- specs
 specs_null$neonatal_foraging_deficit <- 0.0
 # `parental_care` can stay on to hold that variable constant
@@ -82,6 +85,7 @@ with at least 8 seeds for a pilot, 16–64 for publication. Keep runs
 short while you debug, then scale up once the pipeline is working.
 
 ``` r
+
 # Pilot: 8 seeds × 500 ticks per condition — takes a few minutes
 pilot_deficit <- batch_alife(
   specs   = specs,
@@ -113,6 +117,7 @@ populations that actually persisted and reproduced. A simulation that
 crashed after 50 ticks has no signal to report.
 
 ``` r
+
 # Attach run data and check
 rd_deficit <- lapply(pilot_deficit, get_run_data)
 rd_null    <- lapply(pilot_null, get_run_data)
@@ -147,6 +152,7 @@ of helping-tendency alleles at the end of each run, and compare between
 conditions.
 
 ``` r
+
 helper_freq <- function(rd) {
   tail(rd$helper_tendency_mean, 1)  # final-tick mean of helper allele freq
 }
@@ -179,6 +185,7 @@ Publication-quality figures should show the distribution, not just
 means. Boxplots + jittered points beat bar charts.
 
 ``` r
+
 library(ggplot2)
 
 df <- data.frame(

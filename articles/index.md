@@ -48,6 +48,12 @@ workflow. Start with the template if you’re reproducing your own paper.
   synthesis)](https://itchyshin.github.io/clade/articles/paper-fuller-2005.md):
 - [Reproducing a paper — Ryan 1990 (sensory
   exploitation)](https://itchyshin.github.io/clade/articles/paper-ryan-1990.md):
+- [Wolf et al. 2007 — personality syndrome in a spatially-explicit
+  ABM](https://itchyshin.github.io/clade/articles/paper-wolf2007.md):
+- [Wolf et al. 2008 — responsive personalities in a spatially-explicit
+  ABM](https://itchyshin.github.io/clade/articles/paper-wolf2008.md):
+- [Trivers 1971 — reciprocal altruism in a spatially-explicit
+  ABM](https://itchyshin.github.io/clade/articles/paper-trivers1971.md):
 
 ### Parameter search
 

@@ -12,16 +12,16 @@ richer than the sum of their parts.
 
 **Key parameters.**
 
-| Parameter            | Setting          | Module                                          |
-|----------------------|------------------|-------------------------------------------------|
-| `complex_landscape`  | TRUE             | Heterogeneous habitat structure                 |
-| `n_predators_init`   | 5                | Predation pressure                              |
-| `disease`            | TRUE             | SIR infectious disease dynamics                 |
-| `kin_selection`      | TRUE             | Kin-based energy transfer                       |
-| `social_learning`    | TRUE             | Copy successful neighbours’ policies            |
-| `rl_mode`            | `"actor_critic"` | Within-lifetime policy gradient learning        |
-| `niche_construction` | TRUE             | Agents build shelters that modify the landscape |
-| `max_ticks`          | 500              | Long enough for multiple waves of each process  |
+| Parameter | Setting | Module |
+|----|----|----|
+| `complex_landscape` | TRUE | Heterogeneous habitat structure |
+| `n_predators_init` | 5 | Predation pressure |
+| `disease` | TRUE | SIR infectious disease dynamics |
+| `kin_selection` | TRUE | Kin-based energy transfer |
+| `social_learning` | TRUE | Copy successful neighbours’ policies |
+| `rl_mode` | `"actor_critic"` | Within-lifetime policy gradient learning |
+| `niche_construction` | TRUE | Agents build shelters that modify the landscape |
+| `max_ticks` | 500 | Long enough for multiple waves of each process |
 
 **Expected output.** No single output metric tells the full story. Look
 for disease waves in `n_infected`, predator oscillations in
@@ -30,6 +30,7 @@ between modules is emergent: shelters reduce predation, which alters the
 population structure on which kin selection and disease act.
 
 ``` r
+
 library(clade)
 library(ggplot2)
 library(tidyr)

@@ -15,12 +15,12 @@ the age–reproduction–energy trade-off.
 
 **Key parameters.**
 
-| Parameter                  | Default | Effect                                           |
-|----------------------------|---------|--------------------------------------------------|
-| `metabolic_rate_init_mean` | 1.0     | Initial (and fixed) metabolic rate               |
-| `metabolic_rate_evolution` | FALSE   | Keep metabolic rate fixed for this scenario      |
-| `metabolic_rate_min`       | 0.1     | Lower clamp (relevant when evolution is enabled) |
-| `metabolic_rate_max`       | 5.0     | Upper clamp                                      |
+| Parameter | Default | Effect |
+|----|----|----|
+| `metabolic_rate_init_mean` | 1.0 | Initial (and fixed) metabolic rate |
+| `metabolic_rate_evolution` | FALSE | Keep metabolic rate fixed for this scenario |
+| `metabolic_rate_min` | 0.1 | Lower clamp (relevant when evolution is enabled) |
+| `metabolic_rate_max` | 5.0 | Upper clamp |
 
 **Expected output.** Fast-pace agents (`metabolic_rate_init_mean = 2.0`)
 exhibit higher `n_births` per tick, lower `mean_age`, and higher energy
@@ -42,6 +42,7 @@ freeze the rate at its init value while still reading the spec. See
 [dev/audit/fidelity/pace_of_life.md](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/pace_of_life.md).
 
 ``` r
+
 library(clade)
 library(ggplot2)
 
@@ -95,6 +96,7 @@ produces a fitness improvement of **155.2x** over the defaults above.
 See `dev/audit/calibration/RESULTS.md` for the full CMA-ES results.
 
 ``` r
+
 # Parameter overrides discovered by CMA-ES (see dev/audit/calibration/):
 s <- default_specs()
 s$metabolic_rate_mutation_sd     <- 0.1357

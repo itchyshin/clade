@@ -29,6 +29,7 @@ returns them sorted by descending score.
 settings.
 
 ``` r
+
 library(clade)
 
 result <- search_random(
@@ -53,6 +54,7 @@ head(result)
 Retrieve the full specs of the best row:
 
 ``` r
+
 best_specs <- attr(result, "specs_list")[[1]]
 cat("Best mutation_sd:", best_specs$mutation_sd, "\n")
 cat("Best grass_rate:", best_specs$grass_rate, "\n")
@@ -82,6 +84,7 @@ into — *iff* that bin was empty or the new score beats the incumbent.
 **Cost.** 300 simulations = 20–90 minutes.
 
 ``` r
+
 result <- search_map_elites(
   specs_base   = default_specs(),
   archive_dims = list(
@@ -112,6 +115,7 @@ result$map
 Inspect the archive directly:
 
 ``` r
+
 non_empty <- Filter(Negate(is.null), result$archive)
 cat("Filled cells:", length(non_empty), "\n")
 cat("mutation_sd range in archive:",
@@ -152,6 +156,7 @@ required.
 minutes.
 
 ``` r
+
 result <- search_cmaes(
   specs_base = default_specs(),
   params     = c("mutation_sd", "grass_rate", "crossover_rate"),
@@ -216,6 +221,7 @@ replicates per cell. Reports a ggplot heatmap coloured by viability
 For 5 × 5 × 3 = 75 runs, 5–15 minutes.
 
 ``` r
+
 library(clade)
 
 s <- default_specs()
@@ -278,6 +284,7 @@ stochastic, so objectives *are* noisy).
 Usage mirrors the CMA-ES signature:
 
 ``` r
+
 result <- search_gradient(
   specs_base   = default_specs(),
   params       = c("mutation_sd", "grass_rate"),

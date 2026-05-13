@@ -32,6 +32,7 @@ clusters emerge and persist. Grid-search first to find the mutation
 regime that supports the D&D dynamic.
 
 ``` r
+
 library(clade)
 
 base <- fast_specs()
@@ -86,6 +87,7 @@ the validation regime.
 ## Stage 2: multi-seed validation at best mutation rate
 
 ``` r
+
 final_base <- base
 final_base$mutation_sd <- 0.10
 

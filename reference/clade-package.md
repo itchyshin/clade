@@ -77,9 +77,11 @@ Set `specs$brain_type`:
 
 - `"grn"` — sparse gene-regulatory network topology.
 
-- `"transformer"` — self-attention (highest capacity, slowest).
+- `"random"` — null-baseline architecture for sanity checks.
 
-- `"synthesis"` — symbolic rule extraction from evolved weights.
+Two further names are reserved for future implementation and currently
+error if requested: `"transformer"` (self-attention) and `"synthesis"`
+(symbolic rule extraction from evolved weights).
 
 ### Citation
 
@@ -100,3 +102,7 @@ Useful links:
 ## Author
 
 **Maintainer**: Shinichi Nakagawa <s.nakagawa@unsw.edu.au>
+
+Authors:
+
+- Shinichi Nakagawa <s.nakagawa@unsw.edu.au>

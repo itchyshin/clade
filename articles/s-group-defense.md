@@ -14,13 +14,13 @@ member.
 
 **Key parameters.**
 
-| Parameter                  | Default | Effect                                                              |
-|----------------------------|---------|---------------------------------------------------------------------|
-| `group_defense`            | FALSE   | Enables collective damage reduction in groups                       |
-| `group_defense_radius`     | 2       | Neighbourhood radius (cells) over which defense is pooled           |
-| `group_defense_strength`   | 0.3     | Fraction by which attack damage is reduced per additional neighbour |
-| `n_predators_init`         | 0       | Set \> 0 to activate predation pressure                             |
-| `predator_attack_strength` | 40.0    | Baseline damage before group reduction is applied                   |
+| Parameter | Default | Effect |
+|----|----|----|
+| `group_defense` | FALSE | Enables collective damage reduction in groups |
+| `group_defense_radius` | 2 | Neighbourhood radius (cells) over which defense is pooled |
+| `group_defense_strength` | 0.3 | Fraction by which attack damage is reduced per additional neighbour |
+| `n_predators_init` | 0 | Set \> 0 to activate predation pressure |
+| `predator_attack_strength` | 40.0 | Baseline damage before group reduction is applied |
 
 **Expected output (latest: 0.5.15 ✅ via extinction-rate framing).** The
 pre-0.5.15 mean-population test was the wrong metric — selfish-herd
@@ -49,6 +49,7 @@ fixed-predator + unlimited-food assumptions. The mean-population metric
 masked the extinction- protection signal that 0.5.15 recovered.
 
 ``` r
+
 library(clade)
 library(ggplot2)
 

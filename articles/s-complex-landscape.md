@@ -30,6 +30,7 @@ increases as wing-size evolution crosses the `canopy_threshold`. Niche
 entropy (ground/shrub/canopy mix) first rises then stabilises.
 
 ``` r
+
 s <- default_specs()
 s$complex_landscape   <- TRUE
 s$shrub_density       <- 0.35
@@ -54,6 +55,7 @@ to find parameter combinations that produce strong wing-size evolution
 with CMA-ES:
 
 ``` r
+
 tuned <- tune_complex_landscape(default_specs(), n_iterations = 80L)
 tuned$specs   # optimal landscape parameters
 ```
@@ -66,6 +68,7 @@ produces a fitness improvement of **8.9x** over the defaults above. See
 `dev/audit/calibration/RESULTS.md` for the full CMA-ES results.
 
 ``` r
+
 # Parameter overrides discovered by CMA-ES (see dev/audit/calibration/):
 s <- default_specs()
 s$canopy_threshold               <- 0.039

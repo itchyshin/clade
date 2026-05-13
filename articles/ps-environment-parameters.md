@@ -20,13 +20,13 @@ algorithms themselves, see
 
 ## Grid and population bookkeeping
 
-| Parameter                 | Default    | Role                                                             |
-|---------------------------|------------|------------------------------------------------------------------|
-| `grid_rows` / `grid_cols` | `30L` each | World dimensions                                                 |
-| `toroidal`                | `TRUE`     | Edges wrap; set `FALSE` for bounded invasion fronts (Shine 2011) |
-| `n_agents_init`           | `50L`      | Number of founders                                               |
-| `max_agents`              | `500L`     | Population cap (hard ceiling on reproduction)                    |
-| `max_ticks`               | `500L`     | Simulation length                                                |
+| Parameter | Default | Role |
+|----|----|----|
+| `grid_rows` / `grid_cols` | `30L` each | World dimensions |
+| `toroidal` | `TRUE` | Edges wrap; set `FALSE` for bounded invasion fronts (Shine 2011) |
+| `n_agents_init` | `50L` | Number of founders |
+| `max_agents` | `500L` | Population cap (hard ceiling on reproduction) |
+| `max_ticks` | `500L` | Simulation length |
 
 These usually aren’t the parameters you *search* — they’re the ones you
 *set* for the experiment. The exception is `max_ticks`: because
@@ -38,15 +38,15 @@ workflow uses short `max_ticks` values (200–500) for the search and long
 
 ## Resources
 
-| Parameter         | Default | Role                                                                    |
-|-------------------|---------|-------------------------------------------------------------------------|
-| `grass_rate`      | `0.05`  | Per-tick probability an empty cell grows grass                          |
-| `grass_max`       | `5.0`   | Maximum grass units per cell                                            |
-| `grass_init_prob` | `0.5`   | Fraction of cells with grass at tick 0                                  |
-| `eat_gain`        | `5.0`   | Energy per unit of grass eaten                                          |
-| `max_bite`        | `2.0`   | 0.4.0: maximum grass units eaten per tick (handling time; Holling 1959) |
-| `energy_init`     | `100.0` | Starting energy per agent                                               |
-| `energy_max`      | `200.0` | Energy cap                                                              |
+| Parameter | Default | Role |
+|----|----|----|
+| `grass_rate` | `0.05` | Per-tick probability an empty cell grows grass |
+| `grass_max` | `5.0` | Maximum grass units per cell |
+| `grass_init_prob` | `0.5` | Fraction of cells with grass at tick 0 |
+| `eat_gain` | `5.0` | Energy per unit of grass eaten |
+| `max_bite` | `2.0` | 0.4.0: maximum grass units eaten per tick (handling time; Holling 1959) |
+| `energy_init` | `100.0` | Starting energy per agent |
+| `energy_max` | `200.0` | Energy cap |
 
 `grass_rate` is the single most consequential environmental parameter.
 Low values (0.02–0.05) give a scarce environment that exposes
@@ -68,17 +68,17 @@ for the biology.
 
 ## Temporal and spatial structure
 
-| Parameter            | Default | Role                                                                                                                               |
-|----------------------|---------|------------------------------------------------------------------------------------------------------------------------------------|
-| `seasonal_amplitude` | `0.0`   | Amplitude of sinusoidal grass-rate modulation; 0 disables                                                                          |
-| `season_length`      | `50L`   | Period of the seasonal cycle (ticks)                                                                                               |
-| `fixed_patch`        | `NULL`  | Named list defining a perennially-rich cell (see [`?default_specs`](https://itchyshin.github.io/clade/reference/default_specs.md)) |
-| `complex_landscape`  | `FALSE` | Enable 3-layer habitat (ground + shrub + canopy)                                                                                   |
-| `shrub_density`      | `0.3`   | Fraction of cells with shrub layer (when `complex_landscape`)                                                                      |
-| `canopy_density`     | `0.1`   | Fraction of cells with canopy layer (when `complex_landscape`)                                                                     |
-| `shrub_energy`       | `3.0`   | Energy per unit shrub                                                                                                              |
-| `canopy_energy`      | `5.0`   | Energy per unit canopy                                                                                                             |
-| `shrub_growth_rate`  | `0.03`  | Shrub-layer regrowth probability                                                                                                   |
+| Parameter | Default | Role |
+|----|----|----|
+| `seasonal_amplitude` | `0.0` | Amplitude of sinusoidal grass-rate modulation; 0 disables |
+| `season_length` | `50L` | Period of the seasonal cycle (ticks) |
+| `fixed_patch` | `NULL` | Named list defining a perennially-rich cell (see [`?default_specs`](https://itchyshin.github.io/clade/reference/default_specs.md)) |
+| `complex_landscape` | `FALSE` | Enable 3-layer habitat (ground + shrub + canopy) |
+| `shrub_density` | `0.3` | Fraction of cells with shrub layer (when `complex_landscape`) |
+| `canopy_density` | `0.1` | Fraction of cells with canopy layer (when `complex_landscape`) |
+| `shrub_energy` | `3.0` | Energy per unit shrub |
+| `canopy_energy` | `5.0` | Energy per unit canopy |
+| `shrub_growth_rate` | `0.03` | Shrub-layer regrowth probability |
 
 Complex-landscape parameters are the classic “map this region before you
 optimise” case. Many combinations drive the population extinct (too
@@ -100,13 +100,13 @@ Predators are agents with their own brains and lineages, but the handful
 of parameters that control their *abundance and lethality* are best read
 as environmental selection forces on the prey population.
 
-| Parameter                   | Default | Role                                                  |
-|-----------------------------|---------|-------------------------------------------------------|
-| `n_predators_init`          | `0L`    | Initial predator count; 0 disables predators entirely |
-| `predator_attack_strength`  | `40.0`  | Damage per attack on prey                             |
-| `predator_energy_gain`      | `30.0`  | Energy transfer per successful kill                   |
-| `predator_max_agents`       | `50L`   | Predator population cap                               |
-| `predator_min_repro_energy` | `200.0` | Predator reproduction threshold                       |
+| Parameter | Default | Role |
+|----|----|----|
+| `n_predators_init` | `0L` | Initial predator count; 0 disables predators entirely |
+| `predator_attack_strength` | `40.0` | Damage per attack on prey |
+| `predator_energy_gain` | `30.0` | Energy transfer per successful kill |
+| `predator_max_agents` | `50L` | Predator population cap |
+| `predator_min_repro_energy` | `200.0` | Predator reproduction threshold |
 
 The per-predator traits (`predator_attack_strength`,
 `predator_energy_gain`) are closer to agent parameters — see
@@ -146,6 +146,7 @@ does this in a single call and returns both a heatmap and a tidy data
 frame.
 
 ``` r
+
 library(clade)
 
 s <- default_specs()
@@ -165,6 +166,7 @@ vmap$data    # data frame with viability, mean_final_pop per cell
 Once the viable region is identified, run CMA-ES inside it:
 
 ``` r
+
 tuned <- tune_complex_landscape(default_specs(), n_iterations = 80L)
 tuned$specs          # optimal parameter set
 tuned$history$sigma  # step-size decay — smaller sigma = converged
@@ -187,6 +189,7 @@ resource environment for some biological outcome, CMA-ES on a handful of
 continuous environment parameters is cheap:
 
 ``` r
+
 result <- search_cmaes(
   specs_base = default_specs(),
   params     = c("grass_rate", "grass_max", "max_bite"),
@@ -213,6 +216,7 @@ because the *achievable set* of (mean diversity, amplitude of population
 oscillation) is inherently two-dimensional.
 
 ``` r
+
 result <- search_map_elites(
   specs_base   = default_specs(),
   search_params = list(

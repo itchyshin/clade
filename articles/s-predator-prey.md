@@ -15,14 +15,14 @@ below).
 
 **Key parameters.**
 
-| Parameter                   | Default | Effect                                                       |
-|-----------------------------|---------|--------------------------------------------------------------|
-| `n_predators_init`          | 0       | Number of predators at tick 1; 0 disables predators entirely |
-| `predator_attack_strength`  | 40.0    | Energy damage dealt to prey per successful attack            |
-| `predator_energy_gain`      | 30.0    | Energy gained by predator after a successful attack          |
-| `predator_min_repro_energy` | 200.0   | Energy threshold for predator reproduction                   |
-| `predator_max_agents`       | 50      | Hard cap on predator population size                         |
-| `grass_rate`                | 0.05    | Grass regrowth rate; sets prey carrying capacity             |
+| Parameter | Default | Effect |
+|----|----|----|
+| `n_predators_init` | 0 | Number of predators at tick 1; 0 disables predators entirely |
+| `predator_attack_strength` | 40.0 | Energy damage dealt to prey per successful attack |
+| `predator_energy_gain` | 30.0 | Energy gained by predator after a successful attack |
+| `predator_min_repro_energy` | 200.0 | Energy threshold for predator reproduction |
+| `predator_max_agents` | 50 | Hard cap on predator population size |
+| `grass_rate` | 0.05 | Grass regrowth rate; sets prey carrying capacity |
 
 **Expected output (evolutionary ABM, not mean-field LV).** Watch
 `n_agents` (prey) and `n_predators` over time at the calibrated
@@ -53,6 +53,7 @@ exposed as a spec) or non-toroidal patchy spatial structure (Huffaker
 1958; future scenario).
 
 ``` r
+
 library(clade)
 library(ggplot2)
 

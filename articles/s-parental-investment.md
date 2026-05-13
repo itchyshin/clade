@@ -15,12 +15,12 @@ affects offspring provisioning and survival.
 
 **Key parameters.**
 
-| Parameter                       | Default | Effect                                                  |
-|---------------------------------|---------|---------------------------------------------------------|
-| `parental_investment_evolution` | FALSE   | Allow investment proportions to evolve                  |
-| `parental_care`                 | FALSE   | Enable offspring carrying and provisioning              |
-| `female_investment`             | 0.7     | Fraction of total care energy contributed by the mother |
-| `male_repro_cost`               | 0.3     | Energy cost to the male per reproductive event          |
+| Parameter | Default | Effect |
+|----|----|----|
+| `parental_investment_evolution` | FALSE | Allow investment proportions to evolve |
+| `parental_care` | FALSE | Enable offspring carrying and provisioning |
+| `female_investment` | 0.7 | Fraction of total care energy contributed by the mother |
+| `male_repro_cost` | 0.3 | Energy cost to the male per reproductive event |
 
 **Expected output.** High maternal investment
 (`female_investment = 0.9`) increases the per-offspring energy cost, so
@@ -30,6 +30,7 @@ cost. The trade-off is visible in `n_births` and `n_juveniles`
 trajectories.
 
 ``` r
+
 library(clade)
 library(ggplot2)
 

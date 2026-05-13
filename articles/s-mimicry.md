@@ -11,14 +11,14 @@ avoided (Batesian mimicry).
 
 **Key parameters.**
 
-| Parameter                | Default | Effect                                                                                                                                                 |
-|--------------------------|---------|--------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `mimicry`                | FALSE   | Enable toxicity / predator learning (Müllerian by default)                                                                                             |
-| `batesian_mimicry`       | FALSE   | Enable Batesian mimicry: palatable prey (toxicity = 0) exploit learned signal aversion; predator-betrayal decay prevents runaway cheating (Bates 1862) |
-| `toxicity_init_mean`     | 0.0     | Starting toxicity (0 = non-toxic)                                                                                                                      |
-| `toxicity_cost_per_tick` | 2.0     | Per-tick energy cost paid by agents with toxicity \> 0 (Zahavi handicap; raised from 0.5 in v0.3.0)                                                    |
-| `toxin_dose`             | 2.0     | Damage dealt to attacker per toxicity unit                                                                                                             |
-| `signal_memory`          | 20      | Predator memory window for learning                                                                                                                    |
+| Parameter | Default | Effect |
+|----|----|----|
+| `mimicry` | FALSE | Enable toxicity / predator learning (Müllerian by default) |
+| `batesian_mimicry` | FALSE | Enable Batesian mimicry: palatable prey (toxicity = 0) exploit learned signal aversion; predator-betrayal decay prevents runaway cheating (Bates 1862) |
+| `toxicity_init_mean` | 0.0 | Starting toxicity (0 = non-toxic) |
+| `toxicity_cost_per_tick` | 2.0 | Per-tick energy cost paid by agents with toxicity \> 0 (Zahavi handicap; raised from 0.5 in v0.3.0) |
+| `toxin_dose` | 2.0 | Damage dealt to attacker per toxicity unit |
+| `signal_memory` | 20 | Predator memory window for learning |
 
 **Expected output (primary claim, post-2026-04-17 reframe).** The
 scenario is *conditionally* 🟠 — aposematism evolves in clade only under
@@ -62,6 +62,7 @@ full vector-signal memory using the Widrow-Hoff delta rule. See “What we
 found” below for details.
 
 ``` r
+
 # Predation-dominant ecology — the regime where aposematism evolves.
 # At default grass_rate = 0.20, the Zahavi handicap cost exceeds the
 # protection benefit and toxicity stays flat. Lowering grass to 0.08

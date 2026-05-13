@@ -45,6 +45,7 @@ raw preference-based mate choice.
 ## The 0.6.5 kernel mechanism
 
 ``` r
+
 s <- default_specs()
 s$signal_dims              <- 3L
 s$signal_evolution_drift   <- TRUE
@@ -164,15 +165,15 @@ change that would close the gap.
 
 Pattern across the paper-reproduction showcase:
 
-| Outcome                         | Examples                                                                     |
-|---------------------------------|------------------------------------------------------------------------------|
-| Clean ✅                        | Dieckmann & Doebeli 1999                                                     |
-| Conditional ✅                  | Réale 2010 (lifespan-only)                                                   |
-| Partial ✅ (1 of n mechanisms)  | Fuller 2005 (Zahavi leg only)                                                |
-| **Half ✅ (1 of 2 stages)**     | **Ryan 1990** (this vignette — β_N installed, signal response sub-threshold) |
-| Direction-correct sub-threshold | Griesser 2023, Courchamp 1999                                                |
-| Raw-inverts-on-per-capita       | Emlen 1982                                                                   |
-| Mechanism-level contradiction   | Kokko & Brooks 2003 (0.6.4 demoted to null)                                  |
+| Outcome | Examples |
+|----|----|
+| Clean ✅ | Dieckmann & Doebeli 1999 |
+| Conditional ✅ | Réale 2010 (lifespan-only) |
+| Partial ✅ (1 of n mechanisms) | Fuller 2005 (Zahavi leg only) |
+| **Half ✅ (1 of 2 stages)** | **Ryan 1990** (this vignette — β_N installed, signal response sub-threshold) |
+| Direction-correct sub-threshold | Griesser 2023, Courchamp 1999 |
+| Raw-inverts-on-per-capita | Emlen 1982 |
+| Null under corrected kernel | Kokko & Brooks 2003 (0.6.4 demoted) |
 
 ## Citation
 

@@ -19,12 +19,12 @@ quickly agents update their neural weights from experience.
 
 **Key parameters.**
 
-| Parameter                 | Default | Effect                                                     |
-|---------------------------|---------|------------------------------------------------------------|
-| `max_age`                 | —       | Maximum agent lifespan in ticks                            |
-| `complex_landscape`       | FALSE   | Enables spatially heterogeneous, shifting resource patches |
-| `learning_rate_evolution` | FALSE   | Makes the within-lifetime learning rate a heritable trait  |
-| `learning_rate_init_mean` | 0.01    | Initial mean evolved learning rate                         |
+| Parameter | Default | Effect |
+|----|----|----|
+| `max_age` | — | Maximum agent lifespan in ticks |
+| `complex_landscape` | FALSE | Enables spatially heterogeneous, shifting resource patches |
+| `learning_rate_evolution` | FALSE | Makes the within-lifetime learning rate a heritable trait |
+| `learning_rate_init_mean` | 0.01 | Initial mean evolved learning rate |
 
 **Expected output.** The evolved mean learning rate (recorded at the
 final tick of each run) should be highest at short `max_age` values and
@@ -34,6 +34,7 @@ need not be monotone at very short lifespans, where agents have too
 little experience to benefit from any learning.
 
 ``` r
+
 library(clade)
 library(ggplot2)
 
@@ -77,6 +78,7 @@ produces a fitness improvement of **40.1x** over the defaults above. See
 `dev/audit/calibration/RESULTS.md` for the full CMA-ES results.
 
 ``` r
+
 # Parameter overrides discovered by CMA-ES (see dev/audit/calibration/):
 s <- default_specs()
 s$learning_rate_init_mean        <- 0.4745

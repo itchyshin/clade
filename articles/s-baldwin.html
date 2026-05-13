@@ -164,7 +164,7 @@
       <h1>BNN uncertainty canalization and the Baldwin Effect</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/itchyshin/clade/blob/main/vignettes/s-baldwin.Rmd" class="external-link"><code>vignettes/s-baldwin.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/itchyshin/clade/blob/claude/ci-public-repo/vignettes/s-baldwin.Rmd" class="external-link"><code>vignettes/s-baldwin.Rmd</code></a></small>
       <div class="d-none name"><code>s-baldwin.Rmd</code></div>
     </div>
 
@@ -970,7 +970,7 @@ even in otherwise heterogeneous environments. Does
 <code>mean_prior_sigma</code> decline faster under predation than in the
 baseline?</p></li>
 <li><p><strong>Spatial heterogeneity versus temporal
-variability.</strong> Use <code>complex_landscape    = TRUE</code> to
+variability.</strong> Use <code>complex_landscape = TRUE</code> to
 create spatially patchy but temporally stable resources. Does spatial
 heterogeneity (which creates locally optimal strategies) prevent
 canalization the same way that temporal variability does, or is it less
@@ -978,7 +978,7 @@ disruptive because local specialists can coexist?</p></li>
 <li>
 <p><strong>MAP-Elites to discover canalization-compatible
 phenotypes.</strong> Use <code><a href="../reference/search_map_elites.html">search_map_elites()</a></code> with
-<code>archive_dims = list(mean_prior_sigma = seq(0, 0.5, by=0.05),    genetic_diversity = seq(0, 0.5, by=0.05))</code>
+<code>archive_dims = list(mean_prior_sigma = seq(0, 0.5, by=0.05), genetic_diversity = seq(0, 0.5, by=0.05))</code>
 to systematically search the parameter space for conditions that produce
 low-sigma (canalized) genomes. Does low sigma coexist with high genetic
 diversity (Baldwin Effect proper) or require drift-to-fixation

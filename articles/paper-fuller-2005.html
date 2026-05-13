@@ -164,7 +164,7 @@
       <h1>Reproducing a paper — Fuller, Houle &amp; Travis 2005 (sensory bias synthesis)</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/itchyshin/clade/blob/main/vignettes/paper-fuller-2005.Rmd" class="external-link"><code>vignettes/paper-fuller-2005.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/itchyshin/clade/blob/claude/ci-public-repo/vignettes/paper-fuller-2005.Rmd" class="external-link"><code>vignettes/paper-fuller-2005.Rmd</code></a></small>
       <div class="d-none name"><code>paper-fuller-2005.Rmd</code></div>
     </div>
 
@@ -502,13 +502,14 @@ partial: handicap works; the synthesis itself remains untested.</p>
 <h2 id="methodology-takeaway">Methodology takeaway<a class="anchor" aria-label="anchor" href="#methodology-takeaway"></a>
 </h2>
 <p>This vignette models the <strong>partial-reproduction</strong>
-outcome: one mechanism from a multi-mechanism paper is reproduced, the
-others are documented kernel-limit nulls with specific, actionable
-kernel gaps noted. It pairs with the <a href="paper-kokko-brooks-2003.html">Kokko &amp; Brooks 2003</a>
-mechanism- level-contradiction vignette (where the
-<code>mate_choice_mode</code> stub now casts uncertainty on the “✅
-promoted” verdict, pending the re-audit) and with <code>s-signals</code>
-(same underlying substrate, same partial coverage).</p>
+outcome: one mechanism from a multi-mechanism paper is reproduced, one
+is half-implemented (β_N preferences respond, signals don’t), one is
+direction-wrong for a specific kernel gap (Fisher C_tp needs genetic
+linkage). Every gap is named with a concrete kernel change that would
+close it. It pairs with <a href="paper-ryan-1990.html">paper-ryan-1990</a> (the β_N half-PASS
+companion) and <a href="paper-kokko-brooks-2003.html">paper-kokko-brooks-2003</a> (whose
+0.6.4 re-audit under real softmax mate choice demoted its interaction
+verdict to null).</p>
 </div>
 <div class="section level2">
 <h2 id="pattern-across-the-paper-reproduction-showcase">Pattern across the paper-reproduction showcase<a class="anchor" aria-label="anchor" href="#pattern-across-the-paper-reproduction-showcase"></a>
@@ -534,19 +535,24 @@ promoted” verdict, pending the re-audit) and with <code>s-signals</code>
 <tr class="odd">
 <td>Partial ✅ (1 of n mechanisms)</td>
 <td>
-<strong>Fuller 2005</strong> (this vignette — Zahavi leg only)</td>
+<strong>Fuller 2005</strong> (this vignette — Zahavi leg ✅, β_N
+half, Fisher direction-wrong)</td>
 </tr>
 <tr class="even">
+<td>Half ✅ (1 of 2 stages)</td>
+<td>Ryan 1990 (β_N on preferences ✅, signal downstream null)</td>
+</tr>
+<tr class="odd">
 <td>Direction-correct sub-threshold</td>
 <td>Griesser 2023, Courchamp 1999</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Raw-inverts-on-per-capita</td>
 <td>Emlen 1982</td>
 </tr>
-<tr class="even">
-<td>Mechanism-level contradiction</td>
-<td>Kokko &amp; Brooks 2003</td>
+<tr class="odd">
+<td>Null under corrected kernel</td>
+<td>Kokko &amp; Brooks 2003 (0.6.4 demoted)</td>
 </tr>
 </tbody>
 </table>

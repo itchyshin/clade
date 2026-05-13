@@ -27,6 +27,7 @@ but does not reproduce any particular predator-mediated size-selection
 variant at default parameters.
 
 ``` r
+
 library(clade)
 library(ggplot2)
 library(patchwork)
@@ -115,6 +116,7 @@ produces a fitness improvement of **18.8x** over the defaults above. See
 `dev/audit/calibration/RESULTS.md` for the full CMA-ES results.
 
 ``` r
+
 # Parameter overrides discovered by CMA-ES (see dev/audit/calibration/):
 s <- default_specs()
 s$body_size_mutation_sd          <- 0.6806

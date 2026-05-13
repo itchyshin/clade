@@ -91,29 +91,30 @@ Docs published at <https://itchyshin.github.io/clade/>.
 
 ## Repository map
 
-| Path                                                                  | Purpose                                                                                                                                                                                                                                                                                                                                                    |
-|-----------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `R/run.R`                                                             | [`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md), [`batch_alife()`](https://itchyshin.github.io/clade/reference/batch_alife.md) — main entry points                                                                                                                                                                               |
-| `R/config.R`                                                          | [`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md), [`quick_specs()`](https://itchyshin.github.io/clade/reference/quick_specs.md), [`full_specs()`](https://itchyshin.github.io/clade/reference/full_specs.md), [`load_specs()`](https://itchyshin.github.io/clade/reference/load_specs.md)                                 |
-| `R/scenarios.R`                                                       | Pre-baked scenario specs and tuning helpers                                                                                                                                                                                                                                                                                                                |
-| `R/hypothesis.R`                                                      | [`hypothesis_sweep()`](https://itchyshin.github.io/clade/reference/hypothesis_sweep.md) + [`hypothesis_report()`](https://itchyshin.github.io/clade/reference/hypothesis_report.md) — researcher workflow helpers                                                                                                                                          |
-| `R/analysis.R`                                                        | [`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md), [`compute_ld()`](https://itchyshin.github.io/clade/reference/compute_ld.md), heritability, relatedness                                                                                                                                                                    |
-| `R/visualization.R`                                                   | [`plot_run()`](https://itchyshin.github.io/clade/reference/plot_run.md), [`plot_diversity()`](https://itchyshin.github.io/clade/reference/plot_diversity.md), etc.                                                                                                                                                                                         |
-| `R/search.R`                                                          | [`search_cmaes()`](https://itchyshin.github.io/clade/reference/search_cmaes.md), [`search_map_elites()`](https://itchyshin.github.io/clade/reference/search_map_elites.md), [`search_gradient()`](https://itchyshin.github.io/clade/reference/search_gradient.md), [`search_viability()`](https://itchyshin.github.io/clade/reference/search_viability.md) |
-| `R/maps.R`                                                            | Landscape generation ([`generate_map()`](https://itchyshin.github.io/clade/reference/generate_map.md), [`prepare_map()`](https://itchyshin.github.io/clade/reference/prepare_map.md))                                                                                                                                                                      |
-| `R/utils.R`, `R/zzz.R`                                                | Helpers and package load hooks                                                                                                                                                                                                                                                                                                                             |
-| `inst/julia/src/Clade.jl`                                             | Julia kernel entry point                                                                                                                                                                                                                                                                                                                                   |
-| `inst/julia/src/{tick,sense,reproduce,death,genome,logging,types}.jl` | Core simulation loop                                                                                                                                                                                                                                                                                                                                       |
-| `inst/julia/src/brains/`                                              | Brain architectures (BNN, ANN, CTRNN, GRN, transformer, synthesis)                                                                                                                                                                                                                                                                                         |
-| `inst/julia/src/modules/`                                             | Optional biological modules (disease, dispersal, kin, etc.)                                                                                                                                                                                                                                                                                                |
-| `vignettes/*.Rmd`                                                     | Long-form articles and per-scenario showcases (`s-*.Rmd`)                                                                                                                                                                                                                                                                                                  |
-| `tests/testthat/test-*.R`                                             | Unit and integration tests                                                                                                                                                                                                                                                                                                                                 |
+| Path | Purpose |
+|----|----|
+| `R/run.R` | [`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md), [`batch_alife()`](https://itchyshin.github.io/clade/reference/batch_alife.md) — main entry points |
+| `R/config.R` | [`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md), [`quick_specs()`](https://itchyshin.github.io/clade/reference/quick_specs.md), [`full_specs()`](https://itchyshin.github.io/clade/reference/full_specs.md), [`load_specs()`](https://itchyshin.github.io/clade/reference/load_specs.md) |
+| `R/scenarios.R` | Pre-baked scenario specs and tuning helpers |
+| `R/hypothesis.R` | [`hypothesis_sweep()`](https://itchyshin.github.io/clade/reference/hypothesis_sweep.md) + [`hypothesis_report()`](https://itchyshin.github.io/clade/reference/hypothesis_report.md) — researcher workflow helpers |
+| `R/analysis.R` | [`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md), [`compute_ld()`](https://itchyshin.github.io/clade/reference/compute_ld.md), heritability, relatedness |
+| `R/visualization.R` | [`plot_run()`](https://itchyshin.github.io/clade/reference/plot_run.md), [`plot_diversity()`](https://itchyshin.github.io/clade/reference/plot_diversity.md), etc. |
+| `R/search.R` | [`search_cmaes()`](https://itchyshin.github.io/clade/reference/search_cmaes.md), [`search_map_elites()`](https://itchyshin.github.io/clade/reference/search_map_elites.md), [`search_gradient()`](https://itchyshin.github.io/clade/reference/search_gradient.md), [`search_viability()`](https://itchyshin.github.io/clade/reference/search_viability.md) |
+| `R/maps.R` | Landscape generation ([`generate_map()`](https://itchyshin.github.io/clade/reference/generate_map.md), [`prepare_map()`](https://itchyshin.github.io/clade/reference/prepare_map.md)) |
+| `R/utils.R`, `R/zzz.R` | Helpers and package load hooks |
+| `inst/julia/src/Clade.jl` | Julia kernel entry point |
+| `inst/julia/src/{tick,sense,reproduce,death,genome,logging,types}.jl` | Core simulation loop |
+| `inst/julia/src/brains/` | Brain architectures (BNN, ANN, CTRNN, GRN, transformer, synthesis) |
+| `inst/julia/src/modules/` | Optional biological modules (disease, dispersal, kin, etc.) |
+| `vignettes/*.Rmd` | Long-form articles and per-scenario showcases (`s-*.Rmd`) |
+| `tests/testthat/test-*.R` | Unit and integration tests |
 
 ## Common commands
 
 R-side (run from repo root):
 
 ``` r
+
 # Load package for interactive dev (no install required)
 devtools::load_all()
 
@@ -136,6 +137,7 @@ pkgdown::build_site()
 Quick smoke run:
 
 ``` r
+
 library(clade)
 julia_is_ready()         # first call compiles Julia kernel (~60–90 s)
 specs <- default_specs()

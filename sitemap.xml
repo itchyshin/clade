@@ -1,5 +1,6 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://itchyshin.github.io/clade/404.html</loc></url>
+<url><loc>https://itchyshin.github.io/clade/AFTER_TASK.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/CLAUDE.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/LICENSE-text.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/LICENSE.html</loc></url>
@@ -24,6 +25,9 @@
 <url><loc>https://itchyshin.github.io/clade/articles/paper-reale-2010.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/articles/paper-ryan-1990.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/articles/paper-template.html</loc></url>
+<url><loc>https://itchyshin.github.io/clade/articles/paper-trivers1971.html</loc></url>
+<url><loc>https://itchyshin.github.io/clade/articles/paper-wolf2007.html</loc></url>
+<url><loc>https://itchyshin.github.io/clade/articles/paper-wolf2008.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/articles/parameter-reference.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/articles/parameter-space-search.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/articles/ps-agent-parameters.html</loc></url>
@@ -144,11 +148,14 @@
 <url><loc>https://itchyshin.github.io/clade/reference/submit_sweep_slurm.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/summarize_batch.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/take_action.html</loc></url>
+<url><loc>https://itchyshin.github.io/clade/reference/trivers_reciprocity_specs.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/tune_complex_landscape.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/tune_iffolk.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/tune_spatial_sorting.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/ultra_realistic_specs.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/viability_report.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/visualize_progress.html</loc></url>
+<url><loc>https://itchyshin.github.io/clade/reference/wolf2008_responsiveness_specs.html</loc></url>
+<url><loc>https://itchyshin.github.io/clade/reference/wolf_personality_specs.html</loc></url>
 </urlset>
 

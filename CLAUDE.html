@@ -129,7 +129,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>CLAUDE.md</h1>
-      <small class="dont-index">Source: <a href="https://github.com/itchyshin/clade/blob/main/CLAUDE.md" class="external-link"><code>CLAUDE.md</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/itchyshin/clade/blob/claude/ci-public-repo/CLAUDE.md" class="external-link"><code>CLAUDE.md</code></a></small>
     </div>
 
 <div id="claudemd" class="section level1">
@@ -186,47 +186,47 @@
 </div>
 <div class="section level2">
 <h2 id="repository-map">Repository map<a class="anchor" aria-label="anchor" href="#repository-map"></a></h2>
-<table class="table"><colgroup><col width="50%"><col width="50%"></colgroup><thead><tr class="header"><th>Path</th>
+<table class="table"><colgroup><col width="50%"><col width="50%"></colgroup><thead><tr><th>Path</th>
 <th>Purpose</th>
-</tr></thead><tbody><tr class="odd"><td><code>R/run.R</code></td>
+</tr></thead><tbody><tr><td><code>R/run.R</code></td>
 <td>
 <code><a href="reference/run_alife.html">run_alife()</a></code>, <code><a href="reference/batch_alife.html">batch_alife()</a></code> — main entry points</td>
-</tr><tr class="even"><td><code>R/config.R</code></td>
+</tr><tr><td><code>R/config.R</code></td>
 <td>
 <code><a href="reference/default_specs.html">default_specs()</a></code>, <code><a href="reference/quick_specs.html">quick_specs()</a></code>, <code><a href="reference/full_specs.html">full_specs()</a></code>, <code><a href="reference/load_specs.html">load_specs()</a></code>
 </td>
-</tr><tr class="odd"><td><code>R/scenarios.R</code></td>
+</tr><tr><td><code>R/scenarios.R</code></td>
 <td>Pre-baked scenario specs and tuning helpers</td>
-</tr><tr class="even"><td><code>R/hypothesis.R</code></td>
+</tr><tr><td><code>R/hypothesis.R</code></td>
 <td>
 <code><a href="reference/hypothesis_sweep.html">hypothesis_sweep()</a></code> + <code><a href="reference/hypothesis_report.html">hypothesis_report()</a></code> — researcher workflow helpers</td>
-</tr><tr class="odd"><td><code>R/analysis.R</code></td>
+</tr><tr><td><code>R/analysis.R</code></td>
 <td>
 <code><a href="reference/get_run_data.html">get_run_data()</a></code>, <code><a href="reference/compute_ld.html">compute_ld()</a></code>, heritability, relatedness</td>
-</tr><tr class="even"><td><code>R/visualization.R</code></td>
+</tr><tr><td><code>R/visualization.R</code></td>
 <td>
 <code><a href="reference/plot_run.html">plot_run()</a></code>, <code><a href="reference/plot_diversity.html">plot_diversity()</a></code>, etc.</td>
-</tr><tr class="odd"><td><code>R/search.R</code></td>
+</tr><tr><td><code>R/search.R</code></td>
 <td>
 <code><a href="reference/search_cmaes.html">search_cmaes()</a></code>, <code><a href="reference/search_map_elites.html">search_map_elites()</a></code>, <code><a href="reference/search_gradient.html">search_gradient()</a></code>, <code><a href="reference/search_viability.html">search_viability()</a></code>
 </td>
-</tr><tr class="even"><td><code>R/maps.R</code></td>
+</tr><tr><td><code>R/maps.R</code></td>
 <td>Landscape generation (<code><a href="reference/generate_map.html">generate_map()</a></code>, <code><a href="reference/prepare_map.html">prepare_map()</a></code>)</td>
-</tr><tr class="odd"><td>
+</tr><tr><td>
 <code>R/utils.R</code>, <code>R/zzz.R</code>
 </td>
 <td>Helpers and package load hooks</td>
-</tr><tr class="even"><td><code>inst/julia/src/Clade.jl</code></td>
+</tr><tr><td><code>inst/julia/src/Clade.jl</code></td>
 <td>Julia kernel entry point</td>
-</tr><tr class="odd"><td><code>inst/julia/src/{tick,sense,reproduce,death,genome,logging,types}.jl</code></td>
+</tr><tr><td><code>inst/julia/src/{tick,sense,reproduce,death,genome,logging,types}.jl</code></td>
 <td>Core simulation loop</td>
-</tr><tr class="even"><td><code>inst/julia/src/brains/</code></td>
+</tr><tr><td><code>inst/julia/src/brains/</code></td>
 <td>Brain architectures (BNN, ANN, CTRNN, GRN, transformer, synthesis)</td>
-</tr><tr class="odd"><td><code>inst/julia/src/modules/</code></td>
+</tr><tr><td><code>inst/julia/src/modules/</code></td>
 <td>Optional biological modules (disease, dispersal, kin, etc.)</td>
-</tr><tr class="even"><td><code>vignettes/*.Rmd</code></td>
+</tr><tr><td><code>vignettes/*.Rmd</code></td>
 <td>Long-form articles and per-scenario showcases (<code>s-*.Rmd</code>)</td>
-</tr><tr class="odd"><td><code>tests/testthat/test-*.R</code></td>
+</tr><tr><td><code>tests/testthat/test-*.R</code></td>
 <td>Unit and integration tests</td>
 </tr></tbody></table></div>
 <div class="section level2">

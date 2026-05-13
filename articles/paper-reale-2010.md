@@ -43,6 +43,7 @@ All three trends together = the pace-of-life syndrome.
 ## Stage 1: hypothesis_sweep with multi-trait metrics
 
 ``` r
+
 library(clade)
 
 base <- default_specs()
@@ -142,6 +143,7 @@ genuine feature of the kernel, not a bug: if you run at metabolic_rate =
 ### Viability spot-check
 
 ``` r
+
 s_check <- base
 s_check$metabolic_rate_init_mean <- 1.0
 env <- run_alife(s_check, verbose = FALSE)

@@ -68,6 +68,7 @@ initial density.
 ## Stage 1: measure clade’s existing density-dependent dynamics
 
 ``` r
+
 library(clade)
 
 base <- default_specs()
@@ -204,13 +205,13 @@ fork `inst/julia/src/modules/` for the specific mechanism.
 
 ## Honest status summary
 
-| What you wanted                                         | Status as of 0.6.1                                                           |
-|---------------------------------------------------------|------------------------------------------------------------------------------|
-| Inject R code into the per-tick loop                    | Not supported by design (boundary-crossing defeats the performance contract) |
-| Compose existing modules to produce custom dynamics     | ✅ Works today (this vignette)                                               |
-| Compute any post-hoc metric on `get_run_data()$ticks`   | ✅ Works today                                                               |
-| Between-run interventions via spec manipulation         | ✅ Works today                                                               |
-| Write custom Julia modules that ship with your scenario | Not an API but possible — fork `inst/julia/src/modules/`                     |
+| What you wanted | Status as of 0.6.1 |
+|----|----|
+| Inject R code into the per-tick loop | Not supported by design (boundary-crossing defeats the performance contract) |
+| Compose existing modules to produce custom dynamics | ✅ Works today (this vignette) |
+| Compute any post-hoc metric on `get_run_data()$ticks` | ✅ Works today |
+| Between-run interventions via spec manipulation | ✅ Works today |
+| Write custom Julia modules that ship with your scenario | Not an API but possible — fork `inst/julia/src/modules/` |
 
 ## Citation
 

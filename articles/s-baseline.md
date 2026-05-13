@@ -20,6 +20,7 @@ modules. This is the simplest demonstration that evolution can occur.
 Genetic diversity is maintained: neither fixation nor unbounded growth.
 
 ``` r
+
 library(clade)
 
 s <- default_specs()
@@ -45,16 +46,16 @@ energy, genetic diversity, births/deaths, grass coverage, and BNN sigma.
 **What we found (10-seed audit, 2026-04-15).** Running 10 seeds × 500
 ticks at 100 agents init, 30×30 grid, `grass_rate = 0.15`:
 
-| Metric                      | Mean ± SD     | Notes                                           |
-|-----------------------------|---------------|-------------------------------------------------|
-| `n_agents`                  | 256.9 ± 3.5   | Strong carrying capacity                        |
-| `mean_energy`               | 129.2 ± 1.1   | 65% of `energy_max = 200`                       |
-| `mean_age`                  | 98.3 ± 0.3    | Steady-state age structure                      |
-| `genetic_diversity`         | 0.341 ± 0.002 | Rises 0.07 → 0.34 (mutation outpaces selection) |
-| `mean_ann_weight_magnitude` | 27.3 ± 0.2    | Init ~5 → evolved 27                            |
-| `n_births` per tick         | 1.43 ± 0.03   | Balanced against ~1.43 deaths                   |
-| `n_starvations` per tick    | 0.003         | Negligible                                      |
-| `grass_coverage`            | 0.385 ± 0.006 | Active grazing equilibrium                      |
+| Metric | Mean ± SD | Notes |
+|----|----|----|
+| `n_agents` | 256.9 ± 3.5 | Strong carrying capacity |
+| `mean_energy` | 129.2 ± 1.1 | 65% of `energy_max = 200` |
+| `mean_age` | 98.3 ± 0.3 | Steady-state age structure |
+| `genetic_diversity` | 0.341 ± 0.002 | Rises 0.07 → 0.34 (mutation outpaces selection) |
+| `mean_ann_weight_magnitude` | 27.3 ± 0.2 | Init ~5 → evolved 27 |
+| `n_births` per tick | 1.43 ± 0.03 | Balanced against ~1.43 deaths |
+| `n_starvations` per tick | 0.003 | Negligible |
+| `grass_coverage` | 0.385 ± 0.006 | Active grazing equilibrium |
 
 Seed-to-seed variability is \< 2% on every metric — the baseline is
 exceptionally reproducible.

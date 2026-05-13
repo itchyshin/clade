@@ -35,6 +35,7 @@ assimilation signal — high σ = exploration, low σ = canalization) and
 `genetic_diversity` (mean pairwise genome distance).
 
 ``` r
+
 library(clade)
 library(ggplot2)
 library(dplyr)
@@ -51,6 +52,7 @@ base$random_seed   <- 42L
 ```
 
 ``` r
+
 # Condition 1: BNN baseline — genetic evolution only
 env_base <- run_alife(base)
 
@@ -65,6 +67,7 @@ env_epi <- run_alife(s_epi)
 ```
 
 ``` r
+
 df <- bind_rows(
   transform(get_run_data(env_base)$ticks, condition = "BNN baseline"),
   transform(get_run_data(env_epi)$ticks,  condition = "BNN + epigenetics")
@@ -161,6 +164,7 @@ less within-lifetime exploration, creating selection pressure against
 high σ.
 
 ``` r
+
 # Hinton & Nowlan (1987) analogue: sparse background, large fixed patch
 s_hn <- default_specs()
 s_hn$brain_type         <- "bnn"
@@ -188,21 +192,21 @@ clade’s default environment.
 
 ## Key parameters
 
-| Parameter                | Default  | Role                                                         |
-|--------------------------|----------|--------------------------------------------------------------|
-| `brain_type`             | `"bnn"`  | Enables σ as an evolvable exploration parameter              |
-| `rl_mode`                | `"none"` | `"actor_critic"` enables within-lifetime REINFORCE           |
-| `rl_update_freq`         | `1L`     | RL update every N ticks                                      |
-| `epigenetics`            | `FALSE`  | Enables methylation marks + TEI                              |
-| `epigenetic_inheritance` | `0.5`    | Probability each methylation mark is transmitted             |
-| `methylation_rate`       | `0.1`    | Probability a reward event drives methylation                |
-| `demethylation_rate`     | `0.02`   | Background demethylation rate per tick                       |
-| `social_learning`        | `FALSE`  | Prestige-biased copying of output-layer weights              |
-| `fixed_patch`            | `FALSE`  | Enable a permanent high-value resource cell (H&N 1987 setup) |
-| `fixed_patch_value`      | `5.0`    | Grass value maintained at patch cells each tick              |
-| `fixed_patch_x`          | `NA`     | Column index of patch centre (`NA` = grid centre)            |
-| `fixed_patch_y`          | `NA`     | Row index of patch centre (`NA` = grid centre)               |
-| `fixed_patch_radius`     | `0L`     | Chebyshev radius: 0 = 1 cell, 1 = 3×3, 2 = 5×5               |
+| Parameter | Default | Role |
+|----|----|----|
+| `brain_type` | `"bnn"` | Enables σ as an evolvable exploration parameter |
+| `rl_mode` | `"none"` | `"actor_critic"` enables within-lifetime REINFORCE |
+| `rl_update_freq` | `1L` | RL update every N ticks |
+| `epigenetics` | `FALSE` | Enables methylation marks + TEI |
+| `epigenetic_inheritance` | `0.5` | Probability each methylation mark is transmitted |
+| `methylation_rate` | `0.1` | Probability a reward event drives methylation |
+| `demethylation_rate` | `0.02` | Background demethylation rate per tick |
+| `social_learning` | `FALSE` | Prestige-biased copying of output-layer weights |
+| `fixed_patch` | `FALSE` | Enable a permanent high-value resource cell (H&N 1987 setup) |
+| `fixed_patch_value` | `5.0` | Grass value maintained at patch cells each tick |
+| `fixed_patch_x` | `NA` | Column index of patch centre (`NA` = grid centre) |
+| `fixed_patch_y` | `NA` | Row index of patch centre (`NA` = grid centre) |
+| `fixed_patch_radius` | `0L` | Chebyshev radius: 0 = 1 cell, 1 = 3×3, 2 = 5×5 |
 
 ## Systematic experiments: when does canalization occur?
 
@@ -535,6 +539,7 @@ reward any parameter regime that makes σ *narrow*. Full writeup at
 The search found a regime that does produce canalization:
 
 ``` r
+
 # Parameter overrides discovered by CMA-ES.
 s <- default_specs()
 s$brain_type              <- "bnn"

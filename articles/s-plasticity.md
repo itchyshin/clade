@@ -12,11 +12,11 @@ Scheiner 2004).
 
 **Key parameters.**
 
-| Parameter                | Default | Effect                                                                                                          |
-|--------------------------|---------|-----------------------------------------------------------------------------------------------------------------|
-| `phenotypic_plasticity`  | FALSE   | Enable plasticity trait                                                                                         |
-| `plasticity_init_mean`   | 0.3     | Starting mean plasticity (**note**: was 0.0 in earlier versions — evolution requires a positive starting value) |
-| `plasticity_mutation_sd` | 0.05    | Mutation rate                                                                                                   |
+| Parameter | Default | Effect |
+|----|----|----|
+| `phenotypic_plasticity` | FALSE | Enable plasticity trait |
+| `plasticity_init_mean` | 0.3 | Starting mean plasticity (**note**: was 0.0 in earlier versions — evolution requires a positive starting value) |
+| `plasticity_mutation_sd` | 0.05 | Mutation rate |
 
 **Expected output.** `mean_plasticity` evolves upward in seasonal
 environments and stays lower (or drifts) in stable environments — but
@@ -28,6 +28,7 @@ See “What we found” below for the 2026-04-17 season-length sweep that
 surfaced this constraint.
 
 ``` r
+
 s <- fast_specs()                     # max_age = 30, ~66 generations in 2000 ticks
 s$phenotypic_plasticity    <- TRUE
 s$plasticity_init_mean     <- 0.3
@@ -50,6 +51,7 @@ produces a fitness improvement of **38.1x** over the defaults above. See
 `dev/audit/calibration/RESULTS.md` for the full CMA-ES results.
 
 ``` r
+
 # Parameter overrides discovered by CMA-ES (see dev/audit/calibration/):
 s <- default_specs()
 s$plasticity_init_mean           <- 0.6972
@@ -89,19 +91,19 @@ flip; canalized ones cannot.
 
 3 conditions × 16 seeds × 2000 ticks at `default_specs` with RL on:
 
-| condition          | `seasonal_amplitude` | `seasonal_spatial_bias` | mean_prior_sigma |
-|--------------------|----------------------|-------------------------|------------------|
-| stable             | 0                    | 0                       | 0.376            |
-| amp_only (uniform) | 0.5                  | 0                       | 0.380            |
-| **flipping**       | **0.5**              | **0.9**                 | **0.399**        |
+| condition | `seasonal_amplitude` | `seasonal_spatial_bias` | mean_prior_sigma |
+|----|----|----|----|
+| stable | 0 | 0 | 0.376 |
+| amp_only (uniform) | 0.5 | 0 | 0.380 |
+| **flipping** | **0.5** | **0.9** | **0.399** |
 
 Pairwise differentials:
 
-| comparison              | Δσ                   | t              | verdict                 |
-|-------------------------|----------------------|----------------|-------------------------|
-| amp_only − stable       | +0.004               | +0.91          | uniform stressor ≈ null |
-| **flipping − stable**   | **+0.0227 ± 0.0049** | **+4.58 PASS** |                         |
-| **flipping − amp_only** | **+0.0186 ± 0.0040** | **+4.60 PASS** |                         |
+| comparison | Δσ | t | verdict |
+|----|----|----|----|
+| amp_only − stable | +0.004 | +0.91 | uniform stressor ≈ null |
+| **flipping − stable** | **+0.0227 ± 0.0049** | **+4.58 PASS** |  |
+| **flipping − amp_only** | **+0.0186 ± 0.0040** | **+4.60 PASS** |  |
 
 Fluctuating selection raises prior σ by ~6% relative to stable —
 decisive direction + magnitude for the DeWitt-Scheiner prediction.

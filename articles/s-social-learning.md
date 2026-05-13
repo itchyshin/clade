@@ -29,6 +29,7 @@ The benefit is most visible when `mutation_sd` is very low (little
 genetic variation) but successful behaviours exist in the population.
 
 ``` r
+
 s <- default_specs()
 s$social_learning      <- TRUE
 s$social_learning_freq <- 50L    # 0.5.6 audit: freq=10/20 give noise-dominated

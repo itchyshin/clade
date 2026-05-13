@@ -18,6 +18,7 @@ the energy boost from received altruism make populations more
 disease-resistant?
 
 ``` r
+
 base <- default_specs()
 base$max_ticks <- 200L; base$n_agents_init <- 50L; base$seed <- 42L
 base$disease <- TRUE; base$transmission_prob <- 0.25; base$disease_seed_prob <- 0.05
@@ -59,6 +60,7 @@ flexible behaviour buffers lean periods. Does a seasonal resource cycle
 select for larger `brain_size` relative to a stable environment?
 
 ``` r
+
 base <- default_specs()
 base$max_ticks <- 200L; base$n_agents_init <- 50L; base$seed <- 42L
 base$brain_size_evolution <- TRUE; base$parental_care <- TRUE
@@ -101,6 +103,7 @@ as the population converges on a learned optimum. Does
 `genetic_diversity` relative to the baseline?
 
 ``` r
+
 base <- default_specs()
 base$max_ticks <- 200L; base$n_agents_init <- 50L; base$seed <- 42L
 
@@ -139,6 +142,7 @@ when stressed, does shelter use also reduce pathogen contact rates —
 creating disease refugia?
 
 ``` r
+
 base <- default_specs()
 base$max_ticks <- 200L; base$n_agents_init <- 50L; base$seed <- 42L
 base$disease <- TRUE; base$transmission_prob <- 0.25; base$disease_seed_prob <- 0.05
@@ -177,6 +181,7 @@ same energy constraints and parental care buffer, do they co-evolve
 proportionally?
 
 ``` r
+
 base <- default_specs()
 base$max_ticks <- 200L; base$n_agents_init <- 50L; base$seed <- 42L
 base$parental_care <- TRUE

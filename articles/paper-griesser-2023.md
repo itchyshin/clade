@@ -60,6 +60,7 @@ you rarely know the right parameters up front.
 ## Stage 1: grid search
 
 ``` r
+
 library(clade)
 
 base <- default_specs()
@@ -138,6 +139,7 @@ At `cost_scale = 1.5`, re-run the care-duration sweep with 8 seeds per
 condition to distinguish signal from single-seed noise.
 
 ``` r
+
 final_base <- base
 final_base$brain_size_cost_scale <- 1.5
 

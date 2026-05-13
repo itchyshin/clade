@@ -18,13 +18,13 @@ Hauert et al. 2006 on synergy and discounting).
 
 **Key parameters.**
 
-| Parameter                 | Default | Effect                                       |
-|---------------------------|---------|----------------------------------------------|
-| `cooperation_evolution`   | FALSE   | Enables heritable cooperation tendency       |
-| `cooperation_multiplier`  | 2.0     | Return multiplier on pooled contributions    |
-| `cooperation_cost`        | 1.0     | Per-tick energy cost paid by the contributor |
-| `cooperation_init_mean`   | 0.5     | Initial mean cooperation tendency            |
-| `cooperation_mutation_sd` | 0.05    | Mutation standard deviation on the trait     |
+| Parameter | Default | Effect |
+|----|----|----|
+| `cooperation_evolution` | FALSE | Enables heritable cooperation tendency |
+| `cooperation_multiplier` | 2.0 | Return multiplier on pooled contributions |
+| `cooperation_cost` | 1.0 | Per-tick energy cost paid by the contributor |
+| `cooperation_init_mean` | 0.5 | Initial mean cooperation tendency |
+| `cooperation_mutation_sd` | 0.05 | Mutation standard deviation on the trait |
 
 **Expected output.** Population size rises substantially relative to
 baseline; `n_cooperation_acts` is positive from the first tick. Whether
@@ -33,6 +33,7 @@ between the multiplier (group-level benefit) and free-rider invasion
 (individual-level selection for low tendency).
 
 ``` r
+
 library(clade)
 library(ggplot2)
 library(patchwork)

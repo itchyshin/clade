@@ -133,7 +133,7 @@ parameters differ from the defaults."></head><body>
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Pretty-print all simulation parameters</h1>
-      <small class="dont-index">Source: <a href="https://github.com/itchyshin/clade/blob/main/R/utils.R" class="external-link"><code>R/utils.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/itchyshin/clade/blob/claude/ci-public-repo/R/utils.R" class="external-link"><code>R/utils.R</code></a></small>
       <div class="d-none name"><code>print_specs.Rd</code></div>
     </div>
 
@@ -171,7 +171,7 @@ Default <code>FALSE</code>.</p></dd>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">print_specs</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -- clade specs (267 parameters) --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -- clade specs (296 parameters) --</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Grid &amp; population</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     grid_rows                              30</span>
@@ -211,7 +211,6 @@ Default <code>FALSE</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     max_age                                200</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     life_history                           iteroparous</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     senescence_rate                        0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     repro_senescence                       0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Body size</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     body_size_evolution                    FALSE</span>
@@ -324,6 +323,7 @@ Default <code>FALSE</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Other</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     toroidal                               TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     random_tick_order                      TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     max_bite                               2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     repro_cost_mode                        proportional</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     repro_cost_fraction                    0.5</span>
@@ -369,7 +369,6 @@ Default <code>FALSE</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     epigenetic_effect_size                 0.2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     methylation_rate                       0.001</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     demethylation_rate                     0.002</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     life_history_evolution                 FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     allee_threshold                        0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     brain_size_evolution                   FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     brain_size_init_mean                   1</span>
@@ -378,6 +377,42 @@ Default <code>FALSE</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     brain_size_max                         3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     brain_size_cost_scale                  1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     brain_size_sensing_exponent            0.3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     personality_syndrome                   FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     exploration_init_mean                  0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     exploration_mutation_sd                0.05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     boldness_init_mean                     0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     boldness_mutation_sd                   0.05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     aggressiveness_init_mean               0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     aggressiveness_mutation_sd             0.05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     personality_beta                       1.25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     personality_alpha                      0.005</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     wolf_year1_repro_age                   50</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     wolf_year2_repro_age                   100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     personality_f_high                     3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     personality_f_low                      2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     personality_b                          0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     personality_gamma                      0.1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     personality_V                          0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     personality_delta                      0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     personality_hawkdove_per_tick          0.1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     personality_antipred_per_tick          0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     personality_hawkdove_radius            1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     reciprocal_altruism                    FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     reciprocity_initial_init_mean          0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     reciprocity_initial_mutation_sd        0.05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     reciprocity_retaliation_init_mean      0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     reciprocity_retaliation_mutation_sd    0.05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     reciprocity_forgiveness_init_mean      0.1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     reciprocity_forgiveness_mutation_sd    0.05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     reciprocity_cost                       0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     reciprocity_benefit_ratio              2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     reciprocity_interaction_rate           0.1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     partner_memory_size                    8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     reciprocity_radius                     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     responsive_personalities               FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     responsiveness_init_mean               0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     responsiveness_mutation_sd             0.05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     responsiveness_cost                    0.4</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     metabolic_rate_evolution               FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     metabolic_rate_init_mean               1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     metabolic_rate_mutation_sd             0.05</span>
@@ -468,17 +503,12 @@ Default <code>FALSE</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     clutch_size_max                        5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     clutch_size_mutation_sd                0.3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     parental_investment_evolution          FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     parental_investment_init_mean          0.5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     female_investment                      0.7</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     male_repro_cost                        0.3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     stress_hypermutation                   FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     stress_mutation_multiplier             3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     stress_threshold                       20</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     senescence_shape                       2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     wall_density                           0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     wall_clusters                          TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     world_evolution                        FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     world_mutation_sd                      0.02</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     fixed_patch                            FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     fixed_patch_value                      5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     fixed_patch_x                          NA</span>
@@ -489,7 +519,7 @@ Default <code>FALSE</code>.</p></dd>
 <span class="r-in"><span><span class="va">s</span><span class="op">$</span><span class="va">kin_selection</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="va">s</span><span class="op">$</span><span class="va">complex_landscape</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="fu">print_specs</span><span class="op">(</span><span class="va">s</span>, diff_only <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -- clade specs (267 parameters) [diff only] --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -- clade specs (296 parameters) [diff only] --</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Kin selection</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     kin_selection                          TRUE *</span>

@@ -35,6 +35,7 @@ package check or vignette build.
 ### R package
 
 ``` r
+
 # install.packages("remotes")
 remotes::install_github("itchyshin/clade")
 ```
@@ -65,6 +66,7 @@ Julia environment.
 Before your first serious run, confirm Julia is discoverable from R:
 
 ``` r
+
 library(clade)
 
 if (!julia_is_ready()) {
@@ -90,6 +92,7 @@ and the core ecological loop. Three calls are enough to produce a tidy
 result and a diagnostic plot:
 
 ``` r
+
 library(clade)
 
 specs <- default_specs()
@@ -108,6 +111,7 @@ plot_run(data)
 summary:
 
 ``` r
+
 print(env)
 #> clade_env  [500 ticks | 193 agents | genetic_diversity: 0.319]
 ```
@@ -142,6 +146,7 @@ returns a long named list (roughly 90 parameters in 0.4.0). To see only
 what you have changed, use `print_specs(diff_only = TRUE)`:
 
 ``` r
+
 specs <- default_specs()
 specs$kin_selection     <- TRUE
 specs$complex_landscape <- TRUE
@@ -171,9 +176,9 @@ or the help page for
 
 The single most important choice when designing a clade run is **how
 many generations you will simulate**. Fisher (1930) showed that a
-beneficial allele needs roughly $1/s$ generations to fix, where $s$ is
-the selection coefficient. For modest selection
-($s \approx 0.05\text{–}0.10$), this is 20–100 generations. Weaker
+beneficial allele needs roughly $`1/s`$ generations to fix, where $`s`$
+is the selection coefficient. For modest selection
+($`s \approx 0.05\text{–}0.10`$), this is 20–100 generations. Weaker
 selection needs hundreds.
 
 Under
@@ -186,11 +191,11 @@ source of “weak effect” reports in early clade audits.
 
 The package ships three presets that make this trade-off explicit:
 
-| Preset                                                                            | Generation time | Recommended `max_ticks` | Generations | Use case                                                                            |
-|-----------------------------------------------------------------------------------|-----------------|-------------------------|-------------|-------------------------------------------------------------------------------------|
-| [`fast_specs()`](https://itchyshin.github.io/clade/reference/fast_specs.md)       | ~30 ticks       | 2000                    | ~66         | Any evolutionary scenario — plasticity, Baldwin, body size, cooperation, speciation |
-| [`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md) | ~190 ticks      | 500                     | ~2.6        | Within-generation demos — ecology, predator-prey, disease, learning, kitchen-sink   |
-| [`slow_specs()`](https://itchyshin.github.io/clade/reference/slow_specs.md)       | ~200 ticks      | 10000                   | ~50         | K-strategist scenarios (elephant, whale) where long life history is the point       |
+| Preset | Generation time | Recommended `max_ticks` | Generations | Use case |
+|----|----|----|----|----|
+| [`fast_specs()`](https://itchyshin.github.io/clade/reference/fast_specs.md) | ~30 ticks | 2000 | ~66 | Any evolutionary scenario — plasticity, Baldwin, body size, cooperation, speciation |
+| [`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md) | ~190 ticks | 500 | ~2.6 | Within-generation demos — ecology, predator-prey, disease, learning, kitchen-sink |
+| [`slow_specs()`](https://itchyshin.github.io/clade/reference/slow_specs.md) | ~200 ticks | 10000 | ~50 | K-strategist scenarios (elephant, whale) where long life history is the point |
 
 [`fast_specs()`](https://itchyshin.github.io/clade/reference/fast_specs.md)
 achieves a short generation time by lowering `max_age` to 30 ticks and
@@ -200,6 +205,7 @@ and turned over fast, which is exactly what gives selection enough time
 to do its work.
 
 ``` r
+
 # Evolutionary scenario: use fast_specs
 evo <- fast_specs()               # max_ticks = 2000, ~66 generations
 evo$phenotypic_plasticity <- TRUE
@@ -235,24 +241,24 @@ others live in
 [`?default_specs`](https://itchyshin.github.io/clade/reference/default_specs.md).
 Values shown are the 0.4.0 defaults.
 
-| Parameter               | Default          | What it controls                                                                           |
-|-------------------------|------------------|--------------------------------------------------------------------------------------------|
-| `brain_type`            | `"bnn"`          | The cognitive architecture used by every agent (see next section).                         |
-| `ploidy`                | `2L`             | Diploid (`2L`) or haploid (`1L`) genomes.                                                  |
-| `max_ticks`             | `500L`           | Length of the simulation in time steps.                                                    |
-| `n_agents_init`         | `50L`            | Number of founders.                                                                        |
-| `grass_rate`            | `0.05`           | Per-tick probability that an empty cell regrows grass.                                     |
-| `max_bite`              | `2.0`            | Maximum grass units an agent can eat per tick (handling time; Holling 1959).               |
-| `mutation_sd`           | `0.1`            | Gaussian noise added to weights at reproduction.                                           |
-| `repro_cost_mode`       | `"proportional"` | Parental cost model: `"proportional"` (0.4.0 default; Smith & Fretwell 1974) or `"fixed"`. |
-| `repro_cost_fraction`   | `0.5`            | Fraction of parent energy spent per offspring under proportional mode.                     |
-| `offspring_energy_mode` | `"proportional"` | Newborn energy model: proportional to cost paid, or `"fixed"`.                             |
-| `disease`               | `FALSE`          | Toggles the SIR disease module.                                                            |
-| `kin_selection`         | `FALSE`          | Toggles pedigree-based altruism toward Moore-neighbourhood relatives.                      |
-| `cooperation_evolution` | `FALSE`          | Toggles the evolution of an inheritable cooperation propensity.                            |
-| `niche_construction`    | `FALSE`          | Toggles shelter-building and its protective and grass-suppressing effects.                 |
-| `social_learning`       | `FALSE`          | Toggles output-layer copying from successful neighbours.                                   |
-| `rl_mode`               | `"none"`         | Within-lifetime reinforcement learning (`"actor_critic"` or `"none"`).                     |
+| Parameter | Default | What it controls |
+|----|----|----|
+| `brain_type` | `"bnn"` | The cognitive architecture used by every agent (see next section). |
+| `ploidy` | `2L` | Diploid (`2L`) or haploid (`1L`) genomes. |
+| `max_ticks` | `500L` | Length of the simulation in time steps. |
+| `n_agents_init` | `50L` | Number of founders. |
+| `grass_rate` | `0.05` | Per-tick probability that an empty cell regrows grass. |
+| `max_bite` | `2.0` | Maximum grass units an agent can eat per tick (handling time; Holling 1959). |
+| `mutation_sd` | `0.1` | Gaussian noise added to weights at reproduction. |
+| `repro_cost_mode` | `"proportional"` | Parental cost model: `"proportional"` (0.4.0 default; Smith & Fretwell 1974) or `"fixed"`. |
+| `repro_cost_fraction` | `0.5` | Fraction of parent energy spent per offspring under proportional mode. |
+| `offspring_energy_mode` | `"proportional"` | Newborn energy model: proportional to cost paid, or `"fixed"`. |
+| `disease` | `FALSE` | Toggles the SIR disease module. |
+| `kin_selection` | `FALSE` | Toggles pedigree-based altruism toward Moore-neighbourhood relatives. |
+| `cooperation_evolution` | `FALSE` | Toggles the evolution of an inheritable cooperation propensity. |
+| `niche_construction` | `FALSE` | Toggles shelter-building and its protective and grass-suppressing effects. |
+| `social_learning` | `FALSE` | Toggles output-layer copying from successful neighbours. |
+| `rl_mode` | `"none"` | Within-lifetime reinforcement learning (`"actor_critic"` or `"none"`). |
 
 Each module can be toggled independently, and the simulation will warn
 if two modules with conflicting assumptions are active.
@@ -265,15 +271,15 @@ Every agent runs the same architecture, set by `specs$brain_type`. The
 choice changes both how agents make decisions and what kind of
 plasticity is available.
 
-| Brain type      | Description                                                                                                          |
-|-----------------|----------------------------------------------------------------------------------------------------------------------|
-| `"bnn"`         | A Bayesian neural network with a Gaussian prior over weights; `prior_sigma` evolves under selection (Neal 1996).     |
-| `"ann"`         | A standard multilayer perceptron with feed-forward computation and weight inheritance.                               |
-| `"ctrnn"`       | A continuous-time recurrent network with leaky integrator neurons; supports dynamical behaviour (Beer 1995).         |
-| `"grn"`         | A gene regulatory network whose nodes are genes and whose interactions evolve via mutation of the regulatory matrix. |
-| `"transformer"` | A small attention-based architecture with a fixed history window, useful for sequence-dependent foraging.            |
-| `"synthesis"`   | Symbolic rule synthesis: agents carry an evolved program of if-then rules rather than weights.                       |
-| `"random"`      | Uniformly random action selection; useful as a null model baseline.                                                  |
+| Brain type | Description |
+|----|----|
+| `"bnn"` | A Bayesian neural network with a Gaussian prior over weights; `prior_sigma` evolves under selection (Neal 1996). |
+| `"ann"` | A standard multilayer perceptron with feed-forward computation and weight inheritance. |
+| `"ctrnn"` | A continuous-time recurrent network with leaky integrator neurons; supports dynamical behaviour (Beer 1995). |
+| `"grn"` | A gene regulatory network whose nodes are genes and whose interactions evolve via mutation of the regulatory matrix. |
+| `"transformer"` | A small attention-based architecture with a fixed history window, useful for sequence-dependent foraging. |
+| `"synthesis"` | Symbolic rule synthesis: agents carry an evolved program of if-then rules rather than weights. |
+| `"random"` | Uniformly random action selection; useful as a null model baseline. |
 
 `"bnn"` is the default because it admits an evolvable prior width and so
 captures Baldwin-style learning–evolution interactions (Baldwin 1896,
@@ -290,35 +296,35 @@ Modules are toggled through `specs`. They are all off by default, so the
 core simulation is a clean baseline of foraging, reproduction, and
 death.
 
-| Module                    | Spec field                                         | One-line description                                                                                                                                                                                                                                                   |
-|---------------------------|----------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Body size evolution       | `body_size_evolution`                              | Heritable body size scales metabolic cost, foraging gain, and energy storage (Kleiber 1947).                                                                                                                                                                           |
-| Natal dispersal           | `dispersal_evolution`                              | Heritable tendency to move away from birthplace each tick, reducing kin competition.                                                                                                                                                                                   |
-| Group defense             | `group_defense`                                    | Agents in the same cell share an anti-predator benefit that scales with local group size.                                                                                                                                                                              |
-| Habitat preference        | `habitat_preference_evolution`                     | Heritable preference for particular terrain or grass-density zones.                                                                                                                                                                                                    |
-| Seasonal dynamics         | `seasonal_amplitude`                               | Grass productivity cycles sinusoidally, imposing periodic resource bottlenecks.                                                                                                                                                                                        |
-| Signals and mate choice   | `signal_dims`                                      | Agents evolve a multi-dimensional signal; receivers apply a heritable preference at mating.                                                                                                                                                                            |
-| Speciation                | `speciation`                                       | Reproductive isolation emerges when mate-preference divergence exceeds a threshold.                                                                                                                                                                                    |
-| Predators                 | `n_predators_init`                                 | Evolving predator agents pursue prey; predator numbers are set at initialisation.                                                                                                                                                                                      |
-| Parental care             | `parental_care`                                    | Offspring are carried until graduation; parent pays a per-tick care cost.                                                                                                                                                                                              |
-| Cooperative breeding      | `cooperative_breeding`                             | Non-breeding helpers contribute energy to raise offspring in the same cell.                                                                                                                                                                                            |
-| Mimicry and toxicity      | `mimicry` (+ `batesian_mimicry`)                   | Heritable toxicity deters predators via Rescorla–Wagner avoidance learning. In 0.4.0 predators use vector-valued signal memory so Batesian / Müllerian mimicry is signal-specific (Bates 1862, Müller 1879).                                                           |
-| Phenotypic plasticity     | `phenotypic_plasticity`                            | Heritable `plasticity` trait; when `bnn_sigma_source = "trait"`, this trait directly sets each agent’s BNN prior width.                                                                                                                                                |
-| Niche construction        | `niche_construction` (+ `shelter_occupancy_bonus`) | Agents build shelters that protect against predators and slow grass regrowth on the cell. With `shelter_occupancy_bonus > 0`: occupants of sheltered cells receive an energy subsidy proportional to shelter depth — heritable niche effect (Odling-Smee et al. 2003). |
-| Scavenging                | `scavenging`                                       | Agents may consume carrion left behind by recently dead conspecifics (DeVault et al. 2003).                                                                                                                                                                            |
-| Disease (SIR)             | `disease`                                          | Susceptible–infected–recovered transmission with energy costs and recovered immunity (Kermack & McKendrick 1927).                                                                                                                                                      |
-| Kin selection             | `kin_selection`                                    | Pedigree-based altruistic energy transfer to related neighbours (Hamilton 1964).                                                                                                                                                                                       |
-| Cooperation (PGG)         | `cooperation_evolution`                            | An inheritable cooperation trait that scales the propensity to share with conspecifics (Nowak & May 1992).                                                                                                                                                             |
-| Within-lifetime RL        | `rl_mode`                                          | REINFORCE-with-baseline updates to the output layer at runtime (Williams 1992).                                                                                                                                                                                        |
-| Social learning           | `social_learning`                                  | Periodic copying of output-layer weights from successful Moore-neighbourhood teachers.                                                                                                                                                                                 |
-| Epigenetic inheritance    | `epigenetics`                                      | Lamarckian-style transmission of within-lifetime weight changes (Jablonka & Lamb 2005).                                                                                                                                                                                |
-| Clutch size evolution     | `clutch_size_evolution`                            | Heritable clutch size evolves under the life-history trade-off between offspring number and cost (Lack 1947).                                                                                                                                                          |
-| Parental investment       | `parental_investment_evolution`                    | In 0.4.0, `female_investment` splits parental cost between mother and mate and scales offspring birth energy (Trivers 1972).                                                                                                                                           |
-| Stress hypermutation      | `stress_hypermutation`                             | Mutation rate increases when agent energy falls below a threshold (Rosenberg 2001).                                                                                                                                                                                    |
-| Max-age pace of life      | `max_age_scales_with_metabolism`                   | 0.4.0: when `TRUE`, effective lifespan scales inversely with metabolic rate (Réale et al. 2010).                                                                                                                                                                       |
-| Neonatal foraging deficit | `neonatal_foraging_deficit`                        | 0.4.3: young agents forage at reduced efficiency for `neonatal_deficit_duration` ticks. Creates the selection pressure for parental provisioning (Aiello & Wheeler 1995).                                                                                              |
-| Coevolving parasites      | `coevolving_parasites`                             | 0.5.0/0.5.1: Hamilton 1980 Red Queen. Continuous-trait centroid tracking or discrete-allele Hamming matching with Mendelian inheritance.                                                                                                                               |
-| Sigma-action decoupling   | `bnn_action_noise_scale`                           | 0.5.5: controls how much BNN sigma contributes to action noise. At 0, actions are deterministic from mu; sigma only affects the learning/cost channel.                                                                                                                 |
+| Module | Spec field | One-line description |
+|----|----|----|
+| Body size evolution | `body_size_evolution` | Heritable body size scales metabolic cost, foraging gain, and energy storage (Kleiber 1947). |
+| Natal dispersal | `dispersal_evolution` | Heritable tendency to move away from birthplace each tick, reducing kin competition. |
+| Group defense | `group_defense` | Agents in the same cell share an anti-predator benefit that scales with local group size. |
+| Habitat preference | `habitat_preference_evolution` | Heritable preference for particular terrain or grass-density zones. |
+| Seasonal dynamics | `seasonal_amplitude` | Grass productivity cycles sinusoidally, imposing periodic resource bottlenecks. |
+| Signals and mate choice | `signal_dims` | Agents evolve a multi-dimensional signal; receivers apply a heritable preference at mating. |
+| Speciation | `speciation` | Reproductive isolation emerges when mate-preference divergence exceeds a threshold. |
+| Predators | `n_predators_init` | Evolving predator agents pursue prey; predator numbers are set at initialisation. |
+| Parental care | `parental_care` | Offspring are carried until graduation; parent pays a per-tick care cost. |
+| Cooperative breeding | `cooperative_breeding` | Non-breeding helpers contribute energy to raise offspring in the same cell. |
+| Mimicry and toxicity | `mimicry` (+ `batesian_mimicry`) | Heritable toxicity deters predators via Rescorla–Wagner avoidance learning. In 0.4.0 predators use vector-valued signal memory so Batesian / Müllerian mimicry is signal-specific (Bates 1862, Müller 1879). |
+| Phenotypic plasticity | `phenotypic_plasticity` | Heritable `plasticity` trait; when `bnn_sigma_source = "trait"`, this trait directly sets each agent’s BNN prior width. |
+| Niche construction | `niche_construction` (+ `shelter_occupancy_bonus`) | Agents build shelters that protect against predators and slow grass regrowth on the cell. With `shelter_occupancy_bonus > 0`: occupants of sheltered cells receive an energy subsidy proportional to shelter depth — heritable niche effect (Odling-Smee et al. 2003). |
+| Scavenging | `scavenging` | Agents may consume carrion left behind by recently dead conspecifics (DeVault et al. 2003). |
+| Disease (SIR) | `disease` | Susceptible–infected–recovered transmission with energy costs and recovered immunity (Kermack & McKendrick 1927). |
+| Kin selection | `kin_selection` | Pedigree-based altruistic energy transfer to related neighbours (Hamilton 1964). |
+| Cooperation (PGG) | `cooperation_evolution` | An inheritable cooperation trait that scales the propensity to share with conspecifics (Nowak & May 1992). |
+| Within-lifetime RL | `rl_mode` | REINFORCE-with-baseline updates to the output layer at runtime (Williams 1992). |
+| Social learning | `social_learning` | Periodic copying of output-layer weights from successful Moore-neighbourhood teachers. |
+| Epigenetic inheritance | `epigenetics` | Lamarckian-style transmission of within-lifetime weight changes (Jablonka & Lamb 2005). |
+| Clutch size evolution | `clutch_size_evolution` | Heritable clutch size evolves under the life-history trade-off between offspring number and cost (Lack 1947). |
+| Parental investment | `parental_investment_evolution` | In 0.4.0, `female_investment` splits parental cost between mother and mate and scales offspring birth energy (Trivers 1972). |
+| Stress hypermutation | `stress_hypermutation` | Mutation rate increases when agent energy falls below a threshold (Rosenberg 2001). |
+| Max-age pace of life | `max_age_scales_with_metabolism` | 0.4.0: when `TRUE`, effective lifespan scales inversely with metabolic rate (Réale et al. 2010). |
+| Neonatal foraging deficit | `neonatal_foraging_deficit` | 0.4.3: young agents forage at reduced efficiency for `neonatal_deficit_duration` ticks. Creates the selection pressure for parental provisioning (Aiello & Wheeler 1995). |
+| Coevolving parasites | `coevolving_parasites` | 0.5.0/0.5.1: Hamilton 1980 Red Queen. Continuous-trait centroid tracking or discrete-allele Hamming matching with Mendelian inheritance. |
+| Sigma-action decoupling | `bnn_action_noise_scale` | 0.5.5: controls how much BNN sigma contributes to action noise. At 0, actions are deterministic from mu; sigma only affects the learning/cost channel. |
 
 A typical experimental design fixes the brain type and toggles one
 module at a time, comparing the resulting
@@ -337,6 +343,7 @@ genome and bounded by `body_size_min` (default 0.3) and `body_size_max`
 (default 3.0).
 
 ``` r
+
 specs                       <- default_specs()
 specs$body_size_evolution   <- TRUE
 specs$body_size_init_mean   <- 1.0
@@ -359,6 +366,7 @@ reduces inbreeding and kin competition at the cost of `dispersal_cost`
 energy.
 
 ``` r
+
 specs                     <- default_specs()
 specs$dispersal_evolution <- TRUE
 specs$dispersal_init_mean <- 0.2
@@ -378,6 +386,7 @@ To produce an SIR-style epidemic in the population, set the `disease`
 flag and use the dedicated plotting helper:
 
 ``` r
+
 specs         <- default_specs()
 specs$disease <- TRUE
 env           <- run_alife(specs)
@@ -403,6 +412,7 @@ way to compare parameter regimes, since each Julia process stays warm
 for its slice of the batch:
 
 ``` r
+
 specs_list <- lapply(c(0.05, 0.10, 0.20), function(gr) {
   s <- default_specs()
   s$grass_rate <- gr

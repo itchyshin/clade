@@ -43,13 +43,13 @@ The sharpest reproductions come from predictions that translate to a
 directional claim about a clade-measurable outcome. Examples from the 5
 worked reproductions:
 
-| Paper                    | The directional claim                                 |
-|--------------------------|-------------------------------------------------------|
-| Kokko & Brooks 2003      | signals_effect becomes more negative as grass drops   |
-| Griesser 2023            | `care_duration ↑ → brain_size ↑` (Spearman \> 0)      |
+| Paper | The directional claim |
+|----|----|
+| Kokko & Brooks 2003 | signals_effect becomes more negative as grass drops |
+| Griesser 2023 | `care_duration ↑ → brain_size ↑` (Spearman \> 0) |
 | Dieckmann & Doebeli 1999 | `isolation_threshold ↓ → n_species ↑` (Spearman \< 0) |
-| Réale 2010               | `metabolic_rate ↑ → mean_age ↓` (Spearman \< 0)       |
-| Emlen 1982               | `resource scarcity ↑ → helping rate ↑`                |
+| Réale 2010 | `metabolic_rate ↑ → mean_age ↓` (Spearman \< 0) |
+| Emlen 1982 | `resource scarcity ↑ → helping rate ↑` |
 
 If you can’t phrase your paper’s claim as `X → Y at rate ρ`, the paper
 may be qualitative-only and not a clean clade fit.
@@ -81,6 +81,7 @@ Copy and edit the blocks marked TODO.
 ### Setup
 
 ``` r
+
 library(clade)
 
 # TODO: pick a base regime appropriate to your paper's scale
@@ -124,6 +125,7 @@ base$n_predators_init <- 0L
 ### Stage 1 — grid search for the right regime
 
 ``` r
+
 # TODO: pick two parameters to vary — usually
 #   (a) one that controls the MECHANISM strength (cost, rate,
 #       threshold, etc.)
@@ -162,6 +164,7 @@ for a concrete debugging walkthrough.
 ### Stage 2 — multi-seed validation
 
 ``` r
+
 # Pick the cell from Stage 1 where the signal is strongest AND
 # populations are viable.
 final_base <- base
@@ -209,6 +212,7 @@ hypothesis_report(
 ### Stage 3 — viability diagnostic
 
 ``` r
+
 # Pick the most-stressed cell (usually the extreme of your
 # treatment sweep). Confirm populations aren't crashing.
 s_check <- final_base
@@ -259,14 +263,14 @@ is one example.
 
 Based on the 5 showcase reproductions:
 
-| Outcome                                    | What it looks like                                  | Interpretation                                                                                                                                                           |
-|--------------------------------------------|-----------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Clean ✅**                               | Contrast t ≥ 2, Spearman strong                     | Kernel mechanism matches theory; paper’s prediction robust. D&D 1999 is this pattern.                                                                                    |
-| **Conditional ✅**                         | Direction-correct only in specific parameter regime | Prediction works in the regime the theory is about, not at arbitrary defaults. s-mimicry, s-niche, s-parental-care are this pattern.                                     |
-| **Direction-correct sub-threshold**        | Spearman correct sign, t \< 2 at tested seed count  | Mechanism present but signal below noise floor. Griesser 2023 is this pattern; could strengthen with more seeds or larger populations.                                   |
-| **Inverts on raw, recovers on per-capita** | Aggregate counts go wrong direction                 | Measurement-unit mismatch. Normalise by `n_agents` and re-test. Réale 2010 (per-tick births) and Emlen 1982 (raw helping counts) are this pattern.                       |
-| **Contradiction**                          | Direction opposite to paper                         | Mechanism-level mismatch between kernel and theory. Document honestly; look for what cost structure, feedback loop, or selection mode differs. K&B 2003 is this pattern. |
-| **Honest null**                            | No signal in any tested regime                      | Kernel may be missing a mechanism the paper requires. s-kin invasion dynamics is this pattern (needs kin-weighted reproduction).                                         |
+| Outcome | What it looks like | Interpretation |
+|----|----|----|
+| **Clean ✅** | Contrast t ≥ 2, Spearman strong | Kernel mechanism matches theory; paper’s prediction robust. D&D 1999 is this pattern. |
+| **Conditional ✅** | Direction-correct only in specific parameter regime | Prediction works in the regime the theory is about, not at arbitrary defaults. s-mimicry, s-niche, s-parental-care are this pattern. |
+| **Direction-correct sub-threshold** | Spearman correct sign, t \< 2 at tested seed count | Mechanism present but signal below noise floor. Griesser 2023 is this pattern; could strengthen with more seeds or larger populations. |
+| **Inverts on raw, recovers on per-capita** | Aggregate counts go wrong direction | Measurement-unit mismatch. Normalise by `n_agents` and re-test. Réale 2010 (per-tick births) and Emlen 1982 (raw helping counts) are this pattern. |
+| **Contradiction** | Direction opposite to paper | Mechanism-level mismatch between kernel and theory. Document honestly; look for what cost structure, feedback loop, or selection mode differs. K&B 2003 is this pattern. |
+| **Honest null** | No signal in any tested regime | Kernel may be missing a mechanism the paper requires. s-kin invasion dynamics is this pattern (needs kin-weighted reproduction). |
 
 All six outcomes are scientifically legitimate. The audit methodology
 treats null and contradiction as equally informative as a clean ✅ —

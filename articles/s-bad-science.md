@@ -4,23 +4,22 @@
 
 **What it models.** A pure-R simulation (no Julia required) of Smaldino
 & McElreath (2016). Each of `n_labs` labs has two heritable traits:
-research power $W$ (probability of detecting a true effect when the
-hypothesis under test is real) and research effort $e$ (methodological
+research power $`W`$ (probability of detecting a true effect when the
+hypothesis under test is real) and research effort $`e`$ (methodological
 rigour). Each tick, a lab tests `n_studies_per_tick` hypotheses, each a
-priori true with probability `base_rate_true` ($b$). The per-test
-false-positive rate is $\alpha(e) = \alpha_{\text{base}}(1 - e)$ — it
-depends on effort only, not on $W$, matching Smaldino & McElreath’s
+priori true with probability `base_rate_true` ($`b`$). The per-test
+false-positive rate is $`\alpha(e) = \alpha_{\text{base}} (1 - e)`$ — it
+depends on effort only, not on $`W`$, matching Smaldino & McElreath’s
 formulation. Under publication pressure the top-50%-by-publications labs
 reproduce each tick; low-effort labs accumulate more publications via
-false positives, so low $e$ spreads by selection.
+false positives, so low $`e`$ spreads by selection.
 
 If `replication_rate > 0`, each lab has that probability per tick of
 replicating a random peer’s random finding. A failed replication
 (original was a false positive, with probability
-$\alpha(1 - b)/\left( Wb + \alpha(1 - b) \right)$) debits the original
-lab’s publication count by `replication_penalty` (default 5),
-operationalising the reputational cost of published-then-overturned
-findings.
+$`\alpha(1-b) / (Wb + \alpha(1-b))`$) debits the original lab’s
+publication count by `replication_penalty` (default 5), operationalising
+the reputational cost of published-then-overturned findings.
 
 **What S&M 2016 predicted.** (i) Without replication, effort declines
 and FPR rises over ~100–400 generations. (ii) Replication slows this
@@ -29,6 +28,7 @@ rates. (iii) Structural reform of incentives (not just more replication)
 is needed to fix the problem.
 
 ``` r
+
 # No Julia required — runs entirely in R
 library(ggplot2)
 library(patchwork)
@@ -130,8 +130,8 @@ unchecked, strong replication disciplines it. Open questions to explore:
     pre-registers hypotheses and tests only well-motivated ones) should
     make replication far more effective because failed-replication
     probability now discriminates low- from high-effort labs more
-    sharply. Verify by sweeping $b$ at fixed `replication_rate = 0.1` —
-    does weak replication start to help once hypothesis prevalence is
+    sharply. Verify by sweeping $`b`$ at fixed `replication_rate = 0.1`
+    — does weak replication start to help once hypothesis prevalence is
     high enough?
 
 4.  **Structural heterogeneity.** Run with a mixture of lab types — a

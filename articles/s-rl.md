@@ -38,6 +38,7 @@ ticks).**
 Kernel settings required:
 
 ``` r
+
 s$bnn_action_noise_scale <- 0.7    # actions ≈ mu + 0.7·sigma·z
 s$bnn_sample_freq        <- 5L     # resample Thompson every 5 ticks
 s$rl_update_freq         <- 5L     # REINFORCE update every 5 ticks
@@ -45,10 +46,10 @@ s$learning_rate_init_mean <- 0.005
 s$complex_landscape       <- TRUE   # RL needs a non-trivial policy
 ```
 
-| Metric                      | `rl_mode = "none"` (14 viable) | `"actor_critic"` (15 viable) | Δ ± SE            | t         | verdict  |
-|-----------------------------|--------------------------------|------------------------------|-------------------|-----------|----------|
-| `n_agents` (last 500 ticks) | 62.4 ± 3.2                     | **73.2 ± 3.8**               | **+10.86 ± 4.94** | **+2.20** | **PASS** |
-| `mean_energy`               | 134.1 ± 0.7                    | 133.5 ± 0.9                  | −0.60 ± 1.15      | −0.52     | null     |
+| Metric | `rl_mode = "none"` (14 viable) | `"actor_critic"` (15 viable) | Δ ± SE | t | verdict |
+|----|----|----|----|----|----|
+| `n_agents` (last 500 ticks) | 62.4 ± 3.2 | **73.2 ± 3.8** | **+10.86 ± 4.94** | **+2.20** | **PASS** |
+| `mean_energy` | 134.1 ± 0.7 | 133.5 ± 0.9 | −0.60 ± 1.15 | −0.52 | null |
 
 **This promotes the scenario from 🟠 to ✅.** Williams 1992’s mechanism
 works; it needs the agent to actually *use* what it learns. The
@@ -65,6 +66,7 @@ being washed out by sigma-driven action noise each tick. The decoupling
 is what unlocks the canonical signal.
 
 ``` r
+
 s <- default_specs()
 s$rl_mode   <- "actor_critic"
 s$max_ticks <- 300L

@@ -164,7 +164,7 @@
       <h1>Evolution of bad science</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/itchyshin/clade/blob/main/vignettes/s-bad-science.Rmd" class="external-link"><code>vignettes/s-bad-science.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/itchyshin/clade/blob/claude/ci-public-repo/vignettes/s-bad-science.Rmd" class="external-link"><code>vignettes/s-bad-science.Rmd</code></a></small>
       <div class="d-none name"><code>s-bad-science.Rmd</code></div>
     </div>
 
@@ -185,7 +185,7 @@ is real) and research effort
 probability <code>base_rate_true</code>
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math>).
 The per-test false-positive rate is
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>e</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><msub><mi>α</mi><mtext mathvariant="normal">base</mtext></msub><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>e</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\alpha(e) = \alpha_{\text{base}} (1 - e)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mo stretchy="false" form="prefix">(</mo><mi>e</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mi>α</mi><mtext mathvariant="normal">base</mtext></msub><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>e</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\alpha(e) = \alpha_{\text{base}} (1 - e)</annotation></semantics></math>
 — it depends on effort only, not on
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>W</mi><annotation encoding="application/x-tex">W</annotation></semantics></math>,
 matching Smaldino &amp; McElreath’s formulation. Under publication
@@ -196,7 +196,7 @@ spreads by selection.</p>
 <p>If <code>replication_rate &gt; 0</code>, each lab has that
 probability per tick of replicating a random peer’s random finding. A
 failed replication (original was a false positive, with probability
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>b</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>/</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>W</mi><mi>b</mi><mo>+</mo><mi>α</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>b</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\alpha(1-b) / (Wb + \alpha(1-b))</annotation></semantics></math>)
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>b</mi><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mo stretchy="false" form="prefix">(</mo><mi>W</mi><mi>b</mi><mo>+</mo><mi>α</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>b</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\alpha(1-b) / (Wb + \alpha(1-b))</annotation></semantics></math>)
 debits the original lab’s publication count by
 <code>replication_penalty</code> (default 5), operationalising the
 reputational cost of published-then-overturned findings.</p>

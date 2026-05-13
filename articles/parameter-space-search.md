@@ -54,6 +54,7 @@ You have three building blocks.
 Systematic coverage of a small number of parameters:
 
 ``` r
+
 library(clade)
 
 specs_list <- grid_specs(fast_specs(),
@@ -73,6 +74,7 @@ with one parameter combination substituted. Names encode the cell:
 For stochastic search over continuous or mixed parameter spaces:
 
 ``` r
+
 specs_list <- sample_specs(
   fast_specs(),
   n                    = 1000L,
@@ -109,6 +111,7 @@ Appropriate when the full result objects fit in RAM (maybe 50 to 1000
 runs depending on how much you log):
 
 ``` r
+
 # 50 scenarios × 50 cores (one per scenario, 1:1)
 results <- batch_alife(specs_list[1:50], n_cores = 50L)
 
@@ -129,6 +132,7 @@ Appropriate when the full result objects would not fit in RAM (10 k to 1
 M runs) or when you want to survive a crash:
 
 ``` r
+
 stream_specs_to_csv(
   specs_list,
   out_path   = "/data/sweeps/grass_mutation_sweep.csv",
@@ -157,6 +161,7 @@ it left off.
 **Custom summary function**:
 
 ``` r
+
 stream_specs_to_csv(specs_list, "/data/custom.csv", n_cores = 50L,
   summary_fn = function(env, specs) {
     d <- get_run_data(env)$ticks
@@ -174,6 +179,7 @@ For search-driven parameter exploration (gradient-free optimisation or
 quality-diversity search) use the built-in adaptive algorithms:
 
 ``` r
+
 # CMA-ES: minimise a user-defined loss over the parameter space
 res_cma <- search_cmaes(
   base_specs = fast_specs(),
@@ -216,6 +222,7 @@ at the end). If the process dies, re-running the *same call* picks up
 from the saved iteration:
 
 ``` r
+
 res_me <- search_map_elites(
   base_specs       = fast_specs(),
   archive_dims     = list(mean_energy = seq(40, 120, length.out = 10L),
@@ -261,6 +268,7 @@ that reads `SLURM_ARRAY_TASK_ID` and processes the right slice, and
 pointing every task at the same resume-safe CSV.
 
 ``` r
+
 specs_list <- sample_specs(fast_specs(), n = 100000L,
                            grass_rate  = list(0.05, 0.45),
                            mutation_sd = c(0.05, 0.1, 0.2))
@@ -305,6 +313,7 @@ produce a summary row (with `viability = "crashed"`) — you can filter or
 re-run them afterwards:
 
 ``` r
+
 tbl <- read.csv("/data/sweeps/big_sweep.csv")
 table(tbl$viability)
 #>  viable  weak  crashed
@@ -327,6 +336,7 @@ reproducible end-to-end use of the tooling. It runs
 and produces a faceted comparison figure. The full code:
 
 ``` r
+
 library(clade)
 library(ggplot2); library(patchwork)
 
@@ -368,16 +378,16 @@ canonical life-history theory:
 
 ## Summary
 
-| Task                    | Function                                                                                      | Scale                                                                              |
-|-------------------------|-----------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------|
-| Make specs (systematic) | [`grid_specs()`](https://itchyshin.github.io/clade/reference/grid_specs.md)                   | any                                                                                |
-| Make specs (random)     | [`sample_specs()`](https://itchyshin.github.io/clade/reference/sample_specs.md)               | any                                                                                |
-| Run + collect in RAM    | [`batch_alife()`](https://itchyshin.github.io/clade/reference/batch_alife.md)                 | ≤ few k runs                                                                       |
-| Run + stream to disk    | [`stream_specs_to_csv()`](https://itchyshin.github.io/clade/reference/stream_specs_to_csv.md) | unlimited                                                                          |
-| Summarize to tibble     | [`summarize_batch()`](https://itchyshin.github.io/clade/reference/summarize_batch.md)         | from [`batch_alife()`](https://itchyshin.github.io/clade/reference/batch_alife.md) |
-| Search (CMA-ES)         | [`search_cmaes()`](https://itchyshin.github.io/clade/reference/search_cmaes.md)               | any                                                                                |
-| Search (MAP-Elites)     | [`search_map_elites()`](https://itchyshin.github.io/clade/reference/search_map_elites.md)     | any                                                                                |
-| Dispatch to SLURM       | [`submit_sweep_slurm()`](https://itchyshin.github.io/clade/reference/submit_sweep_slurm.md)   | multi-node                                                                         |
+| Task | Function | Scale |
+|----|----|----|
+| Make specs (systematic) | [`grid_specs()`](https://itchyshin.github.io/clade/reference/grid_specs.md) | any |
+| Make specs (random) | [`sample_specs()`](https://itchyshin.github.io/clade/reference/sample_specs.md) | any |
+| Run + collect in RAM | [`batch_alife()`](https://itchyshin.github.io/clade/reference/batch_alife.md) | ≤ few k runs |
+| Run + stream to disk | [`stream_specs_to_csv()`](https://itchyshin.github.io/clade/reference/stream_specs_to_csv.md) | unlimited |
+| Summarize to tibble | [`summarize_batch()`](https://itchyshin.github.io/clade/reference/summarize_batch.md) | from [`batch_alife()`](https://itchyshin.github.io/clade/reference/batch_alife.md) |
+| Search (CMA-ES) | [`search_cmaes()`](https://itchyshin.github.io/clade/reference/search_cmaes.md) | any |
+| Search (MAP-Elites) | [`search_map_elites()`](https://itchyshin.github.io/clade/reference/search_map_elites.md) | any |
+| Dispatch to SLURM | [`submit_sweep_slurm()`](https://itchyshin.github.io/clade/reference/submit_sweep_slurm.md) | multi-node |
 
 All of these use the PSOCK parallel path; pass `n_cores = N` to fan out
 across `N` separate R+Julia worker processes on one machine.

@@ -129,7 +129,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Self-hosted GitHub Actions runner — setup guide</h1>
-      <small class="dont-index">Source: <a href="https://github.com/itchyshin/clade/blob/main/.github/SELF_HOSTED_RUNNER_SETUP.md" class="external-link"><code>.github/SELF_HOSTED_RUNNER_SETUP.md</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/itchyshin/clade/blob/claude/ci-public-repo/.github/SELF_HOSTED_RUNNER_SETUP.md" class="external-link"><code>.github/SELF_HOSTED_RUNNER_SETUP.md</code></a></small>
     </div>
 
 <div id="self-hosted-github-actions-runner--setup-guide" class="section level1">
@@ -221,7 +221,7 @@
 <li>
 <strong>Pandoc</strong> (<code>sudo apt-get install pandoc</code>).</li>
 <li>
-<strong>System libs</strong> matching the ones <code>R-CMD-check.yaml</code> installs in CI: <code>libcurl4-openssl-dev libssl-dev libxml2-dev libfontconfig1-dev   libharfbuzz-dev libfribidi-dev libfreetype6-dev libpng-dev   libtiff5-dev libjpeg-dev</code>.</li>
+<strong>System libs</strong> matching the ones <code>R-CMD-check.yaml</code> installs in CI: <code>libcurl4-openssl-dev libssl-dev libxml2-dev libfontconfig1-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev</code>.</li>
 <li>
 <strong>R packages</strong>: <code>rcmdcheck</code>, <code>devtools</code>, <code>testthat</code>, <code>jsonlite</code>. Install with <code>install.packages(...)</code> once; subsequent CI runs reuse the user library.</li>
 <li>
@@ -230,30 +230,30 @@
 <hr></div>
 <div class="section level2">
 <h2 id="if-things-go-wrong">If things go wrong<a class="anchor" aria-label="anchor" href="#if-things-go-wrong"></a></h2>
-<table class="table"><colgroup><col width="33%"><col width="33%"><col width="33%"></colgroup><thead><tr class="header"><th>Symptom</th>
+<table class="table"><colgroup><col width="33%"><col width="33%"><col width="33%"></colgroup><thead><tr><th>Symptom</th>
 <th>Likely cause</th>
 <th>Fix</th>
-</tr></thead><tbody><tr class="odd"><td>Workflow queued forever, never starts</td>
+</tr></thead><tbody><tr><td>Workflow queued forever, never starts</td>
 <td>Runner offline, or workflow <code>runs-on: self-hosted</code> but runner registered with different labels</td>
 <td>Check runner page shows <strong>Idle</strong>; verify labels match</td>
-</tr><tr class="even"><td>Runner shows <strong>Offline</strong> on GitHub</td>
+</tr><tr><td>Runner shows <strong>Offline</strong> on GitHub</td>
 <td>Service died / machine rebooted</td>
 <td>
 <code>sudo ./svc.sh start</code>, or <code>./run.sh</code> manually to see errors</td>
-</tr><tr class="odd"><td>
+</tr><tr><td>
 <code>./run.sh</code> errors with “Missing: libicu” etc.</td>
 <td>System deps not installed</td>
 <td>Install deps per “Dependencies” section above</td>
-</tr><tr class="even"><td>Permission denied on <code>svc.sh install</code>
+</tr><tr><td>Permission denied on <code>svc.sh install</code>
 </td>
 <td>systemd needs root</td>
 <td>
 <code>sudo</code> the command; or run <code>./run.sh</code> manually instead</td>
-</tr><tr class="odd"><td>R package install fails in CI</td>
+</tr><tr><td>R package install fails in CI</td>
 <td>Missing system dep or Rtools</td>
 <td>
 <code>R -e 'install.packages("&lt;pkg&gt;")'</code> locally to see the actual error</td>
-</tr><tr class="even"><td>Want to delete the runner entirely</td>
+</tr><tr><td>Want to delete the runner entirely</td>
 <td>—</td>
 <td><code>sudo ./svc.sh uninstall &amp;&amp; ./config.sh remove --token &lt;fresh-token&gt;</code></td>
 </tr></tbody></table><hr></div>

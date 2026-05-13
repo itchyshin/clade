@@ -61,19 +61,20 @@ produce the expected directional contrast cleanly.
 
 ### Parameters
 
-| Parameter                     | Default | Description                                                                          |
-|-------------------------------|---------|--------------------------------------------------------------------------------------|
-| `brain_size_evolution`        | `FALSE` | Enable heritable brain size                                                          |
-| `brain_size_init_mean`        | `1.0`   | Initial population mean (reference = no effect)                                      |
-| `brain_size_mutation_sd`      | `0.05`  | Per-generation mutation SD                                                           |
-| `brain_size_min`              | `0.1`   | Minimum brain size                                                                   |
-| `brain_size_max`              | `3.0`   | Maximum brain size                                                                   |
-| `brain_size_cost_scale`       | `1.0`   | Scales the idle-cost surcharge per unit of `brain_size - 1`                          |
-| `brain_size_sensing_exponent` | `0.3`   | Power applied to `brain_size` when scaling grass sensing inputs; 0 = off, 1 = linear |
+| Parameter | Default | Description |
+|----|----|----|
+| `brain_size_evolution` | `FALSE` | Enable heritable brain size |
+| `brain_size_init_mean` | `1.0` | Initial population mean (reference = no effect) |
+| `brain_size_mutation_sd` | `0.05` | Per-generation mutation SD |
+| `brain_size_min` | `0.1` | Minimum brain size |
+| `brain_size_max` | `3.0` | Maximum brain size |
+| `brain_size_cost_scale` | `1.0` | Scales the idle-cost surcharge per unit of `brain_size - 1` |
+| `brain_size_sensing_exponent` | `0.3` | Power applied to `brain_size` when scaling grass sensing inputs; 0 = off, 1 = linear |
 
 ### Example: parental care unlocks brain size evolution
 
 ``` r
+
 library(clade)
 
 base <- fast_specs()                  # ~66 generations in 2000 ticks

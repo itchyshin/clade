@@ -43,6 +43,7 @@ now documents only claim (a) as the primary fidelity signal; claim (b)
 is included honestly as a null finding.
 
 ``` r
+
 library(clade)
 library(ggplot2)
 library(patchwork)
@@ -103,11 +104,11 @@ costs and are removed before reaching peak foraging efficiency.
 realistic-scale preset with 30 predators vs no predators, all 16 runs
 are viable (no crashes). Two claims were tested against the 2 σ bar:
 
-| Metric                                       | no_predators (8 seeds) | predators (8 seeds) | Δ ± SE          | t         | verdict  |
-|----------------------------------------------|------------------------|---------------------|-----------------|-----------|----------|
-| Prey population (`n_agents`, last 500 ticks) | 145.5 ± 4.4            | 124.4 ± 3.8         | **−21.1 ± 5.8** | **−3.64** | **PASS** |
-| Genetic diversity                            | 1.876 ± 0.008          | 1.867 ± 0.006       | −0.009 ± 0.010  | −0.90     | null     |
-| Mean energy                                  | 85.05 ± 0.42           | 85.11 ± 0.63        | +0.06 ± 0.75    | +0.08     | null     |
+| Metric | no_predators (8 seeds) | predators (8 seeds) | Δ ± SE | t | verdict |
+|----|----|----|----|----|----|
+| Prey population (`n_agents`, last 500 ticks) | 145.5 ± 4.4 | 124.4 ± 3.8 | **−21.1 ± 5.8** | **−3.64** | **PASS** |
+| Genetic diversity | 1.876 ± 0.008 | 1.867 ± 0.006 | −0.009 ± 0.010 | −0.90 | null |
+| Mean energy | 85.05 ± 0.42 | 85.11 ± 0.63 | +0.06 ± 0.75 | +0.08 | null |
 
 **Honest conclusion.** The demographic claim — **predation reduces prey
 equilibrium population size** (Williams 1966, standard predator–prey

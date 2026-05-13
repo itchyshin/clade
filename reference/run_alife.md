@@ -40,8 +40,7 @@ An `env` list with components:
 
 - `$specs`:
 
-  The specs list used for this run (may differ from input if
-  `world_evolution = TRUE`).
+  The specs list used for this run.
 
 - `$progress`:
 

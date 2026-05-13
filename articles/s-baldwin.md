@@ -44,16 +44,16 @@ Declining σ over ticks = canalization / Baldwin Effect. Rising or stable
 
 **Key parameters.**
 
-| Parameter                 | Default  | Effect                                                                      |
-|---------------------------|----------|-----------------------------------------------------------------------------|
-| `brain_type`              | `"bnn"`  | Must be `"bnn"` to enable Bayesian weight distributions                     |
-| `bnn_sigma_init`          | 0.5      | Initial σ for haploid genomes; in diploid, σ is derived from heterozygosity |
-| `bnn_sigma_min`           | 0.01     | Floor: σ cannot be driven below this value                                  |
-| `rl_mode`                 | `"none"` | Set to `"actor_critic"` to add within-lifetime posterior contraction        |
-| `learning_rate_init_mean` | 0.01     | Controls rate of within-lifetime σ contraction under RL                     |
-| `max_ticks`               | —        | Canalization is slow; use ≥ 500 ticks; 1000–2000 for rigorous tests         |
-| `grass_rate`              | 0.05     | Resource abundance shapes fitness landscape stability                       |
-| `seasonal_amplitude`      | 0        | Temporal variability; high values prevent canalization                      |
+| Parameter | Default | Effect |
+|----|----|----|
+| `brain_type` | `"bnn"` | Must be `"bnn"` to enable Bayesian weight distributions |
+| `bnn_sigma_init` | 0.5 | Initial σ for haploid genomes; in diploid, σ is derived from heterozygosity |
+| `bnn_sigma_min` | 0.01 | Floor: σ cannot be driven below this value |
+| `rl_mode` | `"none"` | Set to `"actor_critic"` to add within-lifetime posterior contraction |
+| `learning_rate_init_mean` | 0.01 | Controls rate of within-lifetime σ contraction under RL |
+| `max_ticks` | — | Canalization is slow; use ≥ 500 ticks; 1000–2000 for rigorous tests |
+| `grass_rate` | 0.05 | Resource abundance shapes fitness landscape stability |
+| `seasonal_amplitude` | 0 | Temporal variability; high values prevent canalization |
 
 ------------------------------------------------------------------------
 
@@ -73,6 +73,7 @@ canalization cannot be observed at default parameters. See
 [dev/audit/fidelity/baldwin.md](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/baldwin.md).
 
 ``` r
+
 library(clade)
 library(ggplot2)
 
@@ -104,6 +105,7 @@ produces a fitness improvement of **1.2x** over the defaults above. See
 `dev/audit/calibration/RESULTS.md` for the full CMA-ES results.
 
 ``` r
+
 # Parameter overrides discovered by CMA-ES (see dev/audit/calibration/):
 s <- default_specs()
 s$grass_rate                     <- 0.0266
@@ -202,6 +204,7 @@ resource-rich environments provide consistent fitness gradients that
 canalization can track; variable or scarce environments do not.
 
 ``` r
+
 library(clade)
 library(ggplot2)
 library(patchwork)
@@ -319,6 +322,7 @@ this because canalization never occurs, or because 600 ticks is too few
 generations?
 
 ``` r
+
 library(clade)
 library(ggplot2)
 
@@ -396,6 +400,7 @@ reverses. This is ceiling saturation, not canalization.
 does it emerge with any within-lifetime adaptation mechanism?
 
 ``` r
+
 library(clade)
 library(ggplot2)
 
@@ -495,6 +500,7 @@ relatives. Social insurance maintains cognitive flexibility. This is a
 novel interaction: **social buffering retards the Baldwin Effect**.
 
 ``` r
+
 library(clade)
 library(ggplot2)
 

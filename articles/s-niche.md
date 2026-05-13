@@ -10,14 +10,14 @@ selective environment (Odling-Smee et al. 2003).
 
 **Key parameters.**
 
-| Parameter                 | Default | Effect                                                                                                                                                                     |
-|---------------------------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `niche_construction`      | FALSE   | Enable shelter building                                                                                                                                                    |
-| `shelter_build_prob`      | 0.1     | Probability of building per tick                                                                                                                                           |
-| `shelter_min_energy`      | 40.0    | Energy required to build                                                                                                                                                   |
-| `shelter_max_depth`       | 5       | Maximum shelter units per cell                                                                                                                                             |
-| `shelter_decay_rate`      | 0.02    | Fraction of shelters lost per tick                                                                                                                                         |
-| `shelter_occupancy_bonus` | 0.0     | When \> 0, agents occupying a sheltered cell receive `bonus × depth` energy per tick — the heritable niche-construction effect (Odling-Smee et al. 2003). Added in v0.3.0. |
+| Parameter | Default | Effect |
+|----|----|----|
+| `niche_construction` | FALSE | Enable shelter building |
+| `shelter_build_prob` | 0.1 | Probability of building per tick |
+| `shelter_min_energy` | 40.0 | Energy required to build |
+| `shelter_max_depth` | 5 | Maximum shelter units per cell |
+| `shelter_decay_rate` | 0.02 | Fraction of shelters lost per tick |
+| `shelter_occupancy_bonus` | 0.0 | When \> 0, agents occupying a sheltered cell receive `bonus × depth` energy per tick — the heritable niche-construction effect (Odling-Smee et al. 2003). Added in v0.3.0. |
 
 **Expected output.** `n_shelters_built` is positive. Predator damage is
 reduced in sheltered cells. Population size may be larger than baseline
@@ -46,6 +46,7 @@ exactly as Odling-Smee et al. 2003 argue. Full protocol:
 [dev/audit/fidelity/niche_heritable_feedback_sweep.md](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/niche_heritable_feedback_sweep.md).
 
 ``` r
+
 s <- default_specs()
 s$niche_construction <- TRUE
 s$n_predators_init   <- 5L
@@ -64,6 +65,7 @@ produces a fitness improvement of **4.9x** over the defaults above. See
 `dev/audit/calibration/RESULTS.md` for the full CMA-ES results.
 
 ``` r
+
 # Parameter overrides discovered by CMA-ES (see dev/audit/calibration/):
 s <- default_specs()
 s$shelter_decay_prob             <- 0.0624

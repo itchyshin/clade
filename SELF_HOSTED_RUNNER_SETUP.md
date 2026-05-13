@@ -156,14 +156,14 @@ If you later move `pkgdown.yaml` over too, the same deps apply plus
 
 ## If things go wrong
 
-| Symptom                                       | Likely cause                                                                                   | Fix                                                                   |
-|-----------------------------------------------|------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------|
-| Workflow queued forever, never starts         | Runner offline, or workflow `runs-on: self-hosted` but runner registered with different labels | Check runner page shows **Idle**; verify labels match                 |
-| Runner shows **Offline** on GitHub            | Service died / machine rebooted                                                                | `sudo ./svc.sh start`, or `./run.sh` manually to see errors           |
-| `./run.sh` errors with “Missing: libicu” etc. | System deps not installed                                                                      | Install deps per “Dependencies” section above                         |
-| Permission denied on `svc.sh install`         | systemd needs root                                                                             | `sudo` the command; or run `./run.sh` manually instead                |
-| R package install fails in CI                 | Missing system dep or Rtools                                                                   | `R -e 'install.packages("<pkg>")'` locally to see the actual error    |
-| Want to delete the runner entirely            | —                                                                                              | `sudo ./svc.sh uninstall && ./config.sh remove --token <fresh-token>` |
+| Symptom | Likely cause | Fix |
+|----|----|----|
+| Workflow queued forever, never starts | Runner offline, or workflow `runs-on: self-hosted` but runner registered with different labels | Check runner page shows **Idle**; verify labels match |
+| Runner shows **Offline** on GitHub | Service died / machine rebooted | `sudo ./svc.sh start`, or `./run.sh` manually to see errors |
+| `./run.sh` errors with “Missing: libicu” etc. | System deps not installed | Install deps per “Dependencies” section above |
+| Permission denied on `svc.sh install` | systemd needs root | `sudo` the command; or run `./run.sh` manually instead |
+| R package install fails in CI | Missing system dep or Rtools | `R -e 'install.packages("<pkg>")'` locally to see the actual error |
+| Want to delete the runner entirely | — | `sudo ./svc.sh uninstall && ./config.sh remove --token <fresh-token>` |
 
 ------------------------------------------------------------------------
 

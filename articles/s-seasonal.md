@@ -14,12 +14,12 @@ abundance — a minimal model of temperate seasonality.
 
 **Key parameters.**
 
-| Parameter            | Default | Effect                                                           |
-|----------------------|---------|------------------------------------------------------------------|
-| `seasonal_amplitude` | 0.0     | Amplitude of the grass productivity oscillation (0 = no seasons) |
-| `season_length`      | 100     | Length of one full season cycle in ticks                         |
-| `winter_death_prob`  | 0.0     | Additional per-agent death probability during the winter phase   |
-| `grass_rate`         | 0.05    | Baseline regrowth rate, modulated by the seasonal signal         |
+| Parameter | Default | Effect |
+|----|----|----|
+| `seasonal_amplitude` | 0.0 | Amplitude of the grass productivity oscillation (0 = no seasons) |
+| `season_length` | 100 | Length of one full season cycle in ticks |
+| `winter_death_prob` | 0.0 | Additional per-agent death probability during the winter phase |
+| `grass_rate` | 0.05 | Baseline regrowth rate, modulated by the seasonal signal |
 
 **Expected output.** Population size (`n_agents`) should track grass
 coverage with a short lag, producing recurrent crashes in winter and
@@ -27,6 +27,7 @@ recoveries in spring. Multiple complete cycles should be visible over
 500 ticks given `season_length = 100`.
 
 ``` r
+
 library(clade)
 library(ggplot2)
 library(tidyr)

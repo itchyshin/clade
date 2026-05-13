@@ -37,6 +37,20 @@ A named list of simulation parameters.
   matter. Used by movement, sensing, dispersal, kin-scan, group-defense,
   and cooperative-breeding code paths via `wrap_or_clamp()`.
 
+- `random_tick_order`:
+
+  Logical. `TRUE` (default, since 0.7.0) shuffles agent and predator
+  iteration order each tick — random asynchronous scheduling per Grimm &
+  Railsback (2005) and the IBM literature. **This restores the original
+  behaviour from the MATLAB ancestor** (Bulitko 2023, `alife.m:324`:
+  `env.agent = env.agent(randperm(length(env.agent)))`), which was lost
+  in the alifeR R port and inherited as a regression by clade. `FALSE`
+  restores the legacy fixed-array-order scheduling, which biased every
+  clade simulation prior to 0.7.0 (earlier-array agents systematically
+  had first access to foraging, mates, free cells, and prey). Only set
+  FALSE to reproduce pre-0.7.0 results. See
+  `dev/docs/consolidation-audit.md` for the full ancestor diff.
+
 - `n_agents_init`:
 
   Integer. Number of agents at tick 0 (default 50).
@@ -49,17 +63,6 @@ A named list of simulation parameters.
 - `max_ticks`:
 
   Integer. Simulation length in ticks (default 500).
-
-- `wall_density`:
-
-  Numeric in \[0, 1\]. Fraction of grid cells that are non-traversable
-  walls (default 0 = open grid). Walls block movement and foraging.
-
-- `wall_clusters`:
-
-  Logical. If `TRUE` (default), walls are laid out in contiguous clumps;
-  if `FALSE`, walls are scattered cell-by-cell. Only relevant when
-  `wall_density > 0`.
 
 ### Energy and metabolism
 
@@ -617,16 +620,6 @@ as described by Jablonka & Lamb (2005).
   the law of human mortality, *Philosophical Transactions of the Royal
   Society* 115:513–583.
 
-- `repro_senescence`:
-
-  Numeric in \[0, 1\]. Per-tick decline in reproduction probability with
-  age (default 0 = no reproductive senescence).
-
-- `life_history_evolution`:
-
-  Logical. If `TRUE`, `max_age` and `senescence_rate` are heritable
-  diploid traits (default `FALSE`).
-
 - `allee_threshold`:
 
   Integer. Minimum local density for reproduction (default 0L = Allee
@@ -958,13 +951,11 @@ as described by Jablonka & Lamb (2005).
 - `parental_investment_evolution`:
 
   Logical. Enable Trivers 1972 quality-quantity trade-off (default
-  `FALSE`). Couples `parental_investment_init_mean` to per-offspring
-  energy allocation.
-
-- `parental_investment_init_mean`:
-
-  Numeric in \[0, 1\]. Initial per-offspring investment fraction
-  (default 0.5).
+  `FALSE`). When `TRUE`, the female (focal agent) bears
+  `female_investment` of the per-offspring cost and the male bears
+  `1 - female_investment`; offspring birth energy also scales by
+  `2 * female_investment`. See `inst/julia/src/reproduce.jl` for the
+  implementation.
 
 - `female_investment`:
 
@@ -1412,29 +1403,6 @@ rate rises transiently. Controlled by three specs:
 - `social_learning_rate`:
 
   Numeric. Fraction of neighbour weights copied (default 0.1).
-
-### World evolution (parameter co-evolution)
-
-When `world_evolution = TRUE`, the environment parameters listed in
-`world_params_to_evolve` are treated as evolvable quantities that change
-via random drift each tick, allowing the environment to co-evolve with
-agents. This extends the MAP-Elites search into a joint
-agent-environment space.
-
-- `world_evolution`:
-
-  Logical. Enable world parameter evolution (default `FALSE`).
-
-- `world_mutation_sd`:
-
-  Numeric. Standard deviation of Gaussian perturbations to world
-  parameters per tick (default 0.02).
-
-- `world_params_to_evolve`:
-
-  Character vector. Names of parameters in `default_specs()` to treat as
-  evolvable. Example: `c("grass_rate", "disease_death_prob")`. Defaults
-  to `character(0)` (none).
 
 ### Complex multi-resource landscape (Tier 1)
 

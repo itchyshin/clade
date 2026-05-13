@@ -15,18 +15,18 @@ cannot be predicted from the single-module results alone.
 
 **Key parameters.**
 
-| Parameter               | Default  | Effect                                                 |
-|-------------------------|----------|--------------------------------------------------------|
-| `n_predators_init`      | 0L       | Adds co-evolving predator pressure                     |
-| `disease`               | FALSE    | Activates SIR epidemic dynamics                        |
-| `kin_selection`         | FALSE    | Enables pedigree-based altruistic transfers            |
-| `niche_construction`    | FALSE    | Agents build and inherit shelters                      |
-| `rl_mode`               | `"none"` | Set to `"actor_critic"` for within-lifetime RL         |
-| `social_learning`       | FALSE    | Copies output-layer weights from successful neighbours |
-| `body_size_evolution`   | FALSE    | Heritable metabolic scaling                            |
-| `dispersal_evolution`   | FALSE    | Heritable dispersal tendency                           |
-| `cooperation_evolution` | FALSE    | Heritable cooperation trait with public goods          |
-| `complex_landscape`     | FALSE    | Spatially heterogeneous, shifting resource patches     |
+| Parameter | Default | Effect |
+|----|----|----|
+| `n_predators_init` | 0L | Adds co-evolving predator pressure |
+| `disease` | FALSE | Activates SIR epidemic dynamics |
+| `kin_selection` | FALSE | Enables pedigree-based altruistic transfers |
+| `niche_construction` | FALSE | Agents build and inherit shelters |
+| `rl_mode` | `"none"` | Set to `"actor_critic"` for within-lifetime RL |
+| `social_learning` | FALSE | Copies output-layer weights from successful neighbours |
+| `body_size_evolution` | FALSE | Heritable metabolic scaling |
+| `dispersal_evolution` | FALSE | Heritable dispersal tendency |
+| `cooperation_evolution` | FALSE | Heritable cooperation trait with public goods |
+| `complex_landscape` | FALSE | Spatially heterogeneous, shifting resource patches |
 
 **Expected output.** Modules imposing strong directional selection —
 predators and disease — tend to increase genetic diversity by
@@ -38,6 +38,7 @@ disease mortality, and niche construction can buffer the energetic cost
 of predation evasion.
 
 ``` r
+
 library(clade)
 library(ggplot2)
 
