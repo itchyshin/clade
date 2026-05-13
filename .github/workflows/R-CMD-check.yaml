@@ -1,22 +1,31 @@
 # Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
 # For help debugging build failures open an issue on the r-lib/actions repo.
 #
-# 0.7.0 (2026-05-05): pull_request trigger disabled. The author runs
-# devtools::check() locally per project CLAUDE.md guidance and only
-# wants Actions for (a) pushes to main (post-merge verification) and
-# (b) manual workflow_dispatch (release-time check). Removing the
-# PR trigger drops the per-PR runner spend to zero; the local Mac
-# already runs the same check faster.
+# 0.7.x (2026-05-12): pull_request trigger re-enabled. The repo was
+# made public, so Linux Actions runners are now free with unlimited
+# minutes. The previous disable was a 3 000 min/month budget guard
+# (PR #112 / commit 59ff65f) that no longer applies. Local checks
+# remain authoritative per CLAUDE.md, but CI now provides automatic
+# verification on every PR commit at zero cost.
+#
+# Cross-OS (macOS / Windows) runners are still NOT enabled — those
+# remain paid even on public repos, and per the project CLAUDE.md
+# should only be enabled near releases / CRAN submissions, not for
+# every PR.
 on:
   workflow_dispatch:
   push:
     branches: [main, master]
-    # Skip R-CMD-check on docs-only pushes — this repo is private and
-    # has a 3 000 min/month Actions budget. Markdown-only, dev-notes,
-    # and _pkgdown.yml changes cannot affect the package's check
-    # status. Any commit that touches R/, inst/, man/, tests/,
-    # DESCRIPTION, NAMESPACE, or vignettes/ still triggers the full
-    # check.
+    # Skip docs-only pushes. Markdown-only, dev-notes, and
+    # _pkgdown.yml changes cannot affect the package's check status.
+    # Any commit that touches R/, inst/, man/, tests/, DESCRIPTION,
+    # NAMESPACE, or vignettes/ still triggers the full check.
+    paths-ignore:
+      - '**/*.md'
+      - 'dev/**'
+      - '_pkgdown.yml'
+  pull_request:
+    branches: [main, master]
     paths-ignore:
       - '**/*.md'
       - 'dev/**'
