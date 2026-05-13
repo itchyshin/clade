@@ -335,6 +335,9 @@ reference:
       - realistic_specs
       - ultra_realistic_specs
       - load_specs
+      - wolf_personality_specs
+      - trivers_reciprocity_specs
+      - wolf2008_responsiveness_specs
 
   - title: "Hypothesis testing"
     desc: >
