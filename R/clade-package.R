@@ -16,7 +16,7 @@
 #' plot_run(data)
 #' ```
 #'
-#' First call to [run_alife()] precompiles the Julia kernel (~10–90 s,
+#' First call to [run_alife()] precompiles the Julia kernel (~60–90 s,
 #' once per Julia session).
 #'
 #' ## Key entry points
@@ -60,7 +60,7 @@
 #' ## Citation
 #'
 #' Nakagawa, S. (2026). clade: Agent-based evolutionary simulation with
-#' a Julia backend. R package version 0.5.6.
+#' a Julia backend. R package version 0.7.0.
 #' \url{https://github.com/itchyshin/clade}
 #'
 #' @keywords internal

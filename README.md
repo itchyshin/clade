@@ -2,10 +2,10 @@
 
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Fidelity audit: 32/32](https://img.shields.io/badge/fidelity-32%2F32-brightgreen.svg)](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/DASHBOARD.md)
+[![Fidelity audit: 35/35](https://img.shields.io/badge/fidelity-35%2F35-brightgreen.svg)](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/DASHBOARD.md)
 [![pkgdown](https://img.shields.io/badge/docs-pkgdown-blue.svg)](https://itchyshin.github.io/clade/)
 
-**Evolve behaviour, minds, and brains in R — the intraspecific, interspecific, and environmental interactions that shape them. 32 / 32 scenarios audited against primary literature.**
+**Evolve behaviour, minds, and brains in R — the intraspecific, interspecific, and environmental interactions that shape them. 35 / 35 scenarios audited against primary literature (including 3 new paper reproductions in 0.7.0: Wolf 2007 personality syndrome, Trivers 1971 reciprocal altruism, Wolf 2008 responsive personalities).**
 
 `clade` is a modular R + Julia simulator for the three classes of
 interaction that shape behaviour, cognition, and social evolution:
@@ -13,7 +13,7 @@ between conspecifics (kin, mates, rivals, allies, tutors), between
 species (predators, parasites, mimics, competitors), and with the
 physical environment (niche construction, plasticity, seasonal change).
 Every biological scenario is cross-referenced to a primary-literature
-prediction and multi-seed audited — all **32 of 32** currently pass,
+prediction and multi-seed audited — all **35 of 35** currently pass,
 with 0 sub-2σ and 0 contradicting theory
 ([dashboard](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/DASHBOARD.md)).
 
@@ -21,11 +21,24 @@ with 0 sub-2σ and 0 contradicting theory
 > for the three-pillar overview and a "when clade fits / when it doesn't"
 > fit-table comparing it to SLiM, msprime, NetLogo, and Mesa.
 >
-> New in 0.6.0: [**5 worked paper reproductions**](https://itchyshin.github.io/clade/articles/paper-kokko-brooks-2003.html)
+> New in 0.7.0: three paper reproductions on the evolution of animal
+> personality and cooperation —
+> [**Wolf et al. 2007**](https://itchyshin.github.io/clade/articles/paper-wolf2007.html)
+> (boldness-aggressiveness syndrome from life-history asset
+> protection),
+> [**Wolf et al. 2008**](https://itchyshin.github.io/clade/articles/paper-wolf2008.html)
+> (frequency-dependent responsiveness),
+> and [**Trivers 1971**](https://itchyshin.github.io/clade/articles/paper-trivers1971.html)
+> (reciprocal altruism via generous-TFT). All three spatially-
+> explicit reinterpretations of mean-field models — see each
+> vignette's "honest discussion" section. 0.7.0 also fixed two
+> systematic kernel biases (random asynchronous tick scheduling +
+> one-per-cell movement / offspring placement) that predated 0.5.
+>
+> Earlier (0.6.0): [**5 worked paper reproductions**](https://itchyshin.github.io/clade/articles/paper-kokko-brooks-2003.html)
 > (Kokko & Brooks 2003, Griesser 2023, Dieckmann & Doebeli 1999,
 > Réale 2010, Emlen 1982) demonstrating the `hypothesis_sweep()`
-> + `hypothesis_report()` research workflow for reproducing a
-> published prediction in clade.
+> + `hypothesis_report()` research workflow.
 
 The simulation kernel is written in Julia for performance. R is the
 interface: you set parameters, call `run_alife()` once, and receive the
@@ -68,7 +81,8 @@ environment.
 ```r
 library(clade)
 
-# Confirm Julia is ready (compiles kernel on first call — ~60-90 s once)
+# Check whether Julia has started (does not itself trigger compilation).
+# The kernel compiles on the first `run_alife()` call — ~60-90 s once.
 julia_is_ready()
 
 # Set up a baseline run
@@ -108,7 +122,7 @@ list. Modules can be freely combined.
 | 🤝 IFfolk + parliament | `iffolk_selection`, `parliament_suppression` | Inclusive-fitness transfers + intragenomic-conflict suppression (Haig 2000; Fromhage & Jennions 2019) | [`s-kin`](https://itchyshin.github.io/clade/articles/s-kin.html) |
 | 🤝 Kin selection | `kin_selection` | Hamilton's rule, pedigree-based relatedness (r = 0.5 / 0.25 / 0) | [`s-kin`](https://itchyshin.github.io/clade/articles/s-kin.html) |
 | 🐣 Life history / pace of life | `metabolic_rate_evolution`, `aging_rate_evolution` | Metabolic rate ↔ lifespan trade-off | [`s-life-history`](https://itchyshin.github.io/clade/articles/s-life-history.html), [`s-pace-of-life`](https://itchyshin.github.io/clade/articles/s-pace-of-life.html) |
-| 🤝 Mating systems | `ploidy = 2`, `mate_choice` | Haploid / diploid; signal-preference assortative mating | [`s-mating-systems`](https://itchyshin.github.io/clade/articles/s-mating-systems.html) |
+| 🤝 Mating systems | `ploidy = 2`, `mate_choice_mode` | Haploid / diploid; signal-preference assortative mating | [`s-mating-systems`](https://itchyshin.github.io/clade/articles/s-mating-systems.html) |
 | 🦁 Mimicry | `mimicry` | Predator signal-vector memory + delta-rule Rescorla-Wagner + aposematic pleiotropy (`signal_toxicity_coupling`). Müllerian by default; Batesian via `batesian_mimicry = TRUE` | [`s-mimicry`](https://itchyshin.github.io/clade/articles/s-mimicry.html) |
 | 🧬 Mutation-rate evolution | `mutation_rate_evolution` | Per-agent heritable `mutation_sd` | [`s-pop-genetics`](https://itchyshin.github.io/clade/articles/s-pop-genetics.html) |
 | 🌱 Niche construction | `niche_construction` | Shelter-building modifies the selection environment (local public good). With `shelter_occupancy_bonus > 0`: shelters confer a heritable metabolic benefit to occupants (Odling-Smee et al. 2003) | [`s-niche`](https://itchyshin.github.io/clade/articles/s-niche.html) |
@@ -116,12 +130,12 @@ list. Modules can be freely combined.
 | 🐣 Neonatal foraging deficit | `neonatal_foraging_deficit > 0` | Young agents can't forage at adult efficiency; parental care bridges the gap (Aiello & Wheeler 1995; Isler & van Schaik 2009) | [`s-parental-care`](https://itchyshin.github.io/clade/articles/s-parental-care.html) |
 | 🤝 Parental investment | `parental_investment_evolution` | Evolved male / offspring-quality investment | [`s-parental-investment`](https://itchyshin.github.io/clade/articles/s-parental-investment.html) |
 | 🌱 Phenotypic plasticity | `phenotypic_plasticity` | Environment-dependent reproduction threshold | [`s-plasticity`](https://itchyshin.github.io/clade/articles/s-plasticity.html) |
-| 🦁 Predation | `predators`, `n_predators_init > 0` | Co-evolving predator guild with dedicated 15-input sensory brain | [`s-predator-prey`](https://itchyshin.github.io/clade/articles/s-predator-prey.html), [`s-predation-neural`](https://itchyshin.github.io/clade/articles/s-predation-neural.html) |
+| 🦁 Predation | `n_predators_init > 0` | Co-evolving predator guild with dedicated 15-input sensory brain | [`s-predator-prey`](https://itchyshin.github.io/clade/articles/s-predator-prey.html), [`s-predation-neural`](https://itchyshin.github.io/clade/articles/s-predation-neural.html) |
 | 🤝 Predator group defence | `group_defense` | Coordinated anti-predator behaviour | [`s-group-defense`](https://itchyshin.github.io/clade/articles/s-group-defense.html) |
 | 🌱 Scavenging | `scavenging` | Carcass consumption; decay-based carcass lifetime | [`s-scavenging`](https://itchyshin.github.io/clade/articles/s-scavenging.html) |
 | 🌱 Seasonal dynamics | `seasonal_amplitude > 0`, `winter_death_prob` | Resource oscillation + winter mortality | [`s-seasonal`](https://itchyshin.github.io/clade/articles/s-seasonal.html) |
 | 🦁 SIR disease | `disease` | Susceptible–Infected–Recovered epidemic dynamics | [`s-disease`](https://itchyshin.github.io/clade/articles/s-disease.html) |
-| 🤝 Signals / sexual selection | `signal_mating`, `signal_evolution_drift` | Signal-preference coevolution (Fisher 1915; Kirkpatrick & Ryan 1991) | [`s-signals`](https://itchyshin.github.io/clade/articles/s-signals.html) |
+| 🤝 Signals / sexual selection | `signal_dims > 0`, `signal_evolution_drift` | Signal-preference coevolution (Fisher 1915; Kirkpatrick & Ryan 1991) | [`s-signals`](https://itchyshin.github.io/clade/articles/s-signals.html) |
 | 🤝 Social learning | `social_learning` | Copy successful neighbours' brain weights | [`s-social-learning`](https://itchyshin.github.io/clade/articles/s-social-learning.html) |
 | 🌱 Spatial sorting | `spatial_sorting` + `dispersal_evolution` + `toroidal = FALSE` | Invasion-front dispersal assortment (Shine et al. 2011; needs bounded grid) | [`s-dispersal-ifd`](https://itchyshin.github.io/clade/articles/s-dispersal-ifd.html) |
 | 🦁 Speciation | `speciation` | Genome-distance clustering + reproductive isolation | [`s-speciation`](https://itchyshin.github.io/clade/articles/s-speciation.html) |
@@ -131,6 +145,9 @@ list. Modules can be freely combined.
 | 🧠 Within-lifetime RL | `rl_mode = "actor_critic"` | REINFORCE score-function update on BNN posterior (Williams 1992; Blundell et al. 2015). Use `bnn_sample_freq = 5` with BNN brains. | [`s-rl`](https://itchyshin.github.io/clade/articles/s-rl.html) |
 | 🧬 Lamarckian inheritance | `lamarckian = TRUE` | RL-learned weights written back to genome before meiosis | [`s-rl`](https://itchyshin.github.io/clade/articles/s-rl.html) |
 | 🧠 Quantised weights | `ann_weight_values` | Snap weights to a discrete set (e.g. ternary) after expression | [`s-brain-comparison`](https://itchyshin.github.io/clade/articles/s-brain-comparison.html) |
+| 🤝 Personality syndrome (Wolf 2007) | `personality_syndrome` | Life-history asset protection drives a boldness-aggressiveness syndrome via age-windowed reproduction + hawk-dove + anti-predator games | [`paper-wolf2007`](https://itchyshin.github.io/clade/articles/paper-wolf2007.html) |
+| 🤝 Reciprocal altruism (Trivers 1971) | `reciprocal_altruism` | Generous-TFT cooperation via per-agent partner memory (initial / retaliation / forgiveness traits) | [`paper-trivers1971`](https://itchyshin.github.io/clade/articles/paper-trivers1971.html) |
+| 🤝 Responsive personalities (Wolf 2008) | `responsive_personalities` | Frequency-dependent sampling: high responsiveness lets agents override toward richer cells at a metabolic cost | [`paper-wolf2008`](https://itchyshin.github.io/clade/articles/paper-wolf2008.html) |
 
 See the [Parameter Reference](https://itchyshin.github.io/clade/articles/parameter-reference.html) article for the complete parameter list.
 
@@ -160,7 +177,7 @@ requested at present.
 Every biological scenario is backed by a multi-seed fidelity audit that
 cross-references the primary literature, the alifeR R prototype, and
 (where applicable) the MATLAB ancestor codebase. Current ledger
-(as of 0.5.6):
+(as of 0.7.0):
 
 | Status | Count |
 |---|---|
@@ -174,8 +191,8 @@ and are marked ⚪ N/A in
 [`STATUS.md`](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/STATUS.md);
 they are excluded from the 32 auditable count.)
 
-As of 0.5.18 every scenario passes. The last two 🟠 (plasticity,
-Baldwin effect) were promoted by adding a
+Every scenario passes as of 0.7.0. The last two 🟠 (plasticity,
+Baldwin effect) were promoted in 0.5.18 by adding a
 `seasonal_spatial_bias` kernel spec that creates phenotype-
 dependent fluctuating selection — DeWitt 2004 / Hinton-Nowlan 1987
 canonical predictions then hold at t > 4σ. The ledger was
@@ -213,7 +230,7 @@ If you use clade in published work, please cite:
   author  = {Nakagawa, Shinichi},
   title   = {clade: Agent-based evolutionary simulation with a Julia backend},
   year    = {2026},
-  note    = {R package version 0.5.6},
+  note    = {R package version 0.7.0},
   url     = {https://github.com/itchyshin/clade}
 }
 ```

@@ -72,9 +72,10 @@ test_that("cooperation evolves in the favourable regime (low cost, generous b/c)
   # this difficulty: at default parameters (cost = 0.5, b/c = 2)
   # cooperation usually collapses to defection in spatial sims with
   # mobile agents. To verify the MECHANISM works, we test in a
-  # favourable regime: low per-game cost (0.1) + high benefit ratio (5),
-  # which is the regime where empirical reciprocity examples cluster
-  # (food calls in social birds, allogrooming in primates).
+  # favourable regime: low per-game cost (0.1) + benefit ratio = 2
+  # (Hamilton's b/c > 1 threshold), which is the regime where
+  # empirical reciprocity examples cluster (food calls in social
+  # birds, allogrooming in primates).
 
   baseline_specs <- function() {
     s <- trivers_reciprocity_specs()

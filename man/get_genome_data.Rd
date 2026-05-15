@@ -15,10 +15,12 @@ A list with components:
 \item{\verb{$genomes}}{A list of matrices (one per logged tick). Each matrix
 has one row per agent and one column per genome position. \code{NULL} when
 \code{specs$log_genomes = FALSE}.}
-\item{\verb{$heterozygosity}}{Numeric vector of mean per-locus heterozygosity
-across ticks.}
-\item{\verb{$fst}}{Numeric vector of per-tick FST (Weir & Cockerham 1984)
-between species. \code{NA} when \code{speciation = FALSE}.}
+\item{\verb{$heterozygosity}}{Reserved field — currently returns
+\code{numeric(0L)}. Future versions will compute mean per-locus
+heterozygosity across logged ticks.}
+\item{\verb{$fst}}{Reserved field — currently returns \code{numeric(0L)}.
+Future versions will compute per-tick FST (Weir & Cockerham 1984)
+between species when \code{speciation = TRUE}.}
 }
 }
 \description{
@@ -32,7 +34,7 @@ specs <- default_specs()
 specs$log_genomes <- TRUE
 env  <- run_alife(specs)
 gdat <- get_genome_data(env)
-plot(gdat$heterozygosity, type = "l", xlab = "Tick", ylab = "Heterozygosity")
+head(gdat$genomes)   # tidy data.frame: t, agent_id, trait_1..trait_N
 }
 
 }

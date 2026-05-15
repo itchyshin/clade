@@ -52,10 +52,12 @@ get_run_data <- function(env) {
 #'   \item{`$genomes`}{A list of matrices (one per logged tick). Each matrix
 #'     has one row per agent and one column per genome position. `NULL` when
 #'     `specs$log_genomes = FALSE`.}
-#'   \item{`$heterozygosity`}{Numeric vector of mean per-locus heterozygosity
-#'     across ticks.}
-#'   \item{`$fst`}{Numeric vector of per-tick FST (Weir & Cockerham 1984)
-#'     between species. `NA` when `speciation = FALSE`.}
+#'   \item{`$heterozygosity`}{Reserved field — currently returns
+#'     `numeric(0L)`. Future versions will compute mean per-locus
+#'     heterozygosity across logged ticks.}
+#'   \item{`$fst`}{Reserved field — currently returns `numeric(0L)`.
+#'     Future versions will compute per-tick FST (Weir & Cockerham 1984)
+#'     between species when `speciation = TRUE`.}
 #' }
 #'
 #' @references
@@ -68,7 +70,7 @@ get_run_data <- function(env) {
 #' specs$log_genomes <- TRUE
 #' env  <- run_alife(specs)
 #' gdat <- get_genome_data(env)
-#' plot(gdat$heterozygosity, type = "l", xlab = "Tick", ylab = "Heterozygosity")
+#' head(gdat$genomes)   # tidy data.frame: t, agent_id, trait_1..trait_N
 #' }
 #'
 #' @seealso [get_run_data()], [run_alife()]

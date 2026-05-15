@@ -117,9 +117,10 @@ BNN = Bayesian neural network (Neal 1996; Blundell et al. 2015);
 ANN = multilayer perceptron (Rumelhart et al. 1986);
 CTRNN = continuous-time recurrent network (Beer 1995);
 GRN = gene regulatory network (Kauffman 1993);
-random = null baseline. See \code{vignette("custom-modules")} for
-architecture details and \code{dev/benchmarks/brain_comparison.R}
-for a side-by-side benchmark of the five working types.}
+random = null baseline. See \link{clade-package} documentation for
+a one-line summary of each architecture and
+\code{vignette("s-brain-comparison")} for a side-by-side benchmark
+of the five working types.}
 \item{\code{hidden_layers}}{Integer vector. Hidden layer widths for \code{"ann"} and
 \code{"bnn"} (default \code{c(8L)}; gives one hidden layer of 8 units). Set to
 \code{c(16L, 8L)} for two hidden layers.}
@@ -130,11 +131,18 @@ neighbourhood. Increasing this value expands the input vector and the
 brain's first-layer width accordingly.}
 \item{\code{n_genes}}{Integer. Number of genes for \code{"grn"} brain type
 (default 20L). Includes sensory input genes and action output genes.}
-\item{\code{transformer_history}}{Integer. Number of past sensory inputs the
-transformer attends over (default 8L).}
-\item{\code{transformer_heads}}{Integer. Number of attention heads (default 2L).}
-\item{\code{synthesis_max_rules}}{Integer. Maximum number of IF-THEN rules
-per agent (default 10L).}
+\item{\code{transformer_history}}{Integer. \strong{Reserved placeholder} for a
+future transformer brain type — currently unused by any brain
+implementation; kernel rejects \code{brain_type = "transformer"} at
+runtime. The field's eventual semantics: number of past sensory
+inputs the transformer attends over (default 8L).}
+\item{\code{transformer_heads}}{Integer. \strong{Reserved placeholder} —
+same status as \code{transformer_history}. Eventual semantics:
+number of attention heads (default 2L).}
+\item{\code{synthesis_max_rules}}{Integer. \strong{Reserved placeholder}
+for a future symbolic-rule-synthesis brain — currently unused;
+kernel rejects \code{brain_type = "synthesis"} at runtime. Eventual
+semantics: maximum number of IF-THEN rules per agent (default 10L).}
 \item{\code{ann_weight_values}}{Numeric vector or \code{NULL}. When not \code{NULL},
 every synaptic weight and bias is snapped to the nearest value in this
 set immediately after genome expression (before the first forward pass

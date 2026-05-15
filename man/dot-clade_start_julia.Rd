@@ -16,8 +16,8 @@ connectivity check.
 \description{
 This function is called once, on the first call to \code{\link[=run_alife]{run_alife()}}. It
 starts a Julia process via JuliaConnectoR, activates the Clade.jl Julia
-project, and imports the module. Startup takes roughly 3-10 seconds on
-first call (Julia JIT compilation); subsequent calls within the same R
-session are instant.
+project, and imports the module. First-call startup takes roughly
+\strong{60-90 seconds} (Julia JIT compilation of the full kernel);
+subsequent calls within the same R session are instant.
 }
 \keyword{internal}

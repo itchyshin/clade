@@ -22,7 +22,7 @@ data <- get_run_data(env)
 plot_run(data)
 }\if{html}{\out{</div>}}
 
-First call to \code{\link[=run_alife]{run_alife()}} precompiles the Julia kernel (~10–90 s,
+First call to \code{\link[=run_alife]{run_alife()}} precompiles the Julia kernel (~60–90 s,
 once per Julia session).
 }
 
@@ -72,7 +72,7 @@ error if requested: \code{"transformer"} (self-attention) and \code{"synthesis"}
 \subsection{Citation}{
 
 Nakagawa, S. (2026). clade: Agent-based evolutionary simulation with
-a Julia backend. R package version 0.5.6.
+a Julia backend. R package version 0.7.0.
 \url{https://github.com/itchyshin/clade}
 }
 }
