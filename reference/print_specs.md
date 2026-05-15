@@ -371,7 +371,7 @@ print_specs()
 #>     stress_hypermutation                   FALSE
 #>     stress_mutation_multiplier             3
 #>     stress_threshold                       20
-#>     senescence_shape                       2
+#>     senescence_shape                       1
 #>     fixed_patch                            FALSE
 #>     fixed_patch_value                      5
 #>     fixed_patch_x                          NA
