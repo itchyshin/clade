@@ -39,6 +39,8 @@ print_specs()
 #>   Grid & population
 #>     grid_rows                              30
 #>     grid_cols                              30
+#>     toroidal                               TRUE
+#>     random_tick_order                      TRUE
 #>     n_agents_init                          50
 #>     max_agents                             500
 #>     max_ticks                              500
@@ -50,9 +52,14 @@ print_specs()
 #>     move_cost                              1
 #>     idle_cost                              0.5
 #>     eat_gain                               5
+#>     max_bite                               2
 #>     min_repro_energy                       120
+#>     repro_cost_mode                        proportional
 #>     repro_cost                             30
+#>     repro_cost_fraction                    0.5
+#>     offspring_energy_mode                  proportional
 #>     offspring_energy                       60
+#>     offspring_energy_fraction              0.25
 #>     starvation_threshold                   0
 #> 
 #>   Grass dynamics
@@ -64,6 +71,27 @@ print_specs()
 #>     brain_type                             bnn
 #>     hidden_layers                          8
 #>     input_radius                           1
+#>     n_genes                                20
+#>     transformer_history                    8
+#>     transformer_heads                      2
+#>     synthesis_max_rules                    10
+#>     ann_regularization_lambda              0.001
+#>     bnn_sigma_source                       heterozygosity
+#>     bnn_sigma_init                         0.5
+#>     bnn_sigma_min                          0.01
+#>     bnn_sample_freq                        1
+#>     bnn_sigma_lr_scale                     0
+#>     bnn_sigma_lr_ref                       0.5
+#>     bnn_action_noise_scale                 1
+#>     action_exploration_epsilon             0
+#> 
+#>   Brain metabolic cost
+#>     brain_energy_mode                      activity
+#>     brain_energy_base                      0.001
+#>     brain_energy_activity                  0.5
+#>     brain_energy_sigma_scale               0
+#>     brain_energy_size_exponent             1
+#>     brain_size_cost_scale                  1
 #> 
 #>   Reproduction & sex
 #>     ploidy                                 2
@@ -72,11 +100,18 @@ print_specs()
 #>     mutation_sd                            0.1
 #>     crossover_rate                         1
 #>     min_repro_age                          0
+#>     n_chromosomes                          1
+#>     dominance_model                        additive
+#>     mate_search_radius                     1
+#>     self_fertilization_fallback            FALSE
 #> 
 #>   Life history
 #>     max_age                                200
 #>     life_history                           iteroparous
 #>     senescence_rate                        0
+#>     senescence_shape                       1
+#>     allee_threshold                        0
+#>     max_age_scales_with_metabolism         FALSE
 #> 
 #>   Body size
 #>     body_size_evolution                    FALSE
@@ -85,18 +120,44 @@ print_specs()
 #>     body_size_min                          0.3
 #>     body_size_max                          3
 #> 
+#>   Brain size evolution
+#>     brain_size_evolution                   FALSE
+#>     brain_size_init_mean                   1
+#>     brain_size_mutation_sd                 0.05
+#>     brain_size_min                         0.1
+#>     brain_size_max                         3
+#>     brain_size_sensing_exponent            0.3
+#> 
 #>   Dispersal
 #>     dispersal_evolution                    FALSE
 #>     dispersal_init_mean                    0.1
 #>     dispersal_mutation_sd                  0.02
 #>     dispersal_min                          0
 #>     dispersal_max                          0.5
+#>     dispersal_cost                         2
+#> 
+#>   Habitat preference
+#>     habitat_preference_evolution           FALSE
+#>     habitat_preference_init_mean           0
+#>     habitat_preference_mutation_sd         0.03
+#>     habitat_preference_min                 -1
+#>     habitat_preference_max                 1
+#>     habitat_preference_strength            0.5
+#>     habitat_move_cost                      0
 #> 
 #>   Kin selection
 #>     kin_selection                          FALSE
 #>     kin_altruism_r_min                     0.25
 #>     kin_altruism_cost                      2
+#>     kin_altruism_benefit                   10
 #>     kin_altruism_min_donor_energy          50
+#> 
+#>   Cooperation (PGG)
+#>     cooperation_evolution                  FALSE
+#>     cooperation_multiplier                 2
+#>     cooperation_init_mean                  0.5
+#>     cooperation_mutation_sd                0.05
+#>     cooperation_cost                       1
 #> 
 #>   Disease (SIR)
 #>     disease                                FALSE
@@ -106,37 +167,83 @@ print_specs()
 #>     disease_death_prob                     0.02
 #>     immune_duration                        20
 #>     disease_seed_prob                      0.01
+#>     immune_evolution                       FALSE
+#>     immune_strength_init_mean              0.3
+#>     immune_strength_mutation_sd            0.05
+#>     immune_strength_min                    0
+#>     immune_strength_max                    1
 #> 
 #>   Predators
 #>     n_predators_init                       0
 #>     predator_energy_init                   150
+#>     predator_live_energy                   2
 #>     predator_attack_strength               40
+#>     predator_energy_gain                   30
 #>     predator_min_repro_energy              200
+#>     predator_min_repro_age                 5
+#>     predator_mutation_sd                   0.1
 #>     predator_max_agents                    50
+#>     predator_max_age                       NA
+#>     predator_sense_graded                  TRUE
+#>     predator_move_energy                   1
+#> 
+#>   Group defense
+#>     group_defense                          FALSE
+#>     group_defense_radius                   2
+#>     group_defense_strength                 0.3
 #> 
 #>   Niche construction
 #>     niche_construction                     FALSE
 #>     shelter_build_prob                     0.1
 #>     shelter_min_energy                     80
 #>     shelter_max_depth                      5
+#>     shelter_decay_prob                     0.05
+#>     shelter_occupancy_bonus                0
 #> 
 #>   Within-lifetime RL
 #>     rl_mode                                none
 #>     learning_rate                          0.01
+#>     learning_rate_init_mean                0.01
+#>     learning_rate_min                      0
+#>     learning_rate_max                      0.5
 #>     learning_rate_evolution                FALSE
+#>     plasticity_cost                        0.05
 #>     rl_update_freq                         1
+#>     lamarckian                             FALSE
 #> 
 #>   Social learning
 #>     social_learning                        FALSE
 #>     social_learning_freq                   10
+#>     social_learning_rate                   0.1
 #> 
 #>   Signals & mate choice
 #>     signal_dims                            0
+#>     signal_cost                            0.1
+#>     signal_cost_mortality                  0
+#>     signal_evolution_drift                 TRUE
+#>     signal_drift_sd                        0.01
+#>     preference_bias_strength               0
+#>     signal_toxicity_coupling               0
 #> 
 #>   Mimicry & toxicity
 #>     mimicry                                FALSE
+#>     batesian_mimicry                       FALSE
 #>     toxicity_init_mean                     0
+#>     toxicity_mutation_sd                   0.05
+#>     toxicity_cost_per_tick                 2
 #>     toxin_dose                             30
+#>     signal_memory_rate                     0.3
+#>     avoid_threshold                        0.5
+#> 
+#>   Coevolving parasites
+#>     coevolving_parasites                   FALSE
+#>     parasite_match_mode                    auto
+#>     parasite_virulence_rate                0.1
+#>     parasite_pressure                      0.5
+#>     parasite_distance_scale                1
+#>     n_parasite_loci                        0
+#>     parasite_mutation_rate                 0.01
+#>     parasite_discrete_exponent             4
 #> 
 #>   Parental care
 #>     parental_care                          FALSE
@@ -144,16 +251,60 @@ print_specs()
 #>     juvenile_independence_energy           50
 #>     care_cost_per_tick                     1
 #>     feeding_rate                           5
+#>     max_clutch_size                        1
+#>     neonatal_foraging_deficit              0
+#>     neonatal_deficit_duration              10
 #> 
 #>   Cooperative breeding
 #>     cooperative_breeding                   FALSE
+#>     helper_min_energy                      80
+#>     helper_transfer                        5
+#>     helper_kin_threshold                   0.25
 #>     helper_tendency_init_mean              0.1
 #>     helper_tendency_mutation_sd            0.02
 #> 
+#>   Parental investment
+#>     parental_investment_evolution          FALSE
+#>     female_investment                      0.7
+#>     male_repro_cost                        0.3
+#> 
+#>   Pace of life
+#>     metabolic_rate_evolution               FALSE
+#>     metabolic_rate_init_mean               1
+#>     metabolic_rate_mutation_sd             0.05
+#>     metabolic_rate_min                     0.1
+#>     metabolic_rate_max                     5
+#>     aging_rate_evolution                   FALSE
+#>     aging_rate_init_mean                   1
+#>     aging_rate_mutation_sd                 0.05
+#>     aging_rate_min                         0.01
+#>     aging_rate_max                         10
+#> 
+#>   Mutation-rate evol.
+#>     mutation_rate_evolution                FALSE
+#>     mutation_sd_init_mean                  0.1
+#>     mutation_sd_min                        0.001
+#>     mutation_sd_max                        1
+#> 
 #>   Phenotypic plasticity
 #>     phenotypic_plasticity                  FALSE
+#>     plasticity_sense_radius                3
 #>     plasticity_init_mean                   0.3
 #>     plasticity_mutation_sd                 0.03
+#>     plasticity_min                         0
+#>     plasticity_max                         1
+#> 
+#>   Stress hypermutation
+#>     stress_hypermutation                   FALSE
+#>     stress_mutation_multiplier             3
+#>     stress_threshold                       20
+#> 
+#>   Clutch size (r/K)
+#>     clutch_size_evolution                  FALSE
+#>     clutch_size_init_mean                  1
+#>     clutch_size_min                        1
+#>     clutch_size_max                        5
+#>     clutch_size_mutation_sd                0.3
 #> 
 #>   Spatial sorting
 #>     spatial_sorting                        FALSE
@@ -183,200 +334,87 @@ print_specs()
 #>     wing_size_min                          0
 #>     wing_size_max                          1
 #> 
-#>   Logging & search
-#>     log_genomes                            FALSE
-#>     log_freq                               1
+#>   Fixed patch
+#>     fixed_patch                            FALSE
+#>     fixed_patch_value                      5
+#>     fixed_patch_x                          NA
+#>     fixed_patch_y                          NA
+#>     fixed_patch_radius                     0
 #> 
-#>   Other
-#>     toroidal                               TRUE
-#>     random_tick_order                      TRUE
-#>     max_bite                               2
-#>     repro_cost_mode                        proportional
-#>     repro_cost_fraction                    0.5
-#>     offspring_energy_mode                  proportional
-#>     offspring_energy_fraction              0.25
-#>     max_age_scales_with_metabolism         FALSE
-#>     n_genes                                20
-#>     transformer_history                    8
-#>     transformer_heads                      2
-#>     synthesis_max_rules                    10
-#>     ann_regularization                     none
-#>     ann_regularization_lambda              0.001
-#>     brain_energy_mode                      activity
-#>     brain_energy_base                      0.001
-#>     brain_energy_activity                  0.5
-#>     brain_energy_sigma_scale               0
-#>     brain_energy_size_exponent             1
-#>     bnn_sigma_init                         0.5
-#>     bnn_sigma_min                          0.01
-#>     bnn_sigma_source                       heterozygosity
-#>     bnn_sample_freq                        1
-#>     bnn_action_noise_scale                 1
-#>     action_exploration_epsilon             0
-#>     bnn_sigma_lr_scale                     0
-#>     bnn_sigma_lr_ref                       0.5
-#>     n_chromosomes                          1
-#>     dominance_model                        additive
-#>     self_fertilization_fallback            FALSE
-#>     mate_search_radius                     1
-#>     mutation_rate_evolution                FALSE
-#>     mutation_sd_init_mean                  0.1
-#>     mutation_sd_min                        0.001
-#>     mutation_sd_max                        1
-#>     learning_rate_init_mean                0.01
-#>     learning_rate_min                      0
-#>     learning_rate_max                      0.5
-#>     plasticity_cost                        0.05
-#>     lamarckian                             FALSE
+#>   Epigenetics
 #>     epigenetics                            FALSE
 #>     epigenetic_learning_coupling           0.1
 #>     epigenetic_inheritance                 0.5
 #>     epigenetic_effect_size                 0.2
 #>     methylation_rate                       0.001
 #>     demethylation_rate                     0.002
-#>     allee_threshold                        0
-#>     brain_size_evolution                   FALSE
-#>     brain_size_init_mean                   1
-#>     brain_size_mutation_sd                 0.05
-#>     brain_size_min                         0.1
-#>     brain_size_max                         3
-#>     brain_size_cost_scale                  1
-#>     brain_size_sensing_exponent            0.3
+#> 
+#>   Speciation
+#>     speciation                             FALSE
+#>     isolation_threshold                    0.5
+#>     speciation_cluster_interval            10
+#> 
+#>   Seasonal dynamics
+#>     seasonal_amplitude                     0
+#>     season_length                          100
+#>     seasonal_spatial_bias                  0
+#>     winter_death_prob                      0
+#> 
+#>   Scavenging
+#>     scavenging                             FALSE
+#>     carrion_fraction                       0.5
+#>     carrion_decay_rate                     0.1
+#>     carrion_eat_gain                       3
+#>     carrion_transmission_prob              0
+#> 
+#>   ANN regularisation
+#>     ann_regularization                     none
+#> 
+#>   Wolf 2007 personality
 #>     personality_syndrome                   FALSE
-#>     exploration_init_mean                  0.5
-#>     exploration_mutation_sd                0.05
-#>     boldness_init_mean                     0.5
-#>     boldness_mutation_sd                   0.05
-#>     aggressiveness_init_mean               0.5
-#>     aggressiveness_mutation_sd             0.05
 #>     personality_beta                       1.25
 #>     personality_alpha                      0.005
-#>     wolf_year1_repro_age                   50
-#>     wolf_year2_repro_age                   100
 #>     personality_f_high                     3
 #>     personality_f_low                      2
 #>     personality_b                          0.5
 #>     personality_gamma                      0.1
 #>     personality_V                          0.5
 #>     personality_delta                      0.5
-#>     personality_hawkdove_per_tick          0.1
 #>     personality_antipred_per_tick          0.5
+#>     personality_hawkdove_per_tick          0.1
 #>     personality_hawkdove_radius            1
+#>     wolf_year1_repro_age                   50
+#>     wolf_year2_repro_age                   100
+#>     exploration_init_mean                  0.5
+#>     exploration_mutation_sd                0.05
+#>     boldness_init_mean                     0.5
+#>     boldness_mutation_sd                   0.05
+#>     aggressiveness_init_mean               0.5
+#>     aggressiveness_mutation_sd             0.05
+#> 
+#>   Trivers 1971 reciprocity
 #>     reciprocal_altruism                    FALSE
+#>     reciprocity_cost                       0.5
+#>     reciprocity_benefit_ratio              2
+#>     reciprocity_interaction_rate           0.1
+#>     reciprocity_radius                     1
+#>     partner_memory_size                    8
 #>     reciprocity_initial_init_mean          0.5
 #>     reciprocity_initial_mutation_sd        0.05
 #>     reciprocity_retaliation_init_mean      0.5
 #>     reciprocity_retaliation_mutation_sd    0.05
 #>     reciprocity_forgiveness_init_mean      0.1
 #>     reciprocity_forgiveness_mutation_sd    0.05
-#>     reciprocity_cost                       0.5
-#>     reciprocity_benefit_ratio              2
-#>     reciprocity_interaction_rate           0.1
-#>     partner_memory_size                    8
-#>     reciprocity_radius                     1
+#> 
+#>   Wolf 2008 responsive
 #>     responsive_personalities               FALSE
+#>     responsiveness_cost                    0.4
 #>     responsiveness_init_mean               0.5
 #>     responsiveness_mutation_sd             0.05
-#>     responsiveness_cost                    0.4
-#>     metabolic_rate_evolution               FALSE
-#>     metabolic_rate_init_mean               1
-#>     metabolic_rate_mutation_sd             0.05
-#>     metabolic_rate_min                     0.1
-#>     metabolic_rate_max                     5
-#>     aging_rate_evolution                   FALSE
-#>     aging_rate_init_mean                   1
-#>     aging_rate_mutation_sd                 0.05
-#>     aging_rate_min                         0.01
-#>     aging_rate_max                         10
-#>     immune_evolution                       FALSE
-#>     immune_strength_init_mean              0.3
-#>     immune_strength_mutation_sd            0.05
-#>     immune_strength_min                    0
-#>     immune_strength_max                    1
-#>     kin_altruism_benefit                   10
-#>     cooperation_evolution                  FALSE
-#>     cooperation_multiplier                 2
-#>     cooperation_init_mean                  0.5
-#>     cooperation_mutation_sd                0.05
-#>     cooperation_cost                       1
-#>     dispersal_cost                         2
-#>     habitat_preference_evolution           FALSE
-#>     habitat_preference_init_mean           0
-#>     habitat_preference_mutation_sd         0.03
-#>     habitat_preference_min                 -1
-#>     habitat_preference_max                 1
-#>     habitat_preference_strength            0.5
-#>     habitat_move_cost                      0
-#>     group_defense                          FALSE
-#>     group_defense_radius                   2
-#>     group_defense_strength                 0.3
-#>     seasonal_amplitude                     0
-#>     season_length                          100
-#>     winter_death_prob                      0
-#>     seasonal_spatial_bias                  0
-#>     max_clutch_size                        1
-#>     neonatal_foraging_deficit              0
-#>     neonatal_deficit_duration              10
-#>     helper_min_energy                      80
-#>     helper_transfer                        5
-#>     helper_kin_threshold                   0.25
-#>     signal_cost                            0.1
-#>     signal_cost_mortality                  0
-#>     preference_bias_strength               0
-#>     signal_evolution_drift                 TRUE
-#>     signal_drift_sd                        0.01
-#>     signal_toxicity_coupling               0
-#>     coevolving_parasites                   FALSE
-#>     parasite_match_mode                    auto
-#>     parasite_virulence_rate                0.1
-#>     parasite_pressure                      0.5
-#>     parasite_distance_scale                1
-#>     n_parasite_loci                        0
-#>     parasite_mutation_rate                 0.01
-#>     parasite_discrete_exponent             4
-#>     speciation                             FALSE
-#>     isolation_threshold                    0.5
-#>     speciation_cluster_interval            10
-#>     predator_live_energy                   2
-#>     predator_move_energy                   1
-#>     predator_energy_gain                   30
-#>     predator_min_repro_age                 5
-#>     predator_mutation_sd                   0.1
-#>     predator_max_age                       NA
-#>     predator_sense_graded                  TRUE
-#>     batesian_mimicry                       FALSE
-#>     toxicity_cost_per_tick                 2
-#>     signal_memory_rate                     0.3
-#>     avoid_threshold                        0.5
-#>     toxicity_mutation_sd                   0.05
-#>     plasticity_sense_radius                3
-#>     plasticity_min                         0
-#>     plasticity_max                         1
-#>     shelter_decay_prob                     0.05
-#>     shelter_occupancy_bonus                0
-#>     scavenging                             FALSE
-#>     carrion_fraction                       0.5
-#>     carrion_decay_rate                     0.1
-#>     carrion_eat_gain                       3
-#>     carrion_transmission_prob              0
-#>     social_learning_rate                   0.1
-#>     clutch_size_evolution                  FALSE
-#>     clutch_size_init_mean                  1
-#>     clutch_size_min                        1
-#>     clutch_size_max                        5
-#>     clutch_size_mutation_sd                0.3
-#>     parental_investment_evolution          FALSE
-#>     female_investment                      0.7
-#>     male_repro_cost                        0.3
-#>     stress_hypermutation                   FALSE
-#>     stress_mutation_multiplier             3
-#>     stress_threshold                       20
-#>     senescence_shape                       1
-#>     fixed_patch                            FALSE
-#>     fixed_patch_value                      5
-#>     fixed_patch_x                          NA
-#>     fixed_patch_y                          NA
-#>     fixed_patch_radius                     0
+#> 
+#>   Logging & search
+#>     log_genomes                            FALSE
+#>     log_freq                               1
 
 s <- default_specs()
 s$kin_selection <- TRUE

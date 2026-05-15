@@ -175,11 +175,18 @@
 
     
     
-<p>This article lists every parameter in <code><a href="../reference/default_specs.html">default_specs()</a></code>,
-grouped by biological theme. For each parameter: the default value,
-type, and what it controls.</p>
-<p>Use <code>print_specs(diff_only = TRUE)</code> to see which
-parameters differ from defaults in a given specs list.</p>
+<p>This article lists every parameter in <a href="../reference/default_specs.html"><code>default_specs()</code></a>,
+grouped by biological theme. For each parameter you’ll see the default
+value and its type.</p>
+<p><strong>The tables on this page are generated at vignette-build
+time</strong> from <code><a href="../reference/default_specs.html">default_specs()</a></code> itself, so they cannot
+drift from what the code actually ships. The full description of each
+parameter — including units, valid ranges, references, and
+module-interaction notes — lives in the <a href="../reference/default_specs.html"><code>default_specs()</code>
+reference page</a>. This page is a quick lookup; that page is the
+authoritative documentation.</p>
+<p>For an interactive view of a customised spec list, use
+<code><a href="../reference/print_specs.html">print_specs()</a></code>:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">s</span><span class="op">$</span><span class="va">kin_selection</span>      <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
@@ -189,447 +196,460 @@ parameters differ from defaults in a given specs list.</p>
 <div class="section level2">
 <h2 id="grid-and-population">Grid and population<a class="anchor" aria-label="anchor" href="#grid-and-population"></a>
 </h2>
+<p>The toroidal grid, founder population, simulation horizon, and the
+two 0.7.0 kernel-discipline switches.</p>
 <table class="table">
-<colgroup>
-<col width="25%">
-<col width="25%">
-<col width="25%">
-<col width="25%">
-</colgroup>
 <thead><tr class="header">
-<th>Parameter</th>
-<th>Default</th>
-<th>Type</th>
-<th>Description</th>
+<th align="left">Parameter</th>
+<th align="left">Default</th>
+<th align="left">Type</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><code>grid_rows</code></td>
-<td>20</td>
-<td>integer</td>
-<td>Number of rows in the toroidal grid</td>
+<td align="left"><code>grid_rows</code></td>
+<td align="left">30</td>
+<td align="left">integer</td>
 </tr>
 <tr class="even">
-<td><code>grid_cols</code></td>
-<td>20</td>
-<td>integer</td>
-<td>Number of columns</td>
+<td align="left"><code>grid_cols</code></td>
+<td align="left">30</td>
+<td align="left">integer</td>
 </tr>
 <tr class="odd">
-<td><code>n_agents_init</code></td>
-<td>50</td>
-<td>integer</td>
-<td>Starting population size</td>
+<td align="left"><code>toroidal</code></td>
+<td align="left">TRUE</td>
+<td align="left">logical</td>
 </tr>
 <tr class="even">
-<td><code>max_agents</code></td>
-<td>300</td>
-<td>integer</td>
-<td>Hard population cap (no births above this)</td>
+<td align="left"><code>random_tick_order</code></td>
+<td align="left">TRUE</td>
+<td align="left">logical</td>
 </tr>
 <tr class="odd">
-<td><code>max_ticks</code></td>
-<td>300</td>
-<td>integer</td>
-<td>Simulation length</td>
+<td align="left"><code>n_agents_init</code></td>
+<td align="left">50</td>
+<td align="left">integer</td>
 </tr>
 <tr class="even">
-<td><code>random_seed</code></td>
-<td>42</td>
-<td>integer</td>
-<td>Random seed (set to reproduce runs exactly)</td>
+<td align="left"><code>max_agents</code></td>
+<td align="left">500</td>
+<td align="left">integer</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>max_ticks</code></td>
+<td align="left">500</td>
+<td align="left">integer</td>
+</tr>
+<tr class="even">
+<td align="left"><code>random_seed</code></td>
+<td align="left">NA_integer_</td>
+<td align="left">integer</td>
 </tr>
 </tbody>
 </table>
+<p><code>random_tick_order = TRUE</code> (default) enables random
+asynchronous agent scheduling per Grimm &amp; Railsback (2005); setting
+<code>FALSE</code> recovers the legacy fixed-order behaviour.
+<code>max_agents_per_cell = 1L</code> (default) enforces one-per-cell
+movement; <code>0L</code> allows unbounded co-occupancy (legacy). See
+<code>NEWS.md</code> for the 0.7.0 audit that surfaced these.</p>
 <hr>
 </div>
 <div class="section level2">
 <h2 id="energy-and-metabolism">Energy and metabolism<a class="anchor" aria-label="anchor" href="#energy-and-metabolism"></a>
 </h2>
+<p>Per-agent energy budget: starting energy, costs of moving / waiting /
+reproducing, and the threshold below which agents starve.</p>
 <table class="table">
-<colgroup>
-<col width="25%">
-<col width="25%">
-<col width="25%">
-<col width="25%">
-</colgroup>
 <thead><tr class="header">
-<th>Parameter</th>
-<th>Default</th>
-<th>Type</th>
-<th>Description</th>
+<th align="left">Parameter</th>
+<th align="left">Default</th>
+<th align="left">Type</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><code>energy_init</code></td>
-<td>30.0</td>
-<td>numeric</td>
-<td>Starting energy for each agent</td>
+<td align="left"><code>energy_init</code></td>
+<td align="left">100</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="even">
-<td><code>energy_max</code></td>
-<td>200.0</td>
-<td>numeric</td>
-<td>Energy cap per agent</td>
+<td align="left"><code>energy_max</code></td>
+<td align="left">200</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="odd">
-<td><code>move_cost</code></td>
-<td>1.0</td>
-<td>numeric</td>
-<td>Energy cost per move action</td>
+<td align="left"><code>move_cost</code></td>
+<td align="left">1</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="even">
-<td><code>idle_cost</code></td>
-<td>0.5</td>
-<td>numeric</td>
-<td>Energy cost per tick of inaction</td>
+<td align="left"><code>idle_cost</code></td>
+<td align="left">0.5</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="odd">
-<td><code>eat_gain</code></td>
-<td>20.0</td>
-<td>numeric</td>
-<td>Energy gained from eating grass</td>
+<td align="left"><code>eat_gain</code></td>
+<td align="left">5</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="even">
-<td><code>min_repro_energy</code></td>
-<td>80.0</td>
-<td>numeric</td>
-<td>Energy threshold to reproduce</td>
+<td align="left"><code>max_bite</code></td>
+<td align="left">2</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="odd">
-<td><code>repro_cost</code></td>
-<td>20.0</td>
-<td>numeric</td>
-<td>Energy cost to parent per offspring</td>
+<td align="left"><code>min_repro_energy</code></td>
+<td align="left">120</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="even">
-<td><code>offspring_energy</code></td>
-<td>20.0</td>
-<td>numeric</td>
-<td>Starting energy for offspring</td>
+<td align="left"><code>repro_cost_mode</code></td>
+<td align="left">“proportional”</td>
+<td align="left">character</td>
 </tr>
 <tr class="odd">
-<td><code>starvation_threshold</code></td>
-<td>0.0</td>
-<td>numeric</td>
-<td>Die if energy falls to or below this</td>
+<td align="left"><code>repro_cost</code></td>
+<td align="left">30</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>repro_cost_fraction</code></td>
+<td align="left">0.5</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>offspring_energy_mode</code></td>
+<td align="left">“proportional”</td>
+<td align="left">character</td>
+</tr>
+<tr class="even">
+<td align="left"><code>offspring_energy</code></td>
+<td align="left">60</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>offspring_energy_fraction</code></td>
+<td align="left">0.25</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>starvation_threshold</code></td>
+<td align="left">0</td>
+<td align="left">numeric</td>
 </tr>
 </tbody>
 </table>
+<p><code>repro_cost_mode</code> and <code>offspring_energy_mode</code>
+control whether the cost and birth-energy are fixed amounts or fractions
+of parental state — see <code><a href="../reference/default_specs.html">default_specs()</a></code> for the full
+Smith-Fretwell quality-quantity options.</p>
 <hr>
 </div>
 <div class="section level2">
 <h2 id="grass-dynamics">Grass dynamics<a class="anchor" aria-label="anchor" href="#grass-dynamics"></a>
 </h2>
+<p>The base food supply: how cells initialise, how often they regrow,
+and the per-cell saturation.</p>
 <table class="table">
-<colgroup>
-<col width="25%">
-<col width="25%">
-<col width="25%">
-<col width="25%">
-</colgroup>
 <thead><tr class="header">
-<th>Parameter</th>
-<th>Default</th>
-<th>Type</th>
-<th>Description</th>
+<th align="left">Parameter</th>
+<th align="left">Default</th>
+<th align="left">Type</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><code>grass_init_prob</code></td>
-<td>0.5</td>
-<td>numeric
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mo>,</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">0,1</annotation></semantics></math>
-</td>
-<td>Fraction of cells with grass at tick 1</td>
+<td align="left"><code>grass_init_prob</code></td>
+<td align="left">0.5</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="even">
-<td><code>grass_rate</code></td>
-<td>0.10</td>
-<td>numeric
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mo>,</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">0,1</annotation></semantics></math>
-</td>
-<td>Per-tick regrowth probability on empty cells</td>
+<td align="left"><code>grass_rate</code></td>
+<td align="left">0.05</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="odd">
-<td><code>grass_max</code></td>
-<td>1.0</td>
-<td>numeric</td>
-<td>Maximum grass per cell</td>
+<td align="left"><code>grass_max</code></td>
+<td align="left">5</td>
+<td align="left">numeric</td>
 </tr>
 </tbody>
 </table>
 <hr>
 </div>
 <div class="section level2">
-<h2 id="neural-architecture">Neural architecture<a class="anchor" aria-label="anchor" href="#neural-architecture"></a>
+<h2 id="brain-architecture">Brain architecture<a class="anchor" aria-label="anchor" href="#brain-architecture"></a>
 </h2>
+<p>The four implemented brain types plus a random null-model baseline.
+<code>"transformer"</code> and <code>"synthesis"</code> are reserved
+names — the kernel errors if either is requested at present.</p>
 <table class="table">
-<colgroup>
-<col width="25%">
-<col width="25%">
-<col width="25%">
-<col width="25%">
-</colgroup>
 <thead><tr class="header">
-<th>Parameter</th>
-<th>Default</th>
-<th>Options</th>
-<th>Description</th>
+<th align="left">Parameter</th>
+<th align="left">Default</th>
+<th align="left">Type</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><code>brain_type</code></td>
-<td><code>"bnn"</code></td>
-<td>bnn, ann, ctrnn, grn, transformer, synthesis</td>
-<td>Neural network architecture</td>
+<td align="left"><code>brain_type</code></td>
+<td align="left">“bnn”</td>
+<td align="left">character</td>
 </tr>
 <tr class="even">
-<td><code>hidden_layers</code></td>
-<td><code>c(16, 8)</code></td>
-<td>integer vector</td>
-<td>Hidden layer sizes</td>
+<td align="left"><code>hidden_layers</code></td>
+<td align="left">8</td>
+<td align="left">integer</td>
 </tr>
 <tr class="odd">
-<td><code>n_inputs</code></td>
-<td>auto</td>
-<td>integer</td>
-<td>Sensory input vector size (set by
-<code>create_environment()</code>)</td>
+<td align="left"><code>input_radius</code></td>
+<td align="left">1</td>
+<td align="left">integer</td>
 </tr>
 <tr class="even">
-<td><code>n_outputs</code></td>
-<td>4</td>
-<td>integer</td>
-<td>Action output size (N/E/S/W)</td>
+<td align="left"><code>n_genes</code></td>
+<td align="left">20</td>
+<td align="left">integer</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>transformer_history</code></td>
+<td align="left">8</td>
+<td align="left">integer</td>
+</tr>
+<tr class="even">
+<td align="left"><code>transformer_heads</code></td>
+<td align="left">2</td>
+<td align="left">integer</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>synthesis_max_rules</code></td>
+<td align="left">10</td>
+<td align="left">integer</td>
+</tr>
+<tr class="even">
+<td align="left"><code>ann_weight_values</code></td>
+<td align="left">NULL</td>
+<td align="left">NULL</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>ann_regularization_lambda</code></td>
+<td align="left">0.001</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>bnn_sigma_source</code></td>
+<td align="left">“heterozygosity”</td>
+<td align="left">character</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>bnn_sigma_init</code></td>
+<td align="left">0.5</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>bnn_sigma_min</code></td>
+<td align="left">0.01</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>bnn_sample_freq</code></td>
+<td align="left">1</td>
+<td align="left">integer</td>
+</tr>
+<tr class="even">
+<td align="left"><code>bnn_sigma_lr_scale</code></td>
+<td align="left">0</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>bnn_sigma_lr_ref</code></td>
+<td align="left">0.5</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>bnn_action_noise_scale</code></td>
+<td align="left">1</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>action_exploration_epsilon</code></td>
+<td align="left">0</td>
+<td align="left">numeric</td>
 </tr>
 </tbody>
 </table>
-<div class="section level3">
-<h3 id="bnn-specific-controls-0-4-0">BNN-specific controls (0.4.0+)<a class="anchor" aria-label="anchor" href="#bnn-specific-controls-0-4-0"></a>
-</h3>
-<table class="table">
-<colgroup>
-<col width="33%">
-<col width="33%">
-<col width="33%">
-</colgroup>
-<thead><tr class="header">
-<th>Parameter</th>
-<th>Default</th>
-<th>Description</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td><code>bnn_sigma_source</code></td>
-<td><code>"heterozygosity"</code></td>
-<td>(0.4.0 Tier 5A) Source of BNN posterior width:
-<code>"heterozygosity"</code> (legacy; derived from parental allele
-difference), <code>"fixed"</code> (constant
-<code>bnn_sigma_init</code>), or <code>"trait"</code> (evolvable via
-<code>TRAIT_PLASTICITY</code>). Required for s-baldwin / s-plasticity
-scenarios.</td>
-</tr>
-<tr class="even">
-<td><code>bnn_sigma_init</code></td>
-<td>0.5</td>
-<td>Initial sigma for haploid and fixed modes</td>
-</tr>
-<tr class="odd">
-<td><code>bnn_sample_freq</code></td>
-<td>1</td>
-<td>(0.4.0 Tier 5B) Resample BNN weights every N forward passes.
-<code>1</code> = resample every tick (legacy); <code>5</code> lets
-REINFORCE gradients accumulate (required for the 0.4.1 s-rl ✅
-verdict).</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="section level3">
-<h3 id="brain-metabolic-cost">Brain metabolic cost<a class="anchor" aria-label="anchor" href="#brain-metabolic-cost"></a>
-</h3>
-<table class="table">
-<colgroup>
-<col width="33%">
-<col width="33%">
-<col width="33%">
-</colgroup>
-<thead><tr class="header">
-<th>Parameter</th>
-<th>Default</th>
-<th>Description</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td><code>brain_energy_mode</code></td>
-<td><code>"activity"</code></td>
-<td>
-<code>"none"</code>, <code>"size"</code>, <code>"activity"</code>,
-<code>"prediction_error"</code>
-</td>
-</tr>
-<tr class="even">
-<td><code>brain_energy_base</code></td>
-<td>0.001</td>
-<td>Fixed cost per synaptic weight per tick. Scale up (e.g. 0.010) to
-expose the parental-provisioning signal (see s-brain-size).</td>
-</tr>
-<tr class="odd">
-<td><code>brain_energy_activity</code></td>
-<td>0.5</td>
-<td>Scaling on mean absolute activation</td>
-</tr>
-<tr class="even">
-<td><code>brain_energy_sigma_scale</code></td>
-<td>0.0</td>
-<td>(0.4.1 Tier 5C) Log-scaled information cost on BNN posterior width.
-Set 0.005–0.1 for Baldwin-canalisation scenarios.</td>
-</tr>
-<tr class="odd">
-<td><code>brain_energy_size_exponent</code></td>
-<td>1.0</td>
-<td>(0.4.3) Exponent on the brain-size term:
-<code>size_cost = base × n_weights^exp</code>. <code>1.0</code> = linear
-(legacy); <code>1.5</code> = Kleiber-style super-linear (Isler &amp; van
-Schaik 2009 expensive-brain).</td>
-</tr>
-</tbody>
-</table>
-<p>The six brain types differ in expressive power and computational
-cost:</p>
-<ul>
-<li>
-<strong>bnn</strong> (Bayesian neural network): default; learns a
-distribution over weights.</li>
-<li>
-<strong>ann</strong>: standard multilayer perceptron.</li>
-<li>
-<strong>ctrnn</strong>: continuous-time recurrent network; suitable
-for temporally extended tasks.</li>
-<li>
-<strong>grn</strong>: gene regulatory network topology; sparse,
-biologically motivated.</li>
-<li>
-<strong>transformer</strong>: self-attention architecture; highest
-capacity, slowest.</li>
-<li>
-<strong>synthesis</strong>: symbolic rule extraction from evolved
-weights.</li>
-</ul>
+<p><code>bnn_sigma_source</code> is required for s-baldwin /
+s-plasticity scenarios (0.4.0 Tier 5A). <code>bnn_sample_freq = 5</code>
+lets REINFORCE gradients accumulate (required for the 0.4.1 s-rl ✅
+verdict).</p>
 <hr>
 </div>
+<div class="section level2">
+<h2 id="brain-metabolic-cost">Brain metabolic cost<a class="anchor" aria-label="anchor" href="#brain-metabolic-cost"></a>
+</h2>
+<p>How brains cost energy: a fixed-per-weight floor, an activity-scaled
+component, BNN-uncertainty information cost, and the Kleiber-style size
+exponent.</p>
+<table class="table">
+<thead><tr class="header">
+<th align="left">Parameter</th>
+<th align="left">Default</th>
+<th align="left">Type</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code>brain_energy_mode</code></td>
+<td align="left">“activity”</td>
+<td align="left">character</td>
+</tr>
+<tr class="even">
+<td align="left"><code>brain_energy_base</code></td>
+<td align="left">0.001</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>brain_energy_activity</code></td>
+<td align="left">0.5</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>brain_energy_sigma_scale</code></td>
+<td align="left">0</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>brain_energy_size_exponent</code></td>
+<td align="left">1</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>brain_size_cost_scale</code></td>
+<td align="left">1</td>
+<td align="left">numeric</td>
+</tr>
+</tbody>
+</table>
+<hr>
 </div>
 <div class="section level2">
 <h2 id="reproduction-and-genetics">Reproduction and genetics<a class="anchor" aria-label="anchor" href="#reproduction-and-genetics"></a>
 </h2>
+<p>Ploidy, mate-choice, recombination, and reproduction-age
+controls.</p>
 <table class="table">
-<colgroup>
-<col width="25%">
-<col width="25%">
-<col width="25%">
-<col width="25%">
-</colgroup>
 <thead><tr class="header">
-<th>Parameter</th>
-<th>Default</th>
-<th>Type</th>
-<th>Description</th>
+<th align="left">Parameter</th>
+<th align="left">Default</th>
+<th align="left">Type</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><code>ploidy</code></td>
-<td>2</td>
-<td>1 or 2</td>
-<td>Diploid (default) or haploid</td>
+<td align="left"><code>ploidy</code></td>
+<td align="left">2</td>
+<td align="left">integer</td>
 </tr>
 <tr class="even">
-<td><code>sex_ratio</code></td>
-<td>0.5</td>
-<td>numeric
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mo>,</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">0,1</annotation></semantics></math>
-</td>
-<td>Fraction of agents that are female</td>
+<td align="left"><code>mate_choice_mode</code></td>
+<td align="left">“preference”</td>
+<td align="left">character</td>
 </tr>
 <tr class="odd">
-<td><code>mating_system</code></td>
-<td><code>"random"</code></td>
-<td>character</td>
-<td>Random, monogamy, polygyny, polyandry</td>
+<td align="left"><code>mate_choice_strength</code></td>
+<td align="left">1</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="even">
-<td><code>mutation_sd</code></td>
-<td>0.05</td>
-<td>numeric</td>
-<td>Gaussian noise on genome weights</td>
+<td align="left"><code>mutation_sd</code></td>
+<td align="left">0.1</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="odd">
-<td><code>crossover_rate</code></td>
-<td>0.1</td>
-<td>numeric
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mo>,</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">0,1</annotation></semantics></math>
-</td>
-<td>Per-locus crossover probability (diploid)</td>
+<td align="left"><code>crossover_rate</code></td>
+<td align="left">1</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="even">
-<td><code>min_repro_age</code></td>
-<td>0</td>
-<td>integer</td>
-<td>Minimum age to reproduce</td>
+<td align="left"><code>min_repro_age</code></td>
+<td align="left">0</td>
+<td align="left">integer</td>
 </tr>
 <tr class="odd">
-<td><code>max_repro_age</code></td>
-<td>Inf</td>
-<td>integer</td>
-<td>Maximum age to reproduce (Inf = no limit)</td>
+<td align="left"><code>n_chromosomes</code></td>
+<td align="left">1</td>
+<td align="left">integer</td>
+</tr>
+<tr class="even">
+<td align="left"><code>dominance_model</code></td>
+<td align="left">“additive”</td>
+<td align="left">character</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>mate_search_radius</code></td>
+<td align="left">1</td>
+<td align="left">integer</td>
+</tr>
+<tr class="even">
+<td align="left"><code>self_fertilization_fallback</code></td>
+<td align="left">FALSE</td>
+<td align="left">logical</td>
 </tr>
 </tbody>
 </table>
+<p><code>mate_choice_mode = "preference"</code> enables
+signal-preference assortative mating; <code>"random"</code> reverts to
+baseline. <code>mate_search_radius</code> is the Moore-neighbourhood
+radius for partner search.</p>
 <hr>
 </div>
 <div class="section level2">
 <h2 id="life-history">Life history<a class="anchor" aria-label="anchor" href="#life-history"></a>
 </h2>
+<p>Maximum lifespan, the Gompertz senescence parameters (rate × shape),
+and the optional pace-of-life lifespan-scaling coupling.</p>
 <table class="table">
-<colgroup>
-<col width="25%">
-<col width="25%">
-<col width="25%">
-<col width="25%">
-</colgroup>
 <thead><tr class="header">
-<th>Parameter</th>
-<th>Default</th>
-<th>Options</th>
-<th>Description</th>
+<th align="left">Parameter</th>
+<th align="left">Default</th>
+<th align="left">Type</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><code>max_age</code></td>
-<td>500</td>
-<td>integer</td>
-<td>Die if age exceeds this</td>
+<td align="left"><code>max_age</code></td>
+<td align="left">200</td>
+<td align="left">integer</td>
 </tr>
 <tr class="even">
-<td><code>life_history</code></td>
-<td><code>"iteroparous"</code></td>
-<td>iteroparous, semelparous</td>
-<td>Semelparous: reproduce once then die</td>
+<td align="left"><code>life_history</code></td>
+<td align="left">“iteroparous”</td>
+<td align="left">character</td>
 </tr>
 <tr class="odd">
-<td><code>senescence_rate</code></td>
-<td>0.0</td>
-<td>numeric</td>
-<td>Gompertz mortality scaling with age</td>
+<td align="left"><code>senescence_rate</code></td>
+<td align="left">0</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="even">
-<td><code>repro_senescence</code></td>
-<td>0.0</td>
-<td>numeric</td>
-<td>Age-related fertility decline rate</td>
+<td align="left"><code>senescence_shape</code></td>
+<td align="left">1</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>allee_threshold</code></td>
+<td align="left">0</td>
+<td align="left">integer</td>
+</tr>
+<tr class="even">
+<td align="left"><code>max_age_scales_with_metabolism</code></td>
+<td align="left">FALSE</td>
+<td align="left">logical</td>
 </tr>
 </tbody>
 </table>
+<p>The Gompertz hazard is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>=</mo><mn>1</mn><mo>−</mo><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>−</mi><mi>r</mi><mo>⋅</mo><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>r</mi><mo>⋅</mo><msup><mrow><mi mathvariant="normal">a</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">e</mi></mrow><mrow><mi mathvariant="normal">s</mi><mi mathvariant="normal">h</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">p</mi><mi mathvariant="normal">e</mi></mrow></msup><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">p = 1 - \exp(-r \cdot \exp(r \cdot \mathrm{age}^{\mathrm{shape}}))</annotation></semantics></math>
+with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mo>=</mo><mrow><mi mathvariant="normal">s</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">n</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">s</mi><mi mathvariant="normal">c</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">n</mi><mi mathvariant="normal">c</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">_</mi><mi mathvariant="normal">r</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">e</mi></mrow><mo>×</mo><mrow><mi mathvariant="normal">a</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">n</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">_</mi><mi mathvariant="normal">r</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">e</mi></mrow></mrow><annotation encoding="application/x-tex">r = \mathrm{senescence\_rate} \times \mathrm{aging\_rate}</annotation></semantics></math>.
+<code>senescence_shape = 1</code> (default) is the classic Gompertz;
+&gt; 1 accelerates late-life mortality; &lt; 1 gives a late-life plateau
+(Vaupel et al. 1998).</p>
 <hr>
 </div>
 <div class="section level2">
@@ -638,35 +658,82 @@ weights.</li>
 <p>Enable with <code>body_size_evolution = TRUE</code>.</p>
 <table class="table">
 <thead><tr class="header">
-<th>Parameter</th>
-<th>Default</th>
-<th>Description</th>
+<th align="left">Parameter</th>
+<th align="left">Default</th>
+<th align="left">Type</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><code>body_size_evolution</code></td>
-<td>FALSE</td>
-<td>Enable</td>
+<td align="left"><code>body_size_evolution</code></td>
+<td align="left">FALSE</td>
+<td align="left">logical</td>
 </tr>
 <tr class="even">
-<td><code>body_size_init_mean</code></td>
-<td>1.0</td>
-<td>Starting value (relative units)</td>
+<td align="left"><code>body_size_init_mean</code></td>
+<td align="left">1</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="odd">
-<td><code>body_size_mutation_sd</code></td>
-<td>0.05</td>
-<td>Mutation noise</td>
+<td align="left"><code>body_size_mutation_sd</code></td>
+<td align="left">0.08</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="even">
-<td><code>body_size_min</code></td>
-<td>0.1</td>
-<td>Lower clamp</td>
+<td align="left"><code>body_size_min</code></td>
+<td align="left">0.3</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="odd">
-<td><code>body_size_max</code></td>
-<td>5.0</td>
-<td>Upper clamp</td>
+<td align="left"><code>body_size_max</code></td>
+<td align="left">3</td>
+<td align="left">numeric</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="brain-size-evolution">Brain size evolution<a class="anchor" aria-label="anchor" href="#brain-size-evolution"></a>
+</h2>
+<p>Enable with <code>brain_size_evolution = TRUE</code>. Cognitive bonus
+is balanced against the metabolic cost set in “Brain metabolic cost”
+above.</p>
+<table class="table">
+<thead><tr class="header">
+<th align="left">Parameter</th>
+<th align="left">Default</th>
+<th align="left">Type</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code>brain_size_evolution</code></td>
+<td align="left">FALSE</td>
+<td align="left">logical</td>
+</tr>
+<tr class="even">
+<td align="left"><code>brain_size_init_mean</code></td>
+<td align="left">1</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>brain_size_mutation_sd</code></td>
+<td align="left">0.05</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>brain_size_min</code></td>
+<td align="left">0.1</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>brain_size_max</code></td>
+<td align="left">3</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>brain_size_sensing_exponent</code></td>
+<td align="left">0.3</td>
+<td align="left">numeric</td>
 </tr>
 </tbody>
 </table>
@@ -679,35 +746,90 @@ weights.</li>
 <code>spatial_sorting = TRUE</code> for invasion-front dynamics.</p>
 <table class="table">
 <thead><tr class="header">
-<th>Parameter</th>
-<th>Default</th>
-<th>Description</th>
+<th align="left">Parameter</th>
+<th align="left">Default</th>
+<th align="left">Type</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><code>dispersal_evolution</code></td>
-<td>FALSE</td>
-<td>Enable heritable dispersal</td>
+<td align="left"><code>dispersal_evolution</code></td>
+<td align="left">FALSE</td>
+<td align="left">logical</td>
 </tr>
 <tr class="even">
-<td><code>dispersal_init_mean</code></td>
-<td>0.5</td>
-<td>Starting dispersal probability</td>
+<td align="left"><code>dispersal_init_mean</code></td>
+<td align="left">0.1</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="odd">
-<td><code>dispersal_mutation_sd</code></td>
-<td>0.05</td>
-<td>Mutation noise</td>
+<td align="left"><code>dispersal_mutation_sd</code></td>
+<td align="left">0.02</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="even">
-<td><code>dispersal_min</code></td>
-<td>0.0</td>
-<td>Minimum clamp</td>
+<td align="left"><code>dispersal_min</code></td>
+<td align="left">0</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="odd">
-<td><code>dispersal_max</code></td>
-<td>1.0</td>
-<td>Maximum clamp</td>
+<td align="left"><code>dispersal_max</code></td>
+<td align="left">0.5</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>dispersal_cost</code></td>
+<td align="left">2</td>
+<td align="left">numeric</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="habitat-preference">Habitat preference<a class="anchor" aria-label="anchor" href="#habitat-preference"></a>
+</h2>
+<p>Enable with <code>habitat_preference_evolution = TRUE</code>.</p>
+<table class="table">
+<thead><tr class="header">
+<th align="left">Parameter</th>
+<th align="left">Default</th>
+<th align="left">Type</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code>habitat_preference_evolution</code></td>
+<td align="left">FALSE</td>
+<td align="left">logical</td>
+</tr>
+<tr class="even">
+<td align="left"><code>habitat_preference_init_mean</code></td>
+<td align="left">0</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>habitat_preference_mutation_sd</code></td>
+<td align="left">0.03</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>habitat_preference_min</code></td>
+<td align="left">-1</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>habitat_preference_max</code></td>
+<td align="left">1</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>habitat_preference_strength</code></td>
+<td align="left">0.5</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>habitat_move_cost</code></td>
+<td align="left">0</td>
+<td align="left">numeric</td>
 </tr>
 </tbody>
 </table>
@@ -716,88 +838,156 @@ weights.</li>
 <div class="section level2">
 <h2 id="kin-selection">Kin selection<a class="anchor" aria-label="anchor" href="#kin-selection"></a>
 </h2>
-<p>Enable with <code>kin_selection = TRUE</code>.</p>
+<p>Enable with <code>kin_selection = TRUE</code>. Pedigree-based
+relatedness; see the <code>s-kin</code> vignette for Hamilton’s-rule
+examples.</p>
 <table class="table">
 <thead><tr class="header">
-<th>Parameter</th>
-<th>Default</th>
-<th>Description</th>
+<th align="left">Parameter</th>
+<th align="left">Default</th>
+<th align="left">Type</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><code>kin_selection</code></td>
-<td>FALSE</td>
-<td>Enable kin altruism</td>
+<td align="left"><code>kin_selection</code></td>
+<td align="left">FALSE</td>
+<td align="left">logical</td>
 </tr>
 <tr class="even">
-<td><code>kin_altruism_r_min</code></td>
-<td>0.25</td>
-<td>Minimum pedigree relatedness to donate</td>
+<td align="left"><code>kin_altruism_r_min</code></td>
+<td align="left">0.25</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="odd">
-<td><code>kin_altruism_cost</code></td>
-<td>2.0</td>
-<td>Energy transferred per altruistic act</td>
+<td align="left"><code>kin_altruism_cost</code></td>
+<td align="left">2</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="even">
-<td><code>kin_altruism_min_donor_energy</code></td>
-<td>50.0</td>
-<td>Donor energy floor</td>
+<td align="left"><code>kin_altruism_benefit</code></td>
+<td align="left">10</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>kin_altruism_min_donor_energy</code></td>
+<td align="left">50</td>
+<td align="left">numeric</td>
 </tr>
 </tbody>
 </table>
 <hr>
 </div>
 <div class="section level2">
-<h2 id="sir-disease">SIR disease<a class="anchor" aria-label="anchor" href="#sir-disease"></a>
+<h2 id="cooperation-pgg">Cooperation (PGG)<a class="anchor" aria-label="anchor" href="#cooperation-pgg"></a>
 </h2>
-<p>Enable with <code>disease = TRUE</code>.</p>
+<p>Enable with <code>cooperation_evolution = TRUE</code>. Public-goods
+games on the neighbourhood; see <code>s-cooperation</code>.</p>
 <table class="table">
-<colgroup>
-<col width="33%">
-<col width="33%">
-<col width="33%">
-</colgroup>
 <thead><tr class="header">
-<th>Parameter</th>
-<th>Default</th>
-<th>Description</th>
+<th align="left">Parameter</th>
+<th align="left">Default</th>
+<th align="left">Type</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><code>disease</code></td>
-<td>FALSE</td>
-<td>Enable SIR dynamics</td>
+<td align="left"><code>cooperation_evolution</code></td>
+<td align="left">FALSE</td>
+<td align="left">logical</td>
 </tr>
 <tr class="even">
-<td><code>transmission_prob</code></td>
-<td>0.15</td>
-<td>Per-tick transmission probability</td>
+<td align="left"><code>cooperation_multiplier</code></td>
+<td align="left">2</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="odd">
-<td><code>disease_energy_cost</code></td>
-<td>5.0</td>
-<td>Energy cost per tick while infected</td>
+<td align="left"><code>cooperation_init_mean</code></td>
+<td align="left">0.5</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="even">
-<td><code>disease_duration</code></td>
-<td>10</td>
-<td>Ticks until recovery</td>
+<td align="left"><code>cooperation_mutation_sd</code></td>
+<td align="left">0.05</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="odd">
-<td><code>immune_duration</code></td>
-<td>20</td>
-<td>Ticks of post-recovery immunity</td>
+<td align="left"><code>cooperation_cost</code></td>
+<td align="left">1</td>
+<td align="left">numeric</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="disease-sir-dynamics">Disease (SIR dynamics)<a class="anchor" aria-label="anchor" href="#disease-sir-dynamics"></a>
+</h2>
+<p>Enable with <code>disease = TRUE</code>.</p>
+<table class="table">
+<thead><tr class="header">
+<th align="left">Parameter</th>
+<th align="left">Default</th>
+<th align="left">Type</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code>disease</code></td>
+<td align="left">FALSE</td>
+<td align="left">logical</td>
 </tr>
 <tr class="even">
-<td><code>disease_death_prob</code></td>
-<td>0.01</td>
-<td>Additional per-tick mortality while infected</td>
+<td align="left"><code>transmission_prob</code></td>
+<td align="left">0.1</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="odd">
-<td><code>disease_seed_prob</code></td>
-<td>0.02</td>
-<td>Fraction of agents infected at tick 1</td>
+<td align="left"><code>disease_duration</code></td>
+<td align="left">10</td>
+<td align="left">integer</td>
+</tr>
+<tr class="even">
+<td align="left"><code>disease_energy_cost</code></td>
+<td align="left">5</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>disease_death_prob</code></td>
+<td align="left">0.02</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>immune_duration</code></td>
+<td align="left">20</td>
+<td align="left">integer</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>disease_seed_prob</code></td>
+<td align="left">0.01</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>immune_evolution</code></td>
+<td align="left">FALSE</td>
+<td align="left">logical</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>immune_strength_init_mean</code></td>
+<td align="left">0.3</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>immune_strength_mutation_sd</code></td>
+<td align="left">0.05</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>immune_strength_min</code></td>
+<td align="left">0</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>immune_strength_max</code></td>
+<td align="left">1</td>
+<td align="left">numeric</td>
 </tr>
 </tbody>
 </table>
@@ -806,50 +996,109 @@ weights.</li>
 <div class="section level2">
 <h2 id="predators">Predators<a class="anchor" aria-label="anchor" href="#predators"></a>
 </h2>
-<p>Enable with <code>n_predators_init &gt; 0</code>.</p>
+<p>Enable with <code>n_predators_init &gt; 0</code>. Predators are
+co-evolving agents with their own 15-input sensory brain.</p>
 <table class="table">
-<colgroup>
-<col width="33%">
-<col width="33%">
-<col width="33%">
-</colgroup>
 <thead><tr class="header">
-<th>Parameter</th>
-<th>Default</th>
-<th>Description</th>
+<th align="left">Parameter</th>
+<th align="left">Default</th>
+<th align="left">Type</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><code>n_predators_init</code></td>
-<td>0</td>
-<td>Starting predator count</td>
+<td align="left"><code>n_predators_init</code></td>
+<td align="left">0</td>
+<td align="left">integer</td>
 </tr>
 <tr class="even">
-<td><code>predator_energy_init</code></td>
-<td>60.0</td>
-<td>Starting energy for predators</td>
+<td align="left"><code>predator_energy_init</code></td>
+<td align="left">150</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="odd">
-<td><code>predator_attack_strength</code></td>
-<td>10.0</td>
-<td>Damage dealt to prey per attack</td>
+<td align="left"><code>predator_live_energy</code></td>
+<td align="left">2</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="even">
-<td><code>predator_min_repro_energy</code></td>
-<td>100.0</td>
-<td>Predator reproduction threshold</td>
+<td align="left"><code>predator_attack_strength</code></td>
+<td align="left">40</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="odd">
-<td><code>predator_max_agents</code></td>
-<td>50</td>
-<td>Predator population cap</td>
+<td align="left"><code>predator_energy_gain</code></td>
+<td align="left">30</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="even">
-<td><code>predator_sense_graded</code></td>
-<td>TRUE</td>
-<td>(0.4.2) When TRUE, prey’s predator sensory input at distance
-<code>d</code> is <code>1/(d+1)</code> (graded threat-level). FALSE
-falls back to pre-0.4.2 binary presence signal.</td>
+<td align="left"><code>predator_min_repro_energy</code></td>
+<td align="left">200</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>predator_min_repro_age</code></td>
+<td align="left">5</td>
+<td align="left">integer</td>
+</tr>
+<tr class="even">
+<td align="left"><code>predator_mutation_sd</code></td>
+<td align="left">0.1</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>predator_max_agents</code></td>
+<td align="left">50</td>
+<td align="left">integer</td>
+</tr>
+<tr class="even">
+<td align="left"><code>predator_max_age</code></td>
+<td align="left">NA</td>
+<td align="left">logical</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>predator_sense_graded</code></td>
+<td align="left">TRUE</td>
+<td align="left">logical</td>
+</tr>
+<tr class="even">
+<td align="left"><code>predator_move_energy</code></td>
+<td align="left">1</td>
+<td align="left">numeric</td>
+</tr>
+</tbody>
+</table>
+<p><code>predator_sense_graded = TRUE</code> (0.4.2 default): prey’s
+predator sensory input at distance <code>d</code> is
+<code>1/(d+1)</code> (graded threat-level). <code>FALSE</code> falls
+back to pre-0.4.2 binary presence.</p>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="group-defense">Group defense<a class="anchor" aria-label="anchor" href="#group-defense"></a>
+</h2>
+<p>Enable with <code>group_defense = TRUE</code>. Coordinated
+anti-predator behaviour at high local density.</p>
+<table class="table">
+<thead><tr class="header">
+<th align="left">Parameter</th>
+<th align="left">Default</th>
+<th align="left">Type</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code>group_defense</code></td>
+<td align="left">FALSE</td>
+<td align="left">logical</td>
+</tr>
+<tr class="even">
+<td align="left"><code>group_defense_radius</code></td>
+<td align="left">2</td>
+<td align="left">integer</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>group_defense_strength</code></td>
+<td align="left">0.3</td>
+<td align="left">numeric</td>
 </tr>
 </tbody>
 </table>
@@ -858,95 +1107,116 @@ falls back to pre-0.4.2 binary presence signal.</td>
 <div class="section level2">
 <h2 id="niche-construction">Niche construction<a class="anchor" aria-label="anchor" href="#niche-construction"></a>
 </h2>
-<p>Enable with <code>niche_construction = TRUE</code>.</p>
+<p>Enable with <code>niche_construction = TRUE</code>. Shelters modify
+the local selection environment.</p>
 <table class="table">
-<colgroup>
-<col width="33%">
-<col width="33%">
-<col width="33%">
-</colgroup>
 <thead><tr class="header">
-<th>Parameter</th>
-<th>Default</th>
-<th>Description</th>
+<th align="left">Parameter</th>
+<th align="left">Default</th>
+<th align="left">Type</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><code>niche_construction</code></td>
-<td>FALSE</td>
-<td>Enable shelter building</td>
+<td align="left"><code>niche_construction</code></td>
+<td align="left">FALSE</td>
+<td align="left">logical</td>
 </tr>
 <tr class="even">
-<td><code>shelter_build_prob</code></td>
-<td>0.1</td>
-<td>Per-tick build probability (when energy sufficient)</td>
+<td align="left"><code>shelter_build_prob</code></td>
+<td align="left">0.1</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="odd">
-<td><code>shelter_min_energy</code></td>
-<td>40.0</td>
-<td>Minimum donor energy to build</td>
+<td align="left"><code>shelter_min_energy</code></td>
+<td align="left">80</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="even">
-<td><code>shelter_max_depth</code></td>
-<td>5</td>
-<td>Maximum shelter units per cell</td>
+<td align="left"><code>shelter_max_depth</code></td>
+<td align="left">5</td>
+<td align="left">integer</td>
 </tr>
 <tr class="odd">
-<td><code>shelter_decay_rate</code></td>
-<td>0.02</td>
-<td>Fraction of shelters lost per tick</td>
+<td align="left"><code>shelter_decay_prob</code></td>
+<td align="left">0.05</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="even">
-<td><code>shelter_occupancy_bonus</code></td>
-<td>0.0</td>
-<td>(0.3.0) When &gt; 0, agents on a shelter cell receive
-<code>bonus × depth</code> energy per tick — the Odling-Smee, Laland
-&amp; Feldman (2003) heritable-niche effect</td>
+<td align="left"><code>shelter_occupancy_bonus</code></td>
+<td align="left">0</td>
+<td align="left">numeric</td>
 </tr>
 </tbody>
 </table>
+<p><code>shelter_occupancy_bonus &gt; 0</code> activates the
+heritable-niche effect (Odling-Smee, Laland &amp; Feldman 2003): agents
+on a shelter cell receive <code>bonus × depth</code> energy per
+tick.</p>
 <hr>
 </div>
 <div class="section level2">
-<h2 id="within-lifetime-rl">Within-lifetime RL<a class="anchor" aria-label="anchor" href="#within-lifetime-rl"></a>
+<h2 id="within-lifetime-reinforcement-learning">Within-lifetime reinforcement learning<a class="anchor" aria-label="anchor" href="#within-lifetime-reinforcement-learning"></a>
 </h2>
-<p>Enable with <code>rl_mode = "actor_critic"</code>.</p>
+<p>Enable with <code>rl_mode = "actor_critic"</code>.
+<code>plasticity_cost</code> charges a per-tick metabolic cost
+proportional to <code>learning_rate</code> (Laughlin et al. 1998
+<em>Nature Neuroscience</em>).</p>
 <table class="table">
-<colgroup>
-<col width="33%">
-<col width="33%">
-<col width="33%">
-</colgroup>
 <thead><tr class="header">
-<th>Parameter</th>
-<th>Default</th>
-<th>Description</th>
+<th align="left">Parameter</th>
+<th align="left">Default</th>
+<th align="left">Type</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><code>rl_mode</code></td>
-<td><code>"none"</code></td>
-<td>
-<code>"actor_critic"</code> or <code>"hebbian"</code>
-</td>
+<td align="left"><code>rl_mode</code></td>
+<td align="left">“none”</td>
+<td align="left">character</td>
 </tr>
 <tr class="even">
-<td><code>learning_rate</code></td>
-<td>0.01</td>
-<td>Output-layer update step size</td>
+<td align="left"><code>learning_rate</code></td>
+<td align="left">0.01</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="odd">
-<td><code>learning_rate_evolution</code></td>
-<td>FALSE</td>
-<td>Allow learning rate to evolve genetically</td>
+<td align="left"><code>learning_rate_init_mean</code></td>
+<td align="left">0.01</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="even">
-<td><code>rl_update_freq</code></td>
-<td>5</td>
-<td>Ticks between RL updates</td>
+<td align="left"><code>learning_rate_min</code></td>
+<td align="left">0</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>learning_rate_max</code></td>
+<td align="left">0.5</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>learning_rate_evolution</code></td>
+<td align="left">FALSE</td>
+<td align="left">logical</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>plasticity_cost</code></td>
+<td align="left">0.05</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>rl_update_freq</code></td>
+<td align="left">1</td>
+<td align="left">integer</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>lamarckian</code></td>
+<td align="left">FALSE</td>
+<td align="left">logical</td>
 </tr>
 </tbody>
 </table>
+<p><code>lamarckian = TRUE</code> writes within-lifetime learned weights
+back to the genome before meiosis. Off by default.</p>
 <hr>
 </div>
 <div class="section level2">
@@ -954,31 +1224,26 @@ falls back to pre-0.4.2 binary presence signal.</td>
 </h2>
 <p>Enable with <code>social_learning = TRUE</code>.</p>
 <table class="table">
-<colgroup>
-<col width="33%">
-<col width="33%">
-<col width="33%">
-</colgroup>
 <thead><tr class="header">
-<th>Parameter</th>
-<th>Default</th>
-<th>Description</th>
+<th align="left">Parameter</th>
+<th align="left">Default</th>
+<th align="left">Type</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><code>social_learning</code></td>
-<td>FALSE</td>
-<td>Enable copying successful neighbours</td>
+<td align="left"><code>social_learning</code></td>
+<td align="left">FALSE</td>
+<td align="left">logical</td>
 </tr>
 <tr class="even">
-<td><code>social_learning_freq</code></td>
-<td>10</td>
-<td>Ticks between learning events</td>
+<td align="left"><code>social_learning_freq</code></td>
+<td align="left">10</td>
+<td align="left">integer</td>
 </tr>
 <tr class="odd">
-<td><code>social_learning_radius</code></td>
-<td>3</td>
-<td>Neighbourhood radius for model selection</td>
+<td align="left"><code>social_learning_rate</code></td>
+<td align="left">0.1</td>
+<td align="left">numeric</td>
 </tr>
 </tbody>
 </table>
@@ -987,178 +1252,178 @@ falls back to pre-0.4.2 binary presence signal.</td>
 <div class="section level2">
 <h2 id="signals-and-mate-choice">Signals and mate choice<a class="anchor" aria-label="anchor" href="#signals-and-mate-choice"></a>
 </h2>
+<p>Sexual-selection machinery. Enable signals by setting
+<code>signal_dims &gt; 0</code>.</p>
 <table class="table">
 <thead><tr class="header">
-<th>Parameter</th>
-<th>Default</th>
-<th>Description</th>
+<th align="left">Parameter</th>
+<th align="left">Default</th>
+<th align="left">Type</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><code>signal_dims</code></td>
-<td>2</td>
-<td>Dimensionality of heritable signal vector</td>
+<td align="left"><code>signal_dims</code></td>
+<td align="left">0</td>
+<td align="left">integer</td>
 </tr>
 <tr class="even">
-<td><code>signal_mutation_sd</code></td>
-<td>0.05</td>
-<td>Signal mutation noise</td>
+<td align="left"><code>signal_cost</code></td>
+<td align="left">0.1</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="odd">
-<td><code>preference_mutation_sd</code></td>
-<td>0.05</td>
-<td>Mate-preference mutation noise</td>
+<td align="left"><code>signal_cost_mortality</code></td>
+<td align="left">0</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>signal_evolution_drift</code></td>
+<td align="left">TRUE</td>
+<td align="left">logical</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>signal_drift_sd</code></td>
+<td align="left">0.01</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>preference_bias_target</code></td>
+<td align="left">NULL</td>
+<td align="left">NULL</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>preference_bias_strength</code></td>
+<td align="left">0</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>signal_toxicity_coupling</code></td>
+<td align="left">0</td>
+<td align="left">numeric</td>
 </tr>
 </tbody>
 </table>
+<p><code>preference_bias_target</code> +
+<code>preference_bias_strength</code> implement the β_N leg of Fuller,
+Houle &amp; Travis (2005); see <code>paper-ryan-1990</code>.</p>
 <hr>
 </div>
 <div class="section level2">
 <h2 id="mimicry-and-toxicity">Mimicry and toxicity<a class="anchor" aria-label="anchor" href="#mimicry-and-toxicity"></a>
 </h2>
-<p>Enable with <code>mimicry = TRUE</code>.</p>
+<p>Enable with <code>mimicry = TRUE</code>. Müllerian by default; set
+<code>batesian_mimicry = TRUE</code> for Batesian dynamics. As of 0.4.4
+the predator memory is a <code>signal_dims</code>-length vector updated
+via the Widrow-Hoff delta rule.</p>
 <table class="table">
-<colgroup>
-<col width="33%">
-<col width="33%">
-<col width="33%">
-</colgroup>
 <thead><tr class="header">
-<th>Parameter</th>
-<th>Default</th>
-<th>Description</th>
+<th align="left">Parameter</th>
+<th align="left">Default</th>
+<th align="left">Type</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><code>mimicry</code></td>
-<td>FALSE</td>
-<td>Enable toxicity and predator learning (Müllerian by default)</td>
+<td align="left"><code>mimicry</code></td>
+<td align="left">FALSE</td>
+<td align="left">logical</td>
 </tr>
 <tr class="even">
-<td><code>batesian_mimicry</code></td>
-<td>FALSE</td>
-<td>(0.3.0) Enable Batesian mimicry: palatable prey (toxicity = 0)
-exploit learned aversion; predator-betrayal decay prevents runaway
-cheating (Bates 1862)</td>
+<td align="left"><code>batesian_mimicry</code></td>
+<td align="left">FALSE</td>
+<td align="left">logical</td>
 </tr>
 <tr class="odd">
-<td><code>toxicity_init_mean</code></td>
-<td>0.0</td>
-<td>Starting toxicity</td>
+<td align="left"><code>toxicity_init_mean</code></td>
+<td align="left">0</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="even">
-<td><code>toxicity_cost_per_tick</code></td>
-<td>2.0</td>
-<td>Per-tick energy cost for toxicity &gt; 0 (raised from 0.5 in 0.3.0
-for Zahavi-handicap honesty)</td>
+<td align="left"><code>toxicity_mutation_sd</code></td>
+<td align="left">0.05</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="odd">
-<td><code>toxin_dose</code></td>
-<td>2.0</td>
-<td>Damage per toxicity unit per attack</td>
+<td align="left"><code>toxicity_cost_per_tick</code></td>
+<td align="left">2</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="even">
-<td><code>signal_memory</code></td>
-<td>20</td>
-<td>Predator memory window (Rescorla-Wagner)</td>
+<td align="left"><code>toxin_dose</code></td>
+<td align="left">30</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="odd">
-<td><code>signal_toxicity_coupling</code></td>
-<td>0.0</td>
-<td>(0.4.4) Aposematic pleiotropy: when &gt; 0, each agent’s
-<code>signal[1]</code> is pulled toward its own <code>toxicity</code>
-each tick. Set to 1.0 for fully honest signal. Required for Bates/Müller
-dynamics to close the feedback loop.</td>
+<td align="left"><code>signal_memory_rate</code></td>
+<td align="left">0.3</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>avoid_threshold</code></td>
+<td align="left">0.5</td>
+<td align="left">numeric</td>
 </tr>
 </tbody>
 </table>
-<p>As of 0.4.4 the predator memory is a full <strong>vector</strong>
-stored in <code>signal_memory::Vector{Float32}</code> on the Agent
-struct (length = <code>signal_dims</code>), updated via the Widrow-Hoff
-delta rule
-<code>memory += lr × (toxicity − dot(memory, signal)) × signal</code>.
-The avoidance check uses the predicted toxicity
-<code>dot(memory, signal)</code> directly. This restores alifeR’s
-signal-specific learning and produces textbook Batesian/Müllerian
-dynamics under the right ecological parameters.</p>
 <hr>
 </div>
 <div class="section level2">
-<h2 id="coevolving-parasites-0-5-0-0-5-1-hamilton-1980-red-queen">Coevolving parasites (0.5.0 / 0.5.1, Hamilton 1980 Red Queen)<a class="anchor" aria-label="anchor" href="#coevolving-parasites-0-5-0-0-5-1-hamilton-1980-red-queen"></a>
+<h2 id="coevolving-parasites-hamilton-1980-red-queen">Coevolving parasites (Hamilton 1980 Red Queen)<a class="anchor" aria-label="anchor" href="#coevolving-parasites-hamilton-1980-red-queen"></a>
 </h2>
 <p>Enable with <code>coevolving_parasites = TRUE</code> AND either
 <code>signal_dims &gt; 0</code> (continuous mode) or
 <code>n_parasite_loci &gt; 0</code> (discrete mode).</p>
 <table class="table">
-<colgroup>
-<col width="33%">
-<col width="33%">
-<col width="33%">
-</colgroup>
 <thead><tr class="header">
-<th>Parameter</th>
-<th>Default</th>
-<th>Description</th>
+<th align="left">Parameter</th>
+<th align="left">Default</th>
+<th align="left">Type</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><code>coevolving_parasites</code></td>
-<td>FALSE</td>
-<td>Enable genotype-matched parasite pressure</td>
+<td align="left"><code>coevolving_parasites</code></td>
+<td align="left">FALSE</td>
+<td align="left">logical</td>
 </tr>
 <tr class="even">
-<td><code>parasite_match_mode</code></td>
-<td><code>"auto"</code></td>
-<td>
-<code>"auto"</code> / <code>"continuous"</code> /
-<code>"discrete"</code>. Auto picks discrete when
-<code>n_parasite_loci &gt; 0</code>, else continuous.</td>
+<td align="left"><code>parasite_match_mode</code></td>
+<td align="left">“auto”</td>
+<td align="left">character</td>
 </tr>
 <tr class="odd">
-<td><code>parasite_virulence_rate</code></td>
-<td>0.1</td>
-<td>Rate at which the parasite genotype tracks the host majority</td>
+<td align="left"><code>parasite_virulence_rate</code></td>
+<td align="left">0.1</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="even">
-<td><code>parasite_pressure</code></td>
-<td>0.5</td>
-<td>Maximum per-tick energy drain at full genotype match</td>
+<td align="left"><code>parasite_pressure</code></td>
+<td align="left">0.5</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="odd">
-<td><code>parasite_distance_scale</code></td>
-<td>1.0</td>
-<td>Continuous-mode Gaussian falloff scale</td>
+<td align="left"><code>parasite_distance_scale</code></td>
+<td align="left">1</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="even">
-<td><code>n_parasite_loci</code></td>
-<td>0</td>
-<td>(0.5.1) Number of binary loci in the discrete-mode
-<code>parasite_haplotype</code> trait. Set 8–16 for Hamilton’s canonical
-mechanism.</td>
+<td align="left"><code>n_parasite_loci</code></td>
+<td align="left">0</td>
+<td align="left">integer</td>
 </tr>
 <tr class="odd">
-<td><code>parasite_mutation_rate</code></td>
-<td>0.01</td>
-<td>Per-locus allele-flip rate during inheritance</td>
+<td align="left"><code>parasite_mutation_rate</code></td>
+<td align="left">0.01</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="even">
-<td><code>parasite_discrete_exponent</code></td>
-<td>4.0</td>
-<td>Hamming-distance falloff sharpness; 4–6 produces cleanly
-frequency-dependent selection</td>
+<td align="left"><code>parasite_discrete_exponent</code></td>
+<td align="left">4</td>
+<td align="left">numeric</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Continuous mode (0.5.0)</strong> uses Euclidean distance on
-the signal vector and tracks the population centroid. Sex offspring
-cluster closer to the centroid than asex clones, so sex is <em>more</em>
-exposed — this does NOT reproduce Hamilton’s canonical Red Queen.</p>
-<p><strong>Discrete mode (0.5.1)</strong> uses Hamming distance on a
-binary-allele haplotype with Mendelian inheritance (each locus inherited
-independently from either parent). Recombination produces novel
-haplotype combinations that escape the current parasite genotype. This
-is the canonical Hamilton mechanism and is the first regime in which
-clade shows sex &gt; asex.</p>
+<p>Discrete mode (<code>n_parasite_loci &gt;= 8</code>) is the canonical
+Hamilton mechanism and is the regime where clade can show sex &gt;
+asex.</p>
 <hr>
 </div>
 <div class="section level2">
@@ -1166,90 +1431,235 @@ clade shows sex &gt; asex.</p>
 </h2>
 <p>Enable with <code>parental_care = TRUE</code>.</p>
 <table class="table">
-<colgroup>
-<col width="33%">
-<col width="33%">
-<col width="33%">
-</colgroup>
 <thead><tr class="header">
-<th>Parameter</th>
-<th>Default</th>
-<th>Description</th>
+<th align="left">Parameter</th>
+<th align="left">Default</th>
+<th align="left">Type</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><code>parental_care</code></td>
-<td>FALSE</td>
-<td>Enable carried offspring</td>
+<td align="left"><code>parental_care</code></td>
+<td align="left">FALSE</td>
+<td align="left">logical</td>
 </tr>
 <tr class="even">
-<td><code>juvenile_independence_age</code></td>
-<td>10</td>
-<td>Tick age at which offspring leaves parental care. Replaces pre-0.4.0
-<code>care_duration</code>.</td>
+<td align="left"><code>juvenile_independence_age</code></td>
+<td align="left">10</td>
+<td align="left">integer</td>
 </tr>
 <tr class="odd">
-<td><code>juvenile_independence_energy</code></td>
-<td>50.0</td>
-<td>Energy level at which offspring leaves early</td>
+<td align="left"><code>juvenile_independence_energy</code></td>
+<td align="left">50</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="even">
-<td><code>care_cost_per_tick</code></td>
-<td>1.0</td>
-<td>Parent energy cost per juvenile per tick. Replaces pre-0.5.6
-<code>care_energy_cost</code> /
-<code>care_cost_per_offspring</code>.</td>
+<td align="left"><code>care_cost_per_tick</code></td>
+<td align="left">1</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="odd">
-<td><code>feeding_rate</code></td>
-<td>5.0</td>
-<td>Energy transferred to juvenile per tick. Replaces pre-0.5.6
-<code>juvenile_energy_gain</code>.</td>
+<td align="left"><code>feeding_rate</code></td>
+<td align="left">5</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="even">
-<td><code>neonatal_foraging_deficit</code></td>
-<td>0.0</td>
-<td>(0.4.3) Reduction in effective <code>max_bite</code> for newborns
-during their first <code>neonatal_deficit_duration</code> ticks. Set
-0.3–0.6 to create the expensive-brain selection pressure for parental
-provisioning (Aiello &amp; Wheeler 1995; Isler &amp; van Schaik
-2009).</td>
+<td align="left"><code>max_clutch_size</code></td>
+<td align="left">1</td>
+<td align="left">integer</td>
 </tr>
 <tr class="odd">
-<td><code>neonatal_deficit_duration</code></td>
-<td>10</td>
-<td>(0.4.3) How many ticks the neonatal deficit applies for</td>
+<td align="left"><code>neonatal_foraging_deficit</code></td>
+<td align="left">0</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>neonatal_deficit_duration</code></td>
+<td align="left">10</td>
+<td align="left">integer</td>
 </tr>
 </tbody>
 </table>
+<p><code>neonatal_foraging_deficit &gt; 0</code> creates the
+expensive-brain selection pressure for parental provisioning (Aiello
+&amp; Wheeler 1995; Isler &amp; van Schaik 2009).</p>
 <hr>
 </div>
 <div class="section level2">
 <h2 id="cooperative-breeding">Cooperative breeding<a class="anchor" aria-label="anchor" href="#cooperative-breeding"></a>
 </h2>
 <p>Enable with <code>cooperative_breeding = TRUE</code>. Usually
-combined with <code>iffolk_selection = TRUE</code>.</p>
+combined with <code>iffolk_selection = TRUE</code>. See
+<code>paper-emlen-1982</code>.</p>
 <table class="table">
 <thead><tr class="header">
-<th>Parameter</th>
-<th>Default</th>
-<th>Description</th>
+<th align="left">Parameter</th>
+<th align="left">Default</th>
+<th align="left">Type</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><code>cooperative_breeding</code></td>
-<td>FALSE</td>
-<td>Enable <code>helper_tendency</code> trait</td>
+<td align="left"><code>cooperative_breeding</code></td>
+<td align="left">FALSE</td>
+<td align="left">logical</td>
 </tr>
 <tr class="even">
-<td><code>helper_tendency_init_mean</code></td>
-<td>0.2</td>
-<td>Starting helper tendency</td>
+<td align="left"><code>helper_min_energy</code></td>
+<td align="left">80</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="odd">
-<td><code>helper_tendency_mutation_sd</code></td>
-<td>0.05</td>
-<td>Mutation noise</td>
+<td align="left"><code>helper_transfer</code></td>
+<td align="left">5</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>helper_kin_threshold</code></td>
+<td align="left">0.25</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>helper_tendency_init_mean</code></td>
+<td align="left">0.1</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>helper_tendency_mutation_sd</code></td>
+<td align="left">0.02</td>
+<td align="left">numeric</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="parental-investment-trivers-1972">Parental investment (Trivers 1972)<a class="anchor" aria-label="anchor" href="#parental-investment-trivers-1972"></a>
+</h2>
+<p>Enable with <code>parental_investment_evolution = TRUE</code>. The
+female bears <code>female_investment</code> of per-offspring cost;
+offspring birth energy scales by <code>2 × female_investment</code>.</p>
+<table class="table">
+<thead><tr class="header">
+<th align="left">Parameter</th>
+<th align="left">Default</th>
+<th align="left">Type</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code>parental_investment_evolution</code></td>
+<td align="left">FALSE</td>
+<td align="left">logical</td>
+</tr>
+<tr class="even">
+<td align="left"><code>female_investment</code></td>
+<td align="left">0.7</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>male_repro_cost</code></td>
+<td align="left">0.3</td>
+<td align="left">numeric</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="pace-of-life-réale-et-al--2010">Pace of life (Réale et al. 2010)<a class="anchor" aria-label="anchor" href="#pace-of-life-r%C3%A9ale-et-al--2010"></a>
+</h2>
+<p>Heritable metabolic rate and aging rate; see
+<code>paper-reale-2010</code> and <code>s-pace-of-life</code>.</p>
+<table class="table">
+<thead><tr class="header">
+<th align="left">Parameter</th>
+<th align="left">Default</th>
+<th align="left">Type</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code>metabolic_rate_evolution</code></td>
+<td align="left">FALSE</td>
+<td align="left">logical</td>
+</tr>
+<tr class="even">
+<td align="left"><code>metabolic_rate_init_mean</code></td>
+<td align="left">1</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>metabolic_rate_mutation_sd</code></td>
+<td align="left">0.05</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>metabolic_rate_min</code></td>
+<td align="left">0.1</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>metabolic_rate_max</code></td>
+<td align="left">5</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>aging_rate_evolution</code></td>
+<td align="left">FALSE</td>
+<td align="left">logical</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>aging_rate_init_mean</code></td>
+<td align="left">1</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>aging_rate_mutation_sd</code></td>
+<td align="left">0.05</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>aging_rate_min</code></td>
+<td align="left">0.01</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>aging_rate_max</code></td>
+<td align="left">10</td>
+<td align="left">numeric</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="mutation-rate-evolution">Mutation-rate evolution<a class="anchor" aria-label="anchor" href="#mutation-rate-evolution"></a>
+</h2>
+<p>Enable with <code>mutation_rate_evolution = TRUE</code>. Per-agent
+heritable <code>mutation_sd</code>.</p>
+<table class="table">
+<thead><tr class="header">
+<th align="left">Parameter</th>
+<th align="left">Default</th>
+<th align="left">Type</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code>mutation_rate_evolution</code></td>
+<td align="left">FALSE</td>
+<td align="left">logical</td>
+</tr>
+<tr class="even">
+<td align="left"><code>mutation_sd_init_mean</code></td>
+<td align="left">0.1</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>mutation_sd_min</code></td>
+<td align="left">0.001</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>mutation_sd_max</code></td>
+<td align="left">1</td>
+<td align="left">numeric</td>
 </tr>
 </tbody>
 </table>
@@ -1258,28 +1668,117 @@ combined with <code>iffolk_selection = TRUE</code>.</p>
 <div class="section level2">
 <h2 id="phenotypic-plasticity">Phenotypic plasticity<a class="anchor" aria-label="anchor" href="#phenotypic-plasticity"></a>
 </h2>
-<p>Enable with <code>phenotypic_plasticity = TRUE</code>.</p>
+<p>Enable with <code>phenotypic_plasticity = TRUE</code>. The
+<code>plasticity</code> trait scales how much an agent’s effective
+reproductive threshold depends on local resource density.</p>
 <table class="table">
 <thead><tr class="header">
-<th>Parameter</th>
-<th>Default</th>
-<th>Description</th>
+<th align="left">Parameter</th>
+<th align="left">Default</th>
+<th align="left">Type</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><code>phenotypic_plasticity</code></td>
-<td>FALSE</td>
-<td>Enable plasticity trait</td>
+<td align="left"><code>phenotypic_plasticity</code></td>
+<td align="left">FALSE</td>
+<td align="left">logical</td>
 </tr>
 <tr class="even">
-<td><code>plasticity_init_mean</code></td>
-<td>0.5</td>
-<td>Starting plasticity</td>
+<td align="left"><code>plasticity_sense_radius</code></td>
+<td align="left">3</td>
+<td align="left">integer</td>
 </tr>
 <tr class="odd">
-<td><code>plasticity_mutation_sd</code></td>
-<td>0.05</td>
-<td>Mutation noise</td>
+<td align="left"><code>plasticity_init_mean</code></td>
+<td align="left">0.3</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>plasticity_mutation_sd</code></td>
+<td align="left">0.03</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>plasticity_min</code></td>
+<td align="left">0</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>plasticity_max</code></td>
+<td align="left">1</td>
+<td align="left">numeric</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="stress-hypermutation">Stress hypermutation<a class="anchor" aria-label="anchor" href="#stress-hypermutation"></a>
+</h2>
+<p>Enable with <code>stress_hypermutation = TRUE</code>. SOS-style
+mutation-rate spike below <code>stress_threshold</code> energy.</p>
+<table class="table">
+<thead><tr class="header">
+<th align="left">Parameter</th>
+<th align="left">Default</th>
+<th align="left">Type</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code>stress_hypermutation</code></td>
+<td align="left">FALSE</td>
+<td align="left">logical</td>
+</tr>
+<tr class="even">
+<td align="left"><code>stress_mutation_multiplier</code></td>
+<td align="left">3</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>stress_threshold</code></td>
+<td align="left">20</td>
+<td align="left">numeric</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="clutch-size-rk">Clutch size (r/K)<a class="anchor" aria-label="anchor" href="#clutch-size-rk"></a>
+</h2>
+<p>Enable with <code>clutch_size_evolution = TRUE</code>. r/K trade-off
+between clutch count and per-offspring investment.</p>
+<table class="table">
+<thead><tr class="header">
+<th align="left">Parameter</th>
+<th align="left">Default</th>
+<th align="left">Type</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code>clutch_size_evolution</code></td>
+<td align="left">FALSE</td>
+<td align="left">logical</td>
+</tr>
+<tr class="even">
+<td align="left"><code>clutch_size_init_mean</code></td>
+<td align="left">1</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>clutch_size_min</code></td>
+<td align="left">1</td>
+<td align="left">integer</td>
+</tr>
+<tr class="even">
+<td align="left"><code>clutch_size_max</code></td>
+<td align="left">5</td>
+<td align="left">integer</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>clutch_size_mutation_sd</code></td>
+<td align="left">0.3</td>
+<td align="left">numeric</td>
 </tr>
 </tbody>
 </table>
@@ -1289,33 +1788,29 @@ combined with <code>iffolk_selection = TRUE</code>.</p>
 <h2 id="spatial-sorting">Spatial sorting<a class="anchor" aria-label="anchor" href="#spatial-sorting"></a>
 </h2>
 <p>Enable with <code>spatial_sorting = TRUE</code>. Requires
-<code>dispersal_evolution = TRUE</code>.</p>
+<code>dispersal_evolution = TRUE</code> and a bounded grid
+(<code>toroidal = FALSE</code>).</p>
 <table class="table">
-<colgroup>
-<col width="33%">
-<col width="33%">
-<col width="33%">
-</colgroup>
 <thead><tr class="header">
-<th>Parameter</th>
-<th>Default</th>
-<th>Description</th>
+<th align="left">Parameter</th>
+<th align="left">Default</th>
+<th align="left">Type</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><code>spatial_sorting</code></td>
-<td>FALSE</td>
-<td>Enable invasion-front mating assortment</td>
+<td align="left"><code>spatial_sorting</code></td>
+<td align="left">FALSE</td>
+<td align="left">logical</td>
 </tr>
 <tr class="even">
-<td><code>sorting_front_threshold</code></td>
-<td>0.75</td>
-<td>Fraction from front to define “front zone”</td>
+<td align="left"><code>sorting_front_threshold</code></td>
+<td align="left">0.75</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="odd">
-<td><code>sorting_mating_boost</code></td>
-<td>3.0</td>
-<td>Mating encounter fold-increase at front</td>
+<td align="left"><code>sorting_mating_boost</code></td>
+<td align="left">3</td>
+<td align="left">numeric</td>
 </tr>
 </tbody>
 </table>
@@ -1324,53 +1819,50 @@ combined with <code>iffolk_selection = TRUE</code>.</p>
 <div class="section level2">
 <h2 id="iffolk-inclusive-fitness">IFfolk inclusive fitness<a class="anchor" aria-label="anchor" href="#iffolk-inclusive-fitness"></a>
 </h2>
-<p>Enable with <code>iffolk_selection = TRUE</code>.</p>
+<p>Enable with <code>iffolk_selection = TRUE</code>. Haig 2000 /
+Fromhage &amp; Jennions 2019 intragenomic-conflict + parliament
+suppression.</p>
 <table class="table">
-<colgroup>
-<col width="33%">
-<col width="33%">
-<col width="33%">
-</colgroup>
 <thead><tr class="header">
-<th>Parameter</th>
-<th>Default</th>
-<th>Description</th>
+<th align="left">Parameter</th>
+<th align="left">Default</th>
+<th align="left">Type</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><code>iffolk_selection</code></td>
-<td>FALSE</td>
-<td>Enable energy transfers to relatives</td>
+<td align="left"><code>iffolk_selection</code></td>
+<td align="left">FALSE</td>
+<td align="left">logical</td>
 </tr>
 <tr class="even">
-<td><code>iffolk_r_min</code></td>
-<td>0.125</td>
-<td>Minimum relatedness (cousins and closer)</td>
+<td align="left"><code>iffolk_r_min</code></td>
+<td align="left">0.125</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="odd">
-<td><code>iffolk_radius</code></td>
-<td>5</td>
-<td>Neighbourhood radius for kin search</td>
+<td align="left"><code>iffolk_radius</code></td>
+<td align="left">5</td>
+<td align="left">integer</td>
 </tr>
 <tr class="even">
-<td><code>iffolk_transfer</code></td>
-<td>3.0</td>
-<td>Energy transferred per act</td>
+<td align="left"><code>iffolk_transfer</code></td>
+<td align="left">3</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="odd">
-<td><code>iffolk_min_energy</code></td>
-<td>60.0</td>
-<td>Donor energy floor</td>
+<td align="left"><code>iffolk_min_energy</code></td>
+<td align="left">60</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="even">
-<td><code>parliament_suppression</code></td>
-<td>FALSE</td>
-<td>Penalise defectors among cooperators</td>
+<td align="left"><code>parliament_suppression</code></td>
+<td align="left">FALSE</td>
+<td align="left">logical</td>
 </tr>
 <tr class="odd">
-<td><code>parliament_cost</code></td>
-<td>0.5</td>
-<td>Energy cost for defectors per cooperator neighbour</td>
+<td align="left"><code>parliament_cost</code></td>
+<td align="left">0.5</td>
+<td align="left">numeric</td>
 </tr>
 </tbody>
 </table>
@@ -1379,73 +1871,522 @@ combined with <code>iffolk_selection = TRUE</code>.</p>
 <div class="section level2">
 <h2 id="complex-landscape-forest-world">Complex landscape (forest world)<a class="anchor" aria-label="anchor" href="#complex-landscape-forest-world"></a>
 </h2>
-<p>Enable with <code>complex_landscape = TRUE</code>.</p>
+<p>Enable with <code>complex_landscape = TRUE</code>. Three-layer
+foraging: ground grass + shrubs + canopy. Wing-size evolves for canopy
+access.</p>
 <table class="table">
 <thead><tr class="header">
-<th>Parameter</th>
-<th>Default</th>
-<th>Description</th>
+<th align="left">Parameter</th>
+<th align="left">Default</th>
+<th align="left">Type</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><code>complex_landscape</code></td>
-<td>FALSE</td>
-<td>Enable 3-layer habitat</td>
+<td align="left"><code>complex_landscape</code></td>
+<td align="left">FALSE</td>
+<td align="left">logical</td>
 </tr>
 <tr class="even">
-<td><code>shrub_density</code></td>
-<td>0.35</td>
-<td>Fraction of cells with shrubs</td>
+<td align="left"><code>shrub_density</code></td>
+<td align="left">0.3</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="odd">
-<td><code>shrub_energy</code></td>
-<td>25.0</td>
-<td>Energy gained from shrubs</td>
+<td align="left"><code>shrub_growth_rate</code></td>
+<td align="left">0.03</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="even">
-<td><code>shrub_growth_rate</code></td>
-<td>0.04</td>
-<td>Shrub regrowth rate per tick</td>
+<td align="left"><code>shrub_energy</code></td>
+<td align="left">20</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="odd">
-<td><code>canopy_density</code></td>
-<td>0.15</td>
-<td>Fraction of cells with canopy</td>
+<td align="left"><code>canopy_density</code></td>
+<td align="left">0.15</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="even">
-<td><code>canopy_energy</code></td>
-<td>55.0</td>
-<td>Energy gained from canopy</td>
+<td align="left"><code>canopy_growth_rate</code></td>
+<td align="left">0.005</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="odd">
-<td><code>canopy_growth_rate</code></td>
-<td>0.005</td>
-<td>Canopy regrowth rate</td>
+<td align="left"><code>canopy_energy</code></td>
+<td align="left">50</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="even">
-<td><code>canopy_threshold</code></td>
-<td>0.6</td>
-<td>Minimum wing_size for canopy access</td>
+<td align="left"><code>canopy_threshold</code></td>
+<td align="left">0.15</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="odd">
-<td><code>wing_size_init_mean</code></td>
-<td>0.1</td>
-<td>Starting wing size</td>
+<td align="left"><code>wing_size_init_mean</code></td>
+<td align="left">0.08</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="even">
-<td><code>wing_size_mutation_sd</code></td>
-<td>0.05</td>
-<td>Wing size mutation noise</td>
+<td align="left"><code>wing_size_mutation_sd</code></td>
+<td align="left">0.05</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="odd">
-<td><code>wing_size_min</code></td>
-<td>0.0</td>
-<td>Lower clamp</td>
+<td align="left"><code>wing_size_min</code></td>
+<td align="left">0</td>
+<td align="left">numeric</td>
 </tr>
 <tr class="even">
-<td><code>wing_size_max</code></td>
-<td>1.0</td>
-<td>Upper clamp</td>
+<td align="left"><code>wing_size_max</code></td>
+<td align="left">1</td>
+<td align="left">numeric</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="fixed-patch">Fixed patch<a class="anchor" aria-label="anchor" href="#fixed-patch"></a>
+</h2>
+<p>A single fixed-rich-cell helper for testing local-resource
+scenarios.</p>
+<table class="table">
+<thead><tr class="header">
+<th align="left">Parameter</th>
+<th align="left">Default</th>
+<th align="left">Type</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code>fixed_patch</code></td>
+<td align="left">FALSE</td>
+<td align="left">logical</td>
+</tr>
+<tr class="even">
+<td align="left"><code>fixed_patch_value</code></td>
+<td align="left">5</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>fixed_patch_x</code></td>
+<td align="left">NA_integer_</td>
+<td align="left">integer</td>
+</tr>
+<tr class="even">
+<td align="left"><code>fixed_patch_y</code></td>
+<td align="left">NA_integer_</td>
+<td align="left">integer</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>fixed_patch_radius</code></td>
+<td align="left">0</td>
+<td align="left">integer</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="epigenetics">Epigenetics<a class="anchor" aria-label="anchor" href="#epigenetics"></a>
+</h2>
+<p>Enable with <code>epigenetics = TRUE</code>. Methylation inheritance
+on BNN sigma (Jablonka &amp; Lamb 2005).</p>
+<table class="table">
+<thead><tr class="header">
+<th align="left">Parameter</th>
+<th align="left">Default</th>
+<th align="left">Type</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code>epigenetics</code></td>
+<td align="left">FALSE</td>
+<td align="left">logical</td>
+</tr>
+<tr class="even">
+<td align="left"><code>epigenetic_learning_coupling</code></td>
+<td align="left">0.1</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>epigenetic_inheritance</code></td>
+<td align="left">0.5</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>epigenetic_effect_size</code></td>
+<td align="left">0.2</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>methylation_rate</code></td>
+<td align="left">0.001</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>demethylation_rate</code></td>
+<td align="left">0.002</td>
+<td align="left">numeric</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="speciation">Speciation<a class="anchor" aria-label="anchor" href="#speciation"></a>
+</h2>
+<p>Enable with <code>speciation = TRUE</code>. Genome-distance
+clustering + reproductive isolation. See
+<code>paper-dieckmann-doebeli-1999</code>.</p>
+<table class="table">
+<thead><tr class="header">
+<th align="left">Parameter</th>
+<th align="left">Default</th>
+<th align="left">Type</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code>speciation</code></td>
+<td align="left">FALSE</td>
+<td align="left">logical</td>
+</tr>
+<tr class="even">
+<td align="left"><code>isolation_threshold</code></td>
+<td align="left">0.5</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>speciation_cluster_interval</code></td>
+<td align="left">10</td>
+<td align="left">integer</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="seasonal-dynamics">Seasonal dynamics<a class="anchor" aria-label="anchor" href="#seasonal-dynamics"></a>
+</h2>
+<table class="table">
+<thead><tr class="header">
+<th align="left">Parameter</th>
+<th align="left">Default</th>
+<th align="left">Type</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code>seasonal_amplitude</code></td>
+<td align="left">0</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>season_length</code></td>
+<td align="left">100</td>
+<td align="left">integer</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>seasonal_spatial_bias</code></td>
+<td align="left">0</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>winter_death_prob</code></td>
+<td align="left">0</td>
+<td align="left">numeric</td>
+</tr>
+</tbody>
+</table>
+<p><code>seasonal_spatial_bias = TRUE</code> (0.5.18) flips the spatial
+grass distribution between seasons — required for the Baldwin /
+plasticity scenarios to demonstrate fluctuating selection.</p>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="scavenging">Scavenging<a class="anchor" aria-label="anchor" href="#scavenging"></a>
+</h2>
+<p>Enable with <code>scavenging = TRUE</code>. Carcasses decay over time
+and can transmit disease.</p>
+<table class="table">
+<thead><tr class="header">
+<th align="left">Parameter</th>
+<th align="left">Default</th>
+<th align="left">Type</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code>scavenging</code></td>
+<td align="left">FALSE</td>
+<td align="left">logical</td>
+</tr>
+<tr class="even">
+<td align="left"><code>carrion_fraction</code></td>
+<td align="left">0.5</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>carrion_decay_rate</code></td>
+<td align="left">0.1</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>carrion_eat_gain</code></td>
+<td align="left">3</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>carrion_transmission_prob</code></td>
+<td align="left">0</td>
+<td align="left">numeric</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="ann-regularisation">ANN regularisation<a class="anchor" aria-label="anchor" href="#ann-regularisation"></a>
+</h2>
+<p>Optional weight regularisation on ANN brains.</p>
+<table class="table">
+<thead><tr class="header">
+<th align="left">Parameter</th>
+<th align="left">Default</th>
+<th align="left">Type</th>
+</tr></thead>
+<tbody><tr class="odd">
+<td align="left"><code>ann_regularization</code></td>
+<td align="left">“none”</td>
+<td align="left">character</td>
+</tr></tbody>
+</table>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="wolf-2007-personality-syndrome-0-7-0">Wolf 2007 personality syndrome (0.7.0)<a class="anchor" aria-label="anchor" href="#wolf-2007-personality-syndrome-0-7-0"></a>
+</h2>
+<p>Enable with <code>personality_syndrome = TRUE</code>. See
+<code>paper-wolf2007</code> for the boldness-aggressiveness syndrome
+reproduction and the Massol-Crochet / McElreath critiques.</p>
+<table class="table">
+<thead><tr class="header">
+<th align="left">Parameter</th>
+<th align="left">Default</th>
+<th align="left">Type</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code>personality_syndrome</code></td>
+<td align="left">FALSE</td>
+<td align="left">logical</td>
+</tr>
+<tr class="even">
+<td align="left"><code>personality_beta</code></td>
+<td align="left">1.25</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>personality_alpha</code></td>
+<td align="left">0.005</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>personality_f_high</code></td>
+<td align="left">3</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>personality_f_low</code></td>
+<td align="left">2</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>personality_b</code></td>
+<td align="left">0.5</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>personality_gamma</code></td>
+<td align="left">0.1</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>personality_V</code></td>
+<td align="left">0.5</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>personality_delta</code></td>
+<td align="left">0.5</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>personality_antipred_per_tick</code></td>
+<td align="left">0.5</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>personality_hawkdove_per_tick</code></td>
+<td align="left">0.1</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>personality_hawkdove_radius</code></td>
+<td align="left">1</td>
+<td align="left">integer</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>wolf_year1_repro_age</code></td>
+<td align="left">50</td>
+<td align="left">integer</td>
+</tr>
+<tr class="even">
+<td align="left"><code>wolf_year2_repro_age</code></td>
+<td align="left">100</td>
+<td align="left">integer</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>exploration_init_mean</code></td>
+<td align="left">0.5</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>exploration_mutation_sd</code></td>
+<td align="left">0.05</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>boldness_init_mean</code></td>
+<td align="left">0.5</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>boldness_mutation_sd</code></td>
+<td align="left">0.05</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>aggressiveness_init_mean</code></td>
+<td align="left">0.5</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>aggressiveness_mutation_sd</code></td>
+<td align="left">0.05</td>
+<td align="left">numeric</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="trivers-1971-reciprocal-altruism-0-7-0">Trivers 1971 reciprocal altruism (0.7.0)<a class="anchor" aria-label="anchor" href="#trivers-1971-reciprocal-altruism-0-7-0"></a>
+</h2>
+<p>Enable with <code>reciprocal_altruism = TRUE</code>. Generous-TFT via
+three heritable traits (initial / retaliation / forgiveness). See
+<code>paper-trivers1971</code>.</p>
+<table class="table">
+<thead><tr class="header">
+<th align="left">Parameter</th>
+<th align="left">Default</th>
+<th align="left">Type</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code>reciprocal_altruism</code></td>
+<td align="left">FALSE</td>
+<td align="left">logical</td>
+</tr>
+<tr class="even">
+<td align="left"><code>reciprocity_cost</code></td>
+<td align="left">0.5</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>reciprocity_benefit_ratio</code></td>
+<td align="left">2</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>reciprocity_interaction_rate</code></td>
+<td align="left">0.1</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>reciprocity_radius</code></td>
+<td align="left">1</td>
+<td align="left">integer</td>
+</tr>
+<tr class="even">
+<td align="left"><code>partner_memory_size</code></td>
+<td align="left">8</td>
+<td align="left">integer</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>reciprocity_initial_init_mean</code></td>
+<td align="left">0.5</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>reciprocity_initial_mutation_sd</code></td>
+<td align="left">0.05</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>reciprocity_retaliation_init_mean</code></td>
+<td align="left">0.5</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>reciprocity_retaliation_mutation_sd</code></td>
+<td align="left">0.05</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>reciprocity_forgiveness_init_mean</code></td>
+<td align="left">0.1</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>reciprocity_forgiveness_mutation_sd</code></td>
+<td align="left">0.05</td>
+<td align="left">numeric</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="wolf-2008-responsive-personalities-0-7-0">Wolf 2008 responsive personalities (0.7.0)<a class="anchor" aria-label="anchor" href="#wolf-2008-responsive-personalities-0-7-0"></a>
+</h2>
+<p>Enable with <code>responsive_personalities = TRUE</code>.
+Frequency-dependent sampling: high-responsiveness agents override toward
+richer cells at a per-tick metabolic cost. See
+<code>paper-wolf2008</code>.</p>
+<table class="table">
+<thead><tr class="header">
+<th align="left">Parameter</th>
+<th align="left">Default</th>
+<th align="left">Type</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code>responsive_personalities</code></td>
+<td align="left">FALSE</td>
+<td align="left">logical</td>
+</tr>
+<tr class="even">
+<td align="left"><code>responsiveness_cost</code></td>
+<td align="left">0.4</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>responsiveness_init_mean</code></td>
+<td align="left">0.5</td>
+<td align="left">numeric</td>
+</tr>
+<tr class="even">
+<td align="left"><code>responsiveness_mutation_sd</code></td>
+<td align="left">0.05</td>
+<td align="left">numeric</td>
 </tr>
 </tbody>
 </table>
@@ -1456,33 +2397,27 @@ combined with <code>iffolk_selection = TRUE</code>.</p>
 </h2>
 <table class="table">
 <thead><tr class="header">
-<th>Parameter</th>
-<th>Default</th>
-<th>Description</th>
+<th align="left">Parameter</th>
+<th align="left">Default</th>
+<th align="left">Type</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><code>log_genomes</code></td>
-<td>FALSE</td>
-<td>Log full genome matrices (large output)</td>
+<td align="left"><code>log_genomes</code></td>
+<td align="left">FALSE</td>
+<td align="left">logical</td>
 </tr>
 <tr class="even">
-<td><code>log_deaths</code></td>
-<td>TRUE</td>
-<td>Record every agent death</td>
-</tr>
-<tr class="odd">
-<td><code>log_freq</code></td>
-<td>1</td>
-<td>Ticks between progress log entries</td>
-</tr>
-<tr class="even">
-<td><code>verbose_julia</code></td>
-<td>FALSE</td>
-<td>Print Julia-side debug messages</td>
+<td align="left"><code>log_freq</code></td>
+<td align="left">1</td>
+<td align="left">integer</td>
 </tr>
 </tbody>
 </table>
+<p><code>log_genomes = TRUE</code> (wired in 0.7.x) captures every
+agent’s trait vector each <code>log_freq</code> ticks — consumed by
+<code><a href="../reference/plot_tsne_genomes.html">plot_tsne_genomes()</a></code> for population-genetic structure
+visualisations.</p>
 <hr>
 </div>
 <div class="section level2">
@@ -1490,407 +2425,25 @@ combined with <code>iffolk_selection = TRUE</code>.</p>
 </h2>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">defs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
 <span><span class="co"># All parameter names</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">defs</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   [1] "grid_rows"                          </span></span>
-<span><span class="co">#&gt;   [2] "grid_cols"                          </span></span>
-<span><span class="co">#&gt;   [3] "toroidal"                           </span></span>
-<span><span class="co">#&gt;   [4] "random_tick_order"                  </span></span>
-<span><span class="co">#&gt;   [5] "n_agents_init"                      </span></span>
-<span><span class="co">#&gt;   [6] "max_agents"                         </span></span>
-<span><span class="co">#&gt;   [7] "max_ticks"                          </span></span>
-<span><span class="co">#&gt;   [8] "energy_init"                        </span></span>
-<span><span class="co">#&gt;   [9] "energy_max"                         </span></span>
-<span><span class="co">#&gt;  [10] "move_cost"                          </span></span>
-<span><span class="co">#&gt;  [11] "idle_cost"                          </span></span>
-<span><span class="co">#&gt;  [12] "eat_gain"                           </span></span>
-<span><span class="co">#&gt;  [13] "max_bite"                           </span></span>
-<span><span class="co">#&gt;  [14] "min_repro_energy"                   </span></span>
-<span><span class="co">#&gt;  [15] "repro_cost_mode"                    </span></span>
-<span><span class="co">#&gt;  [16] "repro_cost"                         </span></span>
-<span><span class="co">#&gt;  [17] "repro_cost_fraction"                </span></span>
-<span><span class="co">#&gt;  [18] "offspring_energy_mode"              </span></span>
-<span><span class="co">#&gt;  [19] "offspring_energy"                   </span></span>
-<span><span class="co">#&gt;  [20] "offspring_energy_fraction"          </span></span>
-<span><span class="co">#&gt;  [21] "starvation_threshold"               </span></span>
-<span><span class="co">#&gt;  [22] "max_age_scales_with_metabolism"     </span></span>
-<span><span class="co">#&gt;  [23] "grass_init_prob"                    </span></span>
-<span><span class="co">#&gt;  [24] "grass_rate"                         </span></span>
-<span><span class="co">#&gt;  [25] "grass_max"                          </span></span>
-<span><span class="co">#&gt;  [26] "brain_type"                         </span></span>
-<span><span class="co">#&gt;  [27] "hidden_layers"                      </span></span>
-<span><span class="co">#&gt;  [28] "input_radius"                       </span></span>
-<span><span class="co">#&gt;  [29] "n_genes"                            </span></span>
-<span><span class="co">#&gt;  [30] "transformer_history"                </span></span>
-<span><span class="co">#&gt;  [31] "transformer_heads"                  </span></span>
-<span><span class="co">#&gt;  [32] "synthesis_max_rules"                </span></span>
-<span><span class="co">#&gt;  [33] "ann_weight_values"                  </span></span>
-<span><span class="co">#&gt;  [34] "ann_regularization"                 </span></span>
-<span><span class="co">#&gt;  [35] "ann_regularization_lambda"          </span></span>
-<span><span class="co">#&gt;  [36] "brain_energy_mode"                  </span></span>
-<span><span class="co">#&gt;  [37] "brain_energy_base"                  </span></span>
-<span><span class="co">#&gt;  [38] "brain_energy_activity"              </span></span>
-<span><span class="co">#&gt;  [39] "brain_energy_sigma_scale"           </span></span>
-<span><span class="co">#&gt;  [40] "brain_energy_size_exponent"         </span></span>
-<span><span class="co">#&gt;  [41] "bnn_sigma_init"                     </span></span>
-<span><span class="co">#&gt;  [42] "bnn_sigma_min"                      </span></span>
-<span><span class="co">#&gt;  [43] "bnn_sigma_source"                   </span></span>
-<span><span class="co">#&gt;  [44] "bnn_sample_freq"                    </span></span>
-<span><span class="co">#&gt;  [45] "bnn_action_noise_scale"             </span></span>
-<span><span class="co">#&gt;  [46] "action_exploration_epsilon"         </span></span>
-<span><span class="co">#&gt;  [47] "bnn_sigma_lr_scale"                 </span></span>
-<span><span class="co">#&gt;  [48] "bnn_sigma_lr_ref"                   </span></span>
-<span><span class="co">#&gt;  [49] "ploidy"                             </span></span>
-<span><span class="co">#&gt;  [50] "n_chromosomes"                      </span></span>
-<span><span class="co">#&gt;  [51] "crossover_rate"                     </span></span>
-<span><span class="co">#&gt;  [52] "dominance_model"                    </span></span>
-<span><span class="co">#&gt;  [53] "self_fertilization_fallback"        </span></span>
-<span><span class="co">#&gt;  [54] "mate_search_radius"                 </span></span>
-<span><span class="co">#&gt;  [55] "mutation_sd"                        </span></span>
-<span><span class="co">#&gt;  [56] "mutation_rate_evolution"            </span></span>
-<span><span class="co">#&gt;  [57] "mutation_sd_init_mean"              </span></span>
-<span><span class="co">#&gt;  [58] "mutation_sd_min"                    </span></span>
-<span><span class="co">#&gt;  [59] "mutation_sd_max"                    </span></span>
-<span><span class="co">#&gt;  [60] "rl_mode"                            </span></span>
-<span><span class="co">#&gt;  [61] "learning_rate"                      </span></span>
-<span><span class="co">#&gt;  [62] "learning_rate_evolution"            </span></span>
-<span><span class="co">#&gt;  [63] "learning_rate_init_mean"            </span></span>
-<span><span class="co">#&gt;  [64] "learning_rate_min"                  </span></span>
-<span><span class="co">#&gt;  [65] "learning_rate_max"                  </span></span>
-<span><span class="co">#&gt;  [66] "plasticity_cost"                    </span></span>
-<span><span class="co">#&gt;  [67] "rl_update_freq"                     </span></span>
-<span><span class="co">#&gt;  [68] "lamarckian"                         </span></span>
-<span><span class="co">#&gt;  [69] "epigenetics"                        </span></span>
-<span><span class="co">#&gt;  [70] "epigenetic_learning_coupling"       </span></span>
-<span><span class="co">#&gt;  [71] "epigenetic_inheritance"             </span></span>
-<span><span class="co">#&gt;  [72] "epigenetic_effect_size"             </span></span>
-<span><span class="co">#&gt;  [73] "methylation_rate"                   </span></span>
-<span><span class="co">#&gt;  [74] "demethylation_rate"                 </span></span>
-<span><span class="co">#&gt;  [75] "life_history"                       </span></span>
-<span><span class="co">#&gt;  [76] "max_age"                            </span></span>
-<span><span class="co">#&gt;  [77] "senescence_rate"                    </span></span>
-<span><span class="co">#&gt;  [78] "allee_threshold"                    </span></span>
-<span><span class="co">#&gt;  [79] "body_size_evolution"                </span></span>
-<span><span class="co">#&gt;  [80] "body_size_init_mean"                </span></span>
-<span><span class="co">#&gt;  [81] "body_size_mutation_sd"              </span></span>
-<span><span class="co">#&gt;  [82] "body_size_min"                      </span></span>
-<span><span class="co">#&gt;  [83] "body_size_max"                      </span></span>
-<span><span class="co">#&gt;  [84] "brain_size_evolution"               </span></span>
-<span><span class="co">#&gt;  [85] "brain_size_init_mean"               </span></span>
-<span><span class="co">#&gt;  [86] "brain_size_mutation_sd"             </span></span>
-<span><span class="co">#&gt;  [87] "brain_size_min"                     </span></span>
-<span><span class="co">#&gt;  [88] "brain_size_max"                     </span></span>
-<span><span class="co">#&gt;  [89] "brain_size_cost_scale"              </span></span>
-<span><span class="co">#&gt;  [90] "brain_size_sensing_exponent"        </span></span>
-<span><span class="co">#&gt;  [91] "personality_syndrome"               </span></span>
-<span><span class="co">#&gt;  [92] "exploration_init_mean"              </span></span>
-<span><span class="co">#&gt;  [93] "exploration_mutation_sd"            </span></span>
-<span><span class="co">#&gt;  [94] "boldness_init_mean"                 </span></span>
-<span><span class="co">#&gt;  [95] "boldness_mutation_sd"               </span></span>
-<span><span class="co">#&gt;  [96] "aggressiveness_init_mean"           </span></span>
-<span><span class="co">#&gt;  [97] "aggressiveness_mutation_sd"         </span></span>
-<span><span class="co">#&gt;  [98] "personality_beta"                   </span></span>
-<span><span class="co">#&gt;  [99] "personality_alpha"                  </span></span>
-<span><span class="co">#&gt; [100] "wolf_year1_repro_age"               </span></span>
-<span><span class="co">#&gt; [101] "wolf_year2_repro_age"               </span></span>
-<span><span class="co">#&gt; [102] "personality_f_high"                 </span></span>
-<span><span class="co">#&gt; [103] "personality_f_low"                  </span></span>
-<span><span class="co">#&gt; [104] "personality_b"                      </span></span>
-<span><span class="co">#&gt; [105] "personality_gamma"                  </span></span>
-<span><span class="co">#&gt; [106] "personality_V"                      </span></span>
-<span><span class="co">#&gt; [107] "personality_delta"                  </span></span>
-<span><span class="co">#&gt; [108] "personality_hawkdove_per_tick"      </span></span>
-<span><span class="co">#&gt; [109] "personality_antipred_per_tick"      </span></span>
-<span><span class="co">#&gt; [110] "personality_hawkdove_radius"        </span></span>
-<span><span class="co">#&gt; [111] "reciprocal_altruism"                </span></span>
-<span><span class="co">#&gt; [112] "reciprocity_initial_init_mean"      </span></span>
-<span><span class="co">#&gt; [113] "reciprocity_initial_mutation_sd"    </span></span>
-<span><span class="co">#&gt; [114] "reciprocity_retaliation_init_mean"  </span></span>
-<span><span class="co">#&gt; [115] "reciprocity_retaliation_mutation_sd"</span></span>
-<span><span class="co">#&gt; [116] "reciprocity_forgiveness_init_mean"  </span></span>
-<span><span class="co">#&gt; [117] "reciprocity_forgiveness_mutation_sd"</span></span>
-<span><span class="co">#&gt; [118] "reciprocity_cost"                   </span></span>
-<span><span class="co">#&gt; [119] "reciprocity_benefit_ratio"          </span></span>
-<span><span class="co">#&gt; [120] "reciprocity_interaction_rate"       </span></span>
-<span><span class="co">#&gt; [121] "partner_memory_size"                </span></span>
-<span><span class="co">#&gt; [122] "reciprocity_radius"                 </span></span>
-<span><span class="co">#&gt; [123] "responsive_personalities"           </span></span>
-<span><span class="co">#&gt; [124] "responsiveness_init_mean"           </span></span>
-<span><span class="co">#&gt; [125] "responsiveness_mutation_sd"         </span></span>
-<span><span class="co">#&gt; [126] "responsiveness_cost"                </span></span>
-<span><span class="co">#&gt; [127] "metabolic_rate_evolution"           </span></span>
-<span><span class="co">#&gt; [128] "metabolic_rate_init_mean"           </span></span>
-<span><span class="co">#&gt; [129] "metabolic_rate_mutation_sd"         </span></span>
-<span><span class="co">#&gt; [130] "metabolic_rate_min"                 </span></span>
-<span><span class="co">#&gt; [131] "metabolic_rate_max"                 </span></span>
-<span><span class="co">#&gt; [132] "aging_rate_evolution"               </span></span>
-<span><span class="co">#&gt; [133] "aging_rate_init_mean"               </span></span>
-<span><span class="co">#&gt; [134] "aging_rate_mutation_sd"             </span></span>
-<span><span class="co">#&gt; [135] "aging_rate_min"                     </span></span>
-<span><span class="co">#&gt; [136] "aging_rate_max"                     </span></span>
-<span><span class="co">#&gt; [137] "immune_evolution"                   </span></span>
-<span><span class="co">#&gt; [138] "immune_strength_init_mean"          </span></span>
-<span><span class="co">#&gt; [139] "immune_strength_mutation_sd"        </span></span>
-<span><span class="co">#&gt; [140] "immune_strength_min"                </span></span>
-<span><span class="co">#&gt; [141] "immune_strength_max"                </span></span>
-<span><span class="co">#&gt; [142] "disease"                            </span></span>
-<span><span class="co">#&gt; [143] "disease_seed_prob"                  </span></span>
-<span><span class="co">#&gt; [144] "transmission_prob"                  </span></span>
-<span><span class="co">#&gt; [145] "disease_duration"                   </span></span>
-<span><span class="co">#&gt; [146] "immune_duration"                    </span></span>
-<span><span class="co">#&gt; [147] "disease_energy_cost"                </span></span>
-<span><span class="co">#&gt; [148] "disease_death_prob"                 </span></span>
-<span><span class="co">#&gt; [149] "kin_selection"                      </span></span>
-<span><span class="co">#&gt; [150] "kin_altruism_cost"                  </span></span>
-<span><span class="co">#&gt; [151] "kin_altruism_benefit"               </span></span>
-<span><span class="co">#&gt; [152] "kin_altruism_r_min"                 </span></span>
-<span><span class="co">#&gt; [153] "kin_altruism_min_donor_energy"      </span></span>
-<span><span class="co">#&gt; [154] "cooperation_evolution"              </span></span>
-<span><span class="co">#&gt; [155] "cooperation_multiplier"             </span></span>
-<span><span class="co">#&gt; [156] "cooperation_init_mean"              </span></span>
-<span><span class="co">#&gt; [157] "cooperation_mutation_sd"            </span></span>
-<span><span class="co">#&gt; [158] "cooperation_cost"                   </span></span>
-<span><span class="co">#&gt; [159] "dispersal_evolution"                </span></span>
-<span><span class="co">#&gt; [160] "dispersal_cost"                     </span></span>
-<span><span class="co">#&gt; [161] "dispersal_init_mean"                </span></span>
-<span><span class="co">#&gt; [162] "dispersal_mutation_sd"              </span></span>
-<span><span class="co">#&gt; [163] "dispersal_min"                      </span></span>
-<span><span class="co">#&gt; [164] "dispersal_max"                      </span></span>
-<span><span class="co">#&gt; [165] "habitat_preference_evolution"       </span></span>
-<span><span class="co">#&gt; [166] "habitat_preference_init_mean"       </span></span>
-<span><span class="co">#&gt; [167] "habitat_preference_mutation_sd"     </span></span>
-<span><span class="co">#&gt; [168] "habitat_preference_min"             </span></span>
-<span><span class="co">#&gt; [169] "habitat_preference_max"             </span></span>
-<span><span class="co">#&gt; [170] "habitat_preference_strength"        </span></span>
-<span><span class="co">#&gt; [171] "habitat_move_cost"                  </span></span>
-<span><span class="co">#&gt; [172] "group_defense"                      </span></span>
-<span><span class="co">#&gt; [173] "group_defense_radius"               </span></span>
-<span><span class="co">#&gt; [174] "group_defense_strength"             </span></span>
-<span><span class="co">#&gt; [175] "seasonal_amplitude"                 </span></span>
-<span><span class="co">#&gt; [176] "season_length"                      </span></span>
-<span><span class="co">#&gt; [177] "winter_death_prob"                  </span></span>
-<span><span class="co">#&gt; [178] "seasonal_spatial_bias"              </span></span>
-<span><span class="co">#&gt; [179] "parental_care"                      </span></span>
-<span><span class="co">#&gt; [180] "care_cost_per_tick"                 </span></span>
-<span><span class="co">#&gt; [181] "feeding_rate"                       </span></span>
-<span><span class="co">#&gt; [182] "juvenile_independence_age"          </span></span>
-<span><span class="co">#&gt; [183] "juvenile_independence_energy"       </span></span>
-<span><span class="co">#&gt; [184] "max_clutch_size"                    </span></span>
-<span><span class="co">#&gt; [185] "neonatal_foraging_deficit"          </span></span>
-<span><span class="co">#&gt; [186] "neonatal_deficit_duration"          </span></span>
-<span><span class="co">#&gt; [187] "cooperative_breeding"               </span></span>
-<span><span class="co">#&gt; [188] "helper_min_energy"                  </span></span>
-<span><span class="co">#&gt; [189] "helper_transfer"                    </span></span>
-<span><span class="co">#&gt; [190] "helper_kin_threshold"               </span></span>
-<span><span class="co">#&gt; [191] "helper_tendency_init_mean"          </span></span>
-<span><span class="co">#&gt; [192] "helper_tendency_mutation_sd"        </span></span>
-<span><span class="co">#&gt; [193] "signal_dims"                        </span></span>
-<span><span class="co">#&gt; [194] "signal_cost"                        </span></span>
-<span><span class="co">#&gt; [195] "signal_cost_mortality"              </span></span>
-<span><span class="co">#&gt; [196] "preference_bias_target"             </span></span>
-<span><span class="co">#&gt; [197] "preference_bias_strength"           </span></span>
-<span><span class="co">#&gt; [198] "signal_evolution_drift"             </span></span>
-<span><span class="co">#&gt; [199] "signal_drift_sd"                    </span></span>
-<span><span class="co">#&gt; [200] "mate_choice_mode"                   </span></span>
-<span><span class="co">#&gt; [201] "mate_choice_strength"               </span></span>
-<span><span class="co">#&gt; [202] "signal_toxicity_coupling"           </span></span>
-<span><span class="co">#&gt; [203] "coevolving_parasites"               </span></span>
-<span><span class="co">#&gt; [204] "parasite_match_mode"                </span></span>
-<span><span class="co">#&gt; [205] "parasite_virulence_rate"            </span></span>
-<span><span class="co">#&gt; [206] "parasite_pressure"                  </span></span>
-<span><span class="co">#&gt; [207] "parasite_distance_scale"            </span></span>
-<span><span class="co">#&gt; [208] "n_parasite_loci"                    </span></span>
-<span><span class="co">#&gt; [209] "parasite_mutation_rate"             </span></span>
-<span><span class="co">#&gt; [210] "parasite_discrete_exponent"         </span></span>
-<span><span class="co">#&gt; [211] "speciation"                         </span></span>
-<span><span class="co">#&gt; [212] "isolation_threshold"                </span></span>
-<span><span class="co">#&gt; [213] "speciation_cluster_interval"        </span></span>
-<span><span class="co">#&gt; [214] "n_predators_init"                   </span></span>
-<span><span class="co">#&gt; [215] "predator_energy_init"               </span></span>
-<span><span class="co">#&gt; [216] "predator_live_energy"               </span></span>
-<span><span class="co">#&gt; [217] "predator_move_energy"               </span></span>
-<span><span class="co">#&gt; [218] "predator_attack_strength"           </span></span>
-<span><span class="co">#&gt; [219] "predator_energy_gain"               </span></span>
-<span><span class="co">#&gt; [220] "predator_min_repro_energy"          </span></span>
-<span><span class="co">#&gt; [221] "predator_min_repro_age"             </span></span>
-<span><span class="co">#&gt; [222] "predator_mutation_sd"               </span></span>
-<span><span class="co">#&gt; [223] "predator_max_agents"                </span></span>
-<span><span class="co">#&gt; [224] "predator_max_age"                   </span></span>
-<span><span class="co">#&gt; [225] "predator_sense_graded"              </span></span>
-<span><span class="co">#&gt; [226] "mimicry"                            </span></span>
-<span><span class="co">#&gt; [227] "batesian_mimicry"                   </span></span>
-<span><span class="co">#&gt; [228] "toxicity_cost_per_tick"             </span></span>
-<span><span class="co">#&gt; [229] "toxin_dose"                         </span></span>
-<span><span class="co">#&gt; [230] "signal_memory_rate"                 </span></span>
-<span><span class="co">#&gt; [231] "avoid_threshold"                    </span></span>
-<span><span class="co">#&gt; [232] "toxicity_init_mean"                 </span></span>
-<span><span class="co">#&gt; [233] "toxicity_mutation_sd"               </span></span>
-<span><span class="co">#&gt; [234] "phenotypic_plasticity"              </span></span>
-<span><span class="co">#&gt; [235] "plasticity_sense_radius"            </span></span>
-<span><span class="co">#&gt; [236] "plasticity_init_mean"               </span></span>
-<span><span class="co">#&gt; [237] "plasticity_mutation_sd"             </span></span>
-<span><span class="co">#&gt; [238] "plasticity_min"                     </span></span>
-<span><span class="co">#&gt; [239] "plasticity_max"                     </span></span>
-<span><span class="co">#&gt; [240] "niche_construction"                 </span></span>
-<span><span class="co">#&gt; [241] "shelter_build_prob"                 </span></span>
-<span><span class="co">#&gt; [242] "shelter_max_depth"                  </span></span>
-<span><span class="co">#&gt; [243] "shelter_min_energy"                 </span></span>
-<span><span class="co">#&gt; [244] "shelter_decay_prob"                 </span></span>
-<span><span class="co">#&gt; [245] "shelter_occupancy_bonus"            </span></span>
-<span><span class="co">#&gt; [246] "scavenging"                         </span></span>
-<span><span class="co">#&gt; [247] "carrion_fraction"                   </span></span>
-<span><span class="co">#&gt; [248] "carrion_decay_rate"                 </span></span>
-<span><span class="co">#&gt; [249] "carrion_eat_gain"                   </span></span>
-<span><span class="co">#&gt; [250] "carrion_transmission_prob"          </span></span>
-<span><span class="co">#&gt; [251] "social_learning"                    </span></span>
-<span><span class="co">#&gt; [252] "social_learning_freq"               </span></span>
-<span><span class="co">#&gt; [253] "social_learning_rate"               </span></span>
-<span><span class="co">#&gt; [254] "clutch_size_evolution"              </span></span>
-<span><span class="co">#&gt; [255] "clutch_size_init_mean"              </span></span>
-<span><span class="co">#&gt; [256] "clutch_size_min"                    </span></span>
-<span><span class="co">#&gt; [257] "clutch_size_max"                    </span></span>
-<span><span class="co">#&gt; [258] "clutch_size_mutation_sd"            </span></span>
-<span><span class="co">#&gt; [259] "parental_investment_evolution"      </span></span>
-<span><span class="co">#&gt; [260] "female_investment"                  </span></span>
-<span><span class="co">#&gt; [261] "male_repro_cost"                    </span></span>
-<span><span class="co">#&gt; [262] "stress_hypermutation"               </span></span>
-<span><span class="co">#&gt; [263] "stress_mutation_multiplier"         </span></span>
-<span><span class="co">#&gt; [264] "stress_threshold"                   </span></span>
-<span><span class="co">#&gt; [265] "senescence_shape"                   </span></span>
-<span><span class="co">#&gt; [266] "min_repro_age"                      </span></span>
-<span><span class="co">#&gt; [267] "complex_landscape"                  </span></span>
-<span><span class="co">#&gt; [268] "shrub_density"                      </span></span>
-<span><span class="co">#&gt; [269] "shrub_growth_rate"                  </span></span>
-<span><span class="co">#&gt; [270] "shrub_energy"                       </span></span>
-<span><span class="co">#&gt; [271] "canopy_density"                     </span></span>
-<span><span class="co">#&gt; [272] "canopy_growth_rate"                 </span></span>
-<span><span class="co">#&gt; [273] "canopy_energy"                      </span></span>
-<span><span class="co">#&gt; [274] "canopy_threshold"                   </span></span>
-<span><span class="co">#&gt; [275] "wing_size_init_mean"                </span></span>
-<span><span class="co">#&gt; [276] "wing_size_mutation_sd"              </span></span>
-<span><span class="co">#&gt; [277] "wing_size_min"                      </span></span>
-<span><span class="co">#&gt; [278] "wing_size_max"                      </span></span>
-<span><span class="co">#&gt; [279] "spatial_sorting"                    </span></span>
-<span><span class="co">#&gt; [280] "sorting_front_threshold"            </span></span>
-<span><span class="co">#&gt; [281] "sorting_mating_boost"               </span></span>
-<span><span class="co">#&gt; [282] "iffolk_selection"                   </span></span>
-<span><span class="co">#&gt; [283] "iffolk_r_min"                       </span></span>
-<span><span class="co">#&gt; [284] "iffolk_radius"                      </span></span>
-<span><span class="co">#&gt; [285] "iffolk_transfer"                    </span></span>
-<span><span class="co">#&gt; [286] "iffolk_min_energy"                  </span></span>
-<span><span class="co">#&gt; [287] "parliament_suppression"             </span></span>
-<span><span class="co">#&gt; [288] "parliament_cost"                    </span></span>
-<span><span class="co">#&gt; [289] "fixed_patch"                        </span></span>
-<span><span class="co">#&gt; [290] "fixed_patch_value"                  </span></span>
-<span><span class="co">#&gt; [291] "fixed_patch_x"                      </span></span>
-<span><span class="co">#&gt; [292] "fixed_patch_y"                      </span></span>
-<span><span class="co">#&gt; [293] "fixed_patch_radius"                 </span></span>
-<span><span class="co">#&gt; [294] "log_freq"                           </span></span>
-<span><span class="co">#&gt; [295] "log_genomes"                        </span></span>
-<span><span class="co">#&gt; [296] "random_seed"</span></span>
-<span><span class="co"># All parameters with their values</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">defs</span>, max.level <span class="op">=</span> <span class="fl">1</span>, give.attr <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; List of 296</span></span>
-<span><span class="co">#&gt;  $ grid_rows                          : int 30</span></span>
-<span><span class="co">#&gt;  $ grid_cols                          : int 30</span></span>
-<span><span class="co">#&gt;  $ toroidal                           : logi TRUE</span></span>
-<span><span class="co">#&gt;  $ random_tick_order                  : logi TRUE</span></span>
-<span><span class="co">#&gt;  $ n_agents_init                      : int 50</span></span>
-<span><span class="co">#&gt;  $ max_agents                         : int 500</span></span>
-<span><span class="co">#&gt;  $ max_ticks                          : int 500</span></span>
-<span><span class="co">#&gt;  $ energy_init                        : num 100</span></span>
-<span><span class="co">#&gt;  $ energy_max                         : num 200</span></span>
-<span><span class="co">#&gt;  $ move_cost                          : num 1</span></span>
-<span><span class="co">#&gt;  $ idle_cost                          : num 0.5</span></span>
-<span><span class="co">#&gt;  $ eat_gain                           : num 5</span></span>
-<span><span class="co">#&gt;  $ max_bite                           : num 2</span></span>
-<span><span class="co">#&gt;  $ min_repro_energy                   : num 120</span></span>
-<span><span class="co">#&gt;  $ repro_cost_mode                    : chr "proportional"</span></span>
-<span><span class="co">#&gt;  $ repro_cost                         : num 30</span></span>
-<span><span class="co">#&gt;  $ repro_cost_fraction                : num 0.5</span></span>
-<span><span class="co">#&gt;  $ offspring_energy_mode              : chr "proportional"</span></span>
-<span><span class="co">#&gt;  $ offspring_energy                   : num 60</span></span>
-<span><span class="co">#&gt;  $ offspring_energy_fraction          : num 0.25</span></span>
-<span><span class="co">#&gt;  $ starvation_threshold               : num 0</span></span>
-<span><span class="co">#&gt;  $ max_age_scales_with_metabolism     : logi FALSE</span></span>
-<span><span class="co">#&gt;  $ grass_init_prob                    : num 0.5</span></span>
-<span><span class="co">#&gt;  $ grass_rate                         : num 0.05</span></span>
-<span><span class="co">#&gt;  $ grass_max                          : num 5</span></span>
-<span><span class="co">#&gt;  $ brain_type                         : chr "bnn"</span></span>
-<span><span class="co">#&gt;  $ hidden_layers                      : int 8</span></span>
-<span><span class="co">#&gt;  $ input_radius                       : int 1</span></span>
-<span><span class="co">#&gt;  $ n_genes                            : int 20</span></span>
-<span><span class="co">#&gt;  $ transformer_history                : int 8</span></span>
-<span><span class="co">#&gt;  $ transformer_heads                  : int 2</span></span>
-<span><span class="co">#&gt;  $ synthesis_max_rules                : int 10</span></span>
-<span><span class="co">#&gt;  $ ann_weight_values                  : NULL</span></span>
-<span><span class="co">#&gt;  $ ann_regularization                 : chr "none"</span></span>
-<span><span class="co">#&gt;  $ ann_regularization_lambda          : num 0.001</span></span>
-<span><span class="co">#&gt;  $ brain_energy_mode                  : chr "activity"</span></span>
-<span><span class="co">#&gt;  $ brain_energy_base                  : num 0.001</span></span>
-<span><span class="co">#&gt;  $ brain_energy_activity              : num 0.5</span></span>
-<span><span class="co">#&gt;  $ brain_energy_sigma_scale           : num 0</span></span>
-<span><span class="co">#&gt;  $ brain_energy_size_exponent         : num 1</span></span>
-<span><span class="co">#&gt;  $ bnn_sigma_init                     : num 0.5</span></span>
-<span><span class="co">#&gt;  $ bnn_sigma_min                      : num 0.01</span></span>
-<span><span class="co">#&gt;  $ bnn_sigma_source                   : chr "heterozygosity"</span></span>
-<span><span class="co">#&gt;  $ bnn_sample_freq                    : int 1</span></span>
-<span><span class="co">#&gt;  $ bnn_action_noise_scale             : num 1</span></span>
-<span><span class="co">#&gt;  $ action_exploration_epsilon         : num 0</span></span>
-<span><span class="co">#&gt;  $ bnn_sigma_lr_scale                 : num 0</span></span>
-<span><span class="co">#&gt;  $ bnn_sigma_lr_ref                   : num 0.5</span></span>
-<span><span class="co">#&gt;  $ ploidy                             : int 2</span></span>
-<span><span class="co">#&gt;  $ n_chromosomes                      : int 1</span></span>
-<span><span class="co">#&gt;  $ crossover_rate                     : num 1</span></span>
-<span><span class="co">#&gt;  $ dominance_model                    : chr "additive"</span></span>
-<span><span class="co">#&gt;  $ self_fertilization_fallback        : logi FALSE</span></span>
-<span><span class="co">#&gt;  $ mate_search_radius                 : int 1</span></span>
-<span><span class="co">#&gt;  $ mutation_sd                        : num 0.1</span></span>
-<span><span class="co">#&gt;  $ mutation_rate_evolution            : logi FALSE</span></span>
-<span><span class="co">#&gt;  $ mutation_sd_init_mean              : num 0.1</span></span>
-<span><span class="co">#&gt;  $ mutation_sd_min                    : num 0.001</span></span>
-<span><span class="co">#&gt;  $ mutation_sd_max                    : num 1</span></span>
-<span><span class="co">#&gt;  $ rl_mode                            : chr "none"</span></span>
-<span><span class="co">#&gt;  $ learning_rate                      : num 0.01</span></span>
-<span><span class="co">#&gt;  $ learning_rate_evolution            : logi FALSE</span></span>
-<span><span class="co">#&gt;  $ learning_rate_init_mean            : num 0.01</span></span>
-<span><span class="co">#&gt;  $ learning_rate_min                  : num 0</span></span>
-<span><span class="co">#&gt;  $ learning_rate_max                  : num 0.5</span></span>
-<span><span class="co">#&gt;  $ plasticity_cost                    : num 0.05</span></span>
-<span><span class="co">#&gt;  $ rl_update_freq                     : int 1</span></span>
-<span><span class="co">#&gt;  $ lamarckian                         : logi FALSE</span></span>
-<span><span class="co">#&gt;  $ epigenetics                        : logi FALSE</span></span>
-<span><span class="co">#&gt;  $ epigenetic_learning_coupling       : num 0.1</span></span>
-<span><span class="co">#&gt;  $ epigenetic_inheritance             : num 0.5</span></span>
-<span><span class="co">#&gt;  $ epigenetic_effect_size             : num 0.2</span></span>
-<span><span class="co">#&gt;  $ methylation_rate                   : num 0.001</span></span>
-<span><span class="co">#&gt;  $ demethylation_rate                 : num 0.002</span></span>
-<span><span class="co">#&gt;  $ life_history                       : chr "iteroparous"</span></span>
-<span><span class="co">#&gt;  $ max_age                            : int 200</span></span>
-<span><span class="co">#&gt;  $ senescence_rate                    : num 0</span></span>
-<span><span class="co">#&gt;  $ allee_threshold                    : int 0</span></span>
-<span><span class="co">#&gt;  $ body_size_evolution                : logi FALSE</span></span>
-<span><span class="co">#&gt;  $ body_size_init_mean                : num 1</span></span>
-<span><span class="co">#&gt;  $ body_size_mutation_sd              : num 0.08</span></span>
-<span><span class="co">#&gt;  $ body_size_min                      : num 0.3</span></span>
-<span><span class="co">#&gt;  $ body_size_max                      : num 3</span></span>
-<span><span class="co">#&gt;  $ brain_size_evolution               : logi FALSE</span></span>
-<span><span class="co">#&gt;  $ brain_size_init_mean               : num 1</span></span>
-<span><span class="co">#&gt;  $ brain_size_mutation_sd             : num 0.05</span></span>
-<span><span class="co">#&gt;  $ brain_size_min                     : num 0.1</span></span>
-<span><span class="co">#&gt;  $ brain_size_max                     : num 3</span></span>
-<span><span class="co">#&gt;  $ brain_size_cost_scale              : num 1</span></span>
-<span><span class="co">#&gt;  $ brain_size_sensing_exponent        : num 0.3</span></span>
-<span><span class="co">#&gt;  $ personality_syndrome               : logi FALSE</span></span>
-<span><span class="co">#&gt;  $ exploration_init_mean              : num 0.5</span></span>
-<span><span class="co">#&gt;  $ exploration_mutation_sd            : num 0.05</span></span>
-<span><span class="co">#&gt;  $ boldness_init_mean                 : num 0.5</span></span>
-<span><span class="co">#&gt;  $ boldness_mutation_sd               : num 0.05</span></span>
-<span><span class="co">#&gt;  $ aggressiveness_init_mean           : num 0.5</span></span>
-<span><span class="co">#&gt;  $ aggressiveness_mutation_sd         : num 0.05</span></span>
-<span><span class="co">#&gt;  $ personality_beta                   : num 1.25</span></span>
-<span><span class="co">#&gt;  $ personality_alpha                  : num 0.005</span></span>
-<span><span class="co">#&gt;   [list output truncated]</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">defs</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 296</span></span>
+<span></span>
+<span><span class="co"># First 10 parameters with their values</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">defs</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span>, max.level <span class="op">=</span> <span class="fl">1</span>, give.attr <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; List of 10</span></span>
+<span><span class="co">#&gt;  $ grid_rows        : int 30</span></span>
+<span><span class="co">#&gt;  $ grid_cols        : int 30</span></span>
+<span><span class="co">#&gt;  $ toroidal         : logi TRUE</span></span>
+<span><span class="co">#&gt;  $ random_tick_order: logi TRUE</span></span>
+<span><span class="co">#&gt;  $ n_agents_init    : int 50</span></span>
+<span><span class="co">#&gt;  $ max_agents       : int 500</span></span>
+<span><span class="co">#&gt;  $ max_ticks        : int 500</span></span>
+<span><span class="co">#&gt;  $ energy_init      : num 100</span></span>
+<span><span class="co">#&gt;  $ energy_max       : num 200</span></span>
+<span><span class="co">#&gt;  $ move_cost        : num 1</span></span></code></pre></div>
+<p>For an interactive view of all parameters at once, use <a href="../reference/print_specs.html"><code>print_specs()</code></a>.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

@@ -181,6 +181,8 @@ Default <code>FALSE</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Grid &amp; population</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     grid_rows                              30</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     grid_cols                              30</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     toroidal                               TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     random_tick_order                      TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     n_agents_init                          50</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     max_agents                             500</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     max_ticks                              500</span>
@@ -192,9 +194,14 @@ Default <code>FALSE</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     move_cost                              1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     idle_cost                              0.5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     eat_gain                               5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     max_bite                               2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     min_repro_energy                       120</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     repro_cost_mode                        proportional</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     repro_cost                             30</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     repro_cost_fraction                    0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     offspring_energy_mode                  proportional</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     offspring_energy                       60</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     offspring_energy_fraction              0.25</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     starvation_threshold                   0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Grass dynamics</span>
@@ -206,6 +213,27 @@ Default <code>FALSE</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     brain_type                             bnn</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     hidden_layers                          8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     input_radius                           1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     n_genes                                20</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     transformer_history                    8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     transformer_heads                      2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     synthesis_max_rules                    10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     ann_regularization_lambda              0.001</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     bnn_sigma_source                       heterozygosity</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     bnn_sigma_init                         0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     bnn_sigma_min                          0.01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     bnn_sample_freq                        1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     bnn_sigma_lr_scale                     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     bnn_sigma_lr_ref                       0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     bnn_action_noise_scale                 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     action_exploration_epsilon             0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Brain metabolic cost</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     brain_energy_mode                      activity</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     brain_energy_base                      0.001</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     brain_energy_activity                  0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     brain_energy_sigma_scale               0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     brain_energy_size_exponent             1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     brain_size_cost_scale                  1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Reproduction &amp; sex</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     ploidy                                 2</span>
@@ -214,11 +242,18 @@ Default <code>FALSE</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     mutation_sd                            0.1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     crossover_rate                         1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     min_repro_age                          0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     n_chromosomes                          1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     dominance_model                        additive</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     mate_search_radius                     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     self_fertilization_fallback            FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Life history</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     max_age                                200</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     life_history                           iteroparous</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     senescence_rate                        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     senescence_shape                       1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     allee_threshold                        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     max_age_scales_with_metabolism         FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Body size</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     body_size_evolution                    FALSE</span>
@@ -227,18 +262,44 @@ Default <code>FALSE</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     body_size_min                          0.3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     body_size_max                          3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Brain size evolution</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     brain_size_evolution                   FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     brain_size_init_mean                   1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     brain_size_mutation_sd                 0.05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     brain_size_min                         0.1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     brain_size_max                         3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     brain_size_sensing_exponent            0.3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Dispersal</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     dispersal_evolution                    FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     dispersal_init_mean                    0.1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     dispersal_mutation_sd                  0.02</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     dispersal_min                          0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     dispersal_max                          0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     dispersal_cost                         2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Habitat preference</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     habitat_preference_evolution           FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     habitat_preference_init_mean           0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     habitat_preference_mutation_sd         0.03</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     habitat_preference_min                 -1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     habitat_preference_max                 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     habitat_preference_strength            0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     habitat_move_cost                      0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Kin selection</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     kin_selection                          FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     kin_altruism_r_min                     0.25</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     kin_altruism_cost                      2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     kin_altruism_benefit                   10</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     kin_altruism_min_donor_energy          50</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Cooperation (PGG)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     cooperation_evolution                  FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     cooperation_multiplier                 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     cooperation_init_mean                  0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     cooperation_mutation_sd                0.05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     cooperation_cost                       1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Disease (SIR)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     disease                                FALSE</span>
@@ -248,37 +309,83 @@ Default <code>FALSE</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     disease_death_prob                     0.02</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     immune_duration                        20</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     disease_seed_prob                      0.01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     immune_evolution                       FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     immune_strength_init_mean              0.3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     immune_strength_mutation_sd            0.05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     immune_strength_min                    0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     immune_strength_max                    1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Predators</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     n_predators_init                       0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     predator_energy_init                   150</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     predator_live_energy                   2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     predator_attack_strength               40</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     predator_energy_gain                   30</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     predator_min_repro_energy              200</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     predator_min_repro_age                 5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     predator_mutation_sd                   0.1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     predator_max_agents                    50</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     predator_max_age                       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     predator_sense_graded                  TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     predator_move_energy                   1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Group defense</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     group_defense                          FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     group_defense_radius                   2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     group_defense_strength                 0.3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Niche construction</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     niche_construction                     FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     shelter_build_prob                     0.1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     shelter_min_energy                     80</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     shelter_max_depth                      5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     shelter_decay_prob                     0.05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     shelter_occupancy_bonus                0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Within-lifetime RL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     rl_mode                                none</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     learning_rate                          0.01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     learning_rate_init_mean                0.01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     learning_rate_min                      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     learning_rate_max                      0.5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     learning_rate_evolution                FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     plasticity_cost                        0.05</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     rl_update_freq                         1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     lamarckian                             FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Social learning</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     social_learning                        FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     social_learning_freq                   10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     social_learning_rate                   0.1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Signals &amp; mate choice</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     signal_dims                            0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     signal_cost                            0.1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     signal_cost_mortality                  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     signal_evolution_drift                 TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     signal_drift_sd                        0.01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     preference_bias_strength               0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     signal_toxicity_coupling               0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Mimicry &amp; toxicity</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     mimicry                                FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     batesian_mimicry                       FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     toxicity_init_mean                     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     toxicity_mutation_sd                   0.05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     toxicity_cost_per_tick                 2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     toxin_dose                             30</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     signal_memory_rate                     0.3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     avoid_threshold                        0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Coevolving parasites</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     coevolving_parasites                   FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     parasite_match_mode                    auto</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     parasite_virulence_rate                0.1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     parasite_pressure                      0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     parasite_distance_scale                1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     n_parasite_loci                        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     parasite_mutation_rate                 0.01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     parasite_discrete_exponent             4</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Parental care</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     parental_care                          FALSE</span>
@@ -286,16 +393,60 @@ Default <code>FALSE</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     juvenile_independence_energy           50</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     care_cost_per_tick                     1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     feeding_rate                           5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     max_clutch_size                        1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     neonatal_foraging_deficit              0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     neonatal_deficit_duration              10</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Cooperative breeding</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     cooperative_breeding                   FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     helper_min_energy                      80</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     helper_transfer                        5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     helper_kin_threshold                   0.25</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     helper_tendency_init_mean              0.1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     helper_tendency_mutation_sd            0.02</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Parental investment</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     parental_investment_evolution          FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     female_investment                      0.7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     male_repro_cost                        0.3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Pace of life</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     metabolic_rate_evolution               FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     metabolic_rate_init_mean               1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     metabolic_rate_mutation_sd             0.05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     metabolic_rate_min                     0.1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     metabolic_rate_max                     5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     aging_rate_evolution                   FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     aging_rate_init_mean                   1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     aging_rate_mutation_sd                 0.05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     aging_rate_min                         0.01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     aging_rate_max                         10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Mutation-rate evol.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     mutation_rate_evolution                FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     mutation_sd_init_mean                  0.1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     mutation_sd_min                        0.001</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     mutation_sd_max                        1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Phenotypic plasticity</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     phenotypic_plasticity                  FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     plasticity_sense_radius                3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     plasticity_init_mean                   0.3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     plasticity_mutation_sd                 0.03</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     plasticity_min                         0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     plasticity_max                         1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Stress hypermutation</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     stress_hypermutation                   FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     stress_mutation_multiplier             3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     stress_threshold                       20</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Clutch size (r/K)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     clutch_size_evolution                  FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     clutch_size_init_mean                  1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     clutch_size_min                        1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     clutch_size_max                        5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     clutch_size_mutation_sd                0.3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Spatial sorting</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     spatial_sorting                        FALSE</span>
@@ -325,200 +476,87 @@ Default <code>FALSE</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     wing_size_min                          0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     wing_size_max                          1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Logging &amp; search</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     log_genomes                            FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     log_freq                               1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Fixed patch</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     fixed_patch                            FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     fixed_patch_value                      5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     fixed_patch_x                          NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     fixed_patch_y                          NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     fixed_patch_radius                     0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Other</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     toroidal                               TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     random_tick_order                      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     max_bite                               2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     repro_cost_mode                        proportional</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     repro_cost_fraction                    0.5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     offspring_energy_mode                  proportional</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     offspring_energy_fraction              0.25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     max_age_scales_with_metabolism         FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     n_genes                                20</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     transformer_history                    8</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     transformer_heads                      2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     synthesis_max_rules                    10</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     ann_regularization                     none</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     ann_regularization_lambda              0.001</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     brain_energy_mode                      activity</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     brain_energy_base                      0.001</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     brain_energy_activity                  0.5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     brain_energy_sigma_scale               0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     brain_energy_size_exponent             1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     bnn_sigma_init                         0.5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     bnn_sigma_min                          0.01</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     bnn_sigma_source                       heterozygosity</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     bnn_sample_freq                        1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     bnn_action_noise_scale                 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     action_exploration_epsilon             0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     bnn_sigma_lr_scale                     0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     bnn_sigma_lr_ref                       0.5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     n_chromosomes                          1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     dominance_model                        additive</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     self_fertilization_fallback            FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     mate_search_radius                     1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     mutation_rate_evolution                FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     mutation_sd_init_mean                  0.1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     mutation_sd_min                        0.001</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     mutation_sd_max                        1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     learning_rate_init_mean                0.01</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     learning_rate_min                      0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     learning_rate_max                      0.5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     plasticity_cost                        0.05</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     lamarckian                             FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Epigenetics</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     epigenetics                            FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     epigenetic_learning_coupling           0.1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     epigenetic_inheritance                 0.5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     epigenetic_effect_size                 0.2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     methylation_rate                       0.001</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     demethylation_rate                     0.002</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     allee_threshold                        0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     brain_size_evolution                   FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     brain_size_init_mean                   1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     brain_size_mutation_sd                 0.05</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     brain_size_min                         0.1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     brain_size_max                         3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     brain_size_cost_scale                  1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     brain_size_sensing_exponent            0.3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Speciation</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     speciation                             FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     isolation_threshold                    0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     speciation_cluster_interval            10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Seasonal dynamics</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     seasonal_amplitude                     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     season_length                          100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     seasonal_spatial_bias                  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     winter_death_prob                      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Scavenging</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     scavenging                             FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     carrion_fraction                       0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     carrion_decay_rate                     0.1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     carrion_eat_gain                       3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     carrion_transmission_prob              0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ANN regularisation</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     ann_regularization                     none</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Wolf 2007 personality</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     personality_syndrome                   FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     exploration_init_mean                  0.5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     exploration_mutation_sd                0.05</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     boldness_init_mean                     0.5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     boldness_mutation_sd                   0.05</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     aggressiveness_init_mean               0.5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     aggressiveness_mutation_sd             0.05</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     personality_beta                       1.25</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     personality_alpha                      0.005</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     wolf_year1_repro_age                   50</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     wolf_year2_repro_age                   100</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     personality_f_high                     3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     personality_f_low                      2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     personality_b                          0.5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     personality_gamma                      0.1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     personality_V                          0.5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     personality_delta                      0.5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     personality_hawkdove_per_tick          0.1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     personality_antipred_per_tick          0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     personality_hawkdove_per_tick          0.1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     personality_hawkdove_radius            1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     wolf_year1_repro_age                   50</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     wolf_year2_repro_age                   100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     exploration_init_mean                  0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     exploration_mutation_sd                0.05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     boldness_init_mean                     0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     boldness_mutation_sd                   0.05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     aggressiveness_init_mean               0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     aggressiveness_mutation_sd             0.05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Trivers 1971 reciprocity</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     reciprocal_altruism                    FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     reciprocity_cost                       0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     reciprocity_benefit_ratio              2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     reciprocity_interaction_rate           0.1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     reciprocity_radius                     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     partner_memory_size                    8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     reciprocity_initial_init_mean          0.5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     reciprocity_initial_mutation_sd        0.05</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     reciprocity_retaliation_init_mean      0.5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     reciprocity_retaliation_mutation_sd    0.05</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     reciprocity_forgiveness_init_mean      0.1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     reciprocity_forgiveness_mutation_sd    0.05</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     reciprocity_cost                       0.5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     reciprocity_benefit_ratio              2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     reciprocity_interaction_rate           0.1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     partner_memory_size                    8</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     reciprocity_radius                     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Wolf 2008 responsive</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     responsive_personalities               FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     responsiveness_cost                    0.4</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     responsiveness_init_mean               0.5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     responsiveness_mutation_sd             0.05</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     responsiveness_cost                    0.4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     metabolic_rate_evolution               FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     metabolic_rate_init_mean               1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     metabolic_rate_mutation_sd             0.05</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     metabolic_rate_min                     0.1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     metabolic_rate_max                     5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     aging_rate_evolution                   FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     aging_rate_init_mean                   1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     aging_rate_mutation_sd                 0.05</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     aging_rate_min                         0.01</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     aging_rate_max                         10</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     immune_evolution                       FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     immune_strength_init_mean              0.3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     immune_strength_mutation_sd            0.05</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     immune_strength_min                    0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     immune_strength_max                    1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     kin_altruism_benefit                   10</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     cooperation_evolution                  FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     cooperation_multiplier                 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     cooperation_init_mean                  0.5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     cooperation_mutation_sd                0.05</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     cooperation_cost                       1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     dispersal_cost                         2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     habitat_preference_evolution           FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     habitat_preference_init_mean           0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     habitat_preference_mutation_sd         0.03</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     habitat_preference_min                 -1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     habitat_preference_max                 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     habitat_preference_strength            0.5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     habitat_move_cost                      0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     group_defense                          FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     group_defense_radius                   2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     group_defense_strength                 0.3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     seasonal_amplitude                     0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     season_length                          100</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     winter_death_prob                      0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     seasonal_spatial_bias                  0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     max_clutch_size                        1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     neonatal_foraging_deficit              0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     neonatal_deficit_duration              10</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     helper_min_energy                      80</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     helper_transfer                        5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     helper_kin_threshold                   0.25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     signal_cost                            0.1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     signal_cost_mortality                  0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     preference_bias_strength               0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     signal_evolution_drift                 TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     signal_drift_sd                        0.01</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     signal_toxicity_coupling               0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     coevolving_parasites                   FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     parasite_match_mode                    auto</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     parasite_virulence_rate                0.1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     parasite_pressure                      0.5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     parasite_distance_scale                1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     n_parasite_loci                        0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     parasite_mutation_rate                 0.01</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     parasite_discrete_exponent             4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     speciation                             FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     isolation_threshold                    0.5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     speciation_cluster_interval            10</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     predator_live_energy                   2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     predator_move_energy                   1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     predator_energy_gain                   30</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     predator_min_repro_age                 5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     predator_mutation_sd                   0.1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     predator_max_age                       NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     predator_sense_graded                  TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     batesian_mimicry                       FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     toxicity_cost_per_tick                 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     signal_memory_rate                     0.3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     avoid_threshold                        0.5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     toxicity_mutation_sd                   0.05</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     plasticity_sense_radius                3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     plasticity_min                         0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     plasticity_max                         1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     shelter_decay_prob                     0.05</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     shelter_occupancy_bonus                0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     scavenging                             FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     carrion_fraction                       0.5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     carrion_decay_rate                     0.1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     carrion_eat_gain                       3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     carrion_transmission_prob              0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     social_learning_rate                   0.1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     clutch_size_evolution                  FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     clutch_size_init_mean                  1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     clutch_size_min                        1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     clutch_size_max                        5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     clutch_size_mutation_sd                0.3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     parental_investment_evolution          FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     female_investment                      0.7</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     male_repro_cost                        0.3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     stress_hypermutation                   FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     stress_mutation_multiplier             3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     stress_threshold                       20</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     senescence_shape                       1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     fixed_patch                            FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     fixed_patch_value                      5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     fixed_patch_x                          NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     fixed_patch_y                          NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     fixed_patch_radius                     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Logging &amp; search</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     log_genomes                            FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     log_freq                               1</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">s</span><span class="op">$</span><span class="va">kin_selection</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span></span>
