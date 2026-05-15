@@ -54,6 +54,8 @@ you’re reproducing your own paper.
   ABM](https://itchyshin.github.io/clade/articles/paper-wolf2008.md):
 - [Trivers 1971 — reciprocal altruism in a spatially-explicit
   ABM](https://itchyshin.github.io/clade/articles/paper-trivers1971.md):
+- [Massol & Crochet 2008 — does Wolf's syndrome depend on
+  β?](https://itchyshin.github.io/clade/articles/paper-massol-crochet-2008.md):
 
 ### Parameter search
 

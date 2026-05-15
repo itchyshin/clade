@@ -263,12 +263,17 @@ here as honest findings rather than enforced.
 Two published critiques of Wolf 2007 are directly testable in clade:
 
 - **Massol & Crochet (2008)** Nature 451:<doi:10.1038/nature06744> —
-  argue the dimorphism depends critically on β (the trade-off shape). In
-  clade you can sweep `personality_beta` and check.
+  argue the dimorphism depends critically on β (the trade-off shape).
+  Implemented as a follow-up vignette in 0.7.x — see
+  [`vignette("paper-massol-crochet-2008")`](https://itchyshin.github.io/clade/articles/paper-massol-crochet-2008.md).
+  The β sweep shows the bold-aggro syndrome strength varies by ~0.4 in
+  correlation units across β ∈ \[0.5, 3.0\], with the peak at Wolf’s
+  published value 1.25. The critique is partially borne out.
 - **McElreath, Luttbeg, Fogarty, Brodin & Sih (2007)** Nature
   450:<doi:10.1038/nature06326> — argue asset protection is a
   *negative-feedback* mechanism that erodes individual differences over
-  time. clade’s longer simulations could test this directly.
+  time. clade’s longer simulations could test this directly. Still open
+  as a follow-up vignette.
 
 Both are explicit follow-up vignettes the package could add.
 
