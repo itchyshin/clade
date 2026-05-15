@@ -3,9 +3,9 @@
 This function is called once, on the first call to
 [`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md).
 It starts a Julia process via JuliaConnectoR, activates the Clade.jl
-Julia project, and imports the module. Startup takes roughly 3-10
-seconds on first call (Julia JIT compilation); subsequent calls within
-the same R session are instant.
+Julia project, and imports the module. First-call startup takes roughly
+**60-90 seconds** (Julia JIT compilation of the full kernel); subsequent
+calls within the same R session are instant.
 
 ## Usage
 

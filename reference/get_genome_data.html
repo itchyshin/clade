@@ -11,7 +11,7 @@ linkage disequilibrium, and (when speciation = TRUE) per-species FST."></head><b
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,9 @@ linkage disequilibrium, and (when speciation = TRUE) per-species FST."></head><b
     <li><a class="dropdown-item" href="../articles/paper-courchamp-1999.html">Courchamp 1999 — Allee effect + custom-module gap</a></li>
     <li><a class="dropdown-item" href="../articles/paper-fuller-2005.html">Fuller, Houle &amp; Travis 2005 — sensory bias synthesis (Zahavi leg PASS)</a></li>
     <li><a class="dropdown-item" href="../articles/paper-ryan-1990.html">Ryan 1990 — sensory exploitation (β_N leg PASS; signal downstream null)</a></li>
+    <li><a class="dropdown-item" href="../articles/paper-wolf2007.html">Wolf et al. 2007 — personality syndrome (0.7.0)</a></li>
+    <li><a class="dropdown-item" href="../articles/paper-wolf2008.html">Wolf et al. 2008 — responsive personalities (0.7.0)</a></li>
+    <li><a class="dropdown-item" href="../articles/paper-trivers1971.html">Trivers 1971 — reciprocal altruism (0.7.0)</a></li>
   </ul></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-guides" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Guides</button>
@@ -164,12 +167,14 @@ has one row per agent and one column per genome position. <code>NULL</code> when
 <code>specs$log_genomes = FALSE</code>.</p></dd>
 
 <dt><code>$heterozygosity</code></dt>
-<dd><p>Numeric vector of mean per-locus heterozygosity
-across ticks.</p></dd>
+<dd><p>Reserved field — currently returns
+<code>numeric(0L)</code>. Future versions will compute mean per-locus
+heterozygosity across logged ticks.</p></dd>
 
 <dt><code>$fst</code></dt>
-<dd><p>Numeric vector of per-tick FST (Weir &amp; Cockerham 1984)
-between species. <code>NA</code> when <code>speciation = FALSE</code>.</p></dd>
+<dd><p>Reserved field — currently returns <code>numeric(0L)</code>.
+Future versions will compute per-tick FST (Weir &amp; Cockerham 1984)
+between species when <code>speciation = TRUE</code>.</p></dd>
 
 
 </dl></div>
@@ -190,7 +195,7 @@ analysis of population structure. <em>Evolution</em> 38(6):1358-1370.</p>
 <span class="r-in"><span><span class="va">specs</span><span class="op">$</span><span class="va">log_genomes</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="va">env</span>  <span class="op">&lt;-</span> <span class="fu"><a href="run_alife.html">run_alife</a></span><span class="op">(</span><span class="va">specs</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">gdat</span> <span class="op">&lt;-</span> <span class="fu">get_genome_data</span><span class="op">(</span><span class="va">env</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">gdat</span><span class="op">$</span><span class="va">heterozygosity</span>, type <span class="op">=</span> <span class="st">"l"</span>, xlab <span class="op">=</span> <span class="st">"Tick"</span>, ylab <span class="op">=</span> <span class="st">"Heterozygosity"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">gdat</span><span class="op">$</span><span class="va">genomes</span><span class="op">)</span>   <span class="co"># tidy data.frame: t, agent_id, trait_1..trait_N</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

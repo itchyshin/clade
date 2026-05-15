@@ -114,8 +114,9 @@ env <- run_alife(s, verbose = FALSE)
 ```
 
 The verified test at `tests/testthat/test-reciprocal-altruism.R` asserts
-this favourable-regime result with seed 42 (off=0.500 → on=0.718, Δ =
-+0.218).
+only that cooperation rises by **Δ \> 0.05** with seed 42 in this
+favourable regime (typical observation: off ≈ 0.500 → on ≈ 0.718, Δ ≈
++0.218 — well above the 0.05 detection floor).
 
 ## Dispersal-rate sweep
 

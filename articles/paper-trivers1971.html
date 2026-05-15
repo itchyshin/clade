@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -30,7 +30,7 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../articles/getting-started.html">Get Started</a></li>
-<li class="nav-item dropdown">
+<li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-paper-reproductions" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Paper reproductions</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-paper-reproductions">
 <li><a class="dropdown-item" href="../articles/paper-template.html">Template — reproduce YOUR paper</a></li>
@@ -43,6 +43,9 @@
     <li><a class="dropdown-item" href="../articles/paper-courchamp-1999.html">Courchamp 1999 — Allee effect + custom-module gap</a></li>
     <li><a class="dropdown-item" href="../articles/paper-fuller-2005.html">Fuller, Houle &amp; Travis 2005 — sensory bias synthesis (Zahavi leg PASS)</a></li>
     <li><a class="dropdown-item" href="../articles/paper-ryan-1990.html">Ryan 1990 — sensory exploitation (β_N leg PASS; signal downstream null)</a></li>
+    <li><a class="dropdown-item" href="../articles/paper-wolf2007.html">Wolf et al. 2007 — personality syndrome (0.7.0)</a></li>
+    <li><a class="dropdown-item" href="../articles/paper-wolf2008.html">Wolf et al. 2008 — responsive personalities (0.7.0)</a></li>
+    <li><a class="dropdown-item" href="../articles/paper-trivers1971.html">Trivers 1971 — reciprocal altruism (0.7.0)</a></li>
   </ul>
 </li>
 <li class="nav-item dropdown">
@@ -296,9 +299,10 @@ reciprocal-altruism-like behaviour cluster.</p>
 <span><span class="co"># At end: mean reciprocity_initial ≈ 0.72 (rose from 0.50 baseline).</span></span>
 <span><span class="co"># Cooperation evolves above no-reciprocity control.</span></span></code></pre></div>
 <p>The verified test at
-<code>tests/testthat/test-reciprocal-altruism.R</code> asserts this
-favourable-regime result with seed 42 (off=0.500 → on=0.718, Δ =
-+0.218).</p>
+<code>tests/testthat/test-reciprocal-altruism.R</code> asserts only that
+cooperation rises by <strong>Δ &gt; 0.05</strong> with seed 42 in this
+favourable regime (typical observation: off ≈ 0.500 → on ≈ 0.718, Δ ≈
++0.218 — well above the 0.05 detection floor).</p>
 </div>
 <div class="section level2">
 <h2 id="dispersal-rate-sweep">Dispersal-rate sweep<a class="anchor" aria-label="anchor" href="#dispersal-rate-sweep"></a>

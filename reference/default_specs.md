@@ -173,9 +173,10 @@ each entry for the primary literature.
   2015); ANN = multilayer perceptron (Rumelhart et al. 1986); CTRNN =
   continuous-time recurrent network (Beer 1995); GRN = gene regulatory
   network (Kauffman 1993); random = null baseline. See
-  `vignette("custom-modules")` for architecture details and
-  `dev/benchmarks/brain_comparison.R` for a side-by-side benchmark of
-  the five working types.
+  [clade-package](https://itchyshin.github.io/clade/reference/clade-package.md)
+  documentation for a one-line summary of each architecture and
+  [`vignette("s-brain-comparison")`](https://itchyshin.github.io/clade/articles/s-brain-comparison.md)
+  for a side-by-side benchmark of the five working types.
 
 - `hidden_layers`:
 
@@ -198,16 +199,24 @@ each entry for the primary literature.
 
 - `transformer_history`:
 
-  Integer. Number of past sensory inputs the transformer attends over
+  Integer. **Reserved placeholder** for a future transformer brain type
+  — currently unused by any brain implementation; kernel rejects
+  `brain_type = "transformer"` at runtime. The field's eventual
+  semantics: number of past sensory inputs the transformer attends over
   (default 8L).
 
 - `transformer_heads`:
 
-  Integer. Number of attention heads (default 2L).
+  Integer. **Reserved placeholder** — same status as
+  `transformer_history`. Eventual semantics: number of attention heads
+  (default 2L).
 
 - `synthesis_max_rules`:
 
-  Integer. Maximum number of IF-THEN rules per agent (default 10L).
+  Integer. **Reserved placeholder** for a future symbolic-rule-synthesis
+  brain — currently unused; kernel rejects `brain_type = "synthesis"` at
+  runtime. Eventual semantics: maximum number of IF-THEN rules per agent
+  (default 10L).
 
 - `ann_weight_values`:
 

@@ -10,7 +10,7 @@ Source:
 [`inst/CITATION`](https://github.com/itchyshin/clade/blob/main/inst/CITATION)
 
 Nakagawa, S. (2026). clade: Agent-based evolutionary simulation with a
-Julia backend. R package version 0.3.0.
+Julia backend. R package version 0.7.0.
 https://github.com/itchyshin/clade
 
     @Misc{,
@@ -18,5 +18,5 @@ https://github.com/itchyshin/clade
       author = {Shinichi Nakagawa},
       year = {2026},
       url = {https://github.com/itchyshin/clade},
-      note = {R package version 0.3.0},
+      note = {R package version 0.7.0},
     }

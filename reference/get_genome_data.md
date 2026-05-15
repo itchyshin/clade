@@ -29,12 +29,14 @@ A list with components:
 
 - `$heterozygosity`:
 
-  Numeric vector of mean per-locus heterozygosity across ticks.
+  Reserved field — currently returns `numeric(0L)`. Future versions will
+  compute mean per-locus heterozygosity across logged ticks.
 
 - `$fst`:
 
-  Numeric vector of per-tick FST (Weir & Cockerham 1984) between
-  species. `NA` when `speciation = FALSE`.
+  Reserved field — currently returns `numeric(0L)`. Future versions will
+  compute per-tick FST (Weir & Cockerham 1984) between species when
+  `speciation = TRUE`.
 
 ## References
 
@@ -54,6 +56,6 @@ specs <- default_specs()
 specs$log_genomes <- TRUE
 env  <- run_alife(specs)
 gdat <- get_genome_data(env)
-plot(gdat$heterozygosity, type = "l", xlab = "Tick", ylab = "Heterozygosity")
+head(gdat$genomes)   # tidy data.frame: t, agent_id, trait_1..trait_N
 } # }
 ```

@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,6 +43,9 @@
     <li><a class="dropdown-item" href="../articles/paper-courchamp-1999.html">Courchamp 1999 — Allee effect + custom-module gap</a></li>
     <li><a class="dropdown-item" href="../articles/paper-fuller-2005.html">Fuller, Houle &amp; Travis 2005 — sensory bias synthesis (Zahavi leg PASS)</a></li>
     <li><a class="dropdown-item" href="../articles/paper-ryan-1990.html">Ryan 1990 — sensory exploitation (β_N leg PASS; signal downstream null)</a></li>
+    <li><a class="dropdown-item" href="../articles/paper-wolf2007.html">Wolf et al. 2007 — personality syndrome (0.7.0)</a></li>
+    <li><a class="dropdown-item" href="../articles/paper-wolf2008.html">Wolf et al. 2008 — responsive personalities (0.7.0)</a></li>
+    <li><a class="dropdown-item" href="../articles/paper-trivers1971.html">Trivers 1971 — reciprocal altruism (0.7.0)</a></li>
   </ul>
 </li>
 <li class="nav-item dropdown">
@@ -419,7 +422,7 @@ comparison that motivated these presets.</p>
 </h2>
 <p>The parameters that most strongly shape a run are summarised below.
 All others live in <code><a href="../reference/default_specs.html">?default_specs</a></code>. Values shown are the
-0.4.0 defaults.</p>
+0.7.0 defaults.</p>
 <table class="table">
 <colgroup>
 <col width="21%">
@@ -563,22 +566,16 @@ supports dynamical behaviour (Beer 1995).</td>
 interactions evolve via mutation of the regulatory matrix.</td>
 </tr>
 <tr class="odd">
-<td><code>"transformer"</code></td>
-<td>A small attention-based architecture with a fixed history window,
-useful for sequence-dependent foraging.</td>
-</tr>
-<tr class="even">
-<td><code>"synthesis"</code></td>
-<td>Symbolic rule synthesis: agents carry an evolved program of if-then
-rules rather than weights.</td>
-</tr>
-<tr class="odd">
 <td><code>"random"</code></td>
 <td>Uniformly random action selection; useful as a null model
 baseline.</td>
 </tr>
 </tbody>
 </table>
+<p>Two further names are reserved for future implementation and
+currently error if requested: <code>"transformer"</code>
+(self-attention) and <code>"synthesis"</code> (symbolic rule extraction
+from evolved weights).</p>
 <p><code>"bnn"</code> is the default because it admits an evolvable
 prior width and so captures Baldwin-style learning–evolution
 interactions (Baldwin 1896, Mouret &amp; Clune 2015) cleanly. In 0.4.0,

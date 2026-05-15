@@ -151,7 +151,7 @@ template off these examples.
 remotes::install_github("itchyshin/clade")
 
 library(clade)
-julia_is_ready()              # first call compiles the Julia kernel (~60–90 s)
+julia_is_ready()              # checks status; compilation happens on first run_alife() — ~60-90 s
 
 specs <- default_specs()
 specs$n_agents_init <- 40L
@@ -458,8 +458,8 @@ plus one or more of clade’s search / grid tools
 ([`grid_specs()`](https://itchyshin.github.io/clade/reference/grid_specs.md),
 [`batch_alife()`](https://itchyshin.github.io/clade/reference/batch_alife.md),
 [`viability_report()`](https://itchyshin.github.io/clade/reference/viability_report.md))
-to demonstrate a full research workflow. demonstrate a full research
-workflow. Start with the template if you’re reproducing your own paper.
+to demonstrate a full research workflow. Start with the template if
+you’re reproducing your own paper.
 
 - [Reproducing YOUR paper — a
   template](https://itchyshin.github.io/clade/articles/paper-template.md):

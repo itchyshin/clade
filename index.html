@@ -24,7 +24,7 @@
 
     <a class="navbar-brand me-2" href="index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -47,6 +47,9 @@
     <li><a class="dropdown-item" href="articles/paper-courchamp-1999.html">Courchamp 1999 — Allee effect + custom-module gap</a></li>
     <li><a class="dropdown-item" href="articles/paper-fuller-2005.html">Fuller, Houle &amp; Travis 2005 — sensory bias synthesis (Zahavi leg PASS)</a></li>
     <li><a class="dropdown-item" href="articles/paper-ryan-1990.html">Ryan 1990 — sensory exploitation (β_N leg PASS; signal downstream null)</a></li>
+    <li><a class="dropdown-item" href="articles/paper-wolf2007.html">Wolf et al. 2007 — personality syndrome (0.7.0)</a></li>
+    <li><a class="dropdown-item" href="articles/paper-wolf2008.html">Wolf et al. 2008 — responsive personalities (0.7.0)</a></li>
+    <li><a class="dropdown-item" href="articles/paper-trivers1971.html">Trivers 1971 — reciprocal altruism (0.7.0)</a></li>
   </ul>
 </li>
 <li class="nav-item dropdown">
@@ -258,7 +261,7 @@
 <span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"itchyshin/clade"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/">clade</a></span><span class="op">)</span></span>
-<span><span class="fu"><a href="reference/julia_is_ready.html">julia_is_ready</a></span><span class="op">(</span><span class="op">)</span>              <span class="co"># first call compiles the Julia kernel (~60–90 s)</span></span>
+<span><span class="fu"><a href="reference/julia_is_ready.html">julia_is_ready</a></span><span class="op">(</span><span class="op">)</span>              <span class="co"># checks status; compilation happens on first run_alife() — ~60-90 s</span></span>
 <span></span>
 <span><span class="va">specs</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">specs</span><span class="op">$</span><span class="va">n_agents_init</span> <span class="op">&lt;-</span> <span class="fl">40L</span></span>

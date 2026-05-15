@@ -43,15 +43,22 @@ Key parameter choices vs
 
 - `max_ticks = 3000L`:
 
-  30 generations at default max_age = 100. Long enough for the
-  responsiveness trait to evolve to its equilibrium frequency.
+  ~15 generations at default `max_age = 200`. Long enough for the
+  responsiveness trait to evolve toward its equilibrium frequency.
 
 - `ploidy = 1L`:
 
   Haploid asexual; cleaner trait dynamics.
 
-Wolf 2008-specific parameters (responsiveness_init_mean, mutation_sd,
-responsiveness_cost) inherit from
+- `responsiveness_cost = 0.1`:
+
+  Calibrated below the
+  [`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md)
+  value of 0.4 so populations don't collapse during trait evolution. The
+  frequency-dependent benefit mechanism is preserved either way.
+
+Wolf 2008-specific parameters not listed above
+(`responsiveness_init_mean`, mutation SD) inherit from
 [`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md).
 To probe the density-dependent benefit (Wolf's headline mechanism):
 

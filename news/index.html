@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -28,6 +28,9 @@
     <li><a class="dropdown-item" href="../articles/paper-courchamp-1999.html">Courchamp 1999 — Allee effect + custom-module gap</a></li>
     <li><a class="dropdown-item" href="../articles/paper-fuller-2005.html">Fuller, Houle &amp; Travis 2005 — sensory bias synthesis (Zahavi leg PASS)</a></li>
     <li><a class="dropdown-item" href="../articles/paper-ryan-1990.html">Ryan 1990 — sensory exploitation (β_N leg PASS; signal downstream null)</a></li>
+    <li><a class="dropdown-item" href="../articles/paper-wolf2007.html">Wolf et al. 2007 — personality syndrome (0.7.0)</a></li>
+    <li><a class="dropdown-item" href="../articles/paper-wolf2008.html">Wolf et al. 2008 — responsive personalities (0.7.0)</a></li>
+    <li><a class="dropdown-item" href="../articles/paper-trivers1971.html">Trivers 1971 — reciprocal altruism (0.7.0)</a></li>
   </ul></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-guides" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Guides</button>
@@ -133,6 +136,39 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.7.1" id="clade-071-2026-05-13--post-070-audit-cleanup--ci-re-enable">clade 0.7.1 (2026-05-13) — post-0.7.0 audit cleanup + CI re-enable<a class="anchor" aria-label="anchor" href="#clade-071-2026-05-13--post-070-audit-cleanup--ci-re-enable"></a></h2>
+<div class="section level3">
+<h3 id="spec-wiring-audit-0-7-1">Spec-wiring audit (<a href="https://github.com/itchyshin/clade/issues/114" class="external-link">#114</a>)<a class="anchor" aria-label="anchor" href="#spec-wiring-audit-0-7-1"></a></h3>
+<p>Catalogued every field in <code><a href="../reference/default_specs.html">default_specs()</a></code> (then 304) against Julia consumers. Found and resolved 12 unwired or over-claimed entries:</p>
+<ul><li>
+<strong>Brain-architecture over-claim corrected</strong>: DESCRIPTION, README, and <code>R/clade-package.R</code> said clade had “six brain architectures”. In reality only four are implemented (BNN, ANN, CTRNN, GRN) plus a <code>random</code> baseline; <code>transformer</code> and <code>synthesis</code> are reserved names that error in the kernel. All three user-facing surfaces now match.</li>
+<li>
+<strong><code>world_evolution</code> module deleted</strong>: had three spec fields claiming to enable a feature whose Julia module file never existed (the include line in <code>Clade.jl</code> was commented out). Removed the fields.</li>
+<li>
+<strong>Six unwired spec fields deleted</strong> (Tier-3 cleanup): <code>wall_density</code>, <code>wall_clusters</code>, <code>life_history_evolution</code>, <code>parental_investment_init_mean</code>, <code>repro_senescence</code>.</li>
+<li>
+<strong>Bonus fix</strong>: the three new 0.7.0 preset functions (<code>wolf_personality_specs</code>, <code>trivers_reciprocity_specs</code>, <code>wolf2008_responsiveness_specs</code>) had <code>@export</code> tags but were missing from NAMESPACE. Users on the released 0.7.0 tarball would have got “could not find function”. <code><a href="https://devtools.r-lib.org/reference/document.html" class="external-link">devtools::document()</a></code> propagation added.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="permanent-structural-guard-0-7-1">Permanent structural guard (<a href="https://github.com/itchyshin/clade/issues/114" class="external-link">#114</a>)<a class="anchor" aria-label="anchor" href="#permanent-structural-guard-0-7-1"></a></h3>
+<p>New <code>tests/testthat/test-spec-wiring.R</code> runs on every test pass: for every field in <code><a href="../reference/default_specs.html">default_specs()</a></code>, asserts the field name appears as a string literal in <code>inst/julia/src/**/*.jl</code>. A small allowlist covers documented placeholders (currently three reserved brain-architecture fields). Adding a spec field in R without a Julia consumer now fails the test, generalising the 0.6.4 <code>mate_choice_mode</code> incident into a class-of-bug guard.</p>
+</div>
+<div class="section level3">
+<h3 id="ci--pkgdown-index-fixes-0-7-1">CI + pkgdown index fixes (<a href="https://github.com/itchyshin/clade/issues/121" class="external-link">#121</a>)<a class="anchor" aria-label="anchor" href="#ci--pkgdown-index-fixes-0-7-1"></a></h3>
+<ul><li>
+<strong><code>pull_request</code> trigger re-enabled</strong> in <code>.github/workflows/R-CMD-check.yaml</code>. The 0.7.0 work disabled it to dodge a billing-blocked period; the repo is now public so Actions are free. CI now runs on every PR again.</li>
+<li>
+<strong><code>_pkgdown.yml</code> reference index</strong> — added entries for <code>wolf_personality_specs</code>, <code>trivers_reciprocity_specs</code>, <code>wolf2008_responsiveness_specs</code>. They were defined and exported in 0.7.0 but missing from the reference index, so the pkgdown build failed under <code>--no-clean-cache</code>.</li>
+<li>
+<strong><code>_pkgdown.yml</code> articles index</strong> — added entries for the three 0.7.0 paper-reproduction vignettes (<code>paper-wolf2007</code>, <code>paper-wolf2008</code>, <code>paper-trivers1971</code>). They rendered but were unreachable from the “Paper reproductions” section heading.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="documentation-reconciliation-0-7-1">Documentation reconciliation<a class="anchor" aria-label="anchor" href="#documentation-reconciliation-0-7-1"></a></h3>
+<p>Repo-wide sweep of version strings, default-value claims, and deprecated field references. Fixed <code>DESCRIPTION</code> (0.6.5 → 0.7.0), <code>R/clade-package.R</code> citation (0.5.6 → 0.7.0), <code>inst/CITATION</code> (0.3.0 → 0.7.0), <code>README.md</code> citation block + fidelity-audit badge (32/32 → 35/35 reflecting the 0.7.0 paper reproductions), README modules table flag-name corrections (<code>mate_choice</code> → <code>mate_choice_mode</code>, <code>predators</code> → <code>n_predators_init &gt; 0</code>, <code>signal_mating</code> → <code>signal_dims &gt; 0</code>), and README rows for the three 0.7.0 modules (<code>personality_syndrome</code>, <code>reciprocal_altruism</code>, <code>responsive_personalities</code>).</p>
+<p>The Julia first-call compile time is now consistently reported as 60-90 s in all four places where it had been written as 3-10, 10-90, or 60-90 s. <code><a href="../reference/julia_is_ready.html">julia_is_ready()</a></code> documentation corrected — it does NOT itself trigger compilation; the first <code><a href="../reference/run_alife.html">run_alife()</a></code> call does.</p>
+</div>
+</div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.7.0" id="clade-070-2026-05-05--kernel-discipline--three-personalitycooperation-papers">clade 0.7.0 (2026-05-05) — kernel discipline + three personality/cooperation papers<a class="anchor" aria-label="anchor" href="#clade-070-2026-05-05--kernel-discipline--three-personalitycooperation-papers"></a></h2>
 <div class="section level3">
 <h3 id="two-matlab-ancestor-regressions-fixed-in-the-kernel-0-7-0">Two MATLAB-ancestor regressions fixed in the kernel<a class="anchor" aria-label="anchor" href="#two-matlab-ancestor-regressions-fixed-in-the-kernel-0-7-0"></a></h3>
@@ -169,7 +205,7 @@
 <code>random_tick_order</code> (default <code>TRUE</code>)</li>
 <li>
 <code>max_agents_per_cell</code> (default <code>1L</code>)</li>
-<li>16 <code>personality_*</code> fields (Wolf 2007), including <code>personality_alpha</code>
+<li>12 <code>personality_*</code> fields (Wolf 2007), including <code>personality_alpha</code>
 </li>
 <li>12 <code>reciprocity_*</code> fields (Trivers)</li>
 <li>4 <code>responsive_*</code> fields (Wolf 2008)</li>

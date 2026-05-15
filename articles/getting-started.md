@@ -239,7 +239,7 @@ motivated these presets.
 The parameters that most strongly shape a run are summarised below. All
 others live in
 [`?default_specs`](https://itchyshin.github.io/clade/reference/default_specs.md).
-Values shown are the 0.4.0 defaults.
+Values shown are the 0.7.0 defaults.
 
 | Parameter | Default | What it controls |
 |----|----|----|
@@ -277,9 +277,11 @@ plasticity is available.
 | `"ann"` | A standard multilayer perceptron with feed-forward computation and weight inheritance. |
 | `"ctrnn"` | A continuous-time recurrent network with leaky integrator neurons; supports dynamical behaviour (Beer 1995). |
 | `"grn"` | A gene regulatory network whose nodes are genes and whose interactions evolve via mutation of the regulatory matrix. |
-| `"transformer"` | A small attention-based architecture with a fixed history window, useful for sequence-dependent foraging. |
-| `"synthesis"` | Symbolic rule synthesis: agents carry an evolved program of if-then rules rather than weights. |
 | `"random"` | Uniformly random action selection; useful as a null model baseline. |
+
+Two further names are reserved for future implementation and currently
+error if requested: `"transformer"` (self-attention) and `"synthesis"`
+(symbolic rule extraction from evolved weights).
 
 `"bnn"` is the default because it admits an evolvable prior width and so
 captures Baldwin-style learning–evolution interactions (Baldwin 1896,

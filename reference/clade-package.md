@@ -21,7 +21,7 @@ call.
 
 First call to
 [`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md)
-precompiles the Julia kernel (~10–90 s, once per Julia session).
+precompiles the Julia kernel (~60–90 s, once per Julia session).
 
 ### Key entry points
 
@@ -86,7 +86,7 @@ error if requested: `"transformer"` (self-attention) and `"synthesis"`
 ### Citation
 
 Nakagawa, S. (2026). clade: Agent-based evolutionary simulation with a
-Julia backend. R package version 0.5.6.
+Julia backend. R package version 0.7.0.
 <https://github.com/itchyshin/clade>
 
 ## See also

@@ -13,7 +13,7 @@ vignette paper-wolf2008.Rmd for the full reproduction context."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">clade</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,6 +34,9 @@ vignette paper-wolf2008.Rmd for the full reproduction context."></head><body>
     <li><a class="dropdown-item" href="../articles/paper-courchamp-1999.html">Courchamp 1999 — Allee effect + custom-module gap</a></li>
     <li><a class="dropdown-item" href="../articles/paper-fuller-2005.html">Fuller, Houle &amp; Travis 2005 — sensory bias synthesis (Zahavi leg PASS)</a></li>
     <li><a class="dropdown-item" href="../articles/paper-ryan-1990.html">Ryan 1990 — sensory exploitation (β_N leg PASS; signal downstream null)</a></li>
+    <li><a class="dropdown-item" href="../articles/paper-wolf2007.html">Wolf et al. 2007 — personality syndrome (0.7.0)</a></li>
+    <li><a class="dropdown-item" href="../articles/paper-wolf2008.html">Wolf et al. 2008 — responsive personalities (0.7.0)</a></li>
+    <li><a class="dropdown-item" href="../articles/paper-trivers1971.html">Trivers 1971 — reciprocal altruism (0.7.0)</a></li>
   </ul></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-guides" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Guides</button>
@@ -173,17 +176,24 @@ responsiveness's frequency-dependent cost actually bites.</p></dd>
 is grass + handling time, not max_agents.</p></dd>
 
 <dt><code>max_ticks = 3000L</code></dt>
-<dd><p>30 generations at default max_age = 100.
-Long enough for the responsiveness trait to evolve to its
+<dd><p>~15 generations at default <code>max_age = 200</code>.
+Long enough for the responsiveness trait to evolve toward its
 equilibrium frequency.</p></dd>
 
 <dt><code>ploidy = 1L</code></dt>
 <dd><p>Haploid asexual; cleaner trait dynamics.</p></dd>
 
+<dt><code>responsiveness_cost = 0.1</code></dt>
+<dd><p>Calibrated below the
+<code><a href="default_specs.html">default_specs()</a></code> value of 0.4 so populations don't collapse
+during trait evolution. The frequency-dependent benefit
+mechanism is preserved either way.</p></dd>
 
-</dl><p>Wolf 2008-specific parameters (responsiveness_init_mean, mutation_sd,
-responsiveness_cost) inherit from <code><a href="default_specs.html">default_specs()</a></code>. To probe the
-density-dependent benefit (Wolf's headline mechanism):</p>
+
+</dl><p>Wolf 2008-specific parameters not listed above
+(<code>responsiveness_init_mean</code>, mutation SD) inherit from
+<code><a href="default_specs.html">default_specs()</a></code>. To probe the density-dependent benefit
+(Wolf's headline mechanism):</p>
 <p></p><div class="sourceCode r"><pre><code><span><span class="kw">for</span> <span class="op">(</span><span class="va">n_init</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">50L</span>, <span class="fl">100L</span>, <span class="fl">200L</span>, <span class="fl">400L</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/wolf2008_responsiveness_specs.html">wolf2008_responsiveness_specs</a></span><span class="op">(</span><span class="op">)</span></span>
 <span>  <span class="va">s</span><span class="op">$</span><span class="va">n_agents_init</span> <span class="op">&lt;-</span> <span class="va">n_init</span></span>

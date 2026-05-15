@@ -63,9 +63,12 @@ print_specs()
 #>   Brain architecture
 #>     brain_type                             bnn
 #>     hidden_layers                          8
+#>     input_radius                           1
 #> 
 #>   Reproduction & sex
 #>     ploidy                                 2
+#>     mate_choice_mode                       preference
+#>     mate_choice_strength                   1
 #>     mutation_sd                            0.1
 #>     crossover_rate                         1
 #>     min_repro_age                          0
@@ -193,7 +196,6 @@ print_specs()
 #>     offspring_energy_mode                  proportional
 #>     offspring_energy_fraction              0.25
 #>     max_age_scales_with_metabolism         FALSE
-#>     input_radius                           1
 #>     n_genes                                20
 #>     transformer_history                    8
 #>     transformer_heads                      2
@@ -323,8 +325,6 @@ print_specs()
 #>     preference_bias_strength               0
 #>     signal_evolution_drift                 TRUE
 #>     signal_drift_sd                        0.01
-#>     mate_choice_mode                       preference
-#>     mate_choice_strength                   1
 #>     signal_toxicity_coupling               0
 #>     coevolving_parasites                   FALSE
 #>     parasite_match_mode                    auto
