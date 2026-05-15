@@ -898,14 +898,9 @@ boost (e.g. <code>brain_size = 2.0</code> → 1.23× multiplier). No effect when
 <dd><p>Numeric. Maximum (default 10.0).</p></dd>
 
 <dt><code>senescence_shape</code></dt>
-<dd><p>Numeric &gt; 0. Curvature exponent on age in
-the 2-parameter Gompertz hazard
-\(p = 1 - \exp(-r \cdot \exp(r \cdot \mathrm{age}^{\mathrm{shape}}))\),
-with \(r = \mathrm{senescence\_rate} \times \mathrm{aging\_rate}\).
-Default 1.0 = classic Gompertz (Gompertz 1825). Values &gt; 1
-accelerate senescence late in life; values &lt; 1 give a late-life
-mortality plateau (Vaupel et al. 1998). Only matters when
-<code>senescence_rate &gt; 0</code>.</p></dd>
+<dd><p>Numeric. Shape parameter of the Gompertz
+senescence hazard curve (default 0). Higher values make age-hazard
+steeper. 0 = no age-dependent mortality beyond <code>max_age</code>.</p></dd>
 
 <dt><code>max_age_scales_with_metabolism</code></dt>
 <dd><p>Logical. If <code>TRUE</code>, effective

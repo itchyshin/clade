@@ -755,13 +755,9 @@ as described by Jablonka & Lamb (2005).
 
 - `senescence_shape`:
 
-  Numeric \> 0. Curvature exponent on age in the 2-parameter Gompertz
-  hazard \\p = 1 - \exp(-r \cdot \exp(r \cdot
-  \mathrm{age}^{\mathrm{shape}}))\\, with \\r =
-  \mathrm{senescence\\rate} \times \mathrm{aging\\rate}\\. Default 1.0 =
-  classic Gompertz (Gompertz 1825). Values \> 1 accelerate senescence
-  late in life; values \< 1 give a late-life mortality plateau (Vaupel
-  et al. 1998). Only matters when `senescence_rate > 0`.
+  Numeric. Shape parameter of the Gompertz senescence hazard curve
+  (default 0). Higher values make age-hazard steeper. 0 = no
+  age-dependent mortality beyond `max_age`.
 
 - `max_age_scales_with_metabolism`:
 
