@@ -18,6 +18,38 @@ test_that("senescence_rate default is non-negative", {
   expect_gte(default_specs()$senescence_rate, 0.0)
 })
 
+# ── 2b. senescence_shape defaults to 1.0 (classic Gompertz) ──────────────────
+test_that("senescence_shape defaults to 1.0 (classic Gompertz)", {
+  expect_equal(default_specs()$senescence_shape, 1.0)
+})
+
+# ── 2c. senescence_shape > 1 produces more late-life deaths than shape = 1 ───
+# Exercises the 2-parameter Gompertz hazard wired into death.jl:
+#   p = 1 - exp(-r * exp(r * age^shape))
+# Higher shape → steeper hazard at late ages → more senescence deaths
+# accumulate by the same tick budget.
+test_that("senescence_shape > 1 yields more senescence deaths than shape = 1", {
+  skip_no_julia()
+  skip_on_cran()
+  run_one <- function(shape) {
+    s <- default_specs()
+    s$max_ticks      <- 800L
+    s$random_seed    <- 7L
+    s$n_agents_init  <- 50L
+    s$max_agents     <- 200L
+    s$senescence_rate  <- 0.02
+    s$senescence_shape <- shape
+    s$max_age        <- 200L
+    env <- run_alife(s, verbose = FALSE)
+    sum(env$deaths$cause == "senescence", na.rm = TRUE)
+  }
+  d_flat  <- run_one(1.0)
+  d_steep <- run_one(1.6)
+  expect_gt(d_steep, d_flat,
+            info = sprintf("senescence deaths: shape=1.0 -> %d, shape=1.6 -> %d",
+                            d_flat, d_steep))
+})
+
 # ── 3. aging_rate_evolution is logical ───────────────────────────────────────
 test_that("aging_rate_evolution is logical", {
   expect_type(default_specs()$aging_rate_evolution, "logical")

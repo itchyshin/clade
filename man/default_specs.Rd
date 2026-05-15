@@ -517,9 +517,14 @@ boost (e.g. \code{brain_size = 2.0} → 1.23× multiplier). No effect when
 \item{\code{aging_rate_mutation_sd}}{Numeric. Mutation SD (default 0.05).}
 \item{\code{aging_rate_min}}{Numeric. Minimum (default 0.01).}
 \item{\code{aging_rate_max}}{Numeric. Maximum (default 10.0).}
-\item{\code{senescence_shape}}{Numeric. Shape parameter of the Gompertz
-senescence hazard curve (default 0). Higher values make age-hazard
-steeper. 0 = no age-dependent mortality beyond \code{max_age}.}
+\item{\code{senescence_shape}}{Numeric > 0. Curvature exponent on age in
+the 2-parameter Gompertz hazard
+\eqn{p = 1 - \exp(-r \cdot \exp(r \cdot \mathrm{age}^{\mathrm{shape}}))}{p = 1 - exp(-r * exp(r * age^shape))},
+with \eqn{r = \mathrm{senescence\_rate} \times \mathrm{aging\_rate}}{r = senescence_rate * aging_rate}.
+Default 1.0 = classic Gompertz (Gompertz 1825). Values > 1
+accelerate senescence late in life; values < 1 give a late-life
+mortality plateau (Vaupel et al. 1998). Only matters when
+\code{senescence_rate > 0}.}
 \item{\code{max_age_scales_with_metabolism}}{Logical. If \code{TRUE}, effective
 lifespan scales inversely with metabolic rate (pace-of-life
 syndrome, Réale et al. 2010). Default \code{FALSE}. Added 0.4.0 Tier 2.}

@@ -10,9 +10,11 @@ loop. Agents with `alive = false` are removed from `env.agents` in
 1. **Starvation**: energy < starvation_threshold → die.
 2. **Age cap**: age >= max_age → die (if max_age is finite).
 3. **Gompertz senescence**: per-tick death probability
-   p = 1 - exp(-senescence_rate * aging_rate * exp(senescence_rate * age)).
-   When senescence_rate = 0, this term is zero. Implements the Gompertz-
-   Makeham mortality law (Gompertz 1825).
+   p = 1 - exp(-r * exp(r * age^shape))   where r = senescence_rate * aging_rate.
+   `senescence_shape` controls hazard curvature (default 1 = classic
+   Gompertz; > 1 accelerating; < 1 decelerating / late-life plateau).
+   When senescence_rate = 0, this term is zero. Reference: Gompertz
+   (1825); Vaupel et al. (1998) for the shape extension.
 4. **Semelparous**: agent dies if reproduced == true.
 
 References
@@ -34,7 +36,8 @@ function kill_dead!(env::Environment)
     specs     = env.specs
     starv_th  = Float32(get(specs, "starvation_threshold", 0.0))
     max_age   = Int(get(specs, "max_age", 200))
-    senes_r   = Float32(get(specs, "senescence_rate", 0.0))
+    senes_r     = Float32(get(specs, "senescence_rate", 0.0))
+    senes_shape = Float32(get(specs, "senescence_shape", 1.0))
     semel     = get(specs, "life_history", "iteroparous") == "semelparous"
     scav_on   = Bool(get(specs, "scavenging", false))
     # 0.4.0 Tier 2: max_age scales inversely with metabolic_rate when
@@ -50,7 +53,8 @@ function kill_dead!(env::Environment)
         eff_max_age = age_scales ?
             max(1, round(Int, max_age / max(ag.metabolic_rate, 0.01f0))) :
             max_age
-        cause = _death_cause(ag, starv_th, eff_max_age, senes_r, semel, env.rng)
+        cause = _death_cause(ag, starv_th, eff_max_age, senes_r, senes_shape,
+                              semel, env.rng)
         if cause != :alive
             ag.alive = false
             env.n_deaths += Int32(1)
@@ -66,13 +70,24 @@ function kill_dead!(env::Environment)
 end
 
 """
-    _death_cause(ag, starv_th, max_age, senes_r, semel, rng) -> Symbol
+    _death_cause(ag, starv_th, max_age, senes_r, senes_shape, semel, rng) -> Symbol
 
 Return the cause of death, or `:alive` if the agent survives this tick.
 Causes: `:starvation`, `:age`, `:senescence`, `:semelparous`.
+
+`senes_shape` controls the curvature of the Gompertz hazard via the
+power on age: hazard ∝ exp(r * age^shape).
+  - shape = 1 (default): classic Gompertz — hazard rises exponentially
+    with age (Gompertz 1825).
+  - shape > 1: accelerating senescence — late life gets steeper still.
+  - shape < 1: decelerating / late-life plateau (Vaupel et al. 1998).
+
+Only matters when `senes_r > 0`; when senescence is off, shape is a
+no-op.
 """
 function _death_cause(ag::Agent, starv_th::Float32, max_age::Int,
-                       senes_r::Float32, semel::Bool, rng)::Symbol
+                       senes_r::Float32, senes_shape::Float32,
+                       semel::Bool, rng)::Symbol
     # 1. Starvation
     ag.energy < starv_th && return :starvation
 
@@ -85,11 +100,12 @@ function _death_cause(ag::Agent, starv_th::Float32, max_age::Int,
         ag.age >= max_age && return :age
     end
 
-    # 3. Gompertz senescence
+    # 3. Gompertz senescence (2-parameter form: rate × shape)
     if senes_r > 0.0f0
-        # Scaled by heritable aging_rate: faster-aging genotypes die sooner
-        eff_r = senes_r * ag.aging_rate
-        p_die = Float32(1.0 - exp(-Float64(eff_r) * exp(Float64(eff_r) * Float64(ag.age))))
+        # Scaled by heritable aging_rate: faster-aging genotypes die sooner.
+        eff_r    = senes_r * ag.aging_rate
+        age_term = Float64(ag.age) ^ Float64(senes_shape)
+        p_die    = Float32(1.0 - exp(-Float64(eff_r) * exp(Float64(eff_r) * age_term)))
         rand(rng) < p_die && return :senescence
     end
 
