@@ -50,6 +50,8 @@ navbar:
           href: articles/paper-trivers1971.html
         - text: "Massol & Crochet 2008 — does Wolf's syndrome depend on β?"
           href: articles/paper-massol-crochet-2008.html
+        - text: "McElreath et al. 2007 — does Wolf's syndrome erode over time?"
+          href: articles/paper-mcelreath-2007.html
     articles:
       text: "Guides"
       menu:
@@ -228,6 +230,7 @@ articles:
       - paper-wolf2008
       - paper-trivers1971
       - paper-massol-crochet-2008
+      - paper-mcelreath-2007
 
   - title: "Parameter search"
     desc: >
