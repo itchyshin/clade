@@ -8,17 +8,35 @@ vignette: >
 ---
 
 ```{r setup, include = FALSE}
-knitr::opts_chunk$set(eval = TRUE, collapse = TRUE, comment = "#>")
+knitr::opts_chunk$set(eval = TRUE, collapse = TRUE, comment = "#>",
+                       echo = FALSE)
 library(clade)
+.print_tbl <- function(grp) {
+  df <- clade:::.param_table(grp)
+  if (nrow(df) == 0L) {
+    cat("_(no fields registered in this group)_\n")
+    return(invisible(NULL))
+  }
+  knitr::kable(df, format = "markdown",
+               col.names = c("Parameter", "Default", "Type"),
+               row.names = FALSE)
+}
 ```
 
-This article lists every parameter in `default_specs()`, grouped by biological
-theme. For each parameter: the default value, type, and what it controls.
+This article lists every parameter in [`default_specs()`](../reference/default_specs.html),
+grouped by biological theme. For each parameter you'll see the default value
+and its type.
 
-Use `print_specs(diff_only = TRUE)` to see which parameters differ from
-defaults in a given specs list.
+**The tables on this page are generated at vignette-build time** from
+`default_specs()` itself, so they cannot drift from what the code actually
+ships. The full description of each parameter — including units, valid
+ranges, references, and module-interaction notes — lives in the
+[`default_specs()` reference page](../reference/default_specs.html). This
+page is a quick lookup; that page is the authoritative documentation.
 
-```{r print-specs-example, eval=FALSE}
+For an interactive view of a customised spec list, use `print_specs()`:
+
+```{r print-specs-example, eval = FALSE, echo = TRUE}
 s <- default_specs()
 s$kin_selection      <- TRUE
 s$complex_landscape  <- TRUE
@@ -29,103 +47,103 @@ print_specs(s, diff_only = TRUE)
 
 ## Grid and population
 
-| Parameter | Default | Type | Description |
-|---|---|---|---|
-| `grid_rows` | 20 | integer | Number of rows in the toroidal grid |
-| `grid_cols` | 20 | integer | Number of columns |
-| `n_agents_init` | 50 | integer | Starting population size |
-| `max_agents` | 300 | integer | Hard population cap (no births above this) |
-| `max_ticks` | 300 | integer | Simulation length |
-| `random_seed` | 42 | integer | Random seed (set to reproduce runs exactly) |
+The toroidal grid, founder population, simulation horizon, and the two
+0.7.0 kernel-discipline switches.
+
+```{r grid-population}
+.print_tbl("Grid & population")
+```
+
+`random_tick_order = TRUE` (default) enables random asynchronous agent
+scheduling per Grimm & Railsback (2005); setting `FALSE` recovers the
+legacy fixed-order behaviour. `max_agents_per_cell = 1L` (default)
+enforces one-per-cell movement; `0L` allows unbounded co-occupancy
+(legacy). See `NEWS.md` for the 0.7.0 audit that surfaced these.
 
 ---
 
 ## Energy and metabolism
 
-| Parameter | Default | Type | Description |
-|---|---|---|---|
-| `energy_init` | 30.0 | numeric | Starting energy for each agent |
-| `energy_max` | 200.0 | numeric | Energy cap per agent |
-| `move_cost` | 1.0 | numeric | Energy cost per move action |
-| `idle_cost` | 0.5 | numeric | Energy cost per tick of inaction |
-| `eat_gain` | 20.0 | numeric | Energy gained from eating grass |
-| `min_repro_energy` | 80.0 | numeric | Energy threshold to reproduce |
-| `repro_cost` | 20.0 | numeric | Energy cost to parent per offspring |
-| `offspring_energy` | 20.0 | numeric | Starting energy for offspring |
-| `starvation_threshold` | 0.0 | numeric | Die if energy falls to or below this |
+Per-agent energy budget: starting energy, costs of moving / waiting /
+reproducing, and the threshold below which agents starve.
+
+```{r energy}
+.print_tbl("Energy & metabolism")
+```
+
+`repro_cost_mode` and `offspring_energy_mode` control whether the cost
+and birth-energy are fixed amounts or fractions of parental state — see
+`default_specs()` for the full Smith-Fretwell quality-quantity options.
 
 ---
 
 ## Grass dynamics
 
-| Parameter | Default | Type | Description |
-|---|---|---|---|
-| `grass_init_prob` | 0.5 | numeric \[0,1\] | Fraction of cells with grass at tick 1 |
-| `grass_rate` | 0.10 | numeric \[0,1\] | Per-tick regrowth probability on empty cells |
-| `grass_max` | 1.0 | numeric | Maximum grass per cell |
+The base food supply: how cells initialise, how often they regrow, and
+the per-cell saturation.
+
+```{r grass}
+.print_tbl("Grass dynamics")
+```
 
 ---
 
-## Neural architecture
+## Brain architecture
 
-| Parameter | Default | Options | Description |
-|---|---|---|---|
-| `brain_type` | `"bnn"` | bnn, ann, ctrnn, grn, transformer, synthesis | Neural network architecture |
-| `hidden_layers` | `c(16, 8)` | integer vector | Hidden layer sizes |
-| `n_inputs` | auto | integer | Sensory input vector size (set by `create_environment()`) |
-| `n_outputs` | 4 | integer | Action output size (N/E/S/W) |
+The four implemented brain types plus a random null-model baseline.
+`"transformer"` and `"synthesis"` are reserved names — the kernel
+errors if either is requested at present.
 
-### BNN-specific controls (0.4.0+)
+```{r brain}
+.print_tbl("Brain architecture")
+```
 
-| Parameter | Default | Description |
-|---|---|---|
-| `bnn_sigma_source` | `"heterozygosity"` | (0.4.0 Tier 5A) Source of BNN posterior width: `"heterozygosity"` (legacy; derived from parental allele difference), `"fixed"` (constant `bnn_sigma_init`), or `"trait"` (evolvable via `TRAIT_PLASTICITY`). Required for s-baldwin / s-plasticity scenarios. |
-| `bnn_sigma_init` | 0.5 | Initial sigma for haploid and fixed modes |
-| `bnn_sample_freq` | 1 | (0.4.0 Tier 5B) Resample BNN weights every N forward passes. `1` = resample every tick (legacy); `5` lets REINFORCE gradients accumulate (required for the 0.4.1 s-rl ✅ verdict). |
+`bnn_sigma_source` is required for s-baldwin / s-plasticity scenarios
+(0.4.0 Tier 5A). `bnn_sample_freq = 5` lets REINFORCE gradients
+accumulate (required for the 0.4.1 s-rl ✅ verdict).
 
-### Brain metabolic cost
+---
 
-| Parameter | Default | Description |
-|---|---|---|
-| `brain_energy_mode` | `"activity"` | `"none"`, `"size"`, `"activity"`, `"prediction_error"` |
-| `brain_energy_base` | 0.001 | Fixed cost per synaptic weight per tick. Scale up (e.g. 0.010) to expose the parental-provisioning signal (see s-brain-size). |
-| `brain_energy_activity` | 0.5 | Scaling on mean absolute activation |
-| `brain_energy_sigma_scale` | 0.0 | (0.4.1 Tier 5C) Log-scaled information cost on BNN posterior width. Set 0.005–0.1 for Baldwin-canalisation scenarios. |
-| `brain_energy_size_exponent` | 1.0 | (0.4.3) Exponent on the brain-size term: `size_cost = base × n_weights^exp`. `1.0` = linear (legacy); `1.5` = Kleiber-style super-linear (Isler & van Schaik 2009 expensive-brain). |
+## Brain metabolic cost
 
-The six brain types differ in expressive power and computational cost:
+How brains cost energy: a fixed-per-weight floor, an activity-scaled
+component, BNN-uncertainty information cost, and the Kleiber-style
+size exponent.
 
-- **bnn** (Bayesian neural network): default; learns a distribution over weights.
-- **ann**: standard multilayer perceptron.
-- **ctrnn**: continuous-time recurrent network; suitable for temporally extended tasks.
-- **grn**: gene regulatory network topology; sparse, biologically motivated.
-- **transformer**: self-attention architecture; highest capacity, slowest.
-- **synthesis**: symbolic rule extraction from evolved weights.
+```{r brain-cost}
+.print_tbl("Brain metabolic cost")
+```
 
 ---
 
 ## Reproduction and genetics
 
-| Parameter | Default | Type | Description |
-|---|---|---|---|
-| `ploidy` | 2 | 1 or 2 | Diploid (default) or haploid |
-| `sex_ratio` | 0.5 | numeric \[0,1\] | Fraction of agents that are female |
-| `mating_system` | `"random"` | character | Random, monogamy, polygyny, polyandry |
-| `mutation_sd` | 0.05 | numeric | Gaussian noise on genome weights |
-| `crossover_rate` | 0.1 | numeric \[0,1\] | Per-locus crossover probability (diploid) |
-| `min_repro_age` | 0 | integer | Minimum age to reproduce |
-| `max_repro_age` | Inf | integer | Maximum age to reproduce (Inf = no limit) |
+Ploidy, mate-choice, recombination, and reproduction-age controls.
+
+```{r reproduction}
+.print_tbl("Reproduction & sex")
+```
+
+`mate_choice_mode = "preference"` enables signal-preference assortative
+mating; `"random"` reverts to baseline. `mate_search_radius` is the
+Moore-neighbourhood radius for partner search.
 
 ---
 
 ## Life history
 
-| Parameter | Default | Options | Description |
-|---|---|---|---|
-| `max_age` | 500 | integer | Die if age exceeds this |
-| `life_history` | `"iteroparous"` | iteroparous, semelparous | Semelparous: reproduce once then die |
-| `senescence_rate` | 0.0 | numeric | Gompertz mortality scaling with age |
-| `repro_senescence` | 0.0 | numeric | Age-related fertility decline rate |
+Maximum lifespan, the Gompertz senescence parameters (rate × shape),
+and the optional pace-of-life lifespan-scaling coupling.
+
+```{r life-history}
+.print_tbl("Life history")
+```
+
+The Gompertz hazard is
+\(p = 1 - \exp(-r \cdot \exp(r \cdot \mathrm{age}^{\mathrm{shape}}))\)
+with \(r = \mathrm{senescence\_rate} \times \mathrm{aging\_rate}\).
+`senescence_shape = 1` (default) is the classic Gompertz; > 1 accelerates
+late-life mortality; < 1 gives a late-life plateau (Vaupel et al. 1998).
 
 ---
 
@@ -133,100 +151,129 @@ The six brain types differ in expressive power and computational cost:
 
 Enable with `body_size_evolution = TRUE`.
 
-| Parameter | Default | Description |
-|---|---|---|
-| `body_size_evolution` | FALSE | Enable |
-| `body_size_init_mean` | 1.0 | Starting value (relative units) |
-| `body_size_mutation_sd` | 0.05 | Mutation noise |
-| `body_size_min` | 0.1 | Lower clamp |
-| `body_size_max` | 5.0 | Upper clamp |
+```{r body-size}
+.print_tbl("Body size")
+```
+
+---
+
+## Brain size evolution
+
+Enable with `brain_size_evolution = TRUE`. Cognitive bonus is balanced
+against the metabolic cost set in "Brain metabolic cost" above.
+
+```{r brain-size}
+.print_tbl("Brain size evolution")
+```
 
 ---
 
 ## Dispersal evolution
 
-Enable with `dispersal_evolution = TRUE`. Combine with `spatial_sorting = TRUE`
-for invasion-front dynamics.
+Enable with `dispersal_evolution = TRUE`. Combine with
+`spatial_sorting = TRUE` for invasion-front dynamics.
 
-| Parameter | Default | Description |
-|---|---|---|
-| `dispersal_evolution` | FALSE | Enable heritable dispersal |
-| `dispersal_init_mean` | 0.5 | Starting dispersal probability |
-| `dispersal_mutation_sd` | 0.05 | Mutation noise |
-| `dispersal_min` | 0.0 | Minimum clamp |
-| `dispersal_max` | 1.0 | Maximum clamp |
+```{r dispersal}
+.print_tbl("Dispersal")
+```
+
+---
+
+## Habitat preference
+
+Enable with `habitat_preference_evolution = TRUE`.
+
+```{r habitat}
+.print_tbl("Habitat preference")
+```
 
 ---
 
 ## Kin selection
 
-Enable with `kin_selection = TRUE`.
+Enable with `kin_selection = TRUE`. Pedigree-based relatedness; see the
+`s-kin` vignette for Hamilton's-rule examples.
 
-| Parameter | Default | Description |
-|---|---|---|
-| `kin_selection` | FALSE | Enable kin altruism |
-| `kin_altruism_r_min` | 0.25 | Minimum pedigree relatedness to donate |
-| `kin_altruism_cost` | 2.0 | Energy transferred per altruistic act |
-| `kin_altruism_min_donor_energy` | 50.0 | Donor energy floor |
+```{r kin}
+.print_tbl("Kin selection")
+```
 
 ---
 
-## SIR disease
+## Cooperation (PGG)
+
+Enable with `cooperation_evolution = TRUE`. Public-goods games on the
+neighbourhood; see `s-cooperation`.
+
+```{r cooperation}
+.print_tbl("Cooperation (PGG)")
+```
+
+---
+
+## Disease (SIR dynamics)
 
 Enable with `disease = TRUE`.
 
-| Parameter | Default | Description |
-|---|---|---|
-| `disease` | FALSE | Enable SIR dynamics |
-| `transmission_prob` | 0.15 | Per-tick transmission probability |
-| `disease_energy_cost` | 5.0 | Energy cost per tick while infected |
-| `disease_duration` | 10 | Ticks until recovery |
-| `immune_duration` | 20 | Ticks of post-recovery immunity |
-| `disease_death_prob` | 0.01 | Additional per-tick mortality while infected |
-| `disease_seed_prob` | 0.02 | Fraction of agents infected at tick 1 |
+```{r disease}
+.print_tbl("Disease (SIR)")
+```
 
 ---
 
 ## Predators
 
-Enable with `n_predators_init > 0`.
+Enable with `n_predators_init > 0`. Predators are co-evolving agents
+with their own 15-input sensory brain.
 
-| Parameter | Default | Description |
-|---|---|---|
-| `n_predators_init` | 0 | Starting predator count |
-| `predator_energy_init` | 60.0 | Starting energy for predators |
-| `predator_attack_strength` | 10.0 | Damage dealt to prey per attack |
-| `predator_min_repro_energy` | 100.0 | Predator reproduction threshold |
-| `predator_max_agents` | 50 | Predator population cap |
-| `predator_sense_graded` | TRUE | (0.4.2) When TRUE, prey's predator sensory input at distance `d` is `1/(d+1)` (graded threat-level). FALSE falls back to pre-0.4.2 binary presence signal. |
+```{r predators}
+.print_tbl("Predators")
+```
+
+`predator_sense_graded = TRUE` (0.4.2 default): prey's predator
+sensory input at distance `d` is `1/(d+1)` (graded threat-level).
+`FALSE` falls back to pre-0.4.2 binary presence.
+
+---
+
+## Group defense
+
+Enable with `group_defense = TRUE`. Coordinated anti-predator
+behaviour at high local density.
+
+```{r group-defense}
+.print_tbl("Group defense")
+```
 
 ---
 
 ## Niche construction
 
-Enable with `niche_construction = TRUE`.
+Enable with `niche_construction = TRUE`. Shelters modify the local
+selection environment.
 
-| Parameter | Default | Description |
-|---|---|---|
-| `niche_construction` | FALSE | Enable shelter building |
-| `shelter_build_prob` | 0.1 | Per-tick build probability (when energy sufficient) |
-| `shelter_min_energy` | 40.0 | Minimum donor energy to build |
-| `shelter_max_depth` | 5 | Maximum shelter units per cell |
-| `shelter_decay_rate` | 0.02 | Fraction of shelters lost per tick |
-| `shelter_occupancy_bonus` | 0.0 | (0.3.0) When > 0, agents on a shelter cell receive `bonus × depth` energy per tick — the Odling-Smee, Laland & Feldman (2003) heritable-niche effect |
+```{r niche}
+.print_tbl("Niche construction")
+```
+
+`shelter_occupancy_bonus > 0` activates the heritable-niche effect
+(Odling-Smee, Laland & Feldman 2003): agents on a shelter cell receive
+`bonus × depth` energy per tick.
 
 ---
 
-## Within-lifetime RL
+## Within-lifetime reinforcement learning
 
-Enable with `rl_mode = "actor_critic"`.
+Enable with `rl_mode = "actor_critic"`. `plasticity_cost` charges a
+per-tick metabolic cost proportional to `learning_rate` (Laughlin et
+al. 1998 *Nature Neuroscience*).
 
-| Parameter | Default | Description |
-|---|---|---|
-| `rl_mode` | `"none"` | `"actor_critic"` or `"hebbian"` |
-| `learning_rate` | 0.01 | Output-layer update step size |
-| `learning_rate_evolution` | FALSE | Allow learning rate to evolve genetically |
-| `rl_update_freq` | 5 | Ticks between RL updates |
+```{r rl}
+.print_tbl("Within-lifetime RL")
+```
+
+`lamarckian = TRUE` writes within-lifetime learned weights back to the
+genome before meiosis. Off by default.
 
 ---
 
@@ -234,77 +281,49 @@ Enable with `rl_mode = "actor_critic"`.
 
 Enable with `social_learning = TRUE`.
 
-| Parameter | Default | Description |
-|---|---|---|
-| `social_learning` | FALSE | Enable copying successful neighbours |
-| `social_learning_freq` | 10 | Ticks between learning events |
-| `social_learning_radius` | 3 | Neighbourhood radius for model selection |
+```{r social-learning}
+.print_tbl("Social learning")
+```
 
 ---
 
 ## Signals and mate choice
 
-| Parameter | Default | Description |
-|---|---|---|
-| `signal_dims` | 2 | Dimensionality of heritable signal vector |
-| `signal_mutation_sd` | 0.05 | Signal mutation noise |
-| `preference_mutation_sd` | 0.05 | Mate-preference mutation noise |
+Sexual-selection machinery. Enable signals by setting `signal_dims > 0`.
+
+```{r signals}
+.print_tbl("Signals & mate choice")
+```
+
+`preference_bias_target` + `preference_bias_strength` implement the
+β_N leg of Fuller, Houle & Travis (2005); see `paper-ryan-1990`.
 
 ---
 
 ## Mimicry and toxicity
 
-Enable with `mimicry = TRUE`.
+Enable with `mimicry = TRUE`. Müllerian by default; set
+`batesian_mimicry = TRUE` for Batesian dynamics. As of 0.4.4 the
+predator memory is a `signal_dims`-length vector updated via the
+Widrow-Hoff delta rule.
 
-| Parameter | Default | Description |
-|---|---|---|
-| `mimicry` | FALSE | Enable toxicity and predator learning (Müllerian by default) |
-| `batesian_mimicry` | FALSE | (0.3.0) Enable Batesian mimicry: palatable prey (toxicity = 0) exploit learned aversion; predator-betrayal decay prevents runaway cheating (Bates 1862) |
-| `toxicity_init_mean` | 0.0 | Starting toxicity |
-| `toxicity_cost_per_tick` | 2.0 | Per-tick energy cost for toxicity > 0 (raised from 0.5 in 0.3.0 for Zahavi-handicap honesty) |
-| `toxin_dose` | 2.0 | Damage per toxicity unit per attack |
-| `signal_memory` | 20 | Predator memory window (Rescorla-Wagner) |
-| `signal_toxicity_coupling` | 0.0 | (0.4.4) Aposematic pleiotropy: when > 0, each agent's `signal[1]` is pulled toward its own `toxicity` each tick. Set to 1.0 for fully honest signal. Required for Bates/Müller dynamics to close the feedback loop. |
-
-As of 0.4.4 the predator memory is a full **vector** stored in
-`signal_memory::Vector{Float32}` on the Agent struct (length =
-`signal_dims`), updated via the Widrow-Hoff delta rule
-`memory += lr × (toxicity − dot(memory, signal)) × signal`. The
-avoidance check uses the predicted toxicity `dot(memory, signal)`
-directly. This restores alifeR's signal-specific learning and
-produces textbook Batesian/Müllerian dynamics under the right
-ecological parameters.
+```{r mimicry}
+.print_tbl("Mimicry & toxicity")
+```
 
 ---
 
-## Coevolving parasites (0.5.0 / 0.5.1, Hamilton 1980 Red Queen)
+## Coevolving parasites (Hamilton 1980 Red Queen)
 
-Enable with `coevolving_parasites = TRUE` AND either
-`signal_dims > 0` (continuous mode) or `n_parasite_loci > 0`
-(discrete mode).
+Enable with `coevolving_parasites = TRUE` AND either `signal_dims > 0`
+(continuous mode) or `n_parasite_loci > 0` (discrete mode).
 
-| Parameter | Default | Description |
-|---|---|---|
-| `coevolving_parasites` | FALSE | Enable genotype-matched parasite pressure |
-| `parasite_match_mode` | `"auto"` | `"auto"` / `"continuous"` / `"discrete"`. Auto picks discrete when `n_parasite_loci > 0`, else continuous. |
-| `parasite_virulence_rate` | 0.1 | Rate at which the parasite genotype tracks the host majority |
-| `parasite_pressure` | 0.5 | Maximum per-tick energy drain at full genotype match |
-| `parasite_distance_scale` | 1.0 | Continuous-mode Gaussian falloff scale |
-| `n_parasite_loci` | 0 | (0.5.1) Number of binary loci in the discrete-mode `parasite_haplotype` trait. Set 8–16 for Hamilton's canonical mechanism. |
-| `parasite_mutation_rate` | 0.01 | Per-locus allele-flip rate during inheritance |
-| `parasite_discrete_exponent` | 4.0 | Hamming-distance falloff sharpness; 4–6 produces cleanly frequency-dependent selection |
+```{r coevolving-parasites}
+.print_tbl("Coevolving parasites")
+```
 
-**Continuous mode (0.5.0)** uses Euclidean distance on the signal
-vector and tracks the population centroid. Sex offspring cluster
-closer to the centroid than asex clones, so sex is *more* exposed —
-this does NOT reproduce Hamilton's canonical Red Queen.
-
-**Discrete mode (0.5.1)** uses Hamming distance on a binary-allele
-haplotype with Mendelian inheritance (each locus inherited
-independently from either parent). Recombination produces novel
-haplotype combinations that escape the current parasite genotype.
-This is the canonical Hamilton mechanism and is the first regime in
-which clade shows sex > asex.
+Discrete mode (`n_parasite_loci >= 8`) is the canonical Hamilton
+mechanism and is the regime where clade can show sex > asex.
 
 ---
 
@@ -312,109 +331,252 @@ which clade shows sex > asex.
 
 Enable with `parental_care = TRUE`.
 
-| Parameter | Default | Description |
-|---|---|---|
-| `parental_care` | FALSE | Enable carried offspring |
-| `juvenile_independence_age` | 10 | Tick age at which offspring leaves parental care. Replaces pre-0.4.0 `care_duration`. |
-| `juvenile_independence_energy` | 50.0 | Energy level at which offspring leaves early |
-| `care_cost_per_tick` | 1.0 | Parent energy cost per juvenile per tick. Replaces pre-0.5.6 `care_energy_cost` / `care_cost_per_offspring`. |
-| `feeding_rate` | 5.0 | Energy transferred to juvenile per tick. Replaces pre-0.5.6 `juvenile_energy_gain`. |
-| `neonatal_foraging_deficit` | 0.0 | (0.4.3) Reduction in effective `max_bite` for newborns during their first `neonatal_deficit_duration` ticks. Set 0.3–0.6 to create the expensive-brain selection pressure for parental provisioning (Aiello & Wheeler 1995; Isler & van Schaik 2009). |
-| `neonatal_deficit_duration` | 10 | (0.4.3) How many ticks the neonatal deficit applies for |
+```{r parental-care}
+.print_tbl("Parental care")
+```
+
+`neonatal_foraging_deficit > 0` creates the expensive-brain selection
+pressure for parental provisioning (Aiello & Wheeler 1995; Isler & van
+Schaik 2009).
 
 ---
 
 ## Cooperative breeding
 
 Enable with `cooperative_breeding = TRUE`. Usually combined with
-`iffolk_selection = TRUE`.
+`iffolk_selection = TRUE`. See `paper-emlen-1982`.
 
-| Parameter | Default | Description |
-|---|---|---|
-| `cooperative_breeding` | FALSE | Enable `helper_tendency` trait |
-| `helper_tendency_init_mean` | 0.2 | Starting helper tendency |
-| `helper_tendency_mutation_sd` | 0.05 | Mutation noise |
+```{r coop-breeding}
+.print_tbl("Cooperative breeding")
+```
+
+---
+
+## Parental investment (Trivers 1972)
+
+Enable with `parental_investment_evolution = TRUE`. The female bears
+`female_investment` of per-offspring cost; offspring birth energy
+scales by `2 × female_investment`.
+
+```{r parental-investment}
+.print_tbl("Parental investment")
+```
+
+---
+
+## Pace of life (Réale et al. 2010)
+
+Heritable metabolic rate and aging rate; see `paper-reale-2010` and
+`s-pace-of-life`.
+
+```{r pace}
+.print_tbl("Pace of life")
+```
+
+---
+
+## Mutation-rate evolution
+
+Enable with `mutation_rate_evolution = TRUE`. Per-agent heritable
+`mutation_sd`.
+
+```{r mutrate}
+.print_tbl("Mutation-rate evol.")
+```
 
 ---
 
 ## Phenotypic plasticity
 
-Enable with `phenotypic_plasticity = TRUE`.
+Enable with `phenotypic_plasticity = TRUE`. The `plasticity` trait
+scales how much an agent's effective reproductive threshold depends
+on local resource density.
 
-| Parameter | Default | Description |
-|---|---|---|
-| `phenotypic_plasticity` | FALSE | Enable plasticity trait |
-| `plasticity_init_mean` | 0.5 | Starting plasticity |
-| `plasticity_mutation_sd` | 0.05 | Mutation noise |
+```{r plasticity}
+.print_tbl("Phenotypic plasticity")
+```
+
+---
+
+## Stress hypermutation
+
+Enable with `stress_hypermutation = TRUE`. SOS-style mutation-rate
+spike below `stress_threshold` energy.
+
+```{r stress}
+.print_tbl("Stress hypermutation")
+```
+
+---
+
+## Clutch size (r/K)
+
+Enable with `clutch_size_evolution = TRUE`. r/K trade-off between
+clutch count and per-offspring investment.
+
+```{r clutch}
+.print_tbl("Clutch size (r/K)")
+```
 
 ---
 
 ## Spatial sorting
 
-Enable with `spatial_sorting = TRUE`. Requires `dispersal_evolution = TRUE`.
+Enable with `spatial_sorting = TRUE`. Requires `dispersal_evolution = TRUE`
+and a bounded grid (`toroidal = FALSE`).
 
-| Parameter | Default | Description |
-|---|---|---|
-| `spatial_sorting` | FALSE | Enable invasion-front mating assortment |
-| `sorting_front_threshold` | 0.75 | Fraction from front to define "front zone" |
-| `sorting_mating_boost` | 3.0 | Mating encounter fold-increase at front |
+```{r spatial-sorting}
+.print_tbl("Spatial sorting")
+```
 
 ---
 
 ## IFfolk inclusive fitness
 
-Enable with `iffolk_selection = TRUE`.
+Enable with `iffolk_selection = TRUE`. Haig 2000 / Fromhage & Jennions
+2019 intragenomic-conflict + parliament suppression.
 
-| Parameter | Default | Description |
-|---|---|---|
-| `iffolk_selection` | FALSE | Enable energy transfers to relatives |
-| `iffolk_r_min` | 0.125 | Minimum relatedness (cousins and closer) |
-| `iffolk_radius` | 5 | Neighbourhood radius for kin search |
-| `iffolk_transfer` | 3.0 | Energy transferred per act |
-| `iffolk_min_energy` | 60.0 | Donor energy floor |
-| `parliament_suppression` | FALSE | Penalise defectors among cooperators |
-| `parliament_cost` | 0.5 | Energy cost for defectors per cooperator neighbour |
+```{r iffolk}
+.print_tbl("IFfolk incl. fitness")
+```
 
 ---
 
 ## Complex landscape (forest world)
 
-Enable with `complex_landscape = TRUE`.
+Enable with `complex_landscape = TRUE`. Three-layer foraging:
+ground grass + shrubs + canopy. Wing-size evolves for canopy access.
 
-| Parameter | Default | Description |
-|---|---|---|
-| `complex_landscape` | FALSE | Enable 3-layer habitat |
-| `shrub_density` | 0.35 | Fraction of cells with shrubs |
-| `shrub_energy` | 25.0 | Energy gained from shrubs |
-| `shrub_growth_rate` | 0.04 | Shrub regrowth rate per tick |
-| `canopy_density` | 0.15 | Fraction of cells with canopy |
-| `canopy_energy` | 55.0 | Energy gained from canopy |
-| `canopy_growth_rate` | 0.005 | Canopy regrowth rate |
-| `canopy_threshold` | 0.6 | Minimum wing_size for canopy access |
-| `wing_size_init_mean` | 0.1 | Starting wing size |
-| `wing_size_mutation_sd` | 0.05 | Wing size mutation noise |
-| `wing_size_min` | 0.0 | Lower clamp |
-| `wing_size_max` | 1.0 | Upper clamp |
+```{r complex-landscape}
+.print_tbl("Complex landscape")
+```
+
+---
+
+## Fixed patch
+
+A single fixed-rich-cell helper for testing local-resource scenarios.
+
+```{r fixed-patch}
+.print_tbl("Fixed patch")
+```
+
+---
+
+## Epigenetics
+
+Enable with `epigenetics = TRUE`. Methylation inheritance on BNN sigma
+(Jablonka & Lamb 2005).
+
+```{r epigenetics}
+.print_tbl("Epigenetics")
+```
+
+---
+
+## Speciation
+
+Enable with `speciation = TRUE`. Genome-distance clustering + reproductive
+isolation. See `paper-dieckmann-doebeli-1999`.
+
+```{r speciation}
+.print_tbl("Speciation")
+```
+
+---
+
+## Seasonal dynamics
+
+```{r seasonal}
+.print_tbl("Seasonal dynamics")
+```
+
+`seasonal_spatial_bias = TRUE` (0.5.18) flips the spatial grass
+distribution between seasons — required for the Baldwin / plasticity
+scenarios to demonstrate fluctuating selection.
+
+---
+
+## Scavenging
+
+Enable with `scavenging = TRUE`. Carcasses decay over time and can
+transmit disease.
+
+```{r scavenging}
+.print_tbl("Scavenging")
+```
+
+---
+
+## ANN regularisation
+
+Optional weight regularisation on ANN brains.
+
+```{r ann-reg}
+.print_tbl("ANN regularisation")
+```
+
+---
+
+## Wolf 2007 personality syndrome (0.7.0)
+
+Enable with `personality_syndrome = TRUE`. See
+`paper-wolf2007` for the boldness-aggressiveness syndrome reproduction
+and the Massol-Crochet / McElreath critiques.
+
+```{r personality}
+.print_tbl("Wolf 2007 personality")
+```
+
+---
+
+## Trivers 1971 reciprocal altruism (0.7.0)
+
+Enable with `reciprocal_altruism = TRUE`. Generous-TFT via three
+heritable traits (initial / retaliation / forgiveness). See
+`paper-trivers1971`.
+
+```{r reciprocity}
+.print_tbl("Trivers 1971 reciprocity")
+```
+
+---
+
+## Wolf 2008 responsive personalities (0.7.0)
+
+Enable with `responsive_personalities = TRUE`. Frequency-dependent
+sampling: high-responsiveness agents override toward richer cells at
+a per-tick metabolic cost. See `paper-wolf2008`.
+
+```{r responsive}
+.print_tbl("Wolf 2008 responsive")
+```
 
 ---
 
 ## Logging and output
 
-| Parameter | Default | Description |
-|---|---|---|
-| `log_genomes` | FALSE | Log full genome matrices (large output) |
-| `log_deaths` | TRUE | Record every agent death |
-| `log_freq` | 1 | Ticks between progress log entries |
-| `verbose_julia` | FALSE | Print Julia-side debug messages |
+```{r logging}
+.print_tbl("Logging & search")
+```
+
+`log_genomes = TRUE` (wired in 0.7.x) captures every agent's trait
+vector each `log_freq` ticks — consumed by `plot_tsne_genomes()` for
+population-genetic structure visualisations.
 
 ---
 
 ## Inspecting defaults programmatically
 
-```{r inspect-defaults}
+```{r inspect-defaults, eval = TRUE, echo = TRUE}
 defs <- default_specs()
+
 # All parameter names
-names(defs)
-# All parameters with their values
-str(defs, max.level = 1, give.attr = FALSE)
+length(defs)
+
+# First 10 parameters with their values
+str(defs[1:10], max.level = 1, give.attr = FALSE)
 ```
+
+For an interactive view of all parameters at once, use
+[`print_specs()`](../reference/print_specs.html).
