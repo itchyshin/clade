@@ -197,6 +197,48 @@ function apply_rl!(env::Environment)
     nothing
 end
 
+"""
+    apply_plasticity_cost!(env::Environment)
+
+Charge each live agent a per-tick energy cost proportional to its
+heritable `learning_rate`, representing the metabolic cost of synaptic
+plasticity (Laughlin, de Ruyter van Steveninck & Anderson 1998,
+*Nature Neuroscience* 1:36-41).
+
+Effective cost per agent per tick is
+`specs["plasticity_cost"] * ag.learning_rate`.
+
+The cost is only meaningful when within-lifetime learning is enabled,
+so this function returns immediately when `rl_mode == "none"`. Setting
+`plasticity_cost = 0` also makes it a no-op.
+
+Wired into the tick loop next to the other apply_*_cost! functions
+(signal, toxicity, signal_mortality) in Clade.jl. No gating on
+log_freq — this is a metabolic expenditure that fires every tick,
+not a logging operation.
+
+## Why this creates evolutionary pressure
+
+Without a cost, `learning_rate` evolves toward its maximum because
+faster within-lifetime learning is always weakly beneficial. With a
+proportional cost, agents face a trade-off: higher learning_rate
+means faster adaptation but a higher metabolic burden. The
+equilibrium learning_rate is where marginal fitness benefit equals
+marginal energy cost — the textbook condition for an evolutionary
+stable plasticity (DeWitt et al. 1998 *Trends in Ecology & Evolution*
+13:77-81).
+"""
+function apply_plasticity_cost!(env::Environment)
+    String(get(env.specs, "rl_mode", "none")) == "none" && return
+    cost = Float32(get(env.specs, "plasticity_cost", 0.05))
+    cost == 0.0f0 && return
+    @inbounds for ag in env.agents
+        ag.alive || continue
+        ag.energy -= cost * ag.learning_rate
+    end
+    nothing
+end
+
 # === CLADE.JL ADDITIONS NEEDED ===
 # include: include("modules/rl.jl")
 # tick loop: apply_rl!(env)
