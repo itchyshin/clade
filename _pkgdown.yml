@@ -48,6 +48,8 @@ navbar:
           href: articles/paper-wolf2008.html
         - text: "Trivers 1971 — reciprocal altruism (0.7.0)"
           href: articles/paper-trivers1971.html
+        - text: "Massol & Crochet 2008 — does Wolf's syndrome depend on β?"
+          href: articles/paper-massol-crochet-2008.html
     articles:
       text: "Guides"
       menu:
@@ -225,6 +227,7 @@ articles:
       - paper-wolf2007
       - paper-wolf2008
       - paper-trivers1971
+      - paper-massol-crochet-2008
 
   - title: "Parameter search"
     desc: >
