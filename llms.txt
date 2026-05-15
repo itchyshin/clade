@@ -487,6 +487,8 @@ you’re reproducing your own paper.
   ABM](https://itchyshin.github.io/clade/articles/paper-trivers1971.md):
 - [Massol & Crochet 2008 — does Wolf's syndrome depend on
   β?](https://itchyshin.github.io/clade/articles/paper-massol-crochet-2008.md):
+- [McElreath et al. 2007 — does Wolf's syndrome erode over
+  time?](https://itchyshin.github.io/clade/articles/paper-mcelreath-2007.md):
 
 ### Parameter search
 

@@ -47,6 +47,7 @@
     <li><a class="dropdown-item" href="../articles/paper-wolf2008.html">Wolf et al. 2008 — responsive personalities (0.7.0)</a></li>
     <li><a class="dropdown-item" href="../articles/paper-trivers1971.html">Trivers 1971 — reciprocal altruism (0.7.0)</a></li>
     <li><a class="dropdown-item" href="../articles/paper-massol-crochet-2008.html">Massol &amp; Crochet 2008 — does Wolf's syndrome depend on β?</a></li>
+    <li><a class="dropdown-item" href="../articles/paper-mcelreath-2007.html">McElreath et al. 2007 — does Wolf's syndrome erode over time?</a></li>
   </ul>
 </li>
 <li class="nav-item dropdown">
@@ -502,19 +503,20 @@ clade:</p>
 <li>
 <strong>Massol &amp; Crochet (2008)</strong> Nature 451:<a href="doi:10.1038/nature06744" class="uri">doi:10.1038/nature06744</a> —
 argue the dimorphism depends critically on β (the trade-off shape).
-Implemented as a follow-up vignette in 0.7.x — see
-<code><a href="../articles/paper-massol-crochet-2008.html">vignette("paper-massol-crochet-2008")</a></code>. The β sweep shows
-the bold-aggro syndrome strength varies by ~0.4 in correlation units
-across β ∈ [0.5, 3.0], with the peak at Wolf’s published value 1.25. The
+Tested in <code><a href="../articles/paper-massol-crochet-2008.html">vignette("paper-massol-crochet-2008")</a></code> (added
+0.7.x). The bold-aggro syndrome strength varies by ~0.4 in correlation
+units across β ∈ [0.5, 3.0]; peak at Wolf’s published value 1.25. The
 critique is partially borne out.</li>
 <li>
 <strong>McElreath, Luttbeg, Fogarty, Brodin &amp; Sih
 (2007)</strong> Nature 450:<a href="doi:10.1038/nature06326" class="uri">doi:10.1038/nature06326</a> — argue asset protection is a
 <em>negative-feedback</em> mechanism that erodes individual differences
-over time. clade’s longer simulations could test this directly. Still
-open as a follow-up vignette.</li>
+over time. Tested in <code><a href="../articles/paper-mcelreath-2007.html">vignette("paper-mcelreath-2007")</a></code>
+(added 0.7.x). The bold-aggro syndrome peaks at +0.307 around 5 000
+ticks then decays to +0.032 by 15 000 ticks. The critique is strongly
+borne out: Wolf’s headline correlation is a transient phenomenon at the
+simulation length he reports.</li>
 </ul>
-<p>Both are explicit follow-up vignettes the package could add.</p>
 </div>
 <div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>

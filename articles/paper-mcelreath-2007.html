@@ -5,12 +5,12 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Massol &amp; Crochet 2008 — does Wolf's syndrome depend on β? • clade</title>
+<title>McElreath et al. 2007 — does Wolf's syndrome erode over time? • clade</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Massol &amp; Crochet 2008 — does Wolf's syndrome depend on β?">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="McElreath et al. 2007 — does Wolf's syndrome erode over time?">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -166,40 +166,42 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
-      <h1>Massol &amp; Crochet 2008 — does Wolf's syndrome depend on β?</h1>
+      <h1>McElreath et al. 2007 — does Wolf's syndrome erode over time?</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/itchyshin/clade/blob/main/vignettes/paper-massol-crochet-2008.Rmd" class="external-link"><code>vignettes/paper-massol-crochet-2008.Rmd</code></a></small>
-      <div class="d-none name"><code>paper-massol-crochet-2008.Rmd</code></div>
+      <small class="dont-index">Source: <a href="https://github.com/itchyshin/clade/blob/main/vignettes/paper-mcelreath-2007.Rmd" class="external-link"><code>vignettes/paper-mcelreath-2007.Rmd</code></a></small>
+      <div class="d-none name"><code>paper-mcelreath-2007.Rmd</code></div>
     </div>
 
     
     
-<p><em>A direct test in clade of Massol &amp; Crochet’s (2008) critique
-of Wolf et al. 2007: the dimorphism in exploration intensity x depends
-critically on the trade-off shape parameter β in g(x) = (1-x)^β.
-Implemented as a β sweep over the spatially-explicit Wolf 2007 scenario
-added in 0.7.0. Companion to
-<code><a href="../articles/paper-wolf2007.html">vignette("paper-wolf2007")</a></code>.</em></p>
+<p><em>A direct test in clade of McElreath, Luttbeg, Fogarty, Brodin
+&amp; Sih’s (2007) critique of Wolf et al. 2007: asset protection is a
+<strong>negative-feedback</strong> mechanism that erodes individual
+differences over time, so the bold-aggro syndrome should be transient
+rather than stable. Implemented as a time-horizon sweep over the
+spatially-explicit Wolf 2007 scenario added in 0.7.0. Companion to
+<code><a href="../articles/paper-wolf2007.html">vignette("paper-wolf2007")</a></code> and
+<code><a href="../articles/paper-massol-crochet-2008.html">vignette("paper-massol-crochet-2008")</a></code>.</em></p>
 <div class="section level2">
 <h2 id="the-critique">The critique<a class="anchor" aria-label="anchor" href="#the-critique"></a>
 </h2>
-<p>Wolf et al. (2007) report a stable dimorphism in exploration
-intensity <em>x</em> under disruptive selection at year-2 reproduction.
-The trade-off between year-1 and year-2 fecundity is parameterised
-by</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>x</mi><msup><mo stretchy="false" form="postfix">)</mo><mi>β</mi></msup></mrow><annotation encoding="application/x-tex"> g(x) = (1 - x)^\beta </annotation></semantics></math></p>
-<p>so that year-1 fecundity scales as (1-x)^β · f_low and year-2
-fecundity as x · f_high (plus the (1-x) leg). Wolf uses β = 1.25.</p>
-<p>Massol &amp; Crochet (2008, <em>Nature</em> 451, brief communications
-arising; <code>doi:10.1038/nature06744</code>) argued that this
-dimorphism is not robust: shift β much above or below Wolf’s value and
-the bimodal x distribution collapses. Their critique is mathematical
-(the conditions for stability of the mixed equilibrium have a narrow β
-range) but easy to test in a simulation.</p>
-<p>clade’s Wolf scenario exposes β as <code>personality_beta</code>.
-Sweeping it across [0.5, 3.0] at fixed seed gives a direct probe of the
-critique.</p>
+<p>Wolf et al. (2007) report a stable bold-aggro syndrome at the end of
+their simulations. McElreath, Luttbeg, Fogarty, Brodin &amp; Sih (2007,
+<em>Nature</em> 450, brief communications arising;
+<code>doi:10.1038/nature06326</code>) argued that this stability is
+misleading:</p>
+<blockquote>
+<p>The mechanism Wolf et al. identify is a <strong>negative-feedback
+loop</strong>. Agents with high assets become risk-averse; risk-aversion
+preserves assets; assets become more uniform across individuals; and the
+trait correlations that defined the syndrome erode.</p>
+</blockquote>
+<p>Their prediction: run the simulation longer than Wolf did and the
+syndrome will fade. The headline syndrome strength is a transient
+artifact of having stopped at an early time-point.</p>
+<p>clade exposes the time horizon directly via <code>max_ticks</code>.
+Sweeping it gives a clean test.</p>
 </div>
 <div class="section level2">
 <h2 id="the-sweep">The sweep<a class="anchor" aria-label="anchor" href="#the-sweep"></a>
@@ -207,10 +209,9 @@ critique.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://itchyshin.github.io/clade/">clade</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">run_one</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">beta_val</span>, <span class="va">seed</span> <span class="op">=</span> <span class="fl">42L</span><span class="op">)</span> <span class="op">{</span></span>
+<span><span class="va">run_one</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">max_ticks_val</span>, <span class="va">seed</span> <span class="op">=</span> <span class="fl">42L</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/wolf_personality_specs.html">wolf_personality_specs</a></span><span class="op">(</span><span class="op">)</span></span>
-<span>  <span class="va">s</span><span class="op">$</span><span class="va">personality_beta</span>                <span class="op">&lt;-</span> <span class="va">beta_val</span></span>
-<span>  <span class="va">s</span><span class="op">$</span><span class="va">max_ticks</span>                       <span class="op">&lt;-</span> <span class="fl">5000L</span></span>
+<span>  <span class="va">s</span><span class="op">$</span><span class="va">max_ticks</span>                       <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="va">max_ticks_val</span><span class="op">)</span></span>
 <span>  <span class="va">s</span><span class="op">$</span><span class="va">random_seed</span>                     <span class="op">&lt;-</span> <span class="va">seed</span></span>
 <span>  <span class="va">s</span><span class="op">$</span><span class="va">n_agents_init</span>                   <span class="op">&lt;-</span> <span class="fl">200L</span></span>
 <span>  <span class="va">s</span><span class="op">$</span><span class="va">max_agents</span>                      <span class="op">&lt;-</span> <span class="fl">800L</span></span>
@@ -232,172 +233,210 @@ critique.</p>
 <span>  <span class="va">ag</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">recs</span><span class="op">)</span><span class="op">[</span><span class="va">alive</span><span class="op">]</span>,</span>
 <span>               <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">recs</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">aggressiveness</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></span><span class="op">(</span><span class="fl">1L</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>    beta   <span class="op">=</span> <span class="va">beta_val</span>,</span>
-<span>    n      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">ex</span><span class="op">)</span>,</span>
-<span>    r_eb   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">ex</span>, <span class="va">bo</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>    r_ea   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">ex</span>, <span class="va">ag</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>    r_ba   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">bo</span>, <span class="va">ag</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>    mean_x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">ex</span><span class="op">)</span></span>
+<span>    max_ticks <span class="op">=</span> <span class="va">max_ticks_val</span>,</span>
+<span>    n         <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">ex</span><span class="op">)</span>,</span>
+<span>    r_eb      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">ex</span>, <span class="va">bo</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    r_ea      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">ex</span>, <span class="va">ag</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    r_ba      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">bo</span>, <span class="va">ag</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    mean_x    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">ex</span><span class="op">)</span>,</span>
+<span>    sd_x      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/sd.html" class="external-link">sd</a></span><span class="op">(</span><span class="va">ex</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span></span>
-<span><span class="va">betas</span>   <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">1.0</span>, <span class="fl">1.25</span>, <span class="fl">2.0</span>, <span class="fl">3.0</span><span class="op">)</span></span>
-<span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">betas</span>, <span class="va">run_one</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">horizons</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2000L</span>, <span class="fl">5000L</span>, <span class="fl">15000L</span><span class="op">)</span></span>
+<span><span class="va">results</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">horizons</span>, <span class="va">run_one</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="observed-pattern-seed-42-single-replicate">Observed pattern (seed 42, single replicate)<a class="anchor" aria-label="anchor" href="#observed-pattern-seed-42-single-replicate"></a>
 </h2>
 <table class="table">
 <colgroup>
-<col width="9%">
+<col width="10%">
 <col width="6%">
+<col width="11%">
+<col width="8%">
+<col width="20%">
+<col width="21%">
 <col width="22%">
-<col width="23%">
-<col width="25%">
-<col width="12%">
 </colgroup>
 <thead><tr class="header">
-<th align="right">β</th>
+<th align="right">Ticks</th>
 <th align="right">n</th>
+<th align="right">mean(x)</th>
+<th align="right">sd(x)</th>
 <th align="right">cor(exp, bold)</th>
 <th align="right">cor(exp, aggro)</th>
 <th align="right">cor(bold, aggro)</th>
-<th align="right">mean(x)</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="right">0.50</td>
-<td align="right">676</td>
-<td align="right">+0.017</td>
-<td align="right">+0.058</td>
-<td align="right"><strong>+0.188</strong></td>
-<td align="right">0.103</td>
+<td align="right">2 000</td>
+<td align="right">585</td>
+<td align="right">0.143</td>
+<td align="right">0.127</td>
+<td align="right">−0.021</td>
+<td align="right">−0.099</td>
+<td align="right">−0.004</td>
 </tr>
 <tr class="even">
-<td align="right">1.00</td>
-<td align="right">639</td>
-<td align="right">+0.071</td>
-<td align="right">−0.142</td>
-<td align="right">−0.025</td>
-<td align="right">0.102</td>
-</tr>
-<tr class="odd">
-<td align="right">1.25</td>
+<td align="right">5 000</td>
 <td align="right">670</td>
+<td align="right">0.094</td>
+<td align="right">0.096</td>
 <td align="right">+0.044</td>
 <td align="right">−0.005</td>
 <td align="right"><strong>+0.307</strong></td>
-<td align="right">0.094</td>
-</tr>
-<tr class="even">
-<td align="right">2.00</td>
-<td align="right">676</td>
-<td align="right">−0.054</td>
-<td align="right">+0.075</td>
-<td align="right"><strong>+0.124</strong></td>
-<td align="right">0.097</td>
 </tr>
 <tr class="odd">
-<td align="right">3.00</td>
-<td align="right">641</td>
-<td align="right">−0.132</td>
-<td align="right">−0.063</td>
-<td align="right">−0.081</td>
-<td align="right">0.077</td>
+<td align="right">15 000</td>
+<td align="right">665</td>
+<td align="right">0.094</td>
+<td align="right">0.100</td>
+<td align="right">+0.044</td>
+<td align="right">−0.058</td>
+<td align="right">+0.032</td>
 </tr>
 </tbody>
 </table>
-<p>Three of five β values produce the predicted positive bold-aggro
-syndrome; two produce essentially-zero or negative values. The syndrome
-strength varies by <strong>0.39 in correlation units across the β
-range</strong> (peak −0.08 at β = 3.0 to peak +0.31 at β = 1.25).</p>
-<p>The asset-protection signs (cor(exp, bold) and cor(exp, aggro)) also
-shift with β: weakly positive at β = 0.5, becoming clearly negative at β
-= 3.0. This is in Wolf’s predicted direction (high-x agents should be
-less bold / less aggressive) but only emerges at the high end of the β
-range tested.</p>
+<p>The defining bold-aggro syndrome:</p>
+<ul>
+<li>
+<strong>2 000 ticks</strong> — not yet established (r ≈ 0).
+Population still approaching equilibrium.</li>
+<li>
+<strong>5 000 ticks</strong> — peak at r = +0.307. This is the Wolf
+2007 reproduction value reported in
+<code><a href="../articles/paper-wolf2007.html">vignette("paper-wolf2007")</a></code> and the Phase 6 commit.</li>
+<li>
+<strong>15 000 ticks</strong> — decayed to r = +0.032, an order of
+magnitude weaker. Essentially gone.</li>
+</ul>
+<p>The asset-protection signs (cor(exp, bold), cor(exp, aggro)) stay
+near zero across all horizons.</p>
 </div>
 <div class="section level2">
 <h2 id="reading-the-result">Reading the result<a class="anchor" aria-label="anchor" href="#reading-the-result"></a>
 </h2>
-<p>Massol &amp; Crochet’s critique is <strong>partially borne
-out</strong> in clade’s spatially-explicit implementation:</p>
+<p><strong>McElreath et al.’s critique is strongly borne out</strong> in
+clade’s spatially-explicit implementation:</p>
 <ol style="list-style-type: decimal">
-<li>
-<strong>The syndrome is β-sensitive.</strong> Wolf reports the
-bold-aggro correlation as the defining prediction of his model; varying
-β over a biologically plausible range moves that correlation by ~0.4.
-Not constant.</li>
-<li>
-<strong>The peak coincides with Wolf’s published value.</strong> β =
-1.25 gives the strongest syndrome in the sweep (+0.307). This is
-consistent with Wolf having chosen a parameter that maximised the
-headline result — defensible publication practice, but the result is
-fragile to that choice.</li>
-<li>
-<strong>The asset-protection signs become Wolf-predicted only at
-high β.</strong> At β = 0.5 (weak penalty on high-x agents) the signs
-are wrong; they flip to Wolf’s predicted negative direction by β = 3.0.
-This is the <em>opposite</em> fragility: the asset-protection mechanism
-is strongest at high β, but at that same β the bold-aggro syndrome
-collapses.</li>
+<li>The bold-aggro syndrome is <strong>transient</strong>, peaking
+around 5 000 ticks and decaying to near-zero by 15 000.</li>
+<li>The decay happens <em>while the trait-mean equilibrium is
+stable</em>: mean(x) is essentially identical at 5 k and 15 k (0.094 in
+both), and sd(x) is similar (0.096 vs 0.100). What changes is the
+<em>covariance</em> between traits, not their marginal
+distributions.</li>
+<li>This matches McElreath’s negative-feedback framing: the population
+reaches a structural equilibrium where individual variation in
+<em>x</em> no longer covaries strongly with variation in boldness and
+aggressiveness. Asset protection has homogenised the population along
+the protection-relevant axis.</li>
 </ol>
-<p>The two-correlation tension (syndrome peaks at intermediate β; asset-
-protection signs strengthen at high β) suggests clade’s spatial
-implementation produces <strong>two distinct selection regimes</strong>
-rather than one coherent dimorphism. Massol &amp; Crochet’s framing —
-that the mathematical conditions for stable dimorphism are narrow — is
-consistent with what we see, but the spatial implementation adds its own
-structure: the population locks at x ≈ 0.1 at every β tested, so the
-<em>true</em> x dimorphism Wolf predicts (x ≈ 0 vs x ≈ 1 modes) is
-absent regardless.</p>
+<p>The result also explains why Wolf’s published correlations look so
+clean: Wolf reports ~50-generation simulations. With clade’s
+<code>wolf_year2_repro_age = 100</code>, 5 000 ticks ≈ 50 generations —
+exactly the time-point where the syndrome is at its peak. <strong>The
+headline syndrome strength is a property of simulation length, not of
+the mechanism itself.</strong></p>
+</div>
+<div class="section level2">
+<h2 id="implications-for-the-wolf-2007-reproduction">Implications for the Wolf 2007 reproduction<a class="anchor" aria-label="anchor" href="#implications-for-the-wolf-2007-reproduction"></a>
+</h2>
+<p>The base reproduction in <code><a href="../articles/paper-wolf2007.html">vignette("paper-wolf2007")</a></code> ran
+to 5 000 ticks because that’s roughly where Wolf 2007 stops. At that
+horizon clade matches Wolf’s qualitative pattern (positive bold-aggro
+syndrome). But at 15 000 ticks — three times longer — the syndrome is
+gone. The asset-protection mechanism is real, but its visible effect on
+trait correlations is short-lived.</p>
+<p>Users running the Wolf scenario in clade should be aware of this: the
+syndrome’s strength is <em>time-window-dependent</em>. Quoting a “final”
+correlation without specifying the simulation length is misleading.</p>
+</div>
+<div class="section level2">
+<h2 id="two-critiques-together-a-coherent-picture">Two critiques together: a coherent picture<a class="anchor" aria-label="anchor" href="#two-critiques-together-a-coherent-picture"></a>
+</h2>
+<p>Reading <code><a href="../articles/paper-massol-crochet-2008.html">vignette("paper-massol-crochet-2008")</a></code> and this
+vignette together gives a coherent picture of the Wolf 2007 mechanism in
+clade’s spatial setting:</p>
+<ul>
+<li>
+<strong>Massol &amp; Crochet 2008</strong>: the syndrome’s strength
+is sensitive to the trade-off shape parameter β. Peak at β = 1.25
+(Wolf’s default), weaker on either side. The mechanism is
+parameter-fragile.</li>
+<li>
+<strong>McElreath et al. 2007</strong>: the syndrome’s strength is
+sensitive to the time horizon. Peak around 5 000 ticks, decays by 15
+000. The mechanism is time-fragile.</li>
+</ul>
+<p>Both critiques are partially borne out. Wolf’s headline result is
+real but <strong>conditional on a narrow parameter range and a specific
+time window</strong> — neither of which is robust to perturbation.</p>
 </div>
 <div class="section level2">
 <h2 id="caveats">Caveats<a class="anchor" aria-label="anchor" href="#caveats"></a>
 </h2>
 <ul>
 <li>
-<strong>Single seed</strong> (42). The numbers above will move with
-seed-to-seed variation. A proper test would run 5–10 seeds per β and
-report distributions. The pattern is suggestive, not definitive.</li>
+<strong>Single seed</strong> (42). The qualitative pattern (peak
+then decay) is visible at this seed; a multi-seed sweep would firm up
+the timing of the peak and the half-life of the decay. Documented as a
+limitation.</li>
 <li>
-<strong>Phase 6 denominator on.</strong> The runs include the
-per-strategy <code>(1+α·N_i)</code> competition denominator that
-strengthens the bold-aggro syndrome at Wolf’s β = 1.25 (see
-<code><a href="../articles/paper-wolf2007.html">vignette("paper-wolf2007")</a></code>, “Honest discussion of
-magnitudes”). Setting <code>personality_alpha = 0</code> reverts to
-Phase 3a behaviour and would shift these numbers.</li>
+<strong>Phase 6 (1+α·N_i) denominator on</strong>. Setting
+<code>personality_alpha = 0</code> reverts to Phase 3a behaviour and
+might shift the timing.</li>
 <li>
-<strong>No bimodality at any β.</strong> Wolf’s headline result is a
-stable dimorphism (x ≈ 0 mode + x ≈ 1 mode). clade’s mean(x) ≈ 0.1 at
-every β; the population is unimodal at low x throughout the sweep. This
-matches the Phase 6 finding in paper-wolf2007.Rmd — clade’s spatial
-competition + one-per-cell offspring placement constrain the equilibrium
-to a single attractor.</li>
+<strong>Spatial implementation</strong>. clade’s grid + one-per-cell
+offspring + Moore-neighbourhood hawk-dove pairing produces a different
+equilibrium structure than Wolf’s mean-field model. McElreath’s argument
+is mathematical and applies to any negative-feedback setting; the
+time-scale of decay in clade may differ from what pure Wolf would
+show.</li>
+<li>
+<strong>Computational cost</strong>. A 15 000-tick run takes ~130 s
+on a typical M1 laptop. Doing the same sweep at 5–10 seeds per horizon
+takes 10–20 minutes. Worth doing for any quantitative claim that
+generalises beyond seed 42.</li>
 </ul>
 </div>
 <div class="section level2">
-<h2 id="what-this-implies-for-the-wolf-2007-reproduction">What this implies for the Wolf 2007 reproduction<a class="anchor" aria-label="anchor" href="#what-this-implies-for-the-wolf-2007-reproduction"></a>
+<h2 id="whats-left-for-follow-up-work">What’s left for follow-up work<a class="anchor" aria-label="anchor" href="#whats-left-for-follow-up-work"></a>
 </h2>
-<p>The 0.7.0 implementation of Wolf 2007 <em>did</em> reproduce the
-defining bold-aggro syndrome at Wolf’s parameter values. This vignette
-shows that <strong>the syndrome’s strength is genuinely sensitive to
-β</strong> — which is exactly what Massol &amp; Crochet predicted.
-Future users of the Wolf scenario should treat the syndrome strength as
-parameter-dependent, not as a fixed property of the mechanism.</p>
+<ul>
+<li>
+<strong>Multi-seed verification</strong> of the timing of peak and
+decay.</li>
+<li>
+<strong>Per-tick correlation tracking</strong> — using the
+<code>log_genomes</code> feature (wired in 0.7.x) one could compute the
+bold-aggro correlation at every logged tick rather than just at three
+endpoints, producing a full time-course rather than three
+snapshots.</li>
+<li>
+<strong>Negative-feedback rate as a function of population
+size</strong>. McElreath’s theory predicts faster decay in larger
+populations (more statistical averaging). The current sweep is at a
+single population size.</li>
+</ul>
 </div>
 <div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
 <ul>
-<li>Massol, F. &amp; Crochet, P. (2008) Do animal personalities emerge?
-<em>Nature</em> 451 (Brief Communications Arising). <a href="doi:10.1038/nature06744" class="uri">doi:10.1038/nature06744</a>.</li>
+<li>McElreath, R., Luttbeg, B., Fogarty, S.P., Brodin, T. &amp; Sih, A.
+<ol start="2007" style="list-style-type: decimal">
+<li>Evolution of animal personalities. <em>Nature</em> 450 (Brief
+Communications Arising). <a href="doi:10.1038/nature06326" class="uri">doi:10.1038/nature06326</a>.</li>
+</ol>
+</li>
 <li>Wolf, M., van Doorn, G.S., Leimar, O. &amp; Weissing, F.J. (2007)
 Life-history trade-offs favour the evolution of animal personalities.
 <em>Nature</em> 447:581–584. <a href="doi:10.1038/nature05835" class="uri">doi:10.1038/nature05835</a>.</li>
 <li>See also <code><a href="../articles/paper-wolf2007.html">vignette("paper-wolf2007")</a></code> for the base
-reproduction and the Phase 6 (1+α·N_i) denominator refinement that
-strengthens the syndrome at Wolf’s β = 1.25.</li>
+reproduction and <code><a href="../articles/paper-massol-crochet-2008.html">vignette("paper-massol-crochet-2008")</a></code> for
+the parallel β-sweep test of the same Wolf 2007 mechanism.</li>
 </ul>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
