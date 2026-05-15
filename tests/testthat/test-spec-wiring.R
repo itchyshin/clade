@@ -29,12 +29,6 @@ library(testthat)
   "transformer_heads",
   "synthesis_max_rules",
 
-  # Genome-logging feature toggle. env.genome_log Vector exists and is
-  # exported in get_run_data(); the populator in logging.jl is the
-  # missing piece. Visualization.R has a user-facing placeholder
-  # message. Kept as a real spec field until logging is implemented.
-  "log_genomes",
-
   # Senescence shape parameter for a future 2-parameter Gompertz model.
   # death.jl currently uses senescence_rate only. Kept so the test
   # threshold doesn't have to change when the 2-param model lands.

@@ -353,3 +353,54 @@ function _sample_genetic_diversity(agents::Vector{Agent}, rng)::Float64
     end
     total / n_pairs
 end
+
+"""
+    log_genomes!(env::Environment)
+
+Snapshot every alive agent's trait genome (haplotype 1 only — the maternal
+trait vector, which equals the expressed phenotype for haploid agents and
+is one of two haplotypes for diploid agents) and push to `env.genome_log`.
+
+Only fires when `specs["log_genomes"] == true`. Called once per tick
+right after `log_tick!`; the same `log_freq` gate applies upstream in
+the tick loop, so log_genomes inherits the same sampling cadence.
+
+Each pushed entry is a `Dict{String,Any}` with:
+  - `"t"`         => the tick number
+  - `"agent_ids"` => `Vector{Int64}` of agent IDs at this tick
+  - `"traits"`    => `Matrix{Float32}` of size (n_alive × N_SCALAR_TRAITS),
+                     row i = `agent_ids[i]`'s maternal_traits vector
+
+The R-side `get_genome_data()` composes a single tall data.frame from
+these per-tick snapshots; `plot_tsne_genomes()` runs PCA on the
+resulting matrix.
+
+This is a deliberately minimal genome snapshot: only the heritable
+22-trait scalar vector, not the full brain weight matrix (which is
+brain-architecture-specific and would inflate the log by orders of
+magnitude). Sufficient for population-genetic structure analyses;
+adding weights is straightforward future work.
+"""
+function log_genomes!(env::Environment)
+    Bool(get(env.specs, "log_genomes", false)) || return
+    ags_alive = [a for a in env.agents if a.alive]
+    n = length(ags_alive)
+    n == 0 && return
+
+    # Matrix: rows = agents, cols = N_SCALAR_TRAITS
+    mat = Matrix{Float32}(undef, n, N_SCALAR_TRAITS)
+    ids = Vector{Int64}(undef, n)
+    for (i, ag) in enumerate(ags_alive)
+        ids[i] = Int64(ag.id)
+        @inbounds for j in 1:N_SCALAR_TRAITS
+            mat[i, j] = ag.genome.maternal_traits[j]
+        end
+    end
+
+    push!(env.genome_log, Dict{String,Any}(
+        "t"         => Int(env.t),
+        "agent_ids" => ids,
+        "traits"    => mat,
+    ))
+    return
+end
