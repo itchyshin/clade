@@ -101,9 +101,10 @@
 #'     ANN = multilayer perceptron (Rumelhart et al. 1986);
 #'     CTRNN = continuous-time recurrent network (Beer 1995);
 #'     GRN = gene regulatory network (Kauffman 1993);
-#'     random = null baseline. See `vignette("custom-modules")` for
-#'     architecture details and `dev/benchmarks/brain_comparison.R`
-#'     for a side-by-side benchmark of the five working types.}
+#'     random = null baseline. See [clade-package] documentation for
+#'     a one-line summary of each architecture and
+#'     `vignette("s-brain-comparison")` for a side-by-side benchmark
+#'     of the five working types.}
 #'   \item{`hidden_layers`}{Integer vector. Hidden layer widths for `"ann"` and
 #'     `"bnn"` (default `c(8L)`; gives one hidden layer of 8 units). Set to
 #'     `c(16L, 8L)` for two hidden layers.}
@@ -114,11 +115,18 @@
 #'     brain's first-layer width accordingly.}
 #'   \item{`n_genes`}{Integer. Number of genes for `"grn"` brain type
 #'     (default 20L). Includes sensory input genes and action output genes.}
-#'   \item{`transformer_history`}{Integer. Number of past sensory inputs the
-#'     transformer attends over (default 8L).}
-#'   \item{`transformer_heads`}{Integer. Number of attention heads (default 2L).}
-#'   \item{`synthesis_max_rules`}{Integer. Maximum number of IF-THEN rules
-#'     per agent (default 10L).}
+#'   \item{`transformer_history`}{Integer. **Reserved placeholder** for a
+#'     future transformer brain type — currently unused by any brain
+#'     implementation; kernel rejects `brain_type = "transformer"` at
+#'     runtime. The field's eventual semantics: number of past sensory
+#'     inputs the transformer attends over (default 8L).}
+#'   \item{`transformer_heads`}{Integer. **Reserved placeholder** —
+#'     same status as `transformer_history`. Eventual semantics:
+#'     number of attention heads (default 2L).}
+#'   \item{`synthesis_max_rules`}{Integer. **Reserved placeholder**
+#'     for a future symbolic-rule-synthesis brain — currently unused;
+#'     kernel rejects `brain_type = "synthesis"` at runtime. Eventual
+#'     semantics: maximum number of IF-THEN rules per agent (default 10L).}
 #'   \item{`ann_weight_values`}{Numeric vector or `NULL`. When not `NULL`,
 #'     every synaptic weight and bias is snapped to the nearest value in this
 #'     set immediately after genome expression (before the first forward pass

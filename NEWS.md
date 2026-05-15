@@ -1,3 +1,72 @@
+# clade 0.7.1 (2026-05-13) — post-0.7.0 audit cleanup + CI re-enable
+
+## Spec-wiring audit (#114)
+
+Catalogued every field in `default_specs()` (then 304) against Julia
+consumers. Found and resolved 12 unwired or over-claimed entries:
+
+- **Brain-architecture over-claim corrected**: DESCRIPTION, README, and
+  `R/clade-package.R` said clade had "six brain architectures". In
+  reality only four are implemented (BNN, ANN, CTRNN, GRN) plus a
+  `random` baseline; `transformer` and `synthesis` are reserved names
+  that error in the kernel. All three user-facing surfaces now match.
+- **`world_evolution` module deleted**: had three spec fields claiming
+  to enable a feature whose Julia module file never existed (the
+  include line in `Clade.jl` was commented out). Removed the fields.
+- **Six unwired spec fields deleted** (Tier-3 cleanup):
+  `wall_density`, `wall_clusters`, `life_history_evolution`,
+  `parental_investment_init_mean`, `repro_senescence`.
+- **Bonus fix**: the three new 0.7.0 preset functions
+  (`wolf_personality_specs`, `trivers_reciprocity_specs`,
+  `wolf2008_responsiveness_specs`) had `@export` tags but were missing
+  from NAMESPACE. Users on the released 0.7.0 tarball would have got
+  "could not find function". `devtools::document()` propagation
+  added.
+
+## Permanent structural guard (#114)
+
+New `tests/testthat/test-spec-wiring.R` runs on every test pass: for
+every field in `default_specs()`, asserts the field name appears as a
+string literal in `inst/julia/src/**/*.jl`. A small allowlist covers
+documented placeholders (currently three reserved brain-architecture
+fields). Adding a spec field in R without a Julia consumer now fails
+the test, generalising the 0.6.4 `mate_choice_mode` incident into a
+class-of-bug guard.
+
+## CI + pkgdown index fixes (#121)
+
+- **`pull_request` trigger re-enabled** in `.github/workflows/R-CMD-check.yaml`.
+  The 0.7.0 work disabled it to dodge a billing-blocked period; the
+  repo is now public so Actions are free. CI now runs on every PR
+  again.
+- **`_pkgdown.yml` reference index** — added entries for
+  `wolf_personality_specs`, `trivers_reciprocity_specs`,
+  `wolf2008_responsiveness_specs`. They were defined and exported in
+  0.7.0 but missing from the reference index, so the pkgdown build
+  failed under `--no-clean-cache`.
+- **`_pkgdown.yml` articles index** — added entries for the three
+  0.7.0 paper-reproduction vignettes (`paper-wolf2007`,
+  `paper-wolf2008`, `paper-trivers1971`). They rendered but were
+  unreachable from the "Paper reproductions" section heading.
+
+## Documentation reconciliation
+
+Repo-wide sweep of version strings, default-value claims, and
+deprecated field references. Fixed `DESCRIPTION` (0.6.5 → 0.7.0),
+`R/clade-package.R` citation (0.5.6 → 0.7.0), `inst/CITATION`
+(0.3.0 → 0.7.0), `README.md` citation block + fidelity-audit badge
+(32/32 → 35/35 reflecting the 0.7.0 paper reproductions), README
+modules table flag-name corrections (`mate_choice` → `mate_choice_mode`,
+`predators` → `n_predators_init > 0`, `signal_mating` → `signal_dims > 0`),
+and README rows for the three 0.7.0 modules
+(`personality_syndrome`, `reciprocal_altruism`,
+`responsive_personalities`).
+
+The Julia first-call compile time is now consistently reported as
+60-90 s in all four places where it had been written as 3-10, 10-90,
+or 60-90 s. `julia_is_ready()` documentation corrected — it does NOT
+itself trigger compilation; the first `run_alife()` call does.
+
 # clade 0.7.0 (2026-05-05) — kernel discipline + three personality/cooperation papers
 
 ## Two MATLAB-ancestor regressions fixed in the kernel
@@ -85,7 +154,7 @@ denominator. Documented in the vignette.
 
 - `random_tick_order` (default `TRUE`)
 - `max_agents_per_cell` (default `1L`)
-- 16 `personality_*` fields (Wolf 2007), including `personality_alpha`
+- 12 `personality_*` fields (Wolf 2007), including `personality_alpha`
 - 12 `reciprocity_*` fields (Trivers)
 - 4 `responsive_*` fields (Wolf 2008)
 

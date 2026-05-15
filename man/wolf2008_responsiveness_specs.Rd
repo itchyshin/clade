@@ -25,15 +25,20 @@ competition emerges naturally from clade's grass economy.}
 responsiveness's frequency-dependent cost actually bites.}
 \item{\code{max_agents = 800L}}{Room for population growth; the regulator
 is grass + handling time, not max_agents.}
-\item{\code{max_ticks = 3000L}}{30 generations at default max_age = 100.
-Long enough for the responsiveness trait to evolve to its
+\item{\code{max_ticks = 3000L}}{~15 generations at default \code{max_age = 200}.
+Long enough for the responsiveness trait to evolve toward its
 equilibrium frequency.}
 \item{\code{ploidy = 1L}}{Haploid asexual; cleaner trait dynamics.}
+\item{\code{responsiveness_cost = 0.1}}{Calibrated below the
+\code{default_specs()} value of 0.4 so populations don't collapse
+during trait evolution. The frequency-dependent benefit
+mechanism is preserved either way.}
 }
 
-Wolf 2008-specific parameters (responsiveness_init_mean, mutation_sd,
-responsiveness_cost) inherit from \code{default_specs()}. To probe the
-density-dependent benefit (Wolf's headline mechanism):
+Wolf 2008-specific parameters not listed above
+(\code{responsiveness_init_mean}, mutation SD) inherit from
+\code{default_specs()}. To probe the density-dependent benefit
+(Wolf's headline mechanism):
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{for (n_init in c(50L, 100L, 200L, 400L)) \{
   s <- wolf2008_responsiveness_specs()

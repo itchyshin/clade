@@ -98,7 +98,7 @@ Key facts:
 | `R/utils.R`, `R/zzz.R` | Helpers and package load hooks |
 | `inst/julia/src/Clade.jl` | Julia kernel entry point |
 | `inst/julia/src/{tick,sense,reproduce,death,genome,logging,types}.jl` | Core simulation loop |
-| `inst/julia/src/brains/` | Brain architectures (BNN, ANN, CTRNN, GRN, transformer, synthesis) |
+| `inst/julia/src/brains/` | Brain architectures (BNN, ANN, CTRNN, GRN) + a RandomBrain baseline in `Clade.jl`. `transformer` and `synthesis` are reserved names; kernel errors if requested. |
 | `inst/julia/src/modules/` | Optional biological modules (disease, dispersal, kin, etc.) |
 | `vignettes/*.Rmd` | Long-form articles and per-scenario showcases (`s-*.Rmd`) |
 | `tests/testthat/test-*.R` | Unit and integration tests |

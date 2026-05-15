@@ -6,11 +6,11 @@ bibentry(
   author   = person("Shinichi", "Nakagawa"),
   year     = "2026",
   url      = "https://github.com/itchyshin/clade",
-  note     = "R package version 0.3.0",
+  note     = "R package version 0.7.0",
   textVersion = paste(
     "Nakagawa, S. (2026).",
     "clade: Agent-based evolutionary simulation with a Julia backend.",
-    "R package version 0.3.0.",
+    "R package version 0.7.0.",
     "https://github.com/itchyshin/clade"
   )
 )

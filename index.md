@@ -116,7 +116,7 @@ own paper can template off these examples.
 remotes::install_github("itchyshin/clade")
 
 library(clade)
-julia_is_ready()              # first call compiles the Julia kernel (~60–90 s)
+julia_is_ready()              # checks status; compilation happens on first run_alife() — ~60-90 s
 
 specs <- default_specs()
 specs$n_agents_init <- 40L
