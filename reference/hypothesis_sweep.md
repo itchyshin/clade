@@ -66,8 +66,8 @@ hypothesis_sweep(
   Integer. Passed to
   [`batch_alife()`](https://itchyshin.github.io/clade/reference/batch_alife.md).
   Set as close as possible to `length(conditions) * length(seeds)` to
-  keep each worker on one run (subject to your machine's compute limits
-  — see CLAUDE.md for per-machine caps).
+  keep each worker on one run, subject to
+  [`parallel::detectCores()`](https://rdrr.io/r/parallel/detectCores.html).
 
 - verbose:
 

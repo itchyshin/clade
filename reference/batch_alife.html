@@ -23,7 +23,7 @@ separate R process with its own Julia session."></head><body>
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/getting-started.html">Get Started</a></li>
+      <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/basics.html">Get Started</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-paper-reproductions" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Paper reproductions</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-paper-reproductions"><li><a class="dropdown-item" href="../articles/paper-template.html">Template — reproduce YOUR paper</a></li>
@@ -44,7 +44,8 @@ separate R process with its own Julia session."></head><body>
   </ul></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-guides" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Guides</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-guides"><li><a class="dropdown-item" href="../articles/why-clade.html">Why clade?</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-guides"><li><a class="dropdown-item" href="../articles/basics.html">Basics — five minutes to a clade run</a></li>
+    <li><a class="dropdown-item" href="../articles/why-clade.html">Why clade?</a></li>
     <li><a class="dropdown-item" href="../articles/getting-started.html">Getting started</a></li>
     <li><a class="dropdown-item" href="../articles/first-research-project.html">Your first research project</a></li>
     <li><a class="dropdown-item" href="../articles/troubleshooting.html">Troubleshooting &amp; FAQ</a></li>
@@ -172,8 +173,8 @@ separate R process with its own Julia session.</p>
 <dd><p>Integer. Number of R worker processes to use (default 1L).
 Each worker pays a ~60 s Julia compile cost on its first run; for
 batches smaller than ~20 scenarios, serial may be faster. For 50+
-scenarios, the speedup is near-linear in <code>n_cores</code> (capped by
-available cores; see CLAUDE.md for this machine's 200-core cap).</p></dd>
+scenarios, the speedup is near-linear in <code>n_cores</code>, capped by
+<code><a href="https://rdrr.io/r/parallel/detectCores.html" class="external-link">parallel::detectCores()</a></code>.</p></dd>
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
@@ -190,7 +191,7 @@ same order.</p>
     <p>The PSOCK approach (0.5.6 default) replaces an earlier
 <code><a href="https://rdrr.io/r/parallel/mclapply.html" class="external-link">parallel::mclapply()</a></code> path that silently deadlocked: forked R
 workers shared the parent's JuliaConnectoR socket and all blocked
-on the same Julia server. See <code>dev/docs/parallelism-audit.md</code>.</p>
+on the same Julia server.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

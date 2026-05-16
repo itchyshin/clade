@@ -59,7 +59,7 @@ search_cmaes(
   PSOCK workers (one R session + Julia per worker) when `> 1`. Was
   [`parallel::mclapply`](https://rdrr.io/r/parallel/mclapply.html)
   before 0.5.6 but that path silently deadlocked because JuliaConnectoR
-  is not fork-safe — see `dev/docs/parallelism-audit.md`.
+  is not fork-safe.
 
 - verbose:
 

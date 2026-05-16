@@ -447,10 +447,10 @@ offspring diploid via selfing.
 
 **Audit findings.** The 0.5.11 re-audit of 12 diploid-sensitive ✅
 scenarios found that 11 still hold under the fixed kernel (see
-`dev/audit/fidelity/post_0510_summary.md`). One demotion
-(`s-stress-hypermutation`, above). The bug was silently invalidating
-audits for years; the re-audit confirms the surviving claims are
-defensible under real diploid dynamics.
+[`dev/audit/fidelity/post_0510_summary.md`](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/post_0510_summary.md)).
+One demotion (`s-stress-hypermutation`, above). The bug was silently
+invalidating audits for years; the re-audit confirms the surviving
+claims are defensible under real diploid dynamics.
 
 **Variants worth considering.**
 

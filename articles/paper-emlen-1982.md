@@ -3,8 +3,9 @@
 *Mixed reproduction that sharpens a documented honest null: Emlen’s
 ecological-constraints prediction reproduces at the per-capita level but
 inverts at the aggregate population level because scarcity shrinks the
-population. Reinforces the s-kin invasion-dynamics null from PR \#90 —
-`helper_tendency` does not evolve in clade’s current
+population. Reinforces the s-kin invasion-dynamics null documented in
+[`vignette("s-kin")`](https://itchyshin.github.io/clade/articles/s-kin.md)
+— `helper_tendency` does not evolve in clade’s current
 cooperative-breeding kernel even under strong ecological constraint.*
 
 ![Emlen 1982 — raw vs per-capita helping across resource
@@ -98,10 +99,11 @@ Essentially flat at the init mean of 0.2 across all conditions.
 Spearman(grass_rate, helper_tendency) = **−0.115** (correct direction,
 noise-level magnitude). No contrast passes 2σ.
 
-**This reproduces the s-kin invasion honest-null from PR \#90.** clade’s
-cooperative-breeding module does not channel indirect fitness back to
-the helper’s lineage strongly enough for the heritable trait to respond
-to selection. Ecological constraint doesn’t rescue this — the
+**This reproduces the s-kin invasion honest-null documented in
+[`vignette("s-kin")`](https://itchyshin.github.io/clade/articles/s-kin.md).**
+clade’s cooperative-breeding module does not channel indirect fitness
+back to the helper’s lineage strongly enough for the heritable trait to
+respond to selection. Ecological constraint doesn’t rescue this — the
 kernel-level limitation is upstream of the selection regime.
 
 ### 2. Raw helping events DECREASE with scarcity — opposite to Emlen’s prediction
@@ -149,7 +151,7 @@ prediction.
 
 ❌ **Genetic invasion does not occur.** Even under the strongest
 ecological constraint tested (grass_rate = 0.06), `helper_tendency`
-stays at its init mean of 0.2. The s-kin invasion honest-null (PR \#90)
+stays at its init mean of 0.2. The s-kin invasion honest-null
 generalises: no matter what selection regime we impose, clade’s current
 `cooperative_breeding` kernel doesn’t transmit indirect fitness back to
 the helper’s lineage.
@@ -182,7 +184,7 @@ place to do this.
 
 For a full Emlen reproduction, clade needs:
 
-1.  **Kin-weighted fitness accounting** (from the s-kin invasion PR \#90
+1.  **Kin-weighted fitness accounting** (from the s-kin invasion
     honest-null) — so helper_tendency can actually invade from rare
     under genuine ecological constraint.
 2.  **Per-capita helping metric** exposed as a logged quantity, not

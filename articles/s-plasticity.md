@@ -48,7 +48,8 @@ cat("Final plasticity:", tail(data$ticks$mean_plasticity, 1L), "\n")
 Running Phase 7 auto-calibration (`dev/audit/calibration/`) over the
 scenario’s parameter subspace discovered the following regime, which
 produces a fitness improvement of **38.1x** over the defaults above. See
-`dev/audit/calibration/RESULTS.md` for the full CMA-ES results.
+[`dev/audit/calibration/RESULTS.md`](https://github.com/itchyshin/clade/blob/main/dev/audit/calibration/RESULTS.md)
+for the full CMA-ES results.
 
 ``` r
 
@@ -143,8 +144,9 @@ evolve.
 The demo chunk in this vignette now uses `season_length = 10` to
 demonstrate the regime where the prediction holds. Status stays 🟠.
 
-An **8-seed re-audit** (`dev/audit/fidelity/plasticity_8seed.R`) of the
-sl=10 regime showed the 5-seed +0.014 claim was optimistic:
+An **8-seed re-audit**
+([`dev/audit/fidelity/plasticity_8seed.R`](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/plasticity_8seed.R))
+of the sl=10 regime showed the 5-seed +0.014 claim was optimistic:
 
 - 5-seed Δdelta = +0.014 (reported above)
 - 8-seed Δdelta = +0.005 ± SE 0.007, *t* ≈ 0.74
@@ -189,8 +191,8 @@ drift slightly upward — because clade’s sigma also mediates behavioural
 variance, so selection against noisy actions competes with selection
 against learning width regardless of environmental stability. Stays 🟠
 with direction correct, magnitude small. See
-`dev/audit/fidelity/plasticity.md` and the s-baldwin vignette for the
-shared kernel-limitation caveat.
+[`dev/audit/fidelity/plasticity.md`](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/plasticity.md)
+and the s-baldwin vignette for the shared kernel-limitation caveat.
 
 ### Discovery experiments
 

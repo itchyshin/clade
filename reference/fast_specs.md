@@ -22,8 +22,9 @@ A specs list calibrated for fast evolutionary dynamics.
 The timescale calibration is based on the MATLAB ancestor's parameters
 (Bulitko 2023), which ran ~40x faster generations than clade's defaults
 because agents started at reproduction energy with short
-`minReproductionAge`. See `dev/docs/timescale-analysis.md` for the full
-analysis.
+`minReproductionAge`. See
+[`dev/docs/timescale-analysis.md`](https://github.com/itchyshin/clade/blob/main/dev/docs/timescale-analysis.md)
+for the full analysis.
 
 Key changes from
 [`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md):

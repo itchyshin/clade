@@ -29,7 +29,7 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item"><a class="nav-link" href="../articles/getting-started.html">Get Started</a></li>
+<li class="nav-item"><a class="nav-link" href="../articles/basics.html">Get Started</a></li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-paper-reproductions" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Paper reproductions</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-paper-reproductions">
@@ -53,7 +53,8 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-guides" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Guides</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-guides">
-<li><a class="dropdown-item" href="../articles/why-clade.html">Why clade?</a></li>
+<li><a class="dropdown-item" href="../articles/basics.html">Basics — five minutes to a clade run</a></li>
+    <li><a class="dropdown-item" href="../articles/why-clade.html">Why clade?</a></li>
     <li><a class="dropdown-item" href="../articles/getting-started.html">Getting started</a></li>
     <li><a class="dropdown-item" href="../articles/first-research-project.html">Your first research project</a></li>
     <li><a class="dropdown-item" href="../articles/troubleshooting.html">Troubleshooting &amp; FAQ</a></li>
@@ -178,8 +179,9 @@
 <p><em>Mixed reproduction that sharpens a documented honest null:
 Emlen’s ecological-constraints prediction reproduces at the per-capita
 level but inverts at the aggregate population level because scarcity
-shrinks the population. Reinforces the s-kin invasion-dynamics null from
-PR #90 — <code>helper_tendency</code> does not evolve in clade’s current
+shrinks the population. Reinforces the s-kin invasion-dynamics null
+documented in <code><a href="../articles/s-kin.html">vignette("s-kin")</a></code> —
+<code>helper_tendency</code> does not evolve in clade’s current
 cooperative-breeding kernel even under strong ecological
 constraint.</em></p>
 <p><img src="figures-papers/emlen-1982.png" class="r-plt" alt="Emlen 1982 — raw vs per-capita helping across resource scarcity" width="100%"></p>
@@ -290,12 +292,12 @@ more frequently under constraint?</li>
 <p>Essentially flat at the init mean of 0.2 across all conditions.
 Spearman(grass_rate, helper_tendency) = <strong>−0.115</strong> (correct
 direction, noise-level magnitude). No contrast passes 2σ.</p>
-<p><strong>This reproduces the s-kin invasion honest-null from PR
-#90.</strong> clade’s cooperative-breeding module does not channel
-indirect fitness back to the helper’s lineage strongly enough for the
-heritable trait to respond to selection. Ecological constraint doesn’t
-rescue this — the kernel-level limitation is upstream of the selection
-regime.</p>
+<p><strong>This reproduces the s-kin invasion honest-null documented in
+<code><a href="../articles/s-kin.html">vignette("s-kin")</a></code>.</strong> clade’s cooperative-breeding
+module does not channel indirect fitness back to the helper’s lineage
+strongly enough for the heritable trait to respond to selection.
+Ecological constraint doesn’t rescue this — the kernel-level limitation
+is upstream of the selection regime.</p>
 </div>
 <div class="section level3">
 <h3 id="raw-helping-events-decrease-with-scarcity-opposite-to-emlens-prediction">2. Raw helping events DECREASE with scarcity — opposite to Emlen’s
@@ -401,10 +403,9 @@ helping rises. A naive researcher looking at absolute
 <p>❌ <strong>Genetic invasion does not occur.</strong> Even under the
 strongest ecological constraint tested (grass_rate = 0.06),
 <code>helper_tendency</code> stays at its init mean of 0.2. The s-kin
-invasion honest-null (PR #90) generalises: no matter what selection
-regime we impose, clade’s current <code>cooperative_breeding</code>
-kernel doesn’t transmit indirect fitness back to the helper’s
-lineage.</p>
+invasion honest-null generalises: no matter what selection regime we
+impose, clade’s current <code>cooperative_breeding</code> kernel doesn’t
+transmit indirect fitness back to the helper’s lineage.</p>
 <div class="section level3">
 <h3 id="methodology-takeaway">Methodology takeaway<a class="anchor" aria-label="anchor" href="#methodology-takeaway"></a>
 </h3>
@@ -439,8 +440,8 @@ to do this.</p>
 <ol style="list-style-type: decimal">
 <li>
 <strong>Kin-weighted fitness accounting</strong> (from the s-kin
-invasion PR #90 honest-null) — so helper_tendency can actually invade
-from rare under genuine ecological constraint.</li>
+invasion honest-null) — so helper_tendency can actually invade from rare
+under genuine ecological constraint.</li>
 <li>
 <strong>Per-capita helping metric</strong> exposed as a logged
 quantity, not computed post-hoc.</li>

@@ -14,13 +14,6 @@ read
 [`vignette("getting-started")`](https://itchyshin.github.io/clade/articles/getting-started.md)
 first; this vignette assumes you just want a working run.
 
-> This vignette is built incrementally across the Phase A foundation
-> walk (`~/.claude/plans/purring-honking-dove.md`, items 1–4). Each
-> Tier-A0 audit contributes one section; the file becomes complete when
-> item 4
-> ([`plot_run()`](https://itchyshin.github.io/clade/reference/plot_run.md))
-> lands.
-
 ## 1. Start from `default_specs()`
 
 [`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md)
@@ -110,9 +103,10 @@ table(rd$deaths$cause)
 
 For the full column list of a specific run, call `colnames(rd$ticks)` —
 the canonical schema lives in
-`inst/julia/src/logging.jl::_init_progress`. For genome snapshots, use
-`get_genome_data(env)` (same `$genomes` long-format data frame, plus
-reserved placeholders for heterozygosity and FST).
+[`inst/julia/src/logging.jl`](https://github.com/itchyshin/clade/blob/main/inst/julia/src/logging.jl)
+(`_init_progress`). For genome snapshots, use `get_genome_data(env)`
+(same `$genomes` long-format data frame, plus reserved placeholders for
+heterozygosity and FST).
 
 ## 4. Plot the run with `plot_run()`
 
@@ -185,4 +179,5 @@ investment:
 - **Narrative depth.** For the architectural picture, the four brain
   types, the R-Julia split, the lab values, and the vision:
   [`vignette("getting-started")`](https://itchyshin.github.io/clade/articles/getting-started.md)
-  and `dev/design/00-vision.md`.
+  and
+  [`dev/design/00-vision.md`](https://github.com/itchyshin/clade/blob/main/dev/design/00-vision.md).

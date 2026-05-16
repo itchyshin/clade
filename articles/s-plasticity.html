@@ -29,7 +29,7 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item"><a class="nav-link" href="../articles/getting-started.html">Get Started</a></li>
+<li class="nav-item"><a class="nav-link" href="../articles/basics.html">Get Started</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-paper-reproductions" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Paper reproductions</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-paper-reproductions">
@@ -53,7 +53,8 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-guides" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Guides</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-guides">
-<li><a class="dropdown-item" href="../articles/why-clade.html">Why clade?</a></li>
+<li><a class="dropdown-item" href="../articles/basics.html">Basics — five minutes to a clade run</a></li>
+    <li><a class="dropdown-item" href="../articles/why-clade.html">Why clade?</a></li>
     <li><a class="dropdown-item" href="../articles/getting-started.html">Getting started</a></li>
     <li><a class="dropdown-item" href="../articles/first-research-project.html">Your first research project</a></li>
     <li><a class="dropdown-item" href="../articles/troubleshooting.html">Troubleshooting &amp; FAQ</a></li>
@@ -245,9 +246,8 @@ surfaced this constraint.</p>
 <p>Running Phase 7 auto-calibration
 (<code>dev/audit/calibration/</code>) over the scenario’s parameter
 subspace discovered the following regime, which produces a fitness
-improvement of <strong>38.1x</strong> over the defaults above. See
-<code>dev/audit/calibration/RESULTS.md</code> for the full CMA-ES
-results.</p>
+improvement of <strong>38.1x</strong> over the defaults above. See <a href="https://github.com/itchyshin/clade/blob/main/dev/audit/calibration/RESULTS.md" class="external-link"><code>dev/audit/calibration/RESULTS.md</code></a>
+for the full CMA-ES results.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Parameter overrides discovered by CMA-ES (see dev/audit/calibration/):</span></span>
 <span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -424,9 +424,8 @@ scenario where plasticity <em>shouldn’t</em> evolve.</p>
 <p>The demo chunk in this vignette now uses
 <code>season_length = 10</code> to demonstrate the regime where the
 prediction holds. Status stays 🟠.</p>
-<p>An <strong>8-seed re-audit</strong>
-(<code>dev/audit/fidelity/plasticity_8seed.R</code>) of the sl=10 regime
-showed the 5-seed +0.014 claim was optimistic:</p>
+<p>An <strong>8-seed re-audit</strong> (<a href="https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/plasticity_8seed.R" class="external-link"><code>dev/audit/fidelity/plasticity_8seed.R</code></a>)
+of the sl=10 regime showed the 5-seed +0.014 claim was optimistic:</p>
 <ul>
 <li>5-seed Δdelta = +0.014 (reported above)</li>
 <li>8-seed Δdelta = +0.005 ± SE 0.007, <em>t</em> ≈ 0.74</li>
@@ -486,8 +485,8 @@ reproduced — both envs drift slightly upward — because clade’s sigma
 also mediates behavioural variance, so selection against noisy actions
 competes with selection against learning width regardless of
 environmental stability. Stays 🟠 with direction correct, magnitude
-small. See <code>dev/audit/fidelity/plasticity.md</code> and the
-s-baldwin vignette for the shared kernel-limitation caveat.</p>
+small. See <a href="https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/plasticity.md" class="external-link"><code>dev/audit/fidelity/plasticity.md</code></a>
+and the s-baldwin vignette for the shared kernel-limitation caveat.</p>
 </div>
 <div class="section level3">
 <h3 id="discovery-experiments">Discovery experiments<a class="anchor" aria-label="anchor" href="#discovery-experiments"></a>

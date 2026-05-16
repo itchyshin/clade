@@ -71,7 +71,9 @@ Four bias levels × 4 seeds = 16 runs, 40×40 grid, 3000 ticks,
 extract final-tick agent-level `signal` and `preference` vectors and
 compute component-1 means (direction = bias target).
 
-See `dev/audit/fidelity/paper_ryan_1990.R` for the full script.
+See
+[`dev/audit/fidelity/paper_ryan_1990.R`](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/paper_ryan_1990.R)
+for the full script.
 
 ## Results
 

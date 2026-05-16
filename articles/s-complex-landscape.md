@@ -65,7 +65,8 @@ tuned$specs   # optimal landscape parameters
 Running Phase 7 auto-calibration (`dev/audit/calibration/`) over the
 scenario’s parameter subspace discovered the following regime, which
 produces a fitness improvement of **8.9x** over the defaults above. See
-`dev/audit/calibration/RESULTS.md` for the full CMA-ES results.
+[`dev/audit/calibration/RESULTS.md`](https://github.com/itchyshin/clade/blob/main/dev/audit/calibration/RESULTS.md)
+for the full CMA-ES results.
 
 ``` r
 

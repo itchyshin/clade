@@ -126,8 +126,11 @@ reclassifies all three correlations as null.
 A multi-seed regression baseline at the default
 [`wolf_personality_specs()`](https://itchyshin.github.io/clade/reference/wolf_personality_specs.md)
 configuration — 8 seeds × 5000 ticks, single condition — was generated
-by `dev/audit/fidelity/paper_wolf2007.R` and saved to
-`dev/audit/fidelity/paper_wolf2007.rds`. Per-seed correlations:
+by
+[`dev/audit/fidelity/paper_wolf2007.R`](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/paper_wolf2007.R)
+and saved to
+[`dev/audit/fidelity/paper_wolf2007.rds`](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/paper_wolf2007.rds).
+Per-seed correlations:
 
 | seed | cor(bold, aggro) | cor(exp, bold) | cor(exp, aggro) | n_alive |
 |-----:|-----------------:|---------------:|----------------:|--------:|
@@ -182,7 +185,7 @@ Possible explanations for the gap, in decreasing order of likelihood:
 - **Implementation issue in `inst/julia/src/modules/personality.jl`.**
   Lower-likelihood but worth keeping on the list. The deterministic
   kernel module has been reviewed but a multi-seed null at this scale is
-  a candidate finding for Sergio’s v0.8-core review.
+  a candidate finding for the next kernel-review pass.
 
 The seed-42 +0.31 observation should be read as a noise-envelope
 landing, not a robust syndrome signal. Phase 6’s `(1+α·N_i)` denominator
@@ -361,13 +364,14 @@ the critiques **are themselves contradicted at 8 seeds**.
 > seed-42 +0.307 single- seed observations were noise-envelope landings
 > on the positive tail. Both critique vignettes’ *apparent
 > confirmations* dissolved with the rds upgrade. **One robust positive
-> finding survives** (confirmed at 16 seeds, PR \#147): in the McElreath
-> horizon sweep, `cor(exp, aggro)` at 2 000 ticks PASSes-negative — the
+> finding survives** (confirmed at 16 seeds): in the McElreath horizon
+> sweep, `cor(exp, aggro)` at 2 000 ticks PASSes-negative — the
 > asset-protection signal *does* appear in clade’s spatial kernel, but
 > in the asset-protection correlation rather than the syndrome
 > correlation, and at the *earliest* horizon (opposite to McElreath’s
 > “later-peak” prediction). Both the syndrome null and the early-horizon
-> asset-protection finding are candidates for the v0.8-core review.
+> asset-protection finding are candidates for the next kernel-review
+> pass.
 
 ## References
 

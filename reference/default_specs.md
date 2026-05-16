@@ -49,7 +49,8 @@ A named list of simulation parameters.
   clade simulation prior to 0.7.0 (earlier-array agents systematically
   had first access to foraging, mates, free cells, and prey). Only set
   FALSE to reproduce pre-0.7.0 results. See
-  `dev/docs/consolidation-audit.md` for the full ancestor diff.
+  [`dev/docs/consolidation-audit.md`](https://github.com/itchyshin/clade/blob/main/dev/docs/consolidation-audit.md)
+  for the full ancestor diff.
 
 - `n_agents_init`:
 
@@ -1324,7 +1325,8 @@ rate rises transiently. Controlled by three specs:
   Numeric in \[0, 1\]. Maximum fraction of predator attack success
   reduced under maximum grouping (default 0.3). 2026-04-17 audit found
   the population-level effect inverts Hamilton 1971 at all tested values
-  — see `dev/audit/fidelity/group_defense_strength_sweep.R`.
+  — see
+  [`dev/audit/fidelity/group_defense_strength_sweep.R`](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/group_defense_strength_sweep.R).
 
 ### Habitat preference (ideal free distribution)
 

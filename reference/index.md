@@ -47,9 +47,8 @@ Entry points for running and batching evolutionary simulations.
 
 ## Hypothesis testing
 
-Helpers for the sweep-\>test-\>report workflow common in fidelity audits
-and paper reproductions. Helpers for the sweep-\>test-\>report workflow
-used in fidelity audits and paper reproductions. See
+Helpers for the sweep-\>test-\>report workflow used in fidelity audits
+and paper reproductions. See
 [`vignette("paper-kokko-brooks-2003")`](https://itchyshin.github.io/clade/articles/paper-kokko-brooks-2003.md)
 for a worked example.
 
@@ -117,7 +116,7 @@ evolutionary outcomes.
 ## Scenario objectives
 
 Pre-built objective functions for the complex landscape, spatial
-sorting, and IFfolk modules. Pass to
+sorting, and iffolk modules. Pass to
 [`search_cmaes()`](https://itchyshin.github.io/clade/reference/search_cmaes.md)
 or write your own with the same signature.
 

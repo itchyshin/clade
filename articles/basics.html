@@ -29,7 +29,7 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item"><a class="nav-link" href="../articles/getting-started.html">Get Started</a></li>
+<li class="active nav-item"><a class="nav-link" href="../articles/basics.html">Get Started</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-paper-reproductions" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Paper reproductions</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-paper-reproductions">
@@ -53,7 +53,8 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-guides" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Guides</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-guides">
-<li><a class="dropdown-item" href="../articles/why-clade.html">Why clade?</a></li>
+<li><a class="dropdown-item" href="../articles/basics.html">Basics — five minutes to a clade run</a></li>
+    <li><a class="dropdown-item" href="../articles/why-clade.html">Why clade?</a></li>
     <li><a class="dropdown-item" href="../articles/getting-started.html">Getting started</a></li>
     <li><a class="dropdown-item" href="../articles/first-research-project.html">Your first research project</a></li>
     <li><a class="dropdown-item" href="../articles/troubleshooting.html">Troubleshooting &amp; FAQ</a></li>
@@ -188,12 +189,6 @@ pointer to the deeper material. If you want narrative motivation, the
 architectural picture, or the lab vision behind clade, read
 <code><a href="../articles/getting-started.html">vignette("getting-started")</a></code> first; this vignette assumes
 you just want a working run.</p>
-<blockquote>
-<p>This vignette is built incrementally across the Phase A foundation
-walk (<code>~/.claude/plans/purring-honking-dove.md</code>, items 1–4).
-Each Tier-A0 audit contributes one section; the file becomes complete
-when item 4 (<code><a href="../reference/plot_run.html">plot_run()</a></code>) lands.</p>
-</blockquote>
 </div>
 <div class="section level2">
 <h2 id="start-from-default_specs">1. Start from <code>default_specs()</code><a class="anchor" aria-label="anchor" href="#start-from-default_specs"></a>
@@ -273,11 +268,11 @@ age-dominated, or (when predators are on) predation-dominated.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">rd</span><span class="op">$</span><span class="va">ticks</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"t"</span>, <span class="st">"n_agents"</span>, <span class="st">"mean_energy"</span>, <span class="st">"genetic_diversity"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">rd</span><span class="op">$</span><span class="va">deaths</span><span class="op">$</span><span class="va">cause</span><span class="op">)</span></span></code></pre></div>
 <p>For the full column list of a specific run, call
-<code>colnames(rd$ticks)</code> — the canonical schema lives in
-<code>inst/julia/src/logging.jl::_init_progress</code>. For genome
-snapshots, use <code>get_genome_data(env)</code> (same
-<code>$genomes</code> long-format data frame, plus reserved placeholders
-for heterozygosity and FST).</p>
+<code>colnames(rd$ticks)</code> — the canonical schema lives in <a href="https://github.com/itchyshin/clade/blob/main/inst/julia/src/logging.jl" class="external-link"><code>inst/julia/src/logging.jl</code></a>
+(<code>_init_progress</code>). For genome snapshots, use
+<code>get_genome_data(env)</code> (same <code>$genomes</code>
+long-format data frame, plus reserved placeholders for heterozygosity
+and FST).</p>
 </div>
 <div class="section level2">
 <h2 id="plot-the-run-with-plot_run">4. Plot the run with <code>plot_run()</code><a class="anchor" aria-label="anchor" href="#plot-the-run-with-plot_run"></a>
@@ -343,8 +338,7 @@ most diverse) configurations rather than a single run,
 <li>
 <strong>Narrative depth.</strong> For the architectural picture, the
 four brain types, the R-Julia split, the lab values, and the vision:
-<code><a href="../articles/getting-started.html">vignette("getting-started")</a></code> and
-<code>dev/design/00-vision.md</code>.</li>
+<code><a href="../articles/getting-started.html">vignette("getting-started")</a></code> and <a href="https://github.com/itchyshin/clade/blob/main/dev/design/00-vision.md" class="external-link"><code>dev/design/00-vision.md</code></a>.</li>
 </ul>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

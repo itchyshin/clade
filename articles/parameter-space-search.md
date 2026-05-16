@@ -42,8 +42,9 @@ parallelise.
 Cost to know about: each PSOCK worker boots its own Julia session on
 first call, which is a ~60 s compile hit. For small batches (\< 20
 scenarios) serial is faster; for 50+ scenarios the parallel speedup is
-near-linear. See `dev/docs/parallelism-audit.md` for the full
-post-mortem.
+near-linear. See
+[`dev/docs/parallelism-audit.md`](https://github.com/itchyshin/clade/blob/main/dev/docs/parallelism-audit.md)
+for the full post-mortem.
 
 ## Step 1 — Build a list of specs
 
@@ -255,8 +256,9 @@ Rough numbers (assumes
 | 100 k runs | 2.5 h                  | ~10 MB             |
 | 1 M runs   | 24 h                   | ~100 MB            |
 
-The `n_cores` cap on this machine is 200 (see `CLAUDE.md`). Beyond ~1 M
-runs per machine-day you want a cluster.
+The `n_cores` cap is whatever
+[`parallel::detectCores()`](https://rdrr.io/r/parallel/detectCores.html)
+reports. Beyond ~1 M runs per machine-day you want a cluster.
 
 ## How big can I go on a cluster?
 

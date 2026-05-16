@@ -46,8 +46,8 @@ specs$cooperation_evolution <- TRUE
 
 Always confirm the baseline runs and reproduces the expected result
 before modifying it. Copy the audit script from the
-`dev/audit/fidelity/` directory on GitHub if you want the exact
-published configuration.
+[`dev/audit/fidelity/`](https://github.com/itchyshin/clade/tree/main/dev/audit/fidelity)
+directory if you want the exact published configuration.
 
 ------------------------------------------------------------------------
 

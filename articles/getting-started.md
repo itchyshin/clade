@@ -228,9 +228,10 @@ dynamics),
 [`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md)
 is fine.
 
-See `dev/docs/timescale-analysis.md` for the biological reference table
-(E. coli through elephant) and the full MATLAB-ancestor comparison that
-motivated these presets.
+See
+[`dev/docs/timescale-analysis.md`](https://github.com/itchyshin/clade/blob/main/dev/docs/timescale-analysis.md)
+for the biological reference table (E. coli through elephant) and the
+full MATLAB-ancestor comparison that motivated these presets.
 
 ------------------------------------------------------------------------
 
