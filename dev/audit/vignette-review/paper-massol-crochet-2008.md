@@ -34,7 +34,35 @@ The β sweep is the natural way to test parameter sensitivity. Wolf's 1.25 falls
 
 9 references; 0 stale. Uses `wolf_personality_specs()` as the base.
 
+## Multi-seed re-run (2026-05-16, Massol-Crochet rds generated)
+
+Ran `dev/audit/fidelity/paper_massol_crochet_2008.R` (5 β values × 8 seeds = 40 sims, ~22 min wall-clock). **The single-seed "peak at β = 1.25" doesn't survive multi-seed.**
+
+### cor(bold, aggro) by β
+
+| β | mean ± SE | t | verdict |
+|---|---|---|---|
+| 0.5 | −0.004 ± 0.067 | −0.06 | null |
+| 1.0 | +0.003 ± 0.065 | +0.05 | null |
+| **1.25** | **−0.077 ± 0.049** | −1.59 | **marginal-NEGATIVE** |
+| 2.0 | −0.003 ± 0.054 | −0.05 | null |
+| 3.0 | +0.053 ± 0.040 | +1.33 | null |
+
+- The single-seed peak (+0.307 at β = 1.25) is now **marginal-negative** (−0.077) at 8 seeds.
+- Range across β collapses from single-seed 0.39 to multi-seed **0.13**.
+- **No β value produces a robust positive syndrome.** The closest to PASS is β = 3.0 at t = +1.33, still null.
+- Massol & Crochet's "β-sensitive" critique is **partially borne out** (the range exists), but their implicit assumption that Wolf's specific β = 1.25 is the *peak* doesn't hold — at multi-seed scrutiny β = 1.25 is the *trough*.
+
+### Asset-protection correlations
+
+cor(exp, bold) and cor(exp, aggro) means are all between ±0.07 across all β values; none reach 2σ. Wolf's predicted negative signs don't emerge robustly at any β.
+
+### Reclassification
+
+Vignette claims the critique is "**partially borne out**" with peak at Wolf's published β = 1.25 (+0.307 single-seed). At 8 seeds, β = 1.25 is the *most negative* condition (−0.077). The β-sensitivity critique survives (correlation range is real), but the interpretation that "Wolf chose a parameter that maximised the syndrome" is contradicted — at multi-seed scale, β = 1.25 produces the worst syndrome of the swept values.
+
 ## Deferred fixes
 
-- **Worth doing**: multi-seed rds. Currently single-seed-per-cell.
+- Vignette prose update to flip the "peak at 1.25" framing.
+- ~40 min compute to run at 16 seeds and check whether the marginal-negative at β = 1.25 hardens to a PASS-negative.
 - Cross-reference from `paper-wolf2007.Rmd` to this vignette (β robustness) and to paper-mcelreath-2007 (time-decay robustness).
