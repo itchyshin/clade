@@ -76,3 +76,54 @@ important project state. Keep entries concise and concrete.
   operating kit (adapted for clade)`, merge to main, then start Phase A
   item 1 (`default_specs()` walk) on a fresh `claude/track-B-walk` branch
   off the new main, with after-task report under `dev/dev-log/after-task/`.
+
+## 2026-05-16 - Phase A drift-guard sweep
+
+- Branch: `claude/drift-guard-sweep` (off `main` at `47c2fe4`, post
+  Tier-A0 PR #128 merge).
+- Goal: ship the structural fix for the Rose class that recurred across
+  Phase A items 1, 2, 3, and 6: "API or default change leaves stale
+  assertions/fixtures in tests." Three commits.
+- Files changed:
+  - `tests/testthat/test-spec-groups-coverage.R` (new, +51) — ghost +
+    orphan bijection check for `.SPEC_GROUPS` ⇔ `default_specs()`.
+  - `tests/testthat/test-life-history.R` (-32) — removed 4 stale
+    assertions on `repro_senescence` / `life_history_evolution` (deleted
+    by PR #114); updated `senescence_shape` 2.0→1.0 (same bug as
+    test-config.R fixed in item 1); refreshed file header.
+  - `tests/testthat/test-parental-investment.R` (-14) — removed 4 stale
+    assertions on `parental_investment_init_mean` (deleted by PR #114);
+    refreshed file header.
+  - `tests/testthat/test-test-field-assertions.R` (new, +171) — drift
+    guard scanning `expect_true("<x>" %in% names(default_specs()))`
+    (direct) and per-test_that indirect patterns; deliberately ignores
+    `expect_false(...)` absence assertions. Three tests-of-the-test
+    self-checks on synthetic fixtures.
+- Checks run:
+  - `test_file("test-spec-groups-coverage.R")`: 2 pass.
+  - `test_file("test-test-field-assertions.R")`: 8 pass.
+  - `test_file("test-life-history.R")`: 22 pass (Julia errors observed
+    are pre-existing manifest-resolved warnings on edits and un-edited
+    state alike).
+  - `test_file("test-parental-investment.R")`: 17 pass (same Julia
+    note).
+  - Existing structural drift guards (`test-spec-wiring.R`,
+    `test-version-strings.R`, `test-readme-flag-names.R`,
+    `test-pkgdown-consistency.R`, `test-config.R`, `test-specs.R`):
+    all green.
+- Stale-claim searches:
+  - `rg "repro_senescence|life_history_evolution|parental_investment_init_mean"
+     tests/testthat/test-life-history.R tests/testthat/test-parental-investment.R`:
+    only references remaining are in comments documenting the removal.
+  - `rg "max_carried" tests/testthat/test-parental-care.R`: surviving
+    reference is the correct `expect_false(...)` absence assertion at
+    line 118 — kept by design.
+- Not run:
+  - Full `devtools::check()` / `devtools::test()`: skipped to keep the
+    drift-guard sweep scoped. Per-file `test_file` runs cover the
+    affected files exhaustively. PR #128's CI already passed on the
+    main-merged Tier-A0 baseline.
+- Next safest action: open PR `Phase A drift-guard sweep: SPEC_GROUPS
+  bijection + stale-assertion cleanup + scan`, wait for CI, merge; then
+  rebase `claude/track-B-walk` (carries Phase A items 5 e701d21 + 6
+  23946d3) onto the new main and continue with item 7 (`print_specs()`).
