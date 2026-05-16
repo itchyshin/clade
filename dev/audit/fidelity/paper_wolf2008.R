@@ -57,9 +57,13 @@ cat("=== Wolf 2008: responsiveness 8-seed × 2-condition reproduction ===\n")
 cat(sprintf("Conditions: %s\nTotal runs: %d\n",
             paste(names(conds), collapse = ", "), length(spec_list)))
 
-cat("Running 16 simulations (this takes ~10-15 min)...\n")
+cat("Running 16 simulations (this takes ~5-10 min serial)...\n")
 t_start <- Sys.time()
-envs <- batch_alife(spec_list, n_cores = 8L, verbose = FALSE)
+# n_cores = 1L: serial via lapply, no PSOCK workers (which require
+# `library(clade)` available globally — works only if clade is
+# installed, not when using devtools::load_all()). Serial keeps the
+# script self-contained and reusable from any working directory.
+envs <- batch_alife(spec_list, n_cores = 1L, verbose = FALSE)
 elapsed <- difftime(Sys.time(), t_start, units = "mins")
 cat(sprintf("Done. Elapsed: %.1f min.\n", as.numeric(elapsed)))
 
@@ -108,10 +112,15 @@ se <- if (length(ref) > 1L && length(test) > 1L) {
   sqrt(var(test) / length(test) + var(ref) / length(ref))
 } else NA_real_
 tval <- if (!is.na(se) && se > 0) delta / se else NA_real_
-verdict <- if (is.na(tval)) "insufficient-seeds"
-  else if (abs(tval) >= 2)   "PASS"
-  else if (abs(tval) >= 1.5) "marginal"
-  else                       "null"
+verdict <- if (is.na(tval)) {
+  "insufficient-seeds"
+} else if (abs(tval) >= 2) {
+  "PASS"
+} else if (abs(tval) >= 1.5) {
+  "marginal"
+} else {
+  "null"
+}
 
 cat(sprintf("\nContrast on − off: Δ = %+.4f ± %.4f, t = %+.2f → %s\n",
             delta, se, tval, verdict))

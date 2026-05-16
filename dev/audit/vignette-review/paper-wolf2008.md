@@ -38,7 +38,22 @@ Same "mechanism vs equilibrium" honest-split as Fuller 2005's Zahavi-leg-PASS vs
 
 4 references; 0 stale.
 
+## Multi-seed re-run (2026-05-16, Wolf 2008 rds generated)
+
+Ran `dev/audit/fidelity/paper_wolf2008.R` (16 sims × 2000 ticks, 2.2 min). Headline result:
+
+| Condition | n_seeds | mean responsiveness ± SE |
+|---|---|---|
+| off (`responsive_personalities = FALSE`) | 8 | 0.5000 ± 0.0000 (drift only at init mean) |
+| on  (`responsive_personalities = TRUE`)  | 8 | 0.5581 ± 0.0737 |
+
+- **Contrast on − off**: Δ = **+0.058 ± 0.074, t = +0.79 → null** at 8 seeds.
+- The single-seed test claim (Δ ≈ +0.169 at seed 42) was within the upper noise envelope — the multi-seed mean is +0.058, three times smaller. Direction is upward (predicted ✓) but magnitude does not reach 2σ.
+
+**Vignette status reclassification**: from "mechanism PASS, equilibrium deferred" to **"mechanism direction-yes-but-null at 8 seeds; needs longer ticks or stronger selection to detect."** Honest framing matters here — the current kernel implementation produces a small selection signal that's lost in seed-noise at 2000 ticks.
+
 ## Deferred fixes
 
 - **Cross-vignette gap**: per-resource competition denominator (also flagged in Fuller 2005). Future kernel feature.
-- **Script written, rds pending compute**: `dev/audit/fidelity/paper_wolf2008.R` is now ready (8 seeds × 2 conditions × 2000 ticks → 16 runs). Run via `Rscript dev/audit/fidelity/paper_wolf2008.R`. ~10-15 min wall-clock with healthy Julia. The contrast is on-vs-off (responsiveness module enabled vs disabled). Once the rds lands, this vignette graduates from "minimum framing" to "ideal" Phase B pattern.
+- Vignette could re-run at 5000 ticks (matching Wolf 2007 ticks) to see if the longer horizon resolves the null. Or run at 16 seeds. Either would clarify whether the issue is sample size or run length.
+- This rds is a regression baseline for v0.8-core.

@@ -40,6 +40,24 @@ All four are biologically defensible per Trivers' original argument.
 
 7 references; 0 stale.
 
+## Multi-seed re-run (2026-05-16, Trivers rds generated)
+
+Ran `dev/audit/fidelity/paper_trivers1971.R` (32 runs total, 11.2 min wall-clock). Headline findings — distinct from the single-seed test:
+
+| Condition (`dispersal_init_mean`) | n_seeds | mean reciprocity_initial ± SE |
+|---|---|---|
+| none (0.0) | 8 | 0.554 ± 0.079 |
+| low (0.05) | 8 | 0.448 ± 0.107 |
+| mid (0.15) | 7 | 0.441 ± 0.062 |
+| high (0.30) | 6 | 0.408 ± 0.087 |
+
+- **Direction**: ✓ Spearman(dispersal, mean_initial_coop) = **−0.20** (predicted NEGATIVE).
+- **Magnitude**: ⚠️ Contrast high − none: Δ = **−0.147 ± 0.118, t = −1.25 → null** at 8 seeds.
+- **Crash signal**: 2 of the 8 high-dispersal seeds crashed (only 6 produced viable end-of-run agents); 1 of 8 mid-dispersal seeds did. Consistent with Trivers: high dispersal disrupts the partner re-encounter structure that maintains the population.
+
+The direction holds, but at 8 seeds the magnitude is below the 2σ verdict floor. The single-seed test (Δ > 0.05 at seed 42) is still passing, but the multi-seed verdict is "direction yes, magnitude not yet significant." Honest classification: ✅ direction-only, not full PASS.
+
 ## Deferred fixes
 
-- **Script written, rds pending compute**: `dev/audit/fidelity/paper_trivers1971.R` is now ready (8 seeds × 4 dispersal cells × 5000 ticks → 32 runs). Run it via `Rscript dev/audit/fidelity/paper_trivers1971.R` to generate the rds. ~15-20 min wall-clock with healthy Julia. Once the rds lands, this vignette graduates from "minimum framing" to "ideal" Phase B pattern.
+- Vignette prose could be updated to add the multi-seed verdict — "direction-yes, magnitude-null at 8 seeds" — as a "Multi-seed verification" section near the end. ~10-line edit; not done here.
+- Crash signal at high dispersal is worth its own callout. The vignette could note that 2 of 8 seeds crashed at `dispersal_init_mean = 0.30`, supporting Trivers' condition 2.

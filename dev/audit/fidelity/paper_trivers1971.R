@@ -78,9 +78,12 @@ for (cname in names(conds)) {
   }
 }
 
-cat("Running 32 simulations (this takes ~15-20 min)...\n")
+cat("Running 32 simulations (this takes ~25-40 min serial)...\n")
 t_start <- Sys.time()
-envs <- batch_alife(spec_list, n_cores = 8L, verbose = FALSE)
+# n_cores = 1L: serial via lapply, no PSOCK workers (which require
+# `library(clade)` available globally — works only if clade is
+# installed, not when using devtools::load_all()).
+envs <- batch_alife(spec_list, n_cores = 1L, verbose = FALSE)
 elapsed <- difftime(Sys.time(), t_start, units = "mins")
 cat(sprintf("Done. Elapsed: %.1f min.\n", as.numeric(elapsed)))
 
