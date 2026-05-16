@@ -7,8 +7,8 @@
 ultra_realistic_specs()
 }
 \value{
-A specs list at ecological-theory scale (N ≈ 800–1500
-equilibrium, 80 generations).
+A specs list at ecological-theory scale (N ≈ 400
+equilibrium, ~80 generations).
 }
 \description{
 Returns \code{\link[=realistic_specs]{realistic_specs()}} scaled up further for scenarios whose
@@ -23,8 +23,9 @@ Preserves all \code{\link[=realistic_specs]{realistic_specs()}} settings except:
 \describe{
 \item{\code{grid_rows}, \code{grid_cols}}{120L × 120L (16× the default
 area, 4× realistic).}
-\item{\code{n_agents_init}}{800L. Seeded below expected equilibrium
-so the transient overshoot doesn't hit \code{max_agents}.}
+\item{\code{n_agents_init}}{500L. Right-sized to the ~400 equilibrium
+on the 120×120 grid (an earlier audit at 800L overshot and
+occasionally hit \code{max_agents}).}
 \item{\code{max_agents}}{5000L. Supports the larger carrying
 capacity.}
 \item{\code{max_ticks}}{2500L. ~80 generations at \code{max_age = 30}.

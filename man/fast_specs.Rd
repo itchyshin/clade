@@ -39,6 +39,9 @@ generations — adequate for most evolutionary predictions.}
 \item{\code{n_agents_init}}{80L. Moderate starting population.}
 \item{\code{max_agents}}{400L. Room for population growth.}
 \item{\code{grid_rows}, \code{grid_cols}}{30L. Standard grid.}
+\item{\code{predator_max_age}}{100L (vs \code{NA}-means-same-as-prey at
+defaults). Predators outlive 30-tick prey by ~3×, matching
+the owl > mouse lifespan ratio.}
 }
 }
 \seealso{

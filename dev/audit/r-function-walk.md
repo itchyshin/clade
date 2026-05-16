@@ -800,3 +800,178 @@ helpers, same convention. Consistent; no drift.
 - No `vignettes/basics.Rmd` change. `print_specs()` is already
   covered in sections 1 and 5; basics.Rmd is at 173 lines (over
   the 150-line plan target).
+
+## 8/28 — preset family (2026-05-16, `claude/track-B-walk`)
+
+Covers `quick_specs()`, `full_specs()`, `fast_specs()`,
+`realistic_specs()`, `ultra_realistic_specs()`, `slow_specs()` —
+six parallel functions in `R/config.R:1650-1859`. One audit,
+because the functions share a structural pattern (each takes
+`default_specs()` or a sibling preset and overrides a small set
+of fields).
+
+**TREE.** The presets form a chain:
+
+```
+default_specs()
+  ├─ quick_specs()
+  ├─ full_specs()
+  ├─ fast_specs()
+  │    └─ realistic_specs()
+  │         └─ ultra_realistic_specs()
+  └─ slow_specs()
+```
+
+Three "lineage" presets (`fast`/`realistic`/`ultra_realistic`)
+inherit pace-of-life calibration through the chain; the other
+three (`quick`/`full`/`slow`) are independent overrides of
+`default_specs()`. Each function simply assigns new values to
+~5-10 fields and returns the modified specs list.
+
+**FOREST.** 33 files reference the preset family. Production
+callers: `tests/testthat/test-hypothesis.R`,
+`tests/testthat/test-integration.R` (plus a separate
+`.quick_specs()` local helper — a different function, easy to
+confuse). Vignettes: most paper-* reproductions start from
+`fast_specs()` or `realistic_specs()`; `s-baseline.Rmd` uses
+`quick_specs()`; the slower-tempo scenarios use `slow_specs()`.
+**Test coverage before this walk: zero dedicated tests for any
+preset.** Same Rose class as items 5 and 7 — convenience wrapper
+without a dedicated test.
+
+**TEST + DOC findings — three roxygen-vs-code reconciliations
+and one new test file.**
+
+1. **`ultra_realistic_specs()` — roxygen lied about `n_agents_init`.**
+   The roxygen `@details` table said `800L` and the
+   `@return` description said "N ≈ 800–1500 equilibrium"; the
+   code has always been `500L` with an inline comment
+   "right-sized to ~400 equilibrium." Updated the roxygen to
+   match the code (the inline comment is the truth) and the
+   `@return` description to "N ≈ 400 equilibrium." This is a
+   real semantic mismatch — anyone reading the rendered help
+   page would expect a 60% larger initial population than they
+   get.
+2. **`fast_specs()` — roxygen omitted `predator_max_age = 100L`.**
+   The function sets seven distinct fields from
+   `default_specs()` but the `@details` table listed only six.
+   The omitted line documents an intentional asymmetry (predators
+   outlive 30-tick prey by ~3×, owl > mouse). Added the missing
+   row to the table.
+3. **`slow_specs()` — roxygen omitted three of the seven
+   overridden fields.** The `@details` table listed `max_age`,
+   `min_repro_energy`, `min_repro_age`, `max_ticks`; the code
+   also sets `grass_rate = 0.10`, `n_agents_init = 100L`,
+   `max_agents = 500L`. Added the three missing rows. The
+   `grass_rate` change is biologically meaningful — slightly
+   richer environment compensates for the higher
+   `min_repro_energy` threshold, otherwise K-strategist
+   populations starve.
+
+Created `tests/testthat/test-presets.R` (10 tests, 73
+expectations, no-Julia). Coverage:
+
+- **Shape**: every preset has the same field names as
+  `default_specs()` — no preset introduces or drops fields. The
+  drift-guard from PR #129 enforces `.SPEC_GROUPS` ↔
+  `default_specs()` bijection, but this test catches preset
+  drift downstream.
+- **Validation**: every preset passes `.validate_specs()` cleanly
+  (no early-error during real use).
+- **Documented values**: per-preset assertions on every value
+  listed in the roxygen `@details` table. After the three
+  reconciliations above, all assertions pass — and any future
+  table-vs-code drift will be caught immediately.
+- **Chain inheritance**: `realistic_specs()` carries
+  `fast_specs()`'s pace-of-life (`max_age = 30L`,
+  `min_repro_energy = 60`, `min_repro_age = 3L`,
+  `grass_rate = 0.20`). `ultra_realistic_specs()` carries
+  all of fast's settings plus realistic's
+  `predator_max_age = 60L` override (not fast's original
+  `100L`) — a critical regression-protect on the inheritance
+  cascade.
+- **Immutability**: calling any preset does not mutate
+  `default_specs()` (rules out a shared-reference bug if anyone
+  ever refactors to `<<-` accidentally).
+
+After the additions: `test-presets.R` is 73 expectations pass;
+all three regenerated man pages match the updated roxygen
+exactly; PR #129's drift-guards do not false-positive.
+
+**ROSE.** Three classes in play:
+
+1. **Recurrence (item 5, item 7): "convenience wrapper has no
+   dedicated test."** Closed for the preset family with this
+   walk. Tier-A1 has now exhausted this class — items 5
+   (batch_*), 7 (print_specs), and 8 (presets) all closed.
+   Tier-A2 paper presets (items 11-13:
+   `wolf_personality_specs()`, `trivers_reciprocity_specs()`,
+   `wolf2008_responsiveness_specs()`) are the same class and
+   will likely need the same fix shape.
+2. **Recurrence (item 3): "code grows fields/columns; roxygen
+   `@return` doesn't."** Two of the three doc-fixes
+   (`fast_specs`, `slow_specs`) are this class — the function
+   silently grew a parameter override that the roxygen never
+   caught up with. The `test-presets.R` "documented values" tests
+   make this catchable on future drift.
+3. **New (item 8): "documented value disagrees with implementation
+   value."** `ultra_realistic_specs()`'s `800L` was not an omission
+   — it was an active claim contradicted by the code. Different
+   from class 2 (omission). Cousin candidates: every roxygen
+   `@return` block that quotes a specific numeric default. Spot-
+   grep idea for a future cousin-hunt:
+   `rg "default[s]? \\d" R/*.R | head -50` — surfaces inline
+   defaults claims; spot-check each against the code.
+
+**BIO.** The preset values are biologically defensible:
+
+- **`quick_specs()`**: 20×20 grid + 200 ticks = exploratory; the
+  smaller grid sacrifices spatial dynamics for turnaround time.
+  Acceptable for prototyping.
+- **`full_specs()`**: 30×30 + 200 init + 1000 ticks = publication
+  scale at default pace-of-life. Right balance for figures.
+- **`fast_specs()`**: max_age=30 + min_repro_energy=60 +
+  min_repro_age=3 + grass_rate=0.20 gives ~30-tick generations
+  and 66 generations in a 2000-tick run. Calibrated to the
+  MATLAB ancestor's pace (Bulitko 2023). Right preset for
+  trait-evolution studies. `predator_max_age = 100L` honours the
+  owl > mouse lifespan ratio.
+- **`realistic_specs()`**: 60×60 grid + 1500-agent cap +
+  predator age structure. Right preset when spatial dynamics
+  (dispersal gradients, predator-prey waves) need room to
+  express. The 2000-tick cap is set by BNN-kernel stability
+  (see docstring) — defensible engineering trade-off.
+- **`ultra_realistic_specs()`**: 120×120 + 5000-agent cap for
+  finite-population corrections (Red Queen advantage ~μN;
+  Hamilton 1971 selfish-herd dilution ~1/√N). 2500-tick cap
+  (BNN stability ceiling). Right preset for theory-vs-simulation
+  audits where N matters more than wall time.
+- **`slow_specs()`**: K-strategist (long max_age, high
+  min_repro_energy, late min_repro_age). 10000-tick horizon for
+  ~50 generations. `grass_rate = 0.10` compensates for the
+  higher reproduction threshold — without it, populations would
+  starve. Defensible.
+
+The chain (ultra_realistic → realistic → fast → default) is
+biologically right: each step relaxes a constraint (grid size,
+agent cap, predator age structure) while preserving the upstream
+pace-of-life. A user who needs "fast-pace evolution at theory
+scale" composes the right semantics by calling
+`ultra_realistic_specs()`.
+
+**Deferred fixes (flagged for separate work):**
+
+- Cousin-hunt for "documented value disagrees with implementation
+  value" via `rg "default[s]? \\d" R/*.R` — ~50 candidates worth
+  spot-checking. Could become a one-evening session before the
+  next CRAN-style release.
+- The `.quick_specs()` local helper in `test-integration.R`
+  shadows the public `quick_specs()` name. Worth renaming to
+  `.test_specs()` or similar in a future test-file rename PR.
+  Cosmetic; not worth a commit on its own.
+- No `vignettes/basics.Rmd` change this item. Presets are not
+  mentioned in basics.Rmd at all by design — the 5-minute
+  introduction sticks with `default_specs()` and lets the user
+  discover the preset family via `vignette("getting-started")`
+  or `?quick_specs`. Acceptable, but worth a sentence in a
+  future basics.Rmd revision if the file gets restructured.
