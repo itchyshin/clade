@@ -20,7 +20,7 @@ disease-resistant?
 ``` r
 
 base <- default_specs()
-base$max_ticks <- 200L; base$n_agents_init <- 50L; base$seed <- 42L
+base$max_ticks <- 200L; base$n_agents_init <- 50L; base$random_seed <- 42L
 base$disease <- TRUE; base$transmission_prob <- 0.25; base$disease_seed_prob <- 0.05
 
 # Without kin selection
@@ -62,7 +62,7 @@ select for larger `brain_size` relative to a stable environment?
 ``` r
 
 base <- default_specs()
-base$max_ticks <- 200L; base$n_agents_init <- 50L; base$seed <- 42L
+base$max_ticks <- 200L; base$n_agents_init <- 50L; base$random_seed <- 42L
 base$brain_size_evolution <- TRUE; base$parental_care <- TRUE
 
 e_stable   <- run_alife(modifyList(base, list(seasonal_amplitude = 0.0)))
@@ -105,7 +105,7 @@ as the population converges on a learned optimum. Does
 ``` r
 
 base <- default_specs()
-base$max_ticks <- 200L; base$n_agents_init <- 50L; base$seed <- 42L
+base$max_ticks <- 200L; base$n_agents_init <- 50L; base$random_seed <- 42L
 
 e_base <- run_alife(base)
 e_sl   <- run_alife(modifyList(base, list(social_learning = TRUE)))
@@ -144,7 +144,7 @@ creating disease refugia?
 ``` r
 
 base <- default_specs()
-base$max_ticks <- 200L; base$n_agents_init <- 50L; base$seed <- 42L
+base$max_ticks <- 200L; base$n_agents_init <- 50L; base$random_seed <- 42L
 base$disease <- TRUE; base$transmission_prob <- 0.25; base$disease_seed_prob <- 0.05
 
 e_nodz <- run_alife(modifyList(base, list(niche_construction = FALSE)))
@@ -183,7 +183,7 @@ proportionally?
 ``` r
 
 base <- default_specs()
-base$max_ticks <- 200L; base$n_agents_init <- 50L; base$seed <- 42L
+base$max_ticks <- 200L; base$n_agents_init <- 50L; base$random_seed <- 42L
 base$parental_care <- TRUE
 base$brain_size_evolution <- TRUE
 base$body_size_evolution  <- TRUE
