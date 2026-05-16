@@ -83,7 +83,7 @@ ggplot(df, aes(t, n_births, colour = condition)) +
   theme_minimal()
 ```
 
-```{r fig-parental-investment, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Trivers (1972) quality-quantity trade-off: female_investment sweep (fi = 0.3 → 0.9, 3 seeds × 500 ticks). Population near-flat (~257) across fi levels at these parameters. The quality-quantity trade-off may be more visible in n_juveniles than total population; further calibration needed for a dramatic visual."}
+```{r fig-parental-investment, eval=TRUE, echo=FALSE, out.width="100%", fig.alt = "Trivers (1972) quality-quantity trade-off", fig.cap="Trivers (1972) quality-quantity trade-off: female_investment sweep (fi = 0.3 → 0.9, 3 seeds × 500 ticks). Population near-flat (~257) across fi levels at these parameters. The quality-quantity trade-off may be more visible in n_juveniles than total population; further calibration needed for a dramatic visual."}
 FIG("parental_investment")
 ```
 

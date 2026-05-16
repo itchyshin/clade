@@ -94,7 +94,7 @@ ggplot(dat_long, aes(x = t, y = value, colour = variable)) +
   theme_classic(base_size = 12)
 ```
 
-```{r fig-kitchen-sink, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: prey (blue), predator (red), and infected-agent (orange) time series show interacting waves. Disease suppresses prey density, which in turn reduces predator abundance, while niche construction and social learning modulate recovery rates."}
+```{r fig-kitchen-sink, eval=TRUE, echo=FALSE, out.width="100%", fig.alt = "prey (blue), predator (red), and infected-agent (orange) time series show interacting waves", fig.cap="Expected output: prey (blue), predator (red), and infected-agent (orange) time series show interacting waves. Disease suppresses prey density, which in turn reduces predator abundance, while niche construction and social learning modulate recovery rates."}
 FIG("12_kitchen_sink")
 ```
 

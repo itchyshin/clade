@@ -94,7 +94,7 @@ s$clutch_size_mutation_sd        <- 0.6538
 s$clutch_size_init_mean          <- 5L
 # env <- run_alife(s)   # uncomment to run the calibrated regime
 ```
-```{r fig-clutch-size, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: mean clutch size diverges between resource environments. Rich conditions (red) select for larger clutches; scarce conditions (blue) select for smaller clutches, illustrating the r/K continuum."}
+```{r fig-clutch-size, eval=TRUE, echo=FALSE, out.width="100%", fig.alt = "mean clutch size diverges between resource environments", fig.cap="Expected output: mean clutch size diverges between resource environments. Rich conditions (red) select for larger clutches; scarce conditions (blue) select for smaller clutches, illustrating the r/K continuum."}
 FIG("clutch_size")
 ```
 

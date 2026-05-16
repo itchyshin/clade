@@ -73,7 +73,7 @@ s$plasticity_mutation_sd         <- 0.1405
 s$grass_rate                     <- 0.0264
 # env <- run_alife(s)   # uncomment to run the calibrated regime
 ```
-```{r fig-plasticity, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="fast_specs() + season_length = 10 demo (5 seeds × 2000 ticks = 66 generations). Seasons are shorter than a lifetime, so each agent experiences multiple seasonal states. Seasonal environments maintain higher plasticity than stable ones — the DeWitt-Scheiner (2004) prediction. Δdelta = +0.014 across 5 seeds (direction PASS, below the 0.02 promotion threshold but 7× larger than at season_length = 100 where the signal reverses). See \"What we found (2026-04-17)\" for the full season-length sweep."}
+```{r fig-plasticity, eval=TRUE, echo=FALSE, out.width="100%", fig.alt = "fast_specs() + season_length = 10 demo (5 seeds × 2000 ticks = 66 generations). Seasons are", fig.cap="fast_specs() + season_length = 10 demo (5 seeds × 2000 ticks = 66 generations). Seasons are shorter than a lifetime, so each agent experiences multiple seasonal states. Seasonal environments maintain higher plasticity than stable ones — the DeWitt-Scheiner (2004) prediction. Δdelta = +0.014 across 5 seeds (direction PASS, below the 0.02 promotion threshold but 7× larger than at season_length = 100 where the signal reverses). See \"What we found (2026-04-17)\" for the full season-length sweep."}
 FIG("22_plasticity")
 ```
 

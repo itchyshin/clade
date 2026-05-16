@@ -118,7 +118,7 @@ regime. Above M ≈ 2.5, population saturates at the cap:
 | 2.5 | 588 | (default in vignette) |
 | 3.0+ | ~600 | saturated at max_agents cap |
 
-```{r fig-cooperation, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: population with cooperation (green) rises to near the max_agents ceiling while the baseline (pink) stabilises at a lower level. Cooperation level drifts slightly downward, showing free-rider invasion alongside the group-level benefit."}
+```{r fig-cooperation, eval=TRUE, echo=FALSE, out.width="100%", fig.alt = "population with cooperation (green) rises to near the max_agents ceiling while the baseline (pink)", fig.cap="Expected output: population with cooperation (green) rises to near the max_agents ceiling while the baseline (pink) stabilises at a lower level. Cooperation level drifts slightly downward, showing free-rider invasion alongside the group-level benefit."}
 FIG("08_cooperation")
 ```
 

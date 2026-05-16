@@ -101,7 +101,7 @@ p2 <- ggplot(plot_df, aes(x = t, y = mean_energy, colour = condition)) +
 p1 / p2
 ```
 
-```{r fig-predation-neural, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output (top panel): genetic diversity is higher under predation, reflecting stronger directional selection on prey cognition. Bottom panel: mean energy is lower under predation as prey pay evasion costs and are removed before reaching peak foraging efficiency."}
+```{r fig-predation-neural, eval=TRUE, echo=FALSE, out.width="100%", fig.alt = "Expected output (top panel): genetic diversity is higher under predation", fig.cap="Expected output (top panel): genetic diversity is higher under predation, reflecting stronger directional selection on prey cognition. Bottom panel: mean energy is lower under predation as prey pay evasion costs and are removed before reaching peak foraging efficiency."}
 FIG("vadim_experiment")
 ```
 

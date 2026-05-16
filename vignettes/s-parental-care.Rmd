@@ -56,7 +56,7 @@ data <- get_run_data(env)
 cat("Total juveniles recorded:", sum(data$ticks$n_juveniles, na.rm = TRUE), "\n")
 ```
 
-```{r fig-parental-care, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: juvenile count is positive throughout the run; per-capita offspring count is lower than baseline but juvenile survival is higher, resulting in more buffered population dynamics."}
+```{r fig-parental-care, eval=TRUE, echo=FALSE, out.width="100%", fig.alt = "juvenile count is positive throughout the run; per-capita offspring count is lower than baseline", fig.cap="Expected output: juvenile count is positive throughout the run; per-capita offspring count is lower than baseline but juvenile survival is higher, resulting in more buffered population dynamics."}
 FIG("19_parental_care")
 ```
 
