@@ -217,7 +217,14 @@ variance.</p></dd>
 exact estimate requires parent-offspring logging.</p></dd>
 
 
-</dl></div>
+</dl><p>Note that clade also exports <code><a href="heritability_estimate.html">heritability_estimate()</a></code> — a different
+function that computes h^2 by parent-offspring regression on
+<code>get_run_data(env)$deaths</code> (the agent-death log), and so requires that
+agents have died with recorded <code>parent_id</code> and the trait of interest.
+<code>estimate_heritability()</code> is the population-level autocorrelation proxy
+(works on any logged trait series); <code><a href="heritability_estimate.html">heritability_estimate()</a></code> is the
+individual-level regression (requires the deaths data frame).</p>
+    </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
     <p>Falconer, D.S. &amp; Mackay, T.F.C. (1996) <em>Introduction to Quantitative
@@ -225,7 +232,8 @@ Genetics</em>, 4th ed. Longman, Harlow.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="get_run_data.html">get_run_data()</a></code>, <code><a href="compute_ld.html">compute_ld()</a></code>, <code><a href="species_tree.html">species_tree()</a></code></p></div>
+    <div class="dont-index"><p><code><a href="heritability_estimate.html">heritability_estimate()</a></code> for the parent-offspring regression
+approach. <code><a href="get_run_data.html">get_run_data()</a></code>, <code><a href="compute_ld.html">compute_ld()</a></code>, <code><a href="species_tree.html">species_tree()</a></code>.</p></div>
     </div>
 
     <div class="section level2">

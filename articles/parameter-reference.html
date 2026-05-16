@@ -249,10 +249,13 @@ two 0.7.0 kernel-discipline switches.</p>
 </table>
 <p><code>random_tick_order = TRUE</code> (default) enables random
 asynchronous agent scheduling per Grimm &amp; Railsback (2005); setting
-<code>FALSE</code> recovers the legacy fixed-order behaviour.
-<code>max_agents_per_cell = 1L</code> (default) enforces one-per-cell
-movement; <code>0L</code> allows unbounded co-occupancy (legacy). See
-<code>NEWS.md</code> for the 0.7.0 audit that surfaced these.</p>
+<code>FALSE</code> recovers the legacy fixed-order behaviour. The
+<strong>one-agent-per-cell</strong> invariant is enforced at movement
+time in <code>inst/julia/src/movement.jl</code> (the spec field
+<code>max_agents_per_cell</code> was a forward-compat hook from an
+earlier proposal that was retired in 0.7.0 — co-occupancy is no longer a
+tunable knob). See <code>NEWS.md</code> for the 0.7.0 audit that
+surfaced these.</p>
 <hr>
 </div>
 <div class="section level2">

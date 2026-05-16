@@ -164,9 +164,10 @@ linkage disequilibrium, and (when <code>speciation = TRUE</code>) per-species FS
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A list with components:</p><dl><dt><code>$genomes</code></dt>
-<dd><p>A list of matrices (one per logged tick). Each matrix
-has one row per agent and one column per genome position. <code>NULL</code> when
-<code>specs$log_genomes = FALSE</code>.</p></dd>
+<dd><p>A long data frame with one row per (tick, agent),
+columns <code>t</code>, <code>agent_id</code>, and <code>trait_1</code>..<code>trait_N</code> (N = number of
+scalar traits in the Julia kernel, currently 22). <code>NULL</code> when
+<code>specs$log_genomes = FALSE</code> or no snapshots were taken.</p></dd>
 
 <dt><code>$heterozygosity</code></dt>
 <dd><p>Reserved field — currently returns

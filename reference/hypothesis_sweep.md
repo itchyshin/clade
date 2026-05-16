@@ -48,7 +48,18 @@ hypothesis_sweep(
   [`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md)
   and returns a length-one scalar (numeric or logical). Defaults collect
   `final_n` (mean n_agents over the last 500 ticks) and `crashed` (a
-  logical — whether n_agents fell below 10 at run end).
+  logical — whether n_agents fell below 10 at run end). Note: this
+  `crashed` flag is *intentionally different* from
+  [`viability_report()`](https://itchyshin.github.io/clade/reference/viability_report.md)'s
+  `verdict == "crashed"`. The sweep's `crashed` answers "did the
+  population effectively go extinct?" (absolute floor of 10 agents);
+  [`viability_report()`](https://itchyshin.github.io/clade/reference/viability_report.md)'s
+  `crashed` answers "is the run interpretable?" (fractional floor of
+  `crashed_frac = 0.2` plus the configurable `min_n = 20L` absolute
+  floor with a flat-population bypass). Use
+  [`viability_report()`](https://itchyshin.github.io/clade/reference/viability_report.md)
+  when you want the interpretability-gate; use the sweep's `crashed`
+  metric when you want a per-condition extinction count.
 
 - n_cores:
 

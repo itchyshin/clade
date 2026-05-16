@@ -193,7 +193,16 @@ condition is replicated across all seeds.</p></dd>
 <code>ticks</code> tibble returned by <code><a href="get_run_data.html">get_run_data()</a></code> and returns a
 length-one scalar (numeric or logical). Defaults collect
 <code>final_n</code> (mean n_agents over the last 500 ticks) and <code>crashed</code>
-(a logical — whether n_agents fell below 10 at run end).</p></dd>
+(a logical — whether n_agents fell below 10 at run end).
+Note: this <code>crashed</code> flag is <em>intentionally different</em> from
+<code><a href="viability_report.html">viability_report()</a></code>'s <code>verdict == "crashed"</code>. The sweep's
+<code>crashed</code> answers "did the population effectively go extinct?"
+(absolute floor of 10 agents); <code><a href="viability_report.html">viability_report()</a></code>'s <code>crashed</code>
+answers "is the run interpretable?" (fractional floor of
+<code>crashed_frac = 0.2</code> plus the configurable <code>min_n = 20L</code> absolute
+floor with a flat-population bypass). Use <code><a href="viability_report.html">viability_report()</a></code>
+when you want the interpretability-gate; use the sweep's
+<code>crashed</code> metric when you want a per-condition extinction count.</p></dd>
 
 
 <dt id="arg-n-cores">n_cores<a class="anchor" aria-label="anchor" href="#arg-n-cores"></a></dt>

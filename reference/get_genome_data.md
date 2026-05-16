@@ -23,9 +23,10 @@ A list with components:
 
 - `$genomes`:
 
-  A list of matrices (one per logged tick). Each matrix has one row per
-  agent and one column per genome position. `NULL` when
-  `specs$log_genomes = FALSE`.
+  A long data frame with one row per (tick, agent), columns `t`,
+  `agent_id`, and `trait_1`..`trait_N` (N = number of scalar traits in
+  the Julia kernel, currently 22). `NULL` when
+  `specs$log_genomes = FALSE` or no snapshots were taken.
 
 - `$heterozygosity`:
 

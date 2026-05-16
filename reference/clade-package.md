@@ -102,7 +102,3 @@ Useful links:
 ## Author
 
 **Maintainer**: Shinichi Nakagawa <s.nakagawa@unsw.edu.au>
-
-Authors:
-
-- Shinichi Nakagawa <s.nakagawa@unsw.edu.au>

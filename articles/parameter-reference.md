@@ -46,9 +46,11 @@ The toroidal grid, founder population, simulation horizon, and the two
 
 `random_tick_order = TRUE` (default) enables random asynchronous agent
 scheduling per Grimm & Railsback (2005); setting `FALSE` recovers the
-legacy fixed-order behaviour. `max_agents_per_cell = 1L` (default)
-enforces one-per-cell movement; `0L` allows unbounded co-occupancy
-(legacy). See `NEWS.md` for the 0.7.0 audit that surfaced these.
+legacy fixed-order behaviour. The **one-agent-per-cell** invariant is
+enforced at movement time in `inst/julia/src/movement.jl` (the spec
+field `max_agents_per_cell` was a forward-compat hook from an earlier
+proposal that was retired in 0.7.0 — co-occupancy is no longer a tunable
+knob). See `NEWS.md` for the 0.7.0 audit that surfaced these.
 
 ------------------------------------------------------------------------
 

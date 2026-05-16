@@ -104,18 +104,7 @@ n_final before trusting trait-mean effects" rule into a reusable check.
 ## See also
 
 [`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md),
-[`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md)
+[`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md),
+[`hypothesis_sweep()`](https://itchyshin.github.io/clade/reference/hypothesis_sweep.md).
 
 ## Examples
-
-``` r
-if (FALSE) { # \dontrun{
-env  <- run_alife(fast_specs())
-vr   <- viability_report(get_run_data(env))
-print(vr)
-# Guard audit claims on viability:
-if (vr$verdict == "crashed") {
-  warning("crash-driven result; trait means are unreliable")
-}
-} # }
-```
