@@ -1,0 +1,82 @@
+# Run the testthat suite on CI.
+#
+# Complements R-CMD-check.yaml. The R-CMD-check workflow uses
+# `--no-tests` because most clade tests need Julia (which we don't
+# install in CI — Julia adds ~5 min wall-clock per job, and the
+# manifest-resolve step is flaky across Julia minor versions).
+#
+# This workflow instead runs `devtools::test()` directly. Julia-
+# dependent tests skip cleanly via `skip_no_julia()` (defined in
+# tests/testthat/helper.R); the no-Julia tests run unconditionally
+# and act as a structural-guard tier:
+#
+#   - test-no-internal-leaks.R         (Pat+Rose pkgdown audit guard)
+#   - test-vignette-field-references.R (Tier B2 vignette field-drift guard)
+#   - test-spec-wiring.R               (R↔Julia field wiring guard)
+#   - test-test-field-assertions.R     (R↔tests field drift guard)
+#   - test-stream-submit.R             (stream_specs_to_csv / submit_sweep_slurm)
+#   - test-presets.R                   (preset-family contract pinning)
+#   - test-batch.R                     (batch_seeds / batch_alife with mocks)
+#   - test-hypothesis.R                (hypothesis_sweep with mocks)
+#   - test-load-specs.R                (load_specs YAML round-trip)
+#   - test-print-specs.R               (print_specs / diff_only)
+#   - test-presets-paper-*.R           (3 paper-reproduction preset guards)
+#
+# When the structural guards regress, CI fails before merge — no need
+# to remember to run them locally.
+#
+# Per CLAUDE.md: ubuntu-latest only; no macOS/Windows runners (paid
+# even on public repos). Cross-OS verification stays local until
+# release-prep.
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main, master]
+    paths-ignore:
+      - '**/*.md'
+      - 'dev/**'
+      - '_pkgdown.yml'
+
+name: tests
+
+permissions: read-all
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      R_KEEP_PKG_SOURCE: yes
+      NOT_CRAN: true
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: 'release'
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-pandoc@v2
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libcurl4-openssl-dev libssl-dev libxml2-dev \
+                                  libfontconfig1-dev libharfbuzz-dev \
+                                  libfribidi-dev libfreetype6-dev \
+                                  libpng-dev libtiff5-dev libjpeg-dev
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: |
+            any::devtools
+            any::testthat
+            any::withr
+            any::jsonlite
+
+      - name: Run testthat suite (no-Julia tests; Julia tests skip)
+        run: |
+          Rscript -e 'options(crayon.enabled = FALSE); devtools::test(stop_on_failure = TRUE)'
