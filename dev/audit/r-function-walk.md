@@ -442,3 +442,118 @@ user on the 5-minute walkthrough built from items 1–4.
   `plot_tsne_genomes`, etc.). The "code grows columns, roxygen
   doesn't" Rose class from item 3 likely applies. None are Tier-A0,
   so Tier-A3 items 18-21 will pick them up under the normal walk.
+
+# Tier A1
+
+## 5/28 — `batch_alife()` + `batch_seeds()` (2026-05-16, `claude/track-B-walk`)
+
+**TREE.** `R/run.R:140-170` (`batch_alife`) and `R/run.R:199-211`
+(`batch_seeds`). `batch_alife()` is a thin parallel wrapper around
+`run_alife()`: validates the input is a non-empty list, coerces
+`n_cores` to integer, defines `run_one(specs) =
+run_alife(specs, verbose = verbose)`, and dispatches to either
+`lapply(specs_list, run_one)` (serial, `n_cores <= 1L`) or a
+PSOCK `parallel::makeCluster()` + `parLapply()` (parallel,
+`n_cores > 1L`) with `clusterEvalQ(library(clade))` to load the
+package on each worker and `on.exit(stopCluster())` cleanup.
+`batch_seeds()` is the seed-sweep convenience wrapper: validates
+inputs, coerces `seeds` to integer, builds a `specs_list` where
+each element is `specs` with `$random_seed` overridden, names the
+elements `seed_<N>`, and delegates to `batch_alife()`. The defensive
+re-naming of results at line 209 is redundant (the specs_list names
+are preserved by `lapply`/`parLapply`) but harmless.
+
+The 0.5.6-vintage docstring comment on the PSOCK switch is
+excellent — it names the symptom (silent deadlock in `mclapply`
+because forked workers share the parent's JuliaConnectoR socket),
+the design tax (per-worker ~60 s Julia JIT cost), and the
+rule-of-thumb crossover (~20 scenarios) where parallel beats
+serial. Keep this as-is when v0.8-core merges.
+
+**FOREST.** 36 references across `R/`, `tests/`, `vignettes/`,
+README, NEWS. Production callers: `R/hypothesis.R`
+(`hypothesis_sweep()`), `R/search.R` (search algorithms),
+`R/scenarios.R` (scenario harnesses). Vignettes that demonstrate
+batch usage: `s-baseline.Rmd`, `s-baldwin.Rmd`, `s-cross-module.Rmd`,
+~25 others. README mentions both. **Test coverage before this walk
+was a single Julia-required test buried in `test-integration.R:217`
+(`batch_alife() returns one env per spec`) — `batch_seeds()` had
+zero dedicated coverage**, despite being the more user-facing of
+the two and the canonical answer to the "≥5 seeds per claim"
+discipline that every multi-seed vignette enforces.
+
+**TEST — coverage gap closed.** Created `tests/testthat/test-batch.R`
+(11 tests, 20 expectations, all no-Julia). The seed-override and
+naming transformations in `batch_seeds()` and the
+serial-vs-parallel dispatch + validation in `batch_alife()` are
+pure R; they can be verified without a Julia session by mocking
+`run_alife()` via `testthat::local_mocked_bindings()` (testthat
+3.0+). The new file covers:
+
+- `batch_seeds()` — overrides `random_seed` per replicate
+  (verified by inspecting the mock's captured `(specs, verbose)`
+  arguments), names results `seed_<N>` in input order, preserves
+  all other spec fields, coerces non-integer seeds via
+  `as.integer()`, rejects non-list specs, rejects empty seeds.
+- `batch_alife()` — runs each spec in order under `n_cores = 1L`
+  (verified by capturing the mock's call order), propagates the
+  `verbose` flag, rejects non-list inputs and empty specs_list,
+  coerces non-integer `n_cores`.
+
+PSOCK path (`n_cores > 1L`) deliberately not duplicated: it
+requires real worker R processes and Julia sessions, which the
+`test-integration.R` end-to-end test already exercises behind
+`skip_no_julia()`. Duplicating that here would add wall-clock cost
+without new signal.
+
+**ROSE.** One new (mild) class surfaced:
+
+- **"Convenience wrapper has no dedicated test."** `batch_seeds()`
+  is the more user-facing of the pair (every multi-seed vignette
+  uses it) but had zero dedicated coverage. The same risk class
+  exists for `quick_specs()`, `fast_specs()`, `realistic_specs()`,
+  `ultra_realistic_specs()`, `slow_specs()`, `full_specs()`
+  (Tier-A1 item 8 covers the preset family) and the
+  `wolf_personality_specs()` / `trivers_reciprocity_specs()` /
+  `wolf2008_responsiveness_specs()` paper presets (Tier-A2 items
+  11-13). Mitigation already in plan; flagging the class for the
+  reviewer's reference.
+
+**BIO.** `batch_alife()` and `batch_seeds()` have no biological
+semantics — they are infrastructure. Two design judgements
+embedded that are biologically right:
+
+1. `batch_seeds()`'s default `seeds = 1:5` matches the
+   ≥5-seeds-per-claim discipline encoded throughout the
+   `vignette("scenarios")` and `paper-*` workflows. The default is
+   the right floor for multi-seed claims; it nudges users into
+   sound practice without forcing a higher cost on quick
+   exploration.
+2. `batch_alife()`'s `n_cores = 1L` default is the right safe
+   choice: it avoids the Julia per-worker compile cost and the
+   PSOCK setup overhead, both of which dominate runtime for small
+   batches. The docstring explicitly names ~20 scenarios as the
+   crossover where parallel pays off — exactly the right
+   information for the user to make the call.
+
+**CONTRIBUTE.** No basics.Rmd change this item. `batch_seeds()`
+and `batch_alife()` already appear in section 2 (the run_alife()
+worked example notes both) and section 5 (the multi-seed
+"What next" pointer). basics.Rmd is at 173 lines — slightly over
+the 150-line plan target — so resisting the temptation to add
+more text. Tier A1 items contributing to basics.Rmd will need to
+adopt the same restraint going forward, or accept rewriting an
+existing section rather than adding a new one.
+
+**Deferred fixes (flagged for separate work):**
+
+- The redundant `names(results) <- paste0("seed_", seeds)` at
+  `R/run.R:209` could be deleted (the input names survive
+  `parLapply`). Cosmetic; not worth a commit on its own. Bundle
+  into a future "R/run.R cleanups" PR if one ever happens.
+- An explicit `batch_alife(specs_list, n_cores = 2L)` end-to-end
+  test would catch PSOCK regressions before they surface in long
+  multi-seed runs. Requires Julia and ~3 minutes of wall time
+  (two worker compilations); would slow `test-integration.R`
+  noticeably. Defer to a separate "long-running" test file or a
+  CI-only flag.
