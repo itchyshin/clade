@@ -67,8 +67,16 @@ The vignette claims McElreath's critique is "**strongly borne out**" based on a 
 
 A larger sample (16+ seeds) might resolve whether the cor(exp, aggro) PASS at 2000 ticks is robust. ~40 min additional compute.
 
+## Vignette prose update (2026-05-16)
+
+✅ **Done in PR #142**: vignette updated.
+
+- "Observed pattern" table caption changed to "single seed = 42 only"; added forward-pointer to the new Multi-seed section.
+- New **"Multi-seed verification (2026-05-16)"** section with per-cell tables for bold-aggro, asset-protection correlations, and trait-mean stability. Surfaces the surprise PASS-negative for `cor(exp, aggro)` at 2 000 ticks.
+- "Reading the result" rewritten from "**strongly borne out**" to honest revision: at 8 seeds, neither Wolf's syndrome nor McElreath's transience prediction is testable because there's no robust signal to be transient or persistent. The only robust finding is in `cor(exp, aggro)`, opposite to McElreath's prediction.
+- "Two critiques together" section updated to reflect that both critique vignettes' single-seed apparent-confirmations dissolve at multi-seed, converging on a cumulative Wolf 2007 null.
+
 ## Deferred fixes
 
-- Vignette prose update to soften the "strongly borne out" framing.
 - ~40 min compute to run at 16 seeds and check whether the cor(exp, aggro) 2000-tick PASS is robust.
-- Same cross-reference suggestion as Massol & Crochet — from paper-wolf2007.Rmd to both critique papers.
+- Cross-reference from `paper-wolf2007.Rmd` to this vignette and to paper-massol-crochet-2008 is in place via the "Critique-aware framing" section (updated in PR #142).
