@@ -69,8 +69,17 @@ jobs:
                                   libfribidi-dev libfreetype6-dev \
                                   libpng-dev libtiff5-dev libjpeg-dev
 
+      # `dependencies: '"hard"'` installs Depends + Imports + LinkingTo
+      # only — explicitly NOT Suggests. This skips JuliaConnectoR (in
+      # Suggests), so the `skip_no_julia()` / `skip_if_not_installed
+      # ("JuliaConnectoR")` checks in test files short-circuit before
+      # they can hit any code that tries to find Julia. The packages
+      # we genuinely need for testing are added via extra-packages
+      # below; without this hard-deps-only restriction the first run
+      # hung for 13+ minutes inside `JuliaConnectoR::juliaSetupOk()`.
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
+          dependencies: '"hard"'
           extra-packages: |
             any::devtools
             any::testthat
