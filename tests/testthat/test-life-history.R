@@ -12,22 +12,26 @@ library(testthat)
 
 # ── 1. life_history is present in default_specs() ────────────────────────────
 test_that("life_history is present in default_specs()", {
+  skip_no_julia()
   expect_true("life_history" %in% names(default_specs()))
 })
 
 # ── 2. life_history defaults to "iteroparous" ─────────────────────────────────
 test_that("life_history defaults to \"iteroparous\"", {
+  skip_no_julia()
   expect_equal(default_specs()$life_history, "iteroparous")
 })
 
 # ── 3. life_history is one of the valid options ───────────────────────────────
 test_that("life_history default is one of the valid options", {
+  skip_no_julia()
   valid <- c("iteroparous", "semelparous")
   expect_true(default_specs()$life_history %in% valid)
 })
 
 # ── 4. senescence_rate is present and defaults to 0.0 ────────────────────────
 test_that("senescence_rate is present and defaults to 0.0", {
+  skip_no_julia()
   s <- default_specs()
   expect_true("senescence_rate" %in% names(s))
   expect_equal(s$senescence_rate, 0.0)
@@ -35,6 +39,7 @@ test_that("senescence_rate is present and defaults to 0.0", {
 
 # ── 5. senescence_rate is non-negative ───────────────────────────────────────
 test_that("senescence_rate is non-negative", {
+  skip_no_julia()
   expect_gte(default_specs()$senescence_rate, 0.0)
 })
 
@@ -44,6 +49,7 @@ test_that("senescence_rate is non-negative", {
 
 # ── 8. max_age is present and is integer-like ────────────────────────────────
 test_that("max_age is present and is integer-like", {
+  skip_no_julia()
   s <- default_specs()
   expect_true("max_age" %in% names(s))
   val <- s$max_age
@@ -52,6 +58,7 @@ test_that("max_age is present and is integer-like", {
 
 # ── 9. max_age is strictly positive ──────────────────────────────────────────
 test_that("max_age is strictly positive", {
+  skip_no_julia()
   expect_gt(default_specs()$max_age, 0L)
 })
 
@@ -60,6 +67,7 @@ test_that("max_age is strictly positive", {
 
 # ── 11. allee_threshold is present and defaults to 0 ─────────────────────────
 test_that("allee_threshold is present and defaults to 0", {
+  skip_no_julia()
   s <- default_specs()
   expect_true("allee_threshold" %in% names(s))
   expect_equal(s$allee_threshold, 0L)
@@ -69,6 +77,7 @@ test_that("allee_threshold is present and defaults to 0", {
 # Added to default_specs() in config.R at line ~1590 (`min_repro_age = 0L`);
 # the "NOT yet implemented" note that used to live here is stale.
 test_that("min_repro_age is present in default_specs()", {
+  skip_no_julia()
   expect_true("min_repro_age" %in% names(default_specs()))
 })
 
@@ -76,11 +85,13 @@ test_that("min_repro_age is present in default_specs()", {
 
 # ── 13. life_history defaults to "iteroparous" (explicit identical) ───────────
 test_that("life_history defaults to \"iteroparous\" (identical check)", {
+  skip_no_julia()
   expect_identical(default_specs()$life_history, "iteroparous")
 })
 
 # ── 14. life_history can be "semelparous" ─────────────────────────────────────
 test_that("life_history accepts \"semelparous\" without error in specs", {
+  skip_no_julia()
   s <- default_specs()
   s$life_history <- "semelparous"
   expect_equal(s$life_history, "semelparous")
@@ -88,6 +99,7 @@ test_that("life_history accepts \"semelparous\" without error in specs", {
 
 # ── 15. max_age defaults to 200L and is integer ──────────────────────────────
 test_that("max_age defaults to 200L and is integer", {
+  skip_no_julia()
   s <- default_specs()
   expect_identical(s$max_age, 200L)
   expect_true(is.integer(s$max_age))
@@ -98,6 +110,7 @@ test_that("max_age defaults to 200L and is integer", {
 
 # ── 18. senescence_rate defaults to 0.0 ──────────────────────────────────────
 test_that("senescence_rate defaults to 0.0 (identical check)", {
+  skip_no_julia()
   expect_identical(default_specs()$senescence_rate, 0.0)
 })
 
@@ -106,6 +119,7 @@ test_that("senescence_rate defaults to 0.0 (identical check)", {
 # ("Default 1.0 = classic Gompertz"); this assertion was stale too — same
 # bug as test-config.R:156, fixed in Phase A item 1 (commit 20837bd).
 test_that("senescence_shape defaults to 1.0 (classic Gompertz)", {
+  skip_no_julia()
   s <- default_specs()
   expect_true("senescence_shape" %in% names(s))
   expect_identical(s$senescence_shape, 1.0)
@@ -113,6 +127,7 @@ test_that("senescence_shape defaults to 1.0 (classic Gompertz)", {
 
 # ── 20. life_history params round-trip through default_specs() ───────────────
 test_that("life_history params round-trip through default_specs()", {
+  skip_no_julia()
   s <- default_specs()
   expect_equal(s$life_history,           "iteroparous")
   expect_equal(s$max_age,                200L)
@@ -123,6 +138,7 @@ test_that("life_history params round-trip through default_specs()", {
 
 # ── 21. semelparous run completes and n_births > 0 somewhere ─────────────────
 test_that("life_history = 'semelparous' run completes and produces births", {
+  skip_no_julia()
   skip_if_not(requireNamespace("JuliaConnectoR", quietly = TRUE),
               "JuliaConnectoR not available")
   skip_if_not(JuliaConnectoR::juliaSetupOk(),
@@ -141,6 +157,7 @@ test_that("life_history = 'semelparous' run completes and produces births", {
 
 # ── 22. high senescence_rate lowers mean_age vs no senescence ────────────────
 test_that("high senescence_rate produces lower mean_age than zero rate", {
+  skip_no_julia()
   skip_if_not(requireNamespace("JuliaConnectoR", quietly = TRUE),
               "JuliaConnectoR not available")
   skip_if_not(JuliaConnectoR::juliaSetupOk(),
@@ -173,6 +190,7 @@ test_that("high senescence_rate produces lower mean_age than zero rate", {
 
 # ── 23. max_age = 50L: no agent survives beyond 50 ticks ────────────────────
 test_that("max_age = 50L: mean_age never exceeds 50 at any tick", {
+  skip_no_julia()
   skip_if_not(requireNamespace("JuliaConnectoR", quietly = TRUE),
               "JuliaConnectoR not available")
   skip_if_not(JuliaConnectoR::juliaSetupOk(),
@@ -199,6 +217,7 @@ test_that("max_age = 50L: mean_age never exceeds 50 at any tick", {
 
 # ── 25. semelparous repro_cost is high relative to normal reproduction ────────
 test_that("semelparous repro_cost >= iteroparous repro_cost in default_specs", {
+  skip_no_julia()
   # Verify that the semelparous configuration uses a meaningful repro_cost.
   # This is a structural / documentation test — no Julia needed.
   s <- default_specs()

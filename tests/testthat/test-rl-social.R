@@ -16,13 +16,6 @@
 
 library(testthat)
 
-skip_no_julia <- function() {
-  skip_if_not(requireNamespace("JuliaConnectoR", quietly = TRUE),
-              "JuliaConnectoR not available")
-  skip_if_not(JuliaConnectoR::juliaSetupOk(),
-              "Julia toolchain not available")
-}
-
 .rl_specs <- function(...) {
   s <- default_specs()
   s$grid_rows     <- 15L
@@ -40,12 +33,14 @@ skip_no_julia <- function() {
 
 # ── 1. rl_mode defaults to "none" ──────────────────────────────────────────
 test_that("rl_mode defaults to 'none' in default_specs()", {
+  skip_no_julia()
   s <- default_specs()
   expect_equal(s$rl_mode, "none")
 })
 
 # ── 2. rl_update_freq default is a positive integer ─────────────────────────
 test_that("rl_update_freq default is a positive integer", {
+  skip_no_julia()
   s <- default_specs()
   expect_true(is.integer(s$rl_update_freq))
   expect_gte(s$rl_update_freq, 1L)
@@ -120,12 +115,14 @@ test_that("unknown rl_mode raises an error in Julia", {
 
 # ── 9. social_learning defaults to FALSE ────────────────────────────────────
 test_that("social_learning defaults to FALSE in default_specs()", {
+  skip_no_julia()
   s <- default_specs()
   expect_false(s$social_learning)
 })
 
 # ── 10. social_learning_rate default is in (0, 1) ───────────────────────────
 test_that("social_learning_rate default is in the open unit interval", {
+  skip_no_julia()
   s <- default_specs()
   expect_true(is.numeric(s$social_learning_rate))
   expect_gt(s$social_learning_rate, 0)
@@ -213,6 +210,7 @@ test_that("social_learning = FALSE run is independent of social_learning_rate", 
 
 # ── 17. rl.jl defines apply_rl! (syntax check) ───────────────────────────────
 test_that("rl.jl defines apply_rl!", {
+  skip_no_julia()
   JULIA_SRC <- system.file("julia", "src", package = "clade")
   skip_if(!nchar(JULIA_SRC) || !dir.exists(JULIA_SRC),
           "Julia source not installed")
@@ -224,6 +222,7 @@ test_that("rl.jl defines apply_rl!", {
 
 # ── 18. social_learning.jl defines apply_social_learning! (syntax) ───────────
 test_that("social_learning.jl defines apply_social_learning!", {
+  skip_no_julia()
   JULIA_SRC <- system.file("julia", "src", package = "clade")
   skip_if(!nchar(JULIA_SRC) || !dir.exists(JULIA_SRC),
           "Julia source not installed")
@@ -235,6 +234,7 @@ test_that("social_learning.jl defines apply_social_learning!", {
 
 # ── 19. rl_update_freq default value ─────────────────────────────────────────
 test_that("rl_update_freq has correct default in default_specs()", {
+  skip_no_julia()
   s <- default_specs()
   expect_true("rl_update_freq" %in% names(s))
   expect_true(is.integer(s$rl_update_freq))
@@ -243,27 +243,32 @@ test_that("rl_update_freq has correct default in default_specs()", {
 
 # ── 20. social_learning_freq defaults to 10L ──────────────────────────────────
 test_that("social_learning_freq defaults to 10L", {
+  skip_no_julia()
   s <- default_specs()
   expect_equal(s$social_learning_freq, 10L)
 })
 
 # ── 21. social_learning_rate defaults to 0.1 ─────────────────────────────────
 test_that("social_learning_rate defaults to 0.1", {
+  skip_no_julia()
   expect_equal(default_specs()$social_learning_rate, 0.1)
 })
 
 # ── 22. learning_rate_evolution defaults to FALSE ────────────────────────────
 test_that("learning_rate_evolution defaults to FALSE", {
+  skip_no_julia()
   expect_false(default_specs()$learning_rate_evolution)
 })
 
 # ── 23. learning_rate_init_mean defaults to 0.01 ─────────────────────────────
 test_that("learning_rate_init_mean defaults to 0.01", {
+  skip_no_julia()
   expect_equal(default_specs()$learning_rate_init_mean, 0.01)
 })
 
 # ── 24. learning_rate_min and learning_rate_max exist and are in [0, 0.5] ────
 test_that("learning_rate_min and learning_rate_max exist and are in [0, 0.5]", {
+  skip_no_julia()
   s <- default_specs()
   expect_true("learning_rate_min" %in% names(s))
   expect_true("learning_rate_max" %in% names(s))
@@ -275,6 +280,7 @@ test_that("learning_rate_min and learning_rate_max exist and are in [0, 0.5]", {
 
 # ── 25. plasticity_cost defaults to 0.05 ─────────────────────────────────────
 test_that("plasticity_cost defaults to 0.05", {
+  skip_no_julia()
   expect_equal(default_specs()$plasticity_cost, 0.05)
 })
 
@@ -309,6 +315,7 @@ test_that("RL + social learning run produces births", {
 
 # ── 28. social_learning params round-trip through default_specs() ─────────────
 test_that("social_learning params round-trip correctly through default_specs()", {
+  skip_no_julia()
   s <- default_specs()
   expect_false(s$social_learning)
   expect_equal(s$social_learning_freq, 10L)
@@ -323,10 +330,12 @@ test_that("social_learning params round-trip correctly through default_specs()",
 # ── Lamarckian evolution ──────────────────────────────────────────────────────
 
 test_that("lamarckian = FALSE is the default", {
+  skip_no_julia()
   expect_false(default_specs()$lamarckian)
 })
 
 test_that("lamarckian spec round-trips through default_specs()", {
+  skip_no_julia()
   s <- default_specs()
   s$lamarckian <- TRUE
   expect_true(s$lamarckian)

@@ -14,11 +14,13 @@ library(testthat)
 
 # ── 1. parental_care is present in default_specs() ───────────────────────────
 test_that("parental_care is present in default_specs()", {
+  skip_no_julia()
   expect_true("parental_care" %in% names(default_specs()))
 })
 
 # ── 2. parental_care defaults to FALSE ───────────────────────────────────────
 test_that("parental_care defaults to FALSE", {
+  skip_no_julia()
   expect_false(default_specs()$parental_care)
 })
 
@@ -26,11 +28,13 @@ test_that("parental_care defaults to FALSE", {
 # Added to default_specs() by the spec-wiring audit (PR #114); the
 # "NOT yet implemented" note that used to live here is stale.
 test_that("parental_investment_evolution is present in default_specs()", {
+  skip_no_julia()
   expect_true("parental_investment_evolution" %in% names(default_specs()))
 })
 
 # ── 4. parental_investment_evolution defaults to FALSE ────────────────────────
 test_that("parental_investment_evolution defaults to FALSE", {
+  skip_no_julia()
   expect_false(default_specs()$parental_investment_evolution)
 })
 
@@ -40,11 +44,13 @@ test_that("parental_investment_evolution defaults to FALSE", {
 
 # ── 7. female_investment is present in default_specs() ───────────────────────
 test_that("female_investment is present in default_specs()", {
+  skip_no_julia()
   expect_true("female_investment" %in% names(default_specs()))
 })
 
 # ── 8. female_investment is in [0, 1] ────────────────────────────────────────
 test_that("female_investment is in [0, 1]", {
+  skip_no_julia()
   val <- default_specs()$female_investment
   expect_gte(val, 0.0)
   expect_lte(val, 1.0)
@@ -52,21 +58,25 @@ test_that("female_investment is in [0, 1]", {
 
 # ── 9. male_repro_cost is present in default_specs() ─────────────────────────
 test_that("male_repro_cost is present in default_specs()", {
+  skip_no_julia()
   expect_true("male_repro_cost" %in% names(default_specs()))
 })
 
 # ── 10. male_repro_cost is non-negative ──────────────────────────────────────
 test_that("male_repro_cost is non-negative", {
+  skip_no_julia()
   expect_gte(default_specs()$male_repro_cost, 0.0)
 })
 
 # ── 11. parental_investment_evolution defaults to FALSE ───────────────────────
 test_that("parental_investment_evolution defaults to FALSE", {
+  skip_no_julia()
   expect_false(default_specs()$parental_investment_evolution)
 })
 
 # ── 12. male_repro_cost defaults to 0.3 ──────────────────────────────────────
 test_that("male_repro_cost defaults to 0.3", {
+  skip_no_julia()
   expect_equal(default_specs()$male_repro_cost, 0.3)
 })
 
@@ -75,11 +85,13 @@ test_that("male_repro_cost defaults to 0.3", {
 
 # ── 14. female_investment is present in default_specs() ──────────────────────
 test_that("female_investment is present in default_specs()", {
+  skip_no_julia()
   expect_true("female_investment" %in% names(default_specs()))
 })
 
 # ── 15. male_repro_cost is in [0, 1] in defaults ─────────────────────────────
 test_that("male_repro_cost is in [0, 1] in defaults", {
+  skip_no_julia()
   val <- default_specs()$male_repro_cost
   expect_gte(val, 0.0)
   expect_lte(val, 1.0)
@@ -87,6 +99,7 @@ test_that("male_repro_cost is in [0, 1] in defaults", {
 
 # ── 16. parental investment params round-trip through default_specs() ─────────
 test_that("parental investment params round-trip correctly through default_specs()", {
+  skip_no_julia()
   s <- default_specs()
   expect_false(s$parental_investment_evolution)
   expect_equal(s$male_repro_cost, 0.3)
@@ -97,6 +110,7 @@ test_that("parental investment params round-trip correctly through default_specs
 
 # ── 18. parental investment params are numeric type ──────────────────────────
 test_that("parental investment params are numeric type", {
+  skip_no_julia()
   s <- default_specs()
   expect_true(is.numeric(s$female_investment))
   expect_true(is.numeric(s$male_repro_cost))
@@ -104,6 +118,7 @@ test_that("parental investment params are numeric type", {
 
 # ── 19. With parental_investment_evolution = TRUE, run completes (Julia) ──────
 test_that("parental_investment_evolution = TRUE run completes", {
+  skip_no_julia()
   skip_if_not(requireNamespace("JuliaConnectoR", quietly = TRUE),
               "JuliaConnectoR not available")
   skip_if_not(JuliaConnectoR::juliaSetupOk(), "Julia toolchain not available")
@@ -121,6 +136,7 @@ test_that("parental_investment_evolution = TRUE run completes", {
 
 # ── 20. With high male_repro_cost, fewer births than with low male_repro_cost ─
 test_that("high male_repro_cost results in fewer or equal births than low cost", {
+  skip_no_julia()
   skip_if_not(requireNamespace("JuliaConnectoR", quietly = TRUE),
               "JuliaConnectoR not available")
   skip_if_not(JuliaConnectoR::juliaSetupOk(), "Julia toolchain not available")

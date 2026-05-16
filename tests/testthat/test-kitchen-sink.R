@@ -5,6 +5,7 @@ library(testthat)
 
 # ── 1. All major module flags default to FALSE or 0 ──────────────────────────
 test_that("all major module flags default to FALSE or 0 (no module on by default)", {
+  skip_no_julia()
   s <- default_specs()
   module_flags <- c(
     "disease", "kin_selection", "cooperation_evolution", "speciation",
@@ -32,6 +33,7 @@ test_that("all major module flags default to FALSE or 0 (no module on by default
 
 # ── 2. disease + kin_selection can coexist ────────────────────────────────────
 test_that("disease = TRUE and kin_selection = TRUE can coexist in a specs list", {
+  skip_no_julia()
   s <- default_specs()
   s$disease      <- TRUE
   s$kin_selection <- TRUE
@@ -42,6 +44,7 @@ test_that("disease = TRUE and kin_selection = TRUE can coexist in a specs list",
 
 # ── 3. cooperation_evolution + dispersal_evolution can coexist ────────────────
 test_that("cooperation_evolution and dispersal_evolution can coexist", {
+  skip_no_julia()
   s <- default_specs()
   s$cooperation_evolution <- TRUE
   s$dispersal_evolution   <- TRUE
@@ -52,6 +55,7 @@ test_that("cooperation_evolution and dispersal_evolution can coexist", {
 
 # ── 4. parental_care + cooperative_breeding can coexist ──────────────────────
 test_that("parental_care and cooperative_breeding can coexist", {
+  skip_no_julia()
   s <- default_specs()
   s$parental_care        <- TRUE
   s$cooperative_breeding <- TRUE
@@ -62,6 +66,7 @@ test_that("parental_care and cooperative_breeding can coexist", {
 
 # ── 5. mimicry + speciation can coexist ──────────────────────────────────────
 test_that("mimicry and speciation can coexist", {
+  skip_no_julia()
   s <- default_specs()
   s$mimicry    <- TRUE
   s$speciation <- TRUE
@@ -72,6 +77,7 @@ test_that("mimicry and speciation can coexist", {
 
 # ── 6. body_size_evolution + metabolic_rate_evolution can coexist ─────────────
 test_that("body_size_evolution and metabolic_rate_evolution can coexist", {
+  skip_no_julia()
   s <- default_specs()
   s$body_size_evolution      <- TRUE
   s$metabolic_rate_evolution <- TRUE
@@ -82,6 +88,7 @@ test_that("body_size_evolution and metabolic_rate_evolution can coexist", {
 
 # ── 7. social_learning + rl_mode != "none" can coexist ───────────────────────
 test_that("social_learning = TRUE and rl_mode = 'actor_critic' can coexist", {
+  skip_no_julia()
   s <- default_specs()
   s$social_learning <- TRUE
   s$rl_mode         <- "actor_critic"
@@ -92,18 +99,12 @@ test_that("social_learning = TRUE and rl_mode = 'actor_critic' can coexist", {
 
 # ── 8. all parameter names in default_specs() are unique ─────────────────────
 test_that("all parameter names in default_specs() are unique (no duplicates)", {
+  skip_no_julia()
   nms <- names(default_specs())
   expect_equal(length(nms), length(unique(nms)))
 })
 
 # ── Julia-dependent tests ─────────────────────────────────────────────────────
-
-skip_no_julia <- function() {
-  skip_if_not(requireNamespace("JuliaConnectoR", quietly = TRUE),
-              "JuliaConnectoR not available")
-  skip_if_not(JuliaConnectoR::juliaSetupOk(),
-              "Julia toolchain not available")
-}
 
 # ── 9. Kitchen-sink run with multiple modules completes without error ─────────
 test_that("run with disease + kin_selection + social_learning completes", {

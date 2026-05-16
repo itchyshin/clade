@@ -5,13 +5,6 @@
 
 library(testthat)
 
-skip_no_julia <- function() {
-  skip_if_not(requireNamespace("JuliaConnectoR", quietly = TRUE),
-              "JuliaConnectoR not available")
-  skip_if_not(JuliaConnectoR::juliaSetupOk(),
-              "Julia toolchain not available")
-}
-
 .tiny_specs <- function(...) {
   s <- default_specs()
   s$grid_rows     <- 3L

@@ -1,8 +1,10 @@
 test_that("mimicry defaults to FALSE", {
+  skip_no_julia()
   expect_false(default_specs()$mimicry)
 })
 
 test_that("toxicity_cost_per_tick defaults to 2.0 (Zahavi handicap)", {
+  skip_no_julia()
   # Default was raised from 0.5 to 2.0 to make the Zahavi cost biologically
   # meaningful (see roxygen in R/config.R). Test value updated 0.7.0 to
   # match the config; previously stale.
@@ -10,26 +12,32 @@ test_that("toxicity_cost_per_tick defaults to 2.0 (Zahavi handicap)", {
 })
 
 test_that("toxin_dose defaults to 30.0", {
+  skip_no_julia()
   expect_equal(default_specs()$toxin_dose, 30.0)
 })
 
 test_that("signal_memory_rate defaults to 0.3", {
+  skip_no_julia()
   expect_equal(default_specs()$signal_memory_rate, 0.3)
 })
 
 test_that("avoid_threshold defaults to 0.5", {
+  skip_no_julia()
   expect_equal(default_specs()$avoid_threshold, 0.5)
 })
 
 test_that("toxicity_init_mean defaults to 0.0", {
+  skip_no_julia()
   expect_equal(default_specs()$toxicity_init_mean, 0.0)
 })
 
 test_that("toxicity_mutation_sd defaults to 0.05", {
+  skip_no_julia()
   expect_equal(default_specs()$toxicity_mutation_sd, 0.05)
 })
 
 test_that("all mimicry params are present in default_specs", {
+  skip_no_julia()
   nms <- names(default_specs())
   for (p in c("mimicry", "toxicity_cost_per_tick", "toxin_dose",
                "signal_memory_rate", "avoid_threshold",
@@ -39,16 +47,19 @@ test_that("all mimicry params are present in default_specs", {
 })
 
 test_that("toxin_dose is positive", {
+  skip_no_julia()
   expect_true(default_specs()$toxin_dose > 0)
 })
 
 test_that("signal_memory_rate is in (0, 1)", {
+  skip_no_julia()
   r <- default_specs()$signal_memory_rate
   expect_true(r > 0 && r < 1)
 })
 
 # ── 11. With mimicry = TRUE, run logs n_toxic_attacks and n_avoided_attacks ──
 test_that("mimicry = TRUE run has n_toxic_attacks and n_avoided_attacks in run_data", {
+  skip_no_julia()
   skip_if_not(requireNamespace("JuliaConnectoR", quietly = TRUE),
               "JuliaConnectoR not available")
   skip_if_not(JuliaConnectoR::juliaSetupOk(), "Julia toolchain not available")
@@ -69,6 +80,7 @@ test_that("mimicry = TRUE run has n_toxic_attacks and n_avoided_attacks in run_d
 
 # ── 12. mean_toxicity >= 0 for all ticks when mimicry = TRUE ─────────────────
 test_that("mean_toxicity is non-negative at all ticks when mimicry = TRUE", {
+  skip_no_julia()
   skip_if_not(requireNamespace("JuliaConnectoR", quietly = TRUE),
               "JuliaConnectoR not available")
   skip_if_not(JuliaConnectoR::juliaSetupOk(), "Julia toolchain not available")
@@ -92,6 +104,7 @@ test_that("mean_toxicity is non-negative at all ticks when mimicry = TRUE", {
 
 # ── 13. mimicry params round-trip through default_specs() ─────────────────────
 test_that("mimicry params round-trip correctly through default_specs()", {
+  skip_no_julia()
   s <- default_specs()
   expect_false(s$mimicry)
   expect_equal(s$toxicity_cost_per_tick, 2.0)   # see test at line 5 — updated 0.7.0

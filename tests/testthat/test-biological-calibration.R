@@ -26,13 +26,6 @@ library(testthat)
   s
 }
 
-skip_no_julia <- function() {
-  skip_if_not(requireNamespace("JuliaConnectoR", quietly = TRUE),
-              "JuliaConnectoR not available")
-  skip_if_not(JuliaConnectoR::juliaSetupOk(),
-              "Julia toolchain not available")
-}
-
 # ── 1. Energy conservation floor ─────────────────────────────────────────────
 test_that("mean_energy never goes negative (energy has a floor)", {
   skip_no_julia()

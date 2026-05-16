@@ -1,19 +1,15 @@
 # Tests for the 0.3.0 heritable-niche shelter_occupancy_bonus and
 # the new n_shelter_occupied logging column.
 
-.skip_unless_julia <- function() {
-  skip_if_not_installed("JuliaConnectoR")
-  skip_on_cran()
-}
-
 test_that("shelter_occupancy_bonus defaults to 0 (backward compat)", {
+  skip_no_julia()
   s <- default_specs()
   expect_true("shelter_occupancy_bonus" %in% names(s))
   expect_equal(s$shelter_occupancy_bonus, 0)
 })
 
 test_that("niche_construction run logs n_shelter_occupied", {
-  .skip_unless_julia()
+  skip_no_julia()
 
   s <- default_specs()
   s$niche_construction <- TRUE
@@ -32,7 +28,7 @@ test_that("niche_construction run logs n_shelter_occupied", {
 })
 
 test_that("shelter_occupancy_bonus > 0 raises late-run mean_energy vs bonus=0", {
-  .skip_unless_julia()
+  skip_no_julia()
 
   base <- default_specs()
   base$niche_construction <- TRUE
@@ -60,7 +56,7 @@ test_that("shelter_occupancy_bonus > 0 raises late-run mean_energy vs bonus=0", 
 })
 
 test_that("shelter_occupancy_bonus stays 0 when niche_construction is FALSE", {
-  .skip_unless_julia()
+  skip_no_julia()
 
   s <- default_specs()
   s$niche_construction     <- FALSE

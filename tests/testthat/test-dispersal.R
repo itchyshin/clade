@@ -33,13 +33,6 @@ library(testthat)
   )
 }
 
-skip_no_julia <- function() {
-  skip_if_not(requireNamespace("JuliaConnectoR", quietly = TRUE),
-              "JuliaConnectoR not available")
-  skip_if_not(JuliaConnectoR::juliaSetupOk(),
-              "Julia toolchain not available")
-}
-
 # ── 1. n_dispersal_events = 0 when dispersal_evolution = FALSE ───────────────
 test_that("n_dispersal_events = 0 when dispersal_evolution = FALSE", {
   skip_no_julia()
@@ -204,6 +197,7 @@ test_that("dispersal_evolution = TRUE works with body_size_evolution = TRUE", {
 
 # ── 12. default_specs() has all dispersal parameters with correct defaults ────
 test_that("default_specs() has all dispersal parameters with correct defaults", {
+  skip_no_julia()
   s <- default_specs()
   expect_true("dispersal_evolution" %in% names(s))
   expect_false(s$dispersal_evolution)
@@ -220,16 +214,19 @@ test_that("default_specs() has all dispersal parameters with correct defaults", 
 
 # ── 13. dispersal_evolution defaults to FALSE ─────────────────────────────────
 test_that("dispersal_evolution defaults to FALSE", {
+  skip_no_julia()
   expect_false(default_specs()$dispersal_evolution)
 })
 
 # ── 14. dispersal_cost defaults to 2.0 ───────────────────────────────────────
 test_that("dispersal_cost defaults to 2.0", {
+  skip_no_julia()
   expect_equal(default_specs()$dispersal_cost, 2.0)
 })
 
 # ── 15. dispersal_init_mean is present and in [0, 1] ─────────────────────────
 test_that("dispersal_init_mean is present and in [0, 1]", {
+  skip_no_julia()
   val <- default_specs()$dispersal_init_mean
   expect_true("dispersal_init_mean" %in% names(default_specs()))
   expect_gte(val, 0.0)
@@ -238,21 +235,25 @@ test_that("dispersal_init_mean is present and in [0, 1]", {
 
 # ── 16. dispersal_mutation_sd defaults to 0.02 ───────────────────────────────
 test_that("dispersal_mutation_sd defaults to 0.02", {
+  skip_no_julia()
   expect_equal(default_specs()$dispersal_mutation_sd, 0.02)
 })
 
 # ── 17. dispersal_min defaults to 0.0 ────────────────────────────────────────
 test_that("dispersal_min defaults to 0.0", {
+  skip_no_julia()
   expect_equal(default_specs()$dispersal_min, 0.0)
 })
 
 # ── 18. dispersal_max defaults to 0.5 ────────────────────────────────────────
 test_that("dispersal_max defaults to 0.5", {
+  skip_no_julia()
   expect_equal(default_specs()$dispersal_max, 0.5)
 })
 
 # ── 19. dispersal params round-trip through default_specs() ──────────────────
 test_that("dispersal params round-trip correctly through default_specs()", {
+  skip_no_julia()
   s <- default_specs()
   expect_false(s$dispersal_evolution)
   expect_equal(s$dispersal_cost,        2.0)
@@ -263,6 +264,7 @@ test_that("dispersal params round-trip correctly through default_specs()", {
 
 # ── 20. dispersal_tendency_mutation_sd does not exist; dispersal_mutation_sd does ─
 test_that("dispersal_mutation_sd (not dispersal_tendency_mutation_sd) is the correct param name", {
+  skip_no_julia()
   nms <- names(default_specs())
   expect_true("dispersal_mutation_sd" %in% nms)
 })

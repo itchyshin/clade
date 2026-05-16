@@ -6,7 +6,16 @@
 
 #' Skip a test when Julia is not available.
 #' Defined here so every test file can call it without re-defining it.
+#'
+#' Honours `CLADE_SKIP_JULIA_TESTS=true` as an opt-out: when set, the
+#' skip fires unconditionally even if Julia would otherwise be reachable.
+#' CI uses this to enforce the no-Julia tier without depending on the
+#' absence of Julia from the runner (some ubuntu-latest runners come
+#' with Julia pre-installed at /opt/julia).
 skip_no_julia <- function() {
+  if (identical(tolower(Sys.getenv("CLADE_SKIP_JULIA_TESTS")), "true")) {
+    skip("CLADE_SKIP_JULIA_TESTS=true (CI no-Julia tier)")
+  }
   skip_if_not(requireNamespace("JuliaConnectoR", quietly = TRUE),
               "JuliaConnectoR not available")
   skip_if_not(JuliaConnectoR::juliaSetupOk(),

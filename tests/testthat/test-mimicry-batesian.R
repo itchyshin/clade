@@ -1,20 +1,18 @@
 # Tests for the 0.3.0 Batesian mimicry mode
 # (specs$batesian_mimicry = TRUE).
 
-.skip_unless_julia <- function() {
-  skip_if_not_installed("JuliaConnectoR")
-  skip_on_cran()
-}
-
 test_that("batesian_mimicry defaults to FALSE", {
+  skip_no_julia()
   expect_false(default_specs()$batesian_mimicry)
 })
 
 test_that("batesian_mimicry is in default_specs", {
+  skip_no_julia()
   expect_true("batesian_mimicry" %in% names(default_specs()))
 })
 
 test_that("Müllerian mode (default): toxicity_cost_per_tick is 2.0 post-0.3.0", {
+  skip_no_julia()
   # Handicap-principle honesty: toxicity_cost_per_tick should be meaningful
   # relative to idle_cost (0.5). Raised from 0.5 -> 2.0 in 0.3.0.
   s <- default_specs()
@@ -23,7 +21,7 @@ test_that("Müllerian mode (default): toxicity_cost_per_tick is 2.0 post-0.3.0",
 })
 
 test_that("Müllerian run produces mean_toxicity trajectory and avoided-attack counter", {
-  .skip_unless_julia()
+  skip_no_julia()
 
   s <- default_specs()
   s$mimicry           <- TRUE
@@ -46,7 +44,7 @@ test_that("Müllerian run produces mean_toxicity trajectory and avoided-attack c
 })
 
 test_that("Batesian run completes and logs the same counters", {
-  .skip_unless_julia()
+  skip_no_julia()
 
   s <- default_specs()
   s$mimicry           <- TRUE

@@ -20,13 +20,6 @@ library(testthat)
   s
 }
 
-skip_no_julia <- function() {
-  skip_if_not(requireNamespace("JuliaConnectoR", quietly = TRUE),
-              "JuliaConnectoR not available")
-  skip_if_not(JuliaConnectoR::juliaSetupOk(),
-              "Julia toolchain not available")
-}
-
 # ── Cooperation ──────────────────────────────────────────────────────────────
 
 # 1. run_alife with cooperation_evolution = TRUE completes
@@ -40,6 +33,7 @@ test_that("run_alife with cooperation_evolution = TRUE completes", {
 
 # 2. default cooperation_multiplier is > 1 (non-trivial public goods game)
 test_that("default cooperation_multiplier is > 1", {
+  skip_no_julia()
   s <- default_specs()
   expect_gt(s$cooperation_multiplier, 1.0)
 })
@@ -175,6 +169,7 @@ test_that("niche_construction = FALSE keeps n_shelters_built at 0", {
 
 # 11. All three module files exist on disk.
 test_that("cooperation.jl, scavenging.jl, and niche.jl are present", {
+  skip_no_julia()
   julia_src <- system.file("julia", "src", package = "clade")
   skip_if(!nchar(julia_src) || !dir.exists(julia_src),
           "Julia source not installed")
@@ -186,6 +181,7 @@ test_that("cooperation.jl, scavenging.jl, and niche.jl are present", {
 # 12. Clade.jl wires in all three modules and calls their apply_* entry
 #     points in the tick loop.
 test_that("Clade.jl includes and calls all three modules", {
+  skip_no_julia()
   julia_src <- system.file("julia", "src", package = "clade")
   skip_if(!nchar(julia_src) || !dir.exists(julia_src),
           "Julia source not installed")
@@ -201,6 +197,7 @@ test_that("Clade.jl includes and calls all three modules", {
 
 # 13. death.jl calls deposit_carrion! when an agent is flagged dead.
 test_that("death.jl deposits carrion on agent death", {
+  skip_no_julia()
   julia_src <- system.file("julia", "src", package = "clade")
   skip_if(!nchar(julia_src) || !dir.exists(julia_src),
           "Julia source not installed")

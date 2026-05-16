@@ -34,13 +34,6 @@ library(testthat)
   )
 }
 
-skip_no_julia <- function() {
-  skip_if_not(requireNamespace("JuliaConnectoR", quietly = TRUE),
-              "JuliaConnectoR not available")
-  skip_if_not(JuliaConnectoR::juliaSetupOk(),
-              "Julia toolchain not available")
-}
-
 .agent_bsz <- function(env) {
   n <- as.integer(length(env$agents))
   if (n == 0L) return(numeric(0L))
@@ -50,6 +43,7 @@ skip_no_julia <- function() {
 
 # ── 1. Default params present in default_specs() ─────────────────────────────
 test_that("brain_size_evolution params are present in default_specs()", {
+  skip_no_julia()
   s <- default_specs()
   expect_true("brain_size_evolution"  %in% names(s))
   expect_true("brain_size_init_mean"  %in% names(s))
@@ -61,36 +55,43 @@ test_that("brain_size_evolution params are present in default_specs()", {
 
 # ── 2. brain_size_evolution defaults to FALSE ─────────────────────────────────
 test_that("brain_size_evolution defaults to FALSE", {
+  skip_no_julia()
   expect_false(default_specs()$brain_size_evolution)
 })
 
 # ── 3. brain_size_init_mean defaults to 1.0 ──────────────────────────────────
 test_that("brain_size_init_mean defaults to 1.0", {
+  skip_no_julia()
   expect_identical(default_specs()$brain_size_init_mean, 1.0)
 })
 
 # ── 4. brain_size_cost_scale defaults to 1.0 ─────────────────────────────────
 test_that("brain_size_cost_scale defaults to 1.0", {
+  skip_no_julia()
   expect_identical(default_specs()$brain_size_cost_scale, 1.0)
 })
 
 # ── 5. brain_size_min defaults to 0.1 ────────────────────────────────────────
 test_that("brain_size_min defaults to 0.1", {
+  skip_no_julia()
   expect_identical(default_specs()$brain_size_min, 0.1)
 })
 
 # ── 6. brain_size_max defaults to 3.0 ────────────────────────────────────────
 test_that("brain_size_max defaults to 3.0", {
+  skip_no_julia()
   expect_identical(default_specs()$brain_size_max, 3.0)
 })
 
 # ── 7. brain_size_mutation_sd defaults to 0.05 ───────────────────────────────
 test_that("brain_size_mutation_sd defaults to 0.05", {
+  skip_no_julia()
   expect_identical(default_specs()$brain_size_mutation_sd, 0.05)
 })
 
 # ── 8. Params round-trip through default_specs() ─────────────────────────────
 test_that("brain_size params round-trip through default_specs()", {
+  skip_no_julia()
   s <- default_specs()
   expect_false(s$brain_size_evolution)
   expect_equal(s$brain_size_init_mean,   1.0)
@@ -351,6 +352,7 @@ test_that("brain_size never goes below brain_size_min in a 50-tick run", {
 
 # ── 26. brain_size_sensing_exponent is in default_specs() and defaults to 0.3 ─
 test_that("brain_size_sensing_exponent is present in default_specs() with default 0.3", {
+  skip_no_julia()
   s <- default_specs()
   expect_true("brain_size_sensing_exponent" %in% names(s))
   expect_identical(s$brain_size_sensing_exponent, 0.3)
