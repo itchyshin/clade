@@ -60,7 +60,29 @@ in `?default_specs`.
 
 ## 2. Run the simulation with `run_alife()`
 
-*(Filled by Phase A item 2.)*
+`run_alife(specs)` is the one call you need. Internally it starts a
+Julia session on the first invocation (one-time ~60-90 s JIT cost),
+sends `specs` across the R-Julia boundary once, runs every tick in
+Julia, and returns an `env` list containing the surviving agents,
+per-tick statistics, per-death records, and (if you set
+`specs$log_genomes = TRUE`) per-tick genome snapshots. After the run,
+`env$viability` carries the verdict from `viability_report()` and the
+function emits a `warning()` if the population crashed — so silent
+collapses can't slip past you. Pass `verbose = FALSE` for batch /
+test usage; the viability warning still fires.
+
+```{r}
+env <- run_alife(specs)        # one boundary crossing, one return
+env$t                          # the final tick (== specs$max_ticks)
+env$viability$verdict          # "viable", "weak", or "crashed"
+```
+
+`run_clade()` is an alias for `run_alife()` if you prefer the
+package name in your scripts. For multi-seed replicates use
+`batch_seeds(specs, seeds = 1:5)`; for a list of different specs use
+`batch_alife(list_of_specs, n_cores = 4L)` (each worker pays the
+Julia startup cost separately, so parallelism is worth it from
+roughly 20 scenarios upward).
 
 ## 3. Extract the run with `get_run_data()`
 

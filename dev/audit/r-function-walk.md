@@ -117,3 +117,127 @@ opt-in semantics for a reproducibility-first package.
   `test-spec-groups-coverage.R` would prevent the ghost class from
   re-accumulating. Defer because it would mean five drift guards
   instead of four and is worth a separate commit + check-log entry.
+
+## 2/28 — `run_alife()` / `run_clade()` (2026-05-16, `claude/track-B-walk`)
+
+**TREE.** `R/run.R:51-92`. Six-step body: (1) `.clade_start_julia(verbose
+= verbose)` (deferred Julia process start, idempotent); (2)
+`.validate_specs(specs)` (early R-side type/range checks); (3) optional
+`message(...)` summary; (4) `JuliaConnectoR::juliaCall("Clade.run_clade",
+.specs_to_julia(specs))` — the one-and-only boundary crossing per call;
+(5) `.julia_env_to_r(env_julia, specs)` deserialise; (6) attach
+`viability_report()` and `warning()` on `verdict == "crashed"`.
+`run_clade()` at `R/run.R:101` is an alias (`run_clade <- run_alife`).
+Dependencies: `.clade_start_julia` (R/zzz.R:32) is self-guarded by
+`.clade_env$julia_ready`; `.validate_specs` (R/run.R:779) covers
+~15 hand-picked fields; `.specs_to_julia` (R/run.R:871) coerces
+integer fields then drops un-sendable entries via
+`.is_sendable_to_julia` (R/run.R:902, which rejects `NULL`,
+length-0 vectors, and length-1 `NA`). Existing dedicated tests in
+`test-integration.R` — *but see the parse-error finding below*.
+
+**FOREST.** ~97 files reference `run_alife` / `run_clade`. Production
+R-side use: `R/run.R` only (the function calls itself indirectly via
+`batch_alife()` → `run_one()` at line 144). Roxygen examples: most
+of `R/visualization.R`, `R/maps.R`, `R/hypothesis.R`,
+`R/clade-package.R` — `\dontrun{}` wrapped, so `R CMD check` does not
+execute them. Vignettes: every paper-* and s-* vignette (~35 files)
+runs `run_alife()` directly in its main analysis block. Tests:
+~60 files invoke `run_alife()` after `skip_no_julia()`, including
+the heavy-lifting suite `test-integration.R`.
+
+**TEST — critical finding.** `tests/testthat/test-integration.R`
+**fails to parse** at line 337: `s$_empty_char_test  <- character(0L)`.
+Underscore-prefixed names are not legal under R's `$` accessor
+without backticks. Git blame: the line was renamed from
+`s$world_params_to_evolve` to `s$_empty_char_test` in `2c7cf66
+fix(0.7.x): delete world_evolution (Tier 2 of spec-wiring-audit)`,
+which deleted the original spec field but used a synthetic name
+that broke the R parser. **Net effect: every test in
+`test-integration.R` (30+ tests including the run_alife() integration
+suite, brain-type round-trips, batch_alife() smoke, and the very
+`.specs_to_julia` NA/character(0) drop test that the Phase A item-2
+mandate asked me to verify) has been silently failing to load since
+the `world_evolution` deletion.** Fixed by renaming the synthetic
+field to `s$synthetic_empty_char` in this commit; `parse(file =
+"tests/testthat/test-integration.R")` now succeeds.
+
+The plan's item-2 ask was "confirm `.specs_to_julia` handles NA /
+character(0) correctly." Static review of `.specs_to_julia` +
+`.is_sendable_to_julia` confirms the contract: `NULL`, length-0
+vectors of any type, and length-1 `NA` of any type are dropped.
+A length-2 `NA` vector (`c(NA, NA)`) would *not* be dropped and
+would be sent to JuliaConnectoR — but this case does not occur in
+`default_specs()` and is unlikely to occur in user-modified specs.
+The intended dynamic verification lives at `test-integration.R:308`
+(integer-vs-double type preservation) and `:330` (NA/`character(0)`
+drop); both will now run (with Julia available) instead of being
+skipped by the file-load error.
+
+**Verbose path.** Verified statically: `verbose` controls
+`.clade_start_julia()`'s startup message and the post-validation
+summary `message()`. The viability warning fires *regardless* of
+`verbose`, which is correct: a crashed run is always worth knowing
+about. The summary message references `specs$n_agents_init`,
+`specs$max_ticks`, `specs$brain_type`, `specs$ploidy` — four fields
+guaranteed to be present after `.validate_specs()` passes.
+
+**ROSE.** One Rose class re-surfaced (the same class as item 1):
+
+- **"Spec field deletion leaves stale assertions or syntax in
+  tests/vignettes."** Concrete cousins found:
+  - `tests/testthat/test-life-history.R:64-67` asserts
+    `"life_history_evolution" %in% names(s)` — false now (field deleted
+    per NEWS 0.7.1).
+  - `tests/testthat/test-life-history.R:39-43,46-48` assert
+    `"repro_senescence" %in% names(s)` and `s$repro_senescence` —
+    false now.
+  - `tests/testthat/test-parental-investment.R:34` asserts
+    `"parental_investment_init_mean" %in% names(default_specs())` —
+    false now. The file may have other broken assertions; needs a
+    full audit.
+  - `tests/testthat/test-parental-care.R:118` asserts
+    `"max_carried" %in% names(default_specs())` — false now.
+  - The original `test-integration.R:337` parse error is the most
+    severe instance of the same class — a rename of a deleted field
+    that broke not just the assertion but the whole file.
+
+  Structural fix: a one-shot drift-guard test that scans
+  `tests/testthat/test-*.R` for `"<field>" %in% names(default_specs())`
+  and `default_specs()$<field>` patterns and asserts every named
+  `<field>` is in fact present in `default_specs()`. Same shape as the
+  four existing drift guards. Defer to a standalone commit (Karpathy
+  3: surgical), and bundle with the item-1 "SPEC_GROUPS coverage"
+  guard so both ship together as a "Phase A drift-guard sweep".
+
+**BIO.** `run_alife()` itself adds no biological semantics — it's
+infrastructure. The one biological judgement embedded is the
+crashed-run warning: trait-mean interpretations on a population that
+crashed early are dominated by tiny surviving subpopulations and
+therefore unreliable. This judgement is correct and the threshold
+lives in `viability_report()` (audited later in Tier A1, item 6).
+The verbose summary message picks the four most useful fields for a
+human reader (`n_agents_init`, `max_ticks`, `brain_type`, `ploidy`) —
+biologically sensible for orienting the operator before a long run.
+
+**Deferred fixes (flagged for separate work):**
+
+- Stale-assertion cleanup in `test-life-history.R`,
+  `test-parental-investment.R`, `test-parental-care.R`. Each file
+  needs deletion of its now-impossible assertions or, if the
+  underlying field is supposed to come back, a `skip_if(...)` with
+  an inline reference to the planned re-introduction. Estimated <100
+  lines across the three files. Probably the user wants to triage
+  these one at a time when reviewing each module.
+- Drift-guard test `test-test-field-assertions.R` (or extend the
+  existing `test-spec-wiring.R` to cover the inverse direction).
+  Same recommendation as item 1's "test-spec-groups-coverage.R" —
+  ship the two structural drift-guards together as one PR.
+- Minor optimisation: `.validate_specs(specs)` is called *after*
+  `.clade_start_julia(verbose = verbose)`, so an invalid specs list
+  costs the user the full ~60 s Julia startup before the error
+  arrives. Swapping the order would let validation fail fast. Not
+  shipped here because (a) the cost only matters on the very first
+  call of the R session, and (b) the change touches the entry
+  function's call order, which is non-surgical for an item-2 walk.
+  Flag for the user.

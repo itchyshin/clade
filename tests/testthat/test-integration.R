@@ -333,13 +333,14 @@ test_that(".specs_to_julia() silently drops NA and character(0)", {
   s <- .quick_specs()
   s$random_seed       <- NA_integer_
   # Synthetic character(0) — exercises the drop-empty-character logic
-  # without depending on any specific spec field.
-  s$_empty_char_test  <- character(0L)
+  # without depending on any specific spec field. Name chosen for R parser
+  # legality (underscore-prefixed names need backticks under `$`).
+  s$synthetic_empty_char <- character(0L)
   expect_no_error(d <- clade:::.specs_to_julia(s))
   expect_false(as.logical(JuliaConnectoR::juliaCall(
     "_clade_test_has", d, "random_seed")))
   expect_false(as.logical(JuliaConnectoR::juliaCall(
-    "_clade_test_has", d, "_empty_char_test")))
+    "_clade_test_has", d, "synthetic_empty_char")))
   # A normal key remains present
   expect_true(as.logical(JuliaConnectoR::juliaCall(
     "_clade_test_has", d, "grid_rows")))
