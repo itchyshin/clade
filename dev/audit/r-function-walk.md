@@ -1365,3 +1365,123 @@ called from `inspect_brain` warnings. Vignettes: ~5 use
 - No `vignettes/basics.Rmd` change — basics doesn't currently
   mention any analysis helper beyond `get_run_data()`.
   Acceptable.
+
+## 18 + 19 + 20 + 21/28 — plotting helpers (2026-05-16, `claude/track-B-tier-A3`)
+
+Combined walk of the remaining `R/visualization.R` plot functions:
+`plot_diversity()` / `diversity_landscape()`,
+`plot_tsne_genomes()` (post-#115), `plot_map()`,
+`plot_signal_evolution()` / `plot_disease_dynamics()` /
+`plot_module_metrics()`. Bundled because they share a structural
+pattern (each takes `run_data` or `env` and returns a ggplot,
+with placeholder ggplots when the relevant module is disabled),
+and existing coverage in `tests/testthat/test-visualization.R`
+is strong (37 tests pre-walk after item 4's crashed-run
+addition).
+
+**TREE.** Each function follows the same idiom:
+
+- Validate input via `.check_run_data()` (plot_*) or direct
+  list-shape check (`plot_map`).
+- Compute panel content from the relevant subset of `$ticks`
+  columns or `$agents` records.
+- If the module is disabled (all-zero column, missing trait),
+  return `.plot_empty("<message>")` (the shared `R/visualization.R`
+  placeholder helper) instead of erroring.
+- Otherwise build a `ggplot2::ggplot()` and return it.
+
+The "leaf filter" Rose pattern from item 4 (`plot_run` filters
+`t > 0` at the use site, not at the source) is consistently
+applied: e.g., `plot_disease_dynamics` checks
+`all(rd$ticks$n_infected == 0)` to short-circuit; `plot_diversity`
+checks `nrow(rd$ticks) > 0`.
+
+**FOREST.** All seven functions are R-only, no Julia.
+`plot_tsne_genomes` post-#115 consumes the long-format `$genomes`
+data frame from `get_run_data()` (covered in item 3). `plot_map`
+operates on `env$agents` directly (snapshot view, not time
+series).
+
+**TEST.** Strong existing coverage; added **4 new tests** for
+`plot_map()`'s remaining `colour_by` branches:
+
+- `plot_map(env, colour_by = "body_size")` — body-size colouring.
+- `plot_map(env, colour_by = "species")` — species-ID colouring.
+- `plot_map(env, colour_by = "ghost")` — `match.arg()` rejection.
+- Pre-walk: only `energy` (default) and `age` were tested; the
+  other two `match.arg()` branches were uncovered. The plan's
+  item-20 description mentions "energy / age / brain-size" — the
+  actual signature is `c("energy", "age", "species", "body_size")`
+  (not `brain_size`); the plan's wording was slightly off and
+  has been clarified in the plan-checkbox update.
+
+Coverage after additions:
+
+| Function | Tests |
+|---|---|
+| `plot_diversity` / `diversity_landscape` | 4 tests (default, explicit traits, zero-variance placeholder) |
+| `plot_tsne_genomes` | 2 tests (NULL genomes → placeholder, real genome matrix → real ggplot) |
+| `plot_map` | 5 tests (energy + age + body_size + species + match.arg-rejection); was 2 |
+| `plot_signal_evolution` | 2 tests (placeholder + zero-data) |
+| `plot_disease_dynamics` | 3 tests (off → placeholder, on → real, zero-data) |
+| `plot_module_metrics` | 1 test (returns ggplot/patchwork) |
+
+After: `test-visualization.R` passes 42 (was 39); the 3 new
+tests cover all `plot_map` `colour_by` branches.
+
+**ROSE.** No new bug class. Two recurrences:
+
+1. **Recurrence (item 4): "filter at the leaves, not at the
+   source."** All seven plot functions check their own
+   preconditions (empty $ticks, all-zero module column, NULL
+   genomes) and short-circuit with a `.plot_empty()` placeholder.
+   This is the right pattern — `get_run_data()` doesn't have to
+   know which downstream plot would care about which columns;
+   the plots take responsibility.
+2. **Recurrence (item 3): "code grows fields/columns; roxygen
+   `@return` doesn't."** Not surfaced new in this walk because
+   all six plot functions return a single object type
+   (ggplot/patchwork) with no enumerated `@return` list.
+
+**BIO.** The plot functions are display infrastructure;
+biological judgements lie in *what they show*:
+
+- `plot_diversity` and `diversity_landscape`: show genetic
+  diversity time series. Defensible — diversity is the
+  fundamental observable for any evolutionary scenario.
+- `plot_tsne_genomes`: t-SNE projection of agent genomes.
+  Defensible for visual cluster-structure inspection; honest
+  about being a projection (legend says "t-SNE projection",
+  no spurious axis labels).
+- `plot_map`: snapshot of grid + agents coloured by trait.
+  The 4 colour_by options cover the most-common observables;
+  more could be added without breaking the contract.
+- `plot_signal_evolution`: signal trajectories over time.
+  Right framing for Fuller/Houle/Travis 2005 audits.
+- `plot_disease_dynamics`: SIR-style infected/new-infection
+  curves. Right framing for disease-module scenarios.
+- `plot_module_metrics`: aggregator for module-specific
+  counters (n_predators, n_helpers, mean_signal_magnitude, ...).
+  Returns ggplot/patchwork depending on data presence.
+
+The "module-disabled → placeholder" convention across the
+family is a small but consistent UX win: a user who runs a
+scenario without disease can still call `plot_disease_dynamics`
+without erroring, see the placeholder, and know why.
+
+**Deferred fixes (flagged for separate work):**
+
+- `plot_map`'s `colour_by = "brain_size"` was *implied* by the
+  Phase A plan's item-20 description but is not in the
+  function's `match.arg()` list. If brain-size colouring is
+  desired, add `"brain_size"` to the choices and the
+  corresponding `geom_point` branch. Small feature add, not a
+  bug fix; not shipped here.
+- The whole `R/visualization.R` family could share a more
+  expressive `.plot_empty()` (currently a one-line
+  `annotate("text")` ggplot). A slightly richer placeholder
+  with module name + reason would help users self-diagnose.
+  Cosmetic.
+- No `vignettes/basics.Rmd` change. The §4 plot_run paragraph
+  is the right introductory plot pointer; the other plot
+  helpers belong in the scenario-specific vignettes.
