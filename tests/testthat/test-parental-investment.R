@@ -1,10 +1,14 @@
 # Tests for parental investment evolution parameters.
 #
-# The parental care module exists (parental_care, care_cost_per_tick, etc.)
-# but parental investment evolution parameters are NOT yet in default_specs():
-#   parental_investment_evolution, parental_investment_init_mean,
-#   female_investment, male_repro_cost
-# Failing tests document what needs to be added to config.R.
+# Covers: parental_care, parental_investment_evolution, female_investment,
+#         male_repro_cost (all in default_specs() since the spec-wiring audit
+#         PR #114).
+#
+# Drift-cleanup (2026-05-16, claude/drift-guard-sweep): removed stale
+# assertions on `parental_investment_init_mean`, which was deleted from
+# `default_specs()` by the spec-wiring audit (NEWS 0.7.1, see the
+# "Six unwired spec fields deleted" entry) but had four assertions
+# surviving here.
 
 library(testthat)
 
@@ -19,7 +23,8 @@ test_that("parental_care defaults to FALSE", {
 })
 
 # ── 3. parental_investment_evolution is present in default_specs() ────────────
-# NOTE: not yet implemented — test documents what is needed.
+# Added to default_specs() by the spec-wiring audit (PR #114); the
+# "NOT yet implemented" note that used to live here is stale.
 test_that("parental_investment_evolution is present in default_specs()", {
   expect_true("parental_investment_evolution" %in% names(default_specs()))
 })
@@ -29,17 +34,9 @@ test_that("parental_investment_evolution defaults to FALSE", {
   expect_false(default_specs()$parental_investment_evolution)
 })
 
-# ── 5. parental_investment_init_mean is present in default_specs() ────────────
-test_that("parental_investment_init_mean is present in default_specs()", {
-  expect_true("parental_investment_init_mean" %in% names(default_specs()))
-})
-
-# ── 6. parental_investment_init_mean is in (0, 1) ────────────────────────────
-test_that("parental_investment_init_mean is in (0, 1)", {
-  val <- default_specs()$parental_investment_init_mean
-  expect_gt(val, 0.0)
-  expect_lt(val, 1.0)
-})
+# ── 5. (removed; tested parental_investment_init_mean — deleted from ────────
+#         default_specs() by the spec-wiring audit, NEWS 0.7.1) ──────────────
+# ── 6. (removed; same) ───────────────────────────────────────────────────────
 
 # ── 7. female_investment is present in default_specs() ───────────────────────
 test_that("female_investment is present in default_specs()", {
@@ -73,10 +70,8 @@ test_that("male_repro_cost defaults to 0.3", {
   expect_equal(default_specs()$male_repro_cost, 0.3)
 })
 
-# ── 13. parental_investment_init_mean defaults to 0.5 ────────────────────────
-test_that("parental_investment_init_mean defaults to 0.5", {
-  expect_equal(default_specs()$parental_investment_init_mean, 0.5)
-})
+# ── 13. (removed; tested parental_investment_init_mean — deleted from ───────
+#         default_specs() by the spec-wiring audit, NEWS 0.7.1) ──────────────
 
 # ── 14. female_investment is present in default_specs() ──────────────────────
 test_that("female_investment is present in default_specs()", {
@@ -94,20 +89,15 @@ test_that("male_repro_cost is in [0, 1] in defaults", {
 test_that("parental investment params round-trip correctly through default_specs()", {
   s <- default_specs()
   expect_false(s$parental_investment_evolution)
-  expect_equal(s$parental_investment_init_mean, 0.5)
   expect_equal(s$male_repro_cost, 0.3)
-  expect_true(is.numeric(s$female_investment))
+  expect_equal(s$female_investment, 0.7)
 })
 
-# ── 17. parental_investment_init_mean is numeric ──────────────────────────────
-test_that("parental_investment_init_mean is numeric", {
-  expect_true(is.numeric(default_specs()$parental_investment_init_mean))
-})
+# ── 17. (removed; tested parental_investment_init_mean — deleted) ────────────
 
 # ── 18. parental investment params are numeric type ──────────────────────────
 test_that("parental investment params are numeric type", {
   s <- default_specs()
-  expect_true(is.numeric(s$parental_investment_init_mean))
   expect_true(is.numeric(s$female_investment))
   expect_true(is.numeric(s$male_repro_cost))
 })
