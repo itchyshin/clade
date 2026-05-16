@@ -86,6 +86,16 @@ jobs:
             any::withr
             any::jsonlite
 
-      - name: Run testthat suite (no-Julia tests; Julia tests skip)
+      # Run only the structural-guard / mock-based / pure-R test files.
+      # Many other test files in tests/testthat/ call run_alife() or
+      # other Julia entry points without a skip_no_julia() wrap (they
+      # were written assuming Julia is locally available). In CI without
+      # Julia those tests error out instead of skipping, which is both
+      # slow (~3-7s per file × 60 files = 5-7 min) and incorrect-looking.
+      # The explicit filter below is the list of test files that are
+      # genuinely Julia-free (using mocks or only reading R source).
+      # 450 tests run; runtime ~30s. New test files added later need
+      # to be added here too.
+      - name: Run no-Julia structural-guard tests
         run: |
-          Rscript -e 'options(crayon.enabled = FALSE); devtools::test(stop_on_failure = TRUE)'
+          Rscript -e 'options(crayon.enabled = FALSE); devtools::test(filter = "no-internal-leaks|vignette-field-references|spec-wiring|test-field-assertions|stream-submit|presets|batch|hypothesis|load-specs|print-specs|spec-groups-coverage|default-specs-docstring-coverage|analysis|version-strings|specs|pkgdown-consistency|readme-flag-names|maps", stop_on_failure = TRUE)'
