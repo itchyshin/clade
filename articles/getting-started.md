@@ -116,10 +116,8 @@ print(env)
 #> clade_env  [500 ticks | 193 agents | genetic_diversity: 0.319]
 ```
 
-![plot_run() produces a six-panel dashboard: population size, mean
-energy (±SD ribbon), genetic diversity, births and deaths per tick,
-grass coverage, and BNN prior
-sigma.](figures/showcase_01_run_dashboard.png)
+![plot_run() produces a six-panel
+dashboard](figures/showcase_01_run_dashboard.png)
 
 plot_run() produces a six-panel dashboard: population size, mean energy
 (±SD ribbon), genetic diversity, births and deaths per tick, grass

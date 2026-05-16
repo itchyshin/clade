@@ -59,10 +59,8 @@ ggplot(df, aes(t, mean_age, colour = strategy)) +
   theme_minimal()
 ```
 
-![Expected output: the semelparous population (red) shows lower mean age
-and episodic birth bursts; the iteroparous population (green) sustains a
-higher mean age and a smoother birth-rate
-trajectory.](figures/showcase_life_history.png)
+![the semelparous population (red) shows lower mean age and episodic
+birth bursts; the iteroparous](figures/showcase_life_history.png)
 
 Expected output: the semelparous population (red) shows lower mean age
 and episodic birth bursts; the iteroparous population (green) sustains a

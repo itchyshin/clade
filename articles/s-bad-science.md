@@ -61,13 +61,7 @@ p1 / p2 + plot_layout(guides = "collect") &
 ```
 
 ![Evolution of bad science with replication penalty (mean of 10 seeds).
-Top: false-positive rate. Bottom: research effort. No-replication (red):
-FPR rises from 0.10 to 0.147, effort falls to 0.71 — the canonical S&M
-result. 50% replication (blue): FPR stabilises near 0.10, effort holds
-at 0.81 — replication culture selects against low-effort labs. 10%
-replication (orange): FPR overshoots to 0.18 — weak replication is worse
-than none, a finding of this model not reported by S&M. No Julia session
-required.](figures/showcase_bad_science.png)
+Top: false-positive rate](figures/showcase_bad_science.png)
 
 Evolution of bad science with replication penalty (mean of 10 seeds).
 Top: false-positive rate. Bottom: research effort. No-replication (red):

@@ -114,12 +114,9 @@ s$learning_rate_init_mean        <- 0.007
 # env <- run_alife(s)   # uncomment to run the calibrated regime
 ```
 
-![fast_specs() demo (5 seeds × 2000 ticks = 66 generations). Both
-environments show massive σ canalisation: stable Δσ = −0.27, seasonal Δσ
-= −0.22. Stable canalises MORE (Δdelta = +0.043) — the Hinton-Nowlan
-direction. The Baldwin Effect is now clearly visible: over many
-generations, learned behaviours become genetically assimilated as σ
-declines.](figures/showcase_bnn_uncertainty.png)
+![Baldwin-effect baseline (fast_specs, 5 seeds × 2000 ticks): σ
+canalisation across stable and seasonal
+environments](figures/showcase_bnn_uncertainty.png)
 
 fast_specs() demo (5 seeds × 2000 ticks = 66 generations). Both
 environments show massive σ canalisation: stable Δσ = −0.27, seasonal Δσ
@@ -304,10 +301,7 @@ condition tested. Even here, σ rose to ceiling. Experiment 2 tests
 whether longer runs (2000–5000 ticks) change this outcome.
 
 ![Phase diagram of sigma slope across 9 resource × seasonality
-conditions. All cells are positive (red) — exploration is selected in
-every environment tested. The shallowest slope (bottom-right, bold row)
-still reaches the sigma
-ceiling.](figures/showcase_bnn_exp1_stability.png)
+conditions](figures/showcase_bnn_exp1_stability.png)
 
 Phase diagram of sigma slope across 9 resource × seasonality conditions.
 All cells are positive (red) — exploration is selected in every
@@ -384,10 +378,8 @@ emerge because exploration is genuinely the ESS in a competitive
 foraging world — the fitness landscape has no stable peak for
 canalization to track.
 
-![Sigma trajectories at 1000, 2000, and 5000 ticks (mean +/- SE, 5
-seeds). All runs hit the 0.5 ceiling; the slope decelerates 21-fold but
-never reverses. This is ceiling saturation, not
-canalization.](figures/showcase_bnn_exp2_runlength.png)
+![Sigma trajectories at 1000, 2000, and 5000 ticks (mean +/-
+SE](figures/showcase_bnn_exp2_runlength.png)
 
 Sigma trajectories at 1000, 2000, and 5000 ticks (mean +/- SE, 5 seeds).
 All runs hit the 0.5 ceiling; the slope decelerates 21-fold but never
@@ -475,10 +467,7 @@ Three findings:
     assimilation.
 
 ![Left: sigma trajectories for BNN-only and BNN+RL (seed 1). The two
-curves are indistinguishable — RL does not alter sigma dynamics. Right:
-final mean energy by condition. BNN agents pay a 17% energy cost
-relative to ANN agents yet the exploration ESS
-persists.](figures/showcase_bnn_exp3_brains.png)
+curves are indistinguishable —](figures/showcase_bnn_exp3_brains.png)
 
 Left: sigma trajectories for BNN-only and BNN+RL (seed 1). The two
 curves are indistinguishable — RL does not alter sigma dynamics. Right:
@@ -591,11 +580,8 @@ produced the largest effect observed across all 4 experiments. Social
 learning was predicted to accelerate canalization; it had no significant
 effect in the stable environment.
 
-![Final mean sigma by social module, faceted by environment. Epigenetics
-(red) is the only mechanism that substantially reduces sigma — 32% below
-ceiling in stable-abundant conditions, 72% below ceiling in
-scarce-stable conditions. All other modules remain at or near the 0.5
-ceiling (dashed line).](figures/showcase_bnn_exp4_social.png)
+![Final mean sigma by social module, faceted by
+environment](figures/showcase_bnn_exp4_social.png)
 
 Final mean sigma by social module, faceted by environment. Epigenetics
 (red) is the only mechanism that substantially reduces sigma — 32% below
@@ -662,11 +648,7 @@ further:
     maintaining viable populations.
 
 ![MAP-Elites archive: each point is a filled cell (20 of 121 total). Low
-sigma is only found with low genetic diversity — consistent with drift
-to fixation, not with the Baldwin Effect, which requires low sigma
-coexisting with high diversity. No cells appear in the low-sigma +
-high-diversity quadrant (bottom-right of the dashed reference
-lines).](figures/showcase_bnn_exp5_mapelites.png)
+sigma is only found with](figures/showcase_bnn_exp5_mapelites.png)
 
 MAP-Elites archive: each point is a filled cell (20 of 121 total). Low
 sigma is only found with low genetic diversity — consistent with drift

@@ -101,11 +101,8 @@ ggplot(summary_df,
   theme_minimal()
 ```
 
-![Expected output: horizontal bar chart of mean genetic diversity across
-all 14 conditions. Conditions imposing strong directional selection
-(predators, disease, mimicry) appear near the top; the all-on condition
-reveals emergent multi-module
-interactions.](figures/showcase_12_kitchen_dashboard.png)
+![horizontal bar chart of mean genetic diversity across all 14
+conditions](figures/showcase_12_kitchen_dashboard.png)
 
 Expected output: horizontal bar chart of mean genetic diversity across
 all 14 conditions. Conditions imposing strong directional selection

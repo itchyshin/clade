@@ -78,9 +78,8 @@ s$canopy_energy                  <- 7421L
 # env <- run_alife(s)   # uncomment to run the calibrated regime
 ```
 
-![Expected output: agents stratify across ground, shrub, and canopy
-layers as wing size evolves past the canopy
-threshold.](figures/showcase_16_habitat_preference.png)
+![agents stratify across ground, shrub, and canopy layers as wing size
+evolves past the canopy](figures/showcase_16_habitat_preference.png)
 
 Expected output: agents stratify across ground, shrub, and canopy layers
 as wing size evolves past the canopy threshold.

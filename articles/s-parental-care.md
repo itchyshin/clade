@@ -42,10 +42,8 @@ data <- get_run_data(env)
 cat("Total juveniles recorded:", sum(data$ticks$n_juveniles, na.rm = TRUE), "\n")
 ```
 
-![Expected output: juvenile count is positive throughout the run;
-per-capita offspring count is lower than baseline but juvenile survival
-is higher, resulting in more buffered population
-dynamics.](figures/showcase_19_parental_care.png)
+![juvenile count is positive throughout the run; per-capita offspring
+count is lower than baseline](figures/showcase_19_parental_care.png)
 
 Expected output: juvenile count is positive throughout the run;
 per-capita offspring count is lower than baseline but juvenile survival

@@ -82,10 +82,8 @@ s$clutch_size_init_mean          <- 5L
 # env <- run_alife(s)   # uncomment to run the calibrated regime
 ```
 
-![Expected output: mean clutch size diverges between resource
-environments. Rich conditions (red) select for larger clutches; scarce
-conditions (blue) select for smaller clutches, illustrating the r/K
-continuum.](figures/showcase_clutch_size.png)
+![mean clutch size diverges between resource
+environments](figures/showcase_clutch_size.png)
 
 Expected output: mean clutch size diverges between resource
 environments. Rich conditions (red) select for larger clutches; scarce

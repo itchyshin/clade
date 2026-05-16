@@ -106,12 +106,8 @@ s$metabolic_rate_init_mean       <- 22L
 # env <- run_alife(s)   # uncomment to run the calibrated regime
 ```
 
-![Pace-of-life syndrome across 5 metabolic rates × 3 seeds × 500 ticks
-(max_age_scales_with_metabolism = TRUE). Top: mean age ranges from 205
-(slow, rate=0.5) to 32 (very fast, rate=3.0) — a 6× difference. Middle:
-population ranges from 328 to 22. Bottom: energy reserves are similar
-across rates. The fast-slow continuum is
-crystal-clear.](figures/showcase_pace_of_life.png)
+![Pace-of-life syndrome across 5 metabolic rates × 3 seeds × 500
+ticks](figures/showcase_pace_of_life.png)
 
 Pace-of-life syndrome across 5 metabolic rates × 3 seeds × 500 ticks
 (max_age_scales_with_metabolism = TRUE). Top: mean age ranges from 205

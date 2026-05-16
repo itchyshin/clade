@@ -94,9 +94,8 @@ s$disease_death_prob             <- 5e-04
 # env <- run_alife(s)   # uncomment to run the calibrated regime
 ```
 
-![Expected output: epidemic wave visible as a peak in the infected count
-(top). Population size declines noticeably during the outbreak
-(bottom).](figures/showcase_06_disease.png)
+![epidemic wave visible as a peak in the infected count (top).
+Population size declines noticeably](figures/showcase_06_disease.png)
 
 Expected output: epidemic wave visible as a peak in the infected count
 (top). Population size declines noticeably during the outbreak (bottom).

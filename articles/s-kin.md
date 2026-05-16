@@ -160,10 +160,8 @@ suggestion of `C = 14, B = 143` would give the same rB/C = 2.55 but at
 much higher energy scales; direct Hamilton tuning via the C×B grid is
 more interpretable.
 
-![Expected output: kin-selection population (blue) is sustained at
-higher mean density than the baseline (red). Altruistic acts per tick
-(bottom) are highest when resources are tight and related neighbours are
-present.](figures/showcase_07_kin_selection.png)
+![kin-selection population (blue) is sustained at higher mean density
+than the baseline (red).](figures/showcase_07_kin_selection.png)
 
 Expected output: kin-selection population (blue) is sustained at higher
 mean density than the baseline (red). Altruistic acts per tick (bottom)
@@ -191,9 +189,8 @@ plot(data$ticks$t, data$ticks$mean_helper_tendency, type = "l",
      main = "Helper tendency evolves under IFfolk + parliament suppression")
 ```
 
-![Expected output: mean helper tendency rises over time as cooperative
-genotypes increase in frequency. Parliament suppression accelerates
-convergence.](figures/showcase_20_cooperative_breeding.png)
+![mean helper tendency rises over time as cooperative genotypes increase
+in frequency](figures/showcase_20_cooperative_breeding.png)
 
 Expected output: mean helper tendency rises over time as cooperative
 genotypes increase in frequency. Parliament suppression accelerates

@@ -75,9 +75,8 @@ s$mutation_sd                    <- 1.31
 # env <- run_alife(s)   # uncomment to run the calibrated regime
 ```
 
-![Expected output: n_species rises from 1 to 2-4 as genome divergence
-accumulates beyond the isolation threshold. Each step in the staircase
-represents a speciation event.](figures/showcase_18_speciation.png)
+![n_species rises from 1 to 2-4 as genome divergence accumulates beyond
+the isolation threshold](figures/showcase_18_speciation.png)
 
 Expected output: n_species rises from 1 to 2-4 as genome divergence
 accumulates beyond the isolation threshold. Each step in the staircase

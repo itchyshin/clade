@@ -107,10 +107,8 @@ s$idle_cost                      <- 1.528
 # env <- run_alife(s)   # uncomment to run the calibrated regime
 ```
 
-![Expected output: scavengers (orange) maintain higher mean energy than
-non-scavengers (red) under identical low-grass conditions, with carrion
-providing a density-dependent buffer against
-starvation.](figures/showcase_scavenging.png)
+![scavengers (orange) maintain higher mean energy than non-scavengers
+(red) under identical](figures/showcase_scavenging.png)
 
 Expected output: scavengers (orange) maintain higher mean energy than
 non-scavengers (red) under identical low-grass conditions, with carrion

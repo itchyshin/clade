@@ -84,10 +84,8 @@ and the mean dropped to only 35 — parameter calibration matters
 substantially for observing smooth seasonal cycles rather than
 extinction dynamics.
 
-![Expected output: population size (blue) tracks scaled grass
-productivity (green) with a short lag, producing recurrent winter
-crashes and spring recoveries over approximately five complete
-cycles.](figures/showcase_17_seasons.png)
+![population size (blue) tracks scaled grass productivity (green) with a
+short lag](figures/showcase_17_seasons.png)
 
 Expected output: population size (blue) tracks scaled grass productivity
 (green) with a short lag, producing recurrent winter crashes and spring

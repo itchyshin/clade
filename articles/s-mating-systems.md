@@ -70,14 +70,8 @@ ggplot(df, aes(t, genetic_diversity, colour = system)) +
   theme_minimal()
 ```
 
-![Population-size comparison across 3 environments (3 seeds × 500 ticks,
-error bars = 2×SE). Key finding: continuous-trait parasites (centre)
-punish sex by ~5 agents (anti-Red-Queen — sex offspring cluster near the
-parasite-tracked centroid). Discrete-allele parasites (right) and stable
-baseline (left) show sex ≈ asex. The anti-RQ under continuous is itself
-a genuine scientific finding, even though the canonical Hamilton
-direction doesn't reach 2×SE significance —
-🟠.](figures/showcase_mating_systems.png)
+![Population-size comparison across 3 environments (3 seeds × 500
+ticks](figures/showcase_mating_systems.png)
 
 Population-size comparison across 3 environments (3 seeds × 500 ticks,
 error bars = 2×SE). Key finding: continuous-trait parasites (centre)

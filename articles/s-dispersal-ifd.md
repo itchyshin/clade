@@ -148,10 +148,7 @@ ggplot(data$ticks, aes(t)) +
 ```
 
 ![Habitat preference evolution at fast_specs() (5 seeds × 2000 ticks =
-66 generations). Mean preference drifts upward from 0 to +0.018 as
-agents that prefer rich cells out-compete those that do not. Signal 18×
-stronger than default specs. Consistent with IFD (Fretwell & Lucas
-1970).](figures/showcase_05_dispersal.png)
+66 generations). Mean](figures/showcase_05_dispersal.png)
 
 Habitat preference evolution at fast_specs() (5 seeds × 2000 ticks = 66
 generations). Mean preference drifts upward from 0 to +0.018 as agents
@@ -196,10 +193,9 @@ ggplot(data$ticks, aes(x = t, y = mean_habitat_preference)) +
   theme_classic(base_size = 12)
 ```
 
-![Expected output: mean habitat preference rises from zero toward
-positive values as selection favours individuals that concentrate near
-high-grass cells, consistent with ideal free distribution
-theory.](figures/showcase_16_habitat_preference.png)
+![mean habitat preference rises from zero toward positive values as
+selection favours
+individuals](figures/showcase_16_habitat_preference.png)
 
 Expected output: mean habitat preference rises from zero toward positive
 values as selection favours individuals that concentrate near high-grass

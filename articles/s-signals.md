@@ -89,11 +89,8 @@ s$signal_drift_sd                <- 0.0533
 # env <- run_alife(s)   # uncomment to run the calibrated regime
 ```
 
-![Zahavi handicap (3 seeds × 500 ticks × 4 signal_cost levels). Top:
-signal magnitude near-flat (~1.07) across cost levels — signals are
-maintained at ceiling. Bottom: population decreases 196→179 as cost
-rises (−9%) — the demographic cost of honest signalling is the visible
-Zahavi effect.](figures/showcase_signals_matechoice.png)
+![Zahavi handicap (3 seeds × 500 ticks × 4 signal_cost levels).
+Top](figures/showcase_signals_matechoice.png)
 
 Zahavi handicap (3 seeds × 500 ticks × 4 signal_cost levels). Top:
 signal magnitude near-flat (~1.07) across cost levels — signals are

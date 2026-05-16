@@ -63,13 +63,8 @@ summary  <- summarize_batch(results, specs_list,
                             param_names = c("brain_type", "random_seed"))
 ```
 
-![Brain-type benchmark (5 architectures × 5 seeds, 500 ticks each,
-PSOCK-parallel via batch_alife). Top row: population trajectories per
-brain type; thin lines are individual seeds, bold line is seed-mean.
-Bottom row: mean-energy trajectories. BNN runs up a large population at
-low per-agent energy; GRN / CTRNN maintain small populations at high
-per-agent energy. random baseline is the most
-fragile.](figures/showcase_brain_comparison.png)
+![Brain-type benchmark (5 architectures × 5
+seeds](figures/showcase_brain_comparison.png)
 
 Brain-type benchmark (5 architectures × 5 seeds, 500 ticks each,
 PSOCK-parallel via batch_alife). Top row: population trajectories per

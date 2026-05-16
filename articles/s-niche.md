@@ -74,10 +74,8 @@ s$grass_rate                     <- 1
 # env <- run_alife(s)   # uncomment to run the calibrated regime
 ```
 
-![Expected output: shelter density builds up over time; predator kill
-rate is lower in sheltered cells, sustaining a larger population than an
-equivalent run without niche
-construction.](figures/showcase_09_niche.png)
+![shelter density builds up over time; predator kill rate is lower in
+sheltered cells](figures/showcase_09_niche.png)
 
 Expected output: shelter density builds up over time; predator kill rate
 is lower in sheltered cells, sustaining a larger population than an

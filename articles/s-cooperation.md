@@ -105,11 +105,8 @@ population saturates at the cap:
 | 2.5  | 588     | (default in vignette)          |
 | 3.0+ | ~600    | saturated at max_agents cap    |
 
-![Expected output: population with cooperation (green) rises to near the
-max_agents ceiling while the baseline (pink) stabilises at a lower
-level. Cooperation level drifts slightly downward, showing free-rider
-invasion alongside the group-level
-benefit.](figures/showcase_08_cooperation.png)
+![population with cooperation (green) rises to near the max_agents
+ceiling while the baseline (pink)](figures/showcase_08_cooperation.png)
 
 Expected output: population with cooperation (green) rises to near the
 max_agents ceiling while the baseline (pink) stabilises at a lower

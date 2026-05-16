@@ -87,11 +87,8 @@ s$mutation_sd                    <- 0.0068
 # env <- run_alife(s)   # uncomment to run the calibrated regime
 ```
 
-![Expected output: evolved learning rate is highest under the shortest
-lifespan (max_age = 20) and declines as lifespan increases, consistent
-with the cephalopod paradox. Genetic evolution substitutes for
-within-lifetime learning when the payback period is long
-enough.](figures/showcase_cephalopod_paradox.png)
+![evolved learning rate is highest under the shortest lifespan (max_age
+= 20) and declines as](figures/showcase_cephalopod_paradox.png)
 
 Expected output: evolved learning rate is highest under the shortest
 lifespan (max_age = 20) and declines as lifespan increases, consistent

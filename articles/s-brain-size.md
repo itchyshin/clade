@@ -120,11 +120,7 @@ ggplot(df, aes(t, mean_brain_size, colour = condition)) +
 ```
 
 ![Two-panel demo at brain_size_cost_scale = 5.0 (5 seeds × 500 ticks).
-Top: mean brain size — with parental care brains are maintained ~3-5%
-larger. Bottom: population size — care sustains ~20% more agents because
-provisioned newborns survive the neonatal energy deficit. The population
-panel shows the clearest visual
-separation.](figures/showcase_brain_size.png)
+Top](figures/showcase_brain_size.png)
 
 Two-panel demo at brain_size_cost_scale = 5.0 (5 seeds × 500 ticks).
 Top: mean brain size — with parental care brains are maintained ~3-5%

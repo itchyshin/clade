@@ -102,14 +102,8 @@ pB <- ggplot(df, aes(t, genetic_diversity, colour = condition, linetype = condit
 pA / pB + plot_layout(heights = c(2, 1))
 ```
 
-![Top: mean BNN prior sigma over 1000 ticks. Baseline (blue dashed):
-sigma rises to the 0.5 exploration ceiling — no canalization in a
-dynamic foraging world. Epigenetics (orange): sigma declines toward zero
-as TEI propagates within-lifetime learning across generations. Bottom:
-genetic diversity (mean pairwise genome distance) rises in both
-conditions — epigenetic canalization of sigma does not cause a selective
-sweep of the genome; different genotypes can encode the same canalized
-behaviour.](figures/showcase_bnn_canalization_demo.png)
+![Top: mean BNN prior sigma over 1000
+ticks](figures/showcase_bnn_canalization_demo.png)
 
 Top: mean BNN prior sigma over 1000 ticks. Baseline (blue dashed): sigma
 rises to the 0.5 exploration ceiling — no canalization in a dynamic
@@ -278,9 +272,8 @@ are fatal. The bold row is the most canalization-favourable cell tested;
 it still reaches the ceiling.
 
 ![Phase diagram of mean_prior_sigma slope (×10⁻⁴) across 9
-resource-abundance × seasonality conditions. All cells are positive
-(red). The predicted canalization signal (green) does not appear in any
-cell.](figures/showcase_bnn_exp1_stability.png)
+resource-abundance × seasonality
+conditions](figures/showcase_bnn_exp1_stability.png)
 
 Phase diagram of mean_prior_sigma slope (×10⁻⁴) across 9
 resource-abundance × seasonality conditions. All cells are positive
@@ -322,9 +315,7 @@ whether canalization is occurring. If the ceiling parameter
 (`prior_sigma_max`) were raised, σ would continue rising.
 
 ![Sigma trajectories at 1000, 2000, and 5000 ticks (mean ± SE across 5
-seeds). All runs reach the 0.5 ceiling; the slope decelerates 21-fold
-but never reverses. The dashed line marks the
-ceiling.](figures/showcase_bnn_exp2_runlength.png)
+seeds). All runs reach the](figures/showcase_bnn_exp2_runlength.png)
 
 Sigma trajectories at 1000, 2000, and 5000 ticks (mean ± SE across 5
 seeds). All runs reach the 0.5 ceiling; the slope decelerates 21-fold
@@ -374,10 +365,7 @@ most canalization-favourable environment:
     world: it is favoured even when it is costly.
 
 ![Left: sigma trajectories for BNN-only and BNN+RL are indistinguishable
-— RL does not affect sigma dynamics. Right: final mean energy by
-condition — BNN pays a 17% energy cost relative to ANN, yet sigma rises
-to ceiling in both BNN
-conditions.](figures/showcase_bnn_exp3_brains.png)
+— RL does not affect sigma](figures/showcase_bnn_exp3_brains.png)
 
 Left: sigma trajectories for BNN-only and BNN+RL are indistinguishable —
 RL does not affect sigma dynamics. Right: final mean energy by condition
@@ -432,12 +420,8 @@ reduces σ.** In the stable-abundant environment, it reduces final σ from
 effect is stronger: σ reaches only 0.140, a 72% reduction from the 0.5
 ceiling and 65% below the baseline final value of 0.400.
 
-![Final mean prior sigma by social module and environment. Epigenetics
-(red dot) is the only mechanism that substantially reduces sigma below
-the 0.5 ceiling (dashed line). All other modules are indistinguishable
-from the baseline in the stable environment and provide only moderate
-reductions in the scarce
-environment.](figures/showcase_bnn_exp4_social.png)
+![Final mean prior sigma by social module and
+environment](figures/showcase_bnn_exp4_social.png)
 
 Final mean prior sigma by social module and environment. Epigenetics
 (red dot) is the only mechanism that substantially reduces sigma below
@@ -494,10 +478,7 @@ cells (highest genetic diversity) all had σ \> 0.40.
 **No low-σ + high-gd cell was found anywhere in the archive.**
 
 ![MAP-Elites archive: each point is a filled cell (20 of 121 total),
-coloured by genetic diversity. Low sigma is only found at low genetic
-diversity (bottom-left region). The bottom-right quadrant — low sigma +
-high diversity, required for the Baldwin Effect proper — is
-empty.](figures/showcase_bnn_exp5_mapelites.png)
+coloured by genetic diversity](figures/showcase_bnn_exp5_mapelites.png)
 
 MAP-Elites archive: each point is a filled cell (20 of 121 total),
 coloured by genetic diversity. Low sigma is only found at low genetic

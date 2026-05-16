@@ -89,13 +89,8 @@ s$grass_rate                     <- 3e-04
 # env <- run_alife(s)   # uncomment to run the calibrated regime
 ```
 
-![Three-panel: evolved mutation rate, genetic diversity, and population
-under food stress (grass_rate=0.06, 5 seeds × 500 ticks). With
-mutation_rate_evolution=TRUE, the stress hypermutation mechanism
-(Rosenberg 2001 SOS response) is directionally consistent but the effect
-is very small (Δmut_rate ≈ 0.004). The mechanism works in the kernel but
-the magnitude at ABM scale is genuinely modest — 🟠
-passed-consistent.](figures/showcase_stress_hypermutation.png)
+![Three-panel: evolved mutation rate, genetic
+diversity](figures/showcase_stress_hypermutation.png)
 
 Three-panel: evolved mutation rate, genetic diversity, and population
 under food stress (grass_rate=0.06, 5 seeds × 500 ticks). With

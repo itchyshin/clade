@@ -332,7 +332,7 @@ for the full CMA-ES results.</p>
 <span><span class="va">s</span><span class="op">$</span><span class="va">learning_rate_init_mean</span>        <span class="op">&lt;-</span> <span class="fl">0.007</span></span>
 <span><span class="co"># env &lt;- run_alife(s)   # uncomment to run the calibrated regime</span></span></code></pre></div>
 <div class="figure">
-<img src="figures/showcase_bnn_uncertainty.png" class="r-plt" alt="fast_specs() demo (5 seeds × 2000 ticks = 66 generations). Both environments show massive σ canalisation: stable Δσ = −0.27, seasonal Δσ = −0.22. Stable canalises MORE (Δdelta = +0.043) — the Hinton-Nowlan direction. The Baldwin Effect is now clearly visible: over many generations, learned behaviours become genetically assimilated as σ declines." width="100%"><p class="caption">
+<img src="figures/showcase_bnn_uncertainty.png" class="r-plt" alt="Baldwin-effect baseline (fast_specs, 5 seeds × 2000 ticks): σ canalisation across stable and seasonal environments" width="100%"><p class="caption">
 fast_specs() demo (5 seeds × 2000 ticks = 66 generations). Both
 environments show massive σ canalisation: stable Δσ = −0.27, seasonal Δσ
 = −0.22. Stable canalises MORE (Δdelta = +0.043) — the Hinton-Nowlan
@@ -595,7 +595,7 @@ canalization-favourable condition tested. Even here, σ rose to ceiling.
 Experiment 2 tests whether longer runs (2000–5000 ticks) change this
 outcome.</p>
 <div class="figure">
-<img src="figures/showcase_bnn_exp1_stability.png" class="r-plt" alt="Phase diagram of sigma slope across 9 resource × seasonality conditions. All cells are positive (red) — exploration is selected in every environment tested. The shallowest slope (bottom-right, bold row) still reaches the sigma ceiling." width="100%"><p class="caption">
+<img src="figures/showcase_bnn_exp1_stability.png" class="r-plt" alt="Phase diagram of sigma slope across 9 resource × seasonality conditions" width="100%"><p class="caption">
 Phase diagram of sigma slope across 9 resource × seasonality conditions.
 All cells are positive (red) — exploration is selected in every
 environment tested. The shallowest slope (bottom-right, bold row) still
@@ -686,7 +686,7 @@ emerge because exploration is genuinely the ESS in a competitive
 foraging world — the fitness landscape has no stable peak for
 canalization to track.</p>
 <div class="figure">
-<img src="figures/showcase_bnn_exp2_runlength.png" class="r-plt" alt="Sigma trajectories at 1000, 2000, and 5000 ticks (mean +/- SE, 5 seeds). All runs hit the 0.5 ceiling; the slope decelerates 21-fold but never reverses. This is ceiling saturation, not canalization." width="100%"><p class="caption">
+<img src="figures/showcase_bnn_exp2_runlength.png" class="r-plt" alt="Sigma trajectories at 1000, 2000, and 5000 ticks (mean +/- SE" width="100%"><p class="caption">
 Sigma trajectories at 1000, 2000, and 5000 ticks (mean +/- SE, 5 seeds).
 All runs hit the 0.5 ceiling; the slope decelerates 21-fold but never
 reverses. This is ceiling saturation, not canalization.
@@ -796,7 +796,7 @@ exploration is the ESS: even when it is costly, it is preferred over
 genetic assimilation.</p></li>
 </ol>
 <div class="figure">
-<img src="figures/showcase_bnn_exp3_brains.png" class="r-plt" alt="Left: sigma trajectories for BNN-only and BNN+RL (seed 1). The two curves are indistinguishable — RL does not alter sigma dynamics. Right: final mean energy by condition. BNN agents pay a 17% energy cost relative to ANN agents yet the exploration ESS persists." width="100%"><p class="caption">
+<img src="figures/showcase_bnn_exp3_brains.png" class="r-plt" alt="Left: sigma trajectories for BNN-only and BNN+RL (seed 1). The two curves are indistinguishable —" width="100%"><p class="caption">
 Left: sigma trajectories for BNN-only and BNN+RL (seed 1). The two
 curves are indistinguishable — RL does not alter sigma dynamics. Right:
 final mean energy by condition. BNN agents pay a 17% energy cost
@@ -949,7 +949,7 @@ effect observed across all 4 experiments. Social learning was predicted
 to accelerate canalization; it had no significant effect in the stable
 environment.</p>
 <div class="figure">
-<img src="figures/showcase_bnn_exp4_social.png" class="r-plt" alt="Final mean sigma by social module, faceted by environment. Epigenetics (red) is the only mechanism that substantially reduces sigma — 32% below ceiling in stable-abundant conditions, 72% below ceiling in scarce-stable conditions. All other modules remain at or near the 0.5 ceiling (dashed line)." width="100%"><p class="caption">
+<img src="figures/showcase_bnn_exp4_social.png" class="r-plt" alt="Final mean sigma by social module, faceted by environment" width="100%"><p class="caption">
 Final mean sigma by social module, faceted by environment. Epigenetics
 (red) is the only mechanism that substantially reduces sigma — 32% below
 ceiling in stable-abundant conditions, 72% below ceiling in
@@ -1013,7 +1013,7 @@ populations.</p>
 </li>
 </ol>
 <div class="figure">
-<img src="figures/showcase_bnn_exp5_mapelites.png" class="r-plt" alt="MAP-Elites archive: each point is a filled cell (20 of 121 total). Low sigma is only found with low genetic diversity — consistent with drift to fixation, not with the Baldwin Effect, which requires low sigma coexisting with high diversity. No cells appear in the low-sigma + high-diversity quadrant (bottom-right of the dashed reference lines)." width="100%"><p class="caption">
+<img src="figures/showcase_bnn_exp5_mapelites.png" class="r-plt" alt="MAP-Elites archive: each point is a filled cell (20 of 121 total). Low sigma is only found with" width="100%"><p class="caption">
 MAP-Elites archive: each point is a filled cell (20 of 121 total). Low
 sigma is only found with low genetic diversity — consistent with drift
 to fixation, not with the Baldwin Effect, which requires low sigma

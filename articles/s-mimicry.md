@@ -98,13 +98,8 @@ improvement (signal-vector predator memory) before re-tuning. See
 [mimicry fidelity report
 §5](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/mimicry.md#5-verdict).
 
-![Ecology comparison (5 seeds × 1000 ticks, full 0.4.4 machinery). Top:
-toxicity trajectories under standard ecology (grass=0.20, grey) vs
-predation-dominant ecology (grass=0.08, orange). Predation-dominant
-preserves more toxicity because predation becomes the main mortality
-cause. Bottom: cumulative avoidance events — predator learning fires in
-both ecologies (~30 events). The mechanism works; the magnitude depends
-on ecology — 🟠.](figures/showcase_21_mimicry.png)
+![Ecology comparison (5 seeds × 1000
+ticks](figures/showcase_21_mimicry.png)
 
 Ecology comparison (5 seeds × 1000 ticks, full 0.4.4 machinery). Top:
 toxicity trajectories under standard ecology (grass=0.20, grey) vs

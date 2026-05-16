@@ -61,15 +61,8 @@ s$grass_rate                     <- 0.0264
 # env <- run_alife(s)   # uncomment to run the calibrated regime
 ```
 
-\<img src=“figures/showcase_22_plasticity.png” class=“r-plt”
-alt=“fast_specs() + season_length = 10 demo (5 seeds × 2000 ticks = 66
-generations). Seasons are shorter than a lifetime, so each agent
-experiences multiple seasonal states. Seasonal environments maintain
-higher plasticity than stable ones — the DeWitt-Scheiner (2004)
-prediction. Δdelta = +0.014 across 5 seeds (direction PASS, below the
-0.02 promotion threshold but 7× larger than at season_length = 100 where
-the signal reverses). See”What we found (2026-04-17)” for the full
-season-length sweep.” width=“100%” /\>
+![fast_specs() + season_length = 10 demo (5 seeds × 2000 ticks = 66
+generations). Seasons are](figures/showcase_22_plasticity.png)
 
 fast_specs() + season_length = 10 demo (5 seeds × 2000 ticks = 66
 generations). Seasons are shorter than a lifetime, so each agent

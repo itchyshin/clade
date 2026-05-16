@@ -87,13 +87,8 @@ ggplot(data$ticks, aes(x = t)) +
   theme_classic(base_size = 12)
 ```
 
-![Calibrated predator-prey regime (seed 42, 1000 ticks). Predators
-bootstrap from 10 to their cap of 100 by tick ~30 and stay there for the
-remainder — the arms-race equilibrium. Prey climb to a peak of ~460 by
-tick 200, crash to ~250 as predator pressure builds, then continue
-oscillating at amplitude ±30 around a mean of ~300. The classic LV
-quarter-cycle predator lag is muted because evolved predators track prey
-efficiently regardless of density.](figures/showcase_14_predators.png)
+![Calibrated predator-prey regime: predator and prey trajectories across
+1000 ticks](figures/showcase_14_predators.png)
 
 Calibrated predator-prey regime (seed 42, 1000 ticks). Predators
 bootstrap from 10 to their cap of 100 by tick ~30 and stay there for the
@@ -300,15 +295,8 @@ Three open directions for going beyond:
     scenario. The Huffaker 1958 refugia prediction remains untested
     until the reject-if-blocked boundary is implemented.
 
-    ![Prey trajectories across the 2×2 Huffaker audit (seed 7, 800
-    ticks, max_agents = 1000). Top-right (toroidal + patchy) is the only
-    condition with sustained cycling — three clear peak-trough
-    excursions. Top-left (toroidal + flat) shows one overshoot-and-damp.
-    The bottom row (bounded) both show one transient excursion followed
-    by monotonic decline; the ACF-based oscillation score reads 0.00
-    because the declining trend dominates the autocorrelation even
-    though visible mini-cycles are present early
-    on.](figures/showcase_14_predators_refugia.png)
+    ![Prey trajectories across the 2×2 Huffaker
+    audit](figures/showcase_14_predators_refugia.png)
     Prey trajectories across the 2×2 Huffaker audit (seed 7, 800 ticks,
     max_agents = 1000). Top-right (toroidal + patchy) is the only
     condition with sustained cycling — three clear peak-trough

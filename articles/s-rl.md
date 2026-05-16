@@ -76,12 +76,7 @@ data <- get_run_data(env)
 ```
 
 ![0.4.1 audit (3 seeds × 3 BNN sample frequencies × RL on/off × 500
-ticks). At bnn_sample_freq=1 the BNN resamples weights every tick,
-washing out REINFORCE gradient updates (null Δ). At freq=5 the sample
-persists long enough for gradients to compound — Δn = +5.2 (✅). At
-freq=20 the sample is too rigid and populations crash. Scenarios
-combining BNN brains with rl_mode='actor_critic' should use
-freq=5.](figures/showcase_10_rl.png)
+ticks). At bnn_sample_freq=1 the](figures/showcase_10_rl.png)
 
 0.4.1 audit (3 seeds × 3 BNN sample frequencies × RL on/off × 500
 ticks). At bnn_sample_freq=1 the BNN resamples weights every tick,

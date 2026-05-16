@@ -36,9 +36,8 @@ data <- get_run_data(env)
 plot_run(data)
 ```
 
-![Expected output: six-panel run summary showing population dynamics,
-mean energy, genetic diversity, births/deaths, grass coverage, and BNN
-sigma.](figures/showcase_01_run_dashboard.png)
+![six-panel run summary showing population
+dynamics](figures/showcase_01_run_dashboard.png)
 
 Expected output: six-panel run summary showing population dynamics, mean
 energy, genetic diversity, births/deaths, grass coverage, and BNN sigma.

@@ -44,13 +44,8 @@ result <- search_map_elites(
 result$map   # ggplot2 heatmap of the archive
 ```
 
-![MAP-Elites archive after 200 iterations. Each cell shows the best
-genetic diversity score achieved for a given (genetic_diversity,
-n_agents) behavioural profile. Empty cells indicate unattainable or
-unexplored regions of the behavioural space. The heatmap reveals
-trade-offs: parameter configurations that maximise diversity often
-sustain lower population sizes (Mouret & Clune
-2015).](figures/showcase_map_elites.png)
+![MAP-Elites archive after 200
+iterations](figures/showcase_map_elites.png)
 
 MAP-Elites archive after 200 iterations. Each cell shows the best
 genetic diversity score achieved for a given (genetic_diversity,

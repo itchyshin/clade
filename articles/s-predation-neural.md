@@ -88,10 +88,7 @@ p1 / p2
 ```
 
 ![Expected output (top panel): genetic diversity is higher under
-predation, reflecting stronger directional selection on prey cognition.
-Bottom panel: mean energy is lower under predation as prey pay evasion
-costs and are removed before reaching peak foraging
-efficiency.](figures/showcase_vadim_experiment.png)
+predation](figures/showcase_vadim_experiment.png)
 
 Expected output (top panel): genetic diversity is higher under
 predation, reflecting stronger directional selection on prey cognition.

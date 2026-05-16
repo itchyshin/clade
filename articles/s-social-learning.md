@@ -41,10 +41,8 @@ env  <- run_alife(s)
 data <- get_run_data(env)
 ```
 
-![Boyd & Richerson (1985) cultural transmission (5 seeds × 500 ticks,
-brain_type=ann, n=150). Top: population +6.5% with social learning
-(successful foraging strategies propagate). Bottom: genetic diversity
-similar in both conditions.](figures/showcase_11_social_learning.png)
+![Boyd & Richerson (1985) cultural transmission (5 seeds × 500
+ticks](figures/showcase_11_social_learning.png)
 
 Boyd & Richerson (1985) cultural transmission (5 seeds × 500 ticks,
 brain_type=ann, n=150). Top: population +6.5% with social learning

@@ -56,10 +56,7 @@ plot(data$ticks$t, data$ticks$mean_body_size, type = "l",
 ```
 
 ![The mean body-size trajectory whose lag-1 autocorrelation proxies
-narrow-sense heritability. A high lag-1 value (\>0.9) is consistent with
-strong parent-offspring resemblance; it is not a direct replacement for
-a parent-offspring regression
-slope.](figures/showcase_population_genetics.png)
+narrow-sense heritability](figures/showcase_population_genetics.png)
 
 The mean body-size trajectory whose lag-1 autocorrelation proxies
 narrow-sense heritability. A high lag-1 value (\>0.9) is consistent with
