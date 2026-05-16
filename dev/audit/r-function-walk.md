@@ -557,3 +557,140 @@ existing section rather than adding a new one.
   (two worker compilations); would slow `test-integration.R`
   noticeably. Defer to a separate "long-running" test file or a
   CI-only flag.
+
+## 6/28 — `viability_report()` (2026-05-16, `claude/track-B-walk`)
+
+**TREE.** `R/analysis.R:1069-1127`. Quality-gate function: takes
+either a `$ticks` data frame or a full `get_run_data()` output;
+computes `n_init` (defaults to first-tick `n_agents`), `n_final`,
+`n_min`, `tick_of_min`, `frac_final`, `frac_min`; assigns a verdict
+in `{"viable", "weak", "crashed"}` and returns a structured list
+with class `clade_viability_report`. Print method at
+`R/analysis.R:1130-1133` is a one-line `cat` of `x$message`. The
+verdict rule:
+
+```r
+"crashed"  if (abs_check_applies && n_final < min_n) || frac_final < crashed_frac
+"weak"     if frac_final < weak_frac
+"viable"   otherwise
+```
+
+with `abs_check_applies <- n_init >= min_n` being the **0.7.0
+flat-pop bypass** (line 1102) — only apply the absolute floor
+when the run started above it. Without this guard, a deliberate
+small-population unit test (`n_init = 5`) would always be flagged
+"crashed" and the `warning()` from `run_alife()`'s viability hook
+would break `expect_silent()` assertions in `test-brains.R` etc.
+
+**FOREST.** 13 files reference `viability_report`. The only
+production caller is **`R/run.R:77`** — the in-`run_alife()`
+viability hook from item 2. Everything else is roxygen, tests, or
+vignette uses. This single production caller is why the 0.7.0
+bypass matters: every test that calls `run_alife()` indirectly
+invokes `viability_report()`. Roxygen completeness check:
+`@return` (line 1044-1054) lists 8 fields (`verdict`, `n_init`,
+`n_final`, `n_min`, `frac_final`, `frac_min`, `tick_of_min`,
+`message`); the actual return at line 1117-1126 lists exactly
+those 8. **No doc-debt** — the worry flagged in item 3's audit
+was unwarranted for this function.
+
+**TEST — three of the plan's three asks already covered, one
+critical gap closed, three new tests added.**
+
+Existing coverage in `test-analysis.R:271-306`:
+
+1. ✓ `min_n` floor (line 288-293) — `n_init = 20, n_final = 12,
+   min_n = 20L` → crashed; `min_n = 0L` → viable.
+2. ✓ Threshold classification (lines 271-286) — viable / weak /
+   crashed runs at 90%, 40%, 5% retention.
+3. ⚠ **Flat-pop bypass — NOT covered.** This is the specific
+   0.7.0 behaviour the plan asks about. The existing min_n test
+   uses `n_init = 20`, which is *equal* to the default `min_n`,
+   so `abs_check_applies = TRUE` and the bypass does not fire.
+   The case the bypass protects (`n_init < min_n`) was unverified.
+
+Added three new tests:
+
+- "viability_report() does NOT flag stable small-pop runs as
+  crashed (0.7.0 bypass)" — `n_init = 10, n_final = 9, min_n =
+  20L` → verdict must be "viable". Verifies the bypass kicks in.
+- "viability_report() still crashes a small-pop run that actually
+  collapses" — `n_init = 10, n_final = 1, min_n = 20L` →
+  "crashed". Verifies the bypass does NOT protect a genuine
+  fractional collapse (the fractional check still fires).
+- "viability_report() rejects invalid crashed_frac / weak_frac /
+  min_n" — exercises the `stopifnot()` block: negative or > 1
+  crashed_frac, weak_frac < crashed_frac, weak_frac > 1, negative
+  min_n. The `weak_frac > crashed_frac` check is biologically
+  important — a weak threshold below the crashed threshold would
+  invert the verdict ladder.
+
+Plus one new test for the `tick_of_min` / `n_min` extraction on a
+bottleneck shape (population drops to 20 at tick 5, recovers to
+100 at tick 10) — verifies the trough is correctly identified
+even when the run ultimately recovers to "viable".
+
+After the additions: `test-analysis.R` viability_report block
+covers 6 → 10 tests, with 12 → 21 expectations.
+
+**ROSE.** Same class as item 5: a critical 0.7.0 behaviour was
+shipped without a regression test. Cousin candidates:
+
+- Every "X.Y.Z guard added" docstring comment in `R/` is a
+  candidate for "behaviour added, regression test never landed."
+  Spot-grep ideas for a future drift-guard PR:
+  `rg "Pre-0\\.[0-9]+\\." R/` or `rg "added in 0\\." R/` — both
+  return ~40+ hits; spot-checking 5 random ones would surface any
+  similar gaps quickly.
+- Same as item 5's "convenience wrapper has no dedicated test"
+  class, just applied at a finer grain — "convenience guard
+  added but not covered." Both classes share the same structural
+  fix: a checklist in PR review asking "did you add a regression
+  test for the behaviour this PR adds?"
+
+**BIO.** This function IS the biology: it encodes the
+"trait-mean interpretations on crashed runs are unreliable" rule
+into a single reusable check. Three biologically motivated
+thresholds:
+
+1. **`crashed_frac = 0.2`**: a run that ends below 20% of init
+   has experienced a population collapse. Below this fraction,
+   trait-mean averages are dominated by a few lucky survivors —
+   the specific crash trajectory drives the estimate, not the
+   evolutionary signal. Defensible default; matches the
+   "≥ 5 surviving agents per locus" rule-of-thumb in pop-gen.
+2. **`weak_frac = 0.5`**: between 20% and 50% the run is
+   technically viable but the user should be told confidence is
+   reduced. The `"weak"` verdict is a deliberate "soft warning"
+   tier — not loud enough to interrupt automated sweeps, loud
+   enough that a careful reader of `viability_report` output
+   sees it.
+3. **`min_n = 20L`**: an absolute floor under which any trait
+   mean is "dominated by a handful of individuals" (the
+   docstring's exact phrasing). 20 is small but defensible:
+   below 20 agents the variance of any mean estimate explodes,
+   and a single death changes population fraction by 5%+.
+
+The 0.7.0 flat-pop bypass is itself a biological judgement:
+"a unit test that intentionally runs 5 agents to test some
+movement code path is not crashed; it is stable at its chosen
+size." Without the bypass, the biological framing of "crashed"
+would conflate with the operational framing of "small," which
+is a category error.
+
+**Deferred fixes (flagged for separate work):**
+
+- The "Pre-0.X.Y" / "added in 0.X" docstring-comment grep
+  (above) — would be a one-evening cousin-hunt that could
+  surface several more behaviour-without-regression-test
+  candidates. Bundle with the drift-guard sweep PR if appetite
+  exists.
+- No basics.Rmd change this item. The viability concept is
+  mentioned in section 2 (the run_alife() worked example
+  surfaces `env$viability$verdict`) and section 5 (the
+  multi-seed pointer mentions `viability_report` directly).
+  Adding more would bloat past the 150-line plan target.
+- The `weak_frac > crashed_frac` validation could carry a
+  one-line error message naming the contract instead of relying
+  on `stopifnot()`'s expression-formatted output. Cosmetic; not
+  worth a commit on its own.

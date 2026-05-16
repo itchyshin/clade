@@ -305,6 +305,62 @@ test_that("viability_report() print method runs", {
   expect_output(print(vr), "viability report")
 })
 
+# ── viability_report() flat-pop bypass (0.7.0) ───────────────────────────────
+# A unit-test or small-scale exploratory run that starts BELOW min_n and
+# stays stable is biologically viable, not crashed. The 0.7.0 bypass at
+# R/analysis.R:1094-1102 only applies the absolute min_n floor when the
+# run STARTED above it. Pre-0.7.0, viability_report flagged every
+# small-population test as "crashed", producing spurious warnings inside
+# run_alife()'s viability hook that broke `expect_silent` / `expect_no_error`
+# assertions in test-brains.R and elsewhere.
+test_that("viability_report() does NOT flag stable small-pop runs as crashed (0.7.0 bypass)", {
+  # Started at 10, ended at 9: 90% retention, but absolute n is below min_n=20.
+  # Pre-0.7.0 this would have returned "crashed" because n_final < min_n.
+  # Post-0.7.0 the abs_check_applies guard kicks in (n_init < min_n), so the
+  # fractional check (90% > 50% weak_frac) carries the verdict to "viable".
+  ticks <- .mock_ticks_with_pop(10L, 9L)
+  vr    <- viability_report(ticks, min_n = 20L)
+  expect_equal(vr$verdict, "viable",
+               info = "0.7.0 bypass should keep stable small-pop runs viable")
+  expect_equal(vr$n_init,  10L)
+  expect_equal(vr$n_final, 9L)
+})
+
+test_that("viability_report() still crashes a small-pop run that actually collapses", {
+  # Started small (n=10) AND collapsed to 1 — frac_final = 0.1, far below
+  # the 0.2 crashed_frac threshold. The bypass on the absolute floor must
+  # not protect a genuine fractional collapse.
+  ticks <- .mock_ticks_with_pop(10L, 1L)
+  vr    <- viability_report(ticks, min_n = 20L)
+  expect_equal(vr$verdict, "crashed")
+})
+
+# ── viability_report() parameter validation ──────────────────────────────────
+test_that("viability_report() rejects invalid crashed_frac / weak_frac / min_n", {
+  ticks <- .mock_ticks_with_pop(100L, 50L)
+  expect_error(viability_report(ticks, crashed_frac = -0.1))
+  expect_error(viability_report(ticks, crashed_frac =  1.5))
+  # weak_frac must exceed crashed_frac
+  expect_error(viability_report(ticks, crashed_frac = 0.5, weak_frac = 0.3))
+  expect_error(viability_report(ticks, weak_frac = 1.2))
+  expect_error(viability_report(ticks, min_n = -1))
+})
+
+# ── viability_report() captures n_min and tick_of_min ─────────────────────────
+# The minimum can land mid-run (e.g., post-bottleneck recovery). Verify the
+# report reads BOTH the trough magnitude and the trough timing correctly.
+test_that("viability_report() identifies n_min and tick_of_min from a bottleneck", {
+  ticks <- data.frame(
+    t        = 1:10,
+    n_agents = c(100L, 80L, 50L, 30L, 20L, 35L, 60L, 80L, 95L, 100L)
+  )
+  vr <- viability_report(ticks)
+  expect_equal(vr$n_min,       20L)
+  expect_equal(vr$tick_of_min, 5L)
+  expect_equal(vr$n_final,     100L)
+  expect_equal(vr$verdict,     "viable")   # ends at 100%, never below
+})
+
 # ── grid_specs() / sample_specs() / summarize_batch() ──────────────────────
 
 test_that("grid_specs() builds a full factorial", {
