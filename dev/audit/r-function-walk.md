@@ -1485,3 +1485,138 @@ without erroring, see the placeholder, and know why.
 - No `vignettes/basics.Rmd` change. The §4 plot_run paragraph
   is the right introductory plot pointer; the other plot
   helpers belong in the scenario-specific vignettes.
+
+# Tier A4 + A5
+
+## 22 + 23 + 24 + 25/28 — search algorithms (2026-05-16, `claude/track-B-tier-A4-A5`)
+
+Combined walk of the four search functions in `R/search.R`
+(1403 lines total): `search_cmaes()` (CMA-ES, pure R),
+`search_map_elites()` (MAP-Elites), `search_gradient()`
+(finite-difference), `search_viability()` (viability-
+constrained). Plus the bonus `search_random()` (random search
+baseline). All four (five) are exported.
+
+**TREE.** Each search algorithm follows the same I/O contract:
+
+```
+search_X(specs_base, search_params, n_iterations, objective, ...)
+        │
+        ▼
+{ specs    : best specs found,
+  score    : best objective value,
+  history  : data frame of (iteration, score, ...),
+  archive  : (MAP-Elites only) populated archive,
+  ... }
+```
+
+`search_cmaes` uses the CMA-ES covariance-matrix adaptation
+strategy in pure R (no external dependency). `search_map_elites`
+maintains a 2D archive indexed by behavioural-descriptor
+dimensions. `search_gradient` uses finite-difference local
+search. `search_viability` constrains the search to a region
+where `viability_report() = viable`.
+
+**FOREST.** All four are research-oriented; primary callers are
+vignettes (`vignette("ps-introduction")`,
+`vignette("ps-algorithms")`, paper-* reproductions). 36 tests
+in `tests/testthat/test-search.R` plus 13 integration tests in
+`tests/testthat/test-search-scenarios.R` — strong coverage
+across all four (five) algorithms.
+
+**TEST.** No new tests added — existing coverage is exhaustive
+across the four algorithm contracts (specs/score/history shape,
+validation, error paths for non-positive params, archive
+filling at boundary iteration counts, descriptor dimensions).
+
+**ROSE.** No new bug class. The search family is well-designed
+— consistent I/O contract, consistent error-handling.
+
+**BIO.** Search algorithms are research infrastructure (no
+biology per se), but `search_viability`'s constraint to
+viable-only regions is biologically right: it operationalises
+the "don't optimise within crashed-population space" discipline
+that `viability_report` (item 6) encodes. The default
+`crashed_frac = 0.2` and `min_n = 20L` ride through from
+`viability_report` defaults — consistent.
+
+**Deferred fixes:** None.
+
+## 26 + 27 + 28/28 — utilities (2026-05-16, `claude/track-B-tier-A4-A5`)
+
+Combined walk of three utility groups: `generate_map()` /
+`prepare_map()` (`R/maps.R`), `load_specs()` /
+`stream_specs_to_csv()` (`R/analysis.R`, `R/run.R`),
+`submit_sweep_slurm()` (`R/run.R`).
+
+**TREE.**
+
+- `generate_map()` (`R/maps.R:124`) + `prepare_map()`
+  (`R/maps.R:208`): landscape generators — produce or normalise
+  spatial map matrices for grass density, terrain, etc.
+  Covered by 15 tests in `tests/testthat/test-maps.R`.
+- `load_specs()` (`R/analysis.R:629`): read a JSON file of
+  parameter overrides on top of `default_specs()`. Type-coerces
+  integer fields. Warns on unknown parameter names.
+- `stream_specs_to_csv()` (`R/run.R:461`): batch sweep with
+  per-run CSV streaming, resumability via `run_id` lookup, and
+  customisable `summary_fn`.
+- `submit_sweep_slurm()` (`R/run.R:665`): generate a SLURM
+  batch-submission script for an HPC sweep.
+
+**FOREST.** Utilities are referenced in vignettes and reused
+across the codebase (`stream_specs_to_csv` is the canonical
+sweep-to-CSV path; `load_specs` is the canonical JSON loader).
+
+**TEST — coverage gap closed for `load_specs()`.** Pre-walk,
+the three utility functions had:
+
+| Function | Pre-walk tests |
+|---|---|
+| `generate_map` / `prepare_map` | 15 tests in test-maps.R |
+| `load_specs` | 0 dedicated |
+| `stream_specs_to_csv` | 0 dedicated |
+| `submit_sweep_slurm` | 0 dedicated |
+
+Created `tests/testthat/test-load-specs.R` (5 tests, 13
+expectations, no-Julia) covering:
+
+- JSON overrides applied on top of `default_specs()`.
+- Integer-type preservation for integer fields.
+- Warning on unknown parameter names (the override silently
+  dropped, known fields still applied).
+- Errors when the file doesn't exist.
+- Output is the full ~300-field specs list (no shape change).
+
+`stream_specs_to_csv()` and `submit_sweep_slurm()` remain
+without dedicated tests — both write files and the former
+drives `batch_alife`. Testing them robustly would require
+either mocked `batch_alife` (as in items 5, 9) or filesystem
+fixtures. Flagged for a future session.
+
+**ROSE.** Recurrence of items 5, 7, 8 "convenience wrapper has
+no dedicated test" applied to the utility surface. `load_specs`
+closed; two more (`stream_specs_to_csv`, `submit_sweep_slurm`)
+remain as deferred.
+
+**BIO.** Utilities are infrastructure; no biology.
+
+**Deferred fixes:**
+
+- Dedicated tests for `stream_specs_to_csv()` (mocked
+  `batch_alife` + temp directory). Estimated ~30 lines.
+- Dedicated tests for `submit_sweep_slurm()` (smoke test
+  asserting the script content shape). Estimated ~20 lines.
+- The "two heritability functions" cross-reference from items
+  14+15+16+17 still flagged. ~4-line doc edit.
+- The `crashed`-threshold cross-reference from items 9+10
+  still flagged. 2-sentence-per-function doc edit.
+
+# Phase A Complete
+
+All 28 items walked. `dev/audit/r-function-walk.md` covers
+items 1-28 across 5 tiers (A0-A5). The drift-guards from PR
+#129 (`test-spec-groups-coverage.R`,
+`test-test-field-assertions.R`) protect the structural
+invariants. The deferred-fixes list across audit entries is the
+backlog for the next "Phase A doc-polish PR" session.
