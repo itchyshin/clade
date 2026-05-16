@@ -201,7 +201,7 @@ Effect, "late `n_altruistic_acts` per tick" for kin selection). Running
 `bash dev/audit/calibration/run_all.sh` launches all 31 in parallel
 (xargs -P 16) and writes per-scenario JSON with the best-discovered
 specs. Results are summarised in
-[[`dev/audit/calibration/RESULTS.md`](https://github.com/itchyshin/clade/blob/main/dev/audit/calibration/RESULTS.md)](https://github.com/itchyshin/clade/blob/main/dev/audit/calibration/RESULTS.md).
+[`dev/audit/calibration/RESULTS.md`](https://github.com/itchyshin/clade/blob/main/dev/audit/calibration/RESULTS.md).
 
 Several scenarios retracted their prior "Calibrated regime" claims
 after the 0.4.0 fidelity audit found the CMA-ES had optimised a generic

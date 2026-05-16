@@ -104,93 +104,13 @@ navbar:
         - text: "All scenarios (index)"
           href: articles/scenarios.html
         - text: "---"
-        - text: "Theme 1 — Trait evolution"
-        - text: "Baseline world"
-          href: articles/s-baseline.html
-        - text: "Population genetics"
-          href: articles/s-pop-genetics.html
-        - text: "Body size evolution"
-          href: articles/s-body-size.html
-        - text: "Brain size evolution"
-          href: articles/s-brain-size.html
-        - text: "Stress hypermutation"
-          href: articles/s-stress-hypermutation.html
-        - text: "---"
-        - text: "Theme 2 — Ecology"
-        - text: "Complex landscape"
-          href: articles/s-complex-landscape.html
-        - text: "Dispersal, IFD & spatial sorting"
-          href: articles/s-dispersal-ifd.html
-        - text: "Niche construction"
-          href: articles/s-niche.html
-        - text: "Seasonal dynamics"
-          href: articles/s-seasonal.html
-        - text: "Scavenging & carrion"
-          href: articles/s-scavenging.html
-        - text: "---"
-        - text: "Theme 3 — Social evolution"
-        - text: "Kin selection"
-          href: articles/s-kin.html
-        - text: "Cooperative breeding"
-          href: articles/s-cooperation.html
-        - text: "Signals & mate choice"
-          href: articles/s-signals.html
-        - text: "Speciation"
-          href: articles/s-speciation.html
-        - text: "---"
-        - text: "Theme 4 — Life history"
-        - text: "Parental care"
-          href: articles/s-parental-care.html
-        - text: "Mating systems"
-          href: articles/s-mating-systems.html
-        - text: "Life history strategies"
-          href: articles/s-life-history.html
-        - text: "Clutch size (r/K)"
-          href: articles/s-clutch-size.html
-        - text: "Parental investment"
-          href: articles/s-parental-investment.html
-        - text: "Pace-of-life syndromes"
-          href: articles/s-pace-of-life.html
-        - text: "---"
-        - text: "Theme 5 — Species interactions"
-        - text: "Predator-prey dynamics"
-          href: articles/s-predator-prey.html
-        - text: "Group defense"
-          href: articles/s-group-defense.html
-        - text: "Mimicry & toxicity"
-          href: articles/s-mimicry.html
-        - text: "SIR disease"
-          href: articles/s-disease.html
-        - text: "Predation & neural evolution"
-          href: articles/s-predation-neural.html
-        - text: "---"
-        - text: "Theme 6 — Cognition & learning"
-        - text: "Within-lifetime RL"
-          href: articles/s-rl.html
-        - text: "Social learning"
-          href: articles/s-social-learning.html
-        - text: "Phenotypic plasticity"
-          href: articles/s-plasticity.html
-        - text: "BNN uncertainty canalization"
-          href: articles/s-baldwin.html
-        - text: "Baldwin effect — long-form"
-          href: articles/baldwin-effect.html
-        - text: "Cephalopod paradox"
-          href: articles/s-cephalopod.html
-        - text: "Brain architecture comparison"
-          href: articles/s-brain-comparison.html
-        - text: "---"
-        - text: "Theme 7 — Discovery"
-        - text: "Module comparison"
-          href: articles/s-module-comparison.html
-        - text: "MAP-Elites"
-          href: articles/s-map-elites.html
-        - text: "Kitchen-sink run"
-          href: articles/s-kitchen-sink.html
-        - text: "Evolution of bad science"
-          href: articles/s-bad-science.html
-        - text: "Cross-module gallery"
-          href: articles/s-cross-module.html
+        - text: "Theme 1 — Trait evolution (5 scenarios)"
+        - text: "Theme 2 — Ecology (5 scenarios)"
+        - text: "Theme 3 — Social evolution (4 scenarios)"
+        - text: "Theme 4 — Life history (6 scenarios)"
+        - text: "Theme 5 — Species interactions (5 scenarios)"
+        - text: "Theme 6 — Cognition & learning (7 scenarios)"
+        - text: "Theme 7 — Discovery experiments (5 scenarios)"
     github:
       icon: fa-github
       href: https://github.com/itchyshin/clade
