@@ -163,7 +163,7 @@ complexity: \code{"none"} (default), \code{"weight_magnitude"} (L1: deduct
 regularisation penalty (default 0.001). Too large a value will cause
 all weights to collapse to zero within a few ticks.}
 \item{\code{bnn_sigma_init}}{Numeric. Initial posterior SD for BNN weights
-when \code{bnn_sigma_source = "fixed"} or \code{"heterozygosity"} (default 0.1).}
+when \code{bnn_sigma_source = "fixed"} or \code{"heterozygosity"} (default 0.5).}
 \item{\code{bnn_sigma_min}}{Numeric. Floor on per-weight BNN sigma (default
 0.01). Prevents the posterior collapsing to a point estimate under
 strong canalisation.}
@@ -343,11 +343,11 @@ trait (default \code{FALSE}). Gates the DeWitt & Scheiner 2004 pathway.}
 \item{\code{plasticity_init_mean}}{Numeric. Starting mean of the plasticity
 trait (default 0.3).}
 \item{\code{plasticity_mutation_sd}}{Numeric. Per-offspring mutation SD on
-the plasticity trait (default 0.05).}
+the plasticity trait (default 0.03).}
 \item{\code{plasticity_min}, \code{plasticity_max}}{Numeric clamps for the
 heritable plasticity trait (default 0 / 1).}
 \item{\code{plasticity_sense_radius}}{Integer. Sensory-radius bonus when
-plasticity is high (default 1L). Unused at plasticity = 0.}
+plasticity is high (default 3L). Unused at plasticity = 0.}
 }
 }
 
@@ -407,11 +407,11 @@ Added 0.5.6.}
 \item{\code{predator_min_repro_energy}}{Numeric. Energy threshold for
 predator reproduction (default 200).}
 \item{\code{predator_min_repro_age}}{Integer. Minimum predator age before
-reproduction (default 20L).}
+reproduction (default 5L).}
 \item{\code{predator_move_energy}}{Numeric. Energy deducted per predator
 move (default 1.0).}
 \item{\code{predator_live_energy}}{Numeric. Per-tick passive energy cost
-for each live predator (default 0.5).}
+for each live predator (default 2.0).}
 \item{\code{predator_sense_graded}}{Logical. If \code{TRUE} (default, 0.4.2),
 prey's predator sensory input at distance \code{d} is \code{1/(d+1)} (closer
 predators produce a stronger signal). If \code{FALSE}, falls back to
@@ -658,22 +658,22 @@ cost and the male bears \code{1 - female_investment}; offspring birth
 energy also scales by \code{2 * female_investment}. See
 \code{inst/julia/src/reproduce.jl} for the implementation.}
 \item{\code{female_investment}}{Numeric in [0, 1]. Fraction of offspring
-energy cost paid by the mother (default 1.0; 0.5 = equal). Added
+energy cost paid by the mother (default 0.7; 0.5 = equal). Added
 0.4.0 Tier 3.}
 \item{\code{male_repro_cost}}{Numeric. Per-offspring energy cost paid by
-the father when \code{female_investment < 1} (default 0.0).}
+the father when \code{female_investment < 1} (default 0.3).}
 \item{\code{cooperative_breeding}}{Logical. Enable helper-at-the-nest
 dynamics (default \code{FALSE}).}
 \item{\code{helper_tendency_init_mean}}{Numeric in [0, 1]. Heritable
-willingness to help (default 0.2).}
+willingness to help (default 0.1).}
 \item{\code{helper_tendency_mutation_sd}}{Numeric. Mutation SD on the
-helper trait (default 0.05).}
+helper trait (default 0.02).}
 \item{\code{helper_transfer}}{Numeric. Energy transferred per helping event
-(default 3.0).}
+(default 5.0).}
 \item{\code{helper_kin_threshold}}{Numeric. Minimum relatedness for a
-helping attempt (default 0.125 = half-siblings).}
+helping attempt (default 0.25 = full-siblings).}
 \item{\code{helper_min_energy}}{Numeric. Minimum helper energy before a
-transfer is refused (default 60.0).}
+transfer is refused (default 80.0).}
 }
 }
 
@@ -710,7 +710,7 @@ the module is structurally silent — set \code{stress_threshold > 120}
 for stress-mutation to actually fire at reproduction events.}
 \item{\code{stress_mutation_multiplier}}{Numeric. Multiplier applied
 to \code{mutation_sd} at reproduction when the parent's energy is
-below \code{stress_threshold} (default 5.0).}
+below \code{stress_threshold} (default 3.0).}
 }
 }
 
@@ -761,13 +761,14 @@ aposematic signal. Required to close the Bates (1862) /
 Müller (1879) feedback loop in clade. Active only when
 \code{mimicry = TRUE} and \code{signal_dims > 0}. Added 0.4.4.}
 \item{\code{signal_drift_sd}}{Numeric. Neutral drift SD applied per-tick to
-an agent's signal vector (default 0). At 0 the signal is fixed at
+an agent's signal vector (default 0.01). At 0 the signal is fixed at
 birth; > 0 lets signals drift within-lifetime.}
-\item{\code{signal_evolution_drift}}{Numeric. Inter-generational drift SD
-on the inherited signal (default 0). Separate from the sensory
-mutation rate.}
+\item{\code{signal_evolution_drift}}{Logical. If \code{TRUE} (default), apply
+inter-generational drift to the inherited signal at the SD given
+by \code{signal_drift_sd}. Set \code{FALSE} to disable signal drift entirely.
+Separate from the sensory mutation rate.}
 \item{\code{signal_memory_rate}}{Numeric. Rate at which predator memory
-updates toward observed prey signals (default 0.1). Relevant only
+updates toward observed prey signals (default 0.3). Relevant only
 when \code{mimicry = TRUE} and predators are present.}
 \item{\code{mate_choice_mode}}{Character. Mate-choice rule:
 \code{"preference"} (default, score on -||preference - candidate
@@ -843,9 +844,9 @@ trait (default 0.05).}
 \item{\code{toxicity_cost_per_tick}}{Numeric. Per-tick energy cost paid by
 agents with \code{toxicity > 0} (default 2.0; Zahavi handicap).}
 \item{\code{toxin_dose}}{Numeric. Damage dealt to the attacker per unit
-of prey toxicity (default 2.0).}
+of prey toxicity (default 30.0).}
 \item{\code{avoid_threshold}}{Numeric. Predator-memory value above which
-the predator chooses to avoid the prey (default 0.3).}
+the predator chooses to avoid the prey (default 0.5).}
 }
 }
 
@@ -924,7 +925,7 @@ factors influencing habitat distribution in birds,
 preference (default 0 — no preference). Negative values = prefer
 low-grass cells; positive = prefer high-grass.}
 \item{\code{habitat_preference_mutation_sd}}{Numeric. Mutation SD on the
-preference trait (default 0.05).}
+preference trait (default 0.03).}
 \item{\code{habitat_preference_min}, \code{habitat_preference_max}}{Numeric
 clamps (default -1 / 1).}
 \item{\code{habitat_preference_strength}}{Numeric in [0, ∞). Scales the
@@ -960,7 +961,7 @@ distance (default \code{FALSE}). Agents only mate with conspecifics
 Reference: Gavrilets (2004) \emph{Fitness Landscapes and the Origin of
 Species}, Princeton UP.}
 \item{\code{isolation_threshold}}{Numeric. Maximum genome distance for
-successful mating (default 0.45). Species are inferred by hierarchical
+successful mating (default 0.5). Species are inferred by hierarchical
 clustering of genome distances at each logging tick.}
 \item{\code{speciation_cluster_interval}}{Integer. Ticks between species-
 count recomputations (default 10L). Reducing this improves temporal
@@ -1004,7 +1005,7 @@ canopy (default 0.005; trees grow slowly).}
 \item{\code{canopy_energy}}{Numeric. Maximum energy a canopy cell provides
 (default 50.0; high energy density for aerial specialists).}
 \item{\code{canopy_threshold}}{Numeric. Minimum \code{wing_size} needed for
-canopy access (default 0.6).}
+canopy access (default 0.15).}
 \item{\code{wing_size_init_mean}}{Numeric. Initial mean \code{wing_size} (default
 0.0; ground-bound founders).}
 \item{\code{wing_size_mutation_sd}}{Numeric. Mutation SD for \code{wing_size}
