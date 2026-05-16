@@ -36,5 +36,5 @@ Same single-seed-test pattern as Trivers. Both Wolf 2007 and Trivers 1971 use th
 
 ## Deferred fixes
 
-- **Worth doing**: multi-seed rds upgrade (same as Trivers). ~15-20 min compute.
-- Optional: extend test-personality-syndrome.R to run at 3-5 seeds and assert the floor across all seeds (currently single seed). Cheaper than the rds upgrade.
+- **Script written, rds pending compute**: `dev/audit/fidelity/paper_wolf2007.R` is now ready (8 seeds × 5000 ticks, single condition — measures the three Wolf 2007 correlations per seed). Run via `Rscript dev/audit/fidelity/paper_wolf2007.R`. ~20-25 min wall-clock with healthy Julia. Once the rds lands, the vignette graduates from "minimum framing" to "ideal" Phase B pattern.
+- Optional: extend test-personality-syndrome.R to run at 3-5 seeds and assert the floor across all seeds (currently single seed). Cheaper than the rds upgrade but less useful as a regression baseline.
