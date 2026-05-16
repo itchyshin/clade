@@ -101,6 +101,15 @@ surviving agents is dominated by the specific crash trajectory rather
 than by any evolutionary signal. This utility codifies the "check
 n_final before trusting trait-mean effects" rule into a reusable check.
 
+## Note
+
+[`hypothesis_sweep()`](https://itchyshin.github.io/clade/reference/hypothesis_sweep.md)'s
+default `crashed` metric uses a *different* threshold (absolute floor of
+10 agents at run end) for a *different* question. Use
+`viability_report()` to gate interpretability (Hamilton-rule-style "is
+this trait mean meaningful?"); use the sweep's `crashed` metric to count
+per-condition extinctions in a sweep summary.
+
 ## See also
 
 [`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md),
@@ -108,3 +117,15 @@ n_final before trusting trait-mean effects" rule into a reusable check.
 [`hypothesis_sweep()`](https://itchyshin.github.io/clade/reference/hypothesis_sweep.md).
 
 ## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+env  <- run_alife(fast_specs())
+vr   <- viability_report(get_run_data(env))
+print(vr)
+# Guard audit claims on viability:
+if (vr$verdict == "crashed") {
+  warning("crash-driven result; trait means are unreliable")
+}
+} # }
+```

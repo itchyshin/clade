@@ -244,13 +244,32 @@ signal. This utility codifies the "check n_final before trusting
 trait-mean effects" rule into a reusable check.</p>
     </div>
     <div class="section level2">
+    <h2 id="note">Note<a class="anchor" aria-label="anchor" href="#note"></a></h2>
+    <p><code><a href="hypothesis_sweep.html">hypothesis_sweep()</a></code>'s default <code>crashed</code> metric uses a
+<em>different</em> threshold (absolute floor of 10 agents at run end)
+for a <em>different</em> question. Use <code>viability_report()</code> to gate
+interpretability (Hamilton-rule-style "is this trait mean
+meaningful?"); use the sweep's <code>crashed</code> metric to count
+per-condition extinctions in a sweep summary.</p>
+    </div>
+    <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="run_alife.html">run_alife()</a></code>, <code><a href="get_run_data.html">get_run_data()</a></code>, <code><a href="hypothesis_sweep.html">hypothesis_sweep()</a></code>.</p></div>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="va">env</span>  <span class="op">&lt;-</span> <span class="fu"><a href="run_alife.html">run_alife</a></span><span class="op">(</span><span class="fu"><a href="fast_specs.html">fast_specs</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">vr</span>   <span class="op">&lt;-</span> <span class="fu">viability_report</span><span class="op">(</span><span class="fu"><a href="get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">vr</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Guard audit claims on viability:</span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="va">vr</span><span class="op">$</span><span class="va">verdict</span> <span class="op">==</span> <span class="st">"crashed"</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="kw"><a href="https://rdrr.io/r/base/warning.html" class="external-link">warning</a></span><span class="op">(</span><span class="st">"crash-driven result; trait means are unreliable"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
