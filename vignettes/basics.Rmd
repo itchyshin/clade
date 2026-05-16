@@ -114,8 +114,60 @@ plus reserved placeholders for heterozygosity and FST).
 
 ## 4. Plot the run with `plot_run()`
 
-*(Filled by Phase A item 4.)*
+`plot_run(rd)` returns a 2 × 3 dashboard (a `patchwork` object) of
+six time-series diagnostics: population size, mean energy ± 1 SD,
+genetic diversity, births vs deaths per tick, grass coverage, and a
+sixth panel that switches between *BNN prior sigma* (when the BNN
+brain's plasticity is varying — the Baldwin Effect panel after
+Baldwin 1896 / Hinton & Nowlan 1987) and *mean body size* (when
+sigma is flat or absent). It's the fastest way to read whether a
+run is biologically sensible: a healthy run shows population
+holding above a viability floor, energy stable or oscillating,
+diversity not collapsing to zero, births roughly tracking deaths
+after burn-in, and grass not stripped to bare ground. If any of
+those panels look pathological (population to zero, energy
+collapsing, diversity to zero in <50 ticks), the run probably
+won't support trait-mean interpretations — and `env$viability$verdict`
+will already say so.
+
+```{r}
+plot_run(rd)
+```
+
+`plot_run()` is intentionally robust to the unhappy paths:
+it errors with a clear message if `rd$ticks` is missing, returns a
+ggplot placeholder (rather than crashing) if `$ticks` has zero
+rows, and quietly truncates the timeline when `run_alife()` crashed
+mid-run (the post-crash zero-padded rows are filtered by `t > 0`).
+So you can pipe a viability-flagged crashed run straight into
+`plot_run()` and read the partial story.
 
 ## 5. What next?
 
-*(Filled by Phase A item 4.)*
+Once you can read `plot_run()` you have most of clade's surface.
+Where to go from here, in order of investment:
+
+- **Multi-seed replicates.** Every conclusion in clade should be
+  defended at ≥ 5 seeds; one run is a story, five is data.
+  `batch_seeds(specs, seeds = 1:5)` runs the same specs across
+  seeds; pair with `viability_report()` per replicate and keep only
+  the viable ones.
+- **Scenario vignettes.** `vignette(package = "clade")` lists ~40
+  worked scenarios under `s-*` (scenarios) and `paper-*` (paper
+  reproductions). Start with `vignette("s-baseline")` for the
+  shortest fully-narrated run, then `vignette("scenarios")` for the
+  full catalogue.
+- **Paper reproductions.** If you have a behavioural-ecology paper
+  with a quantitative prediction, the `paper-template.Rmd` vignette
+  shows how to turn it into a clade experiment. The published
+  reproductions (Wolf 2007, Trivers 1971, Réale 2010, Griesser
+  2023, Ryan 1990, ...) each follow the same template and report
+  what reproduces vs what doesn't.
+- **Parameter-space search.** When you want the best (or most
+  diverse) configurations rather than a single run,
+  `search_map_elites()` / `search_cmaes()` / `search_viability()`
+  run optimisation over the spec list. `vignette("ps-introduction")`
+  is the starting point.
+- **Narrative depth.** For the architectural picture, the four
+  brain types, the R-Julia split, the lab values, and the
+  vision: `vignette("getting-started")` and `dev/design/00-vision.md`.

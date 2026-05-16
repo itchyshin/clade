@@ -182,6 +182,33 @@ test_that("plot_run() handles zero-row ticks without crashing", {
   expect_true(inherits(result, "ggplot") || inherits(result, "error"))
 })
 
+# ── 11b. plot_run() handles a viability-flagged crashed run ──────────────────
+# Crashed-run shape (Phase A item-4 verification): logging.jl::log_tick! does
+# `n == 0 && return` when the population dies out, so the pre-allocated
+# (t, n_agents, mean_energy, ...) vectors carry over their initial zero
+# values for every post-crash tick. plot_run() filters by `t > 0` and must
+# render a truncated timeline that ends at the last logged tick rather than
+# erroring on the zero-padded tail.
+test_that("plot_run() renders a truncated timeline on a crashed run", {
+  rd <- .mock_run_data()
+  n  <- nrow(rd$ticks)
+  crash_at <- 10L
+  tail_idx <- (crash_at + 1L):n
+  # Mimic the post-crash log shape: t = 0 (unlogged), all metrics zero.
+  rd$ticks$t[tail_idx]                 <- 0L
+  rd$ticks$n_agents[tail_idx]          <- 0L
+  rd$ticks$mean_energy[tail_idx]       <- 0
+  rd$ticks$sd_energy[tail_idx]         <- 0
+  rd$ticks$genetic_diversity[tail_idx] <- 0
+  rd$ticks$n_births[tail_idx]          <- 0L
+  rd$ticks$n_deaths[tail_idx]          <- 0L
+  rd$ticks$grass_coverage[tail_idx]    <- 0
+  rd$ticks$mean_body_size[tail_idx]    <- 0
+  p <- plot_run(rd)
+  expect_s3_class(p, "patchwork")
+  expect_s3_class(p, "ggplot")
+})
+
 # ── 12. visualize_progress() returns a patchwork object ──────────────────────
 
 test_that("visualize_progress() returns a patchwork plot given env + run_data", {

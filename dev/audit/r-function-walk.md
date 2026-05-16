@@ -344,3 +344,101 @@ the citation is ready.
   proposal lands, `get_run_data()` will gain a fourth field
   `$movement`. The roxygen rewrite is structured so a one-line
   insertion will suffice; no redesign needed.
+
+## 4/28 — `plot_run()` (2026-05-16, `claude/track-B-walk`)
+
+**TREE.** `R/visualization.R:91-187`. Standard dashboard: takes a
+`get_run_data()` output, validates via `.check_run_data()`, filters
+out unlogged-tick rows (`t > 0`), short-circuits to
+`.plot_empty("No logged ticks")` if nothing remains, and otherwise
+builds six ggplot panels combined with `patchwork::wrap_plots(ncol
+= 3L)`: (1) population size, (2) mean energy ± 1 SD ribbon,
+(3) genetic diversity, (4) births vs deaths per tick, (5) grass
+coverage, (6) brain-type-aware sixth panel — BNN prior sigma if
+`mean_prior_sigma` varies (Baldwin Effect panel; Baldwin 1896,
+Hinton & Nowlan 1987), mean body size otherwise. Two helpers
+(`.check_run_data`, `.plot_empty`) are reused across the entire
+`R/visualization.R` plot family and were correct as-is.
+
+**FOREST.** Lighter than item 3's. Production: the in-package
+`visualize_progress()` at `R/visualization.R:1188` builds a larger
+dashboard that includes the `plot_run()` panels. Roxygen: a
+~dozen vignettes call `plot_run()` directly; another dozen use it
+indirectly via `visualize_progress()`. Tests: dedicated coverage in
+`tests/testthat/test-visualization.R` (37 tests pre-walk, 39
+post-walk).
+
+**TEST — plan's three asks, all verified.**
+
+1. **NULL handling.** `plot_run(NULL)` and `plot_run(list())` both
+   fail the `is.list(run_data) || is.null(run_data$ticks)` check in
+   `.check_run_data` and `stop()` with a one-line message naming
+   `get_run_data()` — already tested at `test-visualization.R:136-139`.
+2. **Empty-progress handling.** Zero-row `$ticks` returns
+   `.plot_empty("No logged ticks")` without erroring — already
+   tested at `test-visualization.R:176-183`.
+3. **Crashed-run handling — newly verified.** The plan asked
+   specifically about "viable_report-flagged-crashed" runs. In
+   logging.jl, `log_tick!` does `n == 0 && return` when the
+   population dies out, so the pre-allocated metric vectors keep
+   their initial zero values for every post-crash tick. `plot_run`'s
+   `d <- d[d$t > 0L, , drop = FALSE]` filter at line 96 trims the
+   zero-padded tail; the resulting plot is a truncated timeline
+   ending at the last logged tick. No special-case handling needed;
+   the design is correct. Added a dedicated test
+   (`test-visualization.R:185-209`) that builds a mock with the
+   exact post-crash shape (`t = 0, n_agents = 0, mean_energy = 0,
+   ...` for the tail) and asserts `plot_run()` returns a valid
+   `patchwork`/`ggplot` object. Test passes post-fix.
+
+After the walk: `test-visualization.R` passes 39/39 (was 37/37
+pre-walk; added 1 test asserting 2 expectations).
+
+**ROSE.** This walk surfaced **no new bug or stale-assertion class
+in `plot_run()` itself** — the function is well-tested and the
+design holds up. The one Rose pattern worth recording is positive:
+
+- **"Filter at the leaves, not at the source."** `plot_run()`
+  trusts `get_run_data()` to return whatever Julia logged and
+  applies its own `t > 0` filter at the point of use. That isolates
+  it from the choices made in `log_tick!`: when Julia changes how
+  unlogged ticks are represented (e.g., the hypothetical
+  movement-log might want different conventions), only the leaf
+  filters need to change, not the data path. Recommend the same
+  pattern for any future plot_* sibling.
+
+**BIO.** The six-panel choice is biologically thoughtful:
+*demography* (pop size, births vs deaths), *individual state*
+(energy ± SD), *evolutionary signal* (genetic diversity),
+*environment* (grass coverage), *brain-relevant* (BNN sigma /
+body size). Together they let a reader judge in 10 seconds whether
+a run is viable, runaway, collapsing, or pathological in some
+specific way. The conditional sixth panel (Baldwin sigma vs body
+size) is the smartest part — it surfaces the most-informative
+variable for the active brain type without making the user choose.
+
+The decision to use `± 1 SD` (not `± 1.96 SD` for 95 % bands) is
+honest: at the population sizes clade typically simulates
+(50–500 agents), the sampling distribution of the mean is narrow
+enough that a 1-SD ribbon shows *individual* heterogeneity rather
+than confidence in the mean, which is what the reader actually
+wants for an evolutionary-dynamics dashboard. Worth a sentence in
+the docstring eventually, but not blocking.
+
+**CONTRIBUTE — basics.Rmd is now complete.** Sections 4 and 5
+added in this commit; `basics` registered as the first entry under
+the pkgdown Overview articles block so it appears at the top of
+the Articles navbar. The vignette is the Tier-A0 deliverable;
+clicking "Articles → Basics" in the rendered site now lands the
+user on the 5-minute walkthrough built from items 1–4.
+
+**Deferred fixes (flagged for separate work):**
+
+- `± 1 SD` vs `± 1.96 SD` clarification in the docstring (one
+  sentence on what the ribbon represents). Not blocking.
+- Sister-function doc audit for the rest of the `R/visualization.R`
+  family (`plot_environment`, `plot_genome_diversity`,
+  `plot_disease_dynamics`, `plot_module_metrics`,
+  `plot_tsne_genomes`, etc.). The "code grows columns, roxygen
+  doesn't" Rose class from item 3 likely applies. None are Tier-A0,
+  so Tier-A3 items 18-21 will pick them up under the normal walk.
