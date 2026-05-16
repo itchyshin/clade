@@ -76,7 +76,34 @@ A larger sample (16+ seeds) might resolve whether the cor(exp, aggro) PASS at 20
 - "Reading the result" rewritten from "**strongly borne out**" to honest revision: at 8 seeds, neither Wolf's syndrome nor McElreath's transience prediction is testable because there's no robust signal to be transient or persistent. The only robust finding is in `cor(exp, aggro)`, opposite to McElreath's prediction.
 - "Two critiques together" section updated to reflect that both critique vignettes' single-seed apparent-confirmations dissolve at multi-seed, converging on a cumulative Wolf 2007 null.
 
+## 16-seed verification (2026-05-16, PR #147)
+
+✅ **Done.** Ran `dev/audit/fidelity/paper_mcelreath_2007_16seed.R`
+(16 seeds × 2000 ticks, 4.1 min wall-clock; saved to
+`dev/audit/fidelity/paper_mcelreath_2007_16seed.rds`). Hypothesis:
+the surprise PASS-negative for cor(exp, aggro) at 2000 ticks
+hardens with more seeds.
+
+**Hypothesis confirmed.** The signal survives the doubled sample:
+
+| Sample | mean | SE | t | verdict |
+|---:|---:|---:|---:|:---|
+| 8 seeds (PR #141)  | −0.172 | 0.042 | −4.12 | PASS-negative |
+| 16 seeds (this) | **−0.100** | **0.031** | **−3.26** | **PASS-negative** |
+
+Mean magnitude dropped (−0.17 → −0.10) but SE tightened (0.042 →
+0.031), so the t-statistic stays well above 2σ. **The
+asset-protection signal in cor(exp, aggro) at the shortest
+horizon (2000 ticks) is a robust positive finding** — the only
+multi-seed cell across all three Wolf-2007-family reproductions
+that produces a 2σ PASS in the predicted direction, now confirmed
+at twice the sample size.
+
+This is a real candidate for Sergio's v0.8-core review:
+clade's spatial Wolf 2007 *does* produce an asset-protection
+signal, but it appears in `cor(exp, aggro)` specifically, at the
+early end of the time range, opposite to McElreath's prediction.
+
 ## Deferred fixes
 
-- ~40 min compute to run at 16 seeds and check whether the cor(exp, aggro) 2000-tick PASS is robust.
 - Cross-reference from `paper-wolf2007.Rmd` to this vignette and to paper-massol-crochet-2008 is in place via the "Critique-aware framing" section (updated in PR #142).
