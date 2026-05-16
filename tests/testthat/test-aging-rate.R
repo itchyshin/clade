@@ -77,9 +77,11 @@ test_that("aging_rate_init_mean defaults to 1.0", {
   expect_equal(default_specs()$aging_rate_init_mean, 1.0)
 })
 
-# ── 13. senescence_shape defaults to 2.0 ─────────────────────────────────────
-test_that("senescence_shape defaults to 2.0", {
-  expect_equal(default_specs()$senescence_shape, 2.0)
+# ── 13. senescence_shape defaults to 1.0 ─────────────────────────────────────
+# Was 2.0 pre-PR #116 (squarer Gompertz curve); lowered to 1.0 so the
+# default approximates exponential mortality. Code is in R/config.R.
+test_that("senescence_shape defaults to 1.0", {
+  expect_equal(default_specs()$senescence_shape, 1.0)
 })
 
 # ── 14. default senescence_rate is in [0, 0.1) range ─────────────────────────
