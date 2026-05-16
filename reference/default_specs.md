@@ -248,7 +248,7 @@ each entry for the primary literature.
 - `bnn_sigma_init`:
 
   Numeric. Initial posterior SD for BNN weights when
-  `bnn_sigma_source = "fixed"` or `"heterozygosity"` (default 0.1).
+  `bnn_sigma_source = "fixed"` or `"heterozygosity"` (default 0.5).
 
 - `bnn_sigma_min`:
 
@@ -489,7 +489,7 @@ learning.
 - `plasticity_mutation_sd`:
 
   Numeric. Per-offspring mutation SD on the plasticity trait (default
-  0.05).
+  0.03).
 
 - `plasticity_min`, `plasticity_max`:
 
@@ -497,7 +497,7 @@ learning.
 
 - `plasticity_sense_radius`:
 
-  Integer. Sensory-radius bonus when plasticity is high (default 1L).
+  Integer. Sensory-radius bonus when plasticity is high (default 3L).
   Unused at plasticity = 0.
 
 ### Epigenetics and transgenerational inheritance
@@ -586,7 +586,7 @@ as described by Jablonka & Lamb (2005).
 
 - `predator_min_repro_age`:
 
-  Integer. Minimum predator age before reproduction (default 20L).
+  Integer. Minimum predator age before reproduction (default 5L).
 
 - `predator_move_energy`:
 
@@ -595,7 +595,7 @@ as described by Jablonka & Lamb (2005).
 - `predator_live_energy`:
 
   Numeric. Per-tick passive energy cost for each live predator (default
-  0.5).
+  2.0).
 
 - `predator_sense_graded`:
 
@@ -973,12 +973,12 @@ as described by Jablonka & Lamb (2005).
 - `female_investment`:
 
   Numeric in \[0, 1\]. Fraction of offspring energy cost paid by the
-  mother (default 1.0; 0.5 = equal). Added 0.4.0 Tier 3.
+  mother (default 0.7; 0.5 = equal). Added 0.4.0 Tier 3.
 
 - `male_repro_cost`:
 
   Numeric. Per-offspring energy cost paid by the father when
-  `female_investment < 1` (default 0.0).
+  `female_investment < 1` (default 0.3).
 
 - `cooperative_breeding`:
 
@@ -986,25 +986,25 @@ as described by Jablonka & Lamb (2005).
 
 - `helper_tendency_init_mean`:
 
-  Numeric in \[0, 1\]. Heritable willingness to help (default 0.2).
+  Numeric in \[0, 1\]. Heritable willingness to help (default 0.1).
 
 - `helper_tendency_mutation_sd`:
 
-  Numeric. Mutation SD on the helper trait (default 0.05).
+  Numeric. Mutation SD on the helper trait (default 0.02).
 
 - `helper_transfer`:
 
-  Numeric. Energy transferred per helping event (default 3.0).
+  Numeric. Energy transferred per helping event (default 5.0).
 
 - `helper_kin_threshold`:
 
-  Numeric. Minimum relatedness for a helping attempt (default 0.125 =
-  half-siblings).
+  Numeric. Minimum relatedness for a helping attempt (default 0.25 =
+  full-siblings).
 
 - `helper_min_energy`:
 
   Numeric. Minimum helper energy before a transfer is refused (default
-  60.0).
+  80.0).
 
 ### Clutch size evolution
 
@@ -1049,7 +1049,7 @@ rate rises transiently. Controlled by three specs:
 - `stress_mutation_multiplier`:
 
   Numeric. Multiplier applied to `mutation_sd` at reproduction when the
-  parent's energy is below `stress_threshold` (default 5.0).
+  parent's energy is below `stress_threshold` (default 3.0).
 
 ### Signal evolution and mate choice
 
@@ -1112,18 +1112,20 @@ rate rises transiently. Controlled by three specs:
 - `signal_drift_sd`:
 
   Numeric. Neutral drift SD applied per-tick to an agent's signal vector
-  (default 0). At 0 the signal is fixed at birth; \> 0 lets signals
+  (default 0.01). At 0 the signal is fixed at birth; \> 0 lets signals
   drift within-lifetime.
 
 - `signal_evolution_drift`:
 
-  Numeric. Inter-generational drift SD on the inherited signal (default
-  0). Separate from the sensory mutation rate.
+  Logical. If `TRUE` (default), apply inter-generational drift to the
+  inherited signal at the SD given by `signal_drift_sd`. Set `FALSE` to
+  disable signal drift entirely. Separate from the sensory mutation
+  rate.
 
 - `signal_memory_rate`:
 
   Numeric. Rate at which predator memory updates toward observed prey
-  signals (default 0.1). Relevant only when `mimicry = TRUE` and
+  signals (default 0.3). Relevant only when `mimicry = TRUE` and
   predators are present.
 
 - `mate_choice_mode`:
@@ -1232,12 +1234,12 @@ rate rises transiently. Controlled by three specs:
 - `toxin_dose`:
 
   Numeric. Damage dealt to the attacker per unit of prey toxicity
-  (default 2.0).
+  (default 30.0).
 
 - `avoid_threshold`:
 
   Numeric. Predator-memory value above which the predator chooses to
-  avoid the prey (default 0.3).
+  avoid the prey (default 0.5).
 
 ### Niche construction
 
@@ -1342,7 +1344,7 @@ rate rises transiently. Controlled by three specs:
 
 - `habitat_preference_mutation_sd`:
 
-  Numeric. Mutation SD on the preference trait (default 0.05).
+  Numeric. Mutation SD on the preference trait (default 0.03).
 
 - `habitat_preference_min`, `habitat_preference_max`:
 
@@ -1390,7 +1392,7 @@ rate rises transiently. Controlled by three specs:
 
 - `isolation_threshold`:
 
-  Numeric. Maximum genome distance for successful mating (default 0.45).
+  Numeric. Maximum genome distance for successful mating (default 0.5).
   Species are inferred by hierarchical clustering of genome distances at
   each logging tick.
 
@@ -1458,7 +1460,7 @@ Liedtke & Fromhage (2019); Isbell (2006).
 
 - `canopy_threshold`:
 
-  Numeric. Minimum `wing_size` needed for canopy access (default 0.6).
+  Numeric. Minimum `wing_size` needed for canopy access (default 0.15).
 
 - `wing_size_init_mean`:
 

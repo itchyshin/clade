@@ -380,7 +380,7 @@ all weights to collapse to zero within a few ticks.</p></dd>
 
 <dt><code>bnn_sigma_init</code></dt>
 <dd><p>Numeric. Initial posterior SD for BNN weights
-when <code>bnn_sigma_source = "fixed"</code> or <code>"heterozygosity"</code> (default 0.1).</p></dd>
+when <code>bnn_sigma_source = "fixed"</code> or <code>"heterozygosity"</code> (default 0.5).</p></dd>
 
 <dt><code>bnn_sigma_min</code></dt>
 <dd><p>Numeric. Floor on per-weight BNN sigma (default
@@ -626,7 +626,7 @@ trait (default 0.3).</p></dd>
 
 <dt><code>plasticity_mutation_sd</code></dt>
 <dd><p>Numeric. Per-offspring mutation SD on
-the plasticity trait (default 0.05).</p></dd>
+the plasticity trait (default 0.03).</p></dd>
 
 <dt><code>plasticity_min</code>, <code>plasticity_max</code></dt>
 <dd><p>Numeric clamps for the
@@ -634,7 +634,7 @@ heritable plasticity trait (default 0 / 1).</p></dd>
 
 <dt><code>plasticity_sense_radius</code></dt>
 <dd><p>Integer. Sensory-radius bonus when
-plasticity is high (default 1L). Unused at plasticity = 0.</p></dd>
+plasticity is high (default 3L). Unused at plasticity = 0.</p></dd>
 
 
 </dl></div>
@@ -725,7 +725,7 @@ predator reproduction (default 200).</p></dd>
 
 <dt><code>predator_min_repro_age</code></dt>
 <dd><p>Integer. Minimum predator age before
-reproduction (default 20L).</p></dd>
+reproduction (default 5L).</p></dd>
 
 <dt><code>predator_move_energy</code></dt>
 <dd><p>Numeric. Energy deducted per predator
@@ -733,7 +733,7 @@ move (default 1.0).</p></dd>
 
 <dt><code>predator_live_energy</code></dt>
 <dd><p>Numeric. Per-tick passive energy cost
-for each live predator (default 0.5).</p></dd>
+for each live predator (default 2.0).</p></dd>
 
 <dt><code>predator_sense_graded</code></dt>
 <dd><p>Logical. If <code>TRUE</code> (default, 0.4.2),
@@ -1125,12 +1125,12 @@ energy also scales by <code>2 * female_investment</code>. See
 
 <dt><code>female_investment</code></dt>
 <dd><p>Numeric in [0, 1]. Fraction of offspring
-energy cost paid by the mother (default 1.0; 0.5 = equal). Added
+energy cost paid by the mother (default 0.7; 0.5 = equal). Added
 0.4.0 Tier 3.</p></dd>
 
 <dt><code>male_repro_cost</code></dt>
 <dd><p>Numeric. Per-offspring energy cost paid by
-the father when <code>female_investment &lt; 1</code> (default 0.0).</p></dd>
+the father when <code>female_investment &lt; 1</code> (default 0.3).</p></dd>
 
 <dt><code>cooperative_breeding</code></dt>
 <dd><p>Logical. Enable helper-at-the-nest
@@ -1138,23 +1138,23 @@ dynamics (default <code>FALSE</code>).</p></dd>
 
 <dt><code>helper_tendency_init_mean</code></dt>
 <dd><p>Numeric in [0, 1]. Heritable
-willingness to help (default 0.2).</p></dd>
+willingness to help (default 0.1).</p></dd>
 
 <dt><code>helper_tendency_mutation_sd</code></dt>
 <dd><p>Numeric. Mutation SD on the
-helper trait (default 0.05).</p></dd>
+helper trait (default 0.02).</p></dd>
 
 <dt><code>helper_transfer</code></dt>
 <dd><p>Numeric. Energy transferred per helping event
-(default 3.0).</p></dd>
+(default 5.0).</p></dd>
 
 <dt><code>helper_kin_threshold</code></dt>
 <dd><p>Numeric. Minimum relatedness for a
-helping attempt (default 0.125 = half-siblings).</p></dd>
+helping attempt (default 0.25 = full-siblings).</p></dd>
 
 <dt><code>helper_min_energy</code></dt>
 <dd><p>Numeric. Minimum helper energy before a
-transfer is refused (default 60.0).</p></dd>
+transfer is refused (default 80.0).</p></dd>
 
 
 </dl></div>
@@ -1205,7 +1205,7 @@ for stress-mutation to actually fire at reproduction events.</p></dd>
 <dt><code>stress_mutation_multiplier</code></dt>
 <dd><p>Numeric. Multiplier applied
 to <code>mutation_sd</code> at reproduction when the parent's energy is
-below <code>stress_threshold</code> (default 5.0).</p></dd>
+below <code>stress_threshold</code> (default 3.0).</p></dd>
 
 
 </dl></div>
@@ -1271,17 +1271,18 @@ Müller (1879) feedback loop in clade. Active only when
 
 <dt><code>signal_drift_sd</code></dt>
 <dd><p>Numeric. Neutral drift SD applied per-tick to
-an agent's signal vector (default 0). At 0 the signal is fixed at
+an agent's signal vector (default 0.01). At 0 the signal is fixed at
 birth; &gt; 0 lets signals drift within-lifetime.</p></dd>
 
 <dt><code>signal_evolution_drift</code></dt>
-<dd><p>Numeric. Inter-generational drift SD
-on the inherited signal (default 0). Separate from the sensory
-mutation rate.</p></dd>
+<dd><p>Logical. If <code>TRUE</code> (default), apply
+inter-generational drift to the inherited signal at the SD given
+by <code>signal_drift_sd</code>. Set <code>FALSE</code> to disable signal drift entirely.
+Separate from the sensory mutation rate.</p></dd>
 
 <dt><code>signal_memory_rate</code></dt>
 <dd><p>Numeric. Rate at which predator memory
-updates toward observed prey signals (default 0.1). Relevant only
+updates toward observed prey signals (default 0.3). Relevant only
 when <code>mimicry = TRUE</code> and predators are present.</p></dd>
 
 <dt><code>mate_choice_mode</code></dt>
@@ -1391,11 +1392,11 @@ agents with <code>toxicity &gt; 0</code> (default 2.0; Zahavi handicap).</p></dd
 
 <dt><code>toxin_dose</code></dt>
 <dd><p>Numeric. Damage dealt to the attacker per unit
-of prey toxicity (default 2.0).</p></dd>
+of prey toxicity (default 30.0).</p></dd>
 
 <dt><code>avoid_threshold</code></dt>
 <dd><p>Numeric. Predator-memory value above which
-the predator chooses to avoid the prey (default 0.3).</p></dd>
+the predator chooses to avoid the prey (default 0.5).</p></dd>
 
 
 </dl></div>
@@ -1512,7 +1513,7 @@ low-grass cells; positive = prefer high-grass.</p></dd>
 
 <dt><code>habitat_preference_mutation_sd</code></dt>
 <dd><p>Numeric. Mutation SD on the
-preference trait (default 0.05).</p></dd>
+preference trait (default 0.03).</p></dd>
 
 <dt><code>habitat_preference_min</code>, <code>habitat_preference_max</code></dt>
 <dd><p>Numeric
@@ -1566,7 +1567,7 @@ Species</em>, Princeton UP.</p></dd>
 
 <dt><code>isolation_threshold</code></dt>
 <dd><p>Numeric. Maximum genome distance for
-successful mating (default 0.45). Species are inferred by hierarchical
+successful mating (default 0.5). Species are inferred by hierarchical
 clustering of genome distances at each logging tick.</p></dd>
 
 <dt><code>speciation_cluster_interval</code></dt>
@@ -1635,7 +1636,7 @@ canopy (default 0.005; trees grow slowly).</p></dd>
 
 <dt><code>canopy_threshold</code></dt>
 <dd><p>Numeric. Minimum <code>wing_size</code> needed for
-canopy access (default 0.6).</p></dd>
+canopy access (default 0.15).</p></dd>
 
 <dt><code>wing_size_init_mean</code></dt>
 <dd><p>Numeric. Initial mean <code>wing_size</code> (default
