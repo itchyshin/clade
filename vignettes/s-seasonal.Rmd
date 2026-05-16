@@ -16,7 +16,7 @@ FIG <- function(name, ...) {
 }
 ```
 
-### Seasonal dynamics
+## Seasonal dynamics
 
 **What it models.** Seasonality imposes periodic variation in resource
 availability and mortality risk that drives boom-bust dynamics across a wide
@@ -100,7 +100,7 @@ for observing smooth seasonal cycles rather than extinction dynamics.
 FIG("17_seasons")
 ```
 
-### Discovery experiments
+## Discovery experiments
 
 The baseline result shows population size tracking grass productivity with a short lag, producing recurrent winter crashes and spring recoveries. To go beyond:
 

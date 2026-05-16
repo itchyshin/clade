@@ -16,7 +16,7 @@ FIG <- function(name, ...) {
 }
 ```
 
-### Predation and neural evolution
+## Predation and neural evolution
 
 **What it models.** Predation is among the strongest directional selective
 forces acting on prey phenotypes, and its effects on neural architecture are
@@ -132,7 +132,7 @@ prediction is explicitly retracted. See
 [dev/audit/fidelity/predation_neural.md](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/predation_neural.md)
 for the full protocol and per-seed results.
 
-### Discovery experiments
+## Discovery experiments
 
 The baseline result shows predation increases genetic diversity in prey populations by imposing strong directional selection on cognition. To go beyond:
 

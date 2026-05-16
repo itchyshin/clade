@@ -16,7 +16,7 @@ FIG <- function(name, ...) {
 }
 ```
 
-### Predator-prey dynamics
+## Predator-prey dynamics
 
 **What it models.** Predator-prey coevolution is one of the oldest and most
 empirically grounded problems in population biology. The classical
@@ -127,7 +127,7 @@ sustained sinusoidal result, and we no longer claim to be. Full
 cross-reference table and audit protocol:
 [dev/audit/fidelity/predator_prey.md](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/predator_prey.md).
 
-### Discovery experiments
+## Discovery experiments
 
 The calibrated regime reproduces the documented evolutionary-ABM
 predator-prey signature: prey oscillate, predators saturate at cap.

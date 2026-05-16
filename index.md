@@ -91,8 +91,9 @@ The [Paper reproductions](articles/paper-kokko-brooks-2003.html) vignettes
 show clade working as an empirical-research tool: take a published
 behavioural-ecology paper, turn its quantitative prediction into a
 clade experiment, and report what reproduces versus what doesn't.
-Five worked examples cover clean ✅, honest null, mechanism
-mismatch, and unit-sensitivity patterns:
+Thirteen worked reproductions plus a template cover clean ✅, honest
+null, mechanism mismatch, unit-sensitivity, and time-decay patterns —
+seven highlighted here:
 
 - [**Kokko & Brooks 2003**](articles/paper-kokko-brooks-2003.html) — "Sexy to die for?" — interaction null under 0.6.4 corrected kernel (previous contradiction was a stub artifact)
 - [**Fuller, Houle & Travis 2005**](articles/paper-fuller-2005.html) *Am Nat* — sensory-bias synthesis (Zahavi ✅, β_N half, Fisher needs linkage)
@@ -145,7 +146,7 @@ plot_run(get_run_data(env))   # population × energy × diversity dashboard
 
 - [**Getting started**](articles/getting-started.html) — install, first run, extracting results
 - [**Scenarios**](articles/scenarios.html) — all 36 vignettes by theme
-- [**Paper reproductions**](articles/paper-kokko-brooks-2003.html) — 5 worked examples of reproducing published behavioural-ecology predictions in clade
+- [**Paper reproductions**](articles/paper-kokko-brooks-2003.html) — 13 worked examples of reproducing published behavioural-ecology predictions in clade
 - [**Parameter reference**](articles/parameter-reference.html) — every field in `default_specs()`
 - [**Kernel as biology**](articles/k-README.html) — how the Julia kernel maps onto biological mechanism
 

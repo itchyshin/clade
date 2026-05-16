@@ -55,7 +55,7 @@ See the [landing page](../index.html) fit-table for the full
 
 The sharpest reproductions come from predictions that translate
 to a directional claim about a clade-measurable outcome. Examples
-from the 5 worked reproductions:
+from clade's worked reproductions:
 
 | Paper | The directional claim |
 |---|---|
