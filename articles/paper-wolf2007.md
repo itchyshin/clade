@@ -360,10 +360,14 @@ the critiques **are themselves contradicted at 8 seeds**.
 > robustly emerge at any (β, time-horizon) combination tested. All
 > seed-42 +0.307 single- seed observations were noise-envelope landings
 > on the positive tail. Both critique vignettes’ *apparent
-> confirmations* dissolved with the rds upgrade. The Wolf 2007 spatial
-> reproduction does not currently support the bold-aggro syndrome claim
-> in clade’s kernel; flagged as a candidate finding for the v0.8-core
-> review.
+> confirmations* dissolved with the rds upgrade. **One robust positive
+> finding survives** (confirmed at 16 seeds, PR \#147): in the McElreath
+> horizon sweep, `cor(exp, aggro)` at 2 000 ticks PASSes-negative — the
+> asset-protection signal *does* appear in clade’s spatial kernel, but
+> in the asset-protection correlation rather than the syndrome
+> correlation, and at the *earliest* horizon (opposite to McElreath’s
+> “later-peak” prediction). Both the syndrome null and the early-horizon
+> asset-protection finding are candidates for the v0.8-core review.
 
 ## References
 

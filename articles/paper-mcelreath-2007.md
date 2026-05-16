@@ -141,6 +141,18 @@ clade’s spatial kernel, it appears early and is washed out by 5 000
 ticks — but the signal is in `cor(exp, aggro)` specifically, not in the
 bold-aggro syndrome.
 
+**16-seed verification (2026-05-16)**: the PASS-negative hardens at
+twice the sample size. Re-ran with 16 seeds × 2000 ticks
+(`dev/audit/fidelity/paper_mcelreath_2007_16seed.rds`): mean = **−0.100
+± 0.031, t = −3.26, PASS-negative**. The mean magnitude dropped (−0.17 →
+−0.10) but the SE tightened so the verdict survives. **The
+asset-protection signal in `cor(exp, aggro)` at 2 000 ticks is a robust
+positive finding** — confirmed at twice the sample size. Candidate for
+Sergio’s v0.8-core review: clade’s spatial Wolf 2007 *does* produce an
+asset-protection signal, but it appears in `cor(exp, aggro)` at the
+early end of the time range, opposite to McElreath’s “later-peak”
+prediction.
+
 ### Trait-mean stability check
 
 `mean(exploration)` across horizons: 0.119 → 0.112 → 0.113. The
