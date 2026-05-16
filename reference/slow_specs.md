@@ -34,6 +34,19 @@ A specs list calibrated for K-strategist organisms.
 
   10000L. At gen time ~200, gives ~50 generations.
 
+- `grass_rate`:
+
+  0.10 (vs 0.05). Slightly richer environment compensates for the higher
+  `min_repro_energy` threshold.
+
+- `n_agents_init`:
+
+  100L (vs 50L). Moderate starting population for the long horizon.
+
+- `max_agents`:
+
+  500L (same as default). Standard cap.
+
 ## See also
 
 [`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md),

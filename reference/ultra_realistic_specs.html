@@ -164,8 +164,8 @@ are 5–10× below analytical limits.</p>
 
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A specs list at ecological-theory scale (N ≈ 800–1500
-equilibrium, 80 generations).</p>
+    <p>A specs list at ecological-theory scale (N ≈ 400
+equilibrium, ~80 generations).</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -174,8 +174,9 @@ equilibrium, 80 generations).</p>
 area, 4× realistic).</p></dd>
 
 <dt><code>n_agents_init</code></dt>
-<dd><p>800L. Seeded below expected equilibrium
-so the transient overshoot doesn't hit <code>max_agents</code>.</p></dd>
+<dd><p>500L. Right-sized to the ~400 equilibrium
+on the 120×120 grid (an earlier audit at 800L overshot and
+occasionally hit <code>max_agents</code>).</p></dd>
 
 <dt><code>max_agents</code></dt>
 <dd><p>5000L. Supports the larger carrying

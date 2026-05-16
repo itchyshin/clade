@@ -66,6 +66,11 @@ Key changes from
 
   30L. Standard grid.
 
+- `predator_max_age`:
+
+  100L (vs `NA`-means-same-as-prey at defaults). Predators outlive
+  30-tick prey by ~3×, matching the owl \> mouse lifespan ratio.
+
 ## See also
 
 [`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md),

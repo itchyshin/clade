@@ -17,7 +17,7 @@ ultra_realistic_specs()
 
 ## Value
 
-A specs list at ecological-theory scale (N ≈ 800–1500 equilibrium, 80
+A specs list at ecological-theory scale (N ≈ 400 equilibrium, ~80
 generations).
 
 ## Details
@@ -32,8 +32,8 @@ settings except:
 
 - `n_agents_init`:
 
-  800L. Seeded below expected equilibrium so the transient overshoot
-  doesn't hit `max_agents`.
+  500L. Right-sized to the ~400 equilibrium on the 120×120 grid (an
+  earlier audit at 800L overshot and occasionally hit `max_agents`).
 
 - `max_agents`:
 
