@@ -694,3 +694,109 @@ is a category error.
   one-line error message naming the contract instead of relying
   on `stopifnot()`'s expression-formatted output. Cosmetic; not
   worth a commit on its own.
+
+## 7/28 — `print_specs()` (2026-05-16, `claude/track-B-walk`)
+
+**TREE.** `R/utils.R:321-367`. Pretty-printer for a specs list. Two
+modes: full (every field, grouped by `.SPEC_GROUPS`) and
+`diff_only = TRUE` (only fields that `!identical()` to
+`default_specs()`). Flow: fetch defaults, copy `.SPEC_GROUPS` as the
+local `groups`, compute `other` for ungrouped fields and append it
+as an "Other" group, conditionally compute `changed`, print the
+header, loop groups → loop keys → format value (logical →
+`"TRUE"/"FALSE"`, length > 6 → `[a, b, c, d, e, f ...]`, length > 1
+→ `[…]`, else `as.character()`) → mark with `*` if changed, return
+`specs` invisibly for piping.
+
+**FOREST.** Light footprint: roxygen examples in `R/utils.R`
+itself; `vignettes/basics.Rmd` (sections 1 and 5);
+`vignettes/parameter-reference.Rmd` (the introspection table page);
+`vignettes/getting-started.Rmd` (a diff-only example in the
+introduction). **No dedicated test coverage existed pre-walk** —
+`print_specs()` was relied on only via `R CMD check`'s
+example-runner. Same Rose class as item 5's "convenience wrapper
+has no dedicated test", applied here to a more user-facing function.
+
+**TEST — coverage gap closed.** Created
+`tests/testthat/test-print-specs.R` (7 tests, 16 expectations, all
+no-Julia). The function is pure R (a `cat()`-only printer) so
+`capture.output()` is the right inspection tool. Covers:
+
+- **No-args path**: header line shape (`"-- clade specs (N
+  parameters) --"`) and invisible return of `default_specs()`.
+- **Group headers**: the four always-populated groups (Grid &
+  population, Energy & metabolism, Grass dynamics, Brain
+  architecture) appear in the output.
+- **diff_only path**: when two fields are changed
+  (`n_agents_init`, `kin_selection`), the header carries the
+  `"[diff only]"` tag, both changed fields appear with the `*`
+  marker, and unchanged fields (`grass_rate`) do *not* appear.
+- **diff_only with no changes**: prints the "(no parameters
+  differ from defaults)" message.
+- **`.SPEC_GROUPS` consumption**: a synthetic ungrouped field
+  (added via `[[ ]]` accessor — using `$_xxx` would trip the R
+  parser, the same bug that broke `test-integration.R` until
+  item 2) appears under an "Other" group header.
+- **Empty input edge case**: `print_specs(list())` produces no
+  group headers (only the header line).
+- **Invisible return**: the value returned equals the input
+  argument exactly, with no warnings or messages.
+
+Plan's two asks both verified:
+
+- **Post-#124 `.SPEC_GROUPS` consumption** — line 326
+  (`groups <- .SPEC_GROUPS`) and line 346
+  (`keys <- intersect(groups[[grp]], names(specs))`). Driven from
+  the same source of truth as `.param_table()`. Tested via the
+  Other-group and always-populated-headers paths.
+- **`diff_only = TRUE`** — line 333-339 (compute `changed` via
+  `vapply` + `identical`), line 347 (filter `keys` to `changed`),
+  line 362 (empty-changes message). Tested via the
+  changed-fields, unchanged-fields-hidden, and no-diff-message
+  paths.
+
+After the addition: `test-print-specs.R` is 16 pass; the existing
+structural drift-guards (`test-test-field-assertions.R`,
+`test-spec-groups-coverage.R`) verify they do *not* false-positive
+on the new file.
+
+**ROSE.** No new bug class. The `.SPEC_GROUPS` post-#124 design
+(introspection-driven, not hand-curated) is paying off here too:
+the function picks up new spec fields automatically as long as they
+are added to a group, and PR #129's bijection drift-guard enforces
+that they always are.
+
+Recurring class confirmation (item 5's): convenience-/utility-
+function coverage gap. After items 5 (`batch_alife` + `batch_seeds`)
+and 7 (`print_specs`), the remaining Tier-A1 candidate is item 8
+(the preset family `quick_specs / fast_specs / realistic_specs /
+ultra_realistic_specs / slow_specs / full_specs`). One audit covers
+all six because they are parallel; the same Rose risk applies and
+the same fix shape (mock + capture inspection) will work.
+
+**BIO.** `print_specs()` has no biological semantics — it is
+display infrastructure. One small editorial judgement: the `*`
+change marker (used inline with each value) plus the `"[diff only]"`
+header tag *double-signal* that the user is looking at a modified
+spec list. This is the right call for a display function that is
+also valuable on a *full* spec list — the marker is meaningful in
+both modes; the tag clarifies the viewport. Defensible.
+
+The vector-display cap at 6 elements (line 354,
+`if (length(v) > 6) sprintf("[%s ...]", paste(head(v, 6), ...))`)
+matches the same cap in `.spec_value_format()` at line 248 — two
+helpers, same convention. Consistent; no drift.
+
+**Deferred fixes (flagged for separate work):**
+
+- Sister-function doc audit: the four `S3` methods at
+  `R/utils.R:373-...` (`print.clade_env`, `summary.clade_env`,
+  plus implicit `format` / `[[.clade_env`) are not dedicated-
+  tested either. Tier-A3 candidate, not Tier-A1.
+- The cap of 6 vector elements in display is hard-coded twice
+  (`.spec_value_format()` and `print_specs()`). A
+  `.SPEC_VALUE_DISPLAY_CAP <- 6L` constant + reuse would prevent
+  drift if either site changes. Cosmetic; not worth a commit.
+- No `vignettes/basics.Rmd` change. `print_specs()` is already
+  covered in sections 1 and 5; basics.Rmd is at 173 lines (over
+  the 150-line plan target).
