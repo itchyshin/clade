@@ -334,33 +334,41 @@ here as honest findings rather than enforced.
 
 ## Critique-aware framing
 
-Two published critiques of Wolf 2007 are directly testable in clade:
+Two published critiques of Wolf 2007 are directly testable in clade.
+Both have now been audited with multi-seed regression baselines
+(2026-05-16) — and both single-seed claims that *appeared* to
+confirm the critiques **are themselves contradicted at 8 seeds**.
 
 - **Massol & Crochet (2008)** Nature 451:doi:10.1038/nature06744 —
-  argue the dimorphism depends critically on β (the trade-off shape).
-  Tested in `vignette("paper-massol-crochet-2008")` (added 0.7.x).
-  The bold-aggro syndrome strength varies by ~0.4 in correlation
-  units across β ∈ [0.5, 3.0]; peak at Wolf's published value 1.25.
-  The critique is partially borne out.
+  argue the dimorphism depends critically on β (the trade-off
+  shape). Tested in `vignette("paper-massol-crochet-2008")`. The
+  single-seed sweep suggested syndrome peaks at Wolf's published
+  β = 1.25 (+0.307). At 8 seeds × 5 β values, **β = 1.25 is the
+  trough** (−0.077, marginal-negative); no β value produces a
+  robust positive syndrome. Range across β shrinks from single-seed
+  0.39 to multi-seed 0.13. The β-sensitivity claim survives; the
+  "peak at Wolf's β" claim is contradicted.
 - **McElreath, Luttbeg, Fogarty, Brodin & Sih (2007)** Nature
   450:doi:10.1038/nature06326 — argue asset protection is a
-  *negative-feedback* mechanism that erodes individual differences over
-  time. Tested in `vignette("paper-mcelreath-2007")` (added 0.7.x).
-  The bold-aggro syndrome peaks at +0.307 around 5 000 ticks then
-  decays to +0.032 by 15 000 ticks. The critique is strongly borne
-  out: Wolf's headline correlation is a transient phenomenon at the
-  simulation length he reports.
+  *negative-feedback* mechanism that erodes individual differences
+  over time. Tested in `vignette("paper-mcelreath-2007")`. The
+  single-seed trajectory "+0.307 at 5 000 ticks decaying to +0.032
+  at 15 000" was a noise-envelope landing. At 8 seeds × 3 horizons,
+  bold-aggro is null at every horizon (−0.075, −0.077, +0.034) —
+  there's no peak to decay from. Surprise positive finding:
+  `cor(exp, aggro)` at 2 000 ticks **PASSes negative** (t = −4.12),
+  opposite to McElreath's "later-peak" framing.
 
-> **Caveat (2026-05-16)**: both critique-aware vignettes are
-> single-seed at present. The Multi-seed verification above shows
-> the bold-aggro syndrome is null at 8 seeds × 5000 ticks (mean
-> −0.057 ± 0.091), so the "+0.307 at 5 000 ticks" reference in the
-> McElreath bullet is itself a single-seed observation that doesn't
-> survive multi-seed scrutiny at the same scale. Both critique
-> vignettes would benefit from multi-seed rds upgrades —
-> `dev/audit/fidelity/paper_mcelreath_2007.R` and
-> `paper_massol_crochet_2008.R` are flagged as deferred work in
-> the corresponding `dev/audit/vignette-review/` entries.
+> **Cumulative multi-seed verdict** across all three Wolf 2007
+> reproductions in clade (`paper-wolf2007`,
+> `paper-massol-crochet-2008`, `paper-mcelreath-2007`): the
+> boldness-aggressiveness syndrome does NOT robustly emerge at any
+> (β, time-horizon) combination tested. All seed-42 +0.307 single-
+> seed observations were noise-envelope landings on the positive
+> tail. Both critique vignettes' *apparent confirmations* dissolved
+> with the rds upgrade. The Wolf 2007 spatial reproduction does
+> not currently support the bold-aggro syndrome claim in clade's
+> kernel; flagged as a candidate finding for the v0.8-core review.
 
 ## References
 
