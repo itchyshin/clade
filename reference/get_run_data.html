@@ -170,18 +170,40 @@ into a list of two tidy data frames:</p><ul><li><p><code>$ticks</code> – one r
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A list with components:</p><dl><dt><code>$ticks</code></dt>
-<dd><p>A data frame with one row per logged tick and columns:
-<code>t</code>, <code>n_agents</code>, <code>n_births</code>, <code>n_deaths</code>, <code>n_starvations</code>,
+<dd><p>A data frame with one row per logged tick and ~60
+population-level columns. Core columns always present: <code>t</code>,
+<code>n_agents</code>, <code>n_births</code>, <code>n_deaths</code>, <code>n_starvations</code>,
 <code>n_age_deaths</code>, <code>mean_energy</code>, <code>sd_energy</code>, <code>mean_age</code>, <code>sd_age</code>,
 <code>mean_body_size</code>, <code>sd_body_size</code>, <code>genetic_diversity</code>, <code>n_species</code>,
+<code>grass_coverage</code>. Module-specific columns are present as zeros
+when the corresponding module is disabled (so the data frame
+shape is stable across specs), including
 <code>mean_cooperation_level</code>, <code>mean_immune_strength</code>, <code>sd_immune_strength</code>,
 <code>mean_metabolic_rate</code>, <code>mean_learning_rate</code>, <code>mean_prior_sigma</code>
-(BNN only), <code>grass_coverage</code>, <code>n_infected</code>, <code>n_new_infections</code>,
-<code>n_altruistic_acts</code>, <code>n_shelters_built</code>.</p></dd>
+(BNN only), <code>n_infected</code>, <code>n_new_infections</code>, <code>n_altruistic_acts</code>,
+<code>n_shelters_built</code>, <code>n_predators</code>, <code>n_prey_killed</code>, <code>n_juveniles</code>,
+<code>n_helpers</code>, <code>mean_signal_magnitude</code>, <code>mean_preference_magnitude</code>,
+<code>mean_signal_preference_dist</code>, <code>sd_signal_magnitude</code>,
+<code>mean_toxicity</code>, <code>mean_plasticity</code>, <code>mean_helper_tendency</code>,
+<code>mean_habitat_preference</code>, <code>mean_brain_size</code>, <code>n_ground_agents</code>,
+<code>n_shrub_agents</code>, <code>n_canopy_agents</code>, <code>mean_wing_size</code>,
+<code>n_front_agents</code>, <code>mean_front_dispersal</code>, <code>n_iffolk_transfers</code>,
+<code>mean_relatedness</code>, <code>n_scavenge_events</code>, <code>n_gd_events</code>,
+<code>mean_shelter_depth</code>, <code>mean_mutation_rate</code>, <code>mean_clutch_size</code>,
+<code>mean_ann_weight_magnitude</code>. The authoritative full list is in
+<code>inst/julia/src/logging.jl::_init_progress</code>; use
+<code>colnames(get_run_data(env)$ticks)</code> to see every column for a
+specific run.</p></dd>
 
 <dt><code>$deaths</code></dt>
 <dd><p>A data frame with one row per agent death and columns:
 <code>id</code>, <code>t</code>, <code>age</code>, <code>energy</code>, <code>cause</code>, <code>body_size</code>, <code>num_offspring</code>.</p></dd>
+
+<dt><code>$genomes</code></dt>
+<dd><p>A long data frame with one row per (tick, agent) and
+columns <code>t</code>, <code>agent_id</code>, <code>trait_1</code>..<code>trait_N</code>. <code>NULL</code> unless
+<code>specs$log_genomes = TRUE</code> was set for the run. Consumed by
+<code><a href="plot_tsne_genomes.html">plot_tsne_genomes()</a></code>.</p></dd>
 
 
 </dl></div>

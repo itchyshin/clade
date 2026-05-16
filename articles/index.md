@@ -2,6 +2,8 @@
 
 ### Overview
 
+- [Basics — five minutes to a clade
+  run](https://itchyshin.github.io/clade/articles/basics.md):
 - [Why clade?](https://itchyshin.github.io/clade/articles/why-clade.md):
 - [Biological Scenarios: A Discovery
   Guide](https://itchyshin.github.io/clade/articles/scenarios.md):
