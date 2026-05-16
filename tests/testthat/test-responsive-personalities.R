@@ -36,6 +36,27 @@ test_that("wolf2008_responsiveness_specs() returns a valid spec list", {
   expect_true("responsiveness_cost"      %in% names(s))
 })
 
+# Pin every value documented in the roxygen `@details` table so future
+# drift between docstring and code is caught immediately. Same pattern as
+# `test-presets.R`'s "documented values match code" block (Phase A item 8).
+test_that("wolf2008_responsiveness_specs() documented values match code", {
+  s <- wolf2008_responsiveness_specs()
+  expect_true(s$responsive_personalities)
+  expect_equal(s$responsiveness_cost, 0.1)  # calibrated below default's 0.4
+  expect_equal(s$grid_rows,           30L)
+  expect_equal(s$grid_cols,           30L)
+  expect_equal(s$n_agents_init,       200L)
+  expect_equal(s$max_agents,          800L)
+  expect_equal(s$max_ticks,           3000L)
+  expect_equal(s$ploidy,              1L)
+})
+
+test_that("wolf2008_responsiveness_specs() does not mutate default_specs()", {
+  baseline <- default_specs()
+  invisible(wolf2008_responsiveness_specs())
+  expect_identical(default_specs(), baseline)
+})
+
 test_that("responsive_personalities defaults to FALSE in default_specs()", {
   expect_false(default_specs()$responsive_personalities)
 })

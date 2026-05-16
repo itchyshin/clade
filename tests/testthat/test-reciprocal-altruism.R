@@ -47,6 +47,28 @@ test_that("trivers_reciprocity_specs() returns a valid spec list", {
   expect_true("reciprocity_radius" %in% names(s))
 })
 
+# Pin every value documented in the roxygen `@details` table so future
+# drift between docstring and code is caught immediately. Same pattern as
+# `test-presets.R`'s "documented values match code" block (Phase A item 8).
+test_that("trivers_reciprocity_specs() documented values match code", {
+  s <- trivers_reciprocity_specs()
+  expect_true(s$reciprocal_altruism)
+  expect_equal(s$max_age,             500L)
+  expect_false(s$dispersal_evolution)
+  expect_equal(s$grid_rows,           30L)
+  expect_equal(s$grid_cols,           30L)
+  expect_equal(s$n_agents_init,       200L)
+  expect_equal(s$max_agents,          800L)
+  expect_equal(s$max_ticks,           2000L)
+  expect_equal(s$ploidy,              1L)
+})
+
+test_that("trivers_reciprocity_specs() does not mutate default_specs()", {
+  baseline <- default_specs()
+  invisible(trivers_reciprocity_specs())
+  expect_identical(default_specs(), baseline)
+})
+
 test_that("reciprocal_altruism defaults to FALSE in default_specs()", {
   expect_false(default_specs()$reciprocal_altruism)
 })

@@ -1126,3 +1126,139 @@ choice for typical N=5–8 per condition.
   the `df` column would help. Cosmetic; not worth a commit.
 - No `vignettes/basics.Rmd` change. Section 5 already points to
   paper-* vignettes which use the sweep/report pair.
+
+## 11 + 12 + 13/28 — paper-preset family (2026-05-16, `claude/track-B-tier-A2`)
+
+Covers `wolf_personality_specs()`, `trivers_reciprocity_specs()`,
+`wolf2008_responsiveness_specs()` (all in `R/scenarios.R`) as a
+single audit because the three functions share a structural
+pattern: each takes `default_specs()`, enables one paper's module
+flag, and sets a small set of paper-calibrated parameters.
+
+**TREE.** Three parallel functions, each ~10-15 lines of
+`s$<field> <- <value>` assignments:
+
+- `wolf_personality_specs()` (`R/scenarios.R:229-242`): sets
+  `personality_syndrome = TRUE`, `min_repro_energy = 1e9`
+  (the "disable standard repro" trick — only Wolf's age-
+  windowed reproduction fires), `min_repro_age = 0L`,
+  `max_age = 999L` (defer death control to the personality
+  module), 30×30 grid, `n_agents_init = 60L`, `max_agents =
+  500L`, `max_ticks = 2000L`, `ploidy = 1L`.
+- `trivers_reciprocity_specs()` (`R/scenarios.R:292-304`): sets
+  `reciprocal_altruism = TRUE`, `max_age = 500L` (Trivers
+  condition 1: long lifespan for repeat encounters),
+  `dispersal_evolution = FALSE` (Trivers condition 2: low
+  dispersal), 30×30 grid, `n_agents_init = 200L` (higher
+  density for adjacency encounters), `max_agents = 800L`,
+  `max_ticks = 2000L`, `ploidy = 1L`.
+- `wolf2008_responsiveness_specs()` (`R/scenarios.R:351-366`):
+  sets `responsive_personalities = TRUE`, `responsiveness_cost
+  = 0.1` (calibrated below default's 0.4 so populations don't
+  collapse during evolution), 30×30 grid, `n_agents_init =
+  200L`, `max_agents = 800L`, `max_ticks = 3000L`, `ploidy =
+  1L`.
+
+All three use **`ploidy = 1L`** (haploid asexual) — for cleaner
+trait dynamics when testing whether a behavioural trait evolves,
+unmuddied by sexual recombination's heritability noise.
+
+**FOREST.** Six files reference the trio: each has a dedicated
+test file (`test-personality-syndrome.R`,
+`test-reciprocal-altruism.R`, `test-responsive-personalities.R`),
+plus the matching paper-* vignettes (`paper-wolf2007.Rmd`,
+`paper-trivers1971.Rmd`, `paper-wolf2008.Rmd`) and README/NEWS
+references.
+
+**TEST — docstring-to-code bijection pinned for all three.**
+Each preset had a smoke test that verified the enable flag and
+2–3 key invariants (ploidy = 1L, year-window relations,
+long-lifespan check) but did NOT pin every value listed in the
+roxygen `@details` table:
+
+| Preset | Roxygen items | Smoke-test coverage |
+|---|---|---|
+| `wolf_personality_specs` | 9 | 3 (enable, ploidy, min_repro_energy ≥ 1e8) |
+| `trivers_reciprocity_specs` | 8 | 4 (enable, ploidy, max_age ≥ 100, dispersal_evolution) |
+| `wolf2008_responsiveness_specs` | 8 | 2 (enable, ploidy) |
+
+For each of the three test files, I added two new `test_that`
+blocks (matching `test-presets.R`'s pattern from Phase A item 8):
+
+1. **"documented values match code"** — `expect_equal()` on
+   every field listed in the roxygen `@details` table. Catches
+   any future roxygen-vs-code drift immediately. This is
+   forward-leaning protection: the smoke tests assert the
+   *important* invariants (enable flag, year-window ordering,
+   ploidy); these new tests pin the *exhaustive* documented
+   contract.
+2. **"does not mutate default_specs()"** — calling the preset
+   does not change `default_specs()`. Rules out a future
+   shared-reference bug if anyone refactors to `<<-`.
+
+After the additions (no new test files; +9 tests across the
+three existing files):
+
+| File | Pre-walk | Post-walk |
+|---|---|---|
+| `test-personality-syndrome.R` | 1 smoke test (12 expectations) | 3 (22 expectations) |
+| `test-reciprocal-altruism.R` | 1 smoke test (7 expectations) | 3 (18 expectations) |
+| `test-responsive-personalities.R` | 1 smoke test (5 expectations) | 3 (15 expectations) |
+
+No bugs found. All three roxygen `@details` tables match the
+code exactly — unlike `ultra_realistic_specs()` from item 8
+(which had `n_agents_init = 800L` documented but `500L` in
+code), the paper presets are honest.
+
+**ROSE.** Recurrence of items 5, 7, 8, 9 "convenience wrapper
+has no dedicated test." Now closed for the entire `R/scenarios.R`
+preset family — the three paper presets join the six regular
+presets (`quick_specs`, `fast_specs`, etc.) with pinned
+documented-values coverage. Together they exhaust the
+Tier A1 + Tier A2 surface for this Rose class. The forward-
+leaning protection means future preset additions will need to
+follow the same "pin everything in the roxygen table" test
+pattern; the existing test files in the same scenario module
+serve as templates.
+
+No new ROSE class surfaced. The paper presets are well-
+designed: one clear pattern (enable + paper-calibrated
+overrides), one tradeoff (ploidy = 1L for cleaner trait
+dynamics), and one creative trick (Wolf 2007's `min_repro_energy
+= 1e9` to disable standard reproduction).
+
+**BIO.** All three preset choices are paper-defensible:
+
+- **Wolf 2007**: `min_repro_energy = 1e9` disables clade's
+  standard energy-triggered reproduction so only Wolf's
+  age-windowed (year1 / year2) reproduction fires. `max_age =
+  999L` defers death control to the personality module
+  (year-2 reproduction kills the parent). `ploidy = 1L`
+  matches Wolf's basic model (Methods §"Basic model"). The
+  diploid quantitative-genetics extension (Wolf's Fig 4) can
+  be enabled by setting `ploidy = 2L` per the docstring's
+  recommendation.
+- **Trivers 1971**: `max_age = 500L` (long lifespan for repeat
+  encounters — Trivers condition 1), `dispersal_evolution =
+  FALSE` (low dispersal so partners stay nearby — Trivers
+  condition 2), `n_agents_init = 200L` for higher Moore-
+  neighborhood adjacency. The reciprocity radius defaults to 1
+  (Moore neighborhood, set in `default_specs()`).
+- **Wolf 2008**: `responsiveness_cost = 0.1` (calibrated below
+  default 0.4 so populations don't collapse during the trait-
+  evolution period; headline mechanism is preserved either
+  way — see docstring). 30×30 grid with `n_agents_init = 200L`
+  density-22% is high enough for responsiveness's frequency-
+  dependent cost to bite.
+
+**Deferred fixes (flagged for separate work):**
+
+- None this item. The three preset functions are clean — no
+  documented-vs-code mismatches, no missing-field bugs, no
+  Rose patterns to flag. The forward-leaning tests added here
+  are the structural fix; the audit is the writeup.
+- The "two functions encode the same concept with different
+  thresholds" class from items 9+10 (sweep's `crashed < 10`
+  vs viability_report's `crashed_frac = 0.2 + min_n = 20L`)
+  is still flagged for a future doc polish; not addressed
+  here.
