@@ -99,7 +99,7 @@ content instantly — a manifest unrealism.
 0.3.x — agents stripped a cell entirely each tick. The fidelity audit
 flagged this as one of ten kernel rules that diverged from both
 ancestor implementations (MATLAB Bulitko 2023; alifeR R port). Restored
-in 0.4.0. See `dev/docs/kernel-0.4.0.md` for the full reasoning.
+in 0.4.0. See [`dev/docs/kernel-0.4.0.md`](https://github.com/itchyshin/clade/blob/main/dev/docs/kernel-0.4.0.md) for the full reasoning.
 
 **Variants worth considering.** Real animals' bite size scales with body
 mass (larger animals take bigger bites). A future kernel change could

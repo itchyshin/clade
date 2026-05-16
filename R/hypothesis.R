@@ -41,8 +41,7 @@
 #'   `crashed` metric when you want a per-condition extinction count.
 #' @param n_cores Integer. Passed to [batch_alife()]. Set as close as
 #'   possible to `length(conditions) * length(seeds)` to keep each
-#'   worker on one run (subject to your machine's compute limits —
-#'   see CLAUDE.md for per-machine caps).
+#'   worker on one run, subject to `parallel::detectCores()`.
 #' @param verbose Logical. Passed to [batch_alife()] (default FALSE).
 #'
 #' @return An S3 object of class `"hypothesis_sweep"` — a list with:

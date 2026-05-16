@@ -27,7 +27,7 @@
 #'     biased every clade simulation prior to 0.7.0 (earlier-array
 #'     agents systematically had first access to foraging, mates, free
 #'     cells, and prey). Only set FALSE to reproduce pre-0.7.0 results.
-#'     See `dev/docs/consolidation-audit.md` for the full ancestor diff.}
+#'     See [`dev/docs/consolidation-audit.md`](https://github.com/itchyshin/clade/blob/main/dev/docs/consolidation-audit.md) for the full ancestor diff.}
 #'   \item{`n_agents_init`}{Integer. Number of agents at tick 0 (default 50).}
 #'   \item{`max_agents`}{Integer. Hard cap on live agents; new offspring are
 #'     rejected if this is exceeded (default 500).}
@@ -850,7 +850,7 @@
 #'     of predator attack success reduced under maximum grouping
 #'     (default 0.3). 2026-04-17 audit found the population-level effect
 #'     inverts Hamilton 1971 at all tested values — see
-#'     `dev/audit/fidelity/group_defense_strength_sweep.R`.}
+#'     [`dev/audit/fidelity/group_defense_strength_sweep.R`](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/group_defense_strength_sweep.R).}
 #' }
 #'
 #' ## Habitat preference (ideal free distribution)
@@ -1693,8 +1693,8 @@ full_specs <- function() {
 #' The timescale calibration is based on the MATLAB ancestor's
 #' parameters (Bulitko 2023), which ran ~40x faster generations than
 #' clade's defaults because agents started at reproduction energy with
-#' short `minReproductionAge`. See `dev/docs/timescale-analysis.md` for
-#' the full analysis.
+#' short `minReproductionAge`. See [`dev/docs/timescale-analysis.md`](https://github.com/itchyshin/clade/blob/main/dev/docs/timescale-analysis.md)
+#' for the full analysis.
 #'
 #' @details
 #' Key changes from `default_specs()`:

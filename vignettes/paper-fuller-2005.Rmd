@@ -82,8 +82,8 @@ carry.
 | **Fisher runaway**  | C_tp > 0: signal-preference covariance grows under preference mating vs drift | ❌ direction-wrong — 0.6.4 wired `mate_choice_mode`, test now runs but signal and preference are independently inherited, so C_tp can't build up (see below) |
 | **Sensory bias** sensu Ryan 1990 | β_N shaped preference first; signal later exploits it | ⚠️ half implemented (0.6.5) — `preference_bias_target` + `preference_bias_strength` install pre-existing bias on preferences, but signal response blocked by same linkage gap as Fisher. See [`paper-ryan-1990`](paper-ryan-1990.html). |
 
-0.6.2 (PR #106) added three Fuller-framework metrics to the tick
-log — `mean_preference_magnitude`, `mean_signal_preference_dist`
+0.6.2 added three Fuller-framework metrics to the tick log —
+`mean_preference_magnitude`, `mean_signal_preference_dist`
 (proxy for −C_tp), `sd_signal_magnitude` (V_t). 0.6.3 adds the
 Zahavi-leg kernel field `signal_cost_mortality`. This vignette
 reports what the new machinery can and cannot test.

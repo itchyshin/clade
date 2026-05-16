@@ -43,8 +43,7 @@ when you want the interpretability-gate; use the sweep's
 
 \item{n_cores}{Integer. Passed to \code{\link[=batch_alife]{batch_alife()}}. Set as close as
 possible to \code{length(conditions) * length(seeds)} to keep each
-worker on one run (subject to your machine's compute limits —
-see CLAUDE.md for per-machine caps).}
+worker on one run, subject to \code{parallel::detectCores()}.}
 
 \item{verbose}{Logical. Passed to \code{\link[=batch_alife]{batch_alife()}} (default FALSE).}
 }

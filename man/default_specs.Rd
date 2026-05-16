@@ -38,7 +38,7 @@ lost in the alifeR R port and inherited as a regression by clade.
 biased every clade simulation prior to 0.7.0 (earlier-array
 agents systematically had first access to foraging, mates, free
 cells, and prey). Only set FALSE to reproduce pre-0.7.0 results.
-See \code{dev/docs/consolidation-audit.md} for the full ancestor diff.}
+See \href{https://github.com/itchyshin/clade/blob/main/dev/docs/consolidation-audit.md}{\code{dev/docs/consolidation-audit.md}} for the full ancestor diff.}
 \item{\code{n_agents_init}}{Integer. Number of agents at tick 0 (default 50).}
 \item{\code{max_agents}}{Integer. Hard cap on live agents; new offspring are
 rejected if this is exceeded (default 500).}
@@ -908,7 +908,7 @@ neighbourhood).}
 of predator attack success reduced under maximum grouping
 (default 0.3). 2026-04-17 audit found the population-level effect
 inverts Hamilton 1971 at all tested values — see
-\code{dev/audit/fidelity/group_defense_strength_sweep.R}.}
+\href{https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/group_defense_strength_sweep.R}{\code{dev/audit/fidelity/group_defense_strength_sweep.R}}.}
 }
 }
 
