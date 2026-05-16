@@ -27,6 +27,14 @@ variance.}
 \item{\verb{$note}}{Character. A reminder that this is a proxy and that an
 exact estimate requires parent-offspring logging.}
 }
+
+Note that clade also exports \code{\link[=heritability_estimate]{heritability_estimate()}} — a different
+function that computes h^2 by parent-offspring regression on
+\code{get_run_data(env)$deaths} (the agent-death log), and so requires that
+agents have died with recorded \code{parent_id} and the trait of interest.
+\code{estimate_heritability()} is the population-level autocorrelation proxy
+(works on any logged trait series); \code{heritability_estimate()} is the
+individual-level regression (requires the deaths data frame).
 }
 \description{
 \code{estimate_heritability()} returns a coarse estimate of narrow-sense
@@ -56,5 +64,6 @@ Falconer, D.S. & Mackay, T.F.C. (1996) \emph{Introduction to Quantitative
 Genetics}, 4th ed. Longman, Harlow.
 }
 \seealso{
-\code{\link[=get_run_data]{get_run_data()}}, \code{\link[=compute_ld]{compute_ld()}}, \code{\link[=species_tree]{species_tree()}}
+\code{\link[=heritability_estimate]{heritability_estimate()}} for the parent-offspring regression
+approach. \code{\link[=get_run_data]{get_run_data()}}, \code{\link[=compute_ld]{compute_ld()}}, \code{\link[=species_tree]{species_tree()}}.
 }

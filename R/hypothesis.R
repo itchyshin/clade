@@ -30,6 +30,15 @@
 #'   length-one scalar (numeric or logical). Defaults collect
 #'   `final_n` (mean n_agents over the last 500 ticks) and `crashed`
 #'   (a logical — whether n_agents fell below 10 at run end).
+#'   Note: this `crashed` flag is *intentionally different* from
+#'   [viability_report()]'s `verdict == "crashed"`. The sweep's
+#'   `crashed` answers "did the population effectively go extinct?"
+#'   (absolute floor of 10 agents); `viability_report()`'s `crashed`
+#'   answers "is the run interpretable?" (fractional floor of
+#'   `crashed_frac = 0.2` plus the configurable `min_n = 20L` absolute
+#'   floor with a flat-population bypass). Use `viability_report()`
+#'   when you want the interpretability-gate; use the sweep's
+#'   `crashed` metric when you want a per-condition extinction count.
 #' @param n_cores Integer. Passed to [batch_alife()]. Set as close as
 #'   possible to `length(conditions) * length(seeds)` to keep each
 #'   worker on one run (subject to your machine's compute limits —

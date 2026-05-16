@@ -141,11 +141,12 @@ of structural fixes that came out of recurring per-instance findings.
 #### 4. Biology consistency check
 
 - Does the change respect biological plausibility?
-- One agent per cell (`max_agents_per_cell = 1L`) is the default. If your
-  change *entrenches* multi-occupancy ("we'll just ignore the second agent
-  on this cell"), flag it. If respecting one-per-cell would require a
-  larger grid for the biology to be sensible, say so explicitly — that is
-  the right answer, not a problem to work around.
+- The **one-agent-per-cell rule** (enforced in
+  `inst/julia/src/movement.jl`, not a tunable knob) is the default. If
+  your change *entrenches* multi-occupancy ("we'll just ignore the
+  second agent on this cell"), flag it. If respecting one-per-cell
+  would require a larger grid for the biology to be sensible, say so
+  explicitly — that is the right answer, not a problem to work around.
 - Does the parameter set used in any new test or vignette remain
   biologically defensible (lifespans, energy budgets, mutation rates
   plausible for the modelled organism)?
