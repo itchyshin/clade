@@ -41,4 +41,4 @@ Same "mechanism vs equilibrium" honest-split as Fuller 2005's Zahavi-leg-PASS vs
 ## Deferred fixes
 
 - **Cross-vignette gap**: per-resource competition denominator (also flagged in Fuller 2005). Future kernel feature.
-- **Worth doing**: multi-seed rds upgrade.
+- **Script written, rds pending compute**: `dev/audit/fidelity/paper_wolf2008.R` is now ready (8 seeds × 2 conditions × 2000 ticks → 16 runs). Run via `Rscript dev/audit/fidelity/paper_wolf2008.R`. ~10-15 min wall-clock with healthy Julia. The contrast is on-vs-off (responsiveness module enabled vs disabled). Once the rds lands, this vignette graduates from "minimum framing" to "ideal" Phase B pattern.

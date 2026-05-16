@@ -42,4 +42,4 @@ All four are biologically defensible per Trivers' original argument.
 
 ## Deferred fixes
 
-- **Worth doing**: create `dev/audit/fidelity/paper_trivers1971.R` + rds with multi-seed sweep over dispersal rates. ~15 min compute. Upgrades this from "minimum" to "ideal" Phase B pattern.
+- **Script written, rds pending compute**: `dev/audit/fidelity/paper_trivers1971.R` is now ready (8 seeds × 4 dispersal cells × 5000 ticks → 32 runs). Run it via `Rscript dev/audit/fidelity/paper_trivers1971.R` to generate the rds. ~15-20 min wall-clock with healthy Julia. Once the rds lands, this vignette graduates from "minimum framing" to "ideal" Phase B pattern.
