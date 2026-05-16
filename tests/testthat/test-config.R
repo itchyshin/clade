@@ -153,7 +153,11 @@ test_that("male_repro_cost defaults to 0.3", {
   expect_equal(default_specs()$male_repro_cost, 0.3)
 })
 
-# ── 20. senescence_shape defaults to 2.0 ─────────────────────────────────────
-test_that("senescence_shape defaults to 2.0", {
-  expect_equal(default_specs()$senescence_shape, 2.0)
+# ── 20. senescence_shape defaults to 1.0 (classic Gompertz) ──────────────────
+# PR #116 (`feat(0.7.x): wire senescence_shape`) changed the default from
+# 2.0 → 1.0 with the docstring update "Default 1.0 = classic Gompertz",
+# but this test was not updated alongside it and has been failing silently
+# since 0.7.x. Found during the Phase A item-1 walk of default_specs().
+test_that("senescence_shape defaults to 1.0 (classic Gompertz)", {
+  expect_equal(default_specs()$senescence_shape, 1.0)
 })

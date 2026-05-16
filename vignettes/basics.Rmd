@@ -1,0 +1,75 @@
+---
+title: "Basics — five minutes to a clade run"
+author: "Shinichi Nakagawa"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Basics — five minutes to a clade run}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment  = "#>",
+  eval     = FALSE
+)
+```
+
+## What this vignette is for
+
+The shortest path from a fresh install to a clade run you can read.
+Five short sections, each anchored on one of the four core functions
+(`default_specs()`, `run_alife()`, `get_run_data()`, `plot_run()`) and
+a closing pointer to the deeper material. If you want narrative motivation,
+the architectural picture, or the lab vision behind clade, read
+`vignette("getting-started")` first; this vignette assumes you just
+want a working run.
+
+> This vignette is built incrementally across the Phase A foundation
+> walk (`~/.claude/plans/purring-honking-dove.md`, items 1–4). Each
+> Tier-A0 audit contributes one section; the file becomes complete
+> when item 4 (`plot_run()`) lands.
+
+## 1. Start from `default_specs()`
+
+`default_specs()` is the single source of truth for every parameter
+clade understands. It takes no arguments and returns a named list of
+~300 fields with sensible defaults — sparse 30 × 30 grid, 50 starting
+agents, 500-tick run, BNN brain, diploid sex, no optional modules
+(no disease, no kin selection, no predators, etc.). The discipline
+across the codebase is *always* copy from `default_specs()` and
+modify the copy; never hand-build a specs list from scratch, because
+new modules add fields over time and you would miss them.
+
+```{r}
+library(clade)
+
+specs <- default_specs()       # the canonical starting list
+specs$n_agents_init <- 100L    # one common change
+specs$max_ticks     <- 200L    # another
+specs$random_seed   <- 42L     # reproducibility
+```
+
+To see what changed from defaults, use `print_specs(specs, diff_only
+= TRUE)`. To see every parameter grouped by biological theme, use
+`print_specs(specs)` (no arguments needed). To see what biological
+modules are off-by-default (the opt-in design), look at
+`vignette("parameter-reference")` or read the field-by-field roxygen
+in `?default_specs`.
+
+## 2. Run the simulation with `run_alife()`
+
+*(Filled by Phase A item 2.)*
+
+## 3. Extract the run with `get_run_data()`
+
+*(Filled by Phase A item 3.)*
+
+## 4. Plot the run with `plot_run()`
+
+*(Filled by Phase A item 4.)*
+
+## 5. What next?
+
+*(Filled by Phase A item 4.)*
