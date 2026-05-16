@@ -1,0 +1,176 @@
+# Heavyweight reproduction harness: run every paper-fidelity script
+# from dev/audit/fidelity/paper_*.R in parallel and upload each rds
+# as an artifact.
+#
+# Triggered manually via `workflow_dispatch` only. Each script takes
+# 10-25 min wall-clock (multi-seed simulation with the Julia kernel)
+# and the matrix runs them concurrently, so the full workflow finishes
+# in roughly the time of the slowest single paper plus ~5 min of
+# Julia setup overhead.
+#
+# Not for every-PR use — these are *reproduction* runs, intended to
+# regenerate the rds baselines that the multi-seed paper-* vignettes
+# cite. Typical cadence: after a kernel change lands, or before a
+# release, or to refresh stale rds.
+#
+# Modelled on the pigauto cross-dataset benchmark pattern (matrix of
+# slow per-target jobs + an aggregate report job).
+
+name: fidelity-matrix
+
+on:
+  workflow_dispatch:
+    inputs:
+      papers:
+        description: 'Comma-separated paper stubs (e.g. "wolf2007,trivers1971"), or "all" for the full set'
+        default: 'all'
+        required: false
+
+permissions: read-all
+
+jobs:
+  fidelity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    strategy:
+      fail-fast: false  # one script failing shouldn't abort the others
+      matrix:
+        paper:
+          - dieckmann_doebeli_1999
+          - emlen_1982
+          - fuller_2005
+          - griesser_2023
+          - massol_crochet_2008
+          - mcelreath_2007
+          - reale_2010
+          - ryan_1990
+          - trivers1971
+          - wolf2007
+          - wolf2008
+
+    name: paper_${{ matrix.paper }}
+
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      R_KEEP_PKG_SOURCE: yes
+      NOT_CRAN: true
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Honour the workflow_dispatch input: skip this matrix entry if
+      # the user listed a subset of papers and ours isn't in it. The
+      # job still appears in the run summary (no way to dynamically
+      # build a matrix from inputs in GHA) but exits quickly.
+      - name: Skip if not in requested subset
+        id: subset
+        run: |
+          REQUESTED="${{ github.event.inputs.papers }}"
+          if [[ "$REQUESTED" == "all" || -z "$REQUESTED" ]]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          elif [[ ",$REQUESTED," == *",${{ matrix.paper }},"* ]]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Paper ${{ matrix.paper }} not in requested subset '$REQUESTED'; skipping."
+          fi
+
+      - uses: julia-actions/setup-julia@v2
+        if: steps.subset.outputs.run == 'true'
+        with:
+          version: '1.10'
+
+      - uses: r-lib/actions/setup-r@v2
+        if: steps.subset.outputs.run == 'true'
+        with:
+          r-version: 'release'
+          use-public-rspm: true
+
+      - name: Install system dependencies
+        if: steps.subset.outputs.run == 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libcurl4-openssl-dev libssl-dev libxml2-dev \
+                                  libfontconfig1-dev libharfbuzz-dev \
+                                  libfribidi-dev libfreetype6-dev \
+                                  libpng-dev libtiff5-dev libjpeg-dev
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        if: steps.subset.outputs.run == 'true'
+        with:
+          extra-packages: |
+            any::devtools
+            any::JuliaConnectoR
+            any::jsonlite
+
+      - name: Run fidelity script for paper_${{ matrix.paper }}
+        if: steps.subset.outputs.run == 'true'
+        run: |
+          Rscript dev/audit/fidelity/paper_${{ matrix.paper }}.R
+
+      - name: Upload rds artifact
+        if: steps.subset.outputs.run == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: fidelity-paper_${{ matrix.paper }}
+          path: dev/audit/fidelity/paper_${{ matrix.paper }}*.rds
+          retention-days: 30
+          if-no-files-found: warn
+
+  aggregate:
+    needs: fidelity
+    if: always()  # run even if some matrix entries failed
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: 'release'
+          use-public-rspm: true
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: dev/audit/fidelity/_downloaded
+          pattern: fidelity-paper_*
+          merge-multiple: true
+
+      - name: Summarise per-paper headline metrics
+        run: |
+          Rscript -e '
+            options(crayon.enabled = FALSE)
+            rds_files <- list.files("dev/audit/fidelity/_downloaded",
+                                    pattern = "\\.rds$",
+                                    full.names = TRUE)
+            if (length(rds_files) == 0L) {
+              cat("No fidelity rds artifacts downloaded — every job failed.\n")
+              quit(status = 1L)
+            }
+            cat("=== Fidelity matrix headlines ===\n")
+            cat(sprintf("Reproduced %d / 11 paper scripts.\n\n", length(rds_files)))
+            for (f in sort(rds_files)) {
+              cat(sprintf("--- %s ---\n", basename(f)))
+              x <- tryCatch(readRDS(f), error = function(e) NULL)
+              if (is.null(x)) { cat("  (failed to read)\n"); next }
+              # Print top-level structure + first few entries of any "aggregate"
+              # or "report"-shaped fields.
+              cat("  fields:", paste(names(x), collapse = ", "), "\n")
+              for (nm in c("aggregate", "report", "report_tendency",
+                           "best_cell", "fit_pref", "fit_sig")) {
+                if (nm %in% names(x)) {
+                  cat(sprintf("  %s:\n", nm))
+                  print(x[[nm]])
+                }
+              }
+              cat("\n")
+            }
+          '
+
+      - name: Upload aggregate summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: fidelity-aggregate-summary
+          path: dev/audit/fidelity/_downloaded/
+          retention-days: 30
