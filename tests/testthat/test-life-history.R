@@ -1,9 +1,12 @@
 # Tests for life history trait parameters.
 #
-# Covers: life_history, senescence_rate, repro_senescence, max_age,
-#         life_history_evolution, allee_threshold.
-# min_repro_age is NOT yet in default_specs() — that test will fail and
-# document what needs to be added to config.R.
+# Covers: life_history, senescence_rate, senescence_shape, max_age,
+#         allee_threshold, min_repro_age.
+#
+# Drift-cleanup (2026-05-16, claude/drift-guard-sweep): removed stale
+# assertions on `repro_senescence` and `life_history_evolution`, both of
+# which were deleted from `default_specs()` by the spec-wiring audit
+# (PR #114, NEWS 0.7.1) but had assertions surviving here.
 
 library(testthat)
 
@@ -35,17 +38,9 @@ test_that("senescence_rate is non-negative", {
   expect_gte(default_specs()$senescence_rate, 0.0)
 })
 
-# ── 6. repro_senescence is present and defaults to 0.0 ───────────────────────
-test_that("repro_senescence is present and defaults to 0.0", {
-  s <- default_specs()
-  expect_true("repro_senescence" %in% names(s))
-  expect_equal(s$repro_senescence, 0.0)
-})
-
-# ── 7. repro_senescence is non-negative ──────────────────────────────────────
-test_that("repro_senescence is non-negative", {
-  expect_gte(default_specs()$repro_senescence, 0.0)
-})
+# ── 6. (removed; tested repro_senescence — deleted from default_specs() by ──
+#         the spec-wiring audit, NEWS 0.7.1) ────────────────────────────────
+# ── 7. (removed; same) ───────────────────────────────────────────────────────
 
 # ── 8. max_age is present and is integer-like ────────────────────────────────
 test_that("max_age is present and is integer-like", {
@@ -60,12 +55,8 @@ test_that("max_age is strictly positive", {
   expect_gt(default_specs()$max_age, 0L)
 })
 
-# ── 10. life_history_evolution is present and defaults to FALSE ───────────────
-test_that("life_history_evolution is present and defaults to FALSE", {
-  s <- default_specs()
-  expect_true("life_history_evolution" %in% names(s))
-  expect_false(s$life_history_evolution)
-})
+# ── 10. (removed; tested life_history_evolution — deleted from default_specs()
+#         by the spec-wiring audit, NEWS 0.7.1) ──────────────────────────────
 
 # ── 11. allee_threshold is present and defaults to 0 ─────────────────────────
 test_that("allee_threshold is present and defaults to 0", {
@@ -75,7 +66,8 @@ test_that("allee_threshold is present and defaults to 0", {
 })
 
 # ── 12. min_repro_age is present in default_specs() ──────────────────────────
-# NOTE: not yet implemented — test documents what is needed.
+# Added to default_specs() in config.R at line ~1590 (`min_repro_age = 0L`);
+# the "NOT yet implemented" note that used to live here is stale.
 test_that("min_repro_age is present in default_specs()", {
   expect_true("min_repro_age" %in% names(default_specs()))
 })
@@ -101,26 +93,22 @@ test_that("max_age defaults to 200L and is integer", {
   expect_true(is.integer(s$max_age))
 })
 
-# ── 16. repro_senescence defaults to 0.0 ─────────────────────────────────────
-test_that("repro_senescence defaults to 0.0 (identical check)", {
-  expect_identical(default_specs()$repro_senescence, 0.0)
-})
-
-# ── 17. life_history_evolution defaults to FALSE ─────────────────────────────
-test_that("life_history_evolution defaults to FALSE (identical check)", {
-  expect_identical(default_specs()$life_history_evolution, FALSE)
-})
+# ── 16. (removed; tested repro_senescence — deleted from default_specs()) ───
+# ── 17. (removed; tested life_history_evolution — deleted from default_specs()) ─
 
 # ── 18. senescence_rate defaults to 0.0 ──────────────────────────────────────
 test_that("senescence_rate defaults to 0.0 (identical check)", {
   expect_identical(default_specs()$senescence_rate, 0.0)
 })
 
-# ── 19. senescence_shape defaults to 2.0 ─────────────────────────────────────
-test_that("senescence_shape defaults to 2.0", {
+# ── 19. senescence_shape defaults to 1.0 (classic Gompertz) ──────────────────
+# PR #116 changed the default from 2.0 → 1.0 with the docstring update
+# ("Default 1.0 = classic Gompertz"); this assertion was stale too — same
+# bug as test-config.R:156, fixed in Phase A item 1 (commit 20837bd).
+test_that("senescence_shape defaults to 1.0 (classic Gompertz)", {
   s <- default_specs()
   expect_true("senescence_shape" %in% names(s))
-  expect_identical(s$senescence_shape, 2.0)
+  expect_identical(s$senescence_shape, 1.0)
 })
 
 # ── 20. life_history params round-trip through default_specs() ───────────────
@@ -129,9 +117,8 @@ test_that("life_history params round-trip through default_specs()", {
   expect_equal(s$life_history,           "iteroparous")
   expect_equal(s$max_age,                200L)
   expect_equal(s$senescence_rate,        0.0)
-  expect_equal(s$repro_senescence,       0.0)
-  expect_equal(s$life_history_evolution, FALSE)
-  expect_equal(s$senescence_shape,       2.0)
+  expect_equal(s$senescence_shape,       1.0)
+  expect_equal(s$min_repro_age,          0L)
 })
 
 # ── 21. semelparous run completes and n_births > 0 somewhere ─────────────────
@@ -205,23 +192,10 @@ test_that("max_age = 50L: mean_age never exceeds 50 at any tick", {
   }
 })
 
-# ── 24. repro_senescence = 0.01 run completes without error ──────────────────
-test_that("repro_senescence = 0.01 run completes without error", {
-  skip_if_not(requireNamespace("JuliaConnectoR", quietly = TRUE),
-              "JuliaConnectoR not available")
-  skip_if_not(JuliaConnectoR::juliaSetupOk(),
-              "Julia toolchain not available")
-  s <- default_specs()
-  s$grid_rows       <- 10L
-  s$grid_cols       <- 10L
-  s$n_agents_init   <- 10L
-  s$max_agents      <- 60L
-  s$max_ticks       <- 15L
-  s$repro_senescence <- 0.01
-  s$random_seed     <- 42L
-  expect_no_error(env <- run_alife(s, verbose = FALSE))
-  expect_true(is.list(env))
-})
+# ── 24. (removed; tested repro_senescence — deleted from default_specs(),
+#         and setting it silently no-ops since Julia ignores unknown fields.
+#         senescence dynamics are now covered by senescence_rate tests #4/#5
+#         and Julia-level senescence_shape tests in test-aging-rate.R.) ─────
 
 # ── 25. semelparous repro_cost is high relative to normal reproduction ────────
 test_that("semelparous repro_cost >= iteroparous repro_cost in default_specs", {
