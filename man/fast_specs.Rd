@@ -20,8 +20,8 @@ mimicry, mating systems, dispersal evolution, etc.).
 The timescale calibration is based on the MATLAB ancestor's
 parameters (Bulitko 2023), which ran ~40x faster generations than
 clade's defaults because agents started at reproduction energy with
-short \code{minReproductionAge}. See \code{dev/docs/timescale-analysis.md} for
-the full analysis.
+short \code{minReproductionAge}. See \href{https://github.com/itchyshin/clade/blob/main/dev/docs/timescale-analysis.md}{\code{dev/docs/timescale-analysis.md}}
+for the full analysis.
 
 Key changes from \code{default_specs()}:
 \describe{

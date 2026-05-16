@@ -474,7 +474,7 @@ search (`clade::search_cmaes`, driven by the harness under
 [`dev/audit/calibration/`](https://github.com/itchyshin/clade/tree/main/dev/audit/calibration))
 against the objective "negative slope of `mean_prior_sigma`" — i.e.
 reward any parameter regime that makes σ *narrow*. Full writeup at
-[`dev/audit/calibration/RESULTS.md`](https://github.com/itchyshin/clade/blob/main/dev/audit/calibration/RESULTS.md).
+[[`dev/audit/calibration/RESULTS.md`](https://github.com/itchyshin/clade/blob/main/dev/audit/calibration/RESULTS.md)](https://github.com/itchyshin/clade/blob/main/dev/audit/calibration/RESULTS.md).
 
 The search found a regime that does produce canalization:
 

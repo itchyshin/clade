@@ -322,7 +322,7 @@ search_map_elites <- function(specs_base,
 #'   1L). Uses [parallel::makeCluster()] PSOCK workers (one R session +
 #'   Julia per worker) when `> 1`. Was `parallel::mclapply` before 0.5.6
 #'   but that path silently deadlocked because JuliaConnectoR is not
-#'   fork-safe — see `dev/docs/parallelism-audit.md`.
+#'   fork-safe.
 #' @param verbose Logical (default `TRUE`).
 #'
 #' @return A list with:

@@ -19,7 +19,7 @@ navbar:
   components:
     intro:
       text: "Get Started"
-      href: articles/getting-started.html
+      href: articles/basics.html
     papers:
       text: "Paper reproductions"
       menu:
@@ -55,6 +55,8 @@ navbar:
     articles:
       text: "Guides"
       menu:
+        - text: "Basics — five minutes to a clade run"
+          href: articles/basics.html
         - text: "Why clade?"
           href: articles/why-clade.html
         - text: "Getting started"
@@ -356,8 +358,6 @@ reference:
 
   - title: "Hypothesis testing"
     desc: >
-      Helpers for the sweep->test->report workflow common in
-      fidelity audits and paper reproductions.
       Helpers for the sweep->test->report workflow used in fidelity
       audits and paper reproductions. See
       `vignette("paper-kokko-brooks-2003")` for a worked example.
@@ -400,7 +400,7 @@ reference:
   - title: "Scenario objectives"
     desc: >
       Pre-built objective functions for the complex landscape, spatial
-      sorting, and IFfolk modules. Pass to `search_cmaes()` or write
+      sorting, and iffolk modules. Pass to `search_cmaes()` or write
       your own with the same signature.
     contents:
       - objective_complex_landscape

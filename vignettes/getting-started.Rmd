@@ -224,9 +224,9 @@ demographic or ecological phenomenon that unfolds within a single
 generation (predator-prey cycles, disease spread, seasonal grass
 dynamics), `default_specs()` is fine.
 
-See `dev/docs/timescale-analysis.md` for the biological reference
-table (E. coli through elephant) and the full MATLAB-ancestor
-comparison that motivated these presets.
+See [`dev/docs/timescale-analysis.md`](https://github.com/itchyshin/clade/blob/main/dev/docs/timescale-analysis.md)
+for the biological reference table (E. coli through elephant) and
+the full MATLAB-ancestor comparison that motivated these presets.
 
 ---
 

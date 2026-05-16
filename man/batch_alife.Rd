@@ -13,8 +13,8 @@ batch_alife(specs_list, n_cores = 1L, verbose = FALSE)
 \item{n_cores}{Integer. Number of R worker processes to use (default 1L).
 Each worker pays a ~60 s Julia compile cost on its first run; for
 batches smaller than ~20 scenarios, serial may be faster. For 50+
-scenarios, the speedup is near-linear in \code{n_cores} (capped by
-available cores; see CLAUDE.md for this machine's 200-core cap).}
+scenarios, the speedup is near-linear in \code{n_cores}, capped by
+\code{parallel::detectCores()}.}
 
 \item{verbose}{Logical. Print progress (default \code{FALSE} for batch mode).}
 }
@@ -33,7 +33,7 @@ separate R process with its own Julia session.
 The PSOCK approach (0.5.6 default) replaces an earlier
 \code{\link[parallel:mclapply]{parallel::mclapply()}} path that silently deadlocked: forked R
 workers shared the parent's JuliaConnectoR socket and all blocked
-on the same Julia server. See \code{dev/docs/parallelism-audit.md}.
+on the same Julia server.
 }
 \examples{
 \dontrun{

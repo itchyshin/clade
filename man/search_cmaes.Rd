@@ -35,7 +35,7 @@ optimise. Defaults to \code{c("grass_rate", "mutation_sd")}.}
 1L). Uses \code{\link[parallel:makeCluster]{parallel::makeCluster()}} PSOCK workers (one R session +
 Julia per worker) when \verb{> 1}. Was \code{parallel::mclapply} before 0.5.6
 but that path silently deadlocked because JuliaConnectoR is not
-fork-safe — see \code{dev/docs/parallelism-audit.md}.}
+fork-safe.}
 
 \item{verbose}{Logical (default \code{TRUE}).}
 }
