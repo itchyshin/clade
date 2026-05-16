@@ -51,7 +51,7 @@ data <- get_run_data(env)
 plot_run(data)
 ```
 
-```{r fig-baseline, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: six-panel run summary showing population dynamics, mean energy, genetic diversity, births/deaths, grass coverage, and BNN sigma."}
+```{r fig-baseline, eval=TRUE, echo=FALSE, out.width="100%", fig.alt = "six-panel run summary showing population dynamics", fig.cap="Expected output: six-panel run summary showing population dynamics, mean energy, genetic diversity, births/deaths, grass coverage, and BNN sigma."}
 FIG("01_run_dashboard")
 ```
 

@@ -133,7 +133,7 @@ ggplot(df, aes(t, mean_brain_size, colour = condition)) +
   theme_minimal()
 ```
 
-```{r fig-brain-size, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Two-panel demo at brain_size_cost_scale = 5.0 (5 seeds × 500 ticks). Top: mean brain size — with parental care brains are maintained ~3-5% larger. Bottom: population size — care sustains ~20% more agents because provisioned newborns survive the neonatal energy deficit. The population panel shows the clearest visual separation."}
+```{r fig-brain-size, eval=TRUE, echo=FALSE, out.width="100%", fig.alt = "Two-panel demo at brain_size_cost_scale = 5.0 (5 seeds × 500 ticks). Top", fig.cap="Two-panel demo at brain_size_cost_scale = 5.0 (5 seeds × 500 ticks). Top: mean brain size — with parental care brains are maintained ~3-5% larger. Bottom: population size — care sustains ~20% more agents because provisioned newborns survive the neonatal energy deficit. The population panel shows the clearest visual separation."}
 FIG("brain_size")
 ```
 

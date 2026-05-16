@@ -85,7 +85,7 @@ s$isolation_threshold            <- 0.5127
 s$mutation_sd                    <- 1.31
 # env <- run_alife(s)   # uncomment to run the calibrated regime
 ```
-```{r fig-18-speciation, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: n_species rises from 1 to 2-4 as genome divergence accumulates beyond the isolation threshold. Each step in the staircase represents a speciation event."}
+```{r fig-18-speciation, eval=TRUE, echo=FALSE, out.width="100%", fig.alt = "n_species rises from 1 to 2-4 as genome divergence accumulates beyond the isolation threshold", fig.cap="Expected output: n_species rises from 1 to 2-4 as genome divergence accumulates beyond the isolation threshold. Each step in the staircase represents a speciation event."}
 FIG("18_speciation")
 ```
 

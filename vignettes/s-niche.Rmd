@@ -87,7 +87,7 @@ s$shelter_decay_prob             <- 0.0624
 s$grass_rate                     <- 1
 # env <- run_alife(s)   # uncomment to run the calibrated regime
 ```
-```{r fig-niche, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: shelter density builds up over time; predator kill rate is lower in sheltered cells, sustaining a larger population than an equivalent run without niche construction."}
+```{r fig-niche, eval=TRUE, echo=FALSE, out.width="100%", fig.alt = "shelter density builds up over time; predator kill rate is lower in sheltered cells", fig.cap="Expected output: shelter density builds up over time; predator kill rate is lower in sheltered cells, sustaining a larger population than an equivalent run without niche construction."}
 FIG("09_niche")
 ```
 

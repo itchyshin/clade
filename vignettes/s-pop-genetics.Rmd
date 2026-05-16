@@ -67,7 +67,7 @@ plot(data$ticks$t, data$ticks$mean_body_size, type = "l",
      main = "Body size evolution (proxy for heritable response)")
 ```
 
-```{r fig-pop-genetics, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="The mean body-size trajectory whose lag-1 autocorrelation proxies narrow-sense heritability. A high lag-1 value (>0.9) is consistent with strong parent-offspring resemblance; it is not a direct replacement for a parent-offspring regression slope."}
+```{r fig-pop-genetics, eval=TRUE, echo=FALSE, out.width="100%", fig.alt = "The mean body-size trajectory whose lag-1 autocorrelation proxies narrow-sense heritability", fig.cap="The mean body-size trajectory whose lag-1 autocorrelation proxies narrow-sense heritability. A high lag-1 value (>0.9) is consistent with strong parent-offspring resemblance; it is not a direct replacement for a parent-offspring regression slope."}
 FIG("population_genetics")
 ```
 

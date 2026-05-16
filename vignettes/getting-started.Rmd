@@ -128,7 +128,7 @@ print(env)
 #> clade_env  [500 ticks | 193 agents | genetic_diversity: 0.319]
 ```
 
-```{r fig-run-dashboard, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="plot_run() produces a six-panel dashboard: population size, mean energy (±SD ribbon), genetic diversity, births and deaths per tick, grass coverage, and BNN prior sigma."}
+```{r fig-run-dashboard, eval=TRUE, echo=FALSE, out.width="100%", fig.alt = "plot_run() produces a six-panel dashboard", fig.cap="plot_run() produces a six-panel dashboard: population size, mean energy (±SD ribbon), genetic diversity, births and deaths per tick, grass coverage, and BNN prior sigma."}
 FIG("01_run_dashboard")
 ```
 

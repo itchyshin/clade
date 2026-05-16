@@ -138,7 +138,7 @@ ggplot(data$ticks, aes(t)) +
   theme_minimal()
 ```
 
-```{r fig-spatial-sorting, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Habitat preference evolution at fast_specs() (5 seeds × 2000 ticks = 66 generations). Mean preference drifts upward from 0 to +0.018 as agents that prefer rich cells out-compete those that do not. Signal 18× stronger than default specs. Consistent with IFD (Fretwell & Lucas 1970)."}
+```{r fig-spatial-sorting, eval=TRUE, echo=FALSE, out.width="100%", fig.alt = "Habitat preference evolution at fast_specs() (5 seeds × 2000 ticks = 66 generations). Mean", fig.cap="Habitat preference evolution at fast_specs() (5 seeds × 2000 ticks = 66 generations). Mean preference drifts upward from 0 to +0.018 as agents that prefer rich cells out-compete those that do not. Signal 18× stronger than default specs. Consistent with IFD (Fretwell & Lucas 1970)."}
 FIG("05_dispersal")
 ```
 
@@ -178,7 +178,7 @@ ggplot(data$ticks, aes(x = t, y = mean_habitat_preference)) +
   theme_classic(base_size = 12)
 ```
 
-```{r fig-habitat-pref, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: mean habitat preference rises from zero toward positive values as selection favours individuals that concentrate near high-grass cells, consistent with ideal free distribution theory."}
+```{r fig-habitat-pref, eval=TRUE, echo=FALSE, out.width="100%", fig.alt = "mean habitat preference rises from zero toward positive values as selection favours individuals", fig.cap="Expected output: mean habitat preference rises from zero toward positive values as selection favours individuals that concentrate near high-grass cells, consistent with ideal free distribution theory."}
 FIG("16_habitat_preference")
 ```
 

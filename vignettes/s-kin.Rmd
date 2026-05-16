@@ -156,7 +156,7 @@ the clearest theoretical signal in clade's scenario suite to date.
 The prior CMA-ES-calibrated suggestion of `C = 14, B = 143` would
 give the same rB/C = 2.55 but at much higher energy scales; direct
 Hamilton tuning via the C×B grid is more interpretable.
-```{r fig-kin-selection, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: kin-selection population (blue) is sustained at higher mean density than the baseline (red). Altruistic acts per tick (bottom) are highest when resources are tight and related neighbours are present."}
+```{r fig-kin-selection, eval=TRUE, echo=FALSE, out.width="100%", fig.alt = "kin-selection population (blue) is sustained at higher mean density than the baseline (red).", fig.cap="Expected output: kin-selection population (blue) is sustained at higher mean density than the baseline (red). Altruistic acts per tick (bottom) are highest when resources are tight and related neighbours are present."}
 FIG("07_kin_selection")
 ```
 
@@ -181,7 +181,7 @@ plot(data$ticks$t, data$ticks$mean_helper_tendency, type = "l",
      main = "Helper tendency evolves under IFfolk + parliament suppression")
 ```
 
-```{r fig-iffolk, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: mean helper tendency rises over time as cooperative genotypes increase in frequency. Parliament suppression accelerates convergence."}
+```{r fig-iffolk, eval=TRUE, echo=FALSE, out.width="100%", fig.alt = "mean helper tendency rises over time as cooperative genotypes increase in frequency", fig.cap="Expected output: mean helper tendency rises over time as cooperative genotypes increase in frequency. Parliament suppression accelerates convergence."}
 FIG("20_cooperative_breeding")
 ```
 

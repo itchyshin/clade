@@ -108,7 +108,7 @@ s$transmission_prob              <- 0.9001
 s$disease_death_prob             <- 5e-04
 # env <- run_alife(s)   # uncomment to run the calibrated regime
 ```
-```{r fig-disease, eval=TRUE, echo=FALSE, out.width="100%", fig.cap="Expected output: epidemic wave visible as a peak in the infected count (top). Population size declines noticeably during the outbreak (bottom)."}
+```{r fig-disease, eval=TRUE, echo=FALSE, out.width="100%", fig.alt = "epidemic wave visible as a peak in the infected count (top). Population size declines noticeably", fig.cap="Expected output: epidemic wave visible as a peak in the infected count (top). Population size declines noticeably during the outbreak (bottom)."}
 FIG("06_disease")
 ```
 
