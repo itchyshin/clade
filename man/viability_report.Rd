@@ -66,6 +66,14 @@ the specific crash trajectory rather than by any evolutionary
 signal. This utility codifies the "check n_final before trusting
 trait-mean effects" rule into a reusable check.
 }
+\note{
+\code{\link[=hypothesis_sweep]{hypothesis_sweep()}}'s default \code{crashed} metric uses a
+\emph{different} threshold (absolute floor of 10 agents at run end)
+for a \emph{different} question. Use \code{viability_report()} to gate
+interpretability (Hamilton-rule-style "is this trait mean
+meaningful?"); use the sweep's \code{crashed} metric to count
+per-condition extinctions in a sweep summary.
+}
 \examples{
 \dontrun{
 env  <- run_alife(fast_specs())
@@ -76,13 +84,6 @@ if (vr$verdict == "crashed") {
   warning("crash-driven result; trait means are unreliable")
 }
 }
-
-Note: [hypothesis_sweep()]'s default `crashed` metric uses a
-*different* threshold (absolute floor of 10 agents at run end)
-for a *different* question. Use `viability_report()` to gate
-interpretability (Hamilton-rule-style "is this trait mean
-meaningful?"); use the sweep's `crashed` metric to count
-per-condition extinctions in a sweep summary.
 
 }
 \seealso{
