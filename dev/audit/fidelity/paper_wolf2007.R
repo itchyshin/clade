@@ -45,9 +45,12 @@ cat("=== Wolf 2007: personality-syndrome 8-seed reproduction ===\n")
 cat(sprintf("Seeds: 1..8\nTicks per run: %d\nTotal runs: %d\n",
             base$max_ticks, length(spec_list)))
 
-cat("Running 8 simulations (this takes ~20-25 min)...\n")
+cat("Running 8 simulations (this takes ~15-25 min serial)...\n")
 t_start <- Sys.time()
-envs <- batch_alife(spec_list, n_cores = 8L, verbose = FALSE)
+# n_cores = 1L: serial via lapply, no PSOCK workers (which require
+# `library(clade)` available globally — works only if clade is
+# installed, not when using devtools::load_all()).
+envs <- batch_alife(spec_list, n_cores = 1L, verbose = FALSE)
 elapsed <- difftime(Sys.time(), t_start, units = "mins")
 cat(sprintf("Done. Elapsed: %.1f min.\n", as.numeric(elapsed)))
 
