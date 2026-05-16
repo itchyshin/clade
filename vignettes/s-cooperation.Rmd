@@ -16,7 +16,7 @@ FIG <- function(name, ...) {
 }
 ```
 
-### Cooperative breeding and public goods
+## Cooperative breeding and public goods
 
 **What it models.** When `cooperation_evolution = TRUE`, each agent carries a
 heritable cooperation tendency trait that determines its contribution to a local
@@ -122,7 +122,7 @@ regime. Above M ≈ 2.5, population saturates at the cap:
 FIG("08_cooperation")
 ```
 
-### Discovery experiments
+## Discovery experiments
 
 The baseline result confirms that cooperation is favoured when the multiplier exceeds the cost-benefit threshold, and spatial clustering accelerates the transition. To go beyond:
 

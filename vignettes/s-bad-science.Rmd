@@ -16,7 +16,7 @@ FIG <- function(name, ...) {
 }
 ```
 
-### Evolution of bad science
+## Evolution of bad science
 
 **What it models.** A pure-R simulation (no Julia required) of Smaldino &
 McElreath (2016). Each of `n_labs` labs has two heritable traits: research
@@ -93,7 +93,7 @@ Three take-aways:
 2. **Strong replication works** (rr = 0.5): FPR stays at baseline levels, effort holds near its initial value. Replication culture can discipline research norms when the penalty is real and sampling is frequent.
 3. **Weak replication is worse than none** (rr = 0.1): FPR overshoots no-replication. This is a finding of this model that S&M did not report — possibly because our discrete-time sampling introduces noise that, at low replication rates, pushes selection below the threshold needed to discriminate effort. It is listed as discovery experiment 1 below.
 
-### Discovery experiments
+## Discovery experiments
 
 The baseline reproduces S&M 2016 qualitatively: bad science evolves when
 unchecked, strong replication disciplines it. Open questions to explore:

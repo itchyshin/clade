@@ -16,7 +16,7 @@ FIG <- function(name, ...) {
 }
 ```
 
-### Stress hypermutation — the SOS response
+## Stress hypermutation — the SOS response
 
 **What it models.** In bacteria, severe DNA damage or prolonged resource
 depletion triggers the SOS response: a suite of error-prone polymerases that
@@ -86,7 +86,7 @@ ggplot(plot_df, aes(x = t, y = genetic_diversity, colour = condition)) +
 ```
 
 
-### Calibrated regime (CMA-ES discovered)
+## Calibrated regime (CMA-ES discovered)
 
 Running Phase 7 auto-calibration (`dev/audit/calibration/`) over the
 scenario's parameter subspace discovered the following regime, which
@@ -117,7 +117,7 @@ threshold, or after a resource crash. The `stress_mutation_sd_multiplier = 5.0` 
 ensures that when stress IS active, mutations are an order of magnitude larger than
 baseline — this is the intended regime for observing the SOS-response analogue.
 
-### Discovery experiments
+## Discovery experiments
 
 The baseline result shows that stress hypermutation transiently elevates genetic diversity during resource crashes and accelerates adaptive recovery. To go beyond:
 

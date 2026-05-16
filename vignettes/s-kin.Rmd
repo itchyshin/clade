@@ -16,7 +16,7 @@ FIG <- function(name, ...) {
 }
 ```
 
-### Kin selection and cooperative social structure
+## Kin selection and cooperative social structure
 
 **What it models.** Agents can transfer energy to nearby relatives via two mechanisms: Hamilton's pedigree-based kin altruism (`kin_selection = TRUE`) and the IFfolk model (`iffolk_selection = TRUE`), which adds parliamentary enforcement of cooperative norms (Fromhage & Jennions 2019).
 
@@ -146,7 +146,7 @@ holds; the invasion dynamic requires kin-weighted fitness
 accounting that the current kernel does not instantiate.
 
 
-### Calibrated regime (CMA-ES — superseded by direct Hamilton test)
+## Calibrated regime (CMA-ES — superseded by direct Hamilton test)
 
 The 2026-04-15 audit directly varied `C` and `B` across a 9-cell
 grid and found population size tracks `rB/C` with Spearman
@@ -197,7 +197,7 @@ adding explicit helper roles (`helper_tendency`); run the code above and monitor
 their presence reduces per-capita starvation mortality relative to the cooperation-only
 baseline.
 
-### Discovery experiments
+## Discovery experiments
 
 The baseline results confirm that Hamilton's rule operates: altruistic acts accumulate and population size is sustained at higher density than baseline. To go beyond:
 

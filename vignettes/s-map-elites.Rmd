@@ -16,7 +16,7 @@ FIG <- function(name, ...) {
 }
 ```
 
-### MAP-Elites: Discovering Diverse Worlds {#section-33}
+## MAP-Elites: Discovering Diverse Worlds {#section-33}
 
 Quality-Diversity (QD) algorithms search for a collection of high-performing
 solutions that are also behaviourally diverse, rather than converging on a

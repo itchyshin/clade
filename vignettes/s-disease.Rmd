@@ -16,7 +16,7 @@ FIG <- function(name, ...) {
 }
 ```
 
-### SIR disease
+## SIR disease
 
 **What it models.** A Susceptible-Infected-Recovered epidemic model, as
 formalised by Kermack & McKendrick (1927). Infected agents pay an energy
@@ -94,7 +94,7 @@ replenish susceptibles and immunity wanes after
 open population.
 
 
-### Calibrated regime (CMA-ES discovered)
+## Calibrated regime (CMA-ES discovered)
 
 Running Phase 7 auto-calibration (`dev/audit/calibration/`) over the
 scenario's parameter subspace discovered the following regime, which
@@ -112,7 +112,7 @@ s$disease_death_prob             <- 5e-04
 FIG("06_disease")
 ```
 
-### Discovery experiments
+## Discovery experiments
 
 The baseline result shows epidemic peaks in `n_infected`, population dips during outbreaks, and recovery as immunity builds. To go beyond:
 

@@ -16,7 +16,7 @@ FIG <- function(name, ...) {
 }
 ```
 
-### Where to live and when to move
+## Where to live and when to move
 
 **What it models.** Three related but distinct mechanisms govern where agents end up on the grid and how that pattern changes over time.
 
@@ -99,7 +99,7 @@ Spatial sorting (the Shine et al. 2011 companion test):
 0.261 ± 0.053`, Δ = **+0.012** (2 seeds). PASS in sign; the
 front-to-rear dispersal gradient is real but noisy.
 
-### Spatial sorting
+## Spatial sorting
 
 **What it models.** At an expanding invasion front, high-dispersal individuals
 co-occur with other high-dispersal individuals through spatial assortment
@@ -196,7 +196,7 @@ movement module, selection cannot act on it. The `n_habitat_moves = 0` result co
 that the habitat-preference movement pathway is not active in the current tick. The
 3,418 dispersal events are ANN-driven random movement, not preference-driven migration.
 
-### Non-toroidal grid and the invasion front
+## Non-toroidal grid and the invasion front
 
 **What it models.** Spatial sorting requires a defined invasion front — a direction of expansion — which does not exist on the default toroidal grid where all positions are topologically equivalent. Setting `toroidal = FALSE` creates a linear habitat with hard boundaries: agents at the right edge cannot wrap to the left. Initialising agents at the left quarter of the grid creates an expanding population whose high-dispersal genotypes accumulate at the frontier (Shine et al. 2011; Phillips et al. 2008).
 
@@ -240,7 +240,7 @@ ggplot(data, aes(x = t)) +
 
 **Expected output.** `mean_front_dispersal` should diverge above `mean_rear_dispersal` within 50–100 ticks as high-dispersal genotypes surf the wave. On a toroidal grid both lines remain identical (all cells are topologically equivalent). The divergence confirms that the mechanism is geometric, not fitness-based.
 
-### Discovery experiments
+## Discovery experiments
 
 The merged results confirm that dispersal evolves in response to local competition, spatial sorting concentrates high-dispersal genotypes at invasion fronts, and habitat preference evolves toward grass-rich patches. To go beyond:
 
