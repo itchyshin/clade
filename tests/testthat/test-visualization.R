@@ -291,6 +291,38 @@ test_that("plot_map() returns a ggplot when colour_by = 'age'", {
   expect_s3_class(p, "ggplot")
 })
 
+# Cover the two remaining colour_by options (body_size and species), so all
+# four match.arg branches are exercised. Phase A item 20 addition.
+test_that("plot_map() returns a ggplot when colour_by = 'body_size'", {
+  env <- .mock_env(rows = 10L, cols = 10L, n_agents = 3L)
+  for (i in seq_along(env$agents)) {
+    env$agents[[i]]$age        <- 5L
+    env$agents[[i]]$body_size  <- 0.5 + i * 0.3   # vary across agents
+    env$agents[[i]]$species_id <- 1L
+  }
+  p <- plot_map(env, colour_by = "body_size")
+  expect_s3_class(p, "ggplot")
+})
+
+test_that("plot_map() returns a ggplot when colour_by = 'species'", {
+  env <- .mock_env(rows = 10L, cols = 10L, n_agents = 4L)
+  for (i in seq_along(env$agents)) {
+    env$agents[[i]]$age        <- 5L
+    env$agents[[i]]$body_size  <- 1.0
+    env$agents[[i]]$species_id <- ((i - 1L) %% 2L) + 1L  # 2 species
+  }
+  p <- plot_map(env, colour_by = "species")
+  expect_s3_class(p, "ggplot")
+})
+
+test_that("plot_map() rejects an unknown colour_by", {
+  env <- .mock_env(rows = 5L, cols = 5L, n_agents = 1L)
+  env$agents[[1L]]$age        <- 1L
+  env$agents[[1L]]$body_size  <- 1.0
+  env$agents[[1L]]$species_id <- 1L
+  expect_error(plot_map(env, colour_by = "ghost"))
+})
+
 # ── 19. plot_tsne_genomes() — no Julia needed ─────────────────────────────────
 
 test_that("plot_tsne_genomes() returns a placeholder ggplot when genomes is NULL", {

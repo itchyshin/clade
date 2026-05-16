@@ -1262,3 +1262,226 @@ dynamics), and one creative trick (Wolf 2007's `min_repro_energy
   vs viability_report's `crashed_frac = 0.2 + min_n = 20L`)
   is still flagged for a future doc polish; not addressed
   here.
+
+# Tier A3
+
+## 14 + 15 + 16 + 17/28 — analysis helpers (2026-05-16, `claude/track-B-tier-A3`)
+
+Combined walk of four small analysis functions in `R/analysis.R`:
+`get_genome_data()`, `estimate_heritability()`, `compute_ld()`,
+`compute_relatedness()`. They share a structural pattern (each is
+a thin pure-R helper on top of `run_alife()`'s output) and are
+walked together to avoid bloating the audit log.
+
+**TREE.**
+
+- `get_genome_data()` (`R/analysis.R:86-94`): returns
+  `{genomes, heterozygosity, fst}` where `$genomes` is the
+  output of `.compose_genome_dataframe(env$genome_log)` (the
+  post-#115 long-data-frame conversion shared with
+  `get_run_data()`). `$heterozygosity` and `$fst` are honest
+  `numeric(0L)` placeholders for documented future work
+  (Weir & Cockerham 1984 cited in `@references`).
+- `estimate_heritability()` (`R/analysis.R:193`): computes a
+  coarse heritability estimate as lag-1 autocorrelation of the
+  population mean trait time series. Returns
+  `{h2, method, trait, n, note}` with the note explicitly
+  flagging this as a *proxy*, not an exact parent-offspring
+  regression.
+- `compute_ld()` (`R/analysis.R:268-281`): explicit stub
+  returning `{ld = NULL, note = "...not yet implemented..."}`.
+  Real LD computation requires per-tick genome matrices
+  (`log_genomes = TRUE`) and is documented as pending.
+- `compute_relatedness(id_a, id_b, env)` (`R/analysis.R:787`):
+  pedigree-based relatedness coefficient. Returns 1.0 for
+  same id, 0.5 for parent-offspring, 0.25 for full siblings,
+  0 otherwise. Matches Hamilton's-rule coefficients used by
+  the kin-selection module.
+
+**FOREST.** All four functions are R-only, no Julia. Production
+callers: `R/run.R::run_alife` calls `get_run_data` (which itself
+calls `.compose_genome_dataframe`); `R/visualization.R` plots
+sometimes call `estimate_heritability` and `compute_ld` for
+panel content; `R/analysis.R` itself has `compute_relatedness`
+called from `inspect_brain` warnings. Vignettes: ~5 use
+`estimate_heritability`; ~3 use `compute_relatedness`.
+
+**TEST.** Strong existing coverage; **no new tests added**.
+
+| Function | Test file | Test count |
+|---|---|---|
+| `get_genome_data` | `test-analysis.R`, `test-run-data.R`, `test-log-genomes.R` | 12 tests (basic, NULL-safe, Julia round-trip) |
+| `estimate_heritability` | `test-analysis.R` | 9 tests (returns h2 in [-1,1] for body_size + immune_strength, error paths, flat-series NA, < 3 ticks NA, named-elements completeness) |
+| `compute_ld` | `test-analysis.R` | 1 test (stub contract: `$ld = NULL`, `$note` non-empty character) |
+| `compute_relatedness` | `test-genome-analysis.R` | 5 tests (same-id → 1.0, parent-offspring → 0.5, full-siblings → 0.25, unrelated → 0, errors on bad env) |
+
+**ROSE.** One new (mild) class surfaced:
+
+- **"Two exported functions with similar names for the same
+  concept, different methodology."** `estimate_heritability()`
+  (R/analysis.R:193, lag-1 autocorrelation of population mean,
+  trait default `"body_size"`, input `run_data`) and
+  `heritability_estimate()` (R/analysis.R:690, parent-offspring
+  regression from `$deaths`, trait default `"num_offspring"`,
+  input `data`) are *two distinct functions*. Different
+  methodology, different inputs, swapped name order. Risk: a
+  user reading `?estimate_heritability` may not discover
+  `heritability_estimate` (and vice versa); a user writing
+  `estimate_heritability` autocompletes to the wrong one and
+  doesn't notice the swapped argument. Mitigation candidates:
+  (a) document each in the other's `@seealso`; (b) rename one
+  (riskier — breaks vignette code); (c) merge into one
+  `heritability(method = c("lag1", "parent_offspring"))` with
+  the methods as a parameter. (a) is the surgical option;
+  flagged for a future doc polish, not addressed here.
+
+**BIO.** All four functions are biologically defensible:
+
+- `get_genome_data()`: separates genome data from tick stats —
+  right call for opt-in expensive logging.
+- `estimate_heritability()`: explicit "proxy, not exact"
+  framing in the `$note` field. Defensible for evolutionary-
+  dynamics dashboards (trait under stabilising/directional
+  selection at moderate generation overlap). Falconer & Mackay
+  (1996) cited.
+- `compute_ld()`: honest stub. Better than fake numbers.
+  Lewontin & Kojima (1960) cited.
+- `compute_relatedness()`: pedigree-based coefficients match
+  Hamilton's rule. The 0.5 / 0.25 / 0 boundary is the standard
+  for an asexual or panmictic-haploid setting; clade's diploid
+  with recombination would give continuous r values, but
+  pedigree-only is fine as a Hamilton's-rule proxy.
+
+**Deferred fixes (flagged for separate work):**
+
+- The two-heritability-functions cross-reference (`@seealso`
+  bidirectional). Worth a 4-line edit.
+- `compute_ld()` has been a stub since "post-#115" per the
+  plan annotation. If LD is going to be implemented soon, the
+  R-side test should grow to assert the contract; if it's
+  staying a stub indefinitely, the docstring could acknowledge
+  that explicitly (currently reads as "pending"). No action
+  this commit.
+- No `vignettes/basics.Rmd` change — basics doesn't currently
+  mention any analysis helper beyond `get_run_data()`.
+  Acceptable.
+
+## 18 + 19 + 20 + 21/28 — plotting helpers (2026-05-16, `claude/track-B-tier-A3`)
+
+Combined walk of the remaining `R/visualization.R` plot functions:
+`plot_diversity()` / `diversity_landscape()`,
+`plot_tsne_genomes()` (post-#115), `plot_map()`,
+`plot_signal_evolution()` / `plot_disease_dynamics()` /
+`plot_module_metrics()`. Bundled because they share a structural
+pattern (each takes `run_data` or `env` and returns a ggplot,
+with placeholder ggplots when the relevant module is disabled),
+and existing coverage in `tests/testthat/test-visualization.R`
+is strong (37 tests pre-walk after item 4's crashed-run
+addition).
+
+**TREE.** Each function follows the same idiom:
+
+- Validate input via `.check_run_data()` (plot_*) or direct
+  list-shape check (`plot_map`).
+- Compute panel content from the relevant subset of `$ticks`
+  columns or `$agents` records.
+- If the module is disabled (all-zero column, missing trait),
+  return `.plot_empty("<message>")` (the shared `R/visualization.R`
+  placeholder helper) instead of erroring.
+- Otherwise build a `ggplot2::ggplot()` and return it.
+
+The "leaf filter" Rose pattern from item 4 (`plot_run` filters
+`t > 0` at the use site, not at the source) is consistently
+applied: e.g., `plot_disease_dynamics` checks
+`all(rd$ticks$n_infected == 0)` to short-circuit; `plot_diversity`
+checks `nrow(rd$ticks) > 0`.
+
+**FOREST.** All seven functions are R-only, no Julia.
+`plot_tsne_genomes` post-#115 consumes the long-format `$genomes`
+data frame from `get_run_data()` (covered in item 3). `plot_map`
+operates on `env$agents` directly (snapshot view, not time
+series).
+
+**TEST.** Strong existing coverage; added **4 new tests** for
+`plot_map()`'s remaining `colour_by` branches:
+
+- `plot_map(env, colour_by = "body_size")` — body-size colouring.
+- `plot_map(env, colour_by = "species")` — species-ID colouring.
+- `plot_map(env, colour_by = "ghost")` — `match.arg()` rejection.
+- Pre-walk: only `energy` (default) and `age` were tested; the
+  other two `match.arg()` branches were uncovered. The plan's
+  item-20 description mentions "energy / age / brain-size" — the
+  actual signature is `c("energy", "age", "species", "body_size")`
+  (not `brain_size`); the plan's wording was slightly off and
+  has been clarified in the plan-checkbox update.
+
+Coverage after additions:
+
+| Function | Tests |
+|---|---|
+| `plot_diversity` / `diversity_landscape` | 4 tests (default, explicit traits, zero-variance placeholder) |
+| `plot_tsne_genomes` | 2 tests (NULL genomes → placeholder, real genome matrix → real ggplot) |
+| `plot_map` | 5 tests (energy + age + body_size + species + match.arg-rejection); was 2 |
+| `plot_signal_evolution` | 2 tests (placeholder + zero-data) |
+| `plot_disease_dynamics` | 3 tests (off → placeholder, on → real, zero-data) |
+| `plot_module_metrics` | 1 test (returns ggplot/patchwork) |
+
+After: `test-visualization.R` passes 42 (was 39); the 3 new
+tests cover all `plot_map` `colour_by` branches.
+
+**ROSE.** No new bug class. Two recurrences:
+
+1. **Recurrence (item 4): "filter at the leaves, not at the
+   source."** All seven plot functions check their own
+   preconditions (empty $ticks, all-zero module column, NULL
+   genomes) and short-circuit with a `.plot_empty()` placeholder.
+   This is the right pattern — `get_run_data()` doesn't have to
+   know which downstream plot would care about which columns;
+   the plots take responsibility.
+2. **Recurrence (item 3): "code grows fields/columns; roxygen
+   `@return` doesn't."** Not surfaced new in this walk because
+   all six plot functions return a single object type
+   (ggplot/patchwork) with no enumerated `@return` list.
+
+**BIO.** The plot functions are display infrastructure;
+biological judgements lie in *what they show*:
+
+- `plot_diversity` and `diversity_landscape`: show genetic
+  diversity time series. Defensible — diversity is the
+  fundamental observable for any evolutionary scenario.
+- `plot_tsne_genomes`: t-SNE projection of agent genomes.
+  Defensible for visual cluster-structure inspection; honest
+  about being a projection (legend says "t-SNE projection",
+  no spurious axis labels).
+- `plot_map`: snapshot of grid + agents coloured by trait.
+  The 4 colour_by options cover the most-common observables;
+  more could be added without breaking the contract.
+- `plot_signal_evolution`: signal trajectories over time.
+  Right framing for Fuller/Houle/Travis 2005 audits.
+- `plot_disease_dynamics`: SIR-style infected/new-infection
+  curves. Right framing for disease-module scenarios.
+- `plot_module_metrics`: aggregator for module-specific
+  counters (n_predators, n_helpers, mean_signal_magnitude, ...).
+  Returns ggplot/patchwork depending on data presence.
+
+The "module-disabled → placeholder" convention across the
+family is a small but consistent UX win: a user who runs a
+scenario without disease can still call `plot_disease_dynamics`
+without erroring, see the placeholder, and know why.
+
+**Deferred fixes (flagged for separate work):**
+
+- `plot_map`'s `colour_by = "brain_size"` was *implied* by the
+  Phase A plan's item-20 description but is not in the
+  function's `match.arg()` list. If brain-size colouring is
+  desired, add `"brain_size"` to the choices and the
+  corresponding `geom_point` branch. Small feature add, not a
+  bug fix; not shipped here.
+- The whole `R/visualization.R` family could share a more
+  expressive `.plot_empty()` (currently a one-line
+  `annotate("text")` ggplot). A slightly richer placeholder
+  with module name + reason would help users self-diagnose.
+  Cosmetic.
+- No `vignettes/basics.Rmd` change. The §4 plot_run paragraph
+  is the right introductory plot pointer; the other plot
+  helpers belong in the scenario-specific vignettes.
