@@ -197,6 +197,7 @@ articles:
   - title: "Overview"
     navbar: ~
     contents:
+      - basics
       - why-clade
       - scenarios
       - getting-started

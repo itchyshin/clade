@@ -1,0 +1,444 @@
+# R-function walk (Phase A)
+
+One entry per public R function reviewed under the Phase A protocol
+(`~/.claude/plans/purring-honking-dove.md`). Each entry follows the
+per-session template: TREE → FOREST → TEST → ROSE → BIO. Fixes shipped
+in the same commit are listed; fixes deferred to later phases are
+flagged at the bottom.
+
+## 1/28 — `default_specs()` (2026-05-16, `claude/track-B-walk`)
+
+**TREE.** `R/config.R:1048-1632`. Pure list literal: 296 named fields
+organised into ~40 thematic sections with inline comments and a
+~1000-line preceding roxygen block. No arguments, no logic, no
+validation. Sister helpers: `.validate_specs()` (`R/run.R:779`) does
+type/range checks; `.specs_to_julia()` (`R/run.R:871`) coerces integer
+fields and drops `NULL`/`NA`/zero-length entries before crossing the
+JuliaConnectoR boundary; `.is_sendable_to_julia()` is the per-value
+filter used inside `.specs_to_julia()`. Existing dedicated tests:
+`test-config.R` (20 assertions), `test-specs.R` (24 assertions),
+`test-spec-wiring.R` (2 structural guards). Side-channel coverage:
+`test-cell-occupancy.R:53` asserts `max_agents_per_cell` is *not* a
+field (deliberately removed in 0.7.0 — one-per-cell is enforced in
+Julia movement, not a tunable knob).
+
+**FOREST.** 296 fields, all referenced in at least one Julia file (the
+`test-spec-wiring.R` allowlist remains the three reserved
+brain-architecture placeholders: `transformer_history`,
+`transformer_heads`, `synthesis_max_rules`). Only one *functional*
+R-side caller: `.param_table(group, specs = default_specs())` in
+`R/utils.R:280`. Every other R-side reference (≈ 30 sites in
+`R/visualization.R`, `R/clade-package.R`, `R/hypothesis.R`, `R/maps.R`)
+is a roxygen example, exercised by `R CMD check`. Vignettes: ~35 files
+in `vignettes/` start from `default_specs()`. Tests: ~60 files load it
+in setup.
+
+**TEST.** One pre-existing failure caught and fixed: PR #116
+(`feat(0.7.x): wire senescence_shape`) changed
+`default_specs()$senescence_shape` from 2.0 → 1.0 with proper
+docstring and inline-comment update ("Default 1.0 = classic
+Gompertz"), but `tests/testthat/test-config.R:156-158` continued to
+assert `expect_equal(..., 2.0)`. This was a silent failure since
+0.7.x. Updated the test to `1.0` with a `# PR #116 …` comment so the
+next reader sees the history. After the fix: `test-config.R` is
+all-green again (was 1F before).
+
+**SPEC_GROUPS prune** (in scope per the plan's item-1 mandate "verify
+no Tier-3 ghost fields snuck back"). Found 13 names in
+`R/utils.R::.SPEC_GROUPS` that do not exist in `default_specs()` —
+all silently skipped by `.param_table()` so they did no immediate
+damage, but they pollute the introspection surface and mislead
+anyone reading the groupings as a contract. Removed: `max_agents_per_cell`
+(deliberately removed; `test-cell-occupancy.R:53` asserts non-existence),
+`brain_size_extra_grass_exponent`, `signal_mortality_per_unit`,
+`signal_mutation_sd` (likely an old name for `signal_drift_sd`),
+`mutation_sd_mutation_sd`, `carrion_decay` (real field is
+`carrion_decay_rate`), `carrion_max`, `scavenge_gain` (real field is
+`carrion_eat_gain`), `ann_l1_coefficient`, `ann_l0_coefficient`
+(`ann_regularization_lambda` is the implemented single-scale knob),
+`personality_antipred_radius`, `log_deaths`, `verbose_julia`
+(`verbose` is a `run_alife()` argument, not a spec field). After the
+prune: `length(setdiff(unlist(.SPEC_GROUPS), names(default_specs())))
+== 0` and `length(setdiff(names(default_specs()), unlist(.SPEC_GROUPS)))
+== 0` — perfect bijection.
+
+**ROSE.** Two classes of mistake recurred during this walk:
+
+1. **"Default changed in implementation, test not updated"** —
+   senescence_shape 2.0 → 1.0 silently broke `test-config.R`. Cousin
+   risk: every `expect_equal(default_specs()$<field>, <literal>)` in
+   `test-config.R` and `test-specs.R` is a manual contract that has
+   to be hand-kept in sync. A structural fix is feasible (a single
+   test that snapshots `default_specs()` and diffs against a
+   committed JSON), but it would conflict with Sergio's v0.8-core
+   reshape, so defer to post-merge.
+
+2. **"Group/allowlist references a removed or never-implemented
+   field name"** — the 13 SPEC_GROUPS ghosts plus
+   `parameter-reference.Rmd:59` plus
+   `dev/design/10-after-task-protocol.md:145` all still mention
+   `max_agents_per_cell`. The docstring of `.SPEC_GROUPS` ("Names
+   that don't exist in `default_specs()` are silently skipped") makes
+   this class invisible by design — which is the source of the drift.
+   `test-spec-wiring.R` catches the *reverse* direction (R field with
+   no Julia consumer) but not this direction (group entry with no R
+   field). A drift-guard test that enforces
+   `setdiff(unlist(.SPEC_GROUPS), names(default_specs())) ==
+   character(0)` would close the loop and is the same shape as the
+   four existing drift guards. Flagging for a near-term standalone
+   commit.
+
+**BIO.** Spot-checked the most consequential defaults: `grid_rows =
+grid_cols = 30L`, `n_agents_init = 50L`, `max_agents = 500L` give an
+initial density of 0.055 agents/cell and a saturation density of
+0.55 agents/cell — both well below the one-per-cell invariant (0.99
+would be the hard ceiling). `personality_alpha = 0.005` matches Wolf
+2007's published value. `senescence_shape = 1.0` is classic Gompertz
+h(t) = a·exp(b·t), the standard zero-curvature-correction
+formulation. `repro_cost_mode = "proportional"` defaults to Smith &
+Fretwell (1974) per the inline comment, which is the right modern
+default. All evolution-module flags (`*_evolution`, plus `mimicry`,
+`disease`, `kin_selection`, etc.) default to FALSE — correct
+opt-in semantics for a reproducibility-first package.
+
+**Deferred fixes (flagged for separate work):**
+
+- `vignettes/parameter-reference.Rmd:59` still describes
+  `max_agents_per_cell = 1L (default)`. Defer to Phase B (vignette
+  walk) so the multi-seed re-render and the text fix land together.
+- `dev/design/10-after-task-protocol.md:145` describes the one-per-cell
+  invariant using the removed spec-field name. The principle ("one
+  agent per cell") is correct and enforced in Julia movement; only
+  the spec-field reference is stale. Flag for the user — they may
+  prefer to keep the spec-field framing for memorability or rewrite
+  it as "the one-per-cell rule (enforced in `inst/julia/src/movement.jl`)".
+- Drift-guard test for `setdiff(unlist(.SPEC_GROUPS),
+  names(default_specs()))`. One short test in a new file
+  `test-spec-groups-coverage.R` would prevent the ghost class from
+  re-accumulating. Defer because it would mean five drift guards
+  instead of four and is worth a separate commit + check-log entry.
+
+## 2/28 — `run_alife()` / `run_clade()` (2026-05-16, `claude/track-B-walk`)
+
+**TREE.** `R/run.R:51-92`. Six-step body: (1) `.clade_start_julia(verbose
+= verbose)` (deferred Julia process start, idempotent); (2)
+`.validate_specs(specs)` (early R-side type/range checks); (3) optional
+`message(...)` summary; (4) `JuliaConnectoR::juliaCall("Clade.run_clade",
+.specs_to_julia(specs))` — the one-and-only boundary crossing per call;
+(5) `.julia_env_to_r(env_julia, specs)` deserialise; (6) attach
+`viability_report()` and `warning()` on `verdict == "crashed"`.
+`run_clade()` at `R/run.R:101` is an alias (`run_clade <- run_alife`).
+Dependencies: `.clade_start_julia` (R/zzz.R:32) is self-guarded by
+`.clade_env$julia_ready`; `.validate_specs` (R/run.R:779) covers
+~15 hand-picked fields; `.specs_to_julia` (R/run.R:871) coerces
+integer fields then drops un-sendable entries via
+`.is_sendable_to_julia` (R/run.R:902, which rejects `NULL`,
+length-0 vectors, and length-1 `NA`). Existing dedicated tests in
+`test-integration.R` — *but see the parse-error finding below*.
+
+**FOREST.** ~97 files reference `run_alife` / `run_clade`. Production
+R-side use: `R/run.R` only (the function calls itself indirectly via
+`batch_alife()` → `run_one()` at line 144). Roxygen examples: most
+of `R/visualization.R`, `R/maps.R`, `R/hypothesis.R`,
+`R/clade-package.R` — `\dontrun{}` wrapped, so `R CMD check` does not
+execute them. Vignettes: every paper-* and s-* vignette (~35 files)
+runs `run_alife()` directly in its main analysis block. Tests:
+~60 files invoke `run_alife()` after `skip_no_julia()`, including
+the heavy-lifting suite `test-integration.R`.
+
+**TEST — critical finding.** `tests/testthat/test-integration.R`
+**fails to parse** at line 337: `s$_empty_char_test  <- character(0L)`.
+Underscore-prefixed names are not legal under R's `$` accessor
+without backticks. Git blame: the line was renamed from
+`s$world_params_to_evolve` to `s$_empty_char_test` in `2c7cf66
+fix(0.7.x): delete world_evolution (Tier 2 of spec-wiring-audit)`,
+which deleted the original spec field but used a synthetic name
+that broke the R parser. **Net effect: every test in
+`test-integration.R` (30+ tests including the run_alife() integration
+suite, brain-type round-trips, batch_alife() smoke, and the very
+`.specs_to_julia` NA/character(0) drop test that the Phase A item-2
+mandate asked me to verify) has been silently failing to load since
+the `world_evolution` deletion.** Fixed by renaming the synthetic
+field to `s$synthetic_empty_char` in this commit; `parse(file =
+"tests/testthat/test-integration.R")` now succeeds.
+
+The plan's item-2 ask was "confirm `.specs_to_julia` handles NA /
+character(0) correctly." Static review of `.specs_to_julia` +
+`.is_sendable_to_julia` confirms the contract: `NULL`, length-0
+vectors of any type, and length-1 `NA` of any type are dropped.
+A length-2 `NA` vector (`c(NA, NA)`) would *not* be dropped and
+would be sent to JuliaConnectoR — but this case does not occur in
+`default_specs()` and is unlikely to occur in user-modified specs.
+The intended dynamic verification lives at `test-integration.R:308`
+(integer-vs-double type preservation) and `:330` (NA/`character(0)`
+drop); both will now run (with Julia available) instead of being
+skipped by the file-load error.
+
+**Verbose path.** Verified statically: `verbose` controls
+`.clade_start_julia()`'s startup message and the post-validation
+summary `message()`. The viability warning fires *regardless* of
+`verbose`, which is correct: a crashed run is always worth knowing
+about. The summary message references `specs$n_agents_init`,
+`specs$max_ticks`, `specs$brain_type`, `specs$ploidy` — four fields
+guaranteed to be present after `.validate_specs()` passes.
+
+**ROSE.** One Rose class re-surfaced (the same class as item 1):
+
+- **"Spec field deletion leaves stale assertions or syntax in
+  tests/vignettes."** Concrete cousins found:
+  - `tests/testthat/test-life-history.R:64-67` asserts
+    `"life_history_evolution" %in% names(s)` — false now (field deleted
+    per NEWS 0.7.1).
+  - `tests/testthat/test-life-history.R:39-43,46-48` assert
+    `"repro_senescence" %in% names(s)` and `s$repro_senescence` —
+    false now.
+  - `tests/testthat/test-parental-investment.R:34` asserts
+    `"parental_investment_init_mean" %in% names(default_specs())` —
+    false now. The file may have other broken assertions; needs a
+    full audit.
+  - `tests/testthat/test-parental-care.R:118` asserts
+    `"max_carried" %in% names(default_specs())` — false now.
+  - The original `test-integration.R:337` parse error is the most
+    severe instance of the same class — a rename of a deleted field
+    that broke not just the assertion but the whole file.
+
+  Structural fix: a one-shot drift-guard test that scans
+  `tests/testthat/test-*.R` for `"<field>" %in% names(default_specs())`
+  and `default_specs()$<field>` patterns and asserts every named
+  `<field>` is in fact present in `default_specs()`. Same shape as the
+  four existing drift guards. Defer to a standalone commit (Karpathy
+  3: surgical), and bundle with the item-1 "SPEC_GROUPS coverage"
+  guard so both ship together as a "Phase A drift-guard sweep".
+
+**BIO.** `run_alife()` itself adds no biological semantics — it's
+infrastructure. The one biological judgement embedded is the
+crashed-run warning: trait-mean interpretations on a population that
+crashed early are dominated by tiny surviving subpopulations and
+therefore unreliable. This judgement is correct and the threshold
+lives in `viability_report()` (audited later in Tier A1, item 6).
+The verbose summary message picks the four most useful fields for a
+human reader (`n_agents_init`, `max_ticks`, `brain_type`, `ploidy`) —
+biologically sensible for orienting the operator before a long run.
+
+**Deferred fixes (flagged for separate work):**
+
+- Stale-assertion cleanup in `test-life-history.R`,
+  `test-parental-investment.R`, `test-parental-care.R`. Each file
+  needs deletion of its now-impossible assertions or, if the
+  underlying field is supposed to come back, a `skip_if(...)` with
+  an inline reference to the planned re-introduction. Estimated <100
+  lines across the three files. Probably the user wants to triage
+  these one at a time when reviewing each module.
+- Drift-guard test `test-test-field-assertions.R` (or extend the
+  existing `test-spec-wiring.R` to cover the inverse direction).
+  Same recommendation as item 1's "test-spec-groups-coverage.R" —
+  ship the two structural drift-guards together as one PR.
+- Minor optimisation: `.validate_specs(specs)` is called *after*
+  `.clade_start_julia(verbose = verbose)`, so an invalid specs list
+  costs the user the full ~60 s Julia startup before the error
+  arrives. Swapping the order would let validation fail fast. Not
+  shipped here because (a) the cost only matters on the very first
+  call of the R session, and (b) the change touches the entry
+  function's call order, which is non-surgical for an item-2 walk.
+  Flag for the user.
+
+## 3/28 — `get_run_data()` (2026-05-16, `claude/track-B-walk`)
+
+**TREE.** `R/analysis.R:38-47`. Thin wrapper that converts the raw
+Julia-side `env` into a three-field list: `$ticks =
+as.data.frame(lapply(env$progress, unlist))`, `$deaths =
+as.data.frame(lapply(env$deaths, unlist))`, `$genomes =
+.compose_genome_dataframe(env$genome_log)`. Sibling helper
+`get_genome_data()` at `R/analysis.R:86` returns
+`{genomes, heterozygosity, fst}` (the last two are reserved
+`numeric(0L)` placeholders for documented future work). The post-#115
+`.compose_genome_dataframe()` (`R/analysis.R:99-127`) iterates over
+the Julia proxy array, calls `juliaGet` on each entry to extract
+`(t, agent_ids, traits)`, and `rbind`s into a long
+`(t, agent_id, trait_1..trait_N)` data frame.
+
+**FOREST.** Heavily used. R-side production callers: `R/run.R:77`
+(the in-`run_alife()` viability hook), `R/search.R` (search
+algorithms), `R/hypothesis.R` (sweep summariser), `R/visualization.R`
+(every dashboard panel). 14 vignettes call it; 12+ test files
+exercise it. Dedicated test file: `tests/testthat/test-run-data.R`
+(no-Julia, mock-based, 15 tests pre-walk). Julia-end-to-end coverage
+for `.compose_genome_dataframe()` lives in
+`tests/testthat/test-log-genomes.R` behind `skip_no_julia()`.
+
+**TEST — two findings, both fixed.**
+
+1. **Stale test (pre-#115).** `test-run-data.R:173-181` was the
+   pre-#115 test of `get_genome_data()`: it built a mock
+   `genome_log = list(matrix(...), matrix(...))` of plain R matrices
+   and asserted `g$genomes[[1]] == m1`. Post-#115,
+   `get_genome_data()` returns `{genomes, heterozygosity, fst}` and
+   `genomes` comes from `.compose_genome_dataframe()`, which calls
+   `juliaGet()` on every entry — plain R matrices are not proxies, so
+   `juliaGet()` errors and `tryCatch()` swallows it, yielding `NULL`.
+   The three assertions failed against the new contract. Rewrote the
+   test to exercise the no-Julia surface of `.compose_genome_dataframe`
+   directly: `NULL`, `list()`, and "garbage non-proxy inputs" all
+   return `NULL` without crashing — the contract that matters for
+   `get_run_data()`'s pipeline to remain robust. The Julia-required
+   round-trip coverage is intentionally left to `test-log-genomes.R`,
+   matching the no-Julia comment at the top of `test-run-data.R`.
+
+2. **Roxygen doc-debt.** The `@return` block at `R/analysis.R:11-26`
+   enumerated ~25 columns for `$ticks`. The actual
+   `inst/julia/src/logging.jl::_init_progress` produces **61**
+   columns (verified with `grep -cE '^\s*"[a-z_]+"\s+=> copy'`).
+   So ~36 columns existed but were undocumented. Rewrote the
+   `@return` to list the always-present core columns explicitly,
+   describe the always-allocated module columns by group, and add a
+   pointer to `inst/julia/src/logging.jl::_init_progress` plus
+   `colnames(get_run_data(env)$ticks)` for the authoritative list.
+   This is honest about scale without bloating the docstring with all
+   61 names; readers wanting one specific column can call
+   `colnames()`.
+
+After the fixes: `test-run-data.R` passes 28/28 (was 25P + 3F).
+
+**ROSE.** Two classes recurred:
+
+1. **"API change leaves test fixtures pointing at the old behaviour"**
+   — the pre-#115 vs post-#115 `$genomes` shape change is a fresh
+   instance of the same Rose class from items 1 and 2. Cousin risk:
+   any test using `.mock_env(genome_log = ...)` or similar fixtures
+   should be audited after a shape-changing PR. Structural fix
+   (still deferred): add a "post-#NNN shape changes" line to the PR
+   template that asks the author to grep for stale fixtures.
+
+2. **"Code grows fields/columns; roxygen `@return` doesn't"** — the
+   `$ticks` doc-debt is the first instance of this distinct class.
+   Cousin risk: every roxygen `@return` that enumerates a finite list
+   could be undercount. Spot candidates: `get_genome_data()`,
+   `viability_report()`, `plot_run()`. The structural fix is to
+   pivot list-of-columns roxygen to "see `<source>` + use
+   `names()` / `colnames()` for the authoritative list" wherever
+   the producer is data-driven rather than hand-curated.
+
+**BIO.** `get_run_data()` has no biological semantics — it's a
+shape transformation. One judgement embedded in the design: the
+log shape is **stable across specs** (module-specific columns are
+always allocated, zero when the module is disabled). That decision
+is the right one for downstream code — `plot_run()` and the
+viability hook can rely on column presence regardless of which
+modules the user enabled. The roxygen now states this explicitly.
+
+`get_genome_data()`'s `$heterozygosity` and `$fst` placeholders
+(both `numeric(0L)`) are honest about being reserved for future
+work — better than fake numbers. The `@references` for Weir &
+Cockerham (1984) is already in place, so when those fields land
+the citation is ready.
+
+**Deferred fixes (flagged for separate work):**
+
+- Sibling-function doc audit. `get_genome_data()`,
+  `viability_report()`, `plot_run()`, `inspect_brain()` all carry
+  `@return` lists that could go stale by the same "code grows, doc
+  doesn't" class. Phase A item 4 (`plot_run()`) and Tier-A1 item 6
+  (`viability_report()`) cover two of them under the normal walk
+  rhythm; the other two are out-of-band.
+- Future `$movement` accessor — if the post-Sergio movement-log
+  proposal lands, `get_run_data()` will gain a fourth field
+  `$movement`. The roxygen rewrite is structured so a one-line
+  insertion will suffice; no redesign needed.
+
+## 4/28 — `plot_run()` (2026-05-16, `claude/track-B-walk`)
+
+**TREE.** `R/visualization.R:91-187`. Standard dashboard: takes a
+`get_run_data()` output, validates via `.check_run_data()`, filters
+out unlogged-tick rows (`t > 0`), short-circuits to
+`.plot_empty("No logged ticks")` if nothing remains, and otherwise
+builds six ggplot panels combined with `patchwork::wrap_plots(ncol
+= 3L)`: (1) population size, (2) mean energy ± 1 SD ribbon,
+(3) genetic diversity, (4) births vs deaths per tick, (5) grass
+coverage, (6) brain-type-aware sixth panel — BNN prior sigma if
+`mean_prior_sigma` varies (Baldwin Effect panel; Baldwin 1896,
+Hinton & Nowlan 1987), mean body size otherwise. Two helpers
+(`.check_run_data`, `.plot_empty`) are reused across the entire
+`R/visualization.R` plot family and were correct as-is.
+
+**FOREST.** Lighter than item 3's. Production: the in-package
+`visualize_progress()` at `R/visualization.R:1188` builds a larger
+dashboard that includes the `plot_run()` panels. Roxygen: a
+~dozen vignettes call `plot_run()` directly; another dozen use it
+indirectly via `visualize_progress()`. Tests: dedicated coverage in
+`tests/testthat/test-visualization.R` (37 tests pre-walk, 39
+post-walk).
+
+**TEST — plan's three asks, all verified.**
+
+1. **NULL handling.** `plot_run(NULL)` and `plot_run(list())` both
+   fail the `is.list(run_data) || is.null(run_data$ticks)` check in
+   `.check_run_data` and `stop()` with a one-line message naming
+   `get_run_data()` — already tested at `test-visualization.R:136-139`.
+2. **Empty-progress handling.** Zero-row `$ticks` returns
+   `.plot_empty("No logged ticks")` without erroring — already
+   tested at `test-visualization.R:176-183`.
+3. **Crashed-run handling — newly verified.** The plan asked
+   specifically about "viable_report-flagged-crashed" runs. In
+   logging.jl, `log_tick!` does `n == 0 && return` when the
+   population dies out, so the pre-allocated metric vectors keep
+   their initial zero values for every post-crash tick. `plot_run`'s
+   `d <- d[d$t > 0L, , drop = FALSE]` filter at line 96 trims the
+   zero-padded tail; the resulting plot is a truncated timeline
+   ending at the last logged tick. No special-case handling needed;
+   the design is correct. Added a dedicated test
+   (`test-visualization.R:185-209`) that builds a mock with the
+   exact post-crash shape (`t = 0, n_agents = 0, mean_energy = 0,
+   ...` for the tail) and asserts `plot_run()` returns a valid
+   `patchwork`/`ggplot` object. Test passes post-fix.
+
+After the walk: `test-visualization.R` passes 39/39 (was 37/37
+pre-walk; added 1 test asserting 2 expectations).
+
+**ROSE.** This walk surfaced **no new bug or stale-assertion class
+in `plot_run()` itself** — the function is well-tested and the
+design holds up. The one Rose pattern worth recording is positive:
+
+- **"Filter at the leaves, not at the source."** `plot_run()`
+  trusts `get_run_data()` to return whatever Julia logged and
+  applies its own `t > 0` filter at the point of use. That isolates
+  it from the choices made in `log_tick!`: when Julia changes how
+  unlogged ticks are represented (e.g., the hypothetical
+  movement-log might want different conventions), only the leaf
+  filters need to change, not the data path. Recommend the same
+  pattern for any future plot_* sibling.
+
+**BIO.** The six-panel choice is biologically thoughtful:
+*demography* (pop size, births vs deaths), *individual state*
+(energy ± SD), *evolutionary signal* (genetic diversity),
+*environment* (grass coverage), *brain-relevant* (BNN sigma /
+body size). Together they let a reader judge in 10 seconds whether
+a run is viable, runaway, collapsing, or pathological in some
+specific way. The conditional sixth panel (Baldwin sigma vs body
+size) is the smartest part — it surfaces the most-informative
+variable for the active brain type without making the user choose.
+
+The decision to use `± 1 SD` (not `± 1.96 SD` for 95 % bands) is
+honest: at the population sizes clade typically simulates
+(50–500 agents), the sampling distribution of the mean is narrow
+enough that a 1-SD ribbon shows *individual* heterogeneity rather
+than confidence in the mean, which is what the reader actually
+wants for an evolutionary-dynamics dashboard. Worth a sentence in
+the docstring eventually, but not blocking.
+
+**CONTRIBUTE — basics.Rmd is now complete.** Sections 4 and 5
+added in this commit; `basics` registered as the first entry under
+the pkgdown Overview articles block so it appears at the top of
+the Articles navbar. The vignette is the Tier-A0 deliverable;
+clicking "Articles → Basics" in the rendered site now lands the
+user on the 5-minute walkthrough built from items 1–4.
+
+**Deferred fixes (flagged for separate work):**
+
+- `± 1 SD` vs `± 1.96 SD` clarification in the docstring (one
+  sentence on what the ribbon represents). Not blocking.
+- Sister-function doc audit for the rest of the `R/visualization.R`
+  family (`plot_environment`, `plot_genome_diversity`,
+  `plot_disease_dynamics`, `plot_module_metrics`,
+  `plot_tsne_genomes`, etc.). The "code grows columns, roxygen
+  doesn't" Rose class from item 3 likely applies. None are Tier-A0,
+  so Tier-A3 items 18-21 will pick them up under the normal walk.

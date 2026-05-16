@@ -170,14 +170,21 @@ test_that("get_genome_data() returns genomes = NULL when genome_log is empty", {
   expect_null(g$genomes)
 })
 
-# 13. Non-empty genome_log is passed through
-test_that("get_genome_data() returns the genome_log when non-empty", {
+# 13. Non-Julia inputs to .compose_genome_dataframe() are handled gracefully
+# Pre-#115 this test asserted the genome_log was passed through as a list of
+# matrices. Post-#115 .compose_genome_dataframe() requires JuliaConnectoR
+# proxy objects (it calls juliaGet on each entry); the full data-frame round
+# trip lives in test-log-genomes.R behind skip_no_julia(). What we can still
+# verify here without Julia: the function silently returns NULL for inputs
+# it cannot unpack rather than crashing the get_run_data() pipeline.
+test_that(".compose_genome_dataframe() returns NULL for un-unpackable inputs", {
+  expect_null(clade:::.compose_genome_dataframe(NULL))
+  expect_null(clade:::.compose_genome_dataframe(list()))
+  # Regular R matrices are not Julia proxies; juliaGet() inside .unpack()
+  # errors and the tryCatch falls through to NULL. The function must not
+  # propagate the error.
   m1 <- matrix(runif(6), 2, 3)
-  m2 <- matrix(runif(6), 2, 3)
-  g  <- get_genome_data(.mock_env(genome_log = list(m1, m2)))
-  expect_length(g$genomes, 2L)
-  expect_equal(g$genomes[[1]], m1)
-  expect_equal(g$genomes[[2]], m2)
+  expect_null(clade:::.compose_genome_dataframe(list(m1, m1)))
 })
 
 # 14. Default heterozygosity / fst fields are numeric(0) (empty numeric)

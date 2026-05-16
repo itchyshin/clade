@@ -1,0 +1,173 @@
+---
+title: "Basics — five minutes to a clade run"
+author: "Shinichi Nakagawa"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Basics — five minutes to a clade run}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment  = "#>",
+  eval     = FALSE
+)
+```
+
+## What this vignette is for
+
+The shortest path from a fresh install to a clade run you can read.
+Five short sections, each anchored on one of the four core functions
+(`default_specs()`, `run_alife()`, `get_run_data()`, `plot_run()`) and
+a closing pointer to the deeper material. If you want narrative motivation,
+the architectural picture, or the lab vision behind clade, read
+`vignette("getting-started")` first; this vignette assumes you just
+want a working run.
+
+> This vignette is built incrementally across the Phase A foundation
+> walk (`~/.claude/plans/purring-honking-dove.md`, items 1–4). Each
+> Tier-A0 audit contributes one section; the file becomes complete
+> when item 4 (`plot_run()`) lands.
+
+## 1. Start from `default_specs()`
+
+`default_specs()` is the single source of truth for every parameter
+clade understands. It takes no arguments and returns a named list of
+~300 fields with sensible defaults — sparse 30 × 30 grid, 50 starting
+agents, 500-tick run, BNN brain, diploid sex, no optional modules
+(no disease, no kin selection, no predators, etc.). The discipline
+across the codebase is *always* copy from `default_specs()` and
+modify the copy; never hand-build a specs list from scratch, because
+new modules add fields over time and you would miss them.
+
+```{r}
+library(clade)
+
+specs <- default_specs()       # the canonical starting list
+specs$n_agents_init <- 100L    # one common change
+specs$max_ticks     <- 200L    # another
+specs$random_seed   <- 42L     # reproducibility
+```
+
+To see what changed from defaults, use `print_specs(specs, diff_only
+= TRUE)`. To see every parameter grouped by biological theme, use
+`print_specs(specs)` (no arguments needed). To see what biological
+modules are off-by-default (the opt-in design), look at
+`vignette("parameter-reference")` or read the field-by-field roxygen
+in `?default_specs`.
+
+## 2. Run the simulation with `run_alife()`
+
+`run_alife(specs)` is the one call you need. Internally it starts a
+Julia session on the first invocation (one-time ~60-90 s JIT cost),
+sends `specs` across the R-Julia boundary once, runs every tick in
+Julia, and returns an `env` list containing the surviving agents,
+per-tick statistics, per-death records, and (if you set
+`specs$log_genomes = TRUE`) per-tick genome snapshots. After the run,
+`env$viability` carries the verdict from `viability_report()` and the
+function emits a `warning()` if the population crashed — so silent
+collapses can't slip past you. Pass `verbose = FALSE` for batch /
+test usage; the viability warning still fires.
+
+```{r}
+env <- run_alife(specs)        # one boundary crossing, one return
+env$t                          # the final tick (== specs$max_ticks)
+env$viability$verdict          # "viable", "weak", or "crashed"
+```
+
+`run_clade()` is an alias for `run_alife()` if you prefer the
+package name in your scripts. For multi-seed replicates use
+`batch_seeds(specs, seeds = 1:5)`; for a list of different specs use
+`batch_alife(list_of_specs, n_cores = 4L)` (each worker pays the
+Julia startup cost separately, so parallelism is worth it from
+roughly 20 scenarios upward).
+
+## 3. Extract the run with `get_run_data()`
+
+`get_run_data(env)` reshapes the run into two tidy data frames
+(`$ticks` and `$deaths`) plus a third (`$genomes`) that is `NULL`
+unless you set `specs$log_genomes = TRUE`. `$ticks` has one row per
+logged tick and ~60 population columns — the always-present core
+(`t`, `n_agents`, `n_births`, `n_deaths`, `mean_energy`, `mean_age`,
+`mean_body_size`, `genetic_diversity`, `grass_coverage`, ...) plus
+module-specific columns that are zero when the corresponding module
+is off, so the shape is stable across specs. `$deaths` has one row
+per agent death with seven columns (`id`, `t`, `age`, `energy`,
+`cause`, `body_size`, `num_offspring`); inspecting `$deaths$cause`
+is the fastest way to see whether a run was starvation-dominated,
+age-dominated, or (when predators are on) predation-dominated.
+
+```{r}
+rd <- get_run_data(env)
+head(rd$ticks)
+tail(rd$ticks[, c("t", "n_agents", "mean_energy", "genetic_diversity")])
+table(rd$deaths$cause)
+```
+
+For the full column list of a specific run, call
+`colnames(rd$ticks)` — the canonical schema lives in
+`inst/julia/src/logging.jl::_init_progress`. For genome snapshots,
+use `get_genome_data(env)` (same `$genomes` long-format data frame,
+plus reserved placeholders for heterozygosity and FST).
+
+## 4. Plot the run with `plot_run()`
+
+`plot_run(rd)` returns a 2 × 3 dashboard (a `patchwork` object) of
+six time-series diagnostics: population size, mean energy ± 1 SD,
+genetic diversity, births vs deaths per tick, grass coverage, and a
+sixth panel that switches between *BNN prior sigma* (when the BNN
+brain's plasticity is varying — the Baldwin Effect panel after
+Baldwin 1896 / Hinton & Nowlan 1987) and *mean body size* (when
+sigma is flat or absent). It's the fastest way to read whether a
+run is biologically sensible: a healthy run shows population
+holding above a viability floor, energy stable or oscillating,
+diversity not collapsing to zero, births roughly tracking deaths
+after burn-in, and grass not stripped to bare ground. If any of
+those panels look pathological (population to zero, energy
+collapsing, diversity to zero in <50 ticks), the run probably
+won't support trait-mean interpretations — and `env$viability$verdict`
+will already say so.
+
+```{r}
+plot_run(rd)
+```
+
+`plot_run()` is intentionally robust to the unhappy paths:
+it errors with a clear message if `rd$ticks` is missing, returns a
+ggplot placeholder (rather than crashing) if `$ticks` has zero
+rows, and quietly truncates the timeline when `run_alife()` crashed
+mid-run (the post-crash zero-padded rows are filtered by `t > 0`).
+So you can pipe a viability-flagged crashed run straight into
+`plot_run()` and read the partial story.
+
+## 5. What next?
+
+Once you can read `plot_run()` you have most of clade's surface.
+Where to go from here, in order of investment:
+
+- **Multi-seed replicates.** Every conclusion in clade should be
+  defended at ≥ 5 seeds; one run is a story, five is data.
+  `batch_seeds(specs, seeds = 1:5)` runs the same specs across
+  seeds; pair with `viability_report()` per replicate and keep only
+  the viable ones.
+- **Scenario vignettes.** `vignette(package = "clade")` lists ~40
+  worked scenarios under `s-*` (scenarios) and `paper-*` (paper
+  reproductions). Start with `vignette("s-baseline")` for the
+  shortest fully-narrated run, then `vignette("scenarios")` for the
+  full catalogue.
+- **Paper reproductions.** If you have a behavioural-ecology paper
+  with a quantitative prediction, the `paper-template.Rmd` vignette
+  shows how to turn it into a clade experiment. The published
+  reproductions (Wolf 2007, Trivers 1971, Réale 2010, Griesser
+  2023, Ryan 1990, ...) each follow the same template and report
+  what reproduces vs what doesn't.
+- **Parameter-space search.** When you want the best (or most
+  diverse) configurations rather than a single run,
+  `search_map_elites()` / `search_cmaes()` / `search_viability()`
+  run optimisation over the spec list. `vignette("ps-introduction")`
+  is the starting point.
+- **Narrative depth.** For the architectural picture, the four
+  brain types, the R-Julia split, the lab values, and the
+  vision: `vignette("getting-started")` and `dev/design/00-vision.md`.

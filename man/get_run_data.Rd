@@ -12,16 +12,36 @@ get_run_data(env)
 \value{
 A list with components:
 \describe{
-\item{\verb{$ticks}}{A data frame with one row per logged tick and columns:
-\code{t}, \code{n_agents}, \code{n_births}, \code{n_deaths}, \code{n_starvations},
+\item{\verb{$ticks}}{A data frame with one row per logged tick and ~60
+population-level columns. Core columns always present: \code{t},
+\code{n_agents}, \code{n_births}, \code{n_deaths}, \code{n_starvations},
 \code{n_age_deaths}, \code{mean_energy}, \code{sd_energy}, \code{mean_age}, \code{sd_age},
 \code{mean_body_size}, \code{sd_body_size}, \code{genetic_diversity}, \code{n_species},
+\code{grass_coverage}. Module-specific columns are present as zeros
+when the corresponding module is disabled (so the data frame
+shape is stable across specs), including
 \code{mean_cooperation_level}, \code{mean_immune_strength}, \code{sd_immune_strength},
 \code{mean_metabolic_rate}, \code{mean_learning_rate}, \code{mean_prior_sigma}
-(BNN only), \code{grass_coverage}, \code{n_infected}, \code{n_new_infections},
-\code{n_altruistic_acts}, \code{n_shelters_built}.}
+(BNN only), \code{n_infected}, \code{n_new_infections}, \code{n_altruistic_acts},
+\code{n_shelters_built}, \code{n_predators}, \code{n_prey_killed}, \code{n_juveniles},
+\code{n_helpers}, \code{mean_signal_magnitude}, \code{mean_preference_magnitude},
+\code{mean_signal_preference_dist}, \code{sd_signal_magnitude},
+\code{mean_toxicity}, \code{mean_plasticity}, \code{mean_helper_tendency},
+\code{mean_habitat_preference}, \code{mean_brain_size}, \code{n_ground_agents},
+\code{n_shrub_agents}, \code{n_canopy_agents}, \code{mean_wing_size},
+\code{n_front_agents}, \code{mean_front_dispersal}, \code{n_iffolk_transfers},
+\code{mean_relatedness}, \code{n_scavenge_events}, \code{n_gd_events},
+\code{mean_shelter_depth}, \code{mean_mutation_rate}, \code{mean_clutch_size},
+\code{mean_ann_weight_magnitude}. The authoritative full list is in
+\verb{inst/julia/src/logging.jl::_init_progress}; use
+\code{colnames(get_run_data(env)$ticks)} to see every column for a
+specific run.}
 \item{\verb{$deaths}}{A data frame with one row per agent death and columns:
 \code{id}, \code{t}, \code{age}, \code{energy}, \code{cause}, \code{body_size}, \code{num_offspring}.}
+\item{\verb{$genomes}}{A long data frame with one row per (tick, agent) and
+columns \code{t}, \code{agent_id}, \code{trait_1}..\code{trait_N}. \code{NULL} unless
+\code{specs$log_genomes = TRUE} was set for the run. Consumed by
+\code{\link[=plot_tsne_genomes]{plot_tsne_genomes()}}.}
 }
 }
 \description{
