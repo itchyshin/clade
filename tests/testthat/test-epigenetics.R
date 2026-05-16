@@ -15,13 +15,6 @@ library(testthat)
 
 JULIA_SRC <- system.file("julia", "src", package = "clade")
 
-skip_no_julia <- function() {
-  skip_if_not(requireNamespace("JuliaConnectoR", quietly = TRUE),
-              "JuliaConnectoR not available")
-  skip_if_not(JuliaConnectoR::juliaSetupOk(),
-              "Julia toolchain not available")
-}
-
 .epi_specs <- function(...) {
   s <- default_specs()
   s$grid_rows     <- 30L
@@ -50,12 +43,14 @@ skip_no_julia <- function() {
 
 # ── 1. epigenetics is FALSE by default ───────────────────────────────────────
 test_that("epigenetics defaults to FALSE in default_specs()", {
+  skip_no_julia()
   s <- default_specs()
   expect_false(s$epigenetics)
 })
 
 # ── 2. epigenetic_inheritance default is in (0, 1) ───────────────────────────
 test_that("epigenetic_inheritance default is in the open unit interval", {
+  skip_no_julia()
   s <- default_specs()
   expect_true(is.numeric(s$epigenetic_inheritance))
   expect_gt(s$epigenetic_inheritance, 0)
@@ -64,6 +59,7 @@ test_that("epigenetic_inheritance default is in the open unit interval", {
 
 # ── 3. epigenetic_effect_size default is in (0, 1) ───────────────────────────
 test_that("epigenetic_effect_size default is in the open unit interval", {
+  skip_no_julia()
   s <- default_specs()
   expect_true(is.numeric(s$epigenetic_effect_size))
   expect_gt(s$epigenetic_effect_size, 0)
@@ -72,6 +68,7 @@ test_that("epigenetic_effect_size default is in the open unit interval", {
 
 # ── 4. methylation and demethylation rates are non-negative ──────────────────
 test_that("methylation_rate and demethylation_rate are non-negative", {
+  skip_no_julia()
   s <- default_specs()
   expect_gte(s$methylation_rate,   0)
   expect_gte(s$demethylation_rate, 0)
@@ -79,6 +76,7 @@ test_that("methylation_rate and demethylation_rate are non-negative", {
 
 # ── 5. epigenetics.jl exists and is non-empty ────────────────────────────────
 test_that("modules/epigenetics.jl is present in the bundled Julia source", {
+  skip_no_julia()
   skip_if(!nchar(JULIA_SRC) || !dir.exists(JULIA_SRC),
           "Julia source not installed")
   jl <- file.path(JULIA_SRC, "modules", "epigenetics.jl")
@@ -88,6 +86,7 @@ test_that("modules/epigenetics.jl is present in the bundled Julia source", {
 
 # ── 6. Clade.jl actively includes epigenetics.jl ────────────────────────────
 test_that("Clade.jl has an active include for modules/epigenetics.jl", {
+  skip_no_julia()
   skip_if(!nchar(JULIA_SRC) || !dir.exists(JULIA_SRC),
           "Julia source not installed")
   clade_jl <- readLines(file.path(JULIA_SRC, "Clade.jl"))
@@ -102,6 +101,7 @@ test_that("Clade.jl has an active include for modules/epigenetics.jl", {
 
 # ── 6b. epigenetics.jl defines all required functions ────────────────────────
 test_that("epigenetics.jl defines its public API functions", {
+  skip_no_julia()
   skip_if(!nchar(JULIA_SRC) || !dir.exists(JULIA_SRC),
           "Julia source not installed")
   jl <- paste(readLines(file.path(JULIA_SRC, "modules", "epigenetics.jl")),
@@ -222,42 +222,50 @@ test_that("epigenetics = TRUE with ploidy = 2 completes", {
 
 # ── 13. epigenetics = FALSE by default ───────────────────────────────────────
 test_that("epigenetics is FALSE in default_specs()", {
+  skip_no_julia()
   expect_false(default_specs()$epigenetics)
 })
 
 # ── 14. epigenetic_learning_coupling defaults to 0.1 ─────────────────────────
 test_that("epigenetic_learning_coupling defaults to 0.1", {
+  skip_no_julia()
   expect_equal(default_specs()$epigenetic_learning_coupling, 0.10)
 })
 
 # ── 15. epigenetic_inheritance defaults to 0.5 ───────────────────────────────
 test_that("epigenetic_inheritance defaults to 0.5", {
+  skip_no_julia()
   expect_equal(default_specs()$epigenetic_inheritance, 0.50)
 })
 
 # ── 16. epigenetic_effect_size defaults to 0.2 ───────────────────────────────
 test_that("epigenetic_effect_size defaults to 0.2", {
+  skip_no_julia()
   expect_equal(default_specs()$epigenetic_effect_size, 0.20)
 })
 
 # ── 17. methylation_rate defaults to 0.001 ───────────────────────────────────
 test_that("methylation_rate defaults to 0.001", {
+  skip_no_julia()
   expect_equal(default_specs()$methylation_rate, 0.001)
 })
 
 # ── 18. demethylation_rate defaults to 0.002 ─────────────────────────────────
 test_that("demethylation_rate defaults to 0.002", {
+  skip_no_julia()
   expect_equal(default_specs()$demethylation_rate, 0.002)
 })
 
 # ── 19. methylation_rate < demethylation_rate (net demethylation pressure) ───
 test_that("methylation_rate < demethylation_rate in defaults", {
+  skip_no_julia()
   s <- default_specs()
   expect_lt(s$methylation_rate, s$demethylation_rate)
 })
 
 # ── 20. Epigenetics params are positive numerics ──────────────────────────────
 test_that("all numeric epigenetics params are positive in defaults", {
+  skip_no_julia()
   s <- default_specs()
   for (param in c("epigenetic_learning_coupling", "epigenetic_inheritance",
                   "epigenetic_effect_size", "methylation_rate",
@@ -271,6 +279,7 @@ test_that("all numeric epigenetics params are positive in defaults", {
 
 # ── 21. epigenetic_learning_coupling is in [0, 1] range ──────────────────────
 test_that("epigenetic_learning_coupling default is in [0, 1]", {
+  skip_no_julia()
   elc <- default_specs()$epigenetic_learning_coupling
   expect_gte(elc, 0)
   expect_lte(elc, 1)
@@ -278,6 +287,7 @@ test_that("epigenetic_learning_coupling default is in [0, 1]", {
 
 # ── 22. All epigenetics params round-trip through default_specs() ────────────
 test_that("epigenetics params all present and named correctly in default_specs()", {
+  skip_no_julia()
   s <- default_specs()
   expected_params <- c("epigenetics", "epigenetic_learning_coupling",
                        "epigenetic_inheritance", "epigenetic_effect_size",

@@ -27,13 +27,6 @@ library(testthat)
   s
 }
 
-skip_no_julia <- function() {
-  skip_if_not(requireNamespace("JuliaConnectoR", quietly = TRUE),
-              "JuliaConnectoR not available")
-  skip_if_not(JuliaConnectoR::juliaSetupOk(),
-              "Julia toolchain not available")
-}
-
 # Convert a JuliaArrayProxy (or anything list-like) to a plain R integer
 # count — length() is the stable API across both cases.
 .n_agents <- function(env) as.integer(length(env$agents))

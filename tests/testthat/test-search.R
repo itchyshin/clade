@@ -20,15 +20,9 @@ library(testthat)
   s
 }
 
-skip_no_julia <- function() {
-  skip_if_not(requireNamespace("JuliaConnectoR", quietly = TRUE),
-              "JuliaConnectoR not available")
-  skip_if_not(JuliaConnectoR::juliaSetupOk(),
-              "Julia toolchain not available")
-}
-
 # ── 1. search_map_elites: bad archive_dims name is rejected ──────────────────
 test_that("search_map_elites() rejects unknown archive_dims column names", {
+  skip_no_julia()
   expect_error(
     search_map_elites(
       specs_base   = .tiny_specs(),
@@ -42,6 +36,7 @@ test_that("search_map_elites() rejects unknown archive_dims column names", {
 
 # ── 2. search_gradient: invalid params raise descriptive errors ──────────────
 test_that("search_gradient() raises a descriptive error for bad params", {
+  skip_no_julia()
   # Non-existent parameter name
   expect_error(
     search_gradient(
@@ -66,6 +61,7 @@ test_that("search_gradient() raises a descriptive error for bad params", {
 
 # ── 3. search_map_elites: n_iterations = 0L returns an empty archive ─────────
 test_that("search_map_elites(n_iterations = 0L) returns empty archive", {
+  skip_no_julia()
   result <- search_map_elites(
     specs_base   = .tiny_specs(),
     archive_dims = list(genetic_diversity = seq(0, 0.5, by = 0.1)),
@@ -80,6 +76,7 @@ test_that("search_map_elites(n_iterations = 0L) returns empty archive", {
 
 # ── 4. search_map_elites: default genetic_diversity dim accepted ─────────────
 test_that("search_map_elites() accepts genetic_diversity archive dimension", {
+  skip_no_julia()
   expect_no_error(
     search_map_elites(
       specs_base   = .tiny_specs(),
@@ -169,6 +166,7 @@ test_that("search_cmaes() history has rows and correct columns (no GA needed)", 
 
 # ── 9c. search_cmaes: bad params raise descriptive error ─────────────────────
 test_that("search_cmaes() raises error for non-positive parameter value", {
+  skip_no_julia()
   expect_error(
     search_cmaes(
       .tiny_specs(grass_rate = 0),
@@ -230,6 +228,7 @@ test_that("search_gradient() history data frame has at least one row", {
 
 # ── 13. search_random: structural checks (no Julia) ───────────────────────────
 test_that("search_random() rejects unnamed search_params", {
+  skip_no_julia()
   expect_error(
     search_random(
       specs_base    = default_specs(),
@@ -385,6 +384,7 @@ test_that("search_random() samples mutation_sd within the specified range", {
 # ── search_viability: input validation (no Julia needed) ─────────────────────
 
 test_that("search_viability() rejects an unknown param_x", {
+  skip_no_julia()
   expect_error(
     search_viability(default_specs(), "not_a_param", c(0.1, 0.2),
                      verbose = FALSE),
@@ -393,6 +393,7 @@ test_that("search_viability() rejects an unknown param_x", {
 })
 
 test_that("search_viability() rejects non-numeric values_x", {
+  skip_no_julia()
   expect_error(
     search_viability(default_specs(), "grass_rate",
                      values_x = "oops", verbose = FALSE)
@@ -400,6 +401,7 @@ test_that("search_viability() rejects non-numeric values_x", {
 })
 
 test_that("search_viability() rejects an unknown param_y", {
+  skip_no_julia()
   expect_error(
     search_viability(default_specs(), "grass_rate", c(0.1, 0.2),
                      param_y  = "bad_param",
@@ -476,6 +478,7 @@ test_that("search_viability() 2D grid has both param columns", {
 }
 
 test_that("objective_complex_landscape() returns a finite scalar for a mock env", {
+  skip_no_julia()
   env <- .mock_env(wing = seq(0.1, 0.5, length.out = 30L))
   val <- objective_complex_landscape(env)
   expect_length(val, 1L)
@@ -483,11 +486,13 @@ test_that("objective_complex_landscape() returns a finite scalar for a mock env"
 })
 
 test_that("objective_complex_landscape() returns -Inf for an extinct env", {
+  skip_no_julia()
   env <- .mock_env(n_alive = rep(0L, 30L))
   expect_equal(objective_complex_landscape(env), -Inf)
 })
 
 test_that("objective_spatial_sorting() returns -Inf for extinct env", {
+  skip_no_julia()
   env <- .mock_env(n_alive = rep(0L, 30L),
                    front_disp = rep(0.5, 30L),
                    rear_disp  = rep(0.3, 30L))
@@ -495,6 +500,7 @@ test_that("objective_spatial_sorting() returns -Inf for extinct env", {
 })
 
 test_that("objective_spatial_sorting() returns numeric for valid mock env", {
+  skip_no_julia()
   env <- .mock_env(front_disp = seq(0.3, 0.7, length.out = 30L),
                    rear_disp  = rep(0.3, 30L),
                    n_front    = rep(3L, 30L))
@@ -504,12 +510,14 @@ test_that("objective_spatial_sorting() returns numeric for valid mock env", {
 })
 
 test_that("objective_iffolk() returns -Inf for extinct env", {
+  skip_no_julia()
   env <- .mock_env(n_alive = rep(0L, 30L),
                    helper = rep(0.2, 30L))
   expect_equal(objective_iffolk(env), -Inf)
 })
 
 test_that("objective_iffolk() returns numeric for valid mock env", {
+  skip_no_julia()
   env <- .mock_env(helper = seq(0.1, 0.5, length.out = 30L))
   val <- objective_iffolk(env)
   expect_length(val, 1L)

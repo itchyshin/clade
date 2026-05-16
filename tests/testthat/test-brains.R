@@ -8,22 +8,17 @@
 library(testthat)
 
 # ── Helper: skip when Julia toolchain is unavailable ──────────────────────────
-skip_no_julia <- function() {
-  skip_if_not(requireNamespace("JuliaConnectoR", quietly = TRUE),
-              "JuliaConnectoR not available")
-  skip_if_not(JuliaConnectoR::juliaSetupOk(),
-              "Julia toolchain not available")
-}
-
 # ── Structural tests (no Julia required) ─────────────────────────────────────
 
 # 7. default_specs()$brain_type is "bnn"
 test_that("default_specs() defaults to brain_type = 'bnn'", {
+  skip_no_julia()
   expect_equal(default_specs()$brain_type, "bnn")
 })
 
 # 8. brain_type = "ctrnn" passes .validate_specs()
 test_that(".validate_specs() accepts brain_type = 'ctrnn'", {
+  skip_no_julia()
   s <- default_specs()
   s$brain_type <- "ctrnn"
   expect_silent(clade:::.validate_specs(s))
@@ -31,6 +26,7 @@ test_that(".validate_specs() accepts brain_type = 'ctrnn'", {
 
 # 9. brain_type = "grn" passes .validate_specs()
 test_that(".validate_specs() accepts brain_type = 'grn'", {
+  skip_no_julia()
   s <- default_specs()
   s$brain_type <- "grn"
   expect_silent(clade:::.validate_specs(s))
@@ -38,6 +34,7 @@ test_that(".validate_specs() accepts brain_type = 'grn'", {
 
 # 10. n_genes is accessible in default_specs() and is a positive integer
 test_that("default_specs()$n_genes is a positive integer", {
+  skip_no_julia()
   n_genes <- default_specs()$n_genes
   expect_true(is.integer(n_genes) || is.numeric(n_genes))
   expect_length(n_genes, 1L)
@@ -46,6 +43,7 @@ test_that("default_specs()$n_genes is a positive integer", {
 
 # Julia source files for the two new brain types exist and are non-trivial
 test_that("brains/ctrnn.jl and brains/grn.jl exist with content", {
+  skip_no_julia()
   julia_src <- system.file("julia", "src", package = "clade")
   skip_if(!nchar(julia_src) || !dir.exists(julia_src),
           "Julia source directory not found")
@@ -59,6 +57,7 @@ test_that("brains/ctrnn.jl and brains/grn.jl exist with content", {
 
 # Clade.jl dispatches on ctrnn and grn in make_brain()
 test_that("Clade.jl make_brain dispatcher covers ctrnn and grn", {
+  skip_no_julia()
   julia_src <- system.file("julia", "src", package = "clade")
   skip_if(!nchar(julia_src) || !dir.exists(julia_src),
           "Julia source directory not found")
@@ -148,6 +147,7 @@ test_that("GRN run exhibits non-zero genetic diversity", {
 
 # 13. brain_type = "ann" is a valid option in default_specs
 test_that("brain_type = 'ann' passes .validate_specs()", {
+  skip_no_julia()
   s <- default_specs()
   s$brain_type <- "ann"
   expect_silent(clade:::.validate_specs(s))
@@ -155,11 +155,13 @@ test_that("brain_type = 'ann' passes .validate_specs()", {
 
 # 14. brain_type = "bnn" is the default
 test_that("default_specs() has brain_type = 'bnn'", {
+  skip_no_julia()
   expect_equal(default_specs()$brain_type, "bnn")
 })
 
 # 15. brain_type = "transformer" is a valid option
 test_that("brain_type = 'transformer' passes .validate_specs()", {
+  skip_no_julia()
   s <- default_specs()
   s$brain_type <- "transformer"
   expect_silent(clade:::.validate_specs(s))
@@ -167,6 +169,7 @@ test_that("brain_type = 'transformer' passes .validate_specs()", {
 
 # 16. brain_type = "synthesis" is a valid option
 test_that("brain_type = 'synthesis' passes .validate_specs()", {
+  skip_no_julia()
   s <- default_specs()
   s$brain_type <- "synthesis"
   expect_silent(clade:::.validate_specs(s))
@@ -174,6 +177,7 @@ test_that("brain_type = 'synthesis' passes .validate_specs()", {
 
 # 17. brain_type = "random" is a valid option
 test_that("brain_type = 'random' passes .validate_specs()", {
+  skip_no_julia()
   s <- default_specs()
   s$brain_type <- "random"
   expect_silent(clade:::.validate_specs(s))
@@ -181,6 +185,7 @@ test_that("brain_type = 'random' passes .validate_specs()", {
 
 # 18. hidden_layers defaults to c(8L)
 test_that("default_specs()$hidden_layers defaults to c(8L)", {
+  skip_no_julia()
   hl <- default_specs()$hidden_layers
   expect_true(is.integer(hl) || is.numeric(hl))
   expect_equal(as.integer(hl), c(8L))
@@ -188,11 +193,13 @@ test_that("default_specs()$hidden_layers defaults to c(8L)", {
 
 # 19. brain_energy_mode defaults to "activity"
 test_that("default_specs()$brain_energy_mode is 'activity'", {
+  skip_no_julia()
   expect_equal(default_specs()$brain_energy_mode, "activity")
 })
 
 # 20. brain_energy_base is a positive numeric
 test_that("default_specs()$brain_energy_base is a positive numeric", {
+  skip_no_julia()
   beb <- default_specs()$brain_energy_base
   expect_true(is.numeric(beb))
   expect_length(beb, 1L)

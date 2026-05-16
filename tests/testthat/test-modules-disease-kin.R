@@ -20,13 +20,6 @@ library(testthat)
   s
 }
 
-skip_no_julia <- function() {
-  skip_if_not(requireNamespace("JuliaConnectoR", quietly = TRUE),
-              "JuliaConnectoR not available")
-  skip_if_not(JuliaConnectoR::juliaSetupOk(),
-              "Julia toolchain not available")
-}
-
 # ── 1. Disease run completes without error ──────────────────────────────────
 test_that("run_alife with disease = TRUE completes", {
   skip_no_julia()
@@ -146,6 +139,7 @@ test_that("n_altruistic_acts accumulates over a longer kin-selection run", {
 
 # ── 9. Hamilton's rule (rB > C) holds for default kin parameters ────────────
 test_that("default kin_altruism parameters satisfy Hamilton's rule rB > C", {
+  skip_no_julia()
   s <- default_specs()
   expect_gt(s$kin_altruism_r_min * s$kin_altruism_benefit,
             s$kin_altruism_cost)
@@ -153,6 +147,7 @@ test_that("default kin_altruism parameters satisfy Hamilton's rule rB > C", {
 
 # ── 10. Module files exist on disk ──────────────────────────────────────────
 test_that("disease.jl and kin.jl are present in the bundled Julia source", {
+  skip_no_julia()
   julia_src <- system.file("julia", "src", package = "clade")
   skip_if(!nchar(julia_src) || !dir.exists(julia_src),
           "Julia source not installed")
@@ -162,6 +157,7 @@ test_that("disease.jl and kin.jl are present in the bundled Julia source", {
 
 # ── 11. Clade.jl wires in both modules ──────────────────────────────────────
 test_that("Clade.jl includes modules/disease.jl and modules/kin.jl", {
+  skip_no_julia()
   julia_src <- system.file("julia", "src", package = "clade")
   skip_if(!nchar(julia_src) || !dir.exists(julia_src),
           "Julia source not installed")

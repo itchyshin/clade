@@ -10,6 +10,7 @@
 # scenarios) are skipped.
 
 test_that("scenario signal oracle is defined and self-consistent", {
+  skip_no_julia()
   oracle_path <- testthat::test_path("..", "..", "dev", "audit",
                                      "scenario_oracle.R")
   skip_if_not(file.exists(oracle_path), "scenario_oracle.R not available")
@@ -24,12 +25,6 @@ test_that("scenario signal oracle is defined and self-consistent", {
 })
 
 # Helpers --------------------------------------------------------------------
-
-.skip_unless_julia <- function() {
-  skip_if_not_installed("JuliaConnectoR")
-  # Avoid multi-minute Julia precompile in CRAN / CI contexts.
-  skip_on_cran()
-}
 
 .direction_of <- function(x) {
   x <- x[is.finite(x)]
@@ -61,7 +56,7 @@ test_that("scenario signal oracle is defined and self-consistent", {
 # regression catchment, not reproducing the vignette's full figure.
 
 test_that("minimal run logs the disease SIR n_infected column", {
-  .skip_unless_julia()
+  skip_no_julia()
   s <- default_specs()
   s$disease           <- TRUE
   s$transmission_prob <- 0.25
@@ -76,7 +71,7 @@ test_that("minimal run logs the disease SIR n_infected column", {
 })
 
 test_that("minimal run exercises body-size evolution", {
-  .skip_unless_julia()
+  skip_no_julia()
   s <- default_specs()
   s$body_size_evolution <- TRUE
   s$max_ticks           <- 80L
@@ -88,7 +83,7 @@ test_that("minimal run exercises body-size evolution", {
 })
 
 test_that("minimal run exercises dispersal evolution trajectory", {
-  .skip_unless_julia()
+  skip_no_julia()
   s <- default_specs()
   s$dispersal_evolution <- TRUE
   s$max_ticks           <- 80L
@@ -99,7 +94,7 @@ test_that("minimal run exercises dispersal evolution trajectory", {
 })
 
 test_that("minimal run exercises niche shelter counts", {
-  .skip_unless_julia()
+  skip_no_julia()
   s <- default_specs()
   s$niche_construction <- TRUE
   s$max_ticks          <- 80L
@@ -111,7 +106,7 @@ test_that("minimal run exercises niche shelter counts", {
 })
 
 test_that("minimal run exercises scavenging event counts", {
-  .skip_unless_julia()
+  skip_no_julia()
   s <- default_specs()
   s$scavenging   <- TRUE
   s$max_ticks    <- 80L
@@ -122,7 +117,7 @@ test_that("minimal run exercises scavenging event counts", {
 })
 
 test_that("minimal run exercises speciation metric (may be flat at short scale)", {
-  .skip_unless_julia()
+  skip_no_julia()
   s <- default_specs()
   s$speciation_threshold <- 0.5
   s$max_ticks            <- 80L

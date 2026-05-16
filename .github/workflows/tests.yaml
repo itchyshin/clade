@@ -50,6 +50,13 @@ jobs:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
       NOT_CRAN: true
+      # Make `skip_no_julia()` (defined in tests/testthat/helper.R)
+      # fire unconditionally. Some ubuntu-latest runners come with
+      # Julia pre-installed at /opt/julia, which would otherwise make
+      # JuliaConnectoR::juliaSetupOk() return TRUE and pull every
+      # Julia-dependent test into the run. This env var is the
+      # authoritative no-Julia gate.
+      CLADE_SKIP_JULIA_TESTS: 'true'
 
     steps:
       - uses: actions/checkout@v4
@@ -69,33 +76,19 @@ jobs:
                                   libfribidi-dev libfreetype6-dev \
                                   libpng-dev libtiff5-dev libjpeg-dev
 
-      # `dependencies: '"hard"'` installs Depends + Imports + LinkingTo
-      # only — explicitly NOT Suggests. This skips JuliaConnectoR (in
-      # Suggests), so the `skip_no_julia()` / `skip_if_not_installed
-      # ("JuliaConnectoR")` checks in test files short-circuit before
-      # they can hit any code that tries to find Julia. The packages
-      # we genuinely need for testing are added via extra-packages
-      # below; without this hard-deps-only restriction the first run
-      # hung for 13+ minutes inside `JuliaConnectoR::juliaSetupOk()`.
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          dependencies: '"hard"'
           extra-packages: |
             any::devtools
             any::testthat
             any::withr
             any::jsonlite
 
-      # Run only the structural-guard / mock-based / pure-R test files.
-      # Many other test files in tests/testthat/ call run_alife() or
-      # other Julia entry points without a skip_no_julia() wrap (they
-      # were written assuming Julia is locally available). In CI without
-      # Julia those tests error out instead of skipping, which is both
-      # slow (~3-7s per file × 60 files = 5-7 min) and incorrect-looking.
-      # The explicit filter below is the list of test files that are
-      # genuinely Julia-free (using mocks or only reading R source).
-      # 450 tests run; runtime ~30s. New test files added later need
-      # to be added here too.
-      - name: Run no-Julia structural-guard tests
+      # Runs the full testthat suite. The CLADE_SKIP_JULIA_TESTS env
+      # var (set at job level above) makes skip_no_julia() fire
+      # unconditionally, so every test file that requires the Julia
+      # backend is skipped. The remaining tests — structural guards,
+      # mock-based unit tests, and pure-R logic — run in ~30s.
+      - name: Run testthat suite (Julia tests skip via CLADE_SKIP_JULIA_TESTS)
         run: |
-          Rscript -e 'options(crayon.enabled = FALSE); devtools::test(filter = "no-internal-leaks|vignette-field-references|spec-wiring|test-field-assertions|stream-submit|presets|batch|hypothesis|load-specs|print-specs|spec-groups-coverage|default-specs-docstring-coverage|analysis|version-strings|specs|pkgdown-consistency|readme-flag-names|maps", stop_on_failure = TRUE)'
+          Rscript -e 'options(crayon.enabled = FALSE); devtools::test(stop_on_failure = TRUE)'

@@ -9,13 +9,8 @@
 #
 # Direction-only; does not assert biological magnitudes.
 
-.skip_unless_julia <- function() {
-  skip_if_not_installed("JuliaConnectoR")
-  skip_on_cran()
-}
-
 test_that("13-module integration run completes and logs every activated module", {
-  .skip_unless_julia()
+  skip_no_julia()
 
   s <- default_specs()
   # Evolution flags

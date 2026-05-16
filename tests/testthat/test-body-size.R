@@ -31,13 +31,6 @@ library(testthat)
   )
 }
 
-skip_no_julia <- function() {
-  skip_if_not(requireNamespace("JuliaConnectoR", quietly = TRUE),
-              "JuliaConnectoR not available")
-  skip_if_not(JuliaConnectoR::juliaSetupOk(),
-              "Julia toolchain not available")
-}
-
 # env$agents is a JuliaConnectoR proxy; iterate by index to extract fields.
 .agent_bs <- function(env) {
   n <- as.integer(length(env$agents))
@@ -293,6 +286,7 @@ test_that("mean_body_size varies across ticks when body_size_mutation_sd > 0", {
 
 # ── 20. default_specs() has body_size parameters with calibrated defaults ─────
 test_that("default_specs() has body_size parameters with correct defaults", {
+  skip_no_julia()
   s <- default_specs()
   expect_true("body_size_evolution" %in% names(s))
   expect_false(s$body_size_evolution)
@@ -308,31 +302,37 @@ test_that("default_specs() has body_size parameters with correct defaults", {
 
 # ── 21. body_size_init_mean defaults to 1.0 ──────────────────────────────────
 test_that("body_size_init_mean defaults to 1.0", {
+  skip_no_julia()
   expect_identical(default_specs()$body_size_init_mean, 1.0)
 })
 
 # ── 22. body_size_min defaults to 0.3 ────────────────────────────────────────
 test_that("body_size_min defaults to 0.3", {
+  skip_no_julia()
   expect_identical(default_specs()$body_size_min, 0.3)
 })
 
 # ── 23. body_size_max defaults to 3.0 ────────────────────────────────────────
 test_that("body_size_max defaults to 3.0", {
+  skip_no_julia()
   expect_identical(default_specs()$body_size_max, 3.0)
 })
 
 # ── 24. body_size_mutation_sd defaults to 0.08 ───────────────────────────────
 test_that("body_size_mutation_sd defaults to 0.08", {
+  skip_no_julia()
   expect_identical(default_specs()$body_size_mutation_sd, 0.08)
 })
 
 # ── 25. body_size_evolution defaults to FALSE ─────────────────────────────────
 test_that("body_size_evolution defaults to FALSE", {
+  skip_no_julia()
   expect_identical(default_specs()$body_size_evolution, FALSE)
 })
 
 # ── 26. body_size params round-trip through default_specs() ──────────────────
 test_that("body_size params round-trip through default_specs()", {
+  skip_no_julia()
   s <- default_specs()
   expect_equal(s$body_size_evolution,   FALSE)
   expect_equal(s$body_size_init_mean,   1.0)

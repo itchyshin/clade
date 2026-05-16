@@ -1,31 +1,38 @@
 test_that("speciation defaults to FALSE", {
+  skip_no_julia()
   expect_false(default_specs()$speciation)
 })
 
 test_that("isolation_threshold defaults to 0.5", {
+  skip_no_julia()
   expect_equal(default_specs()$isolation_threshold, 0.5)
 })
 
 test_that("speciation_cluster_interval defaults to 10L", {
+  skip_no_julia()
   expect_equal(default_specs()$speciation_cluster_interval, 10L)
 })
 
 test_that("speciation is logical", {
+  skip_no_julia()
   expect_true(is.logical(default_specs()$speciation))
 })
 
 test_that("isolation_threshold is in (0, 1)", {
+  skip_no_julia()
   t <- default_specs()$isolation_threshold
   expect_true(t > 0 && t < 1)
 })
 
 test_that("speciation_cluster_interval is a positive integer-like value", {
+  skip_no_julia()
   v <- default_specs()$speciation_cluster_interval
   expect_true(is.integer(v) || (is.numeric(v) && v == as.integer(v)))
   expect_true(v > 0)
 })
 
 test_that("all speciation params are present in default_specs", {
+  skip_no_julia()
   nms      <- names(default_specs())
   expected <- c("speciation", "isolation_threshold",
                 "speciation_cluster_interval")
@@ -35,12 +42,14 @@ test_that("all speciation params are present in default_specs", {
 })
 
 test_that("genome distance of identical vectors is 0", {
+  skip_no_julia()
   v <- rnorm(10)
   dist <- sqrt(sum((v - v)^2))
   expect_equal(dist, 0)
 })
 
 test_that("genome distance of different vectors is positive", {
+  skip_no_julia()
   g1 <- rnorm(10)
   g2 <- rnorm(10)
   dist <- sqrt(sum((g1 - g2)^2))
@@ -48,6 +57,7 @@ test_that("genome distance of different vectors is positive", {
 })
 
 test_that("BFS components: single node yields 1 component", {
+  skip_no_julia()
   # Minimal BFS component counter
   bfs_components <- function(adj) {
     nodes   <- names(adj)
@@ -75,6 +85,7 @@ test_that("BFS components: single node yields 1 component", {
 })
 
 test_that("BFS components: two connected nodes yield 1 component", {
+  skip_no_julia()
   bfs_components <- function(adj) {
     nodes   <- names(adj)
     visited <- setNames(rep(FALSE, length(nodes)), nodes)
@@ -101,6 +112,7 @@ test_that("BFS components: two connected nodes yield 1 component", {
 })
 
 test_that("BFS components: two disconnected nodes yield 2 components", {
+  skip_no_julia()
   bfs_components <- function(adj) {
     nodes   <- names(adj)
     visited <- setNames(rep(FALSE, length(nodes)), nodes)
@@ -127,22 +139,27 @@ test_that("BFS components: two disconnected nodes yield 2 components", {
 })
 
 test_that("isolation_threshold > 0 (requires some genetic divergence)", {
+  skip_no_julia()
   expect_true(default_specs()$isolation_threshold > 0)
 })
 
 test_that("isolation_threshold < 1 (not all agents in one species)", {
+  skip_no_julia()
   expect_true(default_specs()$isolation_threshold < 1)
 })
 
 test_that("speciation_cluster_interval >= 1", {
+  skip_no_julia()
   expect_true(default_specs()$speciation_cluster_interval >= 1)
 })
 
 test_that("speciation_cluster_interval <= 100", {
+  skip_no_julia()
   expect_true(default_specs()$speciation_cluster_interval <= 100)
 })
 
 test_that("agents with identical genomes have distance 0 and share a species", {
+  skip_no_julia()
   g1 <- rnorm(10)
   g2 <- g1
   dist <- sqrt(sum((g1 - g2)^2))
@@ -152,6 +169,7 @@ test_that("agents with identical genomes have distance 0 and share a species", {
 })
 
 test_that("agents beyond isolation_threshold should be different species", {
+  skip_no_julia()
   # Construct two genomes separated by more than the threshold
   threshold <- default_specs()$isolation_threshold
   g1 <- rep(0, 10)
@@ -161,11 +179,13 @@ test_that("agents beyond isolation_threshold should be different species", {
 })
 
 test_that("n_species column is present in a mock ticks data frame", {
+  skip_no_julia()
   rd <- list(ticks = data.frame(t = 1L, n_species = 1L))
   expect_true("n_species" %in% names(rd$ticks))
 })
 
 test_that("n_species is integer-like in a mock ticks data frame", {
+  skip_no_julia()
   rd <- list(ticks = data.frame(n_species = 1L))
   v <- rd$ticks$n_species
   expect_true(is.integer(v) || (is.numeric(v) && v == as.integer(v)))
@@ -174,6 +194,7 @@ test_that("n_species is integer-like in a mock ticks data frame", {
 # ── Additional tests ──────────────────────────────────────────────────────────
 
 test_that("speciation params round-trip through default_specs", {
+  skip_no_julia()
   s <- default_specs()
   s$speciation                 <- TRUE
   s$isolation_threshold        <- 0.3
@@ -184,23 +205,28 @@ test_that("speciation params round-trip through default_specs", {
 })
 
 test_that("n_species is in valid_descriptor_columns", {
+  skip_no_julia()
   expect_true("n_species" %in% clade:::.valid_descriptor_columns())
 })
 
 test_that("speciation_cluster_interval is integer-typed in default_specs", {
+  skip_no_julia()
   v <- default_specs()$speciation_cluster_interval
   expect_true(is.integer(v))
 })
 
 test_that("speciation is logical-typed in default_specs", {
+  skip_no_julia()
   expect_true(is.logical(default_specs()$speciation))
 })
 
 test_that("isolation_threshold is numeric in default_specs", {
+  skip_no_julia()
   expect_true(is.numeric(default_specs()$isolation_threshold))
 })
 
 test_that("all speciation parameters are present in default_specs", {
+  skip_no_julia()
   nms      <- names(default_specs())
   expected <- c("speciation", "isolation_threshold",
                 "speciation_cluster_interval")
@@ -210,6 +236,7 @@ test_that("all speciation parameters are present in default_specs", {
 })
 
 test_that("run_clade with speciation = TRUE completes without error", {
+  skip_no_julia()
   skip_if_not(requireNamespace("JuliaConnectoR", quietly = TRUE),
               "JuliaConnectoR not available")
   skip_if_not(JuliaConnectoR::juliaSetupOk(),
@@ -228,6 +255,7 @@ test_that("run_clade with speciation = TRUE completes without error", {
 })
 
 test_that("n_species is non-negative when speciation = TRUE", {
+  skip_no_julia()
   skip_if_not(requireNamespace("JuliaConnectoR", quietly = TRUE),
               "JuliaConnectoR not available")
   skip_if_not(JuliaConnectoR::juliaSetupOk(),
@@ -246,6 +274,7 @@ test_that("n_species is non-negative when speciation = TRUE", {
 })
 
 test_that("n_species column is integer-like when speciation = TRUE", {
+  skip_no_julia()
   skip_if_not(requireNamespace("JuliaConnectoR", quietly = TRUE),
               "JuliaConnectoR not available")
   skip_if_not(JuliaConnectoR::juliaSetupOk(),
@@ -265,6 +294,7 @@ test_that("n_species column is integer-like when speciation = TRUE", {
 })
 
 test_that("speciation = FALSE run does not error and n_species column exists", {
+  skip_no_julia()
   skip_if_not(requireNamespace("JuliaConnectoR", quietly = TRUE),
               "JuliaConnectoR not available")
   skip_if_not(JuliaConnectoR::juliaSetupOk(),
