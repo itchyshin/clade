@@ -52,6 +52,29 @@ test_that("wolf_personality_specs() returns a valid spec list with personality_s
   expect_equal(s$personality_alpha, 0.005)
 })
 
+# Pin every value documented in the roxygen `@details` table so future
+# drift between docstring and code is caught immediately. Same pattern as
+# `test-presets.R`'s "documented values match code" block (Phase A item 8).
+test_that("wolf_personality_specs() documented values match code", {
+  s <- wolf_personality_specs()
+  expect_true(s$personality_syndrome)
+  expect_equal(s$min_repro_energy, 1e9)
+  expect_equal(s$min_repro_age,    0L)
+  expect_equal(s$max_age,          999L)
+  expect_equal(s$grid_rows,        30L)
+  expect_equal(s$grid_cols,        30L)
+  expect_equal(s$n_agents_init,    60L)
+  expect_equal(s$max_agents,       500L)
+  expect_equal(s$max_ticks,        2000L)
+  expect_equal(s$ploidy,           1L)
+})
+
+test_that("wolf_personality_specs() does not mutate default_specs()", {
+  baseline <- default_specs()
+  invisible(wolf_personality_specs())
+  expect_identical(default_specs(), baseline)
+})
+
 test_that("personality_syndrome defaults to FALSE in default_specs()", {
   expect_false(default_specs()$personality_syndrome)
 })

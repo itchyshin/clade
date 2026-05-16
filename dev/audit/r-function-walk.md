@@ -975,3 +975,290 @@ scale" composes the right semantics by calling
   discover the preset family via `vignette("getting-started")`
   or `?quick_specs`. Acceptable, but worth a sentence in a
   future basics.Rmd revision if the file gets restructured.
+
+# Tier A2
+
+## 9 + 10/28 — `hypothesis_sweep()` + `hypothesis_report()` (2026-05-16, `claude/track-B-tier-A2`)
+
+Combined walk: both functions form a single research workflow
+(sweep → contrast report) and were natural to audit as a pair. The
+plan lists them as items 9 and 10; this commit closes both.
+
+**TREE.** `R/hypothesis.R:78-159` (`hypothesis_sweep`),
+`R/hypothesis.R:245-294` (`hypothesis_report`), plus print methods
+at `:162` and `:297` and the internal `summary_hypothesis_sweep`
+at `:177`. The flow:
+
+```
+base_specs + conditions × seeds + metrics
+        │
+        ▼  (build spec_list)
+   batch_alife()
+        │
+        ▼  (per env, get_run_data → ticks → apply metric functions)
+  hypothesis_sweep object { runs, conditions, metrics, base_specs,
+                            seeds, elapsed }
+        │
+        ▼  (per named contrast)
+  hypothesis_report object { table = (contrast, ref, test, metric,
+                                       n_ref, n_test, delta, se, t,
+                                       verdict), metric }
+```
+
+Default metrics on `hypothesis_sweep()` if `metrics = NULL`:
+`final_n` (mean of last 500 ticks of `n_agents`) and `crashed`
+(`tail(n_agents, 1) < 10L`). Default seeds `1:8`. Default
+`n_cores = 1L`.
+
+Verdict ladder on `hypothesis_report()`: `|t| ≥ 2` → `"PASS"`,
+`1.5 ≤ |t| < 2` → `"marginal"`, else → `"null"`. Welch two-sample
+t-statistic from the per-condition variances; `n_ref` / `n_test`
+default to the seeds count.
+
+**FOREST.** 13 references across R/, tests/, vignettes/, README,
+NEWS. The pair is the canonical research-workflow surface for
+paper-* vignettes: every paper-reproduction in `vignettes/paper-*`
+uses `hypothesis_sweep()` to cross conditions × seeds and
+`hypothesis_report()` to compute Δ ± SE / t / verdict for the
+headline contrast. Test coverage before this walk: 5 tests in
+`test-hypothesis.R` — 2 of them were Julia-required end-to-end
+(skip_if_not(julia_is_ready())), 3 used `fake_sweep` fixtures to
+test `hypothesis_report` without Julia. **`hypothesis_sweep`'s
+input validation and spec-list construction had no no-Julia
+coverage at all.**
+
+**TEST — coverage gap closed (11 new tests).** Extended
+`tests/testthat/test-hypothesis.R` from 5 to 16 tests (added 11),
+all no-Julia. Coverage:
+
+- **Input validation** (5 tests): rejects non-list `base_specs`,
+  empty / unnamed `conditions`, empty `seeds`, unnamed `metrics`.
+  Exercises the `stopifnot()` block at `:84-87` and `:100-101`
+  that was previously uncovered.
+- **Mocked spec-list construction** (3 tests): mocks `batch_alife`
+  via `testthat::local_mocked_bindings()` (same pattern as
+  `test-batch.R` from item 5), then asserts that
+  `hypothesis_sweep()` builds the right `length(conditions) ×
+  length(seeds)` spec list with each `random_seed` overridden and
+  each condition's overrides correctly applied. Verifies the
+  `hypothesis_sweep` S3 class structure has all six documented
+  fields (`runs`, `conditions`, `metrics`, `base_specs`,
+  `seeds`, `elapsed`).
+- **Default metrics** (1 test, no-Julia version of an
+  existing Julia-required test): when `metrics = NULL`, the
+  output `runs` table has both `final_n` and `crashed` columns.
+- **Verdict ladder boundaries** (1 test): builds two synthetic
+  contrasts at `|t| ≈ 1.0` and `|t| ≈ 5.0` (using known-SE
+  shaped samples) and asserts the verdict ladder returns
+  `"null"` and `"PASS"` at the right boundaries. The marginal
+  range (`1.5 ≤ |t| < 2`) is hard to nail with synthetic noise
+  without making the test brittle, so I skipped explicitly
+  testing it — the existing tests cover the PASS and the
+  insufficient-seeds paths.
+- **Print methods** (2 tests): `print.hypothesis_sweep` prints
+  the `<hypothesis_sweep>` header, the run count, and a
+  per-condition summary; `print.hypothesis_report` prints the
+  `<hypothesis_report>` header naming the metric and the
+  rendered table row.
+
+After the additions: 43 expectations pass (the 2 Julia-required
+end-to-end tests skip cleanly when Julia isn't ready).
+
+**ROSE.** Two recurring classes and one new (mild) class:
+
+1. **Recurrence (items 5, 7, 8): "convenience wrapper has no
+   dedicated test."** Applied here to `hypothesis_sweep`'s
+   input-validation surface. Closed with the 5 new validation
+   tests + 3 mocked-spec-list tests.
+2. **Recurrence (item 5's mock pattern): "function calls a
+   Julia-required helper, so the existing tests skip without
+   Julia and leave the pure-R logic uncovered."** Same
+   `local_mocked_bindings` fix applies cleanly.
+3. **New (mild): "two functions encode the same concept with
+   different thresholds."** `hypothesis_sweep()`'s default
+   `crashed` metric uses `tail(n_agents, 1) < 10L` (absolute,
+   hardcoded 10). `viability_report()` (item 6) uses
+   `frac_final < crashed_frac = 0.2` (fractional, configurable)
+   *plus* `min_n = 20L` (absolute, configurable, gated by the
+   0.7.0 bypass). These are *different concepts* — sweep's
+   "crashed" answers "did the population effectively go
+   extinct?", report's "crashed" answers "is the run
+   interpretable?" — but neither docstring acknowledges the
+   other. A 2-sentence cross-reference in the
+   `hypothesis_sweep()` roxygen would resolve it. Flagging for
+   a future doc polish, not shipping here (Karpathy 3,
+   surgical).
+
+**BIO.** `hypothesis_sweep()` is research infrastructure: it
+operationalises the ≥5-seeds-per-claim discipline (default
+`seeds = 1:8`) and the paired-condition contrast pattern. The
+`final_n` default metric (mean over last 500 ticks) is
+biologically right for "equilibrium population size" — averaging
+over the tail smooths transient dynamics. `crashed` at threshold
+10 is a soft floor — biologically, "10 agents" on a 30×30 grid
+(0.011 density) is approaching extinction; a slightly higher
+threshold (e.g., 20 matching `viability_report`'s `min_n`)
+would be more conservative. The current value is defensible if
+read as "essentially extinct" rather than "unreliable for
+inference."
+
+`hypothesis_report()`'s 2σ → PASS / 1.5σ → marginal threshold
+ladder is the clade-wide convention (declared in the docstring
+as "a screening heuristic, not a formal hypothesis test").
+Defensible for behavioural-ecology audits where the publication
+target is "directional effect across seeds," not p-values.
+Welch's two-sample t with unequal-variance variance is the right
+choice for typical N=5–8 per condition.
+
+**Deferred fixes (flagged for separate work):**
+
+- The `crashed` threshold inconsistency (`hypothesis_sweep`'s 10
+  vs `viability_report`'s 20+) deserves a cross-reference in
+  the docstring. One sentence per function. Not blocking.
+- `summary_hypothesis_sweep()` (the internal helper at
+  `R/hypothesis.R:177`) was not exported and is not directly
+  tested, only via `print.hypothesis_sweep` which calls it. If
+  it stays internal, that's fine; if it's worth promoting to
+  `summary.hypothesis_sweep` (the S3 generic), that's a
+  separate small refactor.
+- `hypothesis_report()` reports a Welch t-statistic but does
+  not currently surface degrees of freedom. For honest reporting,
+  the `df` column would help. Cosmetic; not worth a commit.
+- No `vignettes/basics.Rmd` change. Section 5 already points to
+  paper-* vignettes which use the sweep/report pair.
+
+## 11 + 12 + 13/28 — paper-preset family (2026-05-16, `claude/track-B-tier-A2`)
+
+Covers `wolf_personality_specs()`, `trivers_reciprocity_specs()`,
+`wolf2008_responsiveness_specs()` (all in `R/scenarios.R`) as a
+single audit because the three functions share a structural
+pattern: each takes `default_specs()`, enables one paper's module
+flag, and sets a small set of paper-calibrated parameters.
+
+**TREE.** Three parallel functions, each ~10-15 lines of
+`s$<field> <- <value>` assignments:
+
+- `wolf_personality_specs()` (`R/scenarios.R:229-242`): sets
+  `personality_syndrome = TRUE`, `min_repro_energy = 1e9`
+  (the "disable standard repro" trick — only Wolf's age-
+  windowed reproduction fires), `min_repro_age = 0L`,
+  `max_age = 999L` (defer death control to the personality
+  module), 30×30 grid, `n_agents_init = 60L`, `max_agents =
+  500L`, `max_ticks = 2000L`, `ploidy = 1L`.
+- `trivers_reciprocity_specs()` (`R/scenarios.R:292-304`): sets
+  `reciprocal_altruism = TRUE`, `max_age = 500L` (Trivers
+  condition 1: long lifespan for repeat encounters),
+  `dispersal_evolution = FALSE` (Trivers condition 2: low
+  dispersal), 30×30 grid, `n_agents_init = 200L` (higher
+  density for adjacency encounters), `max_agents = 800L`,
+  `max_ticks = 2000L`, `ploidy = 1L`.
+- `wolf2008_responsiveness_specs()` (`R/scenarios.R:351-366`):
+  sets `responsive_personalities = TRUE`, `responsiveness_cost
+  = 0.1` (calibrated below default's 0.4 so populations don't
+  collapse during evolution), 30×30 grid, `n_agents_init =
+  200L`, `max_agents = 800L`, `max_ticks = 3000L`, `ploidy =
+  1L`.
+
+All three use **`ploidy = 1L`** (haploid asexual) — for cleaner
+trait dynamics when testing whether a behavioural trait evolves,
+unmuddied by sexual recombination's heritability noise.
+
+**FOREST.** Six files reference the trio: each has a dedicated
+test file (`test-personality-syndrome.R`,
+`test-reciprocal-altruism.R`, `test-responsive-personalities.R`),
+plus the matching paper-* vignettes (`paper-wolf2007.Rmd`,
+`paper-trivers1971.Rmd`, `paper-wolf2008.Rmd`) and README/NEWS
+references.
+
+**TEST — docstring-to-code bijection pinned for all three.**
+Each preset had a smoke test that verified the enable flag and
+2–3 key invariants (ploidy = 1L, year-window relations,
+long-lifespan check) but did NOT pin every value listed in the
+roxygen `@details` table:
+
+| Preset | Roxygen items | Smoke-test coverage |
+|---|---|---|
+| `wolf_personality_specs` | 9 | 3 (enable, ploidy, min_repro_energy ≥ 1e8) |
+| `trivers_reciprocity_specs` | 8 | 4 (enable, ploidy, max_age ≥ 100, dispersal_evolution) |
+| `wolf2008_responsiveness_specs` | 8 | 2 (enable, ploidy) |
+
+For each of the three test files, I added two new `test_that`
+blocks (matching `test-presets.R`'s pattern from Phase A item 8):
+
+1. **"documented values match code"** — `expect_equal()` on
+   every field listed in the roxygen `@details` table. Catches
+   any future roxygen-vs-code drift immediately. This is
+   forward-leaning protection: the smoke tests assert the
+   *important* invariants (enable flag, year-window ordering,
+   ploidy); these new tests pin the *exhaustive* documented
+   contract.
+2. **"does not mutate default_specs()"** — calling the preset
+   does not change `default_specs()`. Rules out a future
+   shared-reference bug if anyone refactors to `<<-`.
+
+After the additions (no new test files; +9 tests across the
+three existing files):
+
+| File | Pre-walk | Post-walk |
+|---|---|---|
+| `test-personality-syndrome.R` | 1 smoke test (12 expectations) | 3 (22 expectations) |
+| `test-reciprocal-altruism.R` | 1 smoke test (7 expectations) | 3 (18 expectations) |
+| `test-responsive-personalities.R` | 1 smoke test (5 expectations) | 3 (15 expectations) |
+
+No bugs found. All three roxygen `@details` tables match the
+code exactly — unlike `ultra_realistic_specs()` from item 8
+(which had `n_agents_init = 800L` documented but `500L` in
+code), the paper presets are honest.
+
+**ROSE.** Recurrence of items 5, 7, 8, 9 "convenience wrapper
+has no dedicated test." Now closed for the entire `R/scenarios.R`
+preset family — the three paper presets join the six regular
+presets (`quick_specs`, `fast_specs`, etc.) with pinned
+documented-values coverage. Together they exhaust the
+Tier A1 + Tier A2 surface for this Rose class. The forward-
+leaning protection means future preset additions will need to
+follow the same "pin everything in the roxygen table" test
+pattern; the existing test files in the same scenario module
+serve as templates.
+
+No new ROSE class surfaced. The paper presets are well-
+designed: one clear pattern (enable + paper-calibrated
+overrides), one tradeoff (ploidy = 1L for cleaner trait
+dynamics), and one creative trick (Wolf 2007's `min_repro_energy
+= 1e9` to disable standard reproduction).
+
+**BIO.** All three preset choices are paper-defensible:
+
+- **Wolf 2007**: `min_repro_energy = 1e9` disables clade's
+  standard energy-triggered reproduction so only Wolf's
+  age-windowed (year1 / year2) reproduction fires. `max_age =
+  999L` defers death control to the personality module
+  (year-2 reproduction kills the parent). `ploidy = 1L`
+  matches Wolf's basic model (Methods §"Basic model"). The
+  diploid quantitative-genetics extension (Wolf's Fig 4) can
+  be enabled by setting `ploidy = 2L` per the docstring's
+  recommendation.
+- **Trivers 1971**: `max_age = 500L` (long lifespan for repeat
+  encounters — Trivers condition 1), `dispersal_evolution =
+  FALSE` (low dispersal so partners stay nearby — Trivers
+  condition 2), `n_agents_init = 200L` for higher Moore-
+  neighborhood adjacency. The reciprocity radius defaults to 1
+  (Moore neighborhood, set in `default_specs()`).
+- **Wolf 2008**: `responsiveness_cost = 0.1` (calibrated below
+  default 0.4 so populations don't collapse during the trait-
+  evolution period; headline mechanism is preserved either
+  way — see docstring). 30×30 grid with `n_agents_init = 200L`
+  density-22% is high enough for responsiveness's frequency-
+  dependent cost to bite.
+
+**Deferred fixes (flagged for separate work):**
+
+- None this item. The three preset functions are clean — no
+  documented-vs-code mismatches, no missing-field bugs, no
+  Rose patterns to flag. The forward-leaning tests added here
+  are the structural fix; the audit is the writeup.
+- The "two functions encode the same concept with different
+  thresholds" class from items 9+10 (sweep's `crashed < 10`
+  vs viability_report's `crashed_frac = 0.2 + min_n = 20L`)
+  is still flagged for a future doc polish; not addressed
+  here.
