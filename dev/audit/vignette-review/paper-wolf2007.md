@@ -65,7 +65,18 @@ Ran `dev/audit/fidelity/paper_wolf2007.R` (8 sims × 5000 ticks, 4.6 min). **Hea
 
 This is also a candidate finding for Sergio's v0.8-core review — the result suggests either (a) the kernel implementation has residual issues at 5000-tick scale, (b) Wolf's mean-field result doesn't reproduce under clade's spatially-explicit interpretation even with the per-strategy denominator, or (c) more ticks / different parameter calibration are needed. Worth flagging.
 
+## Vignette prose update (2026-05-16)
+
+✅ **Done in this PR**: vignette updated. Changes:
+
+1. Headline "Typical values" table caption changed from "seed = 42" to "seed = 42 only" — explicit single-seed framing.
+2. Replaced the post-table claim ("The defining prediction ... is reliably positive and grew threefold") with the actual situation ("This single-seed observation suggested ... but that read does not survive multi-seed scrutiny") and a forward-pointer to the new section.
+3. Added a new **"Multi-seed verification (2026-05-16)"** section before "Honest discussion of magnitudes". Contains the per-seed and aggregate tables, the null verdict for all three correlations, and three possible explanations ranked by likelihood (seed-variance-dominates, spatial-pairing-structure, implementation-issue).
+4. Added a caveat callout at the bottom of "Critique-aware framing" noting that the McElreath "+0.307 at 5 000 ticks" bullet is itself a single-seed observation that doesn't survive multi-seed scrutiny — pointing to the same multi-seed rds upgrade pattern.
+
+The single-seed table is preserved (it's historical record) but reframed as "this is what one seed produced, here's what 8 seeds say." Vignette is now honest about the null verdict without erasing the historical context.
+
 ## Deferred fixes
 
-- Update vignette prose to surface the null verdict — currently the vignette overstates with "the test asserts the strongest of the three predictions". The strongest prediction is also null at 8 seeds; the single-seed pass was a noise-envelope landing.
 - This rds is a regression baseline for v0.8-core: if Sergio's kernel reset changes the syndrome strength, the diff will be visible here.
+- The critique-aware vignettes (McElreath + Massol-Crochet) carry their own single-seed observations that should be upgraded to multi-seed rds in a future session — flagged in `dev/audit/vignette-review/paper-mcelreath-2007.md` and `paper-massol-crochet-2008.md`.

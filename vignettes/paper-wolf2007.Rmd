@@ -117,7 +117,7 @@ cor(ex, ag)   # predicted negative — high-x agents are less aggressive
 cor(bo, ag)   # predicted positive — boldness-aggressiveness syndrome
 ```
 
-Typical values at this configuration (seed = 42):
+Typical values at this configuration (seed = 42 only):
 
 | Correlation | Predicted | Phase 3a (no denominator) | Phase 6 (with `α=0.005`) |
 |---|---|---|---|
@@ -125,14 +125,81 @@ Typical values at this configuration (seed = 42):
 | Pearson(exploration, aggressiveness)  | < 0 | −0.09 | −0.01 |
 | Pearson(boldness, aggressiveness)     | > 0 | +0.10 | **+0.31** |
 
-The defining prediction of Wolf 2007 — the **boldness-aggressiveness
-syndrome** — is reliably positive and grew threefold when the
-`(1+α·N_i)` denominator was added in Phase 6. The asset-protection
-signs (exp ↔ bold, exp ↔ aggro) are weaker / sign-flipped because the
-denominator regulates year-2 reward and the equilibrium population
-structure clade reaches doesn't develop the year-1-vs-year-2 dimorphism
-that Wolf's mean-field model predicts. See "Honest discussion of
-magnitudes" below.
+This single-seed observation suggested the Phase 6 `(1+α·N_i)`
+denominator strengthened the bold-aggro syndrome from +0.10 to
+**+0.31** — a threefold improvement. **But that read does not survive
+multi-seed scrutiny.** The next section reports the rigorous 8-seed
+verdict, which reclassifies all three correlations as null.
+
+## Multi-seed verification (2026-05-16)
+
+A multi-seed regression baseline at the default `wolf_personality_specs()`
+configuration — 8 seeds × 5000 ticks, single condition — was generated
+by `dev/audit/fidelity/paper_wolf2007.R` and saved to
+`dev/audit/fidelity/paper_wolf2007.rds`. Per-seed correlations:
+
+| seed | cor(bold, aggro) | cor(exp, bold) | cor(exp, aggro) | n_alive |
+|---:|---:|---:|---:|---:|
+| 1 | **−0.370** | −0.017 | −0.023 | 402 |
+| 2 | +0.248 | +0.013 | −0.115 | 401 |
+| 3 | −0.201 | +0.017 | −0.226 | 424 |
+| 4 | +0.201 | +0.068 | +0.058 | 402 |
+| 5 | −0.331 | −0.142 | +0.262 | 422 |
+| 6 | +0.052 | +0.032 | −0.084 | 430 |
+| 7 | +0.193 | −0.034 | +0.014 | 419 |
+| 8 | −0.251 | +0.064 | −0.163 | 418 |
+
+Aggregate across 8 seeds, with 2σ verdict ladder:
+
+| Correlation | Predicted | Mean ± SE | t | Verdict |
+|---|---|---:|---:|:---:|
+| cor(bold, aggro) | > 0 (syndrome) | **−0.057 ± 0.091** | −0.63 | **null** |
+| cor(exp, bold) | < 0 (asset-protection) | +0.000 ± 0.024 | +0.01 | **null** |
+| cor(exp, aggro) | < 0 (asset-protection) | −0.034 ± 0.054 | −0.64 | **null** |
+
+**The boldness-aggressiveness syndrome is null at 8 seeds.** Per-seed
+correlations range from **−0.37** (seed 1) to **+0.25** (seed 2) with
+no systematic direction. The single-seed observation reported above
+(+0.31 at seed 42, which is *not* one of the 8 seeds in this rerun
+— the rerun used seeds 1–8 to match clade's `batch_seeds()` default)
+falls inside the +0.21 to +0.25 upper tail of the 8-seed distribution
+but isn't representative.
+
+**Honest reclassification:** in clade's current kernel, the spatially-
+explicit interpretation of Wolf 2007 does NOT robustly reproduce the
+personality syndrome at the 5000-tick / 8-seed scale tested here.
+This is consistent with the "Honest discussion of magnitudes" below
+(weaker selection signal from local-density encounters) but **more
+severe** than the single-seed result suggested — the verdict is null,
+not a small but reliable positive.
+
+Possible explanations for the gap, in decreasing order of likelihood:
+
+- **Seed variance dominates the signal at 5000 ticks.** The SE on
+  bold-aggro (0.091) exceeds the absolute mean of every single-seed
+  observation except 1 and 5. Longer runs (15 000+ ticks) might
+  resolve an equilibrium, but that's also the regime where Wolf's
+  syndrome decays per McElreath 2007 — see "Critique-aware framing"
+  below.
+- **Spatial-pairing structure breaks the mean-field signal.** Wolf's
+  result depends on every agent pairing with every other in the
+  between-phase; clade's Moore-neighborhood pairing produces a
+  fundamentally different game structure. The per-strategy
+  `(1+α·N_i)` denominator (Phase 6) is the only kernel knob that
+  partially bridges the gap; tweaking the snapshot frequency or
+  hawk-dove radius might push the signal up but should be tested
+  explicitly.
+- **Implementation issue in `inst/julia/src/modules/personality.jl`.**
+  Lower-likelihood but worth keeping on the list. The deterministic
+  kernel module has been reviewed but a multi-seed null at this scale
+  is a candidate finding for Sergio's v0.8-core review.
+
+The seed-42 +0.31 observation should be read as a noise-envelope
+landing, not a robust syndrome signal. Phase 6's
+`(1+α·N_i)` denominator may still be doing useful work (none of the
+seeds produce the +0.30+ magnitude under the pre-Phase-6 codepath
+either) — but its benefit has to be re-evaluated against the multi-
+seed baseline, not the seed-42 single-shot.
 
 ## Visualising the trait distribution
 
@@ -283,6 +350,17 @@ Two published critiques of Wolf 2007 are directly testable in clade:
   decays to +0.032 by 15 000 ticks. The critique is strongly borne
   out: Wolf's headline correlation is a transient phenomenon at the
   simulation length he reports.
+
+> **Caveat (2026-05-16)**: both critique-aware vignettes are
+> single-seed at present. The Multi-seed verification above shows
+> the bold-aggro syndrome is null at 8 seeds × 5000 ticks (mean
+> −0.057 ± 0.091), so the "+0.307 at 5 000 ticks" reference in the
+> McElreath bullet is itself a single-seed observation that doesn't
+> survive multi-seed scrutiny at the same scale. Both critique
+> vignettes would benefit from multi-seed rds upgrades —
+> `dev/audit/fidelity/paper_mcelreath_2007.R` and
+> `paper_massol_crochet_2008.R` are flagged as deferred work in
+> the corresponding `dev/audit/vignette-review/` entries.
 
 ## References
 
