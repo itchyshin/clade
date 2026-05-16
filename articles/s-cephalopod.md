@@ -1,6 +1,6 @@
 # The cephalopod paradox
 
-### The cephalopod paradox — short lifespan selects for fast learning
+## The cephalopod paradox — short lifespan selects for fast learning
 
 **What it models.** Classical life-history theory predicts that
 long-lived organisms should invest more heavily in learning, because
@@ -70,7 +70,7 @@ ggplot(lr_df, aes(x = max_age, y = mean_lr_final)) +
   theme_minimal()
 ```
 
-### Calibrated regime (CMA-ES discovered)
+## Calibrated regime (CMA-ES discovered)
 
 Running Phase 7 auto-calibration (`dev/audit/calibration/`) over the
 scenario’s parameter subspace discovered the following regime, which
@@ -130,7 +130,7 @@ enough experience to train. At `max_age = 30` (cephalopod-like,
 default) the population is robustly viable, and the evolved learning
 rate is measurably highest.
 
-### Discovery experiments
+## Discovery experiments
 
 The baseline result shows evolved learning rate is highest at short
 lifespans and declines as lifespan increases, consistent with the

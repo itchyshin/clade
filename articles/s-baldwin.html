@@ -176,9 +176,9 @@
 
     
     
-<div class="section level3">
-<h3 id="bnn-uncertainty-canalization-the-baldwin-effect">BNN uncertainty canalization — the Baldwin Effect<a class="anchor" aria-label="anchor" href="#bnn-uncertainty-canalization-the-baldwin-effect"></a>
-</h3>
+<div class="section level2">
+<h2 id="bnn-uncertainty-canalization-the-baldwin-effect">BNN uncertainty canalization — the Baldwin Effect<a class="anchor" aria-label="anchor" href="#bnn-uncertainty-canalization-the-baldwin-effect"></a>
+</h2>
 <p><strong>What it models.</strong> The Bayesian neural network (BNN)
 brain type (<code>brain_type = "bnn"</code>) places a prior distribution
 over each synaptic weight, parameterised by a mean μ and a standard
@@ -279,9 +279,9 @@ tests</td>
 </table>
 <hr>
 </div>
-<div class="section level3">
-<h3 id="baseline-does-the-baldwin-effect-occur-in-a-foraging-world">Baseline: does the Baldwin Effect occur in a foraging world?<a class="anchor" aria-label="anchor" href="#baseline-does-the-baldwin-effect-occur-in-a-foraging-world"></a>
-</h3>
+<div class="section level2">
+<h2 id="baseline-does-the-baldwin-effect-occur-in-a-foraging-world">Baseline: does the Baldwin Effect occur in a foraging world?<a class="anchor" aria-label="anchor" href="#baseline-does-the-baldwin-effect-occur-in-a-foraging-world"></a>
+</h2>
 <p><strong>Expected output (theoretical).</strong> Over evolutionary
 time, the prior σ should decline as selection canalizes learned
 behaviour.</p>
@@ -317,9 +317,9 @@ the Baldwin canalization cannot be observed at default parameters. See
 <span>  <span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div class="section level3">
-<h3 id="calibrated-regime-cma-es-discovered">Calibrated regime (CMA-ES discovered)<a class="anchor" aria-label="anchor" href="#calibrated-regime-cma-es-discovered"></a>
-</h3>
+<div class="section level2">
+<h2 id="calibrated-regime-cma-es-discovered">Calibrated regime (CMA-ES discovered)<a class="anchor" aria-label="anchor" href="#calibrated-regime-cma-es-discovered"></a>
+</h2>
 <p>Running Phase 7 auto-calibration
 (<code>dev/audit/calibration/</code>) over the scenario’s parameter
 subspace discovered the following regime, which produces a fitness
@@ -443,9 +443,9 @@ prediction can be tested without the foraging-efficiency confounder.</p>
 short timescales, caveated at equilibrium.</p>
 <hr>
 </div>
-<div class="section level3">
-<h3 id="experiment-1-environmental-stability-gradient">Experiment 1 — Environmental stability gradient<a class="anchor" aria-label="anchor" href="#experiment-1-environmental-stability-gradient"></a>
-</h3>
+<div class="section level2">
+<h2 id="experiment-1-environmental-stability-gradient">Experiment 1 — Environmental stability gradient<a class="anchor" aria-label="anchor" href="#experiment-1-environmental-stability-gradient"></a>
+</h2>
 <p><strong>Question.</strong> Does environmental predictability
 determine whether canalization occurs? The theory predicts it should:
 stable, resource-rich environments provide consistent fitness gradients
@@ -604,9 +604,9 @@ reaches the sigma ceiling.
 </div>
 <hr>
 </div>
-<div class="section level3">
-<h3 id="experiment-2-is-the-ceiling-an-artefact-of-run-length">Experiment 2 — Is the ceiling an artefact of run length?<a class="anchor" aria-label="anchor" href="#experiment-2-is-the-ceiling-an-artefact-of-run-length"></a>
-</h3>
+<div class="section level2">
+<h2 id="experiment-2-is-the-ceiling-an-artefact-of-run-length">Experiment 2 — Is the ceiling an artefact of run length?<a class="anchor" aria-label="anchor" href="#experiment-2-is-the-ceiling-an-artefact-of-run-length"></a>
+</h2>
 <p><strong>Question.</strong> The baseline sigma plateaus at 0.5 within
 300 ticks. Is this because canalization never occurs, or because 600
 ticks is too few generations?</p>
@@ -694,9 +694,9 @@ reverses. This is ceiling saturation, not canalization.
 </div>
 <hr>
 </div>
-<div class="section level3">
-<h3 id="experiment-3-brain-architecture-comparison">Experiment 3 — Brain architecture comparison<a class="anchor" aria-label="anchor" href="#experiment-3-brain-architecture-comparison"></a>
-</h3>
+<div class="section level2">
+<h2 id="experiment-3-brain-architecture-comparison">Experiment 3 — Brain architecture comparison<a class="anchor" aria-label="anchor" href="#experiment-3-brain-architecture-comparison"></a>
+</h2>
 <p><strong>Question.</strong> Does the Baldwin Effect require the BNN
 specifically, or does it emerge with any within-lifetime adaptation
 mechanism?</p>
@@ -805,9 +805,9 @@ relative to ANN agents yet the exploration ESS persists.
 </div>
 <hr>
 </div>
-<div class="section level3">
-<h3 id="experiment-4-social-modifiers">Experiment 4 — Social modifiers<a class="anchor" aria-label="anchor" href="#experiment-4-social-modifiers"></a>
-</h3>
+<div class="section level2">
+<h2 id="experiment-4-social-modifiers">Experiment 4 — Social modifiers<a class="anchor" aria-label="anchor" href="#experiment-4-social-modifiers"></a>
+</h2>
 <p><strong>Question.</strong> Do social transmission mechanisms (kin
 altruism, social learning, epigenetic inheritance) accelerate or retard
 canalization?</p>
@@ -959,9 +959,9 @@ ceiling (dashed line).
 </div>
 <hr>
 </div>
-<div class="section level3">
-<h3 id="discovery-experiments">Discovery experiments<a class="anchor" aria-label="anchor" href="#discovery-experiments"></a>
-</h3>
+<div class="section level2">
+<h2 id="discovery-experiments">Discovery experiments<a class="anchor" aria-label="anchor" href="#discovery-experiments"></a>
+</h2>
 <p>The core finding is that the Baldwin Effect is conditional, not
 universal. The experiments above characterise the boundary. To go
 further:</p>
@@ -1023,9 +1023,9 @@ high-diversity quadrant (bottom-right of the dashed reference lines).
 </div>
 <hr>
 </div>
-<div class="section level3">
-<h3 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
-</h3>
+<div class="section level2">
+<h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+</h2>
 <p>Baldwin, J.M. (1896) A new factor in evolution. <em>American
 Naturalist</em> 30:441–451.</p>
 <p>Blundell, C. et al. (2015) Weight uncertainty in neural networks.

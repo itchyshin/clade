@@ -142,8 +142,8 @@ package.
 ## Inspecting specs
 
 [`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md)
-returns a long named list (roughly 90 parameters in 0.4.0). To see only
-what you have changed, use `print_specs(diff_only = TRUE)`:
+returns a long named list (~296 parameters in 0.7.0). To see only what
+you have changed, use `print_specs(diff_only = TRUE)`:
 
 ``` r
 
@@ -153,7 +153,7 @@ specs$complex_landscape <- TRUE
 specs$max_ticks         <- 400L
 
 print_specs(specs, diff_only = TRUE)
-#> -- clade specs (~90 parameters) [diff only] --
+#> -- clade specs (~296 parameters) [diff only] --
 #>
 #>   Grid & population
 #>     max_ticks                              400 *

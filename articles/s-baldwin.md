@@ -1,6 +1,6 @@
 # BNN uncertainty canalization and the Baldwin Effect
 
-### BNN uncertainty canalization — the Baldwin Effect
+## BNN uncertainty canalization — the Baldwin Effect
 
 **What it models.** The Bayesian neural network (BNN) brain type
 (`brain_type = "bnn"`) places a prior distribution over each synaptic
@@ -57,7 +57,7 @@ Declining σ over ticks = canalization / Baldwin Effect. Rising or stable
 
 ------------------------------------------------------------------------
 
-### Baseline: does the Baldwin Effect occur in a foraging world?
+## Baseline: does the Baldwin Effect occur in a foraging world?
 
 **Expected output (theoretical).** Over evolutionary time, the prior σ
 should decline as selection canalizes learned behaviour.
@@ -97,7 +97,7 @@ ggplot(data$ticks, aes(x = t, y = mean_prior_sigma)) +
   theme_minimal()
 ```
 
-### Calibrated regime (CMA-ES discovered)
+## Calibrated regime (CMA-ES discovered)
 
 Running Phase 7 auto-calibration (`dev/audit/calibration/`) over the
 scenario’s parameter subspace discovered the following regime, which
@@ -197,7 +197,7 @@ at equilibrium.
 
 ------------------------------------------------------------------------
 
-### Experiment 1 — Environmental stability gradient
+## Experiment 1 — Environmental stability gradient
 
 **Question.** Does environmental predictability determine whether
 canalization occurs? The theory predicts it should: stable,
@@ -316,7 +316,7 @@ reaches the sigma ceiling.
 
 ------------------------------------------------------------------------
 
-### Experiment 2 — Is the ceiling an artefact of run length?
+## Experiment 2 — Is the ceiling an artefact of run length?
 
 **Question.** The baseline sigma plateaus at 0.5 within 300 ticks. Is
 this because canalization never occurs, or because 600 ticks is too few
@@ -395,7 +395,7 @@ reverses. This is ceiling saturation, not canalization.
 
 ------------------------------------------------------------------------
 
-### Experiment 3 — Brain architecture comparison
+## Experiment 3 — Brain architecture comparison
 
 **Question.** Does the Baldwin Effect require the BNN specifically, or
 does it emerge with any within-lifetime adaptation mechanism?
@@ -487,7 +487,7 @@ relative to ANN agents yet the exploration ESS persists.
 
 ------------------------------------------------------------------------
 
-### Experiment 4 — Social modifiers
+## Experiment 4 — Social modifiers
 
 **Question.** Do social transmission mechanisms (kin altruism, social
 learning, epigenetic inheritance) accelerate or retard canalization?
@@ -605,7 +605,7 @@ ceiling (dashed line).
 
 ------------------------------------------------------------------------
 
-### Discovery experiments
+## Discovery experiments
 
 The core finding is that the Baldwin Effect is conditional, not
 universal. The experiments above characterise the boundary. To go
@@ -676,7 +676,7 @@ high-diversity quadrant (bottom-right of the dashed reference lines).
 
 ------------------------------------------------------------------------
 
-### References
+## References
 
 Baldwin, J.M. (1896) A new factor in evolution. *American Naturalist*
 30:441–451.

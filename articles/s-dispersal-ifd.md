@@ -1,6 +1,6 @@
 # Dispersal, IFD and spatial sorting
 
-### Where to live and when to move
+## Where to live and when to move
 
 **What it models.** Three related but distinct mechanisms govern where
 agents end up on the grid and how that pattern changes over time.
@@ -106,7 +106,7 @@ Spatial sorting (the Shine et al. 2011 companion test):
 `mean_rear_dispersal = 0.261 ± 0.053`, Δ = **+0.012** (2 seeds). PASS in
 sign; the front-to-rear dispersal gradient is real but noisy.
 
-### Spatial sorting
+## Spatial sorting
 
 **What it models.** At an expanding invasion front, high-dispersal
 individuals co-occur with other high-dispersal individuals through
@@ -223,7 +223,7 @@ confirms that the habitat-preference movement pathway is not active in
 the current tick. The 3,418 dispersal events are ANN-driven random
 movement, not preference-driven migration.
 
-### Non-toroidal grid and the invasion front
+## Non-toroidal grid and the invasion front
 
 **What it models.** Spatial sorting requires a defined invasion front —
 a direction of expansion — which does not exist on the default toroidal
@@ -279,7 +279,7 @@ surf the wave. On a toroidal grid both lines remain identical (all cells
 are topologically equivalent). The divergence confirms that the
 mechanism is geometric, not fitness-based.
 
-### Discovery experiments
+## Discovery experiments
 
 The merged results confirm that dispersal evolves in response to local
 competition, spatial sorting concentrates high-dispersal genotypes at

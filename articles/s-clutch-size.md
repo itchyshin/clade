@@ -1,6 +1,6 @@
 # Clutch size evolution
 
-### Clutch size evolution and r/K strategy
+## Clutch size evolution and r/K strategy
 
 **What it models.** The Lack clutch-size hypothesis (Lack 1947) proposes
 that parents should produce the number of offspring that maximises the
@@ -65,7 +65,7 @@ ggplot(df, aes(t, n_births, colour = environment)) +
   theme_minimal()
 ```
 
-### Calibrated regime (CMA-ES discovered)
+## Calibrated regime (CMA-ES discovered)
 
 Running Phase 7 auto-calibration (`dev/audit/calibration/`) over the
 scenario’s parameter subspace discovered the following regime, which
@@ -114,7 +114,7 @@ multi-offspring ones, driving evolved clutch to the lower bound. Both
 arms match MacArthur-Wilson r/K theory; only the naive monotone Lack
 prediction misses the density-dependent regime shift.
 
-### Discovery experiments
+## Discovery experiments
 
 The baseline result shows that rich environments select for larger
 clutches (r-strategy) and scarce environments select for smaller

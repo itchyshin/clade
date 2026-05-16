@@ -1,6 +1,6 @@
 # SIR disease
 
-### SIR disease
+## SIR disease
 
 **What it models.** A Susceptible-Infected-Recovered epidemic model, as
 formalised by Kermack & McKendrick (1927). Infected agents pay an energy
@@ -77,7 +77,7 @@ clade’s disease dynamics become *endemic* because births replenish
 susceptibles and immunity wanes after `immune_duration = 20` ticks. This
 is biologically correct for an open population.
 
-### Calibrated regime (CMA-ES discovered)
+## Calibrated regime (CMA-ES discovered)
 
 Running Phase 7 auto-calibration (`dev/audit/calibration/`) over the
 scenario’s parameter subspace discovered the following regime, which
@@ -101,7 +101,7 @@ s$disease_death_prob             <- 5e-04
 Expected output: epidemic wave visible as a peak in the infected count
 (top). Population size declines noticeably during the outbreak (bottom).
 
-### Discovery experiments
+## Discovery experiments
 
 The baseline result shows epidemic peaks in `n_infected`, population
 dips during outbreaks, and recovery as immunity builds. To go beyond:

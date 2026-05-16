@@ -1,6 +1,6 @@
 # Baseline world
 
-### Baseline world
+## Baseline world
 
 **What it models.** Agents forage on a renewable grass resource and
 reproduce when energy exceeds a threshold. The neural-network genome
@@ -72,7 +72,7 @@ three-way diff is in
 [dev/audit/fidelity/baseline.md](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/baseline.md)
 §3 and §6.
 
-### Discovery experiments
+## Discovery experiments
 
 The baseline result demonstrates that evolution can occur: neural
 genomes diverge under selection for foraging. To go beyond:

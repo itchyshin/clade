@@ -176,9 +176,9 @@
 
     
     
-<div class="section level3">
-<h3 id="niche-construction">Niche construction<a class="anchor" aria-label="anchor" href="#niche-construction"></a>
-</h3>
+<div class="section level2">
+<h2 id="niche-construction">Niche construction<a class="anchor" aria-label="anchor" href="#niche-construction"></a>
+</h2>
 <p><strong>What it models.</strong> Agents build shelter at their
 current cell when energy exceeds <code>shelter_min_energy</code>.
 Shelters reduce predator damage and slow grass regrowth on the cell.
@@ -295,9 +295,9 @@ et al. 2003 argue. Full protocol: <a href="https://github.com/itchyshin/clade/b
 <span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_run_data.html">get_run_data</a></span><span class="op">(</span><span class="va">env</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Total shelters built:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">ticks</span><span class="op">$</span><span class="va">n_shelters_built</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div class="section level3">
-<h3 id="calibrated-regime-cma-es-discovered">Calibrated regime (CMA-ES discovered)<a class="anchor" aria-label="anchor" href="#calibrated-regime-cma-es-discovered"></a>
-</h3>
+<div class="section level2">
+<h2 id="calibrated-regime-cma-es-discovered">Calibrated regime (CMA-ES discovered)<a class="anchor" aria-label="anchor" href="#calibrated-regime-cma-es-discovered"></a>
+</h2>
 <p>Running Phase 7 auto-calibration
 (<code>dev/audit/calibration/</code>) over the scenario’s parameter
 subspace discovered the following regime, which produces a fitness
@@ -339,9 +339,9 @@ who stay near ancestral constructions accumulate an energetic advantage
 feedback materialised. The new <code>n_shelter_occupied</code> log
 column (added in 0.3.0) tracks the number of beneficiaries per tick.</p>
 </div>
-<div class="section level3">
-<h3 id="discovery-experiments">Discovery experiments<a class="anchor" aria-label="anchor" href="#discovery-experiments"></a>
-</h3>
+<div class="section level2">
+<h2 id="discovery-experiments">Discovery experiments<a class="anchor" aria-label="anchor" href="#discovery-experiments"></a>
+</h2>
 <p>The baseline result shows that shelters reduce predator damage and
 sustain a larger population than baseline. To go beyond:</p>
 <ol style="list-style-type: decimal">

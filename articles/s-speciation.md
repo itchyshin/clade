@@ -1,6 +1,6 @@
 # Speciation and genetic divergence
 
-### Speciation and genetic divergence
+## Speciation and genetic divergence
 
 **What it models.** Speciation by ecological character displacement
 occurs when disruptive selection on a resource-use trait, combined with
@@ -57,7 +57,7 @@ ggplot(data$ticks, aes(t, n_species)) +
   theme_minimal()
 ```
 
-### Calibrated regime (CMA-ES discovered)
+## Calibrated regime (CMA-ES discovered)
 
 Running Phase 7 auto-calibration (`dev/audit/calibration/`) over the
 scenario’s parameter subspace discovered the following regime, which
@@ -105,7 +105,7 @@ read as “number of genetic clusters detected at this resolution,” not
 “Mayr-style biological species.” For textbook-style 2–4 distinct
 species, use lower mutation (0.05–0.08) and longer runs (2000+ ticks).
 
-### Discovery experiments
+## Discovery experiments
 
 The baseline result shows `n_species` rising from 1 to 2–4 as genetic
 distance accumulates past `isolation_threshold`. To go beyond:

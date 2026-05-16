@@ -1,6 +1,6 @@
 # Brain size evolution
 
-### Brain size evolution and the parental provisioning hypothesis
+## Brain size evolution and the parental provisioning hypothesis
 
 The **parental provisioning hypothesis** proposes that parental care is
 a prerequisite for brain size evolution (van Schaik et al. 2023;
@@ -59,7 +59,7 @@ The earlier “+0.7 with care, −0.25 no-care” vignette claim is retracted
 — neither 0.4.2 nor 0.4.3 reproduces that specific magnitude but both
 produce the expected directional contrast cleanly.
 
-### Parameters
+## Parameters
 
 | Parameter | Default | Description |
 |----|----|----|
@@ -71,7 +71,7 @@ produce the expected directional contrast cleanly.
 | `brain_size_cost_scale` | `1.0` | Scales the idle-cost surcharge per unit of `brain_size - 1` |
 | `brain_size_sensing_exponent` | `0.3` | Power applied to `brain_size` when scaling grass sensing inputs; 0 = off, 1 = linear |
 
-### Example: parental care unlocks brain size evolution
+## Example: parental care unlocks brain size evolution
 
 ``` r
 
@@ -171,7 +171,7 @@ increasing `feeding_rate × care_duration` deepens the buffer. Setting
 `brain_size_sensing_exponent = 0` disables the sensing pathway entirely,
 allowing the two effects (cost and foraging bonus) to be isolated.
 
-### Discovery experiments
+## Discovery experiments
 
 The baseline result replicates the parental provisioning hypothesis:
 brain size only evolves upward when parental care buffers the infancy

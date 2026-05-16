@@ -1,6 +1,6 @@
 # Module comparison
 
-### Module comparison — 14-condition experiment
+## Module comparison — 14-condition experiment
 
 **What it models.** Biological systems are shaped by multiple
 interacting selective pressures, but their individual contributions are

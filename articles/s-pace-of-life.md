@@ -1,6 +1,6 @@
 # Pace-of-life syndromes
 
-### Pace-of-life syndromes
+## Pace-of-life syndromes
 
 **What it models.** Pace-of-life syndromes (Réale et al. 2010) describe
 the co-variation of life-history traits, behaviour, and physiology along
@@ -88,7 +88,7 @@ p2 <- ggplot(df, aes(t, n_agents, colour = pace)) +
 p1 / p2
 ```
 
-### Calibrated regime (CMA-ES discovered)
+## Calibrated regime (CMA-ES discovered)
 
 Running Phase 7 auto-calibration (`dev/audit/calibration/`) over the
 scenario’s parameter subspace discovered the following regime, which
@@ -136,7 +136,7 @@ illustrates that `senescence_rate` is not a mild parameter: values above
 `senescence_rate = 0.005` and increasing in steps; watch `mean_age` to
 confirm viable demography before comparing conditions.
 
-### Discovery experiments
+## Discovery experiments
 
 The baseline result shows the pace-of-life trade-off: fast-pace agents
 have higher birth rates and lower mean age; slow-pace agents have lower

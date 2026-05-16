@@ -176,9 +176,9 @@
 
     
     
-<div class="section level3">
-<h3 id="complex-landscape-forest-world">Complex landscape (forest world)<a class="anchor" aria-label="anchor" href="#complex-landscape-forest-world"></a>
-</h3>
+<div class="section level2">
+<h2 id="complex-landscape-forest-world">Complex landscape (forest world)<a class="anchor" aria-label="anchor" href="#complex-landscape-forest-world"></a>
+</h2>
 <p><strong>What it models.</strong> A three-layer habitat: ground
 (grass), shrubs (mid-level), and canopy (top). Shrubs and canopy have
 higher energy density but slower regrowth. Canopy access requires a
@@ -269,9 +269,9 @@ combinations that produce strong wing-size evolution with CMA-ES:</p>
 <code class="sourceCode R"><span><span class="va">tuned</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tune_complex_landscape.html">tune_complex_landscape</a></span><span class="op">(</span><span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span>, n_iterations <span class="op">=</span> <span class="fl">80L</span><span class="op">)</span></span>
 <span><span class="va">tuned</span><span class="op">$</span><span class="va">specs</span>   <span class="co"># optimal landscape parameters</span></span></code></pre></div>
 </div>
-<div class="section level3">
-<h3 id="calibrated-regime-cma-es-discovered">Calibrated regime (CMA-ES discovered)<a class="anchor" aria-label="anchor" href="#calibrated-regime-cma-es-discovered"></a>
-</h3>
+<div class="section level2">
+<h2 id="calibrated-regime-cma-es-discovered">Calibrated regime (CMA-ES discovered)<a class="anchor" aria-label="anchor" href="#calibrated-regime-cma-es-discovered"></a>
+</h2>
 <p>Running Phase 7 auto-calibration
 (<code>dev/audit/calibration/</code>) over the scenario’s parameter
 subspace discovered the following regime, which produces a fitness
@@ -307,9 +307,9 @@ produce canopy agents even with the correct parameters — use
 <code><a href="../reference/tune_complex_landscape.html">tune_complex_landscape()</a></code> with CMA-ES to find optimal
 parameter combinations automatically.</p>
 </div>
-<div class="section level3">
-<h3 id="discovery-experiments">Discovery experiments<a class="anchor" aria-label="anchor" href="#discovery-experiments"></a>
-</h3>
+<div class="section level2">
+<h2 id="discovery-experiments">Discovery experiments<a class="anchor" aria-label="anchor" href="#discovery-experiments"></a>
+</h2>
 <p>The baseline result shows that wing size evolves upward as agents
 discover and exploit the energetically richer canopy layer. To go
 beyond:</p>

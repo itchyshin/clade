@@ -1,6 +1,6 @@
 # Kitchen-sink run
 
-### Combining modules — a kitchen-sink run
+## Combining modules — a kitchen-sink run
 
 **What it models.** The preceding sections isolate individual mechanisms
 to establish clear cause-and-effect relationships. Real ecosystems

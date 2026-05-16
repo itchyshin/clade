@@ -1,6 +1,6 @@
 # Phenotypic plasticity
 
-### Phenotypic plasticity
+## Phenotypic plasticity
 
 **What it models.** A heritable `plasticity` trait modulates how
 strongly each agent’s sensory input maps to action. High plasticity
@@ -43,7 +43,7 @@ data <- get_run_data(env)
 cat("Final plasticity:", tail(data$ticks$mean_plasticity, 1L), "\n")
 ```
 
-### Calibrated regime (CMA-ES discovered)
+## Calibrated regime (CMA-ES discovered)
 
 Running Phase 7 auto-calibration (`dev/audit/calibration/`) over the
 scenario’s parameter subspace discovered the following regime, which
@@ -194,7 +194,7 @@ with direction correct, magnitude small. See
 [`dev/audit/fidelity/plasticity.md`](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/plasticity.md)
 and the s-baldwin vignette for the shared kernel-limitation caveat.
 
-### Discovery experiments
+## Discovery experiments
 
 The baseline result shows plasticity evolves downward in stable
 environments and is maintained at intermediate values under seasonal

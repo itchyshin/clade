@@ -1,6 +1,6 @@
 # Cooperative breeding and public goods
 
-### Cooperative breeding and public goods
+## Cooperative breeding and public goods
 
 **What it models.** When `cooperation_evolution = TRUE`, each agent
 carries a heritable cooperation tendency trait that determines its
@@ -116,7 +116,7 @@ max_agents ceiling while the baseline (pink) stabilises at a lower
 level. Cooperation level drifts slightly downward, showing free-rider
 invasion alongside the group-level benefit.
 
-### Discovery experiments
+## Discovery experiments
 
 The baseline result confirms that cooperation is favoured when the
 multiplier exceeds the cost-benefit threshold, and spatial clustering

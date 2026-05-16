@@ -1,6 +1,6 @@
 # Signals and mate choice
 
-### Signals and mate choice: sexual selection
+## Signals and mate choice: sexual selection
 
 **What it models.** Sexual selection can produce elaborate traits that
 reduce survival but increase mating success. Two contrasting mechanisms
@@ -72,7 +72,7 @@ print(p1)
 print(p2)
 ```
 
-### Calibrated regime (CMA-ES discovered)
+## Calibrated regime (CMA-ES discovered)
 
 Running Phase 7 auto-calibration (`dev/audit/calibration/`) over the
 scenario’s parameter subspace discovered the following regime, which
@@ -126,7 +126,7 @@ rather than signal reduction. For strict textbook Zahavi dynamics (cost
 reduces signal magnitude) a kernel extension with heritable
 individual-level preferences would be needed.
 
-### Discovery experiments
+## Discovery experiments
 
 The baseline result shows signal elaboration under sexual selection,
 with signal magnitude correlating positively with mean energy when

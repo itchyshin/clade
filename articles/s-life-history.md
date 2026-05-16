@@ -1,6 +1,6 @@
 # Life history strategies
 
-### Life history: semelparous versus iteroparous strategies
+## Life history: semelparous versus iteroparous strategies
 
 **What it models.** Cole’s paradox (Cole 1954) established that the
 fitness advantage of iteroparity over semelparity is surprisingly small
@@ -94,7 +94,7 @@ populations differ but neither strategy is catastrophically worse, and
 the demographic *signatures* differ much more than the *fitness*
 outcomes do.
 
-### Discovery experiments
+## Discovery experiments
 
 The baseline result shows semelparous populations have lower mean age
 and episodic birth bursts, while iteroparous populations sustain

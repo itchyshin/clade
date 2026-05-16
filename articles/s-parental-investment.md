@@ -1,6 +1,6 @@
 # Parental investment
 
-### Parental investment: quality versus quantity
+## Parental investment: quality versus quantity
 
 **What it models.** Trivers (1972) proposed that the sex that invests
 more per offspring should be the one that is more choosy in mate
@@ -100,7 +100,7 @@ recover Trivers’ prediction. A kernel extension coupling
 introducing heritable mate-choice preferences) would be needed. Flagged
 as 🟠 passed-consistent.
 
-### Discovery experiments
+## Discovery experiments
 
 The baseline result shows the quality-quantity trade-off: high maternal
 investment produces fewer but better-provisioned offspring. To go

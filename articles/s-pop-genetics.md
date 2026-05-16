@@ -1,6 +1,6 @@
 # Population genetics and heritability
 
-### Population genetics and narrow-sense heritability
+## Population genetics and narrow-sense heritability
 
 **What it models.** A central quantity in quantitative genetics is
 narrow-sense heritability, h² — the proportion of phenotypic variance in
@@ -81,7 +81,7 @@ regression, collect each agent’s `body_size` and `parent_id` at death
 from `env$deaths`, match offspring to parent body size, and use
 `lm(offspring_size ~ parent_size)`.
 
-### Discovery experiments
+## Discovery experiments
 
 The baseline result confirms that narrow-sense heritability is
 detectable from parent–offspring regression in simulation data. To go

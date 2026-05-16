@@ -1,6 +1,6 @@
 # Body size evolution
 
-### Body size evolution
+## Body size evolution
 
 **What it models.** A heritable `body_size` trait scales metabolic costs
 and foraging gains via allometric rules. Larger body size increases move
@@ -108,7 +108,7 @@ SE-bounded real effect. Finer threat information → more efficient
 foraging → support for larger bodies. Side benefit of the 0.4.2 sensing
 polish.
 
-### Calibrated regime (CMA-ES discovered)
+## Calibrated regime (CMA-ES discovered)
 
 Running Phase 7 auto-calibration (`dev/audit/calibration/`) over the
 scenario’s parameter subspace discovered the following regime, which
@@ -140,7 +140,7 @@ flat within 2×SE in both sensing modes. Bottom: per-seed trajectories.
 Graded predator sensing produces a larger Cope drift than binary sensing
 — an SE-bounded real effect of the 0.4.2 sensing polish.
 
-### Discovery experiments
+## Discovery experiments
 
 The baseline result shows that body size evolves to an equilibrium set
 by the metabolic cost–foraging gain trade-off. To go beyond:

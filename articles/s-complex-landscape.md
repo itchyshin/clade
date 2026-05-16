@@ -1,6 +1,6 @@
 # Complex landscape
 
-### Complex landscape (forest world)
+## Complex landscape (forest world)
 
 **What it models.** A three-layer habitat: ground (grass), shrubs
 (mid-level), and canopy (top). Shrubs and canopy have higher energy
@@ -60,7 +60,7 @@ tuned <- tune_complex_landscape(default_specs(), n_iterations = 80L)
 tuned$specs   # optimal landscape parameters
 ```
 
-### Calibrated regime (CMA-ES discovered)
+## Calibrated regime (CMA-ES discovered)
 
 Running Phase 7 auto-calibration (`dev/audit/calibration/`) over the
 scenario’s parameter subspace discovered the following regime, which
@@ -101,7 +101,7 @@ this module. Run
 [`tune_complex_landscape()`](https://itchyshin.github.io/clade/reference/tune_complex_landscape.md)
 with CMA-ES to find optimal parameter combinations automatically.
 
-### Discovery experiments
+## Discovery experiments
 
 The baseline result shows that wing size evolves upward as agents
 discover and exploit the energetically richer canopy layer. To go

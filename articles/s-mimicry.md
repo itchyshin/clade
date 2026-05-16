@@ -1,6 +1,6 @@
 # Mimicry and toxicity
 
-### Mimicry and toxicity
+## Mimicry and toxicity
 
 **What it models.** A heritable `toxicity` trait makes prey costly to
 attack. Predators learn signal–toxicity associations via a
@@ -85,7 +85,7 @@ env  <- run_alife(s)
 data <- get_run_data(env)
 ```
 
-### Calibrated regime (formerly CMA-ES discovered — claim retracted)
+## Calibrated regime (formerly CMA-ES discovered — claim retracted)
 
 A previous version of this vignette claimed a 21× fitness improvement
 under
@@ -189,7 +189,7 @@ rule, non-toxic encounters now drive memory extinction, so mimic
 frequency regulates itself (Batesian breakdown when mimics outnumber
 models).
 
-### Discovery experiments
+## Discovery experiments
 
 The baseline result shows `mean_toxicity` evolves upward under predator
 pressure and `n_avoided_attacks` increases as predators learn. To go

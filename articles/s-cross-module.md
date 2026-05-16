@@ -1,6 +1,6 @@
 # Cross-module discovery gallery
 
-### Cross-module discovery gallery
+## Cross-module discovery gallery
 
 Each entry below combines two or more modules in a non-obvious way and
 records what actually happened — including surprises. All entries report
@@ -10,7 +10,7 @@ illuminate stochastic variability.
 
 ------------------------------------------------------------------------
 
-#### Gallery A: Kin epidemic — does altruism spread disease?
+### Gallery A: Kin epidemic — does altruism spread disease?
 
 **Question.** Kin selection requires altruists and recipients to be
 nearby. Does that spatial proximity create epidemic corridors, or does
@@ -52,7 +52,7 @@ accelerates the same outcome across the cluster.
 
 ------------------------------------------------------------------------
 
-#### Gallery B: Seasonal brain — does resource unpredictability select for cognition?
+### Gallery B: Seasonal brain — does resource unpredictability select for cognition?
 
 **Question.** The cognitive buffering hypothesis (Sol 2009) proposes
 that environmental unpredictability selects for larger brains because
@@ -94,7 +94,7 @@ more flexible foraging strategies.
 
 ------------------------------------------------------------------------
 
-#### Gallery C: RL versus genetics — does within-lifetime learning flatten selection?
+### Gallery C: RL versus genetics — does within-lifetime learning flatten selection?
 
 **Question.** The Baldwin Effect predicts that within-lifetime learning
 should canalize genetic evolution, reducing standing genetic diversity
@@ -134,7 +134,7 @@ would require much longer runs and a more sharply defined fitness peak.
 
 ------------------------------------------------------------------------
 
-#### Gallery D: Niche refuge — do shelters create epidemiological refugia?
+### Gallery D: Niche refuge — do shelters create epidemiological refugia?
 
 **Question.** Shelters in the niche construction module reduce predator
 attack success on sheltered cells. If agents retreat to sheltered cells
@@ -172,7 +172,7 @@ disease state would give cleaner estimates of the shelter refuge effect.
 
 ------------------------------------------------------------------------
 
-#### Gallery E: Body–brain coevolution — do they scale together?
+### Gallery E: Body–brain coevolution — do they scale together?
 
 **Question.** Across vertebrates, brain size and body size are
 correlated (Jerison 1973; Striedter 2005), but the developmental

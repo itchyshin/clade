@@ -1,6 +1,6 @@
 # Within-lifetime reinforcement learning
 
-### Within-lifetime reinforcement learning
+## Within-lifetime reinforcement learning
 
 **What it models.** Each agent uses REINFORCE-with-baseline
 (actor-critic; Williams 1992) to update its brain’s output layer based
@@ -103,7 +103,7 @@ The Baldwin canalisation interaction is documented separately in
 sigma coupling to behavioural variance creates a kernel-limitation
 caveat, which is independent of the RL gradient channel.
 
-### Discovery experiments
+## Discovery experiments
 
 The baseline result shows agents with RL adapt within their lifetime to
 local resource distribution, and the Baldwin Effect is visible as BNN

@@ -1,6 +1,6 @@
 # Social learning
 
-### Social learning
+## Social learning
 
 **What it models.** Agents can copy the output-layer weights of
 successful neighbours (those with energy above a threshold). This is a
@@ -85,7 +85,7 @@ restore social learning benefits because RL updates (applied after the
 BNN sample) reinforce the copied policy within the agent’s lifetime
 before the next sampling step.
 
-### Discovery experiments
+## Discovery experiments
 
 The baseline result shows mean energy and genetic diversity are
 maintained at higher levels than baseline, as successful foraging

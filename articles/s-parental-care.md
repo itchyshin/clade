@@ -1,6 +1,6 @@
 # Parental care
 
-### Parental care
+## Parental care
 
 **What it models.** Offspring are carried by the parent until graduation
 at age `juvenile_independence_age` (or earlier if they reach
@@ -90,7 +90,7 @@ Same “conditional ✅” pattern as s-mimicry, s-dispersal-ifd,
 s-mating-systems, and s-niche: the theory reproduces in the regime the
 theory is about, not at an arbitrary default.
 
-### Discovery experiments
+## Discovery experiments
 
 The baseline result shows that juvenile counts are positive and
 population dynamics are more buffered under parental care. To go beyond:

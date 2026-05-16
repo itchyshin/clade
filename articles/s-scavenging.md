@@ -1,6 +1,6 @@
 # Scavenging and carrion dynamics
 
-### Scavenging and carrion dynamics
+## Scavenging and carrion dynamics
 
 **What it models.** Scavenging — the consumption of carrion left by dead
 conspecifics — is a widespread foraging strategy that provides a
@@ -90,7 +90,7 @@ ggplot(dat, aes(x = t, y = mean_energy, colour = condition)) +
   theme_classic(base_size = 12)
 ```
 
-### Calibrated regime (CMA-ES discovered)
+## Calibrated regime (CMA-ES discovered)
 
 Running Phase 7 auto-calibration (`dev/audit/calibration/`) over the
 scenario’s parameter subspace discovered the following regime, which
@@ -144,7 +144,7 @@ by 21% when food was scarce and the run was short enough that a
 starvation-bottleneck dominated. The small-scale effect was real but
 conditional; the realistic-scale result is the robust claim.
 
-### Discovery experiments
+## Discovery experiments
 
 The baseline result shows that scavenging sustains higher mean energy
 than baseline under identical low-grass conditions. To go beyond:

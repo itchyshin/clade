@@ -104,8 +104,9 @@ reproductions](https://itchyshin.github.io/clade/articles/paper-kokko-brooks-200
 vignettes show clade working as an empirical-research tool: take a
 published behavioural-ecology paper, turn its quantitative prediction
 into a clade experiment, and report what reproduces versus what doesn’t.
-Five worked examples cover clean ✅, honest null, mechanism mismatch,
-and unit-sensitivity patterns:
+Thirteen worked reproductions plus a template cover clean ✅, honest
+null, mechanism mismatch, unit-sensitivity, and time-decay patterns —
+seven highlighted here:
 
 - [**Kokko & Brooks
   2003**](https://itchyshin.github.io/clade/articles/paper-kokko-brooks-2003.md)
@@ -185,7 +186,7 @@ plot_run(get_run_data(env))   # population × energy × diversity dashboard
   — all 36 vignettes by theme
 - [**Paper
   reproductions**](https://itchyshin.github.io/clade/articles/paper-kokko-brooks-2003.md)
-  — 5 worked examples of reproducing published behavioural-ecology
+  — 13 worked examples of reproducing published behavioural-ecology
   predictions in clade
 - [**Parameter
   reference**](https://itchyshin.github.io/clade/articles/parameter-reference.md)

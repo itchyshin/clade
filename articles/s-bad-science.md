@@ -1,6 +1,6 @@
 # Evolution of bad science
 
-### Evolution of bad science
+## Evolution of bad science
 
 **What it models.** A pure-R simulation (no Julia required) of Smaldino
 & McElreath (2016). Each of `n_labs` labs has two heritable traits:
@@ -104,7 +104,7 @@ Three take-aways:
     threshold needed to discriminate effort. It is listed as discovery
     experiment 1 below.
 
-### Discovery experiments
+## Discovery experiments
 
 The baseline reproduces S&M 2016 qualitatively: bad science evolves when
 unchecked, strong replication disciplines it. Open questions to explore:

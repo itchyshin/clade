@@ -1,6 +1,6 @@
 # Seasonal dynamics
 
-### Seasonal dynamics
+## Seasonal dynamics
 
 **What it models.** Seasonality imposes periodic variation in resource
 availability and mortality risk that drives boom-bust dynamics across a
@@ -93,7 +93,7 @@ Expected output: population size (blue) tracks scaled grass productivity
 (green) with a short lag, producing recurrent winter crashes and spring
 recoveries over approximately five complete cycles.
 
-### Discovery experiments
+## Discovery experiments
 
 The baseline result shows population size tracking grass productivity
 with a short lag, producing recurrent winter crashes and spring

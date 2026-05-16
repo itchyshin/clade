@@ -1,6 +1,6 @@
 # Comparing brain architectures side-by-side
 
-### Comparing brain architectures side-by-side
+## Comparing brain architectures side-by-side
 
 **What it models.** clade ships five working brain architectures for
 evolving agents — Bayesian neural network (BNN, default), multilayer
@@ -114,7 +114,7 @@ the canonical cognitive-style trade-off. The benchmark itself is
 reproducible by running `dev/benchmarks/brain_comparison.R` from a fresh
 clade install.
 
-### Discovery experiments
+## Discovery experiments
 
 The above benchmark is a single ecology. Fuller characterisation would
 look at:

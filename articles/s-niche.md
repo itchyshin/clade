@@ -1,6 +1,6 @@
 # Niche construction
 
-### Niche construction
+## Niche construction
 
 **What it models.** Agents build shelter at their current cell when
 energy exceeds `shelter_min_energy`. Shelters reduce predator damage and
@@ -57,7 +57,7 @@ data <- get_run_data(env)
 cat("Total shelters built:", sum(data$ticks$n_shelters_built), "\n")
 ```
 
-### Calibrated regime (CMA-ES discovered)
+## Calibrated regime (CMA-ES discovered)
 
 Running Phase 7 auto-calibration (`dev/audit/calibration/`) over the
 scenario’s parameter subspace discovered the following regime, which
@@ -106,7 +106,7 @@ Odling-Smee-Laland-Feldman (2003) heritable niche-construction feedback
 materialised. The new `n_shelter_occupied` log column (added in 0.3.0)
 tracks the number of beneficiaries per tick.
 
-### Discovery experiments
+## Discovery experiments
 
 The baseline result shows that shelters reduce predator damage and
 sustain a larger population than baseline. To go beyond:

@@ -1,6 +1,6 @@
 # Group defense
 
-### Group defense (dilution of risk)
+## Group defense (dilution of risk)
 
 **What it models.** Hamilton’s (1971) selfish herd hypothesis proposes
 that aggregation reduces individual predation risk by diluting attacks
@@ -143,7 +143,7 @@ matters” intuition of Hamilton’s original analysis.
 For demos: use `n_predators_init = 30, group_defense_strength = 2.0` to
 see the unambiguous ~10% population boost.
 
-### Discovery experiments
+## Discovery experiments
 
 The baseline result shows group defense sustains a larger and more
 stable population under identical predation pressure. To go beyond:

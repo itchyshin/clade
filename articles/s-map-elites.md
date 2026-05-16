@@ -1,6 +1,6 @@
 # MAP-Elites diversity search
 
-### MAP-Elites: Discovering Diverse Worlds
+## MAP-Elites: Discovering Diverse Worlds
 
 Quality-Diversity (QD) algorithms search for a collection of
 high-performing solutions that are also behaviourally diverse, rather

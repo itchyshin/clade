@@ -40,8 +40,8 @@ fit-table for the full “when clade fits / when it doesn’t” summary.
 ### Identify the paper’s *quantitative* prediction
 
 The sharpest reproductions come from predictions that translate to a
-directional claim about a clade-measurable outcome. Examples from the 5
-worked reproductions:
+directional claim about a clade-measurable outcome. Examples from
+clade’s worked reproductions:
 
 | Paper | The directional claim |
 |----|----|

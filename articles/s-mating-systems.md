@@ -1,6 +1,6 @@
 # Mating systems
 
-### Mating systems: sexual versus asexual reproduction
+## Mating systems: sexual versus asexual reproduction
 
 **What it models.** Sexual reproduction incurs a well-documented
 two-fold cost relative to asexual reproduction — every sexual individual
@@ -162,7 +162,7 @@ this finding is consistent with his caveat. Pushing to ✅ would require
 either reducing clade’s baseline cost of sex or testing at very large
 population sizes where mate- finding is not limiting — deferred to 0.6+.
 
-### Discovery experiments
+## Discovery experiments
 
 The baseline result shows genetic diversity is higher and more variable
 in the sexual (diploid) condition from early in the run. To go beyond:

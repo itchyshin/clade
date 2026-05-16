@@ -303,8 +303,8 @@ package.</p>
 <div class="section level2">
 <h2 id="inspecting-specs">Inspecting specs<a class="anchor" aria-label="anchor" href="#inspecting-specs"></a>
 </h2>
-<p><code><a href="../reference/default_specs.html">default_specs()</a></code> returns a long named list (roughly 90
-parameters in 0.4.0). To see only what you have changed, use
+<p><code><a href="../reference/default_specs.html">default_specs()</a></code> returns a long named list (~296
+parameters in 0.7.0). To see only what you have changed, use
 <code>print_specs(diff_only = TRUE)</code>:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">specs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -313,7 +313,7 @@ parameters in 0.4.0). To see only what you have changed, use
 <span><span class="va">specs</span><span class="op">$</span><span class="va">max_ticks</span>         <span class="op">&lt;-</span> <span class="fl">400L</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/print_specs.html">print_specs</a></span><span class="op">(</span><span class="va">specs</span>, diff_only <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; -- clade specs (~90 parameters) [diff only] --</span></span>
+<span><span class="co">#&gt; -- clade specs (~296 parameters) [diff only] --</span></span>
 <span><span class="co">#&gt;</span></span>
 <span><span class="co">#&gt;   Grid &amp; population</span></span>
 <span><span class="co">#&gt;     max_ticks                              400 *</span></span>
