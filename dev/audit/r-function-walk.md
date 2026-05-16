@@ -442,3 +442,536 @@ user on the 5-minute walkthrough built from items 1–4.
   `plot_tsne_genomes`, etc.). The "code grows columns, roxygen
   doesn't" Rose class from item 3 likely applies. None are Tier-A0,
   so Tier-A3 items 18-21 will pick them up under the normal walk.
+
+# Tier A1
+
+## 5/28 — `batch_alife()` + `batch_seeds()` (2026-05-16, `claude/track-B-walk`)
+
+**TREE.** `R/run.R:140-170` (`batch_alife`) and `R/run.R:199-211`
+(`batch_seeds`). `batch_alife()` is a thin parallel wrapper around
+`run_alife()`: validates the input is a non-empty list, coerces
+`n_cores` to integer, defines `run_one(specs) =
+run_alife(specs, verbose = verbose)`, and dispatches to either
+`lapply(specs_list, run_one)` (serial, `n_cores <= 1L`) or a
+PSOCK `parallel::makeCluster()` + `parLapply()` (parallel,
+`n_cores > 1L`) with `clusterEvalQ(library(clade))` to load the
+package on each worker and `on.exit(stopCluster())` cleanup.
+`batch_seeds()` is the seed-sweep convenience wrapper: validates
+inputs, coerces `seeds` to integer, builds a `specs_list` where
+each element is `specs` with `$random_seed` overridden, names the
+elements `seed_<N>`, and delegates to `batch_alife()`. The defensive
+re-naming of results at line 209 is redundant (the specs_list names
+are preserved by `lapply`/`parLapply`) but harmless.
+
+The 0.5.6-vintage docstring comment on the PSOCK switch is
+excellent — it names the symptom (silent deadlock in `mclapply`
+because forked workers share the parent's JuliaConnectoR socket),
+the design tax (per-worker ~60 s Julia JIT cost), and the
+rule-of-thumb crossover (~20 scenarios) where parallel beats
+serial. Keep this as-is when v0.8-core merges.
+
+**FOREST.** 36 references across `R/`, `tests/`, `vignettes/`,
+README, NEWS. Production callers: `R/hypothesis.R`
+(`hypothesis_sweep()`), `R/search.R` (search algorithms),
+`R/scenarios.R` (scenario harnesses). Vignettes that demonstrate
+batch usage: `s-baseline.Rmd`, `s-baldwin.Rmd`, `s-cross-module.Rmd`,
+~25 others. README mentions both. **Test coverage before this walk
+was a single Julia-required test buried in `test-integration.R:217`
+(`batch_alife() returns one env per spec`) — `batch_seeds()` had
+zero dedicated coverage**, despite being the more user-facing of
+the two and the canonical answer to the "≥5 seeds per claim"
+discipline that every multi-seed vignette enforces.
+
+**TEST — coverage gap closed.** Created `tests/testthat/test-batch.R`
+(11 tests, 20 expectations, all no-Julia). The seed-override and
+naming transformations in `batch_seeds()` and the
+serial-vs-parallel dispatch + validation in `batch_alife()` are
+pure R; they can be verified without a Julia session by mocking
+`run_alife()` via `testthat::local_mocked_bindings()` (testthat
+3.0+). The new file covers:
+
+- `batch_seeds()` — overrides `random_seed` per replicate
+  (verified by inspecting the mock's captured `(specs, verbose)`
+  arguments), names results `seed_<N>` in input order, preserves
+  all other spec fields, coerces non-integer seeds via
+  `as.integer()`, rejects non-list specs, rejects empty seeds.
+- `batch_alife()` — runs each spec in order under `n_cores = 1L`
+  (verified by capturing the mock's call order), propagates the
+  `verbose` flag, rejects non-list inputs and empty specs_list,
+  coerces non-integer `n_cores`.
+
+PSOCK path (`n_cores > 1L`) deliberately not duplicated: it
+requires real worker R processes and Julia sessions, which the
+`test-integration.R` end-to-end test already exercises behind
+`skip_no_julia()`. Duplicating that here would add wall-clock cost
+without new signal.
+
+**ROSE.** One new (mild) class surfaced:
+
+- **"Convenience wrapper has no dedicated test."** `batch_seeds()`
+  is the more user-facing of the pair (every multi-seed vignette
+  uses it) but had zero dedicated coverage. The same risk class
+  exists for `quick_specs()`, `fast_specs()`, `realistic_specs()`,
+  `ultra_realistic_specs()`, `slow_specs()`, `full_specs()`
+  (Tier-A1 item 8 covers the preset family) and the
+  `wolf_personality_specs()` / `trivers_reciprocity_specs()` /
+  `wolf2008_responsiveness_specs()` paper presets (Tier-A2 items
+  11-13). Mitigation already in plan; flagging the class for the
+  reviewer's reference.
+
+**BIO.** `batch_alife()` and `batch_seeds()` have no biological
+semantics — they are infrastructure. Two design judgements
+embedded that are biologically right:
+
+1. `batch_seeds()`'s default `seeds = 1:5` matches the
+   ≥5-seeds-per-claim discipline encoded throughout the
+   `vignette("scenarios")` and `paper-*` workflows. The default is
+   the right floor for multi-seed claims; it nudges users into
+   sound practice without forcing a higher cost on quick
+   exploration.
+2. `batch_alife()`'s `n_cores = 1L` default is the right safe
+   choice: it avoids the Julia per-worker compile cost and the
+   PSOCK setup overhead, both of which dominate runtime for small
+   batches. The docstring explicitly names ~20 scenarios as the
+   crossover where parallel pays off — exactly the right
+   information for the user to make the call.
+
+**CONTRIBUTE.** No basics.Rmd change this item. `batch_seeds()`
+and `batch_alife()` already appear in section 2 (the run_alife()
+worked example notes both) and section 5 (the multi-seed
+"What next" pointer). basics.Rmd is at 173 lines — slightly over
+the 150-line plan target — so resisting the temptation to add
+more text. Tier A1 items contributing to basics.Rmd will need to
+adopt the same restraint going forward, or accept rewriting an
+existing section rather than adding a new one.
+
+**Deferred fixes (flagged for separate work):**
+
+- The redundant `names(results) <- paste0("seed_", seeds)` at
+  `R/run.R:209` could be deleted (the input names survive
+  `parLapply`). Cosmetic; not worth a commit on its own. Bundle
+  into a future "R/run.R cleanups" PR if one ever happens.
+- An explicit `batch_alife(specs_list, n_cores = 2L)` end-to-end
+  test would catch PSOCK regressions before they surface in long
+  multi-seed runs. Requires Julia and ~3 minutes of wall time
+  (two worker compilations); would slow `test-integration.R`
+  noticeably. Defer to a separate "long-running" test file or a
+  CI-only flag.
+
+## 6/28 — `viability_report()` (2026-05-16, `claude/track-B-walk`)
+
+**TREE.** `R/analysis.R:1069-1127`. Quality-gate function: takes
+either a `$ticks` data frame or a full `get_run_data()` output;
+computes `n_init` (defaults to first-tick `n_agents`), `n_final`,
+`n_min`, `tick_of_min`, `frac_final`, `frac_min`; assigns a verdict
+in `{"viable", "weak", "crashed"}` and returns a structured list
+with class `clade_viability_report`. Print method at
+`R/analysis.R:1130-1133` is a one-line `cat` of `x$message`. The
+verdict rule:
+
+```r
+"crashed"  if (abs_check_applies && n_final < min_n) || frac_final < crashed_frac
+"weak"     if frac_final < weak_frac
+"viable"   otherwise
+```
+
+with `abs_check_applies <- n_init >= min_n` being the **0.7.0
+flat-pop bypass** (line 1102) — only apply the absolute floor
+when the run started above it. Without this guard, a deliberate
+small-population unit test (`n_init = 5`) would always be flagged
+"crashed" and the `warning()` from `run_alife()`'s viability hook
+would break `expect_silent()` assertions in `test-brains.R` etc.
+
+**FOREST.** 13 files reference `viability_report`. The only
+production caller is **`R/run.R:77`** — the in-`run_alife()`
+viability hook from item 2. Everything else is roxygen, tests, or
+vignette uses. This single production caller is why the 0.7.0
+bypass matters: every test that calls `run_alife()` indirectly
+invokes `viability_report()`. Roxygen completeness check:
+`@return` (line 1044-1054) lists 8 fields (`verdict`, `n_init`,
+`n_final`, `n_min`, `frac_final`, `frac_min`, `tick_of_min`,
+`message`); the actual return at line 1117-1126 lists exactly
+those 8. **No doc-debt** — the worry flagged in item 3's audit
+was unwarranted for this function.
+
+**TEST — three of the plan's three asks already covered, one
+critical gap closed, three new tests added.**
+
+Existing coverage in `test-analysis.R:271-306`:
+
+1. ✓ `min_n` floor (line 288-293) — `n_init = 20, n_final = 12,
+   min_n = 20L` → crashed; `min_n = 0L` → viable.
+2. ✓ Threshold classification (lines 271-286) — viable / weak /
+   crashed runs at 90%, 40%, 5% retention.
+3. ⚠ **Flat-pop bypass — NOT covered.** This is the specific
+   0.7.0 behaviour the plan asks about. The existing min_n test
+   uses `n_init = 20`, which is *equal* to the default `min_n`,
+   so `abs_check_applies = TRUE` and the bypass does not fire.
+   The case the bypass protects (`n_init < min_n`) was unverified.
+
+Added three new tests:
+
+- "viability_report() does NOT flag stable small-pop runs as
+  crashed (0.7.0 bypass)" — `n_init = 10, n_final = 9, min_n =
+  20L` → verdict must be "viable". Verifies the bypass kicks in.
+- "viability_report() still crashes a small-pop run that actually
+  collapses" — `n_init = 10, n_final = 1, min_n = 20L` →
+  "crashed". Verifies the bypass does NOT protect a genuine
+  fractional collapse (the fractional check still fires).
+- "viability_report() rejects invalid crashed_frac / weak_frac /
+  min_n" — exercises the `stopifnot()` block: negative or > 1
+  crashed_frac, weak_frac < crashed_frac, weak_frac > 1, negative
+  min_n. The `weak_frac > crashed_frac` check is biologically
+  important — a weak threshold below the crashed threshold would
+  invert the verdict ladder.
+
+Plus one new test for the `tick_of_min` / `n_min` extraction on a
+bottleneck shape (population drops to 20 at tick 5, recovers to
+100 at tick 10) — verifies the trough is correctly identified
+even when the run ultimately recovers to "viable".
+
+After the additions: `test-analysis.R` viability_report block
+covers 6 → 10 tests, with 12 → 21 expectations.
+
+**ROSE.** Same class as item 5: a critical 0.7.0 behaviour was
+shipped without a regression test. Cousin candidates:
+
+- Every "X.Y.Z guard added" docstring comment in `R/` is a
+  candidate for "behaviour added, regression test never landed."
+  Spot-grep ideas for a future drift-guard PR:
+  `rg "Pre-0\\.[0-9]+\\." R/` or `rg "added in 0\\." R/` — both
+  return ~40+ hits; spot-checking 5 random ones would surface any
+  similar gaps quickly.
+- Same as item 5's "convenience wrapper has no dedicated test"
+  class, just applied at a finer grain — "convenience guard
+  added but not covered." Both classes share the same structural
+  fix: a checklist in PR review asking "did you add a regression
+  test for the behaviour this PR adds?"
+
+**BIO.** This function IS the biology: it encodes the
+"trait-mean interpretations on crashed runs are unreliable" rule
+into a single reusable check. Three biologically motivated
+thresholds:
+
+1. **`crashed_frac = 0.2`**: a run that ends below 20% of init
+   has experienced a population collapse. Below this fraction,
+   trait-mean averages are dominated by a few lucky survivors —
+   the specific crash trajectory drives the estimate, not the
+   evolutionary signal. Defensible default; matches the
+   "≥ 5 surviving agents per locus" rule-of-thumb in pop-gen.
+2. **`weak_frac = 0.5`**: between 20% and 50% the run is
+   technically viable but the user should be told confidence is
+   reduced. The `"weak"` verdict is a deliberate "soft warning"
+   tier — not loud enough to interrupt automated sweeps, loud
+   enough that a careful reader of `viability_report` output
+   sees it.
+3. **`min_n = 20L`**: an absolute floor under which any trait
+   mean is "dominated by a handful of individuals" (the
+   docstring's exact phrasing). 20 is small but defensible:
+   below 20 agents the variance of any mean estimate explodes,
+   and a single death changes population fraction by 5%+.
+
+The 0.7.0 flat-pop bypass is itself a biological judgement:
+"a unit test that intentionally runs 5 agents to test some
+movement code path is not crashed; it is stable at its chosen
+size." Without the bypass, the biological framing of "crashed"
+would conflate with the operational framing of "small," which
+is a category error.
+
+**Deferred fixes (flagged for separate work):**
+
+- The "Pre-0.X.Y" / "added in 0.X" docstring-comment grep
+  (above) — would be a one-evening cousin-hunt that could
+  surface several more behaviour-without-regression-test
+  candidates. Bundle with the drift-guard sweep PR if appetite
+  exists.
+- No basics.Rmd change this item. The viability concept is
+  mentioned in section 2 (the run_alife() worked example
+  surfaces `env$viability$verdict`) and section 5 (the
+  multi-seed pointer mentions `viability_report` directly).
+  Adding more would bloat past the 150-line plan target.
+- The `weak_frac > crashed_frac` validation could carry a
+  one-line error message naming the contract instead of relying
+  on `stopifnot()`'s expression-formatted output. Cosmetic; not
+  worth a commit on its own.
+
+## 7/28 — `print_specs()` (2026-05-16, `claude/track-B-walk`)
+
+**TREE.** `R/utils.R:321-367`. Pretty-printer for a specs list. Two
+modes: full (every field, grouped by `.SPEC_GROUPS`) and
+`diff_only = TRUE` (only fields that `!identical()` to
+`default_specs()`). Flow: fetch defaults, copy `.SPEC_GROUPS` as the
+local `groups`, compute `other` for ungrouped fields and append it
+as an "Other" group, conditionally compute `changed`, print the
+header, loop groups → loop keys → format value (logical →
+`"TRUE"/"FALSE"`, length > 6 → `[a, b, c, d, e, f ...]`, length > 1
+→ `[…]`, else `as.character()`) → mark with `*` if changed, return
+`specs` invisibly for piping.
+
+**FOREST.** Light footprint: roxygen examples in `R/utils.R`
+itself; `vignettes/basics.Rmd` (sections 1 and 5);
+`vignettes/parameter-reference.Rmd` (the introspection table page);
+`vignettes/getting-started.Rmd` (a diff-only example in the
+introduction). **No dedicated test coverage existed pre-walk** —
+`print_specs()` was relied on only via `R CMD check`'s
+example-runner. Same Rose class as item 5's "convenience wrapper
+has no dedicated test", applied here to a more user-facing function.
+
+**TEST — coverage gap closed.** Created
+`tests/testthat/test-print-specs.R` (7 tests, 16 expectations, all
+no-Julia). The function is pure R (a `cat()`-only printer) so
+`capture.output()` is the right inspection tool. Covers:
+
+- **No-args path**: header line shape (`"-- clade specs (N
+  parameters) --"`) and invisible return of `default_specs()`.
+- **Group headers**: the four always-populated groups (Grid &
+  population, Energy & metabolism, Grass dynamics, Brain
+  architecture) appear in the output.
+- **diff_only path**: when two fields are changed
+  (`n_agents_init`, `kin_selection`), the header carries the
+  `"[diff only]"` tag, both changed fields appear with the `*`
+  marker, and unchanged fields (`grass_rate`) do *not* appear.
+- **diff_only with no changes**: prints the "(no parameters
+  differ from defaults)" message.
+- **`.SPEC_GROUPS` consumption**: a synthetic ungrouped field
+  (added via `[[ ]]` accessor — using `$_xxx` would trip the R
+  parser, the same bug that broke `test-integration.R` until
+  item 2) appears under an "Other" group header.
+- **Empty input edge case**: `print_specs(list())` produces no
+  group headers (only the header line).
+- **Invisible return**: the value returned equals the input
+  argument exactly, with no warnings or messages.
+
+Plan's two asks both verified:
+
+- **Post-#124 `.SPEC_GROUPS` consumption** — line 326
+  (`groups <- .SPEC_GROUPS`) and line 346
+  (`keys <- intersect(groups[[grp]], names(specs))`). Driven from
+  the same source of truth as `.param_table()`. Tested via the
+  Other-group and always-populated-headers paths.
+- **`diff_only = TRUE`** — line 333-339 (compute `changed` via
+  `vapply` + `identical`), line 347 (filter `keys` to `changed`),
+  line 362 (empty-changes message). Tested via the
+  changed-fields, unchanged-fields-hidden, and no-diff-message
+  paths.
+
+After the addition: `test-print-specs.R` is 16 pass; the existing
+structural drift-guards (`test-test-field-assertions.R`,
+`test-spec-groups-coverage.R`) verify they do *not* false-positive
+on the new file.
+
+**ROSE.** No new bug class. The `.SPEC_GROUPS` post-#124 design
+(introspection-driven, not hand-curated) is paying off here too:
+the function picks up new spec fields automatically as long as they
+are added to a group, and PR #129's bijection drift-guard enforces
+that they always are.
+
+Recurring class confirmation (item 5's): convenience-/utility-
+function coverage gap. After items 5 (`batch_alife` + `batch_seeds`)
+and 7 (`print_specs`), the remaining Tier-A1 candidate is item 8
+(the preset family `quick_specs / fast_specs / realistic_specs /
+ultra_realistic_specs / slow_specs / full_specs`). One audit covers
+all six because they are parallel; the same Rose risk applies and
+the same fix shape (mock + capture inspection) will work.
+
+**BIO.** `print_specs()` has no biological semantics — it is
+display infrastructure. One small editorial judgement: the `*`
+change marker (used inline with each value) plus the `"[diff only]"`
+header tag *double-signal* that the user is looking at a modified
+spec list. This is the right call for a display function that is
+also valuable on a *full* spec list — the marker is meaningful in
+both modes; the tag clarifies the viewport. Defensible.
+
+The vector-display cap at 6 elements (line 354,
+`if (length(v) > 6) sprintf("[%s ...]", paste(head(v, 6), ...))`)
+matches the same cap in `.spec_value_format()` at line 248 — two
+helpers, same convention. Consistent; no drift.
+
+**Deferred fixes (flagged for separate work):**
+
+- Sister-function doc audit: the four `S3` methods at
+  `R/utils.R:373-...` (`print.clade_env`, `summary.clade_env`,
+  plus implicit `format` / `[[.clade_env`) are not dedicated-
+  tested either. Tier-A3 candidate, not Tier-A1.
+- The cap of 6 vector elements in display is hard-coded twice
+  (`.spec_value_format()` and `print_specs()`). A
+  `.SPEC_VALUE_DISPLAY_CAP <- 6L` constant + reuse would prevent
+  drift if either site changes. Cosmetic; not worth a commit.
+- No `vignettes/basics.Rmd` change. `print_specs()` is already
+  covered in sections 1 and 5; basics.Rmd is at 173 lines (over
+  the 150-line plan target).
+
+## 8/28 — preset family (2026-05-16, `claude/track-B-walk`)
+
+Covers `quick_specs()`, `full_specs()`, `fast_specs()`,
+`realistic_specs()`, `ultra_realistic_specs()`, `slow_specs()` —
+six parallel functions in `R/config.R:1650-1859`. One audit,
+because the functions share a structural pattern (each takes
+`default_specs()` or a sibling preset and overrides a small set
+of fields).
+
+**TREE.** The presets form a chain:
+
+```
+default_specs()
+  ├─ quick_specs()
+  ├─ full_specs()
+  ├─ fast_specs()
+  │    └─ realistic_specs()
+  │         └─ ultra_realistic_specs()
+  └─ slow_specs()
+```
+
+Three "lineage" presets (`fast`/`realistic`/`ultra_realistic`)
+inherit pace-of-life calibration through the chain; the other
+three (`quick`/`full`/`slow`) are independent overrides of
+`default_specs()`. Each function simply assigns new values to
+~5-10 fields and returns the modified specs list.
+
+**FOREST.** 33 files reference the preset family. Production
+callers: `tests/testthat/test-hypothesis.R`,
+`tests/testthat/test-integration.R` (plus a separate
+`.quick_specs()` local helper — a different function, easy to
+confuse). Vignettes: most paper-* reproductions start from
+`fast_specs()` or `realistic_specs()`; `s-baseline.Rmd` uses
+`quick_specs()`; the slower-tempo scenarios use `slow_specs()`.
+**Test coverage before this walk: zero dedicated tests for any
+preset.** Same Rose class as items 5 and 7 — convenience wrapper
+without a dedicated test.
+
+**TEST + DOC findings — three roxygen-vs-code reconciliations
+and one new test file.**
+
+1. **`ultra_realistic_specs()` — roxygen lied about `n_agents_init`.**
+   The roxygen `@details` table said `800L` and the
+   `@return` description said "N ≈ 800–1500 equilibrium"; the
+   code has always been `500L` with an inline comment
+   "right-sized to ~400 equilibrium." Updated the roxygen to
+   match the code (the inline comment is the truth) and the
+   `@return` description to "N ≈ 400 equilibrium." This is a
+   real semantic mismatch — anyone reading the rendered help
+   page would expect a 60% larger initial population than they
+   get.
+2. **`fast_specs()` — roxygen omitted `predator_max_age = 100L`.**
+   The function sets seven distinct fields from
+   `default_specs()` but the `@details` table listed only six.
+   The omitted line documents an intentional asymmetry (predators
+   outlive 30-tick prey by ~3×, owl > mouse). Added the missing
+   row to the table.
+3. **`slow_specs()` — roxygen omitted three of the seven
+   overridden fields.** The `@details` table listed `max_age`,
+   `min_repro_energy`, `min_repro_age`, `max_ticks`; the code
+   also sets `grass_rate = 0.10`, `n_agents_init = 100L`,
+   `max_agents = 500L`. Added the three missing rows. The
+   `grass_rate` change is biologically meaningful — slightly
+   richer environment compensates for the higher
+   `min_repro_energy` threshold, otherwise K-strategist
+   populations starve.
+
+Created `tests/testthat/test-presets.R` (10 tests, 73
+expectations, no-Julia). Coverage:
+
+- **Shape**: every preset has the same field names as
+  `default_specs()` — no preset introduces or drops fields. The
+  drift-guard from PR #129 enforces `.SPEC_GROUPS` ↔
+  `default_specs()` bijection, but this test catches preset
+  drift downstream.
+- **Validation**: every preset passes `.validate_specs()` cleanly
+  (no early-error during real use).
+- **Documented values**: per-preset assertions on every value
+  listed in the roxygen `@details` table. After the three
+  reconciliations above, all assertions pass — and any future
+  table-vs-code drift will be caught immediately.
+- **Chain inheritance**: `realistic_specs()` carries
+  `fast_specs()`'s pace-of-life (`max_age = 30L`,
+  `min_repro_energy = 60`, `min_repro_age = 3L`,
+  `grass_rate = 0.20`). `ultra_realistic_specs()` carries
+  all of fast's settings plus realistic's
+  `predator_max_age = 60L` override (not fast's original
+  `100L`) — a critical regression-protect on the inheritance
+  cascade.
+- **Immutability**: calling any preset does not mutate
+  `default_specs()` (rules out a shared-reference bug if anyone
+  ever refactors to `<<-` accidentally).
+
+After the additions: `test-presets.R` is 73 expectations pass;
+all three regenerated man pages match the updated roxygen
+exactly; PR #129's drift-guards do not false-positive.
+
+**ROSE.** Three classes in play:
+
+1. **Recurrence (item 5, item 7): "convenience wrapper has no
+   dedicated test."** Closed for the preset family with this
+   walk. Tier-A1 has now exhausted this class — items 5
+   (batch_*), 7 (print_specs), and 8 (presets) all closed.
+   Tier-A2 paper presets (items 11-13:
+   `wolf_personality_specs()`, `trivers_reciprocity_specs()`,
+   `wolf2008_responsiveness_specs()`) are the same class and
+   will likely need the same fix shape.
+2. **Recurrence (item 3): "code grows fields/columns; roxygen
+   `@return` doesn't."** Two of the three doc-fixes
+   (`fast_specs`, `slow_specs`) are this class — the function
+   silently grew a parameter override that the roxygen never
+   caught up with. The `test-presets.R` "documented values" tests
+   make this catchable on future drift.
+3. **New (item 8): "documented value disagrees with implementation
+   value."** `ultra_realistic_specs()`'s `800L` was not an omission
+   — it was an active claim contradicted by the code. Different
+   from class 2 (omission). Cousin candidates: every roxygen
+   `@return` block that quotes a specific numeric default. Spot-
+   grep idea for a future cousin-hunt:
+   `rg "default[s]? \\d" R/*.R | head -50` — surfaces inline
+   defaults claims; spot-check each against the code.
+
+**BIO.** The preset values are biologically defensible:
+
+- **`quick_specs()`**: 20×20 grid + 200 ticks = exploratory; the
+  smaller grid sacrifices spatial dynamics for turnaround time.
+  Acceptable for prototyping.
+- **`full_specs()`**: 30×30 + 200 init + 1000 ticks = publication
+  scale at default pace-of-life. Right balance for figures.
+- **`fast_specs()`**: max_age=30 + min_repro_energy=60 +
+  min_repro_age=3 + grass_rate=0.20 gives ~30-tick generations
+  and 66 generations in a 2000-tick run. Calibrated to the
+  MATLAB ancestor's pace (Bulitko 2023). Right preset for
+  trait-evolution studies. `predator_max_age = 100L` honours the
+  owl > mouse lifespan ratio.
+- **`realistic_specs()`**: 60×60 grid + 1500-agent cap +
+  predator age structure. Right preset when spatial dynamics
+  (dispersal gradients, predator-prey waves) need room to
+  express. The 2000-tick cap is set by BNN-kernel stability
+  (see docstring) — defensible engineering trade-off.
+- **`ultra_realistic_specs()`**: 120×120 + 5000-agent cap for
+  finite-population corrections (Red Queen advantage ~μN;
+  Hamilton 1971 selfish-herd dilution ~1/√N). 2500-tick cap
+  (BNN stability ceiling). Right preset for theory-vs-simulation
+  audits where N matters more than wall time.
+- **`slow_specs()`**: K-strategist (long max_age, high
+  min_repro_energy, late min_repro_age). 10000-tick horizon for
+  ~50 generations. `grass_rate = 0.10` compensates for the
+  higher reproduction threshold — without it, populations would
+  starve. Defensible.
+
+The chain (ultra_realistic → realistic → fast → default) is
+biologically right: each step relaxes a constraint (grid size,
+agent cap, predator age structure) while preserving the upstream
+pace-of-life. A user who needs "fast-pace evolution at theory
+scale" composes the right semantics by calling
+`ultra_realistic_specs()`.
+
+**Deferred fixes (flagged for separate work):**
+
+- Cousin-hunt for "documented value disagrees with implementation
+  value" via `rg "default[s]? \\d" R/*.R` — ~50 candidates worth
+  spot-checking. Could become a one-evening session before the
+  next CRAN-style release.
+- The `.quick_specs()` local helper in `test-integration.R`
+  shadows the public `quick_specs()` name. Worth renaming to
+  `.test_specs()` or similar in a future test-file rename PR.
+  Cosmetic; not worth a commit on its own.
+- No `vignettes/basics.Rmd` change this item. Presets are not
+  mentioned in basics.Rmd at all by design — the 5-minute
+  introduction sticks with `default_specs()` and lets the user
+  discover the preset family via `vignette("getting-started")`
+  or `?quick_specs`. Acceptable, but worth a sentence in a
+  future basics.Rmd revision if the file gets restructured.

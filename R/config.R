@@ -1712,6 +1712,9 @@ full_specs <- function() {
 #'   \item{`n_agents_init`}{80L. Moderate starting population.}
 #'   \item{`max_agents`}{400L. Room for population growth.}
 #'   \item{`grid_rows`, `grid_cols`}{30L. Standard grid.}
+#'   \item{`predator_max_age`}{100L (vs `NA`-means-same-as-prey at
+#'     defaults). Predators outlive 30-tick prey by ~3×, matching
+#'     the owl > mouse lifespan ratio.}
 #' }
 #'
 #' @return A specs list calibrated for fast evolutionary dynamics.
@@ -1801,8 +1804,9 @@ realistic_specs <- function() {
 #' \describe{
 #'   \item{`grid_rows`, `grid_cols`}{120L × 120L (16× the default
 #'     area, 4× realistic).}
-#'   \item{`n_agents_init`}{800L. Seeded below expected equilibrium
-#'     so the transient overshoot doesn't hit `max_agents`.}
+#'   \item{`n_agents_init`}{500L. Right-sized to the ~400 equilibrium
+#'     on the 120×120 grid (an earlier audit at 800L overshot and
+#'     occasionally hit `max_agents`).}
 #'   \item{`max_agents`}{5000L. Supports the larger carrying
 #'     capacity.}
 #'   \item{`max_ticks`}{2500L. ~80 generations at `max_age = 30`.
@@ -1814,8 +1818,8 @@ realistic_specs <- function() {
 #' in parallel on 16 PSOCK workers finish in one coffee break. Fits
 #' comfortably under the 200-core / 300-GB machine budget.
 #'
-#' @return A specs list at ecological-theory scale (N ≈ 800–1500
-#'   equilibrium, 80 generations).
+#' @return A specs list at ecological-theory scale (N ≈ 400
+#'   equilibrium, ~80 generations).
 #' @seealso [realistic_specs()], [fast_specs()]
 #' @export
 ultra_realistic_specs <- function() {
@@ -1841,6 +1845,11 @@ ultra_realistic_specs <- function() {
 #'   \item{`min_repro_energy`}{150 (vs 120). High parental investment.}
 #'   \item{`min_repro_age`}{20L. Late maturation.}
 #'   \item{`max_ticks`}{10000L. At gen time ~200, gives ~50 generations.}
+#'   \item{`grass_rate`}{0.10 (vs 0.05). Slightly richer environment
+#'     compensates for the higher `min_repro_energy` threshold.}
+#'   \item{`n_agents_init`}{100L (vs 50L). Moderate starting
+#'     population for the long horizon.}
+#'   \item{`max_agents`}{500L (same as default). Standard cap.}
 #' }
 #'
 #' @return A specs list calibrated for K-strategist organisms.

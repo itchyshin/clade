@@ -20,6 +20,11 @@ requires longer runs (10000+ ticks) for meaningful evolution.
 \item{\code{min_repro_energy}}{150 (vs 120). High parental investment.}
 \item{\code{min_repro_age}}{20L. Late maturation.}
 \item{\code{max_ticks}}{10000L. At gen time ~200, gives ~50 generations.}
+\item{\code{grass_rate}}{0.10 (vs 0.05). Slightly richer environment
+compensates for the higher \code{min_repro_energy} threshold.}
+\item{\code{n_agents_init}}{100L (vs 50L). Moderate starting
+population for the long horizon.}
+\item{\code{max_agents}}{500L (same as default). Standard cap.}
 }
 }
 \seealso{
