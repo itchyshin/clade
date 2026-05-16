@@ -1062,6 +1062,13 @@ take_action <- function(env, i = 1L, input = NULL) {
 #'   \item{`message`}{A one-line diagnostic suitable for logging.}
 #' }
 #'
+#' @note [hypothesis_sweep()]'s default `crashed` metric uses a
+#' *different* threshold (absolute floor of 10 agents at run end)
+#' for a *different* question. Use `viability_report()` to gate
+#' interpretability (Hamilton-rule-style "is this trait mean
+#' meaningful?"); use the sweep's `crashed` metric to count
+#' per-condition extinctions in a sweep summary.
+#'
 #' @examples
 #' \dontrun{
 #' env  <- run_alife(fast_specs())
@@ -1072,13 +1079,6 @@ take_action <- function(env, i = 1L, input = NULL) {
 #'   warning("crash-driven result; trait means are unreliable")
 #' }
 #' }
-#'
-#' Note: [hypothesis_sweep()]'s default `crashed` metric uses a
-#' *different* threshold (absolute floor of 10 agents at run end)
-#' for a *different* question. Use `viability_report()` to gate
-#' interpretability (Hamilton-rule-style "is this trait mean
-#' meaningful?"); use the sweep's `crashed` metric to count
-#' per-condition extinctions in a sweep summary.
 #'
 #' @seealso [run_alife()], [get_run_data()], [hypothesis_sweep()].
 #' @export
