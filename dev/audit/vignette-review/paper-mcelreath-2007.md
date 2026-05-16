@@ -34,7 +34,41 @@ The time-horizon sweep is biologically motivated: real personality syndromes evo
 
 8 references; 0 stale. Uses `wolf_personality_specs()` as the base.
 
+## Multi-seed re-run (2026-05-16, McElreath rds generated)
+
+Ran `dev/audit/fidelity/paper_mcelreath_2007.R` (3 horizons × 8 seeds = 24 sims, ~24 min wall-clock). **The peak-then-decay pattern McElreath predicts does NOT appear at 8 seeds.**
+
+### cor(bold, aggro) by horizon
+
+| Horizon (ticks) | n_seeds | mean ± SE |
+|---|---|---|
+| short (2000) | 8 | **−0.0746 ± 0.0447** |
+| mid (5000) | 8 | **−0.0774 ± 0.0488** |
+| long (15000) | 8 | +0.0341 ± 0.0488 |
+
+- The single-seed observation "peaks at +0.307 around 5 000 ticks then decays to +0.032 by 15 000" doesn't survive multi-seed scrutiny.
+- The multi-seed pattern is **null at every horizon** (none reach 2σ PASS).
+- The single-seed +0.307 at 5000 ticks was a noise-envelope landing on the positive tail — multi-seed mean at the same horizon is −0.077.
+- Trait-mean stability check confirms: `mean(exploration)` is essentially constant across horizons (0.119 → 0.112 → 0.113), so the population *is* in a stable equilibrium structure — the syndrome simply isn't there to decay.
+
+### Asset-protection correlations
+
+| Horizon | cor(exp, bold) mean ± SE | cor(exp, aggro) mean ± SE |
+|---|---|---|
+| 2000 | +0.035 ± 0.029 | **−0.172 ± 0.042** (t = −4.12 PASS-negative) |
+| 5000 | −0.069 ± 0.035 | −0.020 ± 0.044 |
+| 15000 | +0.015 ± 0.027 | −0.063 ± 0.042 |
+
+Interesting: cor(exp, aggro) at 2000 ticks is **−0.172 with t = −4.12**, which is a PASS for the predicted negative asset-protection sign. This is the only multi-seed cell in any of the three Wolf 2007 reproductions (Wolf 2007 + Massol-Crochet + McElreath) that produces a 2σ PASS in the predicted direction — and it's at the SHORTEST horizon, opposite to McElreath's "peak then decay" prediction. Worth flagging.
+
+### Reclassification
+
+The vignette claims McElreath's critique is "**strongly borne out**" based on a single-seed trajectory showing peak-then-decay. At 8 seeds, **the trajectory is null-flat across all three horizons** — neither McElreath's transience prediction nor Wolf's syndrome appears robustly. The honest verdict is "the syndrome simply doesn't emerge in clade's spatially-explicit kernel at 8 seeds; therefore both Wolf's claim AND McElreath's transience critique are untestable at this sample size."
+
+A larger sample (16+ seeds) might resolve whether the cor(exp, aggro) PASS at 2000 ticks is robust. ~40 min additional compute.
+
 ## Deferred fixes
 
-- **Worth doing**: multi-seed rds.
+- Vignette prose update to soften the "strongly borne out" framing.
+- ~40 min compute to run at 16 seeds and check whether the cor(exp, aggro) 2000-tick PASS is robust.
 - Same cross-reference suggestion as Massol & Crochet — from paper-wolf2007.Rmd to both critique papers.
