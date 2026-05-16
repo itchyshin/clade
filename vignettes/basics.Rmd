@@ -86,7 +86,31 @@ roughly 20 scenarios upward).
 
 ## 3. Extract the run with `get_run_data()`
 
-*(Filled by Phase A item 3.)*
+`get_run_data(env)` reshapes the run into two tidy data frames
+(`$ticks` and `$deaths`) plus a third (`$genomes`) that is `NULL`
+unless you set `specs$log_genomes = TRUE`. `$ticks` has one row per
+logged tick and ~60 population columns — the always-present core
+(`t`, `n_agents`, `n_births`, `n_deaths`, `mean_energy`, `mean_age`,
+`mean_body_size`, `genetic_diversity`, `grass_coverage`, ...) plus
+module-specific columns that are zero when the corresponding module
+is off, so the shape is stable across specs. `$deaths` has one row
+per agent death with seven columns (`id`, `t`, `age`, `energy`,
+`cause`, `body_size`, `num_offspring`); inspecting `$deaths$cause`
+is the fastest way to see whether a run was starvation-dominated,
+age-dominated, or (when predators are on) predation-dominated.
+
+```{r}
+rd <- get_run_data(env)
+head(rd$ticks)
+tail(rd$ticks[, c("t", "n_agents", "mean_energy", "genetic_diversity")])
+table(rd$deaths$cause)
+```
+
+For the full column list of a specific run, call
+`colnames(rd$ticks)` — the canonical schema lives in
+`inst/julia/src/logging.jl::_init_progress`. For genome snapshots,
+use `get_genome_data(env)` (same `$genomes` long-format data frame,
+plus reserved placeholders for heterozygosity and FST).
 
 ## 4. Plot the run with `plot_run()`
 

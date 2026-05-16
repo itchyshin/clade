@@ -241,3 +241,106 @@ biologically sensible for orienting the operator before a long run.
   call of the R session, and (b) the change touches the entry
   function's call order, which is non-surgical for an item-2 walk.
   Flag for the user.
+
+## 3/28 — `get_run_data()` (2026-05-16, `claude/track-B-walk`)
+
+**TREE.** `R/analysis.R:38-47`. Thin wrapper that converts the raw
+Julia-side `env` into a three-field list: `$ticks =
+as.data.frame(lapply(env$progress, unlist))`, `$deaths =
+as.data.frame(lapply(env$deaths, unlist))`, `$genomes =
+.compose_genome_dataframe(env$genome_log)`. Sibling helper
+`get_genome_data()` at `R/analysis.R:86` returns
+`{genomes, heterozygosity, fst}` (the last two are reserved
+`numeric(0L)` placeholders for documented future work). The post-#115
+`.compose_genome_dataframe()` (`R/analysis.R:99-127`) iterates over
+the Julia proxy array, calls `juliaGet` on each entry to extract
+`(t, agent_ids, traits)`, and `rbind`s into a long
+`(t, agent_id, trait_1..trait_N)` data frame.
+
+**FOREST.** Heavily used. R-side production callers: `R/run.R:77`
+(the in-`run_alife()` viability hook), `R/search.R` (search
+algorithms), `R/hypothesis.R` (sweep summariser), `R/visualization.R`
+(every dashboard panel). 14 vignettes call it; 12+ test files
+exercise it. Dedicated test file: `tests/testthat/test-run-data.R`
+(no-Julia, mock-based, 15 tests pre-walk). Julia-end-to-end coverage
+for `.compose_genome_dataframe()` lives in
+`tests/testthat/test-log-genomes.R` behind `skip_no_julia()`.
+
+**TEST — two findings, both fixed.**
+
+1. **Stale test (pre-#115).** `test-run-data.R:173-181` was the
+   pre-#115 test of `get_genome_data()`: it built a mock
+   `genome_log = list(matrix(...), matrix(...))` of plain R matrices
+   and asserted `g$genomes[[1]] == m1`. Post-#115,
+   `get_genome_data()` returns `{genomes, heterozygosity, fst}` and
+   `genomes` comes from `.compose_genome_dataframe()`, which calls
+   `juliaGet()` on every entry — plain R matrices are not proxies, so
+   `juliaGet()` errors and `tryCatch()` swallows it, yielding `NULL`.
+   The three assertions failed against the new contract. Rewrote the
+   test to exercise the no-Julia surface of `.compose_genome_dataframe`
+   directly: `NULL`, `list()`, and "garbage non-proxy inputs" all
+   return `NULL` without crashing — the contract that matters for
+   `get_run_data()`'s pipeline to remain robust. The Julia-required
+   round-trip coverage is intentionally left to `test-log-genomes.R`,
+   matching the no-Julia comment at the top of `test-run-data.R`.
+
+2. **Roxygen doc-debt.** The `@return` block at `R/analysis.R:11-26`
+   enumerated ~25 columns for `$ticks`. The actual
+   `inst/julia/src/logging.jl::_init_progress` produces **61**
+   columns (verified with `grep -cE '^\s*"[a-z_]+"\s+=> copy'`).
+   So ~36 columns existed but were undocumented. Rewrote the
+   `@return` to list the always-present core columns explicitly,
+   describe the always-allocated module columns by group, and add a
+   pointer to `inst/julia/src/logging.jl::_init_progress` plus
+   `colnames(get_run_data(env)$ticks)` for the authoritative list.
+   This is honest about scale without bloating the docstring with all
+   61 names; readers wanting one specific column can call
+   `colnames()`.
+
+After the fixes: `test-run-data.R` passes 28/28 (was 25P + 3F).
+
+**ROSE.** Two classes recurred:
+
+1. **"API change leaves test fixtures pointing at the old behaviour"**
+   — the pre-#115 vs post-#115 `$genomes` shape change is a fresh
+   instance of the same Rose class from items 1 and 2. Cousin risk:
+   any test using `.mock_env(genome_log = ...)` or similar fixtures
+   should be audited after a shape-changing PR. Structural fix
+   (still deferred): add a "post-#NNN shape changes" line to the PR
+   template that asks the author to grep for stale fixtures.
+
+2. **"Code grows fields/columns; roxygen `@return` doesn't"** — the
+   `$ticks` doc-debt is the first instance of this distinct class.
+   Cousin risk: every roxygen `@return` that enumerates a finite list
+   could be undercount. Spot candidates: `get_genome_data()`,
+   `viability_report()`, `plot_run()`. The structural fix is to
+   pivot list-of-columns roxygen to "see `<source>` + use
+   `names()` / `colnames()` for the authoritative list" wherever
+   the producer is data-driven rather than hand-curated.
+
+**BIO.** `get_run_data()` has no biological semantics — it's a
+shape transformation. One judgement embedded in the design: the
+log shape is **stable across specs** (module-specific columns are
+always allocated, zero when the module is disabled). That decision
+is the right one for downstream code — `plot_run()` and the
+viability hook can rely on column presence regardless of which
+modules the user enabled. The roxygen now states this explicitly.
+
+`get_genome_data()`'s `$heterozygosity` and `$fst` placeholders
+(both `numeric(0L)`) are honest about being reserved for future
+work — better than fake numbers. The `@references` for Weir &
+Cockerham (1984) is already in place, so when those fields land
+the citation is ready.
+
+**Deferred fixes (flagged for separate work):**
+
+- Sibling-function doc audit. `get_genome_data()`,
+  `viability_report()`, `plot_run()`, `inspect_brain()` all carry
+  `@return` lists that could go stale by the same "code grows, doc
+  doesn't" class. Phase A item 4 (`plot_run()`) and Tier-A1 item 6
+  (`viability_report()`) cover two of them under the normal walk
+  rhythm; the other two are out-of-band.
+- Future `$movement` accessor — if the post-Sergio movement-log
+  proposal lands, `get_run_data()` will gain a fourth field
+  `$movement`. The roxygen rewrite is structured so a one-line
+  insertion will suffice; no redesign needed.
