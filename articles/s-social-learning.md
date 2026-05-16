@@ -64,7 +64,9 @@ lot. An 8-seed × 3×3 sweep (`social_learning_sweep.R`) over `freq` ∈ {5,
 The 0.4.x default of `social_learning_freq = 10` landed in the
 “too-aggressive” regime, which is why the original 8-seed direction
 check (Tier C batch 1) reported a null. Status ✅ at the freq=50 regime;
-see `dev/audit/fidelity/social_learning_sweep.rds` for the full table.
+see
+[`dev/audit/fidelity/social_learning_sweep.rds`](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/social_learning_sweep.rds)
+for the full table.
 
 **Earlier finding (original audit).** The effect of social learning
 depends critically on brain type. With `brain_type = "ann"`
