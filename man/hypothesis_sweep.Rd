@@ -30,7 +30,16 @@ condition is replicated across all seeds.}
 \code{ticks} tibble returned by \code{\link[=get_run_data]{get_run_data()}} and returns a
 length-one scalar (numeric or logical). Defaults collect
 \code{final_n} (mean n_agents over the last 500 ticks) and \code{crashed}
-(a logical — whether n_agents fell below 10 at run end).}
+(a logical — whether n_agents fell below 10 at run end).
+Note: this \code{crashed} flag is \emph{intentionally different} from
+\code{\link[=viability_report]{viability_report()}}'s \code{verdict == "crashed"}. The sweep's
+\code{crashed} answers "did the population effectively go extinct?"
+(absolute floor of 10 agents); \code{viability_report()}'s \code{crashed}
+answers "is the run interpretable?" (fractional floor of
+\code{crashed_frac = 0.2} plus the configurable \code{min_n = 20L} absolute
+floor with a flat-population bypass). Use \code{viability_report()}
+when you want the interpretability-gate; use the sweep's
+\code{crashed} metric when you want a per-condition extinction count.}
 
 \item{n_cores}{Integer. Passed to \code{\link[=batch_alife]{batch_alife()}}. Set as close as
 possible to \code{length(conditions) * length(seeds)} to keep each

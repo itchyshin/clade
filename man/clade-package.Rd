@@ -88,10 +88,5 @@ Useful links:
 \author{
 \strong{Maintainer}: Shinichi Nakagawa \email{s.nakagawa@unsw.edu.au}
 
-Authors:
-\itemize{
-  \item Shinichi Nakagawa \email{s.nakagawa@unsw.edu.au}
-}
-
 }
 \keyword{internal}

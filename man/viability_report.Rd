@@ -77,7 +77,14 @@ if (vr$verdict == "crashed") {
 }
 }
 
+Note: [hypothesis_sweep()]'s default `crashed` metric uses a
+*different* threshold (absolute floor of 10 agents at run end)
+for a *different* question. Use `viability_report()` to gate
+interpretability (Hamilton-rule-style "is this trait mean
+meaningful?"); use the sweep's `crashed` metric to count
+per-condition extinctions in a sweep summary.
+
 }
 \seealso{
-\code{\link[=run_alife]{run_alife()}}, \code{\link[=get_run_data]{get_run_data()}}
+\code{\link[=run_alife]{run_alife()}}, \code{\link[=get_run_data]{get_run_data()}}, \code{\link[=hypothesis_sweep]{hypothesis_sweep()}}.
 }

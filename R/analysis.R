@@ -176,6 +176,14 @@ get_genome_data <- function(env) {
 #'     exact estimate requires parent-offspring logging.}
 #' }
 #'
+#' Note that clade also exports [heritability_estimate()] — a different
+#' function that computes h^2 by parent-offspring regression on
+#' `get_run_data(env)$deaths` (the agent-death log), and so requires that
+#' agents have died with recorded `parent_id` and the trait of interest.
+#' `estimate_heritability()` is the population-level autocorrelation proxy
+#' (works on any logged trait series); `heritability_estimate()` is the
+#' individual-level regression (requires the deaths data frame).
+#'
 #' @references
 #' Falconer, D.S. & Mackay, T.F.C. (1996) *Introduction to Quantitative
 #'   Genetics*, 4th ed. Longman, Harlow.
@@ -188,7 +196,8 @@ get_genome_data <- function(env) {
 #' estimate_heritability(rd, trait = "immune_strength")
 #' }
 #'
-#' @seealso [get_run_data()], [compute_ld()], [species_tree()]
+#' @seealso [heritability_estimate()] for the parent-offspring regression
+#'   approach. [get_run_data()], [compute_ld()], [species_tree()].
 #' @export
 estimate_heritability <- function(run_data, trait = "body_size") {
   if (!is.list(run_data) || is.null(run_data$ticks))
@@ -1064,7 +1073,14 @@ take_action <- function(env, i = 1L, input = NULL) {
 #' }
 #' }
 #'
-#' @seealso [run_alife()], [get_run_data()]
+#' Note: [hypothesis_sweep()]'s default `crashed` metric uses a
+#' *different* threshold (absolute floor of 10 agents at run end)
+#' for a *different* question. Use `viability_report()` to gate
+#' interpretability (Hamilton-rule-style "is this trait mean
+#' meaningful?"); use the sweep's `crashed` metric to count
+#' per-condition extinctions in a sweep summary.
+#'
+#' @seealso [run_alife()], [get_run_data()], [hypothesis_sweep()].
 #' @export
 viability_report <- function(run_data,
                              n_agents_init = NULL,

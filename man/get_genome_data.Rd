@@ -12,9 +12,10 @@ get_genome_data(env)
 \value{
 A list with components:
 \describe{
-\item{\verb{$genomes}}{A list of matrices (one per logged tick). Each matrix
-has one row per agent and one column per genome position. \code{NULL} when
-\code{specs$log_genomes = FALSE}.}
+\item{\verb{$genomes}}{A long data frame with one row per (tick, agent),
+columns \code{t}, \code{agent_id}, and \code{trait_1}..\code{trait_N} (N = number of
+scalar traits in the Julia kernel, currently 22). \code{NULL} when
+\code{specs$log_genomes = FALSE} or no snapshots were taken.}
 \item{\verb{$heterozygosity}}{Reserved field — currently returns
 \code{numeric(0L)}. Future versions will compute mean per-locus
 heterozygosity across logged ticks.}
