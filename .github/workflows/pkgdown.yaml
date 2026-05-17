@@ -35,14 +35,30 @@ jobs:
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
         shell: Rscript {0}
 
+      # pkgdown 2.x auto-discovers root-level *.md files as
+      # "extra articles" and renders them into docs/. For clade that
+      # surfaces AGENTS.md, CLAUDE.md, AFTER_TASK.md, MEMORY.seed.md
+      # — all dev-internal agent-instruction files that shouldn't
+      # appear on the public site. (Verified: the build log shows
+      # "Reading AGENTS.md → Writing AGENTS.html" on every build,
+      # which is why the `clean: true` fix alone didn't scrub them.)
+      # Strip both the .html and the copied .md before deploy.
+      - name: Strip dev-internal pages from docs/ before deploy
+        run: |
+          set -x
+          rm -fv docs/AGENTS.html docs/AGENTS.md \
+                 docs/CLAUDE.html docs/CLAUDE.md \
+                 docs/AFTER_TASK.html docs/AFTER_TASK.md \
+                 docs/MEMORY.seed.html docs/MEMORY.seed.md \
+                 docs/404.md
+          # plot_dead_agents.md was an old-pkgdown artefact alongside
+          # the legitimate plot_dead_agents.html; drop if present.
+          rm -fv docs/reference/plot_dead_agents.md
+
       # `clean: true` mirrors gh-pages to docs/ — files in gh-pages
-      # that aren't in docs/ get removed. Was `clean: false` before
-      # 2026-05-17, which let historical leaks linger forever
-      # (AGENTS.html, CLAUDE.html, AFTER_TASK.html, 404.md, and the
-      # stale reference/plot_dead_agents.md surfaced via
-      # `git ls-tree origin/gh-pages` were all gh-pages-only files
-      # that pkgdown doesn't currently produce). With `clean: true`,
-      # the next deploy after this PR scrubs them.
+      # that aren't in docs/ get removed. Combined with the strip
+      # step above, the deploy ends with a gh-pages that contains
+      # only pkgdown's legitimate output minus the dev-internal pages.
       - name: Deploy to GitHub pages 🚀
         if: github.event_name != 'pull_request'
         uses: JamesIves/github-pages-deploy-action@v4.5.0
