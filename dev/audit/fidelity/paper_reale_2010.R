@@ -25,6 +25,8 @@ suppressPackageStartupMessages({
     library(clade)
 })
 
+source("dev/audit/fidelity/_helper.R")
+
 base <- default_specs()
 base$grid_rows      <- 40L
 base$grid_cols      <- 40L
@@ -64,7 +66,7 @@ sweep <- hypothesis_sweep(
     mean_energy = function(t) mean(tail(t$mean_energy, 500L), na.rm = TRUE),
     final_n     = function(t) mean(tail(t$n_agents, 500L), na.rm = TRUE)
   ),
-  n_cores = 40L
+  n_cores = .fidelity_cores(default = 40L)
 )
 print(sweep)
 

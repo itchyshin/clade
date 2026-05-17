@@ -25,6 +25,8 @@ suppressPackageStartupMessages({
     library(clade)
 })
 
+source("dev/audit/fidelity/_helper.R")
+
 base <- default_specs()
 base$grid_rows       <- 40L
 base$grid_cols       <- 40L
@@ -57,7 +59,7 @@ cat(sprintf("  Grid: %d cost x %d care = %d cells, 1 seed each\n",
             length(cost_scales), length(care_durs), length(specs_list)))
 
 t0 <- Sys.time()
-results <- batch_alife(specs_list, n_cores = 16L)
+results <- batch_alife(specs_list, n_cores = .fidelity_cores(default = 16L))
 cat(sprintf("  Grid complete in %.1fs\n", as.numeric(difftime(Sys.time(), t0, units = "secs"))))
 
 # Extract each run's final brain size + population + extinction
@@ -133,7 +135,7 @@ sweep <- hypothesis_sweep(
     final_n     = function(ticks) mean(tail(ticks$n_agents, 500L), na.rm = TRUE),
     crashed     = function(ticks) tail(ticks$n_agents, 1L) < 10L
   ),
-  n_cores = 32L
+  n_cores = .fidelity_cores(default = 32L)
 )
 print(sweep)
 
