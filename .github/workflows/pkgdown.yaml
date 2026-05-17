@@ -35,10 +35,18 @@ jobs:
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
         shell: Rscript {0}
 
+      # `clean: true` mirrors gh-pages to docs/ — files in gh-pages
+      # that aren't in docs/ get removed. Was `clean: false` before
+      # 2026-05-17, which let historical leaks linger forever
+      # (AGENTS.html, CLAUDE.html, AFTER_TASK.html, 404.md, and the
+      # stale reference/plot_dead_agents.md surfaced via
+      # `git ls-tree origin/gh-pages` were all gh-pages-only files
+      # that pkgdown doesn't currently produce). With `clean: true`,
+      # the next deploy after this PR scrubs them.
       - name: Deploy to GitHub pages 🚀
         if: github.event_name != 'pull_request'
         uses: JamesIves/github-pages-deploy-action@v4.5.0
         with:
-          clean: false
+          clean: true
           branch: gh-pages
           folder: docs
