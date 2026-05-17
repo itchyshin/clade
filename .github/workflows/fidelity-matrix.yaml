@@ -55,6 +55,13 @@ jobs:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
       NOT_CRAN: true
+      # Override hard-coded n_cores in fidelity scripts. GitHub Actions
+      # ubuntu-latest runners have 4 cores and ~16 GB RAM; each PSOCK
+      # worker spawns its own Julia (~500 MB), so the scripts' local
+      # defaults of 12-40 cores OOM-kill the runner. The
+      # `.fidelity_cores(default = NL)` helper in dev/audit/fidelity/
+      # _helper.R honours this env var ahead of the literal default.
+      CLADE_FIDELITY_NCORES: '2'
 
     steps:
       - uses: actions/checkout@v4

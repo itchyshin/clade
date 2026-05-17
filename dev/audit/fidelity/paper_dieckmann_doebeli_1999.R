@@ -25,6 +25,8 @@ suppressPackageStartupMessages({
     library(clade)
 })
 
+source("dev/audit/fidelity/_helper.R")
+
 base <- fast_specs()
 base$speciation                  <- TRUE
 base$speciation_cluster_interval <- 10L
@@ -44,7 +46,7 @@ cat(sprintf("  Grid: %d thresholds x %d mutation rates = %d cells\n",
             length(thresholds), length(mut_rates), length(specs_list)))
 
 t0 <- Sys.time()
-results <- batch_alife(specs_list, n_cores = 12L)
+results <- batch_alife(specs_list, n_cores = .fidelity_cores(default = 12L))
 cat(sprintf("  Grid complete in %.1fs\n", as.numeric(difftime(Sys.time(), t0, units = "secs"))))
 
 grid_tbl <- do.call(rbind, mapply(function(env, s) {
@@ -102,7 +104,7 @@ sweep <- hypothesis_sweep(
     peak_species  = function(ticks) max(ticks$n_species, na.rm = TRUE),
     final_n       = function(ticks) tail(ticks$n_agents, 1L)
   ),
-  n_cores = 32L
+  n_cores = .fidelity_cores(default = 32L)
 )
 print(sweep)
 
