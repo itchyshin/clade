@@ -110,7 +110,7 @@ struct DiploidGenome
 end
 
 """Number of scalar traits stored per haplotype in `DiploidGenome`."""
-const N_SCALAR_TRAITS = 22
+const N_SCALAR_TRAITS = 24
 
 # Scalar trait indices (into maternal_traits / paternal_traits)
 const TRAIT_BODY_SIZE             = 1
@@ -157,6 +157,18 @@ const TRAIT_RECIPROCITY_FORGIVENESS  = 21
 # (handling time) and the per-game payoff to being responsive declines.
 # See inst/julia/src/modules/responsiveness.jl and paper-wolf2008.Rmd.
 const TRAIT_RESPONSIVENESS           = 22
+# 0.8.0: sex-specific aging-rate genes (mechanism X). Two separate genes
+# (one expressed in females, one in males), each diploid like every other
+# scalar trait. When `sex_labels = TRUE` AND `"aging_rate" %in% sex_specific_traits`,
+# an agent's expressed `aging_rate` is taken from the sex-matching gene
+# (TRAIT_AGING_RATE_FEMALE_GENE for females, TRAIT_AGING_RATE_MALE_GENE for
+# males). The two genes evolve independently under Rees-Baylis-style
+# sex-specific selection. When inactive, both genes mirror the shared
+# TRAIT_AGING_RATE and the expressed value is unchanged (no behavioural
+# diff vs pre-0.8.0). Matches Rees-Baylis 2026 Methods footnote: "two
+# unlinked loci with sex-specifically expressed genes".
+const TRAIT_AGING_RATE_FEMALE_GENE   = 23
+const TRAIT_AGING_RATE_MALE_GENE     = 24
 
 """
     is_haploid(g::DiploidGenome) -> Bool

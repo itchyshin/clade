@@ -211,6 +211,27 @@ function _sample_traits(specs::Dict{String,Any}, rng::AbstractRNG)::Vector{Float
         sample(get(specs, "responsiveness_init_mean",    0.5),
                get(specs, "responsiveness_mutation_sd",  0.05), 0.0, 1.0) : 0.5f0
 
+    # 0.8.0: sex-specific aging-rate genes. When `sex_specific_traits`
+    # includes "aging_rate", both new genes are independently sampled
+    # using the same hyper-parameters as the shared TRAIT_AGING_RATE.
+    # When inactive, both genes mirror TRAIT_AGING_RATE so the expressed
+    # phenotype is unchanged from pre-0.8.0 behaviour even though the
+    # new slots are now allocated.
+    sst       = get(specs, "sex_specific_traits", String[])
+    sst_vec   = sst isa AbstractVector ? String.(sst) : String[]
+    aging_sex_specific = "aging_rate" in sst_vec
+    if aging_sex_specific && Bool(get(specs, "aging_rate_evolution", false))
+        t[TRAIT_AGING_RATE_FEMALE_GENE] = sample(
+            specs["aging_rate_init_mean"], specs["aging_rate_mutation_sd"],
+            specs["aging_rate_min"],       specs["aging_rate_max"])
+        t[TRAIT_AGING_RATE_MALE_GENE]   = sample(
+            specs["aging_rate_init_mean"], specs["aging_rate_mutation_sd"],
+            specs["aging_rate_min"],       specs["aging_rate_max"])
+    else
+        t[TRAIT_AGING_RATE_FEMALE_GENE] = t[TRAIT_AGING_RATE]
+        t[TRAIT_AGING_RATE_MALE_GENE]   = t[TRAIT_AGING_RATE]
+    end
+
     t
 end
 
@@ -577,6 +598,24 @@ function _mutate_traits(t::Vector{Float32}, specs::Dict{String,Any},
     Bool(get(specs, "responsive_personalities", false)) &&
         maybe_mutate!(TRAIT_RESPONSIVENESS,
                       get(specs, "responsiveness_mutation_sd", 0.05), 0.0, 1.0)
+
+    # 0.8.0: sex-specific aging-rate genes. Mutate both independently
+    # when active so each sex can evolve its own optimum (intra-locus
+    # sexual independence in the Rees-Baylis sense). When inactive,
+    # the new slots remain pinned to TRAIT_AGING_RATE via the
+    # _sample_traits initialization; no per-meiosis re-pinning is
+    # needed because mutation is skipped here.
+    sst_vec_m = let v = get(specs, "sex_specific_traits", String[])
+        v isa AbstractVector ? String.(v) : String[]
+    end
+    if ("aging_rate" in sst_vec_m) && Bool(get(specs, "aging_rate_evolution", false))
+        maybe_mutate!(TRAIT_AGING_RATE_FEMALE_GENE,
+                      specs["aging_rate_mutation_sd"],
+                      specs["aging_rate_min"], specs["aging_rate_max"])
+        maybe_mutate!(TRAIT_AGING_RATE_MALE_GENE,
+                      specs["aging_rate_mutation_sd"],
+                      specs["aging_rate_min"], specs["aging_rate_max"])
+    end
 
     t
 end

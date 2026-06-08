@@ -652,6 +652,24 @@ function _make_founder_agent(id::Int64, g::DiploidGenome, brain::AbstractBrain,
 
     dm = get(specs, "dominance_model", "additive")
 
+    # 0.8.0: persistent sex identity. Drawn here (before trait expression)
+    # so sex-specific gene expression (mechanism X) can read it. When
+    # `sex_labels = FALSE`, sex = 0 is an inert placeholder.
+    # `sex_determination` currently only supports "random"; future modes
+    # ("chromosomal", "environmental") will arrive in later releases.
+    sex_on  = Bool(get(specs, "sex_labels", false))
+    sex_det = String(get(specs, "sex_determination", "random"))
+    sex_val = if sex_on
+        srp = Float32(get(specs, "sex_ratio_primary", 0.5))
+        if sex_det == "random"
+            rand(rng) < srp ? Int8(1) : Int8(0)
+        else
+            error("sex_determination = \"$sex_det\" not yet implemented; only \"random\" is supported in the 0.8.0 sex foundation release")
+        end
+    else
+        Int8(0)
+    end
+
     body_size = express_trait(g, TRAIT_BODY_SIZE, dm,
                               Float32(get(specs, "body_size_min",  0.1)),
                               Float32(get(specs, "body_size_max",  5.0)), rng)
@@ -665,7 +683,18 @@ function _make_founder_agent(id::Int64, g::DiploidGenome, brain::AbstractBrain,
     metab = express_trait(g, TRAIT_METABOLIC_RATE, dm,
                           Float32(get(specs, "metabolic_rate_min", 0.1)),
                           Float32(get(specs, "metabolic_rate_max", 5.0)), rng)
-    aging = express_trait(g, TRAIT_AGING_RATE, dm,
+    # 0.8.0: sex-specific aging-rate expression (mechanism X). When
+    # `sex_labels = TRUE` and `"aging_rate" %in% sex_specific_traits`,
+    # express from the sex-matching gene. Otherwise use the shared gene
+    # (matches pre-0.8.0 behaviour).
+    sst_arg = get(specs, "sex_specific_traits", String[])
+    sst_vec = sst_arg isa AbstractVector ? String.(sst_arg) : String[]
+    aging_idx = if Bool(get(specs, "sex_labels", false)) && ("aging_rate" in sst_vec)
+        sex_val == Int8(0) ? TRAIT_AGING_RATE_FEMALE_GENE : TRAIT_AGING_RATE_MALE_GENE
+    else
+        TRAIT_AGING_RATE
+    end
+    aging = express_trait(g, aging_idx, dm,
                           Float32(get(specs, "aging_rate_min", 0.01)),
                           Float32(get(specs, "aging_rate_max", 10.0)), rng)
     repro_th = express_trait(g, TRAIT_REPRO_THRESHOLD, dm, 0.0f0, 1000.0f0, rng)
@@ -705,24 +734,6 @@ function _make_founder_agent(id::Int64, g::DiploidGenome, brain::AbstractBrain,
 
     px = Int32(rand(rng, 1:rows))
     py = Int32(rand(rng, 1:cols))
-
-    # 0.8.0: persistent sex identity. When `sex_labels = TRUE`, draw
-    # sex per `sex_ratio_primary` (proportion male). When FALSE, sex = 0
-    # is an inert placeholder — no downstream code reads it.
-    # `sex_determination` currently only supports "random"; future modes
-    # ("chromosomal", "environmental") will arrive in later phases.
-    sex_on  = Bool(get(specs, "sex_labels", false))
-    sex_det = String(get(specs, "sex_determination", "random"))
-    sex_val = if sex_on
-        srp = Float32(get(specs, "sex_ratio_primary", 0.5))
-        if sex_det == "random"
-            rand(rng) < srp ? Int8(1) : Int8(0)
-        else
-            error("sex_determination = \"$sex_det\" not yet implemented; only \"random\" is supported in the 0.8.0 sex foundation release")
-        end
-    else
-        Int8(0)
-    end
 
     Agent(
         # Identity
