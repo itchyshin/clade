@@ -260,6 +260,14 @@ in hot-path code when the corresponding module is disabled.
   born (or graduated from parental care). Used by the dispersal module to
   compute direction-away-from-birthplace. Set at construction and never
   updated within a lifetime.
+
+## Sex (0.8.0)
+- `sex::Int8` — persistent sex identity. 0 = female, 1 = male. Set at
+  birth (or for founders, at population init) when `sex_labels = TRUE`;
+  defaults to 0 (no-op) when `sex_labels = FALSE`. The field is always
+  present so downstream code can read it unconditionally; semantics are
+  gated by the spec flag. Sex influences mate filtering in `_find_mate`
+  and the cost-split in `_make_offspring` when `sex_labels = TRUE`.
 """
 mutable struct Agent
     # Identity
@@ -382,6 +390,14 @@ mutable struct Agent
     # rides its action toward the richest cardinal-neighbour cell on a
     # given tick). Inert when `responsive_personalities` is off.
     responsiveness     ::Float32
+
+    # Persistent sex identity (added 0.8.0). 0 = female, 1 = male.
+    # Set at birth (or at founder construction) when `sex_labels = TRUE`;
+    # always 0 when `sex_labels = FALSE` (downstream code that reads sex
+    # under the FALSE branch must guard with the spec flag). Mate filter
+    # and reproductive-cost-split logic read this field when sex_labels
+    # is on. See AGENTS.md "sex foundation" / dev/dev-log/decisions.md.
+    sex                ::Int8
 end
 
 # ── Environment ────────────────────────────────────────────────────────────────

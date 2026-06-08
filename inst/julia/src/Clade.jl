@@ -706,6 +706,24 @@ function _make_founder_agent(id::Int64, g::DiploidGenome, brain::AbstractBrain,
     px = Int32(rand(rng, 1:rows))
     py = Int32(rand(rng, 1:cols))
 
+    # 0.8.0: persistent sex identity. When `sex_labels = TRUE`, draw
+    # sex per `sex_ratio_primary` (proportion male). When FALSE, sex = 0
+    # is an inert placeholder — no downstream code reads it.
+    # `sex_determination` currently only supports "random"; future modes
+    # ("chromosomal", "environmental") will arrive in later phases.
+    sex_on  = Bool(get(specs, "sex_labels", false))
+    sex_det = String(get(specs, "sex_determination", "random"))
+    sex_val = if sex_on
+        srp = Float32(get(specs, "sex_ratio_primary", 0.5))
+        if sex_det == "random"
+            rand(rng) < srp ? Int8(1) : Int8(0)
+        else
+            error("sex_determination = \"$sex_det\" not yet implemented; only \"random\" is supported in the 0.8.0 sex foundation release")
+        end
+    else
+        Int8(0)
+    end
+
     Agent(
         # Identity
         id, Int64(0), Int64(0),
@@ -747,7 +765,9 @@ function _make_founder_agent(id::Int64, g::DiploidGenome, brain::AbstractBrain,
         # 0.7.0: Trivers 1971 reciprocal altruism (partner memory lazy-init in module)
         rec_init, rec_ret, rec_forg, Int64[], Int8[],
         # 0.7.0: Wolf 2008 responsive personalities
-        resp
+        resp,
+        # 0.8.0: persistent sex identity (sex_labels-gated)
+        sex_val
     )
 end
 
@@ -836,7 +856,10 @@ function _agents_to_records(agents::Vector{Agent})
             reciprocity_retaliation = Float64(ag.reciprocity_retaliation),
             reciprocity_forgiveness = Float64(ag.reciprocity_forgiveness),
             # 0.7.0: Wolf 2008 responsive personalities
-            responsiveness          = Float64(ag.responsiveness)
+            responsiveness          = Float64(ag.responsiveness),
+            # 0.8.0: persistent sex identity (0 = female, 1 = male; always
+            # 0 when sex_labels = FALSE in the run)
+            sex                     = Int(ag.sex)
         )
     end
 end

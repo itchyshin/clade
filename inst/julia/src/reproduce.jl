@@ -126,19 +126,34 @@ function create_offspring!(env::Environment)
             else
                 repro_cost
             end
-            # 0.4.0 Tier 3: female_investment couples to outcomes.
-            # When parental_investment_evolution = TRUE, the female (focal
-            # agent) bears `female_investment` of the total cost and the
-            # male bears `1 - female_investment`. Default 0.5 (symmetric)
-            # preserves prior behaviour. The whole `cost_paid` flows into
-            # offspring energy below — so higher female_investment
-            # automatically gives offspring more of *its* mother's
-            # contribution, exactly as Trivers (1972) predicts.
+            # 0.4.0 Tier 3 + 0.8.0 A2 decoupling: female_investment couples
+            # to outcomes. When parental_investment_evolution = TRUE, the
+            # mother bears `female_investment` of the per-offspring cost
+            # and the father bears `1 - female_investment`. Default 0.5
+            # (symmetric) preserves prior behaviour.
+            #
+            # When `sex_labels = FALSE` (legacy): focal agent is the
+            # implicit "female" / mother regardless of biological sex
+            # (sex field is inert in that case).
+            #
+            # When `sex_labels = TRUE` (0.8.0 A2): the role assignment is
+            # decoupled from who initiates the reproductive event. The
+            # mother's share is paid by whichever partner is female; the
+            # father's share by the male partner.
             pi_on  = Bool(get(specs, "parental_investment_evolution", false))
             fi     = Float32(get(specs, "female_investment", 0.5))
+            sex_on = Bool(get(specs, "sex_labels", false))
             if pi_on && mate !== nothing
-                ag.energy   -= cost_paid * fi
-                mate.energy -= cost_paid * (1.0f0 - fi)
+                if sex_on && ag.sex == Int8(1)
+                    # focal is male; mate is female (mate filter
+                    # guarantees opposite sex when sex_on)
+                    mate.energy -= cost_paid * fi
+                    ag.energy   -= cost_paid * (1.0f0 - fi)
+                else
+                    # legacy path: focal plays the mother role
+                    ag.energy   -= cost_paid * fi
+                    mate.energy -= cost_paid * (1.0f0 - fi)
+                end
             else
                 ag.energy   -= cost_paid
                 mate !== nothing && (mate.energy -= cost_paid * 0.5f0)
@@ -167,10 +182,17 @@ function create_offspring!(env::Environment)
 
             # Legacy "male_repro_cost" extra male contribution: only fires
             # when pi_on AND explicit male_repro_cost > 0. Stacks on top
-            # of the basic split.
+            # of the basic split. Under sex_labels = TRUE (0.8.0 A2),
+            # the extra is paid by whichever partner is male.
             if pi_on && mate !== nothing
                 male_extra = Float32(get(specs, "male_repro_cost", 0.0))
-                male_extra > 0.0f0 && (mate.energy -= male_extra * off_energy_actual)
+                if male_extra > 0.0f0
+                    if sex_on && ag.sex == Int8(1)
+                        ag.energy   -= male_extra * off_energy_actual
+                    else
+                        mate.energy -= male_extra * off_energy_actual
+                    end
+                end
             end
 
             # Base mutation rate: when mutation_rate_evolution is on, use
@@ -288,6 +310,11 @@ function _find_mate(ag::Agent, env::Environment)::Union{Agent, Nothing}
     radius   = max(radius, 1)
     x, y = Int(ag.x), Int(ag.y)
 
+    # 0.8.0: when sex_labels = TRUE, only opposite-sex agents are
+    # eligible mates. Field exists regardless but is meaningful only
+    # under the flag.
+    sex_on = Bool(get(specs, "sex_labels", false))
+
     candidates = Agent[]
     for dx in -radius:radius, dy in -radius:radius
         (dx == 0 && dy == 0) && continue
@@ -298,6 +325,8 @@ function _find_mate(ag::Agent, env::Environment)::Union{Agent, Nothing}
         candidate = env.agents[idx]
         candidate.alive       || continue
         candidate.id == ag.id && continue
+        # 0.8.0: opposite-sex filter
+        sex_on && candidate.sex == ag.sex && continue
         push!(candidates, candidate)
     end
 
@@ -507,6 +536,19 @@ function _make_offspring(id::Int64, g::DiploidGenome, brain::AbstractBrain,
     # 0.7.0: Wolf 2008 responsiveness trait.
     resp       = express_trait(g, TRAIT_RESPONSIVENESS,          dm, 0.0f0, 1.0f0, rng)
 
+    # 0.8.0: persistent sex identity. When `sex_labels = TRUE`, draw
+    # offspring sex per `sex_ratio_primary` (proportion male). When FALSE,
+    # sex = 0 is an inert placeholder — no downstream code reads it.
+    # `sex_determination` is validated at founder construction; here we
+    # just trust the spec.
+    sex_on   = Bool(get(specs, "sex_labels", false))
+    off_sex  = if sex_on
+        srp = Float32(get(specs, "sex_ratio_primary", 0.5))
+        rand(rng) < srp ? Int8(1) : Int8(0)
+    else
+        Int8(0)
+    end
+
     off = Agent(
         id, parent.id, mate_id,
         Int32(x), Int32(y),
@@ -533,7 +575,9 @@ function _make_offspring(id::Int64, g::DiploidGenome, brain::AbstractBrain,
         # 0.7.0: Trivers 1971 reciprocal altruism (partner memory lazy-init in module)
         rec_init, rec_ret, rec_forg, Int64[], Int8[],
         # 0.7.0: Wolf 2008 responsive personalities
-        resp
+        resp,
+        # 0.8.0: persistent sex identity (sex_labels-gated)
+        off_sex
     )
     apply_epigenetic_inheritance!(off, parent, specs, rng)
     off

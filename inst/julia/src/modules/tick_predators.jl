@@ -131,7 +131,10 @@ function seed_predators!(env::Environment)
             # 0.7.0: Trivers reciprocal altruism — predators don't participate.
             0.5f0, 0.5f0, 0.0f0, Int64[], Int8[],
             # 0.7.0: Wolf 2008 responsiveness — predators don't participate.
-            0.5f0
+            0.5f0,
+            # 0.8.0: persistent sex identity. Predators are sex-blind in
+            # this release (no sex_labels semantics on the predator side).
+            Int8(0)
         )
 
         push!(env.predators, pred)
@@ -512,7 +515,9 @@ function _predator_reproduction!(env::Environment)
             # 0.7.0: Trivers reciprocal altruism — predators don't participate.
             0.5f0, 0.5f0, 0.0f0, Int64[], Int8[],
             # 0.7.0: Wolf 2008 responsiveness — predators don't participate.
-            0.5f0
+            0.5f0,
+            # 0.8.0: persistent sex identity — predators are sex-blind.
+            Int8(0)
         )
 
         pred.energy  -= off_energy
