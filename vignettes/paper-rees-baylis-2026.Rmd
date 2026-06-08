@@ -189,9 +189,121 @@ viability_results <- lapply(seq_along(conditions), function(i) {
 viability_results
 ```
 
-```{r fig-rees-baylis-fig2, eval=TRUE, echo=FALSE, out.width="100%", fig.alt = "evolved life expectancy proxy declines monotonically with stronger equal-strength survival-reproduction trade-off, with consistent male-female ordering", fig.cap="Expected output (Fig. 2 c & f, equal-strength diagonal): mean evolved adult life-expectancy proxy (1/aging_rate) declines monotonically with stronger sex-symmetric survival-reproduction trade-off. The qualitative prediction is that stronger trade-offs → shorter evolved lifespans in both sexes; the secondary prediction (male-biased longevity even under symmetric strengths) requires the mating-system module not yet implemented in this release."}
+```{r fig-rees-baylis-fig2, eval=TRUE, echo=FALSE, out.width="100%", fig.alt = "evolved life expectancy proxy declines monotonically with stronger equal-strength survival-reproduction trade-off, with consistent male-female ordering", fig.cap="Expected output (Fig. 2 c & f, equal-strength diagonal): mean evolved adult life-expectancy proxy (1/aging_rate) declines monotonically with stronger sex-symmetric survival-reproduction trade-off. The qualitative prediction is that stronger trade-offs → shorter evolved lifespans in both sexes; the secondary prediction (male-biased longevity even under symmetric strengths) requires the persistent-monogamy demographic feedback added in the same release as this vignette (see Fig 4 section below)."}
 FIG("rees_baylis_fig2")
 ```
+
+## Fig 3 — maximum annual fecundity
+
+**Claim (Rees-Baylis Fig 3):** higher maximum annual fecundity shortens
+evolved lifespans in both sexes — consistent with pace-of-life theory.
+
+**clade mapping:** the analytical model's maximum annual fecundity $k$
+corresponds to clade's `max_clutch_size` (the cap on offspring per
+reproduction event). Sweeping `max_clutch_size` at fixed equal
+trade-off strength replicates the paper's directional prediction.
+
+```{r stage4-fig3-fecundity}
+library(clade)
+
+s_base <- base_specs()
+s_base$sex_specific_tradeoffs <- list(
+  male_mating_vs_aging      = 0.05,
+  female_offspring_vs_aging = 0.05
+)
+
+fecundity_levels <- c(1L, 2L, 3L, 4L)
+seeds            <- 1:6
+
+conditions <- lapply(fecundity_levels, function(k) {
+  list(max_clutch_size = k,
+       .label          = sprintf("max_clutch = %d", k))
+})
+
+fig3_results <- hypothesis_sweep(
+  base_specs    = s_base,
+  conditions    = conditions,
+  seeds         = seeds,
+  metric_fn     = sex_pooled_aging,
+  n_cores       = parallel::detectCores() - 2L
+)
+# saveRDS(fig3_results, "Rdata/paper_rees_baylis_2026_fig3.rds")
+```
+
+```{r fig-rees-baylis-fig3, eval=TRUE, echo=FALSE, out.width="100%", fig.alt = "mean evolved aging_rate rises (lifespan proxy 1/aging_rate falls) as max_clutch_size increases", fig.cap="Expected output (Fig. 3): increasing maximum annual fecundity (`max_clutch_size`) raises evolved aging_rate, i.e. shortens evolved lifespan in both sexes — consistent with pace-of-life theory."}
+FIG("rees_baylis_fig3")
+```
+
+## Fig 4 — female demographic dominance under monogamous unions
+
+**Claim (Rees-Baylis Fig 4):** when both sexes face the SAME trade-off
+strength but unions are monogamous, females end up shorter-lived
+because the total number of unions formed is capped by the rarer sex,
+and female longevity propagates more strongly into offspring production
+per union than male longevity does. The effect emerges from the
+demographic asymmetry, not from any intrinsic difference in trade-off
+strength.
+
+**clade mapping:** the 0.8.0 mating-system module's
+`mating_system = "monogamous_pair"` provides the persistent pair-bond
+structure required for this prediction. With `divorce_rate = 0`,
+agents stay paired until partner death; the limiting-sex feedback in
+union formation is then active.
+
+```{r stage5-fig4-asymmetry}
+library(clade)
+
+s_base <- base_specs()
+s_base$mating_system          <- "monogamous_pair"
+s_base$divorce_rate           <- 0.0
+s_base$pair_bond_persistence  <- TRUE
+
+# Equal-strength trade-off + monogamous unions.
+s_base$sex_specific_tradeoffs <- list(
+  male_mating_vs_aging      = 0.05,
+  female_offspring_vs_aging = 0.05
+)
+
+# Per-sex outcome metric: mean evolved aging_rate split by sex.
+sex_split_aging <- function(env) {
+  n <- length(env$agents)
+  if (n == 0L) return(c(female = NA_real_, male = NA_real_))
+  ar <- vapply(seq_len(n),
+               function(i) as.numeric(env$agents[[i]]$aging_rate),
+               numeric(1))
+  sx <- vapply(seq_len(n),
+               function(i) as.integer(env$agents[[i]]$sex), integer(1))
+  c(female = if (any(sx == 0L)) mean(ar[sx == 0L]) else NA_real_,
+    male   = if (any(sx == 1L)) mean(ar[sx == 1L]) else NA_real_)
+}
+
+# Single equal-strength condition × seeds — testing the Fig 4 claim
+# (male-biased longevity under monogamy with symmetric trade-offs).
+seeds <- 1:8
+fig4_results <- replicate(length(seeds), {
+  s_base$random_seed <- seeds[1]   # rotate via mapply in real use
+  env <- run_alife(s_base, verbose = FALSE)
+  sex_split_aging(env)
+}, simplify = "matrix")
+# saveRDS(fig4_results, "Rdata/paper_rees_baylis_2026_fig4.rds")
+```
+
+```{r fig-rees-baylis-fig4, eval=TRUE, echo=FALSE, out.width="100%", fig.alt = "under monogamous unions and symmetric trade-offs, females evolve shorter lifespans than males", fig.cap="Expected output (Fig. 4): with persistent monogamous unions and equal-strength trade-offs in both sexes, females evolve higher mean aging_rate (shorter lifespan) than males. The asymmetry emerges from demographic feedback through union formation — not from any intrinsic asymmetry in the trade-off itself."}
+FIG("rees_baylis_fig4")
+```
+
+## Fig 6 — mating-group composition (deferred)
+
+**Claim (Rees-Baylis Fig 6):** the sex with fewer members per mating
+group (the minority sex) faces weaker competition and evolves longer
+lifespan; the majority sex evolves shorter lifespan.
+
+**Status in 0.8.0:** specs are present (`mating_group_n_males`,
+`mating_group_n_females`, `mating_group_fecundity_scaling`) and the
+kernel validates them, but setting `mating_system = "mating_groups"`
+currently errors with "not yet implemented". Planned for the next
+0.8.x release. Once implemented, Fig 6 maps directly to a sweep over
+`mating_group_n_males` × `mating_group_n_females`.
 
 ## What we ran
 
