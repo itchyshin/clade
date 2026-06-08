@@ -410,6 +410,20 @@ mutable struct Agent
     # and reproductive-cost-split logic read this field when sex_labels
     # is on. See AGENTS.md "sex foundation" / dev/dev-log/decisions.md.
     sex                ::Int8
+
+    # Mating-system state (added 0.8.0). Inert unless
+    # `mating_system != "any"`.
+    # - `union_partner_id`: id of current persistent monogamous partner
+    #   (0 = single). Set on both partners at union formation; cleared
+    #   on partner death or stochastic divorce.
+    # - `union_ticks`: ticks elapsed since current union formed (0 when
+    #   single).
+    # - `mating_group_id`: id of current mating group (0 = none). Used
+    #   when `mating_system = "mating_groups"` to track which group each
+    #   agent belongs to for shared-clutch accounting.
+    union_partner_id   ::Int64
+    union_ticks        ::Int32
+    mating_group_id    ::Int64
 end
 
 # ── Environment ────────────────────────────────────────────────────────────────

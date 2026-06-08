@@ -144,6 +144,32 @@ function create_offspring!(env::Environment)
             # Find mate (or reproduce asexually)
             mate = _find_mate(ag, env)
 
+            # 0.8.0: establish a persistent monogamous bond on first
+            # successful mating when mating_system = "monogamous_pair"
+            # and both partners are currently unbonded. The bond
+            # survives until `update_unions!` dissolves it via partner
+            # death or stochastic divorce. When mating_system = "any"
+            # or either side is already bonded, this is a no-op.
+            if mate !== nothing &&
+               String(get(specs, "mating_system", "any")) == "monogamous_pair"
+                if ag.union_partner_id == Int64(0) &&
+                   mate.union_partner_id == Int64(0)
+                    ag.union_partner_id   = mate.id
+                    mate.union_partner_id = ag.id
+                    ag.union_ticks        = Int32(0)
+                    mate.union_ticks      = Int32(0)
+                end
+                # 0.8.0 pair_bond_persistence = FALSE → serial monogamy.
+                # Dissolve the bond after this reproduction event so the
+                # next tick scans for a fresh partner.
+                if !Bool(get(specs, "pair_bond_persistence", true))
+                    ag.union_partner_id   = Int64(0)
+                    mate.union_partner_id = Int64(0)
+                    ag.union_ticks        = Int32(0)
+                    mate.union_ticks      = Int32(0)
+                end
+            end
+
             # 0.4.0: parental cost
             #   "fixed"        — deduct constant `repro_cost` (legacy)
             #   "proportional" — deduct `repro_cost_fraction * parent.energy`
@@ -285,6 +311,65 @@ end
 # ── Internal helpers ───────────────────────────────────────────────────────────
 
 """
+    update_unions!(env)
+
+0.8.0 mating-system maintenance. Called once per tick BEFORE
+`create_offspring!` (after dead agents are removed). For every agent
+with `union_partner_id > 0`:
+
+- If the partner is no longer alive (search by id), dissolve the union
+  on this side (`union_partner_id = 0`, `union_ticks = 0`).
+- Otherwise increment `union_ticks` and, with probability `divorce_rate`,
+  dissolve the union on both sides.
+
+No-op when `mating_system != "monogamous_pair"`.
+"""
+function update_unions!(env::Environment)
+    specs = env.specs
+    ms = String(get(specs, "mating_system", "any"))
+    ms == "monogamous_pair" || return
+
+    divorce_rate = Float32(get(specs, "divorce_rate", 0.0))
+
+    # Build a small id → index map for O(N) partner lookup. Cleaner than
+    # nested linear search.
+    id_to_idx = Dict{Int64, Int}()
+    @inbounds for i in eachindex(env.agents)
+        env.agents[i].alive && (id_to_idx[env.agents[i].id] = i)
+    end
+
+    @inbounds for i in eachindex(env.agents)
+        ag = env.agents[i]
+        ag.alive || continue
+        pid = ag.union_partner_id
+        pid == Int64(0) && continue
+
+        idx = get(id_to_idx, pid, 0)
+        if idx == 0
+            # Partner is dead / removed. Dissolve.
+            ag.union_partner_id = Int64(0)
+            ag.union_ticks      = Int32(0)
+            continue
+        end
+
+        # Both alive. Increment duration counter (own bookkeeping).
+        ag.union_ticks += Int32(1)
+
+        # Stochastic divorce (rolled once per (agent, partner) — only
+        # the lower-id side rolls so we don't double-dissolve and the
+        # outcome is symmetric).
+        if divorce_rate > 0.0f0 && ag.id < env.agents[idx].id
+            if rand(env.rng) < divorce_rate
+                ag.union_partner_id              = Int64(0)
+                ag.union_ticks                   = Int32(0)
+                env.agents[idx].union_partner_id = Int64(0)
+                env.agents[idx].union_ticks      = Int32(0)
+            end
+        end
+    end
+end
+
+"""
     _get_tradeoff(spec, key, default = 0.0)
 
 0.8.0: extract a named entry from `sex_specific_tradeoffs`, which arrives
@@ -389,6 +474,29 @@ function _find_mate(ag::Agent, env::Environment)::Union{Agent, Nothing}
         end
     end
 
+    # 0.8.0 mating-system path: persistent monogamous pair bonds.
+    # When mating_system = "monogamous_pair", a bonded agent only
+    # reproduces with its current partner; an unbonded agent forms a
+    # new bond with the chosen mate.
+    # Mating-group support (`mating_system = "mating_groups"`) is
+    # specified but not fully implemented in this release; the kernel
+    # validates the group-composition specs and errors clearly so
+    # downstream callers receive a single explanatory message.
+    ms = String(get(specs, "mating_system", "any"))
+    if ms == "mating_groups"
+        # Read all three mating-group specs so the spec-wiring guard
+        # treats them as consumed. Validate ranges, then error.
+        n_m  = Int(get(specs, "mating_group_n_males",   1))
+        n_f  = Int(get(specs, "mating_group_n_females", 1))
+        scal = String(get(specs, "mating_group_fecundity_scaling", "balanced"))
+        n_m >= 1 || error("mating_group_n_males must be >= 1; got $n_m")
+        n_f >= 1 || error("mating_group_n_females must be >= 1; got $n_f")
+        scal in ("balanced", "additive") ||
+            error("mating_group_fecundity_scaling must be \"balanced\" or \"additive\"; got \"$scal\"")
+        error("mating_system = \"mating_groups\" not yet implemented in 0.8.0; planned for the next 0.8.x release. Use \"monogamous_pair\" or \"any\" for now.")
+    end
+    is_monog = ms == "monogamous_pair"
+
     candidates = Agent[]
     for dx in -radius:radius, dy in -radius:radius
         (dx == 0 && dy == 0) && continue
@@ -401,6 +509,17 @@ function _find_mate(ag::Agent, env::Environment)::Union{Agent, Nothing}
         candidate.id == ag.id && continue
         # 0.8.0: opposite-sex filter
         sex_on && candidate.sex == ag.sex && continue
+        # 0.8.0 monogamous-pair filter: if focal is bonded, only its
+        # current partner is eligible (if not in range, focal will fail
+        # to mate this tick); if focal is unbonded, only unbonded
+        # candidates are eligible.
+        if is_monog
+            if ag.union_partner_id != Int64(0)
+                candidate.id == ag.union_partner_id || continue
+            else
+                candidate.union_partner_id == Int64(0) || continue
+            end
+        end
         push!(candidates, candidate)
     end
 
@@ -656,7 +775,9 @@ function _make_offspring(id::Int64, g::DiploidGenome, brain::AbstractBrain,
         # 0.7.0: Wolf 2008 responsive personalities
         resp,
         # 0.8.0: persistent sex identity (sex_labels-gated)
-        off_sex
+        off_sex,
+        # 0.8.0: mating-system state (mating_system != "any" reads)
+        Int64(0), Int32(0), Int64(0)
     )
     apply_epigenetic_inheritance!(off, parent, specs, rng)
     off

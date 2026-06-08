@@ -423,6 +423,10 @@ function run_clade(specs::Dict{String,Any})
         # ── Death and reproduction ───────────────────────────────────────
         kill_dead!(env)
         remove_dead!(env)
+        # 0.8.0: persistent monogamous pair-bond maintenance. No-op when
+        # mating_system != "monogamous_pair". Must run after remove_dead!
+        # so partner-alive lookups see the up-to-date population.
+        update_unions!(env)
         graduate_offspring!(env)          # parental care: promote juveniles
         # 0.7.0: Wolf 2007 age-windowed reproduction must run BEFORE the
         # standard create_offspring! so dying year-2 agents are not also
@@ -778,7 +782,9 @@ function _make_founder_agent(id::Int64, g::DiploidGenome, brain::AbstractBrain,
         # 0.7.0: Wolf 2008 responsive personalities
         resp,
         # 0.8.0: persistent sex identity (sex_labels-gated)
-        sex_val
+        sex_val,
+        # 0.8.0: mating-system state (mating_system != "any" reads)
+        Int64(0), Int32(0), Int64(0)
     )
 end
 
@@ -870,7 +876,11 @@ function _agents_to_records(agents::Vector{Agent})
             responsiveness          = Float64(ag.responsiveness),
             # 0.8.0: persistent sex identity (0 = female, 1 = male; always
             # 0 when sex_labels = FALSE in the run)
-            sex                     = Int(ag.sex)
+            sex                     = Int(ag.sex),
+            # 0.8.0: mating-system state (all 0 when mating_system = "any")
+            union_partner_id        = Int(ag.union_partner_id),
+            union_ticks             = Int(ag.union_ticks),
+            mating_group_id         = Int(ag.mating_group_id)
         )
     end
 end
