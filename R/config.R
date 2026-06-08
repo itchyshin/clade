@@ -616,6 +616,36 @@
 #'     0.4.0 Tier 3.}
 #'   \item{`male_repro_cost`}{Numeric. Per-offspring energy cost paid by
 #'     the father when `female_investment < 1` (default 0.3).}
+#' }
+#'
+#' ## Sex foundation (0.8.0)
+#'
+#' Persistent sex identity on agents. Required for sex-specific traits
+#' and mating-system structure introduced in later 0.8.x releases. All
+#' defaults preserve pre-0.8.0 behaviour: with `sex_labels = FALSE` the
+#' `sex` field on every Agent is set to 0 and ignored, mate finding is
+#' unchanged, and the `parental_investment_evolution` cost-split keeps
+#' its legacy "focal-agent = implicit mother" semantics.
+#'
+#' \describe{
+#'   \item{`sex_labels`}{Logical. Master toggle. When `TRUE`, agents
+#'     carry a sticky `sex` field (0 = female, 1 = male) set at birth;
+#'     `_find_mate` only considers opposite-sex candidates; and the
+#'     `parental_investment_evolution` cost-split adapts to focal's sex
+#'     so `female_investment` always denotes the mother's share. When
+#'     `FALSE` (default), the field exists but is inert.}
+#'   \item{`sex_determination`}{Character. Sex-determination mechanism.
+#'     Currently only `"random"` (50/50 per `sex_ratio_primary`) is
+#'     supported; `"chromosomal"` and `"environmental"` are reserved
+#'     for future phases.}
+#'   \item{`sex_ratio_primary`}{Numeric in \[0, 1\]. Proportion of
+#'     offspring born male (default 0.5 = balanced). Applies at every
+#'     birth and at founder construction when `sex_labels = TRUE`.}
+#' }
+#'
+#' ## Cooperative breeding
+#'
+#' \describe{
 #'   \item{`cooperative_breeding`}{Logical. Enable helper-at-the-nest
 #'     dynamics (default `FALSE`).}
 #'   \item{`helper_tendency_init_mean`}{Numeric in \[0, 1\]. Heritable
@@ -1577,6 +1607,20 @@ default_specs <- function() {
     parental_investment_evolution = FALSE,
     female_investment          = 0.7,
     male_repro_cost            = 0.3,
+
+    # ── Sex foundation (0.8.0 Phase A) ────────────────────────────────────
+    # Persistent sex identity on agents. When `sex_labels = FALSE`
+    # (default), the `sex` field on Agent is set to 0 and ignored — all
+    # existing scenarios behave as before. When TRUE, every agent gets a
+    # sticky `sex` (0 = female, 1 = male) assigned at birth, and
+    # `_find_mate` filters candidates to opposite sex.
+    # `parental_investment_evolution` cost-split is also decoupled from
+    # the focal-agent convention under sex_labels = TRUE: `female_investment`
+    # is the mother's share regardless of which partner initiated the
+    # encounter (A2 role-contract decoupling — see dev/dev-log/decisions.md).
+    sex_labels                 = FALSE,
+    sex_determination          = "random",
+    sex_ratio_primary          = 0.5,
 
     # ── Stress hypermutation ───────────────────────────────────────────────
     stress_hypermutation       = FALSE,

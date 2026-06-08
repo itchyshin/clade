@@ -132,6 +132,8 @@
                                "helper_tendency_mutation_sd"),
   "Parental investment"   = c("parental_investment_evolution",
                                "female_investment", "male_repro_cost"),
+  "Sex foundation"        = c("sex_labels", "sex_determination",
+                               "sex_ratio_primary"),
   "Pace of life"          = c("metabolic_rate_evolution",
                                "metabolic_rate_init_mean",
                                "metabolic_rate_mutation_sd",

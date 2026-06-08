@@ -662,6 +662,38 @@ energy cost paid by the mother (default 0.7; 0.5 = equal). Added
 0.4.0 Tier 3.}
 \item{\code{male_repro_cost}}{Numeric. Per-offspring energy cost paid by
 the father when \code{female_investment < 1} (default 0.3).}
+}
+}
+
+\subsection{Sex foundation (0.8.0)}{
+
+Persistent sex identity on agents. Required for sex-specific traits
+and mating-system structure introduced in later 0.8.x releases. All
+defaults preserve pre-0.8.0 behaviour: with \code{sex_labels = FALSE} the
+\code{sex} field on every Agent is set to 0 and ignored, mate finding is
+unchanged, and the \code{parental_investment_evolution} cost-split keeps
+its legacy "focal-agent = implicit mother" semantics.
+
+\describe{
+\item{\code{sex_labels}}{Logical. Master toggle. When \code{TRUE}, agents
+carry a sticky \code{sex} field (0 = female, 1 = male) set at birth;
+\verb{_find_mate} only considers opposite-sex candidates; and the
+\code{parental_investment_evolution} cost-split adapts to focal's sex
+so \code{female_investment} always denotes the mother's share. When
+\code{FALSE} (default), the field exists but is inert.}
+\item{\code{sex_determination}}{Character. Sex-determination mechanism.
+Currently only \code{"random"} (50/50 per \code{sex_ratio_primary}) is
+supported; \code{"chromosomal"} and \code{"environmental"} are reserved
+for future phases.}
+\item{\code{sex_ratio_primary}}{Numeric in [0, 1]. Proportion of
+offspring born male (default 0.5 = balanced). Applies at every
+birth and at founder construction when \code{sex_labels = TRUE}.}
+}
+}
+
+\subsection{Cooperative breeding}{
+
+\describe{
 \item{\code{cooperative_breeding}}{Logical. Enable helper-at-the-nest
 dynamics (default \code{FALSE}).}
 \item{\code{helper_tendency_init_mean}}{Numeric in [0, 1]. Heritable
