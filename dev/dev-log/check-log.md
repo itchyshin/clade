@@ -87,6 +87,47 @@ important project state. Keep entries concise and concrete.
   a draft PR for visibility / Sergio coordination or stop here for
   user review.
 
+## 2026-06-08 - Sex-specific trait expression + mating-system module + Rees-Baylis 2026 paper reproduction
+
+- Branch: `claude/sex-mating-system` (continues from the
+  sex-foundation slice on the same branch).
+- Goal: ship the remaining two layers of the sex / mating-system
+  subsystem and the validating Rees-Baylis 2026 paper-reproduction
+  vignette in one branch.
+- Files changed (highlights — see after-task report at
+  [dev/dev-log/after-task/2026-06-08-sex-mating-subsystem.md](https://github.com/itchyshin/clade/blob/main/dev/dev-log/after-task/2026-06-08-sex-mating-subsystem.md)
+  for the full table): kernel changes in `types.jl`, `genome.jl`,
+  `reproduce.jl`, `Clade.jl`, `modules/tick_predators.jl`; R-side in
+  `R/config.R`, `R/utils.R`; tests in `test-sex-specific-traits.R`
+  and `test-pair-bonds.R`; vignettes
+  `paper-rees-baylis-2026.Rmd` and `s-pair-bonds.Rmd`.
+- Checks run (final targeted pass after all Phase C edits):
+  - 14 test files × `testthat::test_file()`: **195 PASS / 0 FAIL /
+    2 SKIP** total. Includes all three sex-related test files
+    (21 + 15 + 15 PASS) and the four structural guards
+    (`test-spec-wiring.R`, `test-no-internal-leaks.R`,
+    `test-default-specs-docstring-coverage.R`,
+    `test-spec-groups-coverage.R`) all green.
+  - `devtools::document()` clean.
+- Stale-claim searches:
+  - `rg -nE 'Phase [AB]\b|Sergio|v0\.8-core|CLAUDE\.md|Tier [AB][0-5]?\b|PR #[0-9]+'`
+    over the new vignettes, R/config.R, and inst/julia/src/*.jl:
+    only matches are in plain code comments or Julia error messages
+    (both exempt from the leak guard).
+- Not run:
+  - Full `devtools::test()` after Phase C — targeted pass exercises
+    every file at risk; recommend before opening a PR.
+  - `devtools::check()` and `pkgdown::build_site()` — recommend
+    before opening a PR.
+  - Full multi-seed sweep of `paper-rees-baylis-2026.Rmd`'s Stage 2
+    — chunks are gated `eval = FALSE` pending the
+    `aging_rate ↔ M_i` calibration follow-up. Vignette documents
+    the workflow and the calibration gap.
+- Next safest action: commit Phase C in focused chunks
+  (kernel-trait, kernel-mating, R-specs, tests + vignettes, docs),
+  recommend `devtools::check()` before opening a PR, and either push
+  + open draft PR or stop here for user review.
+
 
 
 ## Template

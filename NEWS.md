@@ -1,4 +1,71 @@
-# clade 0.8.0 (development) — sex foundation
+# clade 0.8.0 (development) — sex / mating-system subsystem + Rees-Baylis 2026 paper reproduction
+
+Phased sex / mating-system subsystem, motivated by the Rees-Baylis et
+al. (2026, *Nature Communications*) paper on sex-biased longevity
+evolution. Three layers — sex foundation, sex-specific trait
+expression, and mating-system structure — landed in this release;
+mating-group composition (`mating_system = "mating_groups"`) is
+specified but errors as "not yet implemented" and is planned for the
+next 0.8.x release.
+
+## Sex-specific trait expression
+
+- New `sex_specific_traits = character(0)` spec — names of evolvable
+  scalar traits that get independent male and female gene slots in
+  the diploid genome. The 0.8.0 release wires the mechanism for
+  `aging_rate`; the spec accepts other names but Julia-side wiring is
+  needed per trait.
+- New `sex_specific_tradeoffs = list(male_mating_vs_aging = 0,
+   female_offspring_vs_aging = 0)` spec — hard-grafts the Rees-Baylis
+  exponential survival↔reproduction trade-off (eqs 7–9) onto male
+  mating prob and female clutch size using `1 / aging_rate` as the
+  lifespan proxy. Both default to zero-effect.
+- New constants `TRAIT_AGING_RATE_FEMALE_GENE = 23` and
+  `TRAIT_AGING_RATE_MALE_GENE = 24` in `inst/julia/src/types.jl`;
+  `N_SCALAR_TRAITS` bumped from 22 to 24. Both new genes inherit
+  through clade's existing diploid + dominance machinery; mutation
+  acts independently on each so males and females can evolve different
+  aging trajectories.
+
+## Mating-system module
+
+- New `mating_system = "any" | "monogamous_pair" | "mating_groups"`
+  spec. `"any"` (default) preserves pre-0.8.0 behaviour.
+- New `divorce_rate = 0` (per-tick) and `pair_bond_persistence = TRUE`
+  specs control how persistent monogamous unions dissolve.
+- New `Agent` fields: `union_partner_id::Int64`, `union_ticks::Int32`,
+  `mating_group_id::Int64`. All zero when `mating_system = "any"`.
+- New `update_unions!()` hook in the tick loop dissolves unions on
+  partner death or stochastic divorce.
+- `mating_group_n_males`, `mating_group_n_females`, and
+  `mating_group_fecundity_scaling` specs are validated; setting
+  `mating_system = "mating_groups"` errors with "not yet implemented"
+  in 0.8.0 — the multi-male/multi-female group reproduction code
+  lands in the next 0.8.x release.
+
+## New paper-reproduction vignette
+
+- `vignettes/paper-rees-baylis-2026.Rmd` — first sex-specific
+  paper-reproduction vignette in clade. Covers Fig 2 c & f
+  (equal-strength diagonal), Fig 3 (max annual fecundity), and Fig 4
+  (female demographic dominance under monogamous unions). Fig 5
+  (density regulation) out of scope; Fig 6 (mating groups) deferred to
+  the next release.
+
+## New scenario vignettes
+
+- `vignettes/s-pair-bonds.Rmd` — persistent monogamous unions,
+  divorce-rate sweep, and serial monogamy via
+  `pair_bond_persistence = FALSE`.
+
+## Test coverage
+
+- `tests/testthat/test-sex-specific-traits.R` (15 assertions)
+- `tests/testthat/test-pair-bonds.R` (15 assertions)
+- New `"Sex-specific traits"` and `"Mating system"` groups in
+  `.SPEC_GROUPS`.
+
+# clade 0.8.0 (development) — sex foundation (initial slice)
 
 First slice of a phased sex / mating-system subsystem. Motivated by the
 Rees-Baylis et al. (2026, *Nature Communications*) paper-reproduction
