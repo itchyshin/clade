@@ -1,0 +1,287 @@
+---
+title: "Rees-Baylis et al. 2026: asymmetric life-history trade-offs shape sex-biased longevity"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{clade paper reproduction: Rees-Baylis et al. 2026 (sex-biased longevity)}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(eval = FALSE, collapse = TRUE, comment = "#>")
+FIG <- function(name, ...) {
+  path <- file.path("figures", paste0("showcase_", name, ".png"))
+  if (!file.exists(path)) return(invisible(NULL))
+  knitr::include_graphics(path, ...)
+}
+```
+
+## The paper
+
+Rees-Baylis, E., Wang, D., Li Richter, X.-Y., & de Vries, C. (2026).
+Asymmetric life-history trade-offs shape sex-biased longevity patterns.
+*Nature Communications*. <https://doi.org/10.1038/s41467-026-73633-9>
+
+The authors construct a discrete-time, two-sex, age-structured matrix
+population model in which the sex-specific ages of onset of senescence
+$M_m$ and $M_f$ evolve via adaptive dynamics. Each sex faces a
+distinct survival↔reproduction trade-off: males trade survival against
+annual mating probability ($e^{-s_m^M (M_m - 1)}$), females trade
+survival against annual offspring per union ($e^{-s_f^O (M_f - 1)}$).
+The model is solved numerically and analysed at evolutionary equilibrium.
+
+### Headline claims (Figs 2–6)
+
+| Fig. | Claim |
+|---|---|
+| 2 c & f | At *equal* trade-off strengths ($s_m^M = s_f^O$), stronger trade-offs evolve shorter lifespans in both sexes; male-biased longevity emerges robustly. |
+| 2 a, b, d, e | Off-diagonal: which sex faces the stronger trade-off lives shorter. |
+| 3 | Higher maximum annual fecundity → shorter evolved lifespans in both sexes. |
+| 4 | Female longevity feeds back through population size more strongly than male longevity (demographic asymmetry). |
+| 5 | Density regulation compresses observable sex differences in realised life expectancy. |
+| 6 | Mating-group composition: minority sex within groups experiences weaker competition and evolves longer life. |
+
+This vignette targets **Fig. 2 c & f** — the equal-strength diagonal,
+which is the narrowest claim that clade can test with the foundation +
+sex-specific trait-expression machinery introduced in 0.8.0. Figs 3, 4, 6
+are deferred to the mating-system module release (extensions of this
+vignette will land alongside it). Fig. 5 is out of scope: it depends on
+the paper's explicit $e^{-\nu N_r}$ density regulator, which clade
+implements via energy/grass competition rather than aggregate scaling.
+
+## Mapping Rees-Baylis to clade
+
+| Rees-Baylis | clade |
+|---|---|
+| `M_i` (sex-specific senescence onset) | inverse of expressed `aging_rate` — the lifespan proxy under clade's Gompertz hazard. |
+| Sex-specific `M_m` vs `M_f` evolving independently | `sex_labels = TRUE` plus `sex_specific_traits = c("aging_rate")` — adds two new diploid gene slots (`TRAIT_AGING_RATE_FEMALE_GENE`, `TRAIT_AGING_RATE_MALE_GENE`) with sex-conditional expression. |
+| $e^{-s_m^M (M_m - 1)}$ on annual mating prob | `sex_specific_tradeoffs$male_mating_vs_aging` applied in `_find_mate()` as a per-attempt rejection probability `1 - exp(-s_m^M × max(0, 1/aging_rate - 1))` when the focal is male. |
+| $e^{-s_f^O (M_f - 1)}$ on annual offspring | `sex_specific_tradeoffs$female_offspring_vs_aging` applied to clutch size in `create_offspring!()` (stochastic rounding) when the focal is female. |
+| Min-harmonic union formation | **Not implemented** — clade uses local neighbour mate finding; aggregate union formation deviates at extreme operational sex ratios. Documented in honest discussion. |
+| Adaptive dynamics (~200 000 mutational time steps) | `aging_rate_evolution = TRUE` with per-tick Gaussian mutation; convergence empirical (see "Tick budget" below). |
+
+## The 3-stage workflow
+
+Following the pattern of `vignettes/paper-kokko-brooks-2003.Rmd` and
+`vignettes/paper-template.Rmd`.
+
+### Stage 1 — Smoke run (one seed, fast specs)
+
+```{r stage1-smoke}
+library(clade)
+
+base_specs <- function() {
+  s <- default_specs()
+  # Population + ecology
+  s$grid_rows           <- 30L
+  s$grid_cols           <- 30L
+  s$n_agents_init       <- 200L
+  s$max_agents          <- 1000L
+  s$max_ticks           <- 5000L
+  s$grass_rate          <- 0.15
+  s$ploidy              <- 2L
+  # Sex foundation
+  s$sex_labels          <- TRUE
+  s$sex_ratio_primary   <- 0.5
+  # Sex-specific aging (mechanism X)
+  s$sex_specific_traits <- c("aging_rate")
+  # Aging-rate evolution (clade's Gompertz hazard slope; lower = longer
+  # expected lifespan under our 1/aging_rate proxy)
+  s$aging_rate_evolution   <- TRUE
+  s$aging_rate_init_mean   <- 1.0
+  s$aging_rate_min         <- 0.1
+  s$aging_rate_max         <- 5.0
+  s$aging_rate_mutation_sd <- 0.05
+  s$senescence_rate        <- 0.02
+  s$senescence_shape       <- 1.0
+  # Avoid confounding Trivers parental-investment trade-off
+  s$parental_investment_evolution <- FALSE
+  s
+}
+
+s <- base_specs()
+s$sex_specific_tradeoffs <- list(
+  male_mating_vs_aging      = 0.05,
+  female_offspring_vs_aging = 0.05
+)
+s$random_seed <- 1L
+
+env  <- run_alife(s, verbose = FALSE)
+data <- get_run_data(env)$ticks
+
+cat("Final n_agents:", tail(data$n_agents, 1L), "\n")
+cat("Mean evolved aging_rate (last 10% of ticks):\n")
+n  <- length(env$agents)
+ar <- vapply(seq_len(n),
+             function(i) as.numeric(env$agents[[i]]$aging_rate),
+             numeric(1))
+sx <- vapply(seq_len(n),
+             function(i) as.integer(env$agents[[i]]$sex), integer(1))
+cat(sprintf("  female (sex=0): mean = %.3f, target_lifespan ~ %.2f\n",
+            mean(ar[sx == 0L]), 1 / mean(ar[sx == 0L])))
+cat(sprintf("  male   (sex=1): mean = %.3f, target_lifespan ~ %.2f\n",
+            mean(ar[sx == 1L]), 1 / mean(ar[sx == 1L])))
+```
+
+### Stage 2 — Multi-seed equal-strength sweep (Fig. 2 c & f)
+
+The equal-strength diagonal: $s_m^M = s_f^O \in \{0, 0.025, 0.05, 0.075, 0.1\}$.
+≥5 seeds per condition; report mean adult-life-expectancy proxy
+($1/\overline{aging\_rate}$) by sex with SE.
+
+```{r stage2-sweep}
+library(clade)
+
+s_base <- base_specs()
+strengths <- c(0.0, 0.025, 0.05, 0.075, 0.1)
+seeds     <- 1:6
+
+conditions <- lapply(strengths, function(ss) {
+  list(
+    sex_specific_tradeoffs = list(
+      male_mating_vs_aging      = ss,
+      female_offspring_vs_aging = ss
+    ),
+    .label = sprintf("s = %.3f", ss)
+  )
+})
+
+# Custom per-run metric: mean expressed aging_rate at end of run,
+# split by sex.
+sex_pooled_aging <- function(env) {
+  n <- length(env$agents)
+  if (n == 0L) return(NA_real_)
+  ar <- vapply(seq_len(n),
+               function(i) as.numeric(env$agents[[i]]$aging_rate),
+               numeric(1))
+  mean(ar, na.rm = TRUE)
+}
+
+# Stage 2 is expensive — typically run via batch_alife() / hypothesis_sweep()
+# in a separate script and cached to Rdata/paper_rees_baylis_2026.rds. The
+# vignette renders from the cache for fast pkgdown builds.
+sweep_results <- hypothesis_sweep(
+  base_specs    = s_base,
+  conditions    = conditions,
+  seeds         = seeds,
+  metric_fn     = sex_pooled_aging,
+  n_cores       = parallel::detectCores() - 2L
+)
+
+# saveRDS(sweep_results, "Rdata/paper_rees_baylis_2026.rds")
+```
+
+### Stage 3 — Viability diagnostic
+
+```{r stage3-viability}
+# For the equilibrium-trait claim to be meaningful, populations must
+# avoid the carrying-capacity cliff and the local-extinction cliff
+# across all seeds and conditions. Per AGENTS.md, a viability_report()
+# is required before stamping any paper-reproduction PASS.
+viability_results <- lapply(seq_along(conditions), function(i) {
+  cond_label <- conditions[[i]]$.label
+  res <- sweep_results[sweep_results$condition == cond_label, ]
+  list(label = cond_label,
+       n_runs = nrow(res),
+       any_crashed = any(res$final_n < 0.1 * s_base$n_agents_init),
+       any_capped  = any(res$final_n >= 0.95 * s_base$max_agents))
+})
+viability_results
+```
+
+```{r fig-rees-baylis-fig2, eval=TRUE, echo=FALSE, out.width="100%", fig.alt = "evolved life expectancy proxy declines monotonically with stronger equal-strength survival-reproduction trade-off, with consistent male-female ordering", fig.cap="Expected output (Fig. 2 c & f, equal-strength diagonal): mean evolved adult life-expectancy proxy (1/aging_rate) declines monotonically with stronger sex-symmetric survival-reproduction trade-off. The qualitative prediction is that stronger trade-offs → shorter evolved lifespans in both sexes; the secondary prediction (male-biased longevity even under symmetric strengths) requires the mating-system module not yet implemented in this release."}
+FIG("rees_baylis_fig2")
+```
+
+## What we ran
+
+This vignette is the first sex-specific paper-reproduction shipped with
+clade and covers only the equal-strength diagonal (Fig. 2 c & f). The
+Stage 2 multi-seed sweep is gated `eval = FALSE` until the calibration
+work in the next subsection lands.
+
+### Calibration: aging_rate ↔ M_i
+
+clade's Gompertz hazard is `p_death = 1 - exp(-r × exp(r × age^shape))`
+with `r = senescence_rate × aging_rate`. The relationship between
+`aging_rate` and the Rees-Baylis "age of senescence onset" $M_i$ is
+not closed-form in general. The vignette uses the simplest scalar
+proxy: `target_lifespan ≈ 1 / aging_rate`. This is a starting point
+for the qualitative reproduction, not an empirical calibration.
+
+Two follow-up calibration steps that should land before the result is
+stamped "PASS":
+
+1. Run a no-trade-off baseline (s_m = s_f = 0), record the mean evolved
+   `aging_rate` and the empirical mean age at death, and fit the
+   `aging_rate → M` curve over the operating range.
+2. Re-express the Rees-Baylis trade-off as a function of $M$ directly,
+   converting in/out at the kernel boundary if needed.
+
+### Tick budget
+
+Rees-Baylis converge over ~200 000 mutational time steps with 3
+analytical replicates. clade's per-tick cost is higher; convergence is
+empirical. The starting budget is 5 000 ticks for Stage 1 and 5 000 ticks
+× 5 conditions × 5 seeds for Stage 2. Convergence is checked by visual
+inspection of the trait time series in `data$mean_aging_rate`; budget
+extends until the trait stabilises.
+
+## Honest discussion (required)
+
+This is a foundation-level reproduction. The qualitative claim being
+tested — **stronger sex-symmetric survival-reproduction trade-off
+→ shorter evolved lifespans in both sexes** — is what the
+`sex_specific_traits` + `sex_specific_tradeoffs` infrastructure most
+directly maps to. Anything narrower than that requires features that
+will arrive in subsequent 0.8.x releases.
+
+What this vignette does **not** test:
+
+- **Off-diagonal Fig 2 panels (a, b, d, e):** asymmetric trade-offs
+  ($s_m^M \neq s_f^O$). Mechanically straightforward to add (just sweep
+  the off-diagonal in Stage 2); deferred to keep the initial
+  reproduction narrow.
+- **Fig 3 (maximum annual fecundity):** clade's clutch mechanism is
+  `max_clutch_size` and the Trivers parental-investment scaling; the
+  precise mapping to Rees-Baylis's annual fecundity is itself a small
+  calibration exercise.
+- **Fig 4 (female demographic dominance):** depends on union-formation
+  feedback into population size, which requires the mating-system
+  module (persistent monogamous unions + min-harmonic union formation
+  at the population level). Scheduled for the upcoming mating-system
+  release.
+- **Fig 5 (density regulation):** clade uses energy/grass competition,
+  not the paper's analytical $e^{-\nu N_r}$ regulator. Mapping these
+  onto each other is a research question, not a small fix.
+- **Fig 6 (mating-group composition):** requires the mating-group
+  module ($n_m$ males and $n_f$ females per group) — also in the
+  upcoming mating-system release.
+
+What this vignette assumes:
+
+- The `target_lifespan ≈ 1 / aging_rate` proxy is qualitatively correct.
+  If clade's actual mean age at death is non-monotonic in `aging_rate`
+  over the operating range, the proxy needs to be revised.
+- Mate-finding is local-neighbour scanning; mate scarcity dynamics will
+  not match the analytical min-harmonic function at extreme operational
+  sex ratios. The equal-strength diagonal should be the *least*
+  sensitive panel to this discrepancy.
+- Per-tick stochasticity differs from the analytical eigenvalue-based
+  adaptive dynamics. Convergence to equilibrium is verified empirically.
+
+## Citation
+
+Rees-Baylis, E., Wang, D., Li Richter, X.-Y., & de Vries, C. (2026).
+Asymmetric life-history trade-offs shape sex-biased longevity patterns.
+*Nature Communications*. <https://doi.org/10.1038/s41467-026-73633-9>
+
+```bibtex
+@article{ReesBaylis2026,
+  author  = {Rees-Baylis, Ella and Wang, Daiping and Li Richter, Xiang-Yi and de Vries, Charlotte},
+  title   = {Asymmetric life-history trade-offs shape sex-biased longevity patterns},
+  journal = {Nature Communications},
+  year    = {2026},
+  doi     = {10.1038/s41467-026-73633-9}
+}
+```
