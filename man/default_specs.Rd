@@ -717,6 +717,35 @@ onto reproduction as multiplicative exponential modifiers using
 }
 }
 
+\subsection{Mating system (0.8.0)}{
+
+Encounter-rule variants stacked on top of the sex foundation. Default
+\code{"any"} preserves the pre-0.8.0 behaviour where every mating attempt
+scans neighbours fresh. \code{"monogamous_pair"} introduces persistent
+bonds; \code{"mating_groups"} lets users vary the number of males and
+females per reproducing group (the Rees-Baylis 2026 Fig. 6 axis).
+
+\describe{
+\item{\code{mating_system}}{Character. One of \code{"any"} (default),
+\code{"monogamous_pair"}, \code{"mating_groups"}.}
+\item{\code{divorce_rate}}{Numeric in [0, 1]. Per-tick probability that
+a persistent monogamous union dissolves (returns both partners to
+the singles pool). 0 = lifelong monogamy.}
+\item{\code{pair_bond_persistence}}{Logical. When \code{TRUE} (default),
+unions formed under \code{"monogamous_pair"} survive across
+reproduction events until partner death or divorce. When
+\code{FALSE}, bonds dissolve after every clutch (serial monogamy).}
+\item{\code{mating_group_n_males}}{Integer. Number of males per mating
+group under \code{"mating_groups"} (default 1L = pair).}
+\item{\code{mating_group_n_females}}{Integer. Number of females per
+mating group (default 1L = pair).}
+\item{\code{mating_group_fecundity_scaling}}{Character.
+\code{"balanced"} caps total group output to match a monogamous
+baseline; \code{"additive"} lets every male-female pair in the group
+reproduce independently.}
+}
+}
+
 \subsection{Cooperative breeding}{
 
 \describe{

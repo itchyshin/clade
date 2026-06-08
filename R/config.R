@@ -668,6 +668,34 @@
 #'     `1 / aging_rate` as the lifespan proxy.}
 #' }
 #'
+#' ## Mating system (0.8.0)
+#'
+#' Encounter-rule variants stacked on top of the sex foundation. Default
+#' `"any"` preserves the pre-0.8.0 behaviour where every mating attempt
+#' scans neighbours fresh. `"monogamous_pair"` introduces persistent
+#' bonds; `"mating_groups"` lets users vary the number of males and
+#' females per reproducing group (the Rees-Baylis 2026 Fig. 6 axis).
+#'
+#' \describe{
+#'   \item{`mating_system`}{Character. One of `"any"` (default),
+#'     `"monogamous_pair"`, `"mating_groups"`.}
+#'   \item{`divorce_rate`}{Numeric in \[0, 1\]. Per-tick probability that
+#'     a persistent monogamous union dissolves (returns both partners to
+#'     the singles pool). 0 = lifelong monogamy.}
+#'   \item{`pair_bond_persistence`}{Logical. When `TRUE` (default),
+#'     unions formed under `"monogamous_pair"` survive across
+#'     reproduction events until partner death or divorce. When
+#'     `FALSE`, bonds dissolve after every clutch (serial monogamy).}
+#'   \item{`mating_group_n_males`}{Integer. Number of males per mating
+#'     group under `"mating_groups"` (default 1L = pair).}
+#'   \item{`mating_group_n_females`}{Integer. Number of females per
+#'     mating group (default 1L = pair).}
+#'   \item{`mating_group_fecundity_scaling`}{Character.
+#'     `"balanced"` caps total group output to match a monogamous
+#'     baseline; `"additive"` lets every male-female pair in the group
+#'     reproduce independently.}
+#' }
+#'
 #' ## Cooperative breeding
 #'
 #' \describe{
@@ -1663,6 +1691,23 @@ default_specs <- function() {
       male_mating_vs_aging      = 0.0,
       female_offspring_vs_aging = 0.0
     ),
+
+    # ── Mating system (0.8.0) ─────────────────────────────────────────────
+    # Encounter-rule variants on top of the sex foundation. With
+    # `mating_system = "any"` (default) every mating attempt scans
+    # neighbours fresh; with `"monogamous_pair"` partners bond
+    # persistently and only re-pair after partner death or stochastic
+    # divorce; with `"mating_groups"` agents assemble into groups of
+    # `mating_group_n_males` × `mating_group_n_females` for clutch
+    # accounting. `pair_bond_persistence` controls whether bonds
+    # survive multiple reproduction events (TRUE) or dissolve after
+    # each clutch (FALSE; effectively serial monogamy per tick).
+    mating_system              = "any",
+    divorce_rate               = 0.0,
+    pair_bond_persistence      = TRUE,
+    mating_group_n_males       = 1L,
+    mating_group_n_females     = 1L,
+    mating_group_fecundity_scaling = "balanced",
 
     # ── Stress hypermutation ───────────────────────────────────────────────
     stress_hypermutation       = FALSE,
