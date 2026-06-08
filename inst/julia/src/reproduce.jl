@@ -87,9 +87,36 @@ function create_offspring!(env::Environment)
         else
             Int(get(specs, "max_clutch_size", 1))
         end
+
+        # 0.8.0 Rees-Baylis female offspring-vs-survival trade-off (eqs
+        # 7-9 in Rees-Baylis et al. 2026). When sex_labels = TRUE and a
+        # female focal is reproducing, the realised clutch is scaled by
+        #   exp(-s_f^O * max(0, 1/aging_rate - 1))
+        # using the same 1/aging_rate lifespan proxy as the male path.
+        # Stochastic rounding preserves the expected count for
+        # fractional results. No-op when sex_on = FALSE or s_f^O = 0.
+        if Bool(get(specs, "sex_labels", false)) && ag.sex == Int8(0)
+            tradeoffs = get(specs, "sex_specific_tradeoffs", nothing)
+            s_f_O = Float32(_get_tradeoff(tradeoffs, "female_offspring_vs_aging"))
+            if s_f_O > 0.0f0 && clutch > 0
+                ar = ag.aging_rate > 0.0f0 ? ag.aging_rate : 1.0f0
+                target_lifespan = 1.0f0 / ar
+                penalty = max(0.0f0, target_lifespan - 1.0f0)
+                fec_modifier = exp(-s_f_O * penalty)
+                expected = Float64(clutch) * Float64(fec_modifier)
+                floor_part = floor(Int, expected)
+                frac       = expected - floor_part
+                clutch = floor_part + (rand(env.rng) < frac ? 1 : 0)
+            end
+        end
+
         # B6: accumulate for mean_clutch_size logging
         env.n_repro_events += Int32(1)
         env.n_clutch_total += Int32(clutch)
+        # Skip the per-offspring loop body entirely if the trade-off
+        # drove clutch to 0 — also accounts for any future zero-clutch
+        # paths.
+        clutch == 0 && continue
 
         for _ in 1:clutch
             length(env.agents) >= max_ag && break
@@ -258,6 +285,31 @@ end
 # ── Internal helpers ───────────────────────────────────────────────────────────
 
 """
+    _get_tradeoff(spec, key, default = 0.0)
+
+0.8.0: extract a named entry from `sex_specific_tradeoffs`, which arrives
+from R as either a `NamedTuple`/`Dict{String,Any}` or, via JuliaConnectoR,
+a plain `Dict{Symbol,Any}`. Returns `default` if the key is absent or the
+container is `nothing`. Always returns a `Float64` for easy `Float32`
+casting at the call site.
+"""
+function _get_tradeoff(spec, key::String, default::Real = 0.0)::Float64
+    spec === nothing && return Float64(default)
+    if spec isa AbstractDict
+        # Try string key (R named list), then symbol key (Julia NamedTuple
+        # roundtrip).
+        haskey(spec, key)         && return Float64(spec[key])
+        haskey(spec, Symbol(key)) && return Float64(spec[Symbol(key)])
+        return Float64(default)
+    end
+    if spec isa NamedTuple
+        sym = Symbol(key)
+        return sym in keys(spec) ? Float64(getfield(spec, sym)) : Float64(default)
+    end
+    Float64(default)
+end
+
+"""
     _find_mate(ag, env) -> Union{Agent, Nothing}
 
 For haploid organisms (`ploidy == 1`): return `nothing` (asexual by genome).
@@ -314,6 +366,28 @@ function _find_mate(ag::Agent, env::Environment)::Union{Agent, Nothing}
     # eligible mates. Field exists regardless but is meaningful only
     # under the flag.
     sex_on = Bool(get(specs, "sex_labels", false))
+
+    # 0.8.0 Rees-Baylis male mating-vs-survival trade-off (eqs 7-9 in
+    # Rees-Baylis et al. 2026). When sex_labels = TRUE and a male focal
+    # is searching, mating probability scales by
+    #   exp(-s_m^M * max(0, 1/aging_rate - 1))
+    # where 1/aging_rate is the lifespan proxy under clade's Gompertz
+    # hazard. With probability 1 - modifier we return nothing this tick,
+    # implementing reduced annual mating success at higher target
+    # lifespans. No-op when sex_on = FALSE or s_m^M = 0.
+    if sex_on && ag.sex == Int8(1)
+        tradeoffs = get(specs, "sex_specific_tradeoffs", nothing)
+        s_m_M = Float32(_get_tradeoff(tradeoffs, "male_mating_vs_aging"))
+        if s_m_M > 0.0f0
+            ar = ag.aging_rate > 0.0f0 ? ag.aging_rate : 1.0f0
+            target_lifespan = 1.0f0 / ar
+            penalty = max(0.0f0, target_lifespan - 1.0f0)
+            mating_prob = exp(-s_m_M * penalty)
+            if rand(env.rng) >= mating_prob
+                return nothing
+            end
+        end
+    end
 
     candidates = Agent[]
     for dx in -radius:radius, dy in -radius:radius
@@ -489,6 +563,24 @@ function _make_offspring(id::Int64, g::DiploidGenome, brain::AbstractBrain,
     mate_id = mate !== nothing ? mate.id : Int64(0)
     sig_dims = Int(get(specs, "signal_dims", 0))
 
+    # 0.8.0: draw offspring sex BEFORE trait expression so sex-specific
+    # gene expression (mechanism X) can read it. `sex_determination` is
+    # validated at founder construction; here we just trust the spec.
+    sex_on   = Bool(get(specs, "sex_labels", false))
+    off_sex  = if sex_on
+        srp = Float32(get(specs, "sex_ratio_primary", 0.5))
+        rand(rng) < srp ? Int8(1) : Int8(0)
+    else
+        Int8(0)
+    end
+    sst_arg = get(specs, "sex_specific_traits", String[])
+    sst_vec = sst_arg isa AbstractVector ? String.(sst_arg) : String[]
+    aging_idx = if sex_on && ("aging_rate" in sst_vec)
+        off_sex == Int8(0) ? TRAIT_AGING_RATE_FEMALE_GENE : TRAIT_AGING_RATE_MALE_GENE
+    else
+        TRAIT_AGING_RATE
+    end
+
     # Express scalar traits (pass rng for reproducibility under dominant model)
     body_size  = express_trait(g, TRAIT_BODY_SIZE, dm,
                                Float32(get(specs,"body_size_min",0.1)),
@@ -501,7 +593,7 @@ function _make_offspring(id::Int64, g::DiploidGenome, brain::AbstractBrain,
     metab      = express_trait(g, TRAIT_METABOLIC_RATE, dm,
                                Float32(get(specs,"metabolic_rate_min",0.1)),
                                Float32(get(specs,"metabolic_rate_max",5.0)), rng)
-    aging      = express_trait(g, TRAIT_AGING_RATE, dm,
+    aging      = express_trait(g, aging_idx, dm,
                                Float32(get(specs,"aging_rate_min",0.01)),
                                Float32(get(specs,"aging_rate_max",10.0)), rng)
     repro_th   = express_trait(g, TRAIT_REPRO_THRESHOLD, dm, 0.0f0, 1000.0f0, rng)
@@ -535,19 +627,6 @@ function _make_offspring(id::Int64, g::DiploidGenome, brain::AbstractBrain,
     rec_forg   = express_trait(g, TRAIT_RECIPROCITY_FORGIVENESS, dm, 0.0f0, 1.0f0, rng)
     # 0.7.0: Wolf 2008 responsiveness trait.
     resp       = express_trait(g, TRAIT_RESPONSIVENESS,          dm, 0.0f0, 1.0f0, rng)
-
-    # 0.8.0: persistent sex identity. When `sex_labels = TRUE`, draw
-    # offspring sex per `sex_ratio_primary` (proportion male). When FALSE,
-    # sex = 0 is an inert placeholder — no downstream code reads it.
-    # `sex_determination` is validated at founder construction; here we
-    # just trust the spec.
-    sex_on   = Bool(get(specs, "sex_labels", false))
-    off_sex  = if sex_on
-        srp = Float32(get(specs, "sex_ratio_primary", 0.5))
-        rand(rng) < srp ? Int8(1) : Int8(0)
-    else
-        Int8(0)
-    end
 
     off = Agent(
         id, parent.id, mate_id,
