@@ -643,6 +643,31 @@
 #'     birth and at founder construction when `sex_labels = TRUE`.}
 #' }
 #'
+#' ## Sex-specific trait expression (0.8.0)
+#'
+#' Genes that express differently in males and females. Requires
+#' `sex_labels = TRUE`. The 0.8.0 release wires the mechanism for
+#' `aging_rate`; the spec field accepts any of the 22 evolvable scalar
+#' traits in principle, though Julia-side wiring is needed per trait.
+#'
+#' Sex-specific aging interacts with `sex_specific_tradeoffs` to
+#' implement the Rees-Baylis et al. (2026, *Nat. Commun.*) analytical
+#' model: males trade off survival against annual mating probability,
+#' females trade off survival against annual offspring production.
+#'
+#' \describe{
+#'   \item{`sex_specific_traits`}{Character vector. Names of evolvable
+#'     scalar traits that should express via independent male and female
+#'     gene slots (e.g. `c("aging_rate")`). Empty by default. Requires
+#'     `sex_labels = TRUE` AND the corresponding trait-evolution flag
+#'     (e.g. `aging_rate_evolution = TRUE`).}
+#'   \item{`sex_specific_tradeoffs`}{Named list. Two trade-off-strength
+#'     scalars (default 0 = off): `male_mating_vs_aging` ($s_m^M$ in
+#'     Rees-Baylis), `female_offspring_vs_aging` ($s_f^O$). Both grafted
+#'     onto reproduction as multiplicative exponential modifiers using
+#'     `1 / aging_rate` as the lifespan proxy.}
+#' }
+#'
 #' ## Cooperative breeding
 #'
 #' \describe{
@@ -1621,6 +1646,23 @@ default_specs <- function() {
     sex_labels                 = FALSE,
     sex_determination          = "random",
     sex_ratio_primary          = 0.5,
+
+    # ── Sex-specific trait expression (0.8.0) ─────────────────────────────
+    # When `sex_labels = TRUE`, every trait name in `sex_specific_traits`
+    # is expressed from a sex-matching gene slot in the genome — males
+    # and females evolve independent values. Mechanism general; the 0.8.0
+    # release wires it only for "aging_rate".
+    #
+    # `sex_specific_tradeoffs` hard-grafts the Rees-Baylis et al. 2026
+    # exponential survival↔reproduction trade-off: male mating prob
+    # scaled by exp(-s_m^M * max(0, 1/aging_rate - 1)); female clutch
+    # scaled by exp(-s_f^O * max(0, 1/aging_rate - 1)). Both default to
+    # 0.0 (no trade-off) for backward compatibility.
+    sex_specific_traits        = character(0),
+    sex_specific_tradeoffs     = list(
+      male_mating_vs_aging      = 0.0,
+      female_offspring_vs_aging = 0.0
+    ),
 
     # ── Stress hypermutation ───────────────────────────────────────────────
     stress_hypermutation       = FALSE,

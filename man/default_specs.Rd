@@ -691,6 +691,32 @@ birth and at founder construction when \code{sex_labels = TRUE}.}
 }
 }
 
+\subsection{Sex-specific trait expression (0.8.0)}{
+
+Genes that express differently in males and females. Requires
+\code{sex_labels = TRUE}. The 0.8.0 release wires the mechanism for
+\code{aging_rate}; the spec field accepts any of the 22 evolvable scalar
+traits in principle, though Julia-side wiring is needed per trait.
+
+Sex-specific aging interacts with \code{sex_specific_tradeoffs} to
+implement the Rees-Baylis et al. (2026, \emph{Nat. Commun.}) analytical
+model: males trade off survival against annual mating probability,
+females trade off survival against annual offspring production.
+
+\describe{
+\item{\code{sex_specific_traits}}{Character vector. Names of evolvable
+scalar traits that should express via independent male and female
+gene slots (e.g. \code{c("aging_rate")}). Empty by default. Requires
+\code{sex_labels = TRUE} AND the corresponding trait-evolution flag
+(e.g. \code{aging_rate_evolution = TRUE}).}
+\item{\code{sex_specific_tradeoffs}}{Named list. Two trade-off-strength
+scalars (default 0 = off): \code{male_mating_vs_aging} ($s_m^M$ in
+Rees-Baylis), \code{female_offspring_vs_aging} ($s_f^O$). Both grafted
+onto reproduction as multiplicative exponential modifiers using
+\code{1 / aging_rate} as the lifespan proxy.}
+}
+}
+
 \subsection{Cooperative breeding}{
 
 \describe{

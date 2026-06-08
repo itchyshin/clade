@@ -134,6 +134,8 @@
                                "female_investment", "male_repro_cost"),
   "Sex foundation"        = c("sex_labels", "sex_determination",
                                "sex_ratio_primary"),
+  "Sex-specific traits"   = c("sex_specific_traits",
+                               "sex_specific_tradeoffs"),
   "Pace of life"          = c("metabolic_rate_evolution",
                                "metabolic_rate_init_mean",
                                "metabolic_rate_mutation_sd",
