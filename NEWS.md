@@ -1,3 +1,55 @@
+# clade 0.8.0 (development) — sex foundation
+
+First slice of a phased sex / mating-system subsystem. Motivated by the
+Rees-Baylis et al. (2026, *Nature Communications*) paper-reproduction
+target on sex-biased longevity evolution, which requires agents that
+know their own sex across their lifetime. This release adds the
+minimum foundation; sex-specific trait expression and mating-system
+structure follow in subsequent 0.8.x releases.
+
+## New spec fields (all default-off / backward-compatible)
+
+- **`sex_labels = FALSE`** — master toggle for persistent sex identity
+  on agents. When `TRUE`, each `Agent` carries a sticky `sex` field
+  (0 = female, 1 = male) set at birth, and `_find_mate()` filters
+  candidates to opposite-sex only.
+- **`sex_determination = "random"`** — sex-determination mechanism.
+  Currently only `"random"` (50/50 per `sex_ratio_primary`) is
+  implemented; `"chromosomal"` and `"environmental"` are reserved for
+  later releases and raise a clear error if requested.
+- **`sex_ratio_primary = 0.5`** — proportion of offspring born male.
+  Skewed values (e.g. `0.3`) produce female-biased populations at
+  founder construction and at every birth when `sex_labels = TRUE`.
+
+## Kernel changes (gated by `sex_labels = TRUE`)
+
+- New `Agent.sex::Int8` field (~1 byte/agent; always allocated).
+- Sex assigned at construction in `_make_founder_agent` and
+  `_make_offspring`.
+- Opposite-sex filter in `_find_mate()`.
+- `parental_investment_evolution` cost-split decoupled from the
+  focal-agent convention: `female_investment` now denotes the
+  mother's share regardless of which partner initiated the
+  encounter; `male_repro_cost` extra targets whichever partner is
+  male. Legacy "focal-agent = implicit mother" semantics preserved
+  exactly under `sex_labels = FALSE`. See `dev/dev-log/decisions.md`
+  for the role-contract decoupling rationale.
+
+## New surfaces
+
+- `vignettes/s-sex-labels.Rmd` — scenario vignette demonstrating
+  balanced and skewed sex ratios and documenting the scope/limits of
+  this foundation release.
+- `tests/testthat/test-sex-labels.R` — unit and Julia-integrated
+  tests for the sex field, sex ratio outcomes, and decoupled cost-split.
+- New `"Sex foundation"` group in `.SPEC_GROUPS`.
+
+## Compatibility
+
+- `sex_labels = FALSE` (default) preserves all pre-0.8.0 behaviour by
+  control-flow construction. Existing vignettes and cached `.rds`
+  results require no regeneration.
+
 # clade 0.7.1 (2026-05-13) — post-0.7.0 audit cleanup + CI re-enable
 
 ## Spec-wiring audit (#114)
