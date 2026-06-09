@@ -981,6 +981,106 @@ as described by Jablonka & Lamb (2005).
   Numeric. Per-offspring energy cost paid by the father when
   `female_investment < 1` (default 0.3).
 
+### Sex foundation (0.8.0)
+
+Persistent sex identity on agents. Required for sex-specific traits and
+mating-system structure introduced in later 0.8.x releases. All defaults
+preserve pre-0.8.0 behaviour: with `sex_labels = FALSE` the `sex` field
+on every Agent is set to 0 and ignored, mate finding is unchanged, and
+the `parental_investment_evolution` cost-split keeps its legacy
+"focal-agent = implicit mother" semantics.
+
+- `sex_labels`:
+
+  Logical. Master toggle. When `TRUE`, agents carry a sticky `sex` field
+  (0 = female, 1 = male) set at birth; `_find_mate` only considers
+  opposite-sex candidates; and the `parental_investment_evolution`
+  cost-split adapts to focal's sex so `female_investment` always denotes
+  the mother's share. When `FALSE` (default), the field exists but is
+  inert.
+
+- `sex_determination`:
+
+  Character. Sex-determination mechanism. Currently only `"random"`
+  (50/50 per `sex_ratio_primary`) is supported; `"chromosomal"` and
+  `"environmental"` are reserved for future phases.
+
+- `sex_ratio_primary`:
+
+  Numeric in \[0, 1\]. Proportion of offspring born male (default 0.5 =
+  balanced). Applies at every birth and at founder construction when
+  `sex_labels = TRUE`.
+
+### Sex-specific trait expression (0.8.0)
+
+Genes that express differently in males and females. Requires
+`sex_labels = TRUE`. The 0.8.0 release wires the mechanism for
+`aging_rate`; the spec field accepts any of the 22 evolvable scalar
+traits in principle, though Julia-side wiring is needed per trait.
+
+Sex-specific aging interacts with `sex_specific_tradeoffs` to implement
+the Rees-Baylis et al. (2026, *Nat. Commun.*) analytical model: males
+trade off survival against annual mating probability, females trade off
+survival against annual offspring production.
+
+- `sex_specific_traits`:
+
+  Character vector. Names of evolvable scalar traits that should express
+  via independent male and female gene slots (e.g. `c("aging_rate")`).
+  Empty by default. Requires `sex_labels = TRUE` AND the corresponding
+  trait-evolution flag (e.g. `aging_rate_evolution = TRUE`).
+
+- `sex_specific_tradeoffs`:
+
+  Named list. Two trade-off-strength scalars (default 0 = off):
+  `male_mating_vs_aging` (\$s_m^M\$ in Rees-Baylis),
+  `female_offspring_vs_aging` (\$s_f^O\$). Both grafted onto
+  reproduction as multiplicative exponential modifiers using
+  `1 / aging_rate` as the lifespan proxy.
+
+### Mating system (0.8.0)
+
+Encounter-rule variants stacked on top of the sex foundation. Default
+`"any"` preserves the pre-0.8.0 behaviour where every mating attempt
+scans neighbours fresh. `"monogamous_pair"` introduces persistent bonds;
+`"mating_groups"` lets users vary the number of males and females per
+reproducing group (the Rees-Baylis 2026 Fig. 6 axis).
+
+- `mating_system`:
+
+  Character. One of `"any"` (default), `"monogamous_pair"`,
+  `"mating_groups"`.
+
+- `divorce_rate`:
+
+  Numeric in \[0, 1\]. Per-tick probability that a persistent monogamous
+  union dissolves (returns both partners to the singles pool). 0 =
+  lifelong monogamy.
+
+- `pair_bond_persistence`:
+
+  Logical. When `TRUE` (default), unions formed under
+  `"monogamous_pair"` survive across reproduction events until partner
+  death or divorce. When `FALSE`, bonds dissolve after every clutch
+  (serial monogamy).
+
+- `mating_group_n_males`:
+
+  Integer. Number of males per mating group under `"mating_groups"`
+  (default 1L = pair).
+
+- `mating_group_n_females`:
+
+  Integer. Number of females per mating group (default 1L = pair).
+
+- `mating_group_fecundity_scaling`:
+
+  Character. `"balanced"` caps total group output to match a monogamous
+  baseline; `"additive"` lets every male-female pair in the group
+  reproduce independently.
+
+### Cooperative breeding
+
 - `cooperative_breeding`:
 
   Logical. Enable helper-at-the-nest dynamics (default `FALSE`).

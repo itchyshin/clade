@@ -34,7 +34,7 @@ Invisibly, the `specs` list (for piping).
 
 ``` r
 print_specs()
-#> -- clade specs (296 parameters) --
+#> -- clade specs (307 parameters) --
 #> 
 #>   Grid & population
 #>     grid_rows                              30
@@ -268,6 +268,22 @@ print_specs()
 #>     female_investment                      0.7
 #>     male_repro_cost                        0.3
 #> 
+#>   Sex foundation
+#>     sex_labels                             FALSE
+#>     sex_determination                      random
+#>     sex_ratio_primary                      0.5
+#> 
+#>   Sex-specific traits
+#>     sex_specific_tradeoffs                 [0, 0]
+#> 
+#>   Mating system
+#>     mating_system                          any
+#>     divorce_rate                           0
+#>     pair_bond_persistence                  TRUE
+#>     mating_group_n_males                   1
+#>     mating_group_n_females                 1
+#>     mating_group_fecundity_scaling         balanced
+#> 
 #>   Pace of life
 #>     metabolic_rate_evolution               FALSE
 #>     metabolic_rate_init_mean               1
@@ -420,7 +436,7 @@ s <- default_specs()
 s$kin_selection <- TRUE
 s$complex_landscape <- TRUE
 print_specs(s, diff_only = TRUE)
-#> -- clade specs (296 parameters) [diff only] --
+#> -- clade specs (307 parameters) [diff only] --
 #> 
 #>   Kin selection
 #>     kin_selection                          TRUE *

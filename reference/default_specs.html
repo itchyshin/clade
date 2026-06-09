@@ -37,6 +37,7 @@ run_alife() or search_map_elites()."></head><body>
     <li><a class="dropdown-item" href="../articles/paper-trivers1971.html">Trivers 1971 — reciprocal altruism (0.7.0)</a></li>
     <li><a class="dropdown-item" href="../articles/paper-massol-crochet-2008.html">Massol &amp; Crochet 2008 — does Wolf's syndrome depend on β?</a></li>
     <li><a class="dropdown-item" href="../articles/paper-mcelreath-2007.html">McElreath et al. 2007 — does Wolf's syndrome erode over time?</a></li>
+    <li><a class="dropdown-item" href="../articles/paper-rees-baylis-2026.html">Rees-Baylis et al. 2026 — sex-biased longevity (0.8.0)</a></li>
   </ul></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-guides" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Guides</button>
@@ -1090,7 +1091,116 @@ energy cost paid by the mother (default 0.7; 0.5 = equal). Added
 <dd><p>Numeric. Per-offspring energy cost paid by
 the father when <code>female_investment &lt; 1</code> (default 0.3).</p></dd>
 
-<dt><code>cooperative_breeding</code></dt>
+
+</dl></div>
+
+<div class="section">
+<h3 id="sex-foundation-">Sex foundation (0.8.0)<a class="anchor" aria-label="anchor" href="#sex-foundation-"></a></h3>
+
+
+<p>Persistent sex identity on agents. Required for sex-specific traits
+and mating-system structure introduced in later 0.8.x releases. All
+defaults preserve pre-0.8.0 behaviour: with <code>sex_labels = FALSE</code> the
+<code>sex</code> field on every Agent is set to 0 and ignored, mate finding is
+unchanged, and the <code>parental_investment_evolution</code> cost-split keeps
+its legacy "focal-agent = implicit mother" semantics.</p>
+<dl><dt><code>sex_labels</code></dt>
+<dd><p>Logical. Master toggle. When <code>TRUE</code>, agents
+carry a sticky <code>sex</code> field (0 = female, 1 = male) set at birth;
+<code>_find_mate</code> only considers opposite-sex candidates; and the
+<code>parental_investment_evolution</code> cost-split adapts to focal's sex
+so <code>female_investment</code> always denotes the mother's share. When
+<code>FALSE</code> (default), the field exists but is inert.</p></dd>
+
+<dt><code>sex_determination</code></dt>
+<dd><p>Character. Sex-determination mechanism.
+Currently only <code>"random"</code> (50/50 per <code>sex_ratio_primary</code>) is
+supported; <code>"chromosomal"</code> and <code>"environmental"</code> are reserved
+for future phases.</p></dd>
+
+<dt><code>sex_ratio_primary</code></dt>
+<dd><p>Numeric in [0, 1]. Proportion of
+offspring born male (default 0.5 = balanced). Applies at every
+birth and at founder construction when <code>sex_labels = TRUE</code>.</p></dd>
+
+
+</dl></div>
+
+<div class="section">
+<h3 id="sex-specific-trait-expression-">Sex-specific trait expression (0.8.0)<a class="anchor" aria-label="anchor" href="#sex-specific-trait-expression-"></a></h3>
+
+
+<p>Genes that express differently in males and females. Requires
+<code>sex_labels = TRUE</code>. The 0.8.0 release wires the mechanism for
+<code>aging_rate</code>; the spec field accepts any of the 22 evolvable scalar
+traits in principle, though Julia-side wiring is needed per trait.</p>
+<p>Sex-specific aging interacts with <code>sex_specific_tradeoffs</code> to
+implement the Rees-Baylis et al. (2026, <em>Nat. Commun.</em>) analytical
+model: males trade off survival against annual mating probability,
+females trade off survival against annual offspring production.</p>
+<dl><dt><code>sex_specific_traits</code></dt>
+<dd><p>Character vector. Names of evolvable
+scalar traits that should express via independent male and female
+gene slots (e.g. <code>c("aging_rate")</code>). Empty by default. Requires
+<code>sex_labels = TRUE</code> AND the corresponding trait-evolution flag
+(e.g. <code>aging_rate_evolution = TRUE</code>).</p></dd>
+
+<dt><code>sex_specific_tradeoffs</code></dt>
+<dd><p>Named list. Two trade-off-strength
+scalars (default 0 = off): <code>male_mating_vs_aging</code> ($s_m^M$ in
+Rees-Baylis), <code>female_offspring_vs_aging</code> ($s_f^O$). Both grafted
+onto reproduction as multiplicative exponential modifiers using
+<code>1 / aging_rate</code> as the lifespan proxy.</p></dd>
+
+
+</dl></div>
+
+<div class="section">
+<h3 id="mating-system-">Mating system (0.8.0)<a class="anchor" aria-label="anchor" href="#mating-system-"></a></h3>
+
+
+<p>Encounter-rule variants stacked on top of the sex foundation. Default
+<code>"any"</code> preserves the pre-0.8.0 behaviour where every mating attempt
+scans neighbours fresh. <code>"monogamous_pair"</code> introduces persistent
+bonds; <code>"mating_groups"</code> lets users vary the number of males and
+females per reproducing group (the Rees-Baylis 2026 Fig. 6 axis).</p>
+<dl><dt><code>mating_system</code></dt>
+<dd><p>Character. One of <code>"any"</code> (default),
+<code>"monogamous_pair"</code>, <code>"mating_groups"</code>.</p></dd>
+
+<dt><code>divorce_rate</code></dt>
+<dd><p>Numeric in [0, 1]. Per-tick probability that
+a persistent monogamous union dissolves (returns both partners to
+the singles pool). 0 = lifelong monogamy.</p></dd>
+
+<dt><code>pair_bond_persistence</code></dt>
+<dd><p>Logical. When <code>TRUE</code> (default),
+unions formed under <code>"monogamous_pair"</code> survive across
+reproduction events until partner death or divorce. When
+<code>FALSE</code>, bonds dissolve after every clutch (serial monogamy).</p></dd>
+
+<dt><code>mating_group_n_males</code></dt>
+<dd><p>Integer. Number of males per mating
+group under <code>"mating_groups"</code> (default 1L = pair).</p></dd>
+
+<dt><code>mating_group_n_females</code></dt>
+<dd><p>Integer. Number of females per
+mating group (default 1L = pair).</p></dd>
+
+<dt><code>mating_group_fecundity_scaling</code></dt>
+<dd><p>Character.
+<code>"balanced"</code> caps total group output to match a monogamous
+baseline; <code>"additive"</code> lets every male-female pair in the group
+reproduce independently.</p></dd>
+
+
+</dl></div>
+
+<div class="section">
+<h3 id="cooperative-breeding">Cooperative breeding<a class="anchor" aria-label="anchor" href="#cooperative-breeding"></a></h3>
+
+
+<dl><dt><code>cooperative_breeding</code></dt>
 <dd><p>Logical. Enable helper-at-the-nest
 dynamics (default <code>FALSE</code>).</p></dd>
 

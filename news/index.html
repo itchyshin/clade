@@ -33,6 +33,7 @@
     <li><a class="dropdown-item" href="../articles/paper-trivers1971.html">Trivers 1971 — reciprocal altruism (0.7.0)</a></li>
     <li><a class="dropdown-item" href="../articles/paper-massol-crochet-2008.html">Massol &amp; Crochet 2008 — does Wolf's syndrome depend on β?</a></li>
     <li><a class="dropdown-item" href="../articles/paper-mcelreath-2007.html">McElreath et al. 2007 — does Wolf's syndrome erode over time?</a></li>
+    <li><a class="dropdown-item" href="../articles/paper-rees-baylis-2026.html">Rees-Baylis et al. 2026 — sex-biased longevity (0.8.0)</a></li>
   </ul></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-guides" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Guides</button>
@@ -95,6 +96,77 @@
       <small>Source: <a href="https://github.com/itchyshin/clade/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.8.0" id="clade-080-development--sex--mating-system-subsystem--rees-baylis-2026-paper-reproduction">clade 0.8.0 (development) — sex / mating-system subsystem + Rees-Baylis 2026 paper reproduction<a class="anchor" aria-label="anchor" href="#clade-080-development--sex--mating-system-subsystem--rees-baylis-2026-paper-reproduction"></a></h2>
+<p>Phased sex / mating-system subsystem, motivated by the Rees-Baylis et al. (2026, <em>Nature Communications</em>) paper on sex-biased longevity evolution. Three layers — sex foundation, sex-specific trait expression, and mating-system structure — landed in this release; mating-group composition (<code>mating_system = "mating_groups"</code>) is specified but errors as “not yet implemented” and is planned for the next 0.8.x release.</p>
+<div class="section level3">
+<h3 id="sex-specific-trait-expression-0-8-0">Sex-specific trait expression<a class="anchor" aria-label="anchor" href="#sex-specific-trait-expression-0-8-0"></a></h3>
+<ul><li>New <code>sex_specific_traits = character(0)</code> spec — names of evolvable scalar traits that get independent male and female gene slots in the diploid genome. The 0.8.0 release wires the mechanism for <code>aging_rate</code>; the spec accepts other names but Julia-side wiring is needed per trait.</li>
+<li>New <code>sex_specific_tradeoffs = list(male_mating_vs_aging = 0,  female_offspring_vs_aging = 0)</code> spec — hard-grafts the Rees-Baylis exponential survival↔︎reproduction trade-off (eqs 7–9) onto male mating prob and female clutch size using <code>1 / aging_rate</code> as the lifespan proxy. Both default to zero-effect.</li>
+<li>New constants <code>TRAIT_AGING_RATE_FEMALE_GENE = 23</code> and <code>TRAIT_AGING_RATE_MALE_GENE = 24</code> in <code>inst/julia/src/types.jl</code>; <code>N_SCALAR_TRAITS</code> bumped from 22 to 24. Both new genes inherit through clade’s existing diploid + dominance machinery; mutation acts independently on each so males and females can evolve different aging trajectories.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="mating-system-module-0-8-0">Mating-system module<a class="anchor" aria-label="anchor" href="#mating-system-module-0-8-0"></a></h3>
+<ul><li>New <code>mating_system = "any" | "monogamous_pair" | "mating_groups"</code> spec. <code>"any"</code> (default) preserves pre-0.8.0 behaviour.</li>
+<li>New <code>divorce_rate = 0</code> (per-tick) and <code>pair_bond_persistence = TRUE</code> specs control how persistent monogamous unions dissolve.</li>
+<li>New <code>Agent</code> fields: <code>union_partner_id::Int64</code>, <code>union_ticks::Int32</code>, <code>mating_group_id::Int64</code>. All zero when <code>mating_system = "any"</code>.</li>
+<li>New <code>update_unions!()</code> hook in the tick loop dissolves unions on partner death or stochastic divorce.</li>
+<li>
+<code>mating_group_n_males</code>, <code>mating_group_n_females</code>, and <code>mating_group_fecundity_scaling</code> specs are validated; setting <code>mating_system = "mating_groups"</code> errors with “not yet implemented” in 0.8.0 — the multi-male/multi-female group reproduction code lands in the next 0.8.x release.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="new-paper-reproduction-vignette-0-8-0">New paper-reproduction vignette<a class="anchor" aria-label="anchor" href="#new-paper-reproduction-vignette-0-8-0"></a></h3>
+<ul><li>
+<code>vignettes/paper-rees-baylis-2026.Rmd</code> — first sex-specific paper-reproduction vignette in clade. Covers Fig 2 c &amp; f (equal-strength diagonal), Fig 3 (max annual fecundity), and Fig 4 (female demographic dominance under monogamous unions). Fig 5 (density regulation) out of scope; Fig 6 (mating groups) deferred to the next release.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="new-scenario-vignettes-0-8-0">New scenario vignettes<a class="anchor" aria-label="anchor" href="#new-scenario-vignettes-0-8-0"></a></h3>
+<ul><li>
+<code>vignettes/s-pair-bonds.Rmd</code> — persistent monogamous unions, divorce-rate sweep, and serial monogamy via <code>pair_bond_persistence = FALSE</code>.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="test-coverage-0-8-0">Test coverage<a class="anchor" aria-label="anchor" href="#test-coverage-0-8-0"></a></h3>
+<ul><li>
+<code>tests/testthat/test-sex-specific-traits.R</code> (15 assertions)</li>
+<li>
+<code>tests/testthat/test-pair-bonds.R</code> (15 assertions)</li>
+<li>New <code>"Sex-specific traits"</code> and <code>"Mating system"</code> groups in <code>.SPEC_GROUPS</code>.</li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.8.0" id="clade-080-development--sex-foundation-initial-slice">clade 0.8.0 (development) — sex foundation (initial slice)<a class="anchor" aria-label="anchor" href="#clade-080-development--sex-foundation-initial-slice"></a></h2>
+<p>First slice of a phased sex / mating-system subsystem. Motivated by the Rees-Baylis et al. (2026, <em>Nature Communications</em>) paper-reproduction target on sex-biased longevity evolution, which requires agents that know their own sex across their lifetime. This release adds the minimum foundation; sex-specific trait expression and mating-system structure follow in subsequent 0.8.x releases.</p>
+<div class="section level3">
+<h3 id="new-spec-fields-all-default-off--backward-compatible-0-8-0">New spec fields (all default-off / backward-compatible)<a class="anchor" aria-label="anchor" href="#new-spec-fields-all-default-off--backward-compatible-0-8-0"></a></h3>
+<ul><li>
+<strong><code>sex_labels = FALSE</code></strong> — master toggle for persistent sex identity on agents. When <code>TRUE</code>, each <code>Agent</code> carries a sticky <code>sex</code> field (0 = female, 1 = male) set at birth, and <code>_find_mate()</code> filters candidates to opposite-sex only.</li>
+<li>
+<strong><code>sex_determination = "random"</code></strong> — sex-determination mechanism. Currently only <code>"random"</code> (50/50 per <code>sex_ratio_primary</code>) is implemented; <code>"chromosomal"</code> and <code>"environmental"</code> are reserved for later releases and raise a clear error if requested.</li>
+<li>
+<strong><code>sex_ratio_primary = 0.5</code></strong> — proportion of offspring born male. Skewed values (e.g. <code>0.3</code>) produce female-biased populations at founder construction and at every birth when <code>sex_labels = TRUE</code>.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="kernel-changes-gated-by-sex_labels--true-0-8-0">Kernel changes (gated by <code>sex_labels = TRUE</code>)<a class="anchor" aria-label="anchor" href="#kernel-changes-gated-by-sex_labels--true-0-8-0"></a></h3>
+<ul><li>New <code>Agent.sex::Int8</code> field (~1 byte/agent; always allocated).</li>
+<li>Sex assigned at construction in <code>_make_founder_agent</code> and <code>_make_offspring</code>.</li>
+<li>Opposite-sex filter in <code>_find_mate()</code>.</li>
+<li>
+<code>parental_investment_evolution</code> cost-split decoupled from the focal-agent convention: <code>female_investment</code> now denotes the mother’s share regardless of which partner initiated the encounter; <code>male_repro_cost</code> extra targets whichever partner is male. Legacy “focal-agent = implicit mother” semantics preserved exactly under <code>sex_labels = FALSE</code>. See <code>dev/dev-log/decisions.md</code> for the role-contract decoupling rationale.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="new-surfaces-0-8-0">New surfaces<a class="anchor" aria-label="anchor" href="#new-surfaces-0-8-0"></a></h3>
+<ul><li>
+<code>vignettes/s-sex-labels.Rmd</code> — scenario vignette demonstrating balanced and skewed sex ratios and documenting the scope/limits of this foundation release.</li>
+<li>
+<code>tests/testthat/test-sex-labels.R</code> — unit and Julia-integrated tests for the sex field, sex ratio outcomes, and decoupled cost-split.</li>
+<li>New <code>"Sex foundation"</code> group in <code>.SPEC_GROUPS</code>.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="compatibility-0-8-0">Compatibility<a class="anchor" aria-label="anchor" href="#compatibility-0-8-0"></a></h3>
+<ul><li>
+<code>sex_labels = FALSE</code> (default) preserves all pre-0.8.0 behaviour by control-flow construction. Existing vignettes and cached <code>.rds</code> results require no regeneration.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.7.1" id="clade-071-2026-05-13--post-070-audit-cleanup--ci-re-enable">clade 0.7.1 (2026-05-13) — post-0.7.0 audit cleanup + CI re-enable<a class="anchor" aria-label="anchor" href="#clade-071-2026-05-13--post-070-audit-cleanup--ci-re-enable"></a></h2>
 <div class="section level3">

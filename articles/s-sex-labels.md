@@ -1,0 +1,157 @@
+# Sex labels (sex foundation)
+
+## Sex foundation (0.8.0)
+
+**What it models.** A *persistent* binary sex identity on agents —
+required for any model in which males and females must be tracked across
+their lifetime (e.g. sex-specific senescence onset, sex-specific
+trade-offs, mating-system structure). Before 0.8.0, `clade` had **no sex
+labels**: sexual selection in the existing Kokko-Brooks and Fuller
+vignettes worked through unisex signal–preference matching, and the
+`parental_investment_evolution` cost-split treated whichever agent
+happened to initiate a reproductive event as the implicit mother.
+
+This release adds the minimum foundation: a sticky `sex` field on every
+`Agent`, configurable primary sex ratio at birth, and an opposite-sex
+filter in `_find_mate()`. Sex-specific trait expression and persistent
+mating-system structure (pair bonds, mating groups) are scheduled for
+subsequent 0.8.x releases.
+
+**Key parameters.**
+
+| Parameter | Default | Effect |
+|----|----|----|
+| `sex_labels` | `FALSE` | Master toggle. `FALSE` preserves all pre-0.8.0 behaviour. `TRUE` activates the sex field, mate filter, and decoupled cost-split. |
+| `sex_determination` | `"random"` | Currently only `"random"` is implemented. `"chromosomal"` / `"environmental"` reserved for future releases. |
+| `sex_ratio_primary` | `0.5` | Proportion male at birth. Skewed values (e.g. `0.3`) produce female-biased populations. |
+
+**Expected output.** Under default `sex_ratio_primary = 0.5`, the
+realised sex ratio at equilibrium is close to 50/50, with sampling noise
+shrinking as the population grows. Under `sex_ratio_primary = 0.3`, the
+female-biased input is preserved at equilibrium because survival is
+sex-blind in this foundation release (sex-specific mortality arrives
+with sex-specific trait expression in a later release).
+
+``` r
+
+library(clade)
+
+# Balanced primary sex ratio (default).
+s <- default_specs()
+s$grid_rows         <- 30L
+s$grid_cols         <- 30L
+s$n_agents_init     <- 100L
+s$max_ticks         <- 500L
+s$grass_rate        <- 0.15
+s$random_seed       <- 42L
+s$sex_labels        <- TRUE
+s$sex_ratio_primary <- 0.5
+
+env   <- run_alife(s)
+sexes <- vapply(seq_len(length(env$agents)),
+                function(i) as.integer(env$agents[[i]]$sex), integer(1))
+cat("Population:", length(sexes),
+    " | Proportion male:", round(mean(sexes == 1L), 3), "\n")
+```
+
+``` r
+
+# Female-biased primary sex ratio.
+s$sex_ratio_primary <- 0.3
+s$random_seed       <- 43L
+
+env2   <- run_alife(s)
+sexes2 <- vapply(seq_len(length(env2$agents)),
+                 function(i) as.integer(env2$agents[[i]]$sex), integer(1))
+cat("Population:", length(sexes2),
+    " | Proportion male:", round(mean(sexes2 == 1L), 3), "\n")
+```
+
+## What changes inside the kernel when `sex_labels = TRUE`
+
+Three behavioural changes are activated by the flag; everything else
+remains exactly as on `main`.
+
+1.  **`Agent.sex` is set at construction** (`inst/julia/src/Clade.jl`,
+    `_make_founder_agent`; `inst/julia/src/reproduce.jl`,
+    `_make_offspring`). Each new agent draws sex per
+    `sex_ratio_primary`. When `sex_labels = FALSE`, the field is set to
+    `0` and read by no downstream code.
+2.  **`_find_mate()` filters to opposite-sex candidates** (in the
+    neighbourhood scan, `reproduce.jl`). When `sex_labels = FALSE`, the
+    filter is bypassed and the prior any-neighbour behaviour is
+    preserved.
+3.  **`parental_investment_evolution` cost-split is decoupled from the
+    focal-agent convention** (role-contract decoupling). When
+    `sex_labels = TRUE`, `female_investment` denotes the *mother’s*
+    share regardless of which partner initiated the encounter; the
+    father pays the complement. When `sex_labels = FALSE`, the legacy
+    “focal-agent = implicit mother” semantics are preserved exactly.
+
+None of these changes affect a run with `sex_labels = FALSE`; vignettes
+and tests pinned to the FALSE default remain byte-identical to `main`.
+
+## Honest discussion (scope of this release)
+
+This release is *foundation only*. Three things are deliberately **not**
+included:
+
+- **Sex-specific traits.** Every evolvable trait (including
+  `aging_rate`) is still expressed identically in males and females.
+  Sex-specific gene slots (`TRAIT_AGING_RATE_FEMALE_GENE` /
+  `TRAIT_AGING_RATE_MALE_GENE`) are introduced in a subsequent release.
+- **Sex-specific mortality or fecundity.** Survival and reproductive
+  output are sex-blind under this foundation. Without sex-specific
+  survival/fecundity, the operational sex ratio (OSR) at equilibrium
+  closely tracks the primary sex ratio — there is no demographic
+  feedback that re-balances skewed inputs. (The forthcoming
+  mating-system module introduces the union-formation dynamics that
+  produce OSR deviations.)
+- **Pair bonds / mating groups.** `_find_mate()` still scans all
+  opposite-sex neighbours every tick; no agent state tracks previous
+  partners. Persistent monogamous unions and multi-male/multi-female
+  mating-group composition arrive with the mating-system module.
+
+Consequently, the present vignette tests one narrow thing: *does the sex
+field get assigned and propagated correctly, and does the opposite-sex
+mate filter work?* It does not validate any biological prediction about
+sex ratios at equilibrium under selection — that’s a later scenario’s
+concern.
+
+## Validation discipline
+
+The sex foundation is unit-test driven, not multi-seed audit driven.
+Coverage:
+
+- `tests/testthat/test-sex-labels.R` — spec presence, defaults,
+  .SPEC_GROUPS membership, plus Julia-integrated checks that founders
+  and offspring receive valid sex values, the proportion-male is in the
+  right ballpark for the configured `sex_ratio_primary`, and that
+  `parental_investment_evolution` runs cleanly under
+  `sex_labels = TRUE`.
+- `tests/testthat/test-spec-wiring.R` — the standing R↔︎Julia wiring
+  guard. All three new specs are consumed in `inst/julia/src/*.jl`, so
+  no allowlist entry is needed.
+
+A full multi-seed scenario audit (≥5 seeds, mean ± SE) is appropriate
+when sex-specific trait expression is introduced and selection actually
+acts on the sex field. At this stage the kernel changes are mechanical
+plumbing and unit tests are the right granularity.
+
+------------------------------------------------------------------------
+
+## Citation
+
+If you use this scenario in published work, please cite both the `clade`
+package and the upcoming paper-reproduction vignette (Rees-Baylis et
+al. 2026, *Nature Communications*) that motivates this foundation.
+
+``` bibtex
+@misc{clade2026,
+  author  = {Nakagawa, Shinichi},
+  title   = {clade: evolve behaviour, minds, and brains in R},
+  year    = {2026},
+  note    = {R package},
+  url     = {https://github.com/itchyshin/clade}
+}
+```

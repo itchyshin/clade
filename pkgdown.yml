@@ -22,6 +22,7 @@ articles:
   paper-massol-crochet-2008: paper-massol-crochet-2008.html
   paper-mcelreath-2007: paper-mcelreath-2007.html
   paper-reale-2010: paper-reale-2010.html
+  paper-rees-baylis-2026: paper-rees-baylis-2026.html
   paper-ryan-1990: paper-ryan-1990.html
   paper-template: paper-template.html
   paper-trivers1971: paper-trivers1971.html
@@ -56,6 +57,7 @@ articles:
   s-module-comparison: s-module-comparison.html
   s-niche: s-niche.html
   s-pace-of-life: s-pace-of-life.html
+  s-pair-bonds: s-pair-bonds.html
   s-parental-care: s-parental-care.html
   s-parental-investment: s-parental-investment.html
   s-plasticity: s-plasticity.html
@@ -65,6 +67,7 @@ articles:
   s-rl: s-rl.html
   s-scavenging: s-scavenging.html
   s-seasonal: s-seasonal.html
+  s-sex-labels: s-sex-labels.html
   s-signals: s-signals.html
   s-social-learning: s-social-learning.html
   s-speciation: s-speciation.html
@@ -72,7 +75,7 @@ articles:
   scenarios: scenarios.html
   troubleshooting: troubleshooting.html
   why-clade: why-clade.html
-last_built: 2026-05-17T15:19Z
+last_built: 2026-06-09T16:23Z
 urls:
   reference: https://itchyshin.github.io/clade/reference
   article: https://itchyshin.github.io/clade/articles

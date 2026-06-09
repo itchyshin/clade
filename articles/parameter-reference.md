@@ -815,7 +815,7 @@ defs <- default_specs()
 
 # All parameter names
 length(defs)
-#> [1] 296
+#> [1] 307
 
 # First 10 parameters with their values
 str(defs[1:10], max.level = 1, give.attr = FALSE)

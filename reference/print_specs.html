@@ -37,6 +37,7 @@ parameters differ from the defaults."></head><body>
     <li><a class="dropdown-item" href="../articles/paper-trivers1971.html">Trivers 1971 — reciprocal altruism (0.7.0)</a></li>
     <li><a class="dropdown-item" href="../articles/paper-massol-crochet-2008.html">Massol &amp; Crochet 2008 — does Wolf's syndrome depend on β?</a></li>
     <li><a class="dropdown-item" href="../articles/paper-mcelreath-2007.html">McElreath et al. 2007 — does Wolf's syndrome erode over time?</a></li>
+    <li><a class="dropdown-item" href="../articles/paper-rees-baylis-2026.html">Rees-Baylis et al. 2026 — sex-biased longevity (0.8.0)</a></li>
   </ul></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-guides" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Guides</button>
@@ -134,7 +135,7 @@ Default <code>FALSE</code>.</p></dd>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">print_specs</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -- clade specs (296 parameters) --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -- clade specs (307 parameters) --</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Grid &amp; population</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     grid_rows                              30</span>
@@ -368,6 +369,22 @@ Default <code>FALSE</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     female_investment                      0.7</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     male_repro_cost                        0.3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Sex foundation</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     sex_labels                             FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     sex_determination                      random</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     sex_ratio_primary                      0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Sex-specific traits</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     sex_specific_tradeoffs                 [0, 0]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Mating system</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     mating_system                          any</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     divorce_rate                           0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     pair_bond_persistence                  TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     mating_group_n_males                   1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     mating_group_n_females                 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     mating_group_fecundity_scaling         balanced</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Pace of life</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     metabolic_rate_evolution               FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     metabolic_rate_init_mean               1</span>
@@ -520,7 +537,7 @@ Default <code>FALSE</code>.</p></dd>
 <span class="r-in"><span><span class="va">s</span><span class="op">$</span><span class="va">kin_selection</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="va">s</span><span class="op">$</span><span class="va">complex_landscape</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="fu">print_specs</span><span class="op">(</span><span class="va">s</span>, diff_only <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -- clade specs (296 parameters) [diff only] --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -- clade specs (307 parameters) [diff only] --</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Kin selection</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     kin_selection                          TRUE *</span>

@@ -60,6 +60,9 @@ you’re reproducing your own paper.
   β?](https://itchyshin.github.io/clade/articles/paper-massol-crochet-2008.md):
 - [McElreath et al. 2007 — does Wolf's syndrome erode over
   time?](https://itchyshin.github.io/clade/articles/paper-mcelreath-2007.md):
+- [Rees-Baylis et al. 2026: asymmetric life-history trade-offs shape
+  sex-biased
+  longevity](https://itchyshin.github.io/clade/articles/paper-rees-baylis-2026.md):
 
 ### Parameter search
 
@@ -151,6 +154,10 @@ realistic.
   investment](https://itchyshin.github.io/clade/articles/s-parental-investment.md):
 - [Pace-of-life
   syndromes](https://itchyshin.github.io/clade/articles/s-pace-of-life.md):
+- [Sex labels (sex
+  foundation)](https://itchyshin.github.io/clade/articles/s-sex-labels.md):
+- [Persistent pair bonds (monogamous
+  unions)](https://itchyshin.github.io/clade/articles/s-pair-bonds.md):
 
 ### Theme 5 — Species interactions and arms races
 
