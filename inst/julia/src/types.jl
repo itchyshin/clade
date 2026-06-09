@@ -110,7 +110,7 @@ struct DiploidGenome
 end
 
 """Number of scalar traits stored per haplotype in `DiploidGenome`."""
-const N_SCALAR_TRAITS = 22
+const N_SCALAR_TRAITS = 24
 
 # Scalar trait indices (into maternal_traits / paternal_traits)
 const TRAIT_BODY_SIZE             = 1
@@ -157,6 +157,18 @@ const TRAIT_RECIPROCITY_FORGIVENESS  = 21
 # (handling time) and the per-game payoff to being responsive declines.
 # See inst/julia/src/modules/responsiveness.jl and paper-wolf2008.Rmd.
 const TRAIT_RESPONSIVENESS           = 22
+# 0.8.0: sex-specific aging-rate genes (mechanism X). Two separate genes
+# (one expressed in females, one in males), each diploid like every other
+# scalar trait. When `sex_labels = TRUE` AND `"aging_rate" %in% sex_specific_traits`,
+# an agent's expressed `aging_rate` is taken from the sex-matching gene
+# (TRAIT_AGING_RATE_FEMALE_GENE for females, TRAIT_AGING_RATE_MALE_GENE for
+# males). The two genes evolve independently under Rees-Baylis-style
+# sex-specific selection. When inactive, both genes mirror the shared
+# TRAIT_AGING_RATE and the expressed value is unchanged (no behavioural
+# diff vs pre-0.8.0). Matches Rees-Baylis 2026 Methods footnote: "two
+# unlinked loci with sex-specifically expressed genes".
+const TRAIT_AGING_RATE_FEMALE_GENE   = 23
+const TRAIT_AGING_RATE_MALE_GENE     = 24
 
 """
     is_haploid(g::DiploidGenome) -> Bool
@@ -260,6 +272,14 @@ in hot-path code when the corresponding module is disabled.
   born (or graduated from parental care). Used by the dispersal module to
   compute direction-away-from-birthplace. Set at construction and never
   updated within a lifetime.
+
+## Sex (0.8.0)
+- `sex::Int8` — persistent sex identity. 0 = female, 1 = male. Set at
+  birth (or for founders, at population init) when `sex_labels = TRUE`;
+  defaults to 0 (no-op) when `sex_labels = FALSE`. The field is always
+  present so downstream code can read it unconditionally; semantics are
+  gated by the spec flag. Sex influences mate filtering in `_find_mate`
+  and the cost-split in `_make_offspring` when `sex_labels = TRUE`.
 """
 mutable struct Agent
     # Identity
@@ -382,6 +402,28 @@ mutable struct Agent
     # rides its action toward the richest cardinal-neighbour cell on a
     # given tick). Inert when `responsive_personalities` is off.
     responsiveness     ::Float32
+
+    # Persistent sex identity (added 0.8.0). 0 = female, 1 = male.
+    # Set at birth (or at founder construction) when `sex_labels = TRUE`;
+    # always 0 when `sex_labels = FALSE` (downstream code that reads sex
+    # under the FALSE branch must guard with the spec flag). Mate filter
+    # and reproductive-cost-split logic read this field when sex_labels
+    # is on. See AGENTS.md "sex foundation" / dev/dev-log/decisions.md.
+    sex                ::Int8
+
+    # Mating-system state (added 0.8.0). Inert unless
+    # `mating_system != "any"`.
+    # - `union_partner_id`: id of current persistent monogamous partner
+    #   (0 = single). Set on both partners at union formation; cleared
+    #   on partner death or stochastic divorce.
+    # - `union_ticks`: ticks elapsed since current union formed (0 when
+    #   single).
+    # - `mating_group_id`: id of current mating group (0 = none). Used
+    #   when `mating_system = "mating_groups"` to track which group each
+    #   agent belongs to for shared-clutch accounting.
+    union_partner_id   ::Int64
+    union_ticks        ::Int32
+    mating_group_id    ::Int64
 end
 
 # ── Environment ────────────────────────────────────────────────────────────────

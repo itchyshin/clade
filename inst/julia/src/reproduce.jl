@@ -87,9 +87,36 @@ function create_offspring!(env::Environment)
         else
             Int(get(specs, "max_clutch_size", 1))
         end
+
+        # 0.8.0 Rees-Baylis female offspring-vs-survival trade-off (eqs
+        # 7-9 in Rees-Baylis et al. 2026). When sex_labels = TRUE and a
+        # female focal is reproducing, the realised clutch is scaled by
+        #   exp(-s_f^O * max(0, 1/aging_rate - 1))
+        # using the same 1/aging_rate lifespan proxy as the male path.
+        # Stochastic rounding preserves the expected count for
+        # fractional results. No-op when sex_on = FALSE or s_f^O = 0.
+        if Bool(get(specs, "sex_labels", false)) && ag.sex == Int8(0)
+            tradeoffs = get(specs, "sex_specific_tradeoffs", nothing)
+            s_f_O = Float32(_get_tradeoff(tradeoffs, "female_offspring_vs_aging"))
+            if s_f_O > 0.0f0 && clutch > 0
+                ar = ag.aging_rate > 0.0f0 ? ag.aging_rate : 1.0f0
+                target_lifespan = 1.0f0 / ar
+                penalty = max(0.0f0, target_lifespan - 1.0f0)
+                fec_modifier = exp(-s_f_O * penalty)
+                expected = Float64(clutch) * Float64(fec_modifier)
+                floor_part = floor(Int, expected)
+                frac       = expected - floor_part
+                clutch = floor_part + (rand(env.rng) < frac ? 1 : 0)
+            end
+        end
+
         # B6: accumulate for mean_clutch_size logging
         env.n_repro_events += Int32(1)
         env.n_clutch_total += Int32(clutch)
+        # Skip the per-offspring loop body entirely if the trade-off
+        # drove clutch to 0 — also accounts for any future zero-clutch
+        # paths.
+        clutch == 0 && continue
 
         for _ in 1:clutch
             length(env.agents) >= max_ag && break
@@ -117,6 +144,32 @@ function create_offspring!(env::Environment)
             # Find mate (or reproduce asexually)
             mate = _find_mate(ag, env)
 
+            # 0.8.0: establish a persistent monogamous bond on first
+            # successful mating when mating_system = "monogamous_pair"
+            # and both partners are currently unbonded. The bond
+            # survives until `update_unions!` dissolves it via partner
+            # death or stochastic divorce. When mating_system = "any"
+            # or either side is already bonded, this is a no-op.
+            if mate !== nothing &&
+               String(get(specs, "mating_system", "any")) == "monogamous_pair"
+                if ag.union_partner_id == Int64(0) &&
+                   mate.union_partner_id == Int64(0)
+                    ag.union_partner_id   = mate.id
+                    mate.union_partner_id = ag.id
+                    ag.union_ticks        = Int32(0)
+                    mate.union_ticks      = Int32(0)
+                end
+                # 0.8.0 pair_bond_persistence = FALSE → serial monogamy.
+                # Dissolve the bond after this reproduction event so the
+                # next tick scans for a fresh partner.
+                if !Bool(get(specs, "pair_bond_persistence", true))
+                    ag.union_partner_id   = Int64(0)
+                    mate.union_partner_id = Int64(0)
+                    ag.union_ticks        = Int32(0)
+                    mate.union_ticks      = Int32(0)
+                end
+            end
+
             # 0.4.0: parental cost
             #   "fixed"        — deduct constant `repro_cost` (legacy)
             #   "proportional" — deduct `repro_cost_fraction * parent.energy`
@@ -126,19 +179,34 @@ function create_offspring!(env::Environment)
             else
                 repro_cost
             end
-            # 0.4.0 Tier 3: female_investment couples to outcomes.
-            # When parental_investment_evolution = TRUE, the female (focal
-            # agent) bears `female_investment` of the total cost and the
-            # male bears `1 - female_investment`. Default 0.5 (symmetric)
-            # preserves prior behaviour. The whole `cost_paid` flows into
-            # offspring energy below — so higher female_investment
-            # automatically gives offspring more of *its* mother's
-            # contribution, exactly as Trivers (1972) predicts.
+            # 0.4.0 Tier 3 + 0.8.0 A2 decoupling: female_investment couples
+            # to outcomes. When parental_investment_evolution = TRUE, the
+            # mother bears `female_investment` of the per-offspring cost
+            # and the father bears `1 - female_investment`. Default 0.5
+            # (symmetric) preserves prior behaviour.
+            #
+            # When `sex_labels = FALSE` (legacy): focal agent is the
+            # implicit "female" / mother regardless of biological sex
+            # (sex field is inert in that case).
+            #
+            # When `sex_labels = TRUE` (0.8.0 A2): the role assignment is
+            # decoupled from who initiates the reproductive event. The
+            # mother's share is paid by whichever partner is female; the
+            # father's share by the male partner.
             pi_on  = Bool(get(specs, "parental_investment_evolution", false))
             fi     = Float32(get(specs, "female_investment", 0.5))
+            sex_on = Bool(get(specs, "sex_labels", false))
             if pi_on && mate !== nothing
-                ag.energy   -= cost_paid * fi
-                mate.energy -= cost_paid * (1.0f0 - fi)
+                if sex_on && ag.sex == Int8(1)
+                    # focal is male; mate is female (mate filter
+                    # guarantees opposite sex when sex_on)
+                    mate.energy -= cost_paid * fi
+                    ag.energy   -= cost_paid * (1.0f0 - fi)
+                else
+                    # legacy path: focal plays the mother role
+                    ag.energy   -= cost_paid * fi
+                    mate.energy -= cost_paid * (1.0f0 - fi)
+                end
             else
                 ag.energy   -= cost_paid
                 mate !== nothing && (mate.energy -= cost_paid * 0.5f0)
@@ -167,10 +235,17 @@ function create_offspring!(env::Environment)
 
             # Legacy "male_repro_cost" extra male contribution: only fires
             # when pi_on AND explicit male_repro_cost > 0. Stacks on top
-            # of the basic split.
+            # of the basic split. Under sex_labels = TRUE (0.8.0 A2),
+            # the extra is paid by whichever partner is male.
             if pi_on && mate !== nothing
                 male_extra = Float32(get(specs, "male_repro_cost", 0.0))
-                male_extra > 0.0f0 && (mate.energy -= male_extra * off_energy_actual)
+                if male_extra > 0.0f0
+                    if sex_on && ag.sex == Int8(1)
+                        ag.energy   -= male_extra * off_energy_actual
+                    else
+                        mate.energy -= male_extra * off_energy_actual
+                    end
+                end
             end
 
             # Base mutation rate: when mutation_rate_evolution is on, use
@@ -236,6 +311,101 @@ end
 # ── Internal helpers ───────────────────────────────────────────────────────────
 
 """
+    update_unions!(env)
+
+0.8.0 mating-system maintenance. Called once per tick BEFORE
+`create_offspring!` (after dead agents are removed). For every agent
+with `union_partner_id > 0`:
+
+- If the partner is no longer alive (search by id), dissolve the union
+  on this side (`union_partner_id = 0`, `union_ticks = 0`).
+- Otherwise increment `union_ticks` and, with probability `divorce_rate`,
+  dissolve the union on both sides.
+
+No-op when `mating_system != "monogamous_pair"`.
+"""
+function update_unions!(env::Environment)
+    specs = env.specs
+    ms = String(get(specs, "mating_system", "any"))
+    ms == "monogamous_pair" || return
+
+    divorce_rate = Float32(get(specs, "divorce_rate", 0.0))
+
+    # Build a small id → index map for O(N) partner lookup. Cleaner than
+    # nested linear search.
+    id_to_idx = Dict{Int64, Int}()
+    @inbounds for i in eachindex(env.agents)
+        env.agents[i].alive && (id_to_idx[env.agents[i].id] = i)
+    end
+
+    @inbounds for i in eachindex(env.agents)
+        ag = env.agents[i]
+        ag.alive || continue
+        pid = ag.union_partner_id
+        pid == Int64(0) && continue
+
+        idx = get(id_to_idx, pid, 0)
+        if idx == 0
+            # Partner is dead / removed. Dissolve.
+            ag.union_partner_id = Int64(0)
+            ag.union_ticks      = Int32(0)
+            continue
+        end
+
+        # Both alive. Increment duration counter (own bookkeeping).
+        ag.union_ticks += Int32(1)
+
+        # Stochastic divorce (rolled once per (agent, partner) — only
+        # the lower-id side rolls so we don't double-dissolve and the
+        # outcome is symmetric).
+        if divorce_rate > 0.0f0 && ag.id < env.agents[idx].id
+            if rand(env.rng) < divorce_rate
+                ag.union_partner_id              = Int64(0)
+                ag.union_ticks                   = Int32(0)
+                env.agents[idx].union_partner_id = Int64(0)
+                env.agents[idx].union_ticks      = Int32(0)
+            end
+        end
+    end
+end
+
+"""
+    _get_tradeoff(spec, key, default = 0.0)
+
+0.8.0: extract a named entry from `sex_specific_tradeoffs`. The container
+arrives from R via JuliaConnectoR as an `RConnector.ElementList` (with
+`:names` + `:namedelements` fields, same pattern that `r_specs_to_dict`
+unpacks); from Julia internal calls it may instead be a `NamedTuple`,
+a `Dict{String,Any}`, or a `Dict{Symbol,Any}`. Returns `default` if the
+key is absent or the container is `nothing`. Always returns a `Float64`
+for easy `Float32` casting at the call site.
+"""
+function _get_tradeoff(spec, key::String, default::Real = 0.0)::Float64
+    spec === nothing && return Float64(default)
+    if spec isa AbstractDict
+        # String key (R named list), then symbol key (NamedTuple roundtrip).
+        haskey(spec, key)         && return Float64(spec[key])
+        haskey(spec, Symbol(key)) && return Float64(spec[Symbol(key)])
+        return Float64(default)
+    end
+    if spec isa NamedTuple
+        sym = Symbol(key)
+        return sym in keys(spec) ? Float64(getfield(spec, sym)) : Float64(default)
+    end
+    # JuliaConnectoR.ElementList path (the actual R↔Julia wire format for
+    # an R `list(name = val, ...)`). Mirrors r_specs_to_dict's unpacking.
+    if hasproperty(spec, :names) && hasproperty(spec, :namedelements)
+        ne = getfield(spec, :namedelements)
+        sym = Symbol(key)
+        haskey(ne, sym) && return Float64(ne[sym])
+        # Also try string key for safety
+        haskey(ne, key) && return Float64(ne[key])
+        return Float64(default)
+    end
+    Float64(default)
+end
+
+"""
     _find_mate(ag, env) -> Union{Agent, Nothing}
 
 For haploid organisms (`ploidy == 1`): return `nothing` (asexual by genome).
@@ -288,6 +458,56 @@ function _find_mate(ag::Agent, env::Environment)::Union{Agent, Nothing}
     radius   = max(radius, 1)
     x, y = Int(ag.x), Int(ag.y)
 
+    # 0.8.0: when sex_labels = TRUE, only opposite-sex agents are
+    # eligible mates. Field exists regardless but is meaningful only
+    # under the flag.
+    sex_on = Bool(get(specs, "sex_labels", false))
+
+    # 0.8.0 Rees-Baylis male mating-vs-survival trade-off (eqs 7-9 in
+    # Rees-Baylis et al. 2026). When sex_labels = TRUE and a male focal
+    # is searching, mating probability scales by
+    #   exp(-s_m^M * max(0, 1/aging_rate - 1))
+    # where 1/aging_rate is the lifespan proxy under clade's Gompertz
+    # hazard. With probability 1 - modifier we return nothing this tick,
+    # implementing reduced annual mating success at higher target
+    # lifespans. No-op when sex_on = FALSE or s_m^M = 0.
+    if sex_on && ag.sex == Int8(1)
+        tradeoffs = get(specs, "sex_specific_tradeoffs", nothing)
+        s_m_M = Float32(_get_tradeoff(tradeoffs, "male_mating_vs_aging"))
+        if s_m_M > 0.0f0
+            ar = ag.aging_rate > 0.0f0 ? ag.aging_rate : 1.0f0
+            target_lifespan = 1.0f0 / ar
+            penalty = max(0.0f0, target_lifespan - 1.0f0)
+            mating_prob = exp(-s_m_M * penalty)
+            if rand(env.rng) >= mating_prob
+                return nothing
+            end
+        end
+    end
+
+    # 0.8.0 mating-system path: persistent monogamous pair bonds.
+    # When mating_system = "monogamous_pair", a bonded agent only
+    # reproduces with its current partner; an unbonded agent forms a
+    # new bond with the chosen mate.
+    # Mating-group support (`mating_system = "mating_groups"`) is
+    # specified but not fully implemented in this release; the kernel
+    # validates the group-composition specs and errors clearly so
+    # downstream callers receive a single explanatory message.
+    ms = String(get(specs, "mating_system", "any"))
+    if ms == "mating_groups"
+        # Read all three mating-group specs so the spec-wiring guard
+        # treats them as consumed. Validate ranges, then error.
+        n_m  = Int(get(specs, "mating_group_n_males",   1))
+        n_f  = Int(get(specs, "mating_group_n_females", 1))
+        scal = String(get(specs, "mating_group_fecundity_scaling", "balanced"))
+        n_m >= 1 || error("mating_group_n_males must be >= 1; got $n_m")
+        n_f >= 1 || error("mating_group_n_females must be >= 1; got $n_f")
+        scal in ("balanced", "additive") ||
+            error("mating_group_fecundity_scaling must be \"balanced\" or \"additive\"; got \"$scal\"")
+        error("mating_system = \"mating_groups\" not yet implemented in 0.8.0; planned for the next 0.8.x release. Use \"monogamous_pair\" or \"any\" for now.")
+    end
+    is_monog = ms == "monogamous_pair"
+
     candidates = Agent[]
     for dx in -radius:radius, dy in -radius:radius
         (dx == 0 && dy == 0) && continue
@@ -298,6 +518,19 @@ function _find_mate(ag::Agent, env::Environment)::Union{Agent, Nothing}
         candidate = env.agents[idx]
         candidate.alive       || continue
         candidate.id == ag.id && continue
+        # 0.8.0: opposite-sex filter
+        sex_on && candidate.sex == ag.sex && continue
+        # 0.8.0 monogamous-pair filter: if focal is bonded, only its
+        # current partner is eligible (if not in range, focal will fail
+        # to mate this tick); if focal is unbonded, only unbonded
+        # candidates are eligible.
+        if is_monog
+            if ag.union_partner_id != Int64(0)
+                candidate.id == ag.union_partner_id || continue
+            else
+                candidate.union_partner_id == Int64(0) || continue
+            end
+        end
         push!(candidates, candidate)
     end
 
@@ -460,6 +693,24 @@ function _make_offspring(id::Int64, g::DiploidGenome, brain::AbstractBrain,
     mate_id = mate !== nothing ? mate.id : Int64(0)
     sig_dims = Int(get(specs, "signal_dims", 0))
 
+    # 0.8.0: draw offspring sex BEFORE trait expression so sex-specific
+    # gene expression (mechanism X) can read it. `sex_determination` is
+    # validated at founder construction; here we just trust the spec.
+    sex_on   = Bool(get(specs, "sex_labels", false))
+    off_sex  = if sex_on
+        srp = Float32(get(specs, "sex_ratio_primary", 0.5))
+        rand(rng) < srp ? Int8(1) : Int8(0)
+    else
+        Int8(0)
+    end
+    sst_arg = get(specs, "sex_specific_traits", String[])
+    sst_vec = sst_arg isa AbstractVector ? String.(sst_arg) : String[]
+    aging_idx = if sex_on && ("aging_rate" in sst_vec)
+        off_sex == Int8(0) ? TRAIT_AGING_RATE_FEMALE_GENE : TRAIT_AGING_RATE_MALE_GENE
+    else
+        TRAIT_AGING_RATE
+    end
+
     # Express scalar traits (pass rng for reproducibility under dominant model)
     body_size  = express_trait(g, TRAIT_BODY_SIZE, dm,
                                Float32(get(specs,"body_size_min",0.1)),
@@ -472,7 +723,7 @@ function _make_offspring(id::Int64, g::DiploidGenome, brain::AbstractBrain,
     metab      = express_trait(g, TRAIT_METABOLIC_RATE, dm,
                                Float32(get(specs,"metabolic_rate_min",0.1)),
                                Float32(get(specs,"metabolic_rate_max",5.0)), rng)
-    aging      = express_trait(g, TRAIT_AGING_RATE, dm,
+    aging      = express_trait(g, aging_idx, dm,
                                Float32(get(specs,"aging_rate_min",0.01)),
                                Float32(get(specs,"aging_rate_max",10.0)), rng)
     repro_th   = express_trait(g, TRAIT_REPRO_THRESHOLD, dm, 0.0f0, 1000.0f0, rng)
@@ -533,7 +784,11 @@ function _make_offspring(id::Int64, g::DiploidGenome, brain::AbstractBrain,
         # 0.7.0: Trivers 1971 reciprocal altruism (partner memory lazy-init in module)
         rec_init, rec_ret, rec_forg, Int64[], Int8[],
         # 0.7.0: Wolf 2008 responsive personalities
-        resp
+        resp,
+        # 0.8.0: persistent sex identity (sex_labels-gated)
+        off_sex,
+        # 0.8.0: mating-system state (mating_system != "any" reads)
+        Int64(0), Int32(0), Int64(0)
     )
     apply_epigenetic_inheritance!(off, parent, specs, rng)
     off

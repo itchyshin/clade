@@ -423,6 +423,10 @@ function run_clade(specs::Dict{String,Any})
         # ── Death and reproduction ───────────────────────────────────────
         kill_dead!(env)
         remove_dead!(env)
+        # 0.8.0: persistent monogamous pair-bond maintenance. No-op when
+        # mating_system != "monogamous_pair". Must run after remove_dead!
+        # so partner-alive lookups see the up-to-date population.
+        update_unions!(env)
         graduate_offspring!(env)          # parental care: promote juveniles
         # 0.7.0: Wolf 2007 age-windowed reproduction must run BEFORE the
         # standard create_offspring! so dying year-2 agents are not also
@@ -652,6 +656,24 @@ function _make_founder_agent(id::Int64, g::DiploidGenome, brain::AbstractBrain,
 
     dm = get(specs, "dominance_model", "additive")
 
+    # 0.8.0: persistent sex identity. Drawn here (before trait expression)
+    # so sex-specific gene expression (mechanism X) can read it. When
+    # `sex_labels = FALSE`, sex = 0 is an inert placeholder.
+    # `sex_determination` currently only supports "random"; future modes
+    # ("chromosomal", "environmental") will arrive in later releases.
+    sex_on  = Bool(get(specs, "sex_labels", false))
+    sex_det = String(get(specs, "sex_determination", "random"))
+    sex_val = if sex_on
+        srp = Float32(get(specs, "sex_ratio_primary", 0.5))
+        if sex_det == "random"
+            rand(rng) < srp ? Int8(1) : Int8(0)
+        else
+            error("sex_determination = \"$sex_det\" not yet implemented; only \"random\" is supported in the 0.8.0 sex foundation release")
+        end
+    else
+        Int8(0)
+    end
+
     body_size = express_trait(g, TRAIT_BODY_SIZE, dm,
                               Float32(get(specs, "body_size_min",  0.1)),
                               Float32(get(specs, "body_size_max",  5.0)), rng)
@@ -665,7 +687,18 @@ function _make_founder_agent(id::Int64, g::DiploidGenome, brain::AbstractBrain,
     metab = express_trait(g, TRAIT_METABOLIC_RATE, dm,
                           Float32(get(specs, "metabolic_rate_min", 0.1)),
                           Float32(get(specs, "metabolic_rate_max", 5.0)), rng)
-    aging = express_trait(g, TRAIT_AGING_RATE, dm,
+    # 0.8.0: sex-specific aging-rate expression (mechanism X). When
+    # `sex_labels = TRUE` and `"aging_rate" %in% sex_specific_traits`,
+    # express from the sex-matching gene. Otherwise use the shared gene
+    # (matches pre-0.8.0 behaviour).
+    sst_arg = get(specs, "sex_specific_traits", String[])
+    sst_vec = sst_arg isa AbstractVector ? String.(sst_arg) : String[]
+    aging_idx = if Bool(get(specs, "sex_labels", false)) && ("aging_rate" in sst_vec)
+        sex_val == Int8(0) ? TRAIT_AGING_RATE_FEMALE_GENE : TRAIT_AGING_RATE_MALE_GENE
+    else
+        TRAIT_AGING_RATE
+    end
+    aging = express_trait(g, aging_idx, dm,
                           Float32(get(specs, "aging_rate_min", 0.01)),
                           Float32(get(specs, "aging_rate_max", 10.0)), rng)
     repro_th = express_trait(g, TRAIT_REPRO_THRESHOLD, dm, 0.0f0, 1000.0f0, rng)
@@ -747,7 +780,11 @@ function _make_founder_agent(id::Int64, g::DiploidGenome, brain::AbstractBrain,
         # 0.7.0: Trivers 1971 reciprocal altruism (partner memory lazy-init in module)
         rec_init, rec_ret, rec_forg, Int64[], Int8[],
         # 0.7.0: Wolf 2008 responsive personalities
-        resp
+        resp,
+        # 0.8.0: persistent sex identity (sex_labels-gated)
+        sex_val,
+        # 0.8.0: mating-system state (mating_system != "any" reads)
+        Int64(0), Int32(0), Int64(0)
     )
 end
 
@@ -836,7 +873,14 @@ function _agents_to_records(agents::Vector{Agent})
             reciprocity_retaliation = Float64(ag.reciprocity_retaliation),
             reciprocity_forgiveness = Float64(ag.reciprocity_forgiveness),
             # 0.7.0: Wolf 2008 responsive personalities
-            responsiveness          = Float64(ag.responsiveness)
+            responsiveness          = Float64(ag.responsiveness),
+            # 0.8.0: persistent sex identity (0 = female, 1 = male; always
+            # 0 when sex_labels = FALSE in the run)
+            sex                     = Int(ag.sex),
+            # 0.8.0: mating-system state (all 0 when mating_system = "any")
+            union_partner_id        = Int(ag.union_partner_id),
+            union_ticks             = Int(ag.union_ticks),
+            mating_group_id         = Int(ag.mating_group_id)
         )
     end
 end

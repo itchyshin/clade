@@ -662,6 +662,93 @@ energy cost paid by the mother (default 0.7; 0.5 = equal). Added
 0.4.0 Tier 3.}
 \item{\code{male_repro_cost}}{Numeric. Per-offspring energy cost paid by
 the father when \code{female_investment < 1} (default 0.3).}
+}
+}
+
+\subsection{Sex foundation (0.8.0)}{
+
+Persistent sex identity on agents. Required for sex-specific traits
+and mating-system structure introduced in later 0.8.x releases. All
+defaults preserve pre-0.8.0 behaviour: with \code{sex_labels = FALSE} the
+\code{sex} field on every Agent is set to 0 and ignored, mate finding is
+unchanged, and the \code{parental_investment_evolution} cost-split keeps
+its legacy "focal-agent = implicit mother" semantics.
+
+\describe{
+\item{\code{sex_labels}}{Logical. Master toggle. When \code{TRUE}, agents
+carry a sticky \code{sex} field (0 = female, 1 = male) set at birth;
+\verb{_find_mate} only considers opposite-sex candidates; and the
+\code{parental_investment_evolution} cost-split adapts to focal's sex
+so \code{female_investment} always denotes the mother's share. When
+\code{FALSE} (default), the field exists but is inert.}
+\item{\code{sex_determination}}{Character. Sex-determination mechanism.
+Currently only \code{"random"} (50/50 per \code{sex_ratio_primary}) is
+supported; \code{"chromosomal"} and \code{"environmental"} are reserved
+for future phases.}
+\item{\code{sex_ratio_primary}}{Numeric in [0, 1]. Proportion of
+offspring born male (default 0.5 = balanced). Applies at every
+birth and at founder construction when \code{sex_labels = TRUE}.}
+}
+}
+
+\subsection{Sex-specific trait expression (0.8.0)}{
+
+Genes that express differently in males and females. Requires
+\code{sex_labels = TRUE}. The 0.8.0 release wires the mechanism for
+\code{aging_rate}; the spec field accepts any of the 22 evolvable scalar
+traits in principle, though Julia-side wiring is needed per trait.
+
+Sex-specific aging interacts with \code{sex_specific_tradeoffs} to
+implement the Rees-Baylis et al. (2026, \emph{Nat. Commun.}) analytical
+model: males trade off survival against annual mating probability,
+females trade off survival against annual offspring production.
+
+\describe{
+\item{\code{sex_specific_traits}}{Character vector. Names of evolvable
+scalar traits that should express via independent male and female
+gene slots (e.g. \code{c("aging_rate")}). Empty by default. Requires
+\code{sex_labels = TRUE} AND the corresponding trait-evolution flag
+(e.g. \code{aging_rate_evolution = TRUE}).}
+\item{\code{sex_specific_tradeoffs}}{Named list. Two trade-off-strength
+scalars (default 0 = off): \code{male_mating_vs_aging} ($s_m^M$ in
+Rees-Baylis), \code{female_offspring_vs_aging} ($s_f^O$). Both grafted
+onto reproduction as multiplicative exponential modifiers using
+\code{1 / aging_rate} as the lifespan proxy.}
+}
+}
+
+\subsection{Mating system (0.8.0)}{
+
+Encounter-rule variants stacked on top of the sex foundation. Default
+\code{"any"} preserves the pre-0.8.0 behaviour where every mating attempt
+scans neighbours fresh. \code{"monogamous_pair"} introduces persistent
+bonds; \code{"mating_groups"} lets users vary the number of males and
+females per reproducing group (the Rees-Baylis 2026 Fig. 6 axis).
+
+\describe{
+\item{\code{mating_system}}{Character. One of \code{"any"} (default),
+\code{"monogamous_pair"}, \code{"mating_groups"}.}
+\item{\code{divorce_rate}}{Numeric in [0, 1]. Per-tick probability that
+a persistent monogamous union dissolves (returns both partners to
+the singles pool). 0 = lifelong monogamy.}
+\item{\code{pair_bond_persistence}}{Logical. When \code{TRUE} (default),
+unions formed under \code{"monogamous_pair"} survive across
+reproduction events until partner death or divorce. When
+\code{FALSE}, bonds dissolve after every clutch (serial monogamy).}
+\item{\code{mating_group_n_males}}{Integer. Number of males per mating
+group under \code{"mating_groups"} (default 1L = pair).}
+\item{\code{mating_group_n_females}}{Integer. Number of females per
+mating group (default 1L = pair).}
+\item{\code{mating_group_fecundity_scaling}}{Character.
+\code{"balanced"} caps total group output to match a monogamous
+baseline; \code{"additive"} lets every male-female pair in the group
+reproduce independently.}
+}
+}
+
+\subsection{Cooperative breeding}{
+
+\describe{
 \item{\code{cooperative_breeding}}{Logical. Enable helper-at-the-nest
 dynamics (default \code{FALSE}).}
 \item{\code{helper_tendency_init_mean}}{Numeric in [0, 1]. Heritable
