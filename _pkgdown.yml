@@ -52,6 +52,8 @@ navbar:
           href: articles/paper-massol-crochet-2008.html
         - text: "McElreath et al. 2007 — does Wolf's syndrome erode over time?"
           href: articles/paper-mcelreath-2007.html
+        - text: "Rees-Baylis et al. 2026 — sex-biased longevity (0.8.0)"
+          href: articles/paper-rees-baylis-2026.html
     articles:
       text: "Guides"
       menu:
@@ -154,6 +156,7 @@ articles:
       - paper-trivers1971
       - paper-massol-crochet-2008
       - paper-mcelreath-2007
+      - paper-rees-baylis-2026
 
   - title: "Parameter search"
     desc: >
@@ -221,6 +224,8 @@ articles:
       - s-clutch-size
       - s-parental-investment
       - s-pace-of-life
+      - s-sex-labels
+      - s-pair-bonds
 
   - title: "Theme 5 — Species interactions and arms races"
     navbar: ~
