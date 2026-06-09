@@ -77,21 +77,25 @@ test_that("sex_specific_traits empty + sex_labels=TRUE: aging unchanged", {
 
 # ── 3. Rees-Baylis trade-off math (Julia-integrated) ─────────────────────────
 
-test_that("male_mating_vs_aging > 0 reduces realised male reproduction", {
-  # Compare two runs: one with no male trade-off, one with strong male
-  # trade-off. The latter should produce fewer offspring overall because
-  # males are systematically failing to find mates when their target
-  # lifespan (1/aging_rate) is high.
+test_that("male_mating_vs_aging > 0 actually changes the run (not silently zero)", {
+  # Regression guard against the silent-zero-passthrough bug fixed
+  # 2026-06-08: `_get_tradeoff()` in inst/julia/src/reproduce.jl
+  # originally only handled NamedTuple / AbstractDict containers and
+  # returned the default (0.0) for the JuliaConnectoR `ElementList`
+  # wrapper that R named lists ARRIVE AS — so every sweep condition
+  # produced identical results regardless of trade-off strength. This
+  # test asserts the trade-off actually does *something* by comparing
+  # two seed-identical runs that differ ONLY in the trade-off setting.
+  # If the kernel silently returned 0 again, the two environments
+  # would be byte-identical and this test would fail.
   skip_no_julia()
 
-  # Use a setup where many agents have target_lifespan > 1 → trade-off
-  # actually fires. aging_rate_init_mean = 0.5 → target_lifespan ≈ 2.
   base <- .sst_specs(
-    n_agents_init     = 80L,
-    max_agents        = 400L,
-    max_ticks         = 100L,
+    n_agents_init        = 80L,
+    max_agents           = 400L,
+    max_ticks            = 100L,
     aging_rate_evolution = TRUE,
-    aging_rate_init_mean = 0.5,
+    aging_rate_init_mean = 0.5,   # target_lifespan ≈ 2 → trade-off fires
     aging_rate_min       = 0.1,
     aging_rate_max       = 2.0,
     sex_specific_traits  = c("aging_rate"),
@@ -103,18 +107,35 @@ test_that("male_mating_vs_aging > 0 reduces realised male reproduction", {
     female_offspring_vs_aging = 0.0
   )
   env_off <- run_alife(base, verbose = FALSE)
+  n_off   <- length(env_off$agents)
+  ages_off <- if (n_off > 0L)
+    vapply(seq_len(n_off), function(i) as.integer(env_off$agents[[i]]$age),
+           integer(1)) else integer(0)
 
+  # Strong male trade-off, same seed.
   base$sex_specific_tradeoffs <- list(
-    male_mating_vs_aging      = 2.0,   # strong
+    male_mating_vs_aging      = 2.0,
     female_offspring_vs_aging = 0.0
   )
   base$random_seed <- 5L
   env_on <- run_alife(base, verbose = FALSE)
+  n_on   <- length(env_on$agents)
+  ages_on <- if (n_on > 0L)
+    vapply(seq_len(n_on), function(i) as.integer(env_on$agents[[i]]$age),
+           integer(1)) else integer(0)
 
-  # With a strong male trade-off, total agents at the end should be no
-  # greater than with the trade-off off. Loose direction-only check —
-  # the precise effect is sensitive to many couplings.
-  expect_lte(length(env_on$agents), length(env_off$agents))
+  # The two runs MUST diverge in some observable way. With a strong
+  # male trade-off, expected: fewer agents, different age distribution,
+  # different birth count history. The strongest single-statistic
+  # divergence check that avoids hard-to-predict directions is:
+  # the sorted age vectors must NOT be identical.
+  identical_run <- length(ages_off) == length(ages_on) &&
+                   all(sort(ages_off) == sort(ages_on))
+  expect_false(
+    identical_run,
+    info = sprintf("Trade-off appears inert: identical agent ages across seed-matched runs (n_off=%d, n_on=%d). Likely a regression of the JuliaConnectoR ElementList unpacking bug in `_get_tradeoff()`.",
+                   n_off, n_on)
+  )
 })
 
 test_that("trade-off math: clutch modifier formula matches Rees-Baylis", {

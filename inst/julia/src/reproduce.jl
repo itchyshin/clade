@@ -372,17 +372,18 @@ end
 """
     _get_tradeoff(spec, key, default = 0.0)
 
-0.8.0: extract a named entry from `sex_specific_tradeoffs`, which arrives
-from R as either a `NamedTuple`/`Dict{String,Any}` or, via JuliaConnectoR,
-a plain `Dict{Symbol,Any}`. Returns `default` if the key is absent or the
-container is `nothing`. Always returns a `Float64` for easy `Float32`
-casting at the call site.
+0.8.0: extract a named entry from `sex_specific_tradeoffs`. The container
+arrives from R via JuliaConnectoR as an `RConnector.ElementList` (with
+`:names` + `:namedelements` fields, same pattern that `r_specs_to_dict`
+unpacks); from Julia internal calls it may instead be a `NamedTuple`,
+a `Dict{String,Any}`, or a `Dict{Symbol,Any}`. Returns `default` if the
+key is absent or the container is `nothing`. Always returns a `Float64`
+for easy `Float32` casting at the call site.
 """
 function _get_tradeoff(spec, key::String, default::Real = 0.0)::Float64
     spec === nothing && return Float64(default)
     if spec isa AbstractDict
-        # Try string key (R named list), then symbol key (Julia NamedTuple
-        # roundtrip).
+        # String key (R named list), then symbol key (NamedTuple roundtrip).
         haskey(spec, key)         && return Float64(spec[key])
         haskey(spec, Symbol(key)) && return Float64(spec[Symbol(key)])
         return Float64(default)
@@ -390,6 +391,16 @@ function _get_tradeoff(spec, key::String, default::Real = 0.0)::Float64
     if spec isa NamedTuple
         sym = Symbol(key)
         return sym in keys(spec) ? Float64(getfield(spec, sym)) : Float64(default)
+    end
+    # JuliaConnectoR.ElementList path (the actual R↔Julia wire format for
+    # an R `list(name = val, ...)`). Mirrors r_specs_to_dict's unpacking.
+    if hasproperty(spec, :names) && hasproperty(spec, :namedelements)
+        ne = getfield(spec, :namedelements)
+        sym = Symbol(key)
+        haskey(ne, sym) && return Float64(ne[sym])
+        # Also try string key for safety
+        haskey(ne, key) && return Float64(ne[key])
+        return Float64(default)
     end
     Float64(default)
 end
