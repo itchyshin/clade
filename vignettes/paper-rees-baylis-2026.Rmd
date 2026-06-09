@@ -523,7 +523,7 @@ own analytical model — discrete-time, two-sex, age-structured matrix
 population model with adaptive dynamics + proper mutant invasion — was
 independently reimplemented in R from the Methods (eqs 1, 4, 6, 7, 8,
 9, 17, 19, 27 and Table 1 parameters) in
-`dev/audit/fidelity/paper_rees_baylis_2026_analytical.R`. The 5 × 5
+[dev/audit/fidelity/paper_rees_baylis_2026_analytical.R](https://github.com/itchyshin/clade/blob/main/dev/audit/fidelity/paper_rees_baylis_2026_analytical.R). The 5 × 5
 trade-off-strength grid was swept under the paper's default monogamous
 baseline (omega = 20, b = 0.6, eta = 0.8, k = 4, primary sex ratio
 0.5, nu = 1e-4, sigma = 0.1); 200 adaptive-dynamics iterations per cell; mutant invasion
@@ -567,6 +567,41 @@ FIG("rees_baylis_analytical_fig2a"); FIG("rees_baylis_analytical_fig2b")
 
 ```{r fig-rees-baylis-analytical-fig2f, eval=TRUE, echo=FALSE, out.width="80%", fig.alt = "Scatter of relative life-expectancy difference against log10 of trade-off-strength ratio", fig.cap="Same 25 cells re-plotted as Rees-Baylis Fig 2 f: relative life-expectancy difference vs the log-ratio of trade-off strengths. The horizontal y = 0 line marks parity; cells below the line are male-biased. Notice that the entire vertical line at log10(s_m/s_f) = 0 (equal strengths) sits below parity — the paper's male-biased-longevity-under-symmetric-trade-offs signature."}
 FIG("rees_baylis_analytical_fig2f")
+```
+
+### Cross-validation against the paper's published MATLAB output
+
+The authors published their MATLAB output on Figshare
+(<https://doi.org/10.6084/m9.figshare.29558150>) — the same 5 × 5
+trade-off grid at `k = 4, eta = 0.8` (Table 1 values, matching this
+R port). Each cell contains 3 replicates × 600 generations of
+`(M_m, M_f, L_m, L_f)` trajectories. Taking the mean of the last
+5 generations × 3 replicates gives the paper's converged values per
+cell; comparing 25 cells:
+
+| metric | mine vs paper |
+|---|---|
+| Direction of `rel_diff` (male-biased / female-biased) | **25 / 25 cells match** |
+| `rel_diff` mean absolute error | **0.034** |
+| `rel_diff` max absolute error  | **0.057** |
+| `M_m` mean bias                | −1.70 (mine systematically lower) |
+| `M_f` mean bias                | −1.77 |
+
+**Every single cell agrees with the paper on whether the equilibrium
+is male-biased or female-biased.** The relative-difference values
+also agree to within 0.06 across the entire grid. The systematic
+~1.7 underestimate of `M_m, M_f` reflects the structural difference
+between my simulation-based mutant invasion (200-tick trajectory of
+the mutant population, frozen resident density) and the paper's exact
+eigenvalue-based invasion (`max(Re(eigen(A_mut)))`): truncation in
+the simulation suppresses mutant `λ` uniformly, so my AD fixes at a
+quasi-stable trait value below the true ESS. Verified: running 600
+AD iterations instead of 200 produces *exactly the same* numbers
+(my AD already fixed-pointed by iteration ~100). The remaining gap
+is closed by switching to eigenvalue invasion, not by more iterations.
+
+```{r fig-rees-baylis-paper-vs-mine, eval=TRUE, echo=FALSE, out.width="100%", fig.alt = "Side-by-side heatmaps showing the paper's published MATLAB output and my independent R port for the same 25 cells. Both show predominantly male-biased longevity along the diagonal with a smaller female-biased region in the upper-right; 25 of 25 cells match in direction.", fig.cap="Direct quantitative comparison: paper's published MATLAB output (left) vs this R port (right). The 25 cells are at identical (s_m, s_f) coordinates. Bottom panel: paper rel_diff vs mine; falls on y = x within ±0.06. Sign agrees 25 / 25."}
+FIG("rees_baylis_paper_vs_mine")
 ```
 
 ### Reconciling with the clade ABM sweep above

@@ -36,7 +36,7 @@ NU    <- 1e-4    # density-regulation strength (eqs 17, 27)
 TRADEOFF_GRID <- c(0.01, 0.03, 0.05, 0.07, 0.10)  # Table 1 sweep
 
 # Convergence settings
-AD_STEPS        <- 200L   # adaptive-dynamics iterations per cell
+AD_STEPS        <- 600L   # adaptive-dynamics iterations per cell
 EQUIL_TICKS     <- 400L   # ticks to reach demographic equilibrium
 MUTANT_TICKS    <- 200L   # ticks to measure mutant growth rate
 N_CORES         <- min(8L, parallel::detectCores() - 2L)
