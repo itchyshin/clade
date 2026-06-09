@@ -50,27 +50,38 @@ composition) requires the multi-male / multi-female mating-group
 implementation, which is specified in `default_specs()` but errors
 "not yet implemented" in 0.8.0 — it will land in the next 0.8.x release.
 
-## Headline (2026-06-08 sweep, 5 seeds × 5000 ticks)
+## Headlines
 
-> **The Rees-Baylis Fig 4 direction reverses under monogamy** — the
-> qualitative signature of the paper's headline "female demographic
-> dominance" claim. With every other spec held constant, switching
-> `mating_system` from `"any"` to `"monogamous_pair"` at trade-off
-> strength `s = 0.05` reorders the two sexes:
+This vignette pursues two complementary reproductions of the paper:
+
+### 1. clade ABM partial reproduction (2026-06-08, 5 seeds × 5000 ticks)
+
+**The Rees-Baylis Fig 4 direction reverses under monogamy** in the
+clade agent-based model — the qualitative signature of the paper's
+"female demographic dominance" claim. With every other spec held
+constant, switching `mating_system` from `"any"` to `"monogamous_pair"`
+at trade-off strength `s = 0.05` reorders the two sexes:
 
 | mating_system   | $L_F$ (target lifespan, female) | $L_M$ (male) | direction          |
 |-----------------|--------------------------------:|-------------:|--------------------|
 | any             | 7.34                            | 7.23         | males die earlier  |
 | monogamous_pair | 7.30                            | **7.44**     | **males live longer** |
 
-> The Fig 2 c & f pace-of-life direction (stronger trade-off → faster
-> aging) is **weakly confirmed** in both sexes over s ∈ {0, ..., 0.075}
-> (≈ 5 % rise in aging_rate). The Fig 3 prediction
-> (`max_clutch_size ↑` → faster aging) is **not detected** at the
-> noise floor; a possible `max_clutch_size ≠ annual fecundity` mapping
-> mismatch is documented in the Fig 3 section.
+Direction-only; magnitude at noise floor at 5 seeds. Fig 2 c & f
+pace-of-life is weakly confirmed; Fig 3 not detected at the noise
+floor (likely a `max_clutch_size ≠ annual fecundity` mapping mismatch).
 
-See the per-figure "What we found" sections below for the full numbers.
+### 2. Analytical-model independent R reproduction (2026-06-09)
+
+The paper's matrix model + adaptive dynamics, independently
+reimplemented from Methods (eqs 1–19, 27 and Table 1), reproduces the
+paper's **Fig 2 c heatmap pattern cleanly**: **18 / 25 cells male-biased,
+7 / 25 female-biased, 0 / 25 at parity**. The equal-strength diagonal
+is entirely male-biased (17–23 % relative difference). Density
+regulation compresses observed sex differences (intrinsic −0.61 →
+realised −0.19 at extreme cell) — same direction as the paper's Fig 5.
+
+See per-section "What we found" tables below for both reproductions.
 
 ## Mapping Rees-Baylis to clade
 
@@ -504,6 +515,85 @@ What this vignette assumes:
   sensitive panel to this discrepancy.
 - Per-tick stochasticity differs from the analytical eigenvalue-based
   adaptive dynamics. Convergence to equilibrium is verified empirically.
+
+## Analytical-model companion reproduction
+
+To pin down what clade's ABM was supposed to be matching, the paper's
+own analytical model — discrete-time, two-sex, age-structured matrix
+population model with adaptive dynamics + proper mutant invasion — was
+independently reimplemented in R from the Methods (eqs 1, 4, 6, 7, 8,
+9, 17, 19, 27 and Table 1 parameters) in
+`dev/audit/fidelity/paper_rees_baylis_2026_analytical.R`. The 5 × 5
+trade-off-strength grid was swept under the paper's default monogamous
+baseline (omega = 20, b = 0.6, eta = 0.8, k = 4, primary sex ratio
+0.5, nu = 1e-4, sigma = 0.1); 200 adaptive-dynamics iterations per cell; mutant invasion
+fitness evaluated by 200-tick simulation against the resident
+equilibrium population, with mutant carriers tracked across four
+compartments (single male carriers, single female carriers, mutant-male
+× resident-female unions, resident-male × mutant-female unions) so
+allele transmission with probability ½ is preserved. Two bugs were
+fixed during implementation: (1) mutants were initially mating in
+their own tiny pool rather than the resident pool, and (2) per-capita
+mating probability was missing the realised-union factor `mod_m × U`
+(rather than `U`) in single-removal. Both fixes were necessary for
+the resident's own `λ ≈ 1` at equilibrium.
+
+### Results: full 25-cell sweep
+
+| | $s_f^O$ = 0.01 | 0.03 | 0.05 | 0.07 | 0.10 |
+|---|---:|---:|---:|---:|---:|
+| $s_m^M$ = 0.01 | −0.17 | −0.36 | −0.47 | −0.54 | −0.61 |
+| 0.03 | +0.07 | −0.20 | −0.34 | −0.41 | −0.50 |
+| 0.05 | +0.22 | −0.04 | −0.21 | −0.30 | −0.41 |
+| 0.07 | +0.34 | +0.07 | −0.10 | −0.22 | −0.33 |
+| 0.10 | +0.49 | +0.20 | +0.03 | −0.10 | −0.22 |
+
+Cells show $(L_f - L_m) / \max(L_f, L_m)$ at the evolved equilibrium
+(intrinsic, no density-dependent mortality). Negative = male-biased
+longevity. **18 of 25 cells are male-biased, 7 are female-biased, none
+within ±0.01 of parity** — the asymmetric distribution Rees-Baylis Fig 2 c
+predicts. Along the equal-strength diagonal (`s_m = s_f`), every cell is
+negative (male-biased), with effect sizes 17–23 %. The female-biased
+region appears in the upper-right (very strong male trade-off + weak
+female trade-off), as in the paper.
+
+```{r fig-rees-baylis-analytical-fig2c, eval=TRUE, echo=FALSE, out.width="80%", fig.alt = "Heatmap of relative life-expectancy difference across the 5x5 trade-off strength grid showing predominantly male-biased longevity (blue) with a smaller female-biased region in the upper-right where male trade-off >> female trade-off", fig.cap="Independent R port of the paper's analytical matrix-model + adaptive-dynamics. Heatmap of evolved relative adult life-expectancy difference (intrinsic). Negative (blue) = male-biased longevity; positive (red) = female-biased. Diagonal (s_m = s_f) is entirely male-biased, matching the paper's headline finding."}
+FIG("rees_baylis_analytical_fig2c")
+```
+
+```{r fig-rees-baylis-analytical-fig2a, eval=TRUE, echo=FALSE, out.width="48%", fig.show='hold', fig.alt = "Heatmap of male intrinsic life expectancy", fig.cap=NULL}
+FIG("rees_baylis_analytical_fig2a"); FIG("rees_baylis_analytical_fig2b")
+```
+
+```{r fig-rees-baylis-analytical-fig2f, eval=TRUE, echo=FALSE, out.width="80%", fig.alt = "Scatter of relative life-expectancy difference against log10 of trade-off-strength ratio", fig.cap="Same 25 cells re-plotted as Rees-Baylis Fig 2 f: relative life-expectancy difference vs the log-ratio of trade-off strengths. The horizontal y = 0 line marks parity; cells below the line are male-biased. Notice that the entire vertical line at log10(s_m/s_f) = 0 (equal strengths) sits below parity — the paper's male-biased-longevity-under-symmetric-trade-offs signature."}
+FIG("rees_baylis_analytical_fig2f")
+```
+
+### Reconciling with the clade ABM sweep above
+
+| Claim | clade ABM (this vignette, Figs 2/3/4 sections) | Analytical R port (this section) | Rees-Baylis original |
+|---|---|---|---|
+| Male-biased longevity under symmetric trade-offs | NOT detected at `mating_system = "any"`; **direction reversal observed when switching to monogamous_pair** at one cell | Diagonal entirely male-biased (5/5 cells, magnitude 17-23%) | Yes, all diagonal cells male-biased |
+| Pace-of-life with `s` | Weakly confirmed (≈5% rise in aging_rate over s ∈ {0, 0.075}, dip at 0.1) | Cleanly observed: along columns L_m rises as s_m falls; along rows L_f falls as s_f rises | Yes |
+| Female-biased region (s_m >> s_f) | Not testable (clade sweep used equal-strength diagonal only) | 7/25 cells, confined to upper-right of the grid | Yes |
+| Density-dependent compression of sex difference (Fig 5) | Out of scope | Intrinsic 0.61 → realised 0.19 at extreme cell; same direction throughout grid | Yes |
+
+**Interpretation.** The analytical R port reproduces the paper cleanly
+because the paper's mechanism is itself analytical and the equations
+are spelled out in Methods. The clade ABM partially reproduces the
+SAME mechanism — it has the persistent monogamy, the sex-specific
+trade-offs, and the mutant invasion via stochastic agent dynamics —
+but two structural differences blur the signal at 5-seed × 5000-tick
+resolution: (a) clade's energy + grass mortality is materially harsher
+than the paper's pure Gompertz hazard (max_clutch_size = 1 is
+universally extinct in clade; the paper's model has no such cliff at
+k = 1), and (b) the lifespan proxy `1 / aging_rate` is uncalibrated
+against the paper's `M_i`. The proper way to convert this from a
+direction-only confirmation to a numerical reproduction is to (i)
+calibrate the `aging_rate ↔ M` mapping empirically against the
+analytical model output, (ii) run clade with `max_clutch_size = 2` and
+larger populations to recover the demographic feedback, and (iii)
+extend the seed budget to ≥ 16 for tighter SE bands.
 
 ## Citation
 
