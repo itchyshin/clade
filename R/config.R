@@ -1114,6 +1114,9 @@
 #'   \item{`log_genomes`}{Logical. Log flattened genome vectors to
 #'     `get_genome_data()$genomes` at each log tick (default `FALSE`;
 #'     memory intensive for large populations).}
+#'   \item{`verbose`}{Logical. If `TRUE`, prints per-tick or seasonal
+#'     progress updates to the Julia console during `run_alife()`.
+#'     Default `FALSE`.}
 #'   \item{`random_seed`}{Integer or `NA_integer_`. Seed for Julia's RNG.
 #'     `NA_integer_` uses a random seed (default).}
 #' }
@@ -1759,6 +1762,7 @@ default_specs <- function() {
     # ── Logging ────────────────────────────────────────────────────────────
     log_freq                   = 1L,
     log_genomes                = FALSE,
+    verbose                    = FALSE,
     random_seed                = NA_integer_
   )
 }
