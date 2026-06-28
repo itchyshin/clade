@@ -21,7 +21,17 @@
 #'   \item{`$t`}{Final tick number (equals `specs$max_ticks`).}
 #'   \item{`$specs`}{The specs list used for this run.}
 #'   \item{`$progress`}{A data frame of per-tick logged statistics (same as
-#'     `get_run_data(env)$ticks`).}
+#'     `get_run_data(env)$ticks`). Columns typically include:
+#'     \itemize{
+#'       \item \code{tick}: The current time step.
+#'       \item \code{n_agents}: Total number of agents alive.
+#'       \item \code{mean_energy}: Average energy of the population.
+#'       \item \code{mean_age}: Average age of the population.
+#'       \item \code{genetic_diversity}: Population genetic variance.
+#'       \item \code{grass}: Total available environmental resources.
+#'     }
+#'     *(Note: Additional columns may be present depending on active modules like predators, disease, or seasons).*
+#'   }
 #'   \item{`$deaths`}{A data frame of per-death records (same as
 #'     `get_run_data(env)$deaths`).}
 #'   \item{`$genome_log`}{A list of per-tick genome matrices (non-NULL only
