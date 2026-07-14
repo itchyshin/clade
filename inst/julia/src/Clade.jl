@@ -104,6 +104,7 @@ include("modules/personality.jl")
 include("modules/reciprocity.jl")
 # 0.7.0: Wolf 2008 responsive personalities
 include("modules/responsiveness.jl")
+include("defaults.jl")
 
 # ── R-to-Julia specs bridge ───────────────────────────────────────────────────
 
@@ -213,6 +214,9 @@ Steps:
 6. Pre-allocate the progress logging vectors.
 """
 function create_environment(specs::Dict{String,Any})::Environment
+    # 0. Apply Defaults (Merge user overrides with master defaults)
+    specs = normalize_specs(user_specs)
+    
     # 1. RNG
     seed_val = get(specs, "random_seed", nothing)
     rng = if seed_val === nothing || seed_val isa Nothing
