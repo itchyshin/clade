@@ -23,7 +23,7 @@
 #'   \item{`$progress`}{A data frame of per-tick logged statistics (same as
 #'     `get_run_data(env)$ticks`). Columns typically include:
 #'     \itemize{
-#'       \item \code{tick}: The current time step.
+#'       \item \code{t}: The current time step.
 #'       \item \code{n_agents}: Total number of agents alive.
 #'       \item \code{mean_energy}: Average energy of the population.
 #'       \item \code{mean_age}: Average age of the population.
