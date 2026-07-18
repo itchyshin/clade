@@ -1693,5 +1693,5 @@ plot_run_movie <- function(env, ticks = NULL, fps = 20, colour_by = "energy") {
     gganimate::transition_time(tick) +
     ggplot2::labs(title = "Tick: {frame_time}", x = "X", y = "Y")
     
-  gganimate::animate(p, fps = fps)
+  gganimate::animate(p, fps = fps, renderer = gganimate::gifski_renderer())
 }
