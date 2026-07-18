@@ -404,3 +404,26 @@ function log_genomes!(env::Environment)
     ))
     return
 end
+
+function log_movement!(env)
+    !Bool(get(env.specs, "log_movement", false)) && return
+    freq = Int(get(env.specs, "log_movement_freq", 1))
+    env.t % freq != 0 && return
+
+    log = env.specs["_movement_log"]
+    t_val = env.t
+    
+    # Pre-allocate references to avoid dict lookups in the loop
+    ticks = log["tick"]; ids = log["id"]; xs = log["x"]; ys = log["y"]
+    ages = log["age"]; energies = log["energy"]; alives = log["alive"]
+
+    for ag in env.agents
+        push!(ticks, t_val)
+        push!(ids, ag.id)
+        push!(xs, ag.x)
+        push!(ys, ag.y)
+        push!(ages, ag.age)
+        push!(energies, ag.energy)
+        push!(alives, true)
+    end
+end

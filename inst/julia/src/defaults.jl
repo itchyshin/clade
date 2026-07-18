@@ -80,7 +80,8 @@ function get_default_specs()
         "spatial_sorting" => false, "sorting_front_threshold" => 0.75, "sorting_mating_boost" => 3.0,
         "iffolk_selection" => false, "iffolk_r_min" => 0.125, "iffolk_radius" => 5, "iffolk_transfer" => 3.0, "iffolk_min_energy" => 60.0, "parliament_suppression" => false, "parliament_cost" => 0.5,
         "fixed_patch" => false, "fixed_patch_value" => 5.0, "fixed_patch_x" => nothing, "fixed_patch_y" => nothing, "fixed_patch_radius" => 0,
-        "log_freq" => 1, "log_genomes" => false, "random_seed" => nothing, "verbose" => false
+        "log_freq" => 1, "log_genomes" => false, "log_movement" => false,
+        "log_movement_freq" => 1, "random_seed" => nothing, "verbose" => false
     )
 end
 

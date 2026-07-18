@@ -1762,6 +1762,8 @@ default_specs <- function() {
     log_freq                   = 1L,
     log_genomes                = FALSE,
     verbose                    = FALSE,
+    log_movement               = FALSE,
+    log_movement_freq          = 1L,
     random_seed                = NA_integer_
   )
 }

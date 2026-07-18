@@ -315,6 +315,12 @@ function create_environment(specs::Dict{String,Any})::Environment
         end
     end
 
+    # Initialize structured movement log
+    env.specs["_movement_log"] = Dict{String, Vector}(
+        "tick" => Int32[], "id" => Int64[], "x" => Int32[], "y" => Int32[],
+        "age" => Int32[], "energy" => Float32[], "alive" => Bool[]
+    )
+
     env
 end
 
@@ -418,6 +424,8 @@ function run_clade(user_specs::AbstractDict)
         # year2) and accumulate into wolf_payoff_accum.
         apply_antipredator_game!(env)
         apply_hawkdove_game!(env)
+
+        log_movement!(env) 
 
         # 0.7.0: Trivers 1971 reciprocal altruism (no-op when off). Adjacent
         # agents play conditional cooperation; partner memory enables TFT
@@ -609,6 +617,41 @@ function _build_arch(specs::Dict{String,Any})::Vector{Int32}
         n_in = _compute_n_inputs(specs)
         hidden = Int32.(specs["hidden_layers"])
         return Int32[n_in; hidden; Int32(5)]
+    end
+end
+
+function log_movement!(env)
+    if !Bool(get(env.specs, "log_movement", false))
+        return
+    end
+    
+    freq = Int(get(env.specs, "log_movement_freq", 1))
+    if env.t % freq != 0
+        return
+    end
+
+    # Initialize the log arrays inside env.specs if this is the first time
+    if !haskey(env.specs, "_movement_log")
+        env.specs["_movement_log"] = Dict{String, Any}(
+            "tick" => Int32[],
+            "id" => Int32[],
+            "x" => Float32[],
+            "y" => Float32[],
+            "age" => Int32[],
+            "energy" => Float32[],
+            "alive" => Bool[]
+        )
+    end
+
+    log = env.specs["_movement_log"]
+    for a in env.agents
+        push!(log["tick"], env.t)
+        push!(log["id"], a.id)
+        push!(log["x"], a.x)
+        push!(log["y"], a.y)
+        push!(log["age"], a.age)
+        push!(log["energy"], a.energy)
+        push!(log["alive"], true) 
     end
 end
 
@@ -826,6 +869,7 @@ function _env_to_result(env::Environment)
         genome_log    = env.genome_log,
         total_carrion = Float64(sum(env.carrion_map)),
         total_shelter = Int(sum(env.shelter_map)),
+        movement_log = get(env.specs, "_movement_log", nothing)
     )
 end
 
