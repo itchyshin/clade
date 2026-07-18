@@ -972,7 +972,8 @@ Rscript -e %s
 #' @return A data.frame containing tick, id, x, y, age, energy, and alive status.
 #' @export
 get_movement_data <- function(env) {
-  log <- env$movement_log
+  # Safely handle the log whether run_alife attached it to the root or left it in specs
+  log <- if (!is.null(env$movement_log)) env$movement_log else env$specs$`_movement_log`
   
   if (is.null(log) || length(log$tick) == 0) {
     stop("No movement data found. Ensure specs$log_movement <- TRUE before running.")
@@ -980,14 +981,18 @@ get_movement_data <- function(env) {
   
   # Convert Julia arrays to a native R data.frame
   df <- data.frame(
-    t = as.integer(log$tick),
-    id = as.integer(log$id),
-    x = as.integer(log$x),
-    y = as.integer(log$y),
-    age = as.integer(log$age),
+    t = as.numeric(log$tick),
+    id = as.numeric(log$id),
+    x = as.numeric(log$x),
+    y = as.numeric(log$y),
+    age = as.numeric(log$age),
     energy = as.numeric(log$energy),
-    alive = as.logical(log$alive)
+    alive = as.logical(log$alive),
+    stringsAsFactors = FALSE
   )
+  
+  # FORCE the column names to prevent R from mangling the Julia proxy attributes
+  colnames(df) <- c("t", "id", "x", "y", "age", "energy", "alive")
   
   return(df)
 }
