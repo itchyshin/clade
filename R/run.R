@@ -972,7 +972,7 @@ Rscript -e %s
 #' @return A data.frame containing tick, id, x, y, age, energy, and alive status.
 #' @export
 get_movement_data <- function(env) {
-  log <- env$specs$`_movement_log`
+  log <- env$movement_log
   
   if (is.null(log) || length(log$tick) == 0) {
     stop("No movement data found. Ensure specs$log_movement <- TRUE before running.")
