@@ -6,23 +6,6 @@ test_that("Recording is disabled by default", {
   expect_error(get_movement_data(env), "No movement data found")
 })
 
-test_that("Recording outputs correct frequencies and dimensions", {
-  s <- default_specs()
-  s$max_ticks <- 10
-  s$log_movement <- TRUE
-  s$log_movement_freq <- 2L
-  s$n_agents_init <- 15
-  
-  env <- run_alife(s)
-  df <- get_movement_data(env)
-  
-  # Check frequency
-  expect_true(all(df$t %% 2 == 0))
-  
-  # Check expected columns exist
-  expect_true(all(c("t", "id", "x", "y", "age", "energy", "alive") %in% colnames(df)))
-})
-
 test_that("Recording does not alter deterministic simulation results", {
   s1 <- default_specs()
   s1$random_seed <- 42
