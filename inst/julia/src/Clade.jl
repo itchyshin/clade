@@ -214,9 +214,6 @@ Steps:
 6. Pre-allocate the progress logging vectors.
 """
 function create_environment(specs::Dict{String,Any})::Environment
-    # 0. Apply Defaults (Merge user overrides with master defaults)
-    specs = normalize_specs(user_specs)
-    
     # 1. RNG
     seed_val = get(specs, "random_seed", nothing)
     rng = if seed_val === nothing || seed_val isa Nothing
@@ -342,7 +339,10 @@ Returns a NamedTuple with fields:
 # without building the Dict explicitly on the Julia side.
 run_clade(specs) = run_clade(r_specs_to_dict(specs))
 
-function run_clade(specs::Dict{String,Any})
+function run_clade(user_specs::AbstractDict)
+    # Normalize
+    specs = normalize_specs(user_specs)
+    
     env = create_environment(specs)
     max_t = Int(specs["max_ticks"])
     verbose = Bool(get(specs, "verbose", false))

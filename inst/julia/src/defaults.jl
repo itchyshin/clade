@@ -8,7 +8,7 @@ Julia kernel can run independently without crashing on missing keys.
 function get_default_specs()
     return Dict{String, Any}(
         "grid_rows" => 30, "grid_cols" => 30, "toroidal" => true, "random_tick_order" => true,
-        "n_agents_init" => 50, "max_agents" => 500, "max_ticks" => 200,
+        "n_agents_init" => 50, "max_agents" => 500, "max_ticks" => 500,
         "energy_init" => 100.0, "energy_max" => 200.0, "move_cost" => 1.0, "idle_cost" => 0.5,
         "eat_gain" => 5.0, "max_bite" => 2.0, "min_repro_energy" => 120.0,
         "repro_cost_mode" => "proportional", "repro_cost" => 30.0, "repro_cost_fraction" => 0.5,
@@ -85,12 +85,14 @@ function get_default_specs()
 end
 
 """
-    normalize_specs(user_specs::Dict{String, Any})
+    normalize_specs(user_specs::AbstractDict)
 
-Deep-merges user-provided overrides into the master default dictionary.
+Shallow merges user-provided overrides into the master default dictionary.
+Safely handles type conversions (e.g., from an inferred Dict{String, Int}).
 """
-function normalize_specs(user_specs::Dict{String, Any})
+function normalize_specs(user_specs::AbstractDict)
     defaults = get_default_specs()
-    # merge() overwrites defaults with user_specs where keys overlap
-    return merge(defaults, user_specs)
+    # Convert incoming dict to Dict{String, Any} to prevent type errors on merge
+    user_any = Dict{String, Any}(string(k) => v for (k, v) in user_specs)
+    return merge(defaults, user_any)
 end
