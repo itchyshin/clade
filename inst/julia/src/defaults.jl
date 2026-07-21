@@ -2,7 +2,7 @@
     get_default_specs()
 
 Returns the complete master dictionary of all Clade parameters.
-This mirrors the R-side `default_specs()` function to ensure the 
+This mirrors the R-side `default_specs()` function to ensure the
 Julia kernel can run independently without crashing on missing keys.
 """
 function get_default_specs()

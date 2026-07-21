@@ -28,12 +28,22 @@ end
     @test norm_int["max_ticks"] == 2
     @test norm_int["energy_init"] == 100.0 # Proves defaults merged
 
-    # Test 2: run_clade with empty Dict
-    # Using a tiny max_ticks override just so the test runs fast
-    result_empty = Clade.run_clade(Dict("max_ticks" => 1, "n_agents_init" => 2))
-    @test result_empty isa Any # Ensures it didn't crash
+    # Test 2: Explicitly test normalize_specs with a truly empty Dict
+    norm_empty = Clade.normalize_specs(Dict())
+    @test norm_empty["max_ticks"] == 500
+    @test norm_empty["n_agents_init"] == 50
 
-    # Test 3: R-Julia default parity (max_ticks)
+    # Test 3: run_clade with minimal overrides (meaningful returned fields check)
+    result = Clade.run_clade(Dict("max_ticks" => 1, "n_agents_init" => 2))
+    @test result.t == 1
+    @test hasproperty(result, :agents)
+    @test hasproperty(result, :progress)
+    @test hasproperty(result, :deaths)
+    @test hasproperty(result, :genome_log)
+    @test hasproperty(result, :total_carrion)
+    @test hasproperty(result, :total_shelter)
+
+    # Test 4: R-Julia default parity (max_ticks)
     defaults = Clade.get_default_specs()
     @test defaults["max_ticks"] == 500
 end
