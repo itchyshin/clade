@@ -111,9 +111,9 @@ uses PSOCK by default — that’s the only safe backend.
 ### PSOCK workers don’t pick up kernel changes
 
 PSOCK workers use the *installed* clade package, not your
-[`devtools::load_all()`](https://devtools.r-lib.org/reference/load_all.html)
-development tree. If you changed Julia kernel files in `inst/julia/` and
-tried a PSOCK batch, you’ll see stale behaviour.
+`devtools::load_all()` development tree. If you changed Julia kernel
+files in `inst/julia/` and tried a PSOCK batch, you’ll see stale
+behaviour.
 
 Fix: reinstall before launching:
 
@@ -258,10 +258,9 @@ If your problem isn’t here:
   question. Always cite both.
 - **Running
   [`pkgdown::build_site()`](https://pkgdown.r-lib.org/reference/build_site.html)
-  on CI** before running
-  [`devtools::check()`](https://devtools.r-lib.org/reference/check.html)
-  locally — the build site rebuilds vignettes and will fail in
-  non-obvious ways if your specs have typos.
+  on CI** before running `devtools::check()` locally — the build site
+  rebuilds vignettes and will fail in non-obvious ways if your specs
+  have typos.
 - **`git add .`** in a clade working directory. There are often large
   cached `.rds` files that you don’t want to commit. Always add specific
   files.

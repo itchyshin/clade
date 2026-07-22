@@ -1704,6 +1704,13 @@ evolution. *Complex Systems* 1(3):495–502.
   at each log tick (default `FALSE`; memory intensive for large
   populations).
 
+- `verbose`:
+
+  Logical. If `TRUE`, prints progress updates to the Julia console every
+  100 ticks during
+  [`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md).
+  Default `FALSE`.
+
 - `random_seed`:
 
   Integer or `NA_integer_`. Seed for Julia's RNG. `NA_integer_` uses a

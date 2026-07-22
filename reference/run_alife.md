@@ -44,8 +44,9 @@ An `env` list with components:
 
 - `$progress`:
 
-  A data frame of per-tick logged statistics (same as
-  `get_run_data(env)$ticks`).
+  A data frame containing the run's time-series statistics. See
+  [`get_run_data`](https://itchyshin.github.io/clade/reference/get_run_data.md)
+  for the full description of columns.
 
 - `$deaths`:
 

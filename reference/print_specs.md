@@ -34,7 +34,7 @@ Invisibly, the `specs` list (for piping).
 
 ``` r
 print_specs()
-#> -- clade specs (307 parameters) --
+#> -- clade specs (308 parameters) --
 #> 
 #>   Grid & population
 #>     grid_rows                              30
@@ -431,12 +431,13 @@ print_specs()
 #>   Logging & search
 #>     log_genomes                            FALSE
 #>     log_freq                               1
+#>     verbose                                FALSE
 
 s <- default_specs()
 s$kin_selection <- TRUE
 s$complex_landscape <- TRUE
 print_specs(s, diff_only = TRUE)
-#> -- clade specs (307 parameters) [diff only] --
+#> -- clade specs (308 parameters) [diff only] --
 #> 
 #>   Kin selection
 #>     kin_selection                          TRUE *

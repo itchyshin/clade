@@ -142,9 +142,7 @@ over-claimed entries:
   (`wolf_personality_specs`, `trivers_reciprocity_specs`,
   `wolf2008_responsiveness_specs`) had `@export` tags but were missing
   from NAMESPACE. Users on the released 0.7.0 tarball would have got
-  “could not find function”.
-  [`devtools::document()`](https://devtools.r-lib.org/reference/document.html)
-  propagation added.
+  “could not find function”. `devtools::document()` propagation added.
 
 ### Permanent structural guard ([\#114](https://github.com/itchyshin/clade/issues/114))
 
