@@ -342,7 +342,7 @@ run_clade(specs) = run_clade(r_specs_to_dict(specs))
 function run_clade(user_specs::AbstractDict)
     # Normalize
     specs = normalize_specs(user_specs)
-    
+
     env = create_environment(specs)
     max_t = Int(specs["max_ticks"])
     verbose = Bool(get(specs, "verbose", false))

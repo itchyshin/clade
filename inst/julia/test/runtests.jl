@@ -15,12 +15,6 @@ using Statistics
 include(joinpath(@__DIR__, "..", "src", "Clade.jl"))
 using .Clade
 
-@testset "Clade Julia unit tests" begin
-    include("test_ann_quantization.jl")
-    include("test_ann_regularization.jl")
-    include("test_lamarckian.jl")
-end
-
 @testset "Defaults and Partial Specs" begin
     # Test 1: Ordinary inferred Dict{String, Int}
     partial_int_dict = Dict("max_ticks" => 2, "n_agents_init" => 10)
@@ -46,4 +40,10 @@ end
     # Test 4: R-Julia default parity (max_ticks)
     defaults = Clade.get_default_specs()
     @test defaults["max_ticks"] == 500
+end
+
+@testset "Clade Julia unit tests" begin
+    include("test_ann_quantization.jl")
+    include("test_ann_regularization.jl")
+    include("test_lamarckian.jl")
 end
