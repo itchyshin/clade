@@ -104,6 +104,7 @@ include("modules/personality.jl")
 include("modules/reciprocity.jl")
 # 0.7.0: Wolf 2008 responsive personalities
 include("modules/responsiveness.jl")
+include("defaults.jl")
 
 # ── R-to-Julia specs bridge ───────────────────────────────────────────────────
 
@@ -338,7 +339,10 @@ Returns a NamedTuple with fields:
 # without building the Dict explicitly on the Julia side.
 run_clade(specs) = run_clade(r_specs_to_dict(specs))
 
-function run_clade(specs::Dict{String,Any})
+function run_clade(user_specs::AbstractDict)
+    # Normalize
+    specs = normalize_specs(user_specs)
+
     env = create_environment(specs)
     max_t = Int(specs["max_ticks"])
     verbose = Bool(get(specs, "verbose", false))
