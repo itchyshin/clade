@@ -408,6 +408,10 @@ end
 function log_movement!(env)
     !Bool(get(env.specs, "log_movement", false)) && return
     freq = Int(get(env.specs, "log_movement_freq", 1))
+    
+    # To prevent DivideError if frequency is 0
+    freq <= 0 && return 
+    
     env.t % freq != 0 && return
 
     log = env.specs["_movement_log"]
@@ -424,6 +428,6 @@ function log_movement!(env)
         push!(ys, ag.y)
         push!(ages, ag.age)
         push!(energies, ag.energy)
-        push!(alives, true)
+        push!(alives, ag.alive)
     end
 end
