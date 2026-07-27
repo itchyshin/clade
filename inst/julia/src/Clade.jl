@@ -425,8 +425,6 @@ function run_clade(user_specs::AbstractDict)
         apply_antipredator_game!(env)
         apply_hawkdove_game!(env)
 
-        log_movement!(env) 
-
         # 0.7.0: Trivers 1971 reciprocal altruism (no-op when off). Adjacent
         # agents play conditional cooperation; partner memory enables TFT
         # to evolve under low dispersal.
@@ -619,16 +617,6 @@ function _build_arch(specs::Dict{String,Any})::Vector{Int32}
         return Int32[n_in; hidden; Int32(5)]
     end
 end
-
-function log_movement!(env)
-    if !Bool(get(env.specs, "log_movement", false))
-        return
-    end
-    
-    freq = Int(get(env.specs, "log_movement_freq", 1))
-    if env.t % freq != 0
-        return
-    end
 
     # Initialize the log arrays inside env.specs if this is the first time
     if !haskey(env.specs, "_movement_log")
