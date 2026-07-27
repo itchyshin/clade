@@ -47,3 +47,36 @@ end
     include("test_ann_regularization.jl")
     include("test_lamarckian.jl")
 end
+
+@testset "Movement Logging" begin
+    # 1. Disabled state
+    res_off = Clade.run_clade(Dict("max_ticks" => 5, "n_agents_init" => 10, "log_movement" => false))
+    @test isempty(res_off.specs["_movement_log"]["tick"])
+
+    # 2. Enabled state & Frequency
+    res_on = Clade.run_clade(Dict(
+        "max_ticks" => 10, 
+        "n_agents_init" => 10, 
+        "log_movement" => true, 
+        "log_movement_freq" => 2
+    ))
+    log_on = res_on.specs["_movement_log"]
+    
+    # Expected fields exist and lengths match
+    @test length(log_on["tick"]) > 0
+    @test length(log_on["tick"]) == length(log_on["id"]) == length(log_on["x"]) == length(log_on["y"]) == length(log_on["age"]) == length(log_on["energy"]) == length(log_on["alive"])
+    
+    # Frequency is respected (only even ticks recorded)
+    @test all(t -> t % 2 == 0, log_on["tick"])
+
+    # 3. Determinism check (logging doesn't change outcome for same seed)
+    res_det1 = Clade.run_clade(Dict("max_ticks" => 15, "random_seed" => 42, "log_movement" => false))
+    res_det2 = Clade.run_clade(Dict("max_ticks" => 15, "random_seed" => 42, "log_movement" => true))
+    
+    # The final state of the agents should be completely identical
+    @test length(res_det1.agents) == length(res_det2.agents)
+    if length(res_det1.agents) > 0
+        @test res_det1.agents[1].x == res_det2.agents[1].x
+        @test res_det1.agents[1].energy == res_det2.agents[1].energy
+    end
+end
