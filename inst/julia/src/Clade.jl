@@ -432,6 +432,9 @@ function run_clade(user_specs::AbstractDict)
 
         # ── Death and reproduction ───────────────────────────────────────
         kill_dead!(env)
+
+        log_movement!(env) 
+
         remove_dead!(env)
         # 0.8.0: persistent monogamous pair-bond maintenance. No-op when
         # mating_system != "monogamous_pair". Must run after remove_dead!
