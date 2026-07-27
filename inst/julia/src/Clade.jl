@@ -621,31 +621,6 @@ function _build_arch(specs::Dict{String,Any})::Vector{Int32}
     end
 end
 
-    # Initialize the log arrays inside env.specs if this is the first time
-    if !haskey(env.specs, "_movement_log")
-        env.specs["_movement_log"] = Dict{String, Any}(
-            "tick" => Int32[],
-            "id" => Int32[],
-            "x" => Float32[],
-            "y" => Float32[],
-            "age" => Int32[],
-            "energy" => Float32[],
-            "alive" => Bool[]
-        )
-    end
-
-    log = env.specs["_movement_log"]
-    for a in env.agents
-        push!(log["tick"], env.t)
-        push!(log["id"], a.id)
-        push!(log["x"], a.x)
-        push!(log["y"], a.y)
-        push!(log["age"], a.age)
-        push!(log["energy"], a.energy)
-        push!(log["alive"], true) 
-    end
-end
-
 """
     _compute_n_inputs(specs) -> Int32
 
