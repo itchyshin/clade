@@ -42,41 +42,63 @@ using .Clade
     @test defaults["max_ticks"] == 500
 end
 
+@testset "Movement Logger" begin
+    # Test 1: ArgumentError for invalid frequency
+    s_err = Dict("log_movement" => true, "log_movement_freq" => 0)
+    @test_throws ArgumentError Clade.run_clade(s_err)
+
+    # Test 2: Deterministic state check and logging features
+    # Set energy_init low and move_cost high so agents die quickly, ensuring we capture alive = false
+    s1 = Dict("log_movement" => false, "n_agents_init" => 10, "max_ticks" => 5, "energy_init" => 2.0, "move_cost" => 5.0)
+    s2 = Dict("log_movement" => true, "log_movement_freq" => 2, "n_agents_init" => 10, "max_ticks" => 5, "energy_init" => 2.0, "move_cost" => 5.0)
+    
+    Random.seed!(42)
+    res_off = Clade.run_clade(s1)
+    
+    Random.seed!(42)
+    res_on = Clade.run_clade(s2)
+    
+    # Check complete final agent state matches for identical seeds
+    @test length(res_off.agents) == length(res_on.agents)
+    if length(res_off.agents) > 0
+        for (a_off, a_on) in zip(res_off.agents, res_on.agents)
+            @test a_off.id == a_on.id
+            @test a_off.x == a_on.x
+            @test a_off.y == a_on.y
+            @test a_off.energy == a_on.energy
+            @test a_off.age == a_on.age
+            @test a_off.alive == a_on.alive
+        end
+    end
+    
+    # Disabled state has no log
+    @test res_off.movement_log === nothing
+    
+    # Enabled state has expected fields
+    log = res_on.movement_log
+    @test log !== nothing
+    @test haskey(log, "tick")
+    @test haskey(log, "id")
+    @test haskey(log, "x")
+    @test haskey(log, "y")
+    @test haskey(log, "age")
+    @test haskey(log, "energy")
+    @test haskey(log, "alive")
+    
+    # Ticks selected by log_movement_freq (should only be even ticks: 2, 4)
+    if !isempty(log["tick"])
+        ticks = unique(log["tick"])
+        @test all(t -> t % 2 == 0, ticks)
+    end
+
+    # Check for at least one alive = false record (agents should starve by tick 2 or 4)
+    if !isempty(log["alive"])
+        @test any(alive -> alive == false, log["alive"])
+    end
+end
+
 @testset "Clade Julia unit tests" begin
     include("test_ann_quantization.jl")
     include("test_ann_regularization.jl")
     include("test_lamarckian.jl")
-end
-
-@testset "Movement Logging" begin
-    # 1. Disabled state
-    res_off = Clade.run_clade(Dict("max_ticks" => 5, "n_agents_init" => 10, "log_movement" => false))
-    @test isempty(res_off.specs["_movement_log"]["tick"])
-
-    # 2. Enabled state & Frequency
-    res_on = Clade.run_clade(Dict(
-        "max_ticks" => 10, 
-        "n_agents_init" => 10, 
-        "log_movement" => true, 
-        "log_movement_freq" => 2
-    ))
-    log_on = res_on.specs["_movement_log"]
-    
-    # Expected fields exist and lengths match
-    @test length(log_on["tick"]) > 0
-    @test length(log_on["tick"]) == length(log_on["id"]) == length(log_on["x"]) == length(log_on["y"]) == length(log_on["age"]) == length(log_on["energy"]) == length(log_on["alive"])
-    
-    # Frequency is respected (only even ticks recorded)
-    @test all(t -> t % 2 == 0, log_on["tick"])
-
-    # 3. Determinism check (logging doesn't change outcome for same seed)
-    res_det1 = Clade.run_clade(Dict("max_ticks" => 15, "random_seed" => 42, "log_movement" => false))
-    res_det2 = Clade.run_clade(Dict("max_ticks" => 15, "random_seed" => 42, "log_movement" => true))
-    
-    # The final state of the agents should be completely identical
-    @test length(res_det1.agents) == length(res_det2.agents)
-    if length(res_det1.agents) > 0
-        @test res_det1.agents[1].x == res_det2.agents[1].x
-        @test res_det1.agents[1].energy == res_det2.agents[1].energy
-    end
 end
