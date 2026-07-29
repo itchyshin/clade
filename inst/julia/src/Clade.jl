@@ -469,6 +469,15 @@ function run_clade(user_specs::AbstractDict)
         if verbose && t % 100 == 0
             @info "tick $t: $(length(env.agents)) agents alive"
         end
+        
+        # If there are no agents and no predators left alive, there is no
+        # reason to continue ticking the simulation.
+        if isempty(env.agents) && isempty(env.predators)
+            if verbose
+                @info "tick $t: population extinct, terminating early"
+            end
+            break
+        end
     end
 
     _env_to_result(env)
