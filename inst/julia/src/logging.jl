@@ -406,28 +406,33 @@ function log_genomes!(env::Environment)
 end
 
 function log_movement!(env)
-    !Bool(get(env.specs, "log_movement", false)) && return
-    freq = Int(get(env.specs, "log_movement_freq", 1))
+    enabled = Bool(get(env.specs, "log_movement", false))::Bool
+    if !enabled
+        return
+    end
     
-    # To prevent DivideError if frequency is 0
-    freq <= 0 && return 
-    
-    env.t % freq != 0 && return
+    freq = Int(get(env.specs, "log_movement_freq", 1))::Int
+    if env.t % freq != 0
+        return
+    end
 
-    log = env.specs["_movement_log"]
-    t_val = env.t
-    
-    # Pre-allocate references to avoid dict lookups in the loop
-    ticks = log["tick"]; ids = log["id"]; xs = log["x"]; ys = log["y"]
-    ages = log["age"]; energies = log["energy"]; alives = log["alive"]
+    log = env.specs["_movement_log"]::Dict{String, Vector}
 
-    for ag in env.agents
-        push!(ticks, t_val)
-        push!(ids, ag.id)
-        push!(xs, ag.x)
-        push!(ys, ag.y)
-        push!(ages, ag.age)
-        push!(energies, ag.energy)
-        push!(alives, ag.alive)
+    ticks = log["tick"]::Vector{Int32}
+    ids = log["id"]::Vector{Int64}
+    xs = log["x"]::Vector{Int32}
+    ys = log["y"]::Vector{Int32}
+    ages = log["age"]::Vector{Int32}
+    energies = log["energy"]::Vector{Float32}
+    alives = log["alive"]::Vector{Bool}
+
+    for a in env.agents
+        push!(ticks, env.t)
+        push!(ids, a.id)
+        push!(xs, a.x)
+        push!(ys, a.y)
+        push!(ages, a.age)
+        push!(energies, a.energy)
+        push!(alives, a.alive)
     end
 end
