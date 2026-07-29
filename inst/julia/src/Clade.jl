@@ -349,6 +349,14 @@ function run_clade(user_specs::AbstractDict)
     # Normalize
     specs = normalize_specs(user_specs)
 
+    # Validate movement logging parameters
+    if Bool(get(specs, "log_movement", false))
+        freq = Int(get(specs, "log_movement_freq", 1))
+        if freq <= 0
+            throw(ArgumentError("log_movement_freq must be a positive integer, got $freq"))
+        end
+    end
+
     env = create_environment(specs)
     max_t = Int(specs["max_ticks"])
     verbose = Bool(get(specs, "verbose", false))
