@@ -20,8 +20,8 @@
 #'   \item{`$agents`}{A list of agent lists, one per surviving agent.}
 #'   \item{`$t`}{Final tick number (equals `specs$max_ticks`).}
 #'   \item{`$specs`}{The specs list used for this run.}
-#'   \item{`$progress`}{A data frame containing the run's time-series statistics. 
-#'     See \code{\link{get_run_data}} for the full description of columns.}
+#'   \item{`$progress`}{A data frame of per-tick logged statistics (same as
+#'     `get_run_data(env)$ticks`).}
 #'   \item{`$deaths`}{A data frame of per-death records (same as
 #'     `get_run_data(env)$deaths`).}
 #'   \item{`$genome_log`}{A list of per-tick genome matrices (non-NULL only
@@ -958,36 +958,8 @@ Rscript -e %s
       deaths        = as.data.frame(env_julia$deaths),
       genome_log    = env_julia$genome_log,
       total_carrion = env_julia$total_carrion,
-      total_shelter = env_julia$total_shelter,
-      movement_log  = env_julia$movement_log
+      total_shelter = env_julia$total_shelter
     ),
     class = "clade_env"
   )
-}
-
-#' Get Agent Movement Data
-#'
-#' Extracts the structured agent movement log if `log_movement = TRUE`.
-#' @param env The Julia environment object returned by `run_alife()`.
-#' @return A data.frame containing tick, id, x, y, age, energy, and alive status.
-#' @export
-get_movement_data <- function(env) {
-  log <- env$movement_log
-  
-  if (is.null(log) || length(log$tick) == 0) {
-    stop("No movement data found. Ensure specs$log_movement <- TRUE before running.")
-  }
-  
-  # Convert Julia arrays to a native R data.frame
-  df <- data.frame(
-    t = as.integer(log$tick),
-    id = as.integer(log$id),
-    x = as.integer(log$x),
-    y = as.integer(log$y),
-    age = as.integer(log$age),
-    energy = as.numeric(log$energy),
-    alive = as.logical(log$alive)
-  )
-  
-  return(df)
 }

@@ -223,7 +223,7 @@
                                "responsiveness_cost",
                                "responsiveness_init_mean",
                                "responsiveness_mutation_sd"),
-  "Logging & search"      = c("log_genomes", "log_freq", "verbose", "log_movement", "log_movement_freq")
+  "Logging & search"      = c("log_genomes", "log_freq")
 )
 
 # Internal: describe the type of a spec value as a short human-readable label.
@@ -239,13 +239,13 @@
 
 # Internal: format a spec value for display.
 .spec_value_format <- function(v) {
-  if (is.null(v))                            return("NULL")
-  if (length(v) == 0L)                       return(sprintf("%s(0)", typeof(v)))
-  if (is.logical(v))                         return(toupper(as.character(v[1L])))
-  if (length(v) == 1L && is.character(v))    return(sprintf("\"%s\"", v))
-  if (length(v) == 1L && is.na(v))           return(sprintf("NA_%s_", typeof(v)))
-  if (length(v) == 1L)                       return(as.character(v))
-  if (length(v) <= 4L)                       return(sprintf("c(%s)", paste(v, collapse = ", ")))
+  if (is.null(v))                          return("NULL")
+  if (length(v) == 0L)                     return(sprintf("%s(0)", typeof(v)))
+  if (is.logical(v))                       return(toupper(as.character(v[1L])))
+  if (length(v) == 1L && is.character(v))  return(sprintf("\"%s\"", v))
+  if (length(v) == 1L && is.na(v))         return(sprintf("NA_%s_", typeof(v)))
+  if (length(v) == 1L)                     return(as.character(v))
+  if (length(v) <= 4L)                     return(sprintf("c(%s)", paste(v, collapse = ", ")))
   sprintf("c(%s, ...)", paste(utils::head(v, 4L), collapse = ", "))
 }
 
