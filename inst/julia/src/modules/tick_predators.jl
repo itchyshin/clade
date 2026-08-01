@@ -114,7 +114,7 @@ function seed_predators!(env::Environment)
             # RL
             0.0f0, init_energy,
             # Reproductive tracking
-            false, Int32(0), Int32(0), Int32(0),
+            false, Int32(0), Int32(0), Int32(0), Int8(5),
             # Speciation
             Int32(0),
             # Natal coordinates
@@ -500,7 +500,7 @@ function _predator_reproduction!(env::Environment)
             # RL
             0.0f0, pred.energy * 0.3f0,
             # Reproductive tracking
-            false, Int32(0), Int32(0), Int32(0),
+            false, Int32(0), Int32(0), Int32(0), Int8(5),
             # Speciation
             Int32(0),
             # Natal coordinates

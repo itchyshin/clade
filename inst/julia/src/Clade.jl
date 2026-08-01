@@ -768,7 +768,7 @@ function _make_founder_agent(id::Int64, g::DiploidGenome, brain::AbstractBrain,
         # RL
         0.0f0, Float32(get(specs, "energy_init", 100.0)),
         # Reproductive tracking
-        false, Int32(0), Int32(0), Int32(0),
+        false, Int32(0), Int32(0), Int32(0), Int8(5),
         # Speciation
         Int32(0),
         # Natal dispersal (birth location = spawn location for founders)
