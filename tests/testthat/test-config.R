@@ -119,7 +119,7 @@ test_that("module logical flags that should be FALSE by default are FALSE", {
     "scavenging", "social_learning", "speciation",
     "phenotypic_plasticity",
     "clutch_size_evolution", "parental_investment_evolution",
-    "stress_hypermutation", "log_genomes"
+    "stress_hypermutation", "log_genomes", "verbose"
   )
   for (nm in should_be_false) {
     expect_false(s[[nm]], label = paste("specs$", nm, "== FALSE"))
@@ -160,4 +160,9 @@ test_that("male_repro_cost defaults to 0.3", {
 # since 0.7.x. Found during the Phase A item-1 walk of default_specs().
 test_that("senescence_shape defaults to 1.0 (classic Gompertz)", {
   expect_equal(default_specs()$senescence_shape, 1.0)
+})
+
+# ── 21. verbose defaults to FALSE ────────────────────────────────────────────
+test_that("verbose defaults to FALSE", {
+  expect_false(default_specs()$verbose)
 })

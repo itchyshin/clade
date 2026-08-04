@@ -1190,6 +1190,8 @@ ticks (default 1L; set higher to reduce memory use in long runs).}
 \item{\code{log_genomes}}{Logical. Log flattened genome vectors to
 \code{get_genome_data()$genomes} at each log tick (default \code{FALSE};
 memory intensive for large populations).}
+\item{\code{verbose}}{Logical. If \code{TRUE}, prints progress updates to the Julia console
+every 100 ticks during \code{run_alife()}. Default \code{FALSE}.}
 \item{\code{random_seed}}{Integer or \code{NA_integer_}. Seed for Julia's RNG.
 \code{NA_integer_} uses a random seed (default).}
 }

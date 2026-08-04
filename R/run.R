@@ -20,8 +20,8 @@
 #'   \item{`$agents`}{A list of agent lists, one per surviving agent.}
 #'   \item{`$t`}{Final tick number (equals `specs$max_ticks`).}
 #'   \item{`$specs`}{The specs list used for this run.}
-#'   \item{`$progress`}{A data frame of per-tick logged statistics (same as
-#'     `get_run_data(env)$ticks`).}
+#'   \item{`$progress`}{A data frame containing the run's time-series statistics. 
+#'     See \code{\link{get_run_data}} for the full description of columns.}
 #'   \item{`$deaths`}{A data frame of per-death records (same as
 #'     `get_run_data(env)$deaths`).}
 #'   \item{`$genome_log`}{A list of per-tick genome matrices (non-NULL only

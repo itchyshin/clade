@@ -223,7 +223,7 @@
                                "responsiveness_cost",
                                "responsiveness_init_mean",
                                "responsiveness_mutation_sd"),
-  "Logging & search"      = c("log_genomes", "log_freq")
+  "Logging & search"      = c("log_genomes", "log_freq", "verbose")
 )
 
 # Internal: describe the type of a spec value as a short human-readable label.

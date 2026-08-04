@@ -20,8 +20,8 @@ An \code{env} list with components:
 \item{\verb{$agents}}{A list of agent lists, one per surviving agent.}
 \item{\verb{$t}}{Final tick number (equals \code{specs$max_ticks}).}
 \item{\verb{$specs}}{The specs list used for this run.}
-\item{\verb{$progress}}{A data frame of per-tick logged statistics (same as
-\code{get_run_data(env)$ticks}).}
+\item{\verb{$progress}}{A data frame containing the run's time-series statistics.
+See \code{\link{get_run_data}} for the full description of columns.}
 \item{\verb{$deaths}}{A data frame of per-death records (same as
 \code{get_run_data(env)$deaths}).}
 \item{\verb{$genome_log}}{A list of per-tick genome matrices (non-NULL only
