@@ -217,6 +217,9 @@ function tick_predators!(env::Environment)
         end
     end
 
+    # Dead predators must not remain in the live population or reproduce.
+    filter!(pred -> pred.alive, env.predators)
+
     # Rebuild predator_map after all moves (same pattern as tick.jl / habitat_preference.jl)
     fill!(env.predator_map, Int64(0))
     for pred in env.predators

@@ -42,6 +42,21 @@ using .Clade
     @test defaults["max_ticks"] == 500
 end
 
+@testset "Dead predators are removed" begin
+    result = Clade.run_clade(Dict(
+        "max_ticks" => 1,
+        "n_agents_init" => 0,
+        "n_predators_init" => 1,
+        "predator_energy_init" => 1.0,
+        "predator_live_energy" => 2.0,
+        "predator_move_energy" => 0.0,
+        "predator_max_age" => 100
+    ))
+
+    @test isempty(result.agents)
+    @test isempty(result.predators)
+end
+
 @testset "Clade Julia unit tests" begin
     include("test_ann_quantization.jl")
     include("test_ann_regularization.jl")

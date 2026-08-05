@@ -254,3 +254,37 @@ important project state. Keep entries concise and concrete.
   bijection + stale-assertion cleanup + scan`, wait for CI, merge; then
   rebase `claude/track-B-walk` (carries Phase A items 5 e701d21 + 6
   23946d3) onto the new main and continue with item 7 (`print_specs()`).
+
+## 2026-08-05 - Remove dead predators from the live population
+
+- Branch: `codex/remove-dead-predators`, from `origin/main` at `45a27e3`
+  (`feat(julia): normalize partial specs with native defaults (#173)`).
+- Goal: ensure predators that die during `tick_predators!()` are removed
+  before reproduction and do not prevent the #165 extinction guard from
+  observing total extinction.
+- Files changed:
+  - `inst/julia/src/modules/tick_predators.jl`: filters dead predators before
+    rebuilding `predator_map` and calling predator reproduction.
+  - `inst/julia/test/runtests.jl`: adds a one-tick zero-prey case where the
+    seeded predator loses more energy than it has and must be absent from the
+    result.
+  - `dev/dev-log/after-task/2026-08-05-remove-dead-predators.md`: task record.
+- Checks run:
+  - `git diff --check`: pass.
+  - static call-site review: predator-map reconstruction and predator
+    reproduction follow the new filter; no reseeding occurs after tick 1.
+- Stale-claim searches:
+  - `rg -n -C 2 'filter!\\(.*alive|predator_map|env\\.predators'
+    inst/julia/src/modules/tick_predators.jl inst/julia/src/death.jl
+    inst/julia/src/Clade.jl`: agents were filtered but predators were not;
+    the new filter is immediately before map rebuild and reproduction.
+  - `rg -n -i 'dead predators|remove.*predator|predator.*die|population
+    extinct' README.md NEWS.md vignettes dev R tests inst/julia/test`: no
+    public wording promises the former stale-predator behaviour.
+- Not run:
+  - `julia --project=inst/julia ...`: Julia is not installed or on `PATH` in
+    this Codex environment. The focused runtime test must run in CI or a
+    Julia-equipped checkout before merge.
+  - R tests and `devtools::check()`: no R code changed.
+- Next safest action: open this focused cleanup PR, then rebase #177 onto the
+  two small predecessor fixes and rerun all #165 scenarios.
