@@ -288,3 +288,38 @@ important project state. Keep entries concise and concrete.
   - R tests and `devtools::check()`: no R code changed.
 - Next safest action: open this focused cleanup PR, then rebase #177 onto the
   two small predecessor fixes and rerun all #165 scenarios.
+
+## 2026-08-05 - Predator-only max-age fallback
+
+- Branch: `codex/fix-predators-only`, from `origin/main` at `45a27e3`
+  (`feat(julia): normalize partial specs with native defaults (#173)`).
+- Goal: fix the Julia crash in a predators-only run when the documented
+  `predator_max_age = nothing` / R `NA` default means “use prey max_age”.
+- Files changed:
+  - `inst/julia/src/modules/tick_predators.jl`: explicitly coalesce an
+    absent or `nothing` predator maximum age to `max_age` before `Int32`
+    conversion.
+  - `inst/julia/test/runtests.jl`: adds a one-tick, no-prey, one-predator
+    regression test before the legacy testsets.
+  - `dev/dev-log/after-task/2026-08-05-predator-only-max-age-fallback.md`:
+    task record.
+- Checks run:
+  - `git diff --check`: pass.
+  - source inspection confirms the former `Int32(get(...))` converted the
+    explicit `nothing` Julia default, matching the `Int32(::Nothing)` trace
+    reported on issue #165.
+- Stale-claim searches:
+  - `rg -n -i 'predator_max_age|predators.*prey|predators-only|no prey'
+    README.md NEWS.md vignettes dev R tests inst/julia/test`: the public R
+    contract consistently states that `NA` means the prey maximum age.
+  - `rg -n -C 2 'predator_max_age.*nothing|Int32\\(get\\(specs, "[^\"]+"'
+    inst/julia/src`: this explicit-`nothing` conversion was the relevant
+    direct instance.
+- Not run:
+  - `julia --project=inst/julia ...`: Julia is not installed or on `PATH`
+    in this Codex environment. The focused runtime test must run in CI or a
+    Julia-equipped checkout before merge.
+  - R tests and `devtools::check()`: no R code changed.
+- Next safest action: open the focused PR, then repair #177 separately so it
+  covers predators that die after initialization as well as an initially empty
+  predator population.

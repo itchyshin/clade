@@ -54,7 +54,22 @@ end
     ))
 
     @test isempty(result.agents)
-    @test isempty(result.progress.n_predators[end]) == 0
+    @test result.progress.n_predators[end] == 0
+end
+
+@testset "Predators without prey" begin
+    result = Clade.run_clade(Dict(
+        "max_ticks" => 1,
+        "n_agents_init" => 0,
+        "n_predators_init" => 1,
+        "predator_energy_init" => 500.0,
+        "predator_live_energy" => 0.0,
+        "predator_move_energy" => 0.0
+    ))
+
+    @test result.t == 1
+    @test isempty(result.agents)
+    @test result.progress.n_predators[end] == 1
 end
 
 @testset "Clade Julia unit tests" begin

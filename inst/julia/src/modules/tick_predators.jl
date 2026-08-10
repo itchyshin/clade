@@ -169,8 +169,9 @@ function tick_predators!(env::Environment)
     # 0.5.6: separate predator max_age. Defaults to prey max_age if not
     # set, preserving legacy behaviour. Predators are typically longer-
     # lived than prey (owl > mouse, lion > zebra).
-    pred_max_age = Int32(get(specs, "predator_max_age",
-                             get(specs, "max_age", 200)))
+    predator_max_age = get(specs, "predator_max_age", nothing)
+    pred_max_age = Int32(isnothing(predator_max_age) ?
+                         get(specs, "max_age", 200) : predator_max_age)
     rows        = size(env.grass, 1)
     cols        = size(env.grass, 2)
     toroidal    = Bool(get(specs, "toroidal", true))
