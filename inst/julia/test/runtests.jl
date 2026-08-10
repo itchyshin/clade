@@ -54,7 +54,7 @@ end
     ))
 
     @test isempty(result.agents)
-    @test isempty(result.predators)
+    @test isempty(result.progress.n_predators[end]) == 0
 end
 
 @testset "Clade Julia unit tests" begin
