@@ -42,6 +42,21 @@ using .Clade
     @test defaults["max_ticks"] == 500
 end
 
+@testset "Dead predators are removed" begin
+    result = Clade.run_clade(Dict(
+        "max_ticks" => 1,
+        "n_agents_init" => 0,
+        "n_predators_init" => 1,
+        "predator_energy_init" => 1.0,
+        "predator_live_energy" => 2.0,
+        "predator_move_energy" => 0.0,
+        "predator_max_age" => 100
+    ))
+
+    @test isempty(result.agents)
+    @test result.progress.n_predators[end] == 0
+end
+
 @testset "Predators without prey" begin
     result = Clade.run_clade(Dict(
         "max_ticks" => 1,
@@ -54,7 +69,7 @@ end
 
     @test result.t == 1
     @test isempty(result.agents)
-    @test length(result.progress.n_predators[end]) == 1
+    @test result.progress.n_predators[end] == 1
 end
 
 @testset "Clade Julia unit tests" begin
