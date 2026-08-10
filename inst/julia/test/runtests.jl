@@ -47,3 +47,26 @@ end
     include("test_ann_regularization.jl")
     include("test_lamarckian.jl")
 end
+
+@testset "Behavioral Diversity Actions (#164)" begin
+    # Proposing Schema: 
+    # 0=Idle/Dead, 1=North, 2=East, 3=South, 4=West, 5=Eat, 6=Reproduce, 7=Attack
+    
+    # 1. Test Founder Initialization (Defaults to 0)
+    ag_founder = Clade.Agent(
+        Int64(1), Int64(0), Int64(0), Int32(1), Int32(1), 100.0f0, Int32(0), Int32(0), true,
+        Clade.make_random_brain(Int32[4,3]), Clade.DiploidGenome(Float32[], Float32[], Float32[], Float32[], Int32[]), Bool[],
+        1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+        zeros(Float32, 1), zeros(Float32, 1), 1.0, Float32[], Float32[],
+        false, false, Int32(0), Int32(0), Any[], Int32(0), 0.0f0, 100.0f0,
+        false, Int32(0), Int32(0), Int32(0), Int8(0), # <--- last_action initialized to 0
+        Int32(0), Int32(1), Int32(1), 1.0, 1.0, 1.0, 1.0, Int32(1), 1.0,
+        1.0, 1.0, 1.0, 0.0f0, 1.0, 1.0, 1.0, Int64[], Int8[], 1.0, 1, Int64(0), Int32(0), Int64(0)
+    )
+    
+    @test ag_founder.last_action == Int8(0)
+    
+    # 2. Test manual assignment based on schema
+    ag_founder.last_action = Int8(1) # Simulated Move North
+    @test ag_founder.last_action == Int8(1)
+end
