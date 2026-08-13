@@ -357,10 +357,6 @@ function run_clade(user_specs::AbstractDict)
         if freq <= 0
             throw(ArgumentError("log_movement_freq must be strictly positive (greater than 0) when log_movement is enabled."))
         end
-        specs["_movement_log"] = Dict{String, Vector}(
-            "tick" => Int32[], "id" => Int64[], "x" => Int32[], "y" => Int32[],
-            "age" => Int32[], "energy" => Float32[], "alive" => Bool[]
-        )
     else
         specs["_movement_log"] = nothing
     end
