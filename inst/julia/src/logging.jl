@@ -404,3 +404,31 @@ function log_genomes!(env::Environment)
     ))
     return
 end
+
+function log_movement!(env)
+    log_raw = env.specs["_movement_log"]
+    isnothing(log_raw) && return
+
+    freq = Int(env.specs["log_movement_freq"])::Int
+    env.t % freq != 0 && return
+
+    # Concrete type assertions to guarantee type stability in the hot loop
+    log = log_raw::Dict{String, Vector}
+    ticks = log["tick"]::Vector{Int32}
+    ids = log["id"]::Vector{Int64}
+    xs = log["x"]::Vector{Int32}
+    ys = log["y"]::Vector{Int32}
+    ages = log["age"]::Vector{Int32}
+    energies = log["energy"]::Vector{Float32}
+    alives = log["alive"]::Vector{Bool}
+
+    for agent in env.agents
+        push!(ticks, Int32(env.t))
+        push!(ids, agent.id)
+        push!(xs, Int32(agent.x))
+        push!(ys, Int32(agent.y))
+        push!(ages, Int32(agent.age))
+        push!(energies, Float32(agent.energy))
+        push!(alives, agent.alive)
+    end
+end

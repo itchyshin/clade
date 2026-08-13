@@ -315,6 +315,14 @@ function create_environment(specs::Dict{String,Any})::Environment
         end
     end
 
+    # Initialize structured movement log
+    if Bool(get(env.specs, "log_movement", false))
+        env.specs["_movement_log"] = Dict{String, Vector}(
+            "tick" => Int32[], "id" => Int64[], "x" => Int32[], "y" => Int32[],
+            "age" => Int32[], "energy" => Float32[], "alive" => Bool[]
+        )
+    end
+
     env
 end
 
@@ -342,6 +350,20 @@ run_clade(specs) = run_clade(r_specs_to_dict(specs))
 function run_clade(user_specs::AbstractDict)
     # Normalize
     specs = normalize_specs(user_specs)
+
+    # Validate movement logging parameters
+    if Bool(get(specs, "log_movement", false))
+        freq = Int(get(specs, "log_movement_freq", 1))
+        if freq <= 0
+            throw(ArgumentError("log_movement_freq must be strictly positive (greater than 0) when log_movement is enabled."))
+        end
+        specs["_movement_log"] = Dict{String, Vector}(
+            "tick" => Int32[], "id" => Int64[], "x" => Int32[], "y" => Int32[],
+            "age" => Int32[], "energy" => Float32[], "alive" => Bool[]
+        )
+    else
+        specs["_movement_log"] = nothing
+    end
 
     env = create_environment(specs)
     max_t = Int(specs["max_ticks"])
@@ -426,6 +448,9 @@ function run_clade(user_specs::AbstractDict)
 
         # ── Death and reproduction ───────────────────────────────────────
         kill_dead!(env)
+
+        log_movement!(env) 
+
         remove_dead!(env)
         # 0.8.0: persistent monogamous pair-bond maintenance. No-op when
         # mating_system != "monogamous_pair". Must run after remove_dead!
@@ -826,6 +851,7 @@ function _env_to_result(env::Environment)
         genome_log    = env.genome_log,
         total_carrion = Float64(sum(env.carrion_map)),
         total_shelter = Int(sum(env.shelter_map)),
+        movement_log = get(env.specs, "_movement_log", nothing)
     )
 end
 
