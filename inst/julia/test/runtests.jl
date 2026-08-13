@@ -99,7 +99,11 @@ end
     
     # 3. Normal execution while ONLY PREDATORS remain
     s_predators = Dict{String, Any}(
+<<<<<<< HEAD
         "max_ticks" => 3,  # Shortened to 3 ticks so they don't starve to death
+=======
+        "max_ticks" => 3, 
+>>>>>>> 50ac25cdb2c6e8c9fff0d8cd927d1d24d77d3553
         "n_agents_init" => 0,
         "n_predators_init" => 5,
         "energy_init" => 5000.0,
