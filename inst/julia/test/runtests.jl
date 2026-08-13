@@ -113,7 +113,7 @@ end
     res_predators = Clade.run_clade(s_predators)
     @test res_predators.t == 3
     @test isempty(res_predators.agents)
-    @test res_predators.progress.n_predators[end] > 0
+    @test isempty(res_predators.deaths.id)
     
     # 4. Normal execution until seeded predator dies from starvation
     s_pred_dies = Dict{String, Any}(
