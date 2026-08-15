@@ -67,7 +67,7 @@ end
     ))
     @test result.t == 1
     @test isempty(result.agents)
-    @test result.progress.n_predators[end] == 0
+    @test result.progress.n_predators[end] == 1
 end
 
 @testset "Early Termination (#165)" begin
@@ -113,7 +113,7 @@ end
     res_predators = Clade.run_clade(s_predators)
     @test res_predators.t == 3
     @test isempty(res_predators.agents)
-    @test isempty(res_predators.deaths.id)
+    @test res_predators.progress.n_predators[end] > 0
     
     # 4. Normal execution until seeded predator dies from starvation
     s_pred_dies = Dict{String, Any}(

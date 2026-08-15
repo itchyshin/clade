@@ -137,6 +137,12 @@ function log_tick!(env::Environment)
     ags = env.agents
 
     n = length(ags)
+
+    # ALWAYS log time and population counts, even if prey are extinct! 
+    p["t"][t]           = t
+    p["n_agents"][t]    = n
+    p["n_predators"][t] = length(env.predators)
+
     n == 0 && return   # no agents: skip (vectors remain 0)
 
     # Precompute
@@ -207,7 +213,6 @@ function log_tick!(env::Environment)
     p["n_habitat_moves"][t]        = Int(env.n_habitat_moves)
 
     # Phase 7c–7f columns
-    p["n_predators"][t]         = length(env.predators)
     p["n_prey_killed"][t]       = Int(env.n_deaths)   # includes prey deaths from predators
     n_juv = sum(ag.care_load for ag in ags; init = 0)
     p["n_juveniles"][t]         = n_juv
