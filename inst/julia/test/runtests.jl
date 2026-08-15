@@ -172,15 +172,13 @@ end
     res_dead = Clade.run_clade(s_dead)
     @test false in res_dead.movement_log["alive"]
 
-    # 5. Identical seeded final state 
-    # Note: Deep state parity fails due to Dict iteration shifting the RNG setup sequence.
-    # Comparing only the top-level demographics here until the engine's Dict iteration is stabilized.
+    # 5. Identical seeded final state (Recording ON vs OFF)
     s_base = Dict{String, Any}(
-        "seed" => 42, 
-        "max_ticks" => 1, 
-        "n_agents_init" => 1,
+        "random_seed" => 42, # The typo that caused the butterfly effect!
+        "max_ticks" => 2, 
+        "n_agents_init" => 5,
         "n_predators_init" => 0,
-        "energy_init" => 9999.0,
+        "energy_init" => 50.0,
         "repro_threshold" => 9999.0
     )
     
@@ -191,14 +189,17 @@ end
     s_seed_on["log_movement"] = true
     s_seed_on["log_movement_freq"] = 1
 
-    Random.seed!(42)
     res_seed_off = Clade.run_clade(s_seed_off)
-
-    Random.seed!(42)
     res_seed_on  = Clade.run_clade(s_seed_on)
 
-    @test length(res_seed_off.agents) == length(res_seed_on.agents)
-    @test res_seed_off.progress.n_deaths[end] == res_seed_on.progress.n_deaths[end]
+    # Compare ALL non-recording returned states
+    @test res_seed_off.t == res_seed_on.t
+    @test res_seed_off.agents == res_seed_on.agents
+    @test res_seed_off.progress == res_seed_on.progress
+    @test res_seed_off.deaths == res_seed_on.deaths
+    @test res_seed_off.genome_log == res_seed_on.genome_log
+    @test res_seed_off.total_carrion == res_seed_on.total_carrion
+    @test res_seed_off.total_shelter == res_seed_on.total_shelter
 end
 
 @testset "Clade Julia unit tests" begin
