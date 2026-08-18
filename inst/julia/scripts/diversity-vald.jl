@@ -18,8 +18,6 @@ function get_outcome(res)
     return length(div_array) > 0 ? div_array[end] : 0.0
 end
 
-println("=== Diversity vs. Harshness Validation ===")
-println("Outcome Definition: Final tick 'genetic_diversity'")
 println("Runs per cell: 5 (Seeds: $seeds)")
 println("---------------------------------------------------------")
 @printf("%-12s | %-12s | %-20s\n", "move_cost", "grass_max", "GenDiv (Mean ± SE)")
