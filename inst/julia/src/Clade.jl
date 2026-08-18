@@ -315,14 +315,6 @@ function create_environment(specs::Dict{String,Any})::Environment
         end
     end
 
-    # Initialize structured movement log
-    if Bool(get(env.specs, "log_movement", false))
-        env.specs["_movement_log"] = Dict{String, Vector}(
-            "tick" => Int32[], "id" => Int64[], "x" => Int32[], "y" => Int32[],
-            "age" => Int32[], "energy" => Float32[], "alive" => Bool[]
-        )
-    end
-
     env
 end
 
