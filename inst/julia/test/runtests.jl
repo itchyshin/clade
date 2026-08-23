@@ -99,7 +99,7 @@ end
     
     # 3. Normal execution while ONLY PREDATORS remain
     s_predators = Dict{String, Any}(
-        "max_ticks" => 3,  # Shortened to 3 ticks so they don't starve to death
+        "max_ticks" => 3, 
         "n_agents_init" => 0,
         "n_predators_init" => 5,
         "energy_init" => 5000.0,
@@ -130,6 +130,76 @@ end
     @test res_pred_dies.t < 50
     @test isempty(res_pred_dies.agents)
     @test res_pred_dies.progress.n_predators[end] == 0
+end
+
+@testset "Movement Logging Contract (#176)" begin
+    # 1. Disabled recording returns no log
+    s_off = Dict{String, Any}("log_movement" => false, "max_ticks" => 5)
+    res_off = Clade.run_clade(s_off)
+    @test isnothing(res_off.movement_log)
+
+    # 2. Invalid frequency throws ArgumentError before the loop
+    s_err = Dict{String, Any}("log_movement" => true, "log_movement_freq" => 0)
+    @test_throws ArgumentError Clade.run_clade(s_err)
+
+    # 3. Exact schema, equal column lengths, and exact sampled ticks
+    s_sample = Dict{String, Any}(
+        "log_movement" => true,
+        "log_movement_freq" => 2,
+        "max_ticks" => 4,
+        "n_agents_init" => 10
+    )
+    res_sample = Clade.run_clade(s_sample)
+    log_sample = res_sample.movement_log
+    
+    @test log_sample isa Dict{String, Vector}
+    @test Set(keys(log_sample)) == Set(["tick", "id", "x", "y", "age", "energy", "alive"])
+    
+    lens = [length(v) for v in values(log_sample)]
+    @test all(l -> l == lens[1], lens)
+    @test lens[1] > 0
+    @test unique(log_sample["tick"]) == [2, 4]
+
+    # 4. Dead agents (alive=false) are logged before removal
+    s_dead = Dict{String, Any}(
+        "log_movement" => true,
+        "log_movement_freq" => 1,
+        "max_ticks" => 2,
+        "n_agents_init" => 10,
+        "energy_init" => 1.0, # Force instant starvation
+        "move_cost" => 50.0
+    )
+    res_dead = Clade.run_clade(s_dead)
+    @test false in res_dead.movement_log["alive"]
+
+    # 5. Identical seeded final state (Recording ON vs OFF)
+    s_parity = Dict{String, Any}(
+        "random_seed" => 42, 
+        "max_ticks" => 2, 
+        "n_agents_init" => 5,
+        "n_predators_init" => 0,
+        "energy_init" => 50.0,
+        "repro_threshold" => 9999.0,
+        "log_movement_freq" => 1,
+        "log_movement" => false,
+        "_movement_log" => nothing 
+    )
+
+    res_seed_off = Clade.run_clade(s_parity)
+
+    s_parity["log_movement"] = true
+    s_parity["_movement_log"] = nothing
+
+    res_seed_on  = Clade.run_clade(s_parity)
+
+    # Compare ALL non-recording returned states
+    @test res_seed_off.t == res_seed_on.t
+    @test res_seed_off.agents == res_seed_on.agents
+    @test res_seed_off.progress == res_seed_on.progress
+    @test res_seed_off.deaths == res_seed_on.deaths
+    @test res_seed_off.genome_log == res_seed_on.genome_log
+    @test res_seed_off.total_carrion == res_seed_on.total_carrion
+    @test res_seed_off.total_shelter == res_seed_on.total_shelter
 end
 
 @testset "Clade Julia unit tests" begin
