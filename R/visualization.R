@@ -481,6 +481,202 @@ plot_map <- function(env, colour_by = "energy", ...) {
     )
 }
 
+# -- plot_movement() -----------------------------------------------------------
+
+#' Plot agent trajectories from a movement log
+#'
+#' @title Plot agent trajectories from a movement log
+#' @description
+#' Renders the per-agent, per-tick positions logged when
+#' `specs$log_movement = TRUE` was set for the run. With `tick = NULL`
+#' (default) every recorded position is drawn as a point, showing the
+#' cumulative trajectory of every agent over the run. With `tick = t`
+#' only positions recorded at that tick are drawn, giving a single
+#' snapshot equivalent to a still frame from [plot_run_movie()].
+#'
+#' When the movement log is `NULL` (recording was off), a placeholder
+#' ggplot with an explanatory message is returned rather than an error.
+#'
+#' @param md A data frame returned by [get_movement_data()], or `NULL`
+#'   when `specs$log_movement = FALSE` was set for the run.
+#' @param colour_by Character. Column of `md` used to colour points.
+#'   One of `"energy"` (default), `"age"`, `"id"`, or `"alive"`.
+#' @param tick Optional integer. When supplied, only rows with `md$t
+#'   == tick` are drawn; when `NULL` (default), all recorded ticks are
+#'   drawn together.
+#' @param grid_rows,grid_cols Optional integers giving the grid
+#'   extent for `coord_fixed()`. When `NULL` (default), the extent is
+#'   inferred from `max(md$x)` and `max(md$y)`.
+#' @param ... Currently unused. Reserved for forward compatibility.
+#'
+#' @return A [ggplot2::ggplot()] object.
+#'
+#' @examples
+#' \dontrun{
+#' specs <- default_specs()
+#' specs$log_movement      <- TRUE
+#' specs$log_movement_freq <- 5L
+#' env <- run_alife(specs)
+#' md  <- get_movement_data(env)
+#' plot_movement(md)                     # every recorded position
+#' plot_movement(md, tick = 100L)        # single-tick snapshot
+#' plot_movement(md, colour_by = "age")
+#' }
+#'
+#' @seealso [get_movement_data()], [plot_run_movie()], [plot_map()]
+#' @export
+plot_movement <- function(md,
+                          colour_by  = c("energy", "age", "id", "alive"),
+                          tick       = NULL,
+                          grid_rows  = NULL,
+                          grid_cols  = NULL,
+                          ...) {
+  if (is.null(md)) {
+    return(.plot_empty(
+      "Enable specs$log_movement = TRUE to record trajectories"
+    ))
+  }
+  if (!is.data.frame(md)) {
+    stop("`md` must be a data.frame from get_movement_data() (or NULL).",
+         call. = FALSE)
+  }
+  colour_by <- match.arg(colour_by)
+
+  if (!is.null(tick)) {
+    md <- md[md$t == as.integer(tick), , drop = FALSE]
+  }
+  if (nrow(md) == 0L) {
+    return(.plot_empty(
+      if (is.null(tick)) "Movement log is empty"
+      else sprintf("No agents recorded at tick %d", as.integer(tick))
+    ))
+  }
+
+  # Grid extent: prefer explicit args; fall back to data extent with
+  # 0.5-cell padding so agent points at the boundary aren't clipped.
+  nc <- if (!is.null(grid_cols)) as.integer(grid_cols) else max(md$y, na.rm = TRUE)
+  nr <- if (!is.null(grid_rows)) as.integer(grid_rows) else max(md$x, na.rm = TRUE)
+
+  n_ticks <- length(unique(md$t))
+  title_str <- sprintf(
+    "Movement | %d agents | %d tick%s | colour: %s",
+    length(unique(md$id)),
+    n_ticks,
+    if (n_ticks == 1L) "" else "s",
+    colour_by
+  )
+
+  p <- ggplot2::ggplot(md, ggplot2::aes(x = .data$y, y = .data$x))
+
+  if (colour_by == "energy") {
+    p <- p +
+      ggplot2::geom_point(ggplot2::aes(colour = .data$energy), size = 2) +
+      ggplot2::scale_colour_gradient(low = "#440154", high = "#fde725",
+                                     name = "Energy")
+  } else if (colour_by == "age") {
+    p <- p +
+      ggplot2::geom_point(ggplot2::aes(colour = .data$age), size = 2) +
+      ggplot2::scale_colour_gradient(low = "#2c728e", high = "#f8e621",
+                                     name = "Age")
+  } else if (colour_by == "id") {
+    p <- p +
+      ggplot2::geom_point(ggplot2::aes(colour = factor(.data$id)),
+                          size = 2, show.legend = FALSE)
+  } else {
+    p <- p +
+      ggplot2::geom_point(ggplot2::aes(colour = .data$alive), size = 2) +
+      ggplot2::scale_colour_manual(values = c(`TRUE` = "#7cfc00",
+                                              `FALSE` = "#d62728"),
+                                   name = "Alive")
+  }
+
+  p +
+    ggplot2::coord_fixed(xlim = c(0.5, nc + 0.5),
+                         ylim = c(0.5, nr + 0.5), expand = FALSE) +
+    ggplot2::labs(title = title_str, x = NULL, y = NULL) +
+    ggplot2::theme_void(base_size = 12) +
+    ggplot2::theme(
+      plot.background  = ggplot2::element_rect(fill = "#0d1117", colour = NA),
+      panel.background = ggplot2::element_rect(fill = "#0d1117", colour = NA),
+      plot.title       = ggplot2::element_text(colour = "grey90", hjust = 0.5,
+                                               margin = ggplot2::margin(b = 6)),
+      legend.text      = ggplot2::element_text(colour = "grey80"),
+      legend.title     = ggplot2::element_text(colour = "grey80"),
+      plot.margin      = ggplot2::margin(8, 8, 8, 8)
+    )
+}
+
+# -- plot_run_movie() ----------------------------------------------------------
+
+#' Animate agent trajectories as a gganimate movie
+#'
+#' @title Animate agent trajectories as a gganimate movie
+#' @description
+#' Builds a `gganim` object from a movement log for post-hoc playback.
+#' Wraps [plot_movement()] with a `gganimate::transition_time()` layer
+#' so successive frames show the population as it evolved. The
+#' returned object is **not rendered** — hand it to
+#' `gganimate::animate()` (to view in RStudio) or
+#' `gganimate::anim_save()` (to write a GIF or MP4).
+#'
+#' Requires the `gganimate` package (in `Suggests`). When `gganimate`
+#' is not installed the function errors with a clear install hint.
+#' When `md` is `NULL` (recording was off) a placeholder ggplot is
+#' returned rather than an error.
+#'
+#' @param md A data frame returned by [get_movement_data()], or `NULL`.
+#' @param colour_by Character. Passed to [plot_movement()]. Default
+#'   `"energy"`.
+#' @param grid_rows,grid_cols Optional integers giving the grid
+#'   extent, passed to [plot_movement()].
+#' @param ... Currently unused. Reserved for forward compatibility.
+#'
+#' @return A `gganim` object when `gganimate` is available and `md` is
+#'   non-`NULL`. A ggplot placeholder when `md` is `NULL`.
+#'
+#' @examples
+#' \dontrun{
+#' specs <- default_specs()
+#' specs$log_movement      <- TRUE
+#' specs$log_movement_freq <- 5L
+#' env <- run_alife(specs)
+#' md  <- get_movement_data(env)
+#'
+#' mv <- plot_run_movie(md)
+#' # Render options belong on animate() / anim_save():
+#' gganimate::animate(mv, fps = 10, width = 480, height = 480)
+#' gganimate::anim_save("run.gif", mv)
+#' }
+#'
+#' @seealso [plot_movement()], [get_movement_data()]
+#' @export
+plot_run_movie <- function(md,
+                           colour_by = c("energy", "age", "id", "alive"),
+                           grid_rows = NULL,
+                           grid_cols = NULL,
+                           ...) {
+  if (is.null(md)) {
+    return(.plot_empty(
+      "Enable specs$log_movement = TRUE to build a movie"
+    ))
+  }
+  if (!requireNamespace("gganimate", quietly = TRUE)) {
+    stop("Package 'gganimate' is required for plot_run_movie(). ",
+         "Install with: install.packages('gganimate')",
+         call. = FALSE)
+  }
+  colour_by <- match.arg(colour_by)
+
+  p <- plot_movement(md,
+                     colour_by = colour_by,
+                     tick      = NULL,
+                     grid_rows = grid_rows,
+                     grid_cols = grid_cols)
+  p +
+    gganimate::transition_time(.data$t) +
+    ggplot2::labs(subtitle = "Tick: {frame_time}")
+}
+
 # -- plot_tsne_genomes() -------------------------------------------------------
 
 #' Plot genome PCA to reveal population genetic structure

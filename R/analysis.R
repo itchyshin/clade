@@ -142,6 +142,103 @@ get_genome_data <- function(env) {
   do.call(rbind, per_tick)
 }
 
+#' Extract per-tick agent-position log as a tidy data frame
+#'
+#' `get_movement_data()` converts `env$movement_log` (opt-in per-tick
+#' agent positions logged Julia-side when `specs$log_movement = TRUE`)
+#' into a single long data.frame with one row per (logged tick x agent).
+#'
+#' Movement logging is off by default and off in the returned env when
+#' the run did not enable it (`env$movement_log` is `NULL`), so
+#' `get_movement_data()` returns `NULL` in that case. Downstream code
+#' can guard cleanly with `if (is.null(md)) ...`.
+#'
+#' To enable, set two extra specs before calling [run_alife()]:
+#' \preformatted{
+#'   specs$log_movement      <- TRUE
+#'   specs$log_movement_freq <- 5L   # record every 5 ticks; 1L = every tick
+#' }
+#'
+#' Neither field is in [default_specs()] (trajectory logging is
+#' memory-heavy and off by default); they are read on the Julia side
+#' via `get(specs, "log_movement", false)` so extra keys pass through
+#' the R-to-Julia bridge without modification.
+#'
+#' @param env An environment list returned by [run_alife()].
+#'
+#' @return A data.frame with columns `t` (integer), `id` (integer),
+#'   `x` (integer), `y` (integer), `age` (integer), `energy` (double),
+#'   `alive` (logical) - one row per (logged tick x agent). Returns
+#'   `NULL` when `log_movement = FALSE` for the run. A zero-row
+#'   data.frame (with the correct columns) is returned when logging
+#'   was enabled but no ticks were recorded (short runs at low
+#'   `log_movement_freq`).
+#'
+#' @examples
+#' \dontrun{
+#' specs <- default_specs()
+#' specs$log_movement      <- TRUE
+#' specs$log_movement_freq <- 5L
+#' env <- run_alife(specs)
+#' md  <- get_movement_data(env)
+#' head(md)
+#' plot_movement(md)
+#' }
+#'
+#' @seealso [get_run_data()], [plot_movement()], [plot_run_movie()],
+#'   [run_alife()]
+#' @export
+get_movement_data <- function(env) {
+  stopifnot(is.list(env))
+  mlog <- env$movement_log
+  if (is.null(mlog)) return(NULL)
+
+  # JuliaConnectoR returns Julia Dict{String,Vector} as a JuliaStructProxy
+  # whose native conversion (juliaGet) yields a list with $keys and
+  # $values (same shape used by .compose_genome_dataframe above).
+  # For a mocked env (used in tests) `mlog` is already a plain named list.
+  if (!is.list(mlog) || is.null(names(mlog))) {
+    g <- tryCatch(JuliaConnectoR::juliaGet(mlog), error = function(e) NULL)
+    if (!is.null(g) && !is.null(g$keys) && !is.null(g$values)) {
+      mlog <- setNames(g$values, unlist(g$keys, use.names = FALSE))
+    }
+  }
+
+  required <- c("tick", "id", "x", "y", "age", "energy", "alive")
+  if (!all(required %in% names(mlog))) return(NULL)
+
+  # Zero-row case: logging was enabled but no ticks passed the freq
+  # filter (e.g. max_ticks < log_movement_freq). Return a stably-typed
+  # empty data frame with the seven target columns.
+  if (length(mlog$tick) == 0L) {
+    return(data.frame(
+      t      = integer(0),
+      id     = integer(0),
+      x      = integer(0),
+      y      = integer(0),
+      age    = integer(0),
+      energy = numeric(0),
+      alive  = logical(0),
+      stringsAsFactors = FALSE
+    ))
+  }
+
+  # Populated case. Explicit as.integer(mlog$id) matters: Julia Int64
+  # crosses to R as double via JuliaConnectoR, and we want id to stay
+  # integer-typed so `merge()` / `dplyr::join` with $deaths$id (also
+  # integer) works without silent coercion.
+  data.frame(
+    t      = as.integer(mlog$tick),
+    id     = as.integer(mlog$id),
+    x      = as.integer(mlog$x),
+    y      = as.integer(mlog$y),
+    age    = as.integer(mlog$age),
+    energy = as.numeric(mlog$energy),
+    alive  = as.logical(mlog$alive),
+    stringsAsFactors = FALSE
+  )
+}
+
 #' Estimate narrow-sense heritability from a logged trait time-series
 #'
 #' `estimate_heritability()` returns a coarse estimate of narrow-sense
