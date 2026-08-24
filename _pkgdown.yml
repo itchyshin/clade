@@ -296,6 +296,7 @@ reference:
       - clade-visualization
       - get_run_data
       - get_genome_data
+      - get_movement_data
       - plot_run
       - plot_environment
       - plot_diversity
@@ -305,6 +306,8 @@ reference:
       - plot_dispersal_events
       - plot_kin_network
       - plot_dead_agents
+      - plot_movement
+      - plot_run_movie
       - plot_genome_diversity
       - plot_tsne_genomes
       - plot_weight_heatmap

@@ -66,7 +66,12 @@ library(testthat)
   # ("TODO: your parameter A") meant to be replaced by the user when
   # they fork the template for their own paper. They are not real
   # spec fields and will never be.
-  "param_a", "param_b"
+  "param_a", "param_b",
+  # ----- movement-log opt-in fields (see basics.Rmd §5) -----
+  # Not in default_specs() by design: full trajectory logging is
+  # memory-heavy and off by default. Users add them as extras;
+  # Julia reads via `get(specs, "log_movement", false)` (Clade.jl:347).
+  "log_movement", "log_movement_freq"
 )
 
 .find_repo_root <- function() {
