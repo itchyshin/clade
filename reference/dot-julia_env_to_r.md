@@ -25,4 +25,4 @@ and
 ## Value
 
 A named R list with fields `$agents`, `$t`, `$specs`, `$progress`,
-`$deaths`, `$genome_log`.
+`$deaths`, `$genome_log`, `$movement_log`.

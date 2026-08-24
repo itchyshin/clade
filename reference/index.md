@@ -67,6 +67,8 @@ Extract tidy output and produce plots.
   : Extract simulation results as tidy data frames
 - [`get_genome_data()`](https://itchyshin.github.io/clade/reference/get_genome_data.md)
   : Extract per-tick genome data (allele frequencies, diversity, FST)
+- [`get_movement_data()`](https://itchyshin.github.io/clade/reference/get_movement_data.md)
+  : Extract per-tick agent-position log as a tidy data frame
 - [`plot_run()`](https://itchyshin.github.io/clade/reference/plot_run.md)
   : Dashboard plot summarising a clade simulation run
 - [`plot_environment()`](https://itchyshin.github.io/clade/reference/plot_environment.md)
@@ -85,6 +87,10 @@ Extract tidy output and produce plots.
   : Plot kin network (not yet implemented — placeholder)
 - [`plot_dead_agents()`](https://itchyshin.github.io/clade/reference/plot_dead_agents.md)
   : Plot lifetime statistics of dead agents
+- [`plot_movement()`](https://itchyshin.github.io/clade/reference/plot_movement.md)
+  : Plot agent trajectories from a movement log
+- [`plot_run_movie()`](https://itchyshin.github.io/clade/reference/plot_run_movie.md)
+  : Animate agent trajectories as a gganimate movie
 - [`plot_genome_diversity()`](https://itchyshin.github.io/clade/reference/plot_genome_diversity.md)
   : Plot genetic diversity over time
 - [`plot_tsne_genomes()`](https://itchyshin.github.io/clade/reference/plot_tsne_genomes.md)

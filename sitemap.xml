@@ -109,6 +109,7 @@
 <url><loc>https://itchyshin.github.io/clade/reference/genome_distance.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/get_brain_weights.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/get_genome_data.html</loc></url>
+<url><loc>https://itchyshin.github.io/clade/reference/get_movement_data.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/get_run_data.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/grid_specs.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/heritability_estimate.html</loc></url>
@@ -133,7 +134,9 @@
 <url><loc>https://itchyshin.github.io/clade/reference/plot_kin_network.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/plot_map.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/plot_module_metrics.html</loc></url>
+<url><loc>https://itchyshin.github.io/clade/reference/plot_movement.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/plot_run.html</loc></url>
+<url><loc>https://itchyshin.github.io/clade/reference/plot_run_movie.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/plot_signal_evolution.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/plot_tsne_genomes.html</loc></url>
 <url><loc>https://itchyshin.github.io/clade/reference/plot_weight_heatmap.html</loc></url>

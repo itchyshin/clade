@@ -141,7 +141,55 @@ crashed mid-run (the post-crash zero-padded rows are filtered by
 [`plot_run()`](https://itchyshin.github.io/clade/reference/plot_run.md)
 and read the partial story.
 
-## 5. What next?
+## 5. Recording agent trajectories
+
+The extractors above
+([`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md),
+[`get_genome_data()`](https://itchyshin.github.io/clade/reference/get_genome_data.md))
+all operate on population- and per-death aggregates. When you need the
+per-agent, per-tick spatial trace — for example, to plot foraging paths,
+to score dispersal against a fitness gradient, or to build an animation
+of a run — opt into movement logging by setting two extra specs (neither
+is in
+[`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md),
+because full trajectory logging is memory-hungry and off by default):
+
+``` r
+
+specs$log_movement      <- TRUE
+specs$log_movement_freq <- 5L   # record every 5 ticks; 1L = every tick
+```
+
+`get_movement_data(env)` returns a tidy data frame with one row per
+(logged tick × agent) and columns `t`, `id`, `x`, `y`, `age`, `energy`,
+`alive`. It is `NULL` when `log_movement = FALSE`, so downstream code
+can guard cleanly with `if (is.null(md)) ...`.
+
+``` r
+
+env <- run_alife(specs)
+md  <- get_movement_data(env)
+head(md)
+```
+
+`plot_movement(md)` draws a static snapshot (or, with `tick = t`, a
+single-tick overlay). `plot_run_movie(md)` returns an unrendered
+`gganim` object; hand it to
+[`gganimate::animate()`](https://gganimate.com/reference/animate.html)
+and
+[`gganimate::anim_save()`](https://gganimate.com/reference/anim_save.html)
+to write a GIF or MP4. `gganimate` is in `Suggests`, so install it once
+(`install.packages("gganimate")`) and only when you want the movie.
+
+``` r
+
+plot_movement(md)
+mv <- plot_run_movie(md)
+gganimate::animate(mv, fps = 10)
+gganimate::anim_save("run.gif", mv)
+```
+
+## 6. What next?
 
 Once you can read
 [`plot_run()`](https://itchyshin.github.io/clade/reference/plot_run.md)
