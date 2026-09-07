@@ -261,6 +261,7 @@ in hot-path code when the corresponding module is disabled.
 - `num_offspring::Int32` — cumulative offspring count.
 - `num_choices::Int32` — cumulative action choices made.
 - `num_greedy_choices::Int32` — actions that matched arg-max of logits.
+- `last_action::Int8` — the action (1=N, 2=E, 3=S, 4=W, 5=Idle) chosen by the agent in the most recent tick. Used for behavioral diversity metrics.
 
 ## Speciation
 - `species_id::Int32` — cluster ID assigned at each logging tick by
@@ -349,6 +350,7 @@ mutable struct Agent
     num_offspring      ::Int32
     num_choices        ::Int32
     num_greedy_choices ::Int32
+    last_action        ::Int8
 
     # Speciation
     species_id         ::Int32
