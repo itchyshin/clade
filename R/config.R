@@ -1114,6 +1114,12 @@
 #'   \item{`log_genomes`}{Logical. Log flattened genome vectors to
 #'     `get_genome_data()$genomes` at each log tick (default `FALSE`;
 #'     memory intensive for large populations).}
+#'   \item{`log_movement`}{Logical. Record per-agent positions, age, energy
+#'     and alive status; read them with [get_movement_data()] (default
+#'     `FALSE`).}
+#'   \item{`log_movement_freq`}{Integer. Record movement every this many
+#'     ticks when `log_movement = TRUE` (default `1L`, every tick; must be
+#'     positive).}
 #'   \item{`verbose`}{Logical. If `TRUE`, prints progress updates to the Julia console 
 #'     every 100 ticks during `run_alife()`. Default `FALSE`.}
 #'   \item{`random_seed`}{Integer or `NA_integer_`. Seed for Julia's RNG.
@@ -1761,6 +1767,8 @@ default_specs <- function() {
     # ── Logging ────────────────────────────────────────────────────────────
     log_freq                   = 1L,
     log_genomes                = FALSE,
+    log_movement               = FALSE,
+    log_movement_freq          = 1L,
     verbose                    = FALSE,
     random_seed                = NA_integer_
   )

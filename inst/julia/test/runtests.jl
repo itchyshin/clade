@@ -142,6 +142,13 @@ end
     s_err = Dict{String, Any}("log_movement" => true, "log_movement_freq" => 0)
     @test_throws ArgumentError Clade.run_clade(s_err)
 
+    # 2b. log_movement alone (no log_movement_freq) records every tick
+    s_nofreq = Dict{String, Any}("log_movement" => true, "max_ticks" => 3,
+                                 "n_agents_init" => 5)
+    res_nofreq = Clade.run_clade(s_nofreq)
+    @test !isnothing(res_nofreq.movement_log)
+    @test Set(res_nofreq.movement_log["tick"]) == Set(Int32(1):Int32(res_nofreq.t))
+
     # 3. Exact schema, equal column lengths, and exact sampled ticks
     s_sample = Dict{String, Any}(
         "log_movement" => true,

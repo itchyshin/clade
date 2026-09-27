@@ -1190,6 +1190,12 @@ ticks (default 1L; set higher to reduce memory use in long runs).}
 \item{\code{log_genomes}}{Logical. Log flattened genome vectors to
 \code{get_genome_data()$genomes} at each log tick (default \code{FALSE};
 memory intensive for large populations).}
+\item{\code{log_movement}}{Logical. Record per-agent positions, age, energy
+and alive status; read them with \code{\link[=get_movement_data]{get_movement_data()}} (default
+\code{FALSE}).}
+\item{\code{log_movement_freq}}{Integer. Record movement every this many
+ticks when \code{log_movement = TRUE} (default \code{1L}, every tick; must be
+positive).}
 \item{\code{verbose}}{Logical. If \code{TRUE}, prints progress updates to the Julia console
 every 100 ticks during \code{run_alife()}. Default \code{FALSE}.}
 \item{\code{random_seed}}{Integer or \code{NA_integer_}. Seed for Julia's RNG.

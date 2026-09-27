@@ -414,7 +414,7 @@ function log_movement!(env)
     log_raw = env.specs["_movement_log"]
     isnothing(log_raw) && return
 
-    freq = Int(env.specs["log_movement_freq"])::Int
+    freq = Int(get(env.specs, "log_movement_freq", 1))::Int
     env.t % freq != 0 && return
 
     # Concrete type assertions to guarantee type stability in the hot loop
