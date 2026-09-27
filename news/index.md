@@ -75,6 +75,19 @@ know their own sex across their lifetime. This release adds the minimum
 foundation; sex-specific trait expression and mating-system structure
 follow in subsequent 0.8.x releases.
 
+### Unknown spec names now warn
+
+- [`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md)
+  warns when `specs` contains a name clade does not read, and the Julia
+  kernel warns once per session for each such key it receives.
+  Previously these were accepted silently: a 500-run sweep
+  ([\#185](https://github.com/itchyshin/clade/issues/185)) sampled
+  `repro_threshold`, which is the agent trait, while the spec that sets
+  it is `min_repro_energy`. The warning suggests `min_repro_energy` for
+  that name.
+- `log_movement` and `log_movement_freq` are now in the Julia defaults
+  as well as R’s, so R users see no spurious warning.
+
 ### New spec fields (all default-off / backward-compatible)
 
 - **`grass_growth_mode = "stochastic"`** selects how grass regrows
