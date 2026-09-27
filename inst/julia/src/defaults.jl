@@ -80,7 +80,8 @@ function get_default_specs()
         "spatial_sorting" => false, "sorting_front_threshold" => 0.75, "sorting_mating_boost" => 3.0,
         "iffolk_selection" => false, "iffolk_r_min" => 0.125, "iffolk_radius" => 5, "iffolk_transfer" => 3.0, "iffolk_min_energy" => 60.0, "parliament_suppression" => false, "parliament_cost" => 0.5,
         "fixed_patch" => false, "fixed_patch_value" => 5.0, "fixed_patch_x" => nothing, "fixed_patch_y" => nothing, "fixed_patch_radius" => 0,
-        "log_freq" => 1, "log_genomes" => false, "random_seed" => nothing, "verbose" => false
+        "log_freq" => 1, "log_genomes" => false, "log_movement" => false, "log_movement_freq" => 1,
+        "random_seed" => nothing, "verbose" => false
     )
 end
 
@@ -89,10 +90,28 @@ end
 
 Shallow merges user-provided overrides into the master default dictionary.
 Safely handles type conversions (e.g., from an inferred Dict{String, Int}).
+
+Warns once per session for each key that is not a known spec and does not
+start with `_` (keys such as `_movement_log` are set by the kernel itself).
+Such keys are kept but never read, so a misspelled or foreign name (e.g.
+A-life's `repro_threshold` for clade's `min_repro_energy`) would otherwise
+change nothing without any sign (#185).
 """
+# Known foreign or look-alike names, mapped to the clade spec to use.
+# `repro_threshold` is the agent trait and output column, but the spec
+# that sets it is `min_repro_energy`.
+const _SPEC_NAME_HINTS = Dict("repro_threshold" => "min_repro_energy")
+
 function normalize_specs(user_specs::AbstractDict)
     defaults = get_default_specs()
     # Convert incoming dict to Dict{String, Any} to prevent type errors on merge
     user_any = Dict{String, Any}(string(k) => v for (k, v) in user_specs)
+    for k in sort!(collect(keys(user_any)))
+        (haskey(defaults, k) || startswith(k, "_")) && continue
+        hint = haskey(_SPEC_NAME_HINTS, k) ?
+            " Did you mean \"$(_SPEC_NAME_HINTS[k])\"?" :
+            " Check the name against default_specs()."
+        @warn "Unknown spec \"$k\" is not a clade parameter and will be ignored by the kernel.$hint" _id = Symbol("clade_unknown_spec_", k) maxlog = 1
+    end
     return merge(defaults, user_any)
 end

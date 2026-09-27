@@ -412,3 +412,30 @@ important project state. Keep entries concise and concrete.
     tests". That block fails on `main` and aborts the script, so any
     testset after it (including the #179 placeholder) never ran.
 - Next safest action: review; then design the metric and R extraction.
+
+## 2026-09-27 - Warn on unknown spec names (R and Julia)
+
+- Branch: `fix/warn-unknown-spec-keys` (off `main` at `b8bfe34`).
+- Goal: stop unknown spec keys passing silently. Trigger: #185 sampled
+  `repro_threshold` in 500 DRAC runs; the kernel never reads it (the
+  spec is `min_repro_energy`), so one design axis was a no-op.
+- Files changed: `inst/julia/src/defaults.jl` (warning in
+  `normalize_specs`, name hint, `log_movement` and `log_movement_freq`
+  defaults), `R/run.R` (`.validate_specs` warning),
+  `inst/julia/test/runtests.jl`, `tests/testthat/test-unknown-specs.R`
+  (new), `tests/testthat/test-scenario-signals.R`, `NEWS.md`, this log,
+  `dev/dev-log/after-task/2026-09-27-warn-unknown-spec-keys.md`.
+- R vs Julia defaults: R had `log_movement` and `log_movement_freq`
+  that Julia lacked (added); Julia has no names R lacks. All nine
+  zero-argument presets use only default names.
+- Checks run:
+  - Julia `test/runtests.jl`: "Unknown spec keys warn (#185)" 8/8;
+    movement contract 19/19 (2 new no-births checks); grass 12/12;
+    last_action 24/24. The three pre-existing failures on `main` remain.
+  - Test of the new no-births check: `min_repro_energy = 10` gives 7
+    births in the parity setup, 9999 gives 0.
+  - `devtools::test()`: FAIL 0, WARN 0, PASS 1109, SKIP 649
+    (JuliaConnectoR not installed).
+  - Speciation test settings run directly in Julia (`speciation = true`,
+    80 ticks, 60 agents): completes, `n_species` 0 to 1.
+- Next safest action: review; Julia-gated R tests on a Julia machine.
