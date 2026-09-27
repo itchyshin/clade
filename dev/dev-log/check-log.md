@@ -439,3 +439,35 @@ important project state. Keep entries concise and concrete.
   - Speciation test settings run directly in Julia (`speciation = true`,
     80 ticks, 60 agents): completes, `n_species` 0 to 1.
 - Next safest action: review; Julia-gated R tests on a Julia machine.
+
+## 2026-09-27 - Repair the three failing Julia unit tests
+
+- Branch: `fix/julia-unit-test-failures` (off `main` at `9f047a6`).
+- Goal: make `inst/julia/test/runtests.jl` pass end to end. The
+  "Clade Julia unit tests" block failed on `main` and, because a failing
+  top-level testset aborts the script, hid anything placed after it.
+- Root causes (all in the tests; source code unchanged):
+  - `test_ann_regularization.jl`: asserted `sum(|w|) > n_nonzero` for
+    standard-normal weights on the premise that mean |w| > 1. It is
+    sqrt(2/pi) ~ 0.80, so the claim is false (observed 54.4 vs 67).
+  - `test_lamarckian.jl` (2 tests): `DiploidGenome` gained
+    `n_chromosomes` after the test was written; behind that error, the
+    test also used an `Agent` keyword constructor that does not exist.
+- Fixes: the ANN test now checks both measures against an independent
+  computation at three weight scales and asserts the direction only
+  where it is true (x3: magnitude > count; x0.3: magnitude < count).
+  The Lamarckian tests take a real haploid ANN agent from
+  `create_environment()` and replace only `brain` and `genome`, the two
+  fields `lamarck_genome_update!` reads.
+- Checks run:
+  - Julia `test/runtests.jl`: all testsets pass, exit code 0 (unit
+    block 19/19).
+  - Mutation checks: making `lamarck_genome_update!` a no-op fails the
+    write-back test; dropping biases from `_ann_weight_magnitude` fails
+    4 assertions.
+  - R code untouched; R suite not rerun.
+- Finding: no CI workflow runs the Julia suite (`tests.yaml` skips
+  Julia; `fidelity-matrix.yaml` runs paper scripts), which is how these
+  failures went unnoticed.
+- Next safest action: review; consider a PR-triggered Linux job for
+  `runtests.jl`.

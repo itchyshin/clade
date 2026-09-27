@@ -3,34 +3,35 @@
 
 @testset "Lamarckian genome update" begin
 
-    # Helper: build a minimal haploid agent with an ANNBrain
-    function _make_haploid_agent(arch::Vector{Int32}, rng::AbstractRNG)
-        n       = Clade.arch_to_n_weights(arch)
-        weights = randn(rng, Float32, n)
-        brain   = Clade.make_ann_brain(weights, arch)
+    # A real haploid agent from create_environment(), so the test does not
+    # depend on Agent's field list (it has no keyword constructor and has
+    # grown since this test was written). Only `brain` and `genome` are
+    # read by lamarck_genome_update!, so those two are replaced.
+    function _real_haploid_agent()
+        specs = Clade.get_default_specs()
+        specs["ploidy"] = 1; specs["brain_type"] = "ann"
+        specs["n_agents_init"] = 1; specs["grid_rows"] = 5; specs["grid_cols"] = 5
+        specs["random_seed"] = 1
+        Clade.create_environment(specs).agents[1]
+    end
 
-        genome = Clade.DiploidGenome(
-            copy(weights),          # maternal_weights
-            Float32[],              # paternal_weights (haploid = empty)
-            Float32[1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],   # maternal_traits (7 traits)
-            Float32[],              # paternal_traits
-            arch
+    function _haploid_genome(weights::Vector{Float32}, arch::Vector{Int32}, template)
+        Clade.DiploidGenome(
+            copy(weights),                   # maternal_weights
+            Float32[],                       # paternal_weights (haploid = empty)
+            copy(template.maternal_traits),  # maternal_traits
+            Float32[],                       # paternal_traits
+            arch,
+            template.n_chromosomes,
         )
-        # Minimal Agent construction (enough fields for lamarck_genome_update!)
-        Clade.Agent(
-            id         = Int64(1),
-            x          = Int32(1), y = Int32(1),
-            energy     = 100.0f0,
-            age        = Int32(0),
-            t_birth    = Int32(0),
-            alive      = true,
-            brain      = brain,
-            genome     = genome,
-            reproduced = false,
-            num_offspring = Int32(0),
-            last_action = Int8(5),
-            # remaining fields use defaults / zeros
-        )
+    end
+
+    function _make_haploid_agent(arch::Vector{Int32}, rng::AbstractRNG)
+        weights  = randn(rng, Float32, Clade.arch_to_n_weights(arch))
+        ag       = _real_haploid_agent()
+        ag.genome = _haploid_genome(weights, arch, ag.genome)
+        ag.brain  = Clade.make_ann_brain(weights, arch)
+        ag
     end
 
     @testset "lamarck_genome_update! writes phenotype to maternal_weights (haploid)" begin
@@ -58,16 +59,11 @@
     @testset "lamarck_genome_update! is no-op for RandomBrain" begin
         rng  = MersenneTwister(4)
         arch = Int32[4, 3]
-        brain = Clade.make_random_brain(arch)
-        genome = Clade.DiploidGenome(
-            rand(rng, Float32, Clade.arch_to_n_weights(arch)),
-            Float32[], Float32[1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], Float32[], arch
-        )
-        original_weights = copy(genome.maternal_weights)
-        ag = Clade.Agent(id=Int64(2), x=Int32(1), y=Int32(1),
-                          energy=100.0f0, age=Int32(0), t_birth=Int32(0),
-                          alive=true, brain=brain, genome=genome,
-                          reproduced=false, num_offspring=Int32(0), last_action=Int8(5))
+        ag    = _real_haploid_agent()
+        ag.genome = _haploid_genome(
+            rand(rng, Float32, Clade.arch_to_n_weights(arch)), arch, ag.genome)
+        ag.brain  = Clade.make_random_brain(arch)
+        original_weights = copy(ag.genome.maternal_weights)
         Clade.lamarck_genome_update!(ag)
         @test ag.genome.maternal_weights == original_weights   # unchanged
     end
