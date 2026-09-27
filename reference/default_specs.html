@@ -1844,6 +1844,16 @@ ticks (default 1L; set higher to reduce memory use in long runs).</p></dd>
 <code>get_genome_data()$genomes</code> at each log tick (default <code>FALSE</code>;
 memory intensive for large populations).</p></dd>
 
+<dt><code>log_movement</code></dt>
+<dd><p>Logical. Record per-agent positions, age, energy
+and alive status; read them with <code><a href="get_movement_data.html">get_movement_data()</a></code> (default
+<code>FALSE</code>).</p></dd>
+
+<dt><code>log_movement_freq</code></dt>
+<dd><p>Integer. Record movement every this many
+ticks when <code>log_movement = TRUE</code> (default <code>1L</code>, every tick; must be
+positive).</p></dd>
+
 <dt><code>verbose</code></dt>
 <dd><p>Logical. If <code>TRUE</code>, prints progress updates to the Julia console
 every 100 ticks during <code><a href="run_alife.html">run_alife()</a></code>. Default <code>FALSE</code>.</p></dd>

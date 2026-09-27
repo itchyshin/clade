@@ -1704,6 +1704,18 @@ evolution. *Complex Systems* 1(3):495–502.
   at each log tick (default `FALSE`; memory intensive for large
   populations).
 
+- `log_movement`:
+
+  Logical. Record per-agent positions, age, energy and alive status;
+  read them with
+  [`get_movement_data()`](https://itchyshin.github.io/clade/reference/get_movement_data.md)
+  (default `FALSE`).
+
+- `log_movement_freq`:
+
+  Integer. Record movement every this many ticks when
+  `log_movement = TRUE` (default `1L`, every tick; must be positive).
+
 - `verbose`:
 
   Logical. If `TRUE`, prints progress updates to the Julia console every

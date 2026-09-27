@@ -795,11 +795,13 @@ per-tick metabolic cost. See `paper-wolf2008`.
 
 ## Logging and output
 
-| Parameter     | Default | Type    |
-|:--------------|:--------|:--------|
-| `log_genomes` | FALSE   | logical |
-| `log_freq`    | 1       | integer |
-| `verbose`     | FALSE   | logical |
+| Parameter           | Default | Type    |
+|:--------------------|:--------|:--------|
+| `log_genomes`       | FALSE   | logical |
+| `log_freq`          | 1       | integer |
+| `log_movement`      | FALSE   | logical |
+| `log_movement_freq` | 1       | integer |
+| `verbose`           | FALSE   | logical |
 
 `log_genomes = TRUE` (wired in 0.7.x) captures every agent’s trait
 vector each `log_freq` ticks — consumed by
@@ -816,7 +818,7 @@ defs <- default_specs()
 
 # All parameter names
 length(defs)
-#> [1] 308
+#> [1] 310
 
 # First 10 parameters with their values
 str(defs[1:10], max.level = 1, give.attr = FALSE)

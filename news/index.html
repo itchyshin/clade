@@ -138,12 +138,10 @@
 <p>First slice of a phased sex / mating-system subsystem. Motivated by the Rees-Baylis et al. (2026, <em>Nature Communications</em>) paper-reproduction target on sex-biased longevity evolution, which requires agents that know their own sex across their lifetime. This release adds the minimum foundation; sex-specific trait expression and mating-system structure follow in subsequent 0.8.x releases.</p>
 <div class="section level3">
 <h3 id="new-spec-fields-all-default-off--backward-compatible-0-8-0">New spec fields (all default-off / backward-compatible)<a class="anchor" aria-label="anchor" href="#new-spec-fields-all-default-off--backward-compatible-0-8-0"></a></h3>
-<ul><li>
-<strong><code>sex_labels = FALSE</code></strong> — master toggle for persistent sex identity on agents. When <code>TRUE</code>, each <code>Agent</code> carries a sticky <code>sex</code> field (0 = female, 1 = male) set at birth, and <code>_find_mate()</code> filters candidates to opposite-sex only.</li>
-<li>
-<strong><code>sex_determination = "random"</code></strong> — sex-determination mechanism. Currently only <code>"random"</code> (50/50 per <code>sex_ratio_primary</code>) is implemented; <code>"chromosomal"</code> and <code>"environmental"</code> are reserved for later releases and raise a clear error if requested.</li>
-<li>
-<strong><code>sex_ratio_primary = 0.5</code></strong> — proportion of offspring born male. Skewed values (e.g. <code>0.3</code>) produce female-biased populations at founder construction and at every birth when <code>sex_labels = TRUE</code>.</li>
+<ul><li><p><strong><code>log_movement = FALSE</code>, <code>log_movement_freq = 1L</code></strong> are now listed in <code><a href="../reference/default_specs.html">default_specs()</a></code>. Previously, setting only <code>log_movement = TRUE</code> stopped the run with a Julia <code>KeyError</code> for <code>log_movement_freq</code>; the Julia recorder now also falls back to <code>1</code> when the key is absent.</p></li>
+<li><p><strong><code>sex_labels = FALSE</code></strong> — master toggle for persistent sex identity on agents. When <code>TRUE</code>, each <code>Agent</code> carries a sticky <code>sex</code> field (0 = female, 1 = male) set at birth, and <code>_find_mate()</code> filters candidates to opposite-sex only.</p></li>
+<li><p><strong><code>sex_determination = "random"</code></strong> — sex-determination mechanism. Currently only <code>"random"</code> (50/50 per <code>sex_ratio_primary</code>) is implemented; <code>"chromosomal"</code> and <code>"environmental"</code> are reserved for later releases and raise a clear error if requested.</p></li>
+<li><p><strong><code>sex_ratio_primary = 0.5</code></strong> — proportion of offspring born male. Skewed values (e.g. <code>0.3</code>) produce female-biased populations at founder construction and at every birth when <code>sex_labels = TRUE</code>.</p></li>
 </ul></div>
 <div class="section level3">
 <h3 id="kernel-changes-gated-by-sex_labels--true-0-8-0">Kernel changes (gated by <code>sex_labels = TRUE</code>)<a class="anchor" aria-label="anchor" href="#kernel-changes-gated-by-sex_labels--true-0-8-0"></a></h3>

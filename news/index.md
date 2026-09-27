@@ -77,14 +77,22 @@ follow in subsequent 0.8.x releases.
 
 ### New spec fields (all default-off / backward-compatible)
 
+- **`log_movement = FALSE`, `log_movement_freq = 1L`** are now listed in
+  [`default_specs()`](https://itchyshin.github.io/clade/reference/default_specs.md).
+  Previously, setting only `log_movement = TRUE` stopped the run with a
+  Julia `KeyError` for `log_movement_freq`; the Julia recorder now also
+  falls back to `1` when the key is absent.
+
 - **`sex_labels = FALSE`** — master toggle for persistent sex identity
   on agents. When `TRUE`, each `Agent` carries a sticky `sex` field (0 =
   female, 1 = male) set at birth, and `_find_mate()` filters candidates
   to opposite-sex only.
+
 - **`sex_determination = "random"`** — sex-determination mechanism.
   Currently only `"random"` (50/50 per `sex_ratio_primary`) is
   implemented; `"chromosomal"` and `"environmental"` are reserved for
   later releases and raise a clear error if requested.
+
 - **`sex_ratio_primary = 0.5`** — proportion of offspring born male.
   Skewed values (e.g. `0.3`) produce female-biased populations at
   founder construction and at every birth when `sex_labels = TRUE`.
