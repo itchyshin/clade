@@ -28,6 +28,7 @@
             genome     = genome,
             reproduced = false,
             num_offspring = Int32(0),
+            last_action = Int8(5),
             # remaining fields use defaults / zeros
         )
     end
@@ -66,7 +67,7 @@
         ag = Clade.Agent(id=Int64(2), x=Int32(1), y=Int32(1),
                           energy=100.0f0, age=Int32(0), t_birth=Int32(0),
                           alive=true, brain=brain, genome=genome,
-                          reproduced=false, num_offspring=Int32(0))
+                          reproduced=false, num_offspring=Int32(0), last_action=Int8(5))
         Clade.lamarck_genome_update!(ag)
         @test ag.genome.maternal_weights == original_weights   # unchanged
     end

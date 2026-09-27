@@ -114,7 +114,7 @@ function seed_predators!(env::Environment)
             # RL
             0.0f0, init_energy,
             # Reproductive tracking
-            false, Int32(0), Int32(0), Int32(0),
+            false, Int32(0), Int32(0), Int32(0), Int8(0),
             # Speciation
             Int32(0),
             # Natal coordinates
@@ -196,6 +196,7 @@ function tick_predators!(env::Environment)
         # 2. Decide
         logits = forward(pred.brain, input)
         action = argmax(logits)
+        pred.last_action = Int8(action)   # #164: 1..4 move, 5 stay-and-attack
 
         # 3. Move or attack
         if action <= 4
@@ -504,7 +505,7 @@ function _predator_reproduction!(env::Environment)
             # RL
             0.0f0, pred.energy * 0.3f0,
             # Reproductive tracking
-            false, Int32(0), Int32(0), Int32(0),
+            false, Int32(0), Int32(0), Int32(0), Int8(0),
             # Speciation
             Int32(0),
             # Natal coordinates
