@@ -46,6 +46,7 @@ function _init_progress(specs::Dict{String,Any}, n_ticks::Int)::Dict{String,Vect
         "mean_learning_rate"     => copy(fz),
         "mean_prior_sigma"       => copy(fz),   # BNN-only; 0 for other brains
         "grass_coverage"         => copy(fz),
+        "grass_density"          => copy(fz),
         "n_infected"             => copy(iz),
         "n_new_infections"       => copy(iz),
         "n_altruistic_acts"      => copy(iz),
@@ -168,6 +169,9 @@ function log_tick!(env::Environment)
     # Grass coverage
     gmax   = Float32(get(env.specs, "grass_max", 5.0))
     gcov   = Float64(sum(env.grass .> 0.0f0)) / Float64(length(env.grass))
+    # Mean biomass as a share of capacity (#167). Unlike grass_coverage it
+    # does not saturate at 1 when deterministic growth touches every cell.
+    gdens  = Float64(sum(env.grass)) / (Float64(length(env.grass)) * Float64(gmax))
 
     p["t"][t]                  = t
     p["n_agents"][t]           = n
@@ -190,6 +194,7 @@ function log_tick!(env::Environment)
     p["mean_learning_rate"][t]     = mean(lrs)
     p["mean_prior_sigma"][t]       = isempty(sigmas) ? 0.0 : mean(sigmas)
     p["grass_coverage"][t]         = gcov
+    p["grass_density"][t]          = gdens
     p["n_infected"][t]             = count(ag -> ag.infected, ags)
     p["n_new_infections"][t]       = Int(env.n_new_infections)
     p["n_altruistic_acts"][t]      = Int(env.n_altruistic_acts)

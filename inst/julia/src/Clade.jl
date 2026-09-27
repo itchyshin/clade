@@ -488,12 +488,24 @@ end
 """
     grow_grass!(env::Environment)
 
-Grow grass according to logistic regrowth: each empty cell has probability
-`grass_rate` of gaining one unit per tick, up to `grass_max`.
+Grow grass on every cell below `grass_max`. With `grass_growth_mode =
+"stochastic"` (default), each cell gains one unit with probability
+`grass_rate` per tick. With `"deterministic"`, each cell gains exactly
+`grass_rate` units per tick (the A-life rule, #167) and no random numbers
+are drawn. Seasonal and niche modifiers scale the per-cell rate in both
+modes. Growth is capped at `grass_max`.
 """
 function grow_grass!(env::Environment)
     rate = Float32(env.specs["grass_rate"])
     gmax = Float32(get(env.specs, "grass_max", 5.0))
+    mode = String(get(env.specs, "grass_growth_mode", "stochastic"))
+    deterministic = if mode == "deterministic"
+        true
+    elseif mode == "stochastic"
+        false
+    else
+        throw(ArgumentError("grass_growth_mode must be \"stochastic\" or \"deterministic\", got \"$mode\"."))
+    end
     # Seasonal modulation.
     # `seasonal_amplitude` — uniform sin(2πt/period) scaling of rate.
     # `seasonal_spatial_bias` (0.5.18) — flips the spatial grass
@@ -534,9 +546,8 @@ function grow_grass!(env::Environment)
             if niche_on
                 rate_xy *= niche_grass_rate_multiplier(env.shelter_map, x, y)
             end
-            if rand(env.rng) < rate_xy
-                env.grass[x, y] = min(env.grass[x, y] + 1.0f0, gmax)
-            end
+            env.grass[x, y] = _grown_cell(env.grass[x, y], rate_xy, gmax,
+                                          deterministic, env.rng)
         end
     elseif niche_on
         rows = size(env.grass, 1)
@@ -544,17 +555,26 @@ function grow_grass!(env::Environment)
         @inbounds for y in 1:cols, x in 1:rows
             env.grass[x, y] < gmax || continue
             mult = niche_grass_rate_multiplier(env.shelter_map, x, y)
-            if rand(env.rng) < base_rate * mult
-                env.grass[x, y] = min(env.grass[x, y] + 1.0f0, gmax)
-            end
+            env.grass[x, y] = _grown_cell(env.grass[x, y], base_rate * mult,
+                                          gmax, deterministic, env.rng)
         end
     else
         @inbounds for i in eachindex(env.grass)
-            if env.grass[i] < gmax && rand(env.rng) < base_rate
-                env.grass[i] = min(env.grass[i] + 1.0f0, gmax)
-            end
+            env.grass[i] < gmax || continue
+            env.grass[i] = _grown_cell(env.grass[i], base_rate, gmax,
+                                       deterministic, env.rng)
         end
     end
+end
+
+# One cell's regrowth for one tick. Stochastic: +1 with probability `r`
+# (one RNG draw, as before). Deterministic: +r, no RNG draw.
+@inline function _grown_cell(g::Float32, r::Float32, gmax::Float32,
+                             deterministic::Bool, rng)
+    if deterministic
+        return min(g + r, gmax)
+    end
+    return rand(rng) < r ? min(g + 1.0f0, gmax) : g
 end
 
 """

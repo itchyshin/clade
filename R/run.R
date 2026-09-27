@@ -812,6 +812,7 @@ Rscript -e %s
   check_choice("rl_mode",         c("none", "actor_critic", "hebbian"))
   check_choice("brain_energy_mode",
                c("none", "size", "activity", "prediction_error"))
+  check_choice("grass_growth_mode", c("stochastic", "deterministic"))
 
   if (!specs$ploidy %in% c(1L, 2L))
     stop("specs$ploidy must be 1L (haploid) or 2L (diploid).", call. = FALSE)

@@ -95,9 +95,17 @@ this value (default 0).}
 \describe{
 \item{\code{grass_init_prob}}{Numeric in [0, 1]. Probability each cell starts
 with grass (default 0.5).}
-\item{\code{grass_rate}}{Numeric in [0, 1]. Per-tick probability that an empty
-cell grows grass (default 0.05).}
+\item{\code{grass_rate}}{Numeric in [0, 1]. Per-tick regrowth rate of a cell
+below \code{grass_max} (default 0.05). Under \code{grass_growth_mode = "stochastic"} it is the probability of gaining one unit; under
+\code{"deterministic"} it is the amount gained. The expected regrowth per
+tick is the same in both modes.}
 \item{\code{grass_max}}{Numeric. Maximum grass units per cell (default 5).}
+\item{\code{grass_growth_mode}}{Character. \code{"stochastic"} (default): each
+cell gains one unit with probability \code{grass_rate} per tick.
+\code{"deterministic"}: every cell gains \code{grass_rate} units per tick, the
+A-life rule. Deterministic growth draws no random numbers, so seeded
+runs differ from stochastic ones. With it, \code{grass_coverage} is near 1
+after the first tick; use \code{grass_density} instead.}
 }
 }
 

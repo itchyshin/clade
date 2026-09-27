@@ -14,7 +14,7 @@ function get_default_specs()
         "repro_cost_mode" => "proportional", "repro_cost" => 30.0, "repro_cost_fraction" => 0.5,
         "offspring_energy_mode" => "proportional", "offspring_energy" => 60.0, "offspring_energy_fraction" => 0.25,
         "starvation_threshold" => 0.0, "max_age_scales_with_metabolism" => false,
-        "grass_init_prob" => 0.5, "grass_rate" => 0.05, "grass_max" => 5.0,
+        "grass_init_prob" => 0.5, "grass_rate" => 0.05, "grass_max" => 5.0, "grass_growth_mode" => "stochastic",
         "brain_type" => "bnn", "hidden_layers" => [8], "input_radius" => 1, "n_genes" => 20,
         "transformer_history" => 8, "transformer_heads" => 2, "synthesis_max_rules" => 10,
         "ann_weight_values" => nothing, "ann_regularization" => "none", "ann_regularization_lambda" => 0.001,

@@ -209,6 +209,59 @@ end
     @test res_seed_off.total_shelter == res_seed_on.total_shelter
 end
 
+@testset "Grass growth mode (#167)" begin
+    base = Clade.get_default_specs()
+    base["grid_rows"] = 6; base["grid_cols"] = 6
+    base["grass_init_prob"] = 0.0
+    base["grass_rate"] = 0.3; base["grass_max"] = 1.0
+    base["random_seed"] = 7
+
+    # 1. Deterministic: every cell grows by exactly `rate`, capped at gmax,
+    #    and no random numbers are drawn.
+    sd = copy(base); sd["grass_growth_mode"] = "deterministic"
+    env = Clade.create_environment(sd)
+    rng_before = copy(env.rng)
+    Clade.grow_grass!(env)
+    @test all(env.grass .== 0.3f0)
+    @test env.rng == rng_before
+    for _ in 1:5
+        Clade.grow_grass!(env)
+    end
+    @test all(env.grass .== 1.0f0)
+
+    # 2. Deterministic applies in the niche and seasonal-bias branches too
+    #    (no cell is left at 0 after one tick).
+    for extra in (Dict("niche_construction" => true),
+                  Dict("seasonal_spatial_bias" => 0.5, "season_length" => 100))
+        sx = merge(copy(sd), extra)
+        envx = Clade.create_environment(sx)
+        envx.t = 25   # mid-season so the spatial bias is non-zero
+        Clade.grow_grass!(envx)
+        @test all(envx.grass .> 0.0f0)
+        @test all(envx.grass .<= 1.0f0)
+    end
+
+    # 3. Stochastic stays the default: a seeded run is identical with the
+    #    mode unset and with it set explicitly to "stochastic".
+    r1 = Dict{String,Any}("max_ticks" => 20, "n_agents_init" => 10,
+                          "random_seed" => 11)
+    r2 = copy(r1); r2["grass_growth_mode"] = "stochastic"
+    @test Clade.run_clade(r1).progress == Clade.run_clade(r2).progress
+
+    # 4. grass_density = sum(grass) / (N * gmax); grass_coverage unchanged.
+    r3 = Dict{String,Any}("max_ticks" => 5, "n_agents_init" => 5,
+                          "random_seed" => 3, "grass_rate" => 0.2,
+                          "grass_growth_mode" => "deterministic")
+    res = Clade.run_clade(r3)
+    @test haskey(res.progress, :grass_density)
+    @test all(0.0 .<= res.progress.grass_density .<= 1.0)
+    @test all(res.progress.grass_coverage .<= 1.0)
+
+    # 5. Unknown mode is rejected.
+    sbad = copy(base); sbad["grass_growth_mode"] = "continuous"
+    @test_throws ArgumentError Clade.grow_grass!(Clade.create_environment(sbad))
+end
+
 @testset "Clade Julia unit tests" begin
     include("test_ann_quantization.jl")
     include("test_ann_regularization.jl")

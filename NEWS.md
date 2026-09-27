@@ -76,6 +76,15 @@ structure follow in subsequent 0.8.x releases.
 
 ## New spec fields (all default-off / backward-compatible)
 
+- **`grass_growth_mode = "stochastic"`** selects how grass regrows (#167).
+  `"stochastic"` keeps the existing rule (each cell gains one unit with
+  probability `grass_rate`); seeded runs are unchanged. `"deterministic"`
+  adds `grass_rate` to every cell each tick, the A-life rule, in all
+  three growth branches (default, niche construction, seasonal spatial
+  bias). New per-tick column **`grass_density`** reports total grass as
+  a share of capacity, since `grass_coverage` saturates near 1 under
+  deterministic growth.
+
 - **`log_movement = FALSE`, `log_movement_freq = 1L`** are now listed in
   `default_specs()`. Previously, setting only `log_movement = TRUE`
   stopped the run with a Julia `KeyError` for `log_movement_freq`; the
