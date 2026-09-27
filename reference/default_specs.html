@@ -247,11 +247,21 @@ this value (default 0).</p></dd>
 with grass (default 0.5).</p></dd>
 
 <dt><code>grass_rate</code></dt>
-<dd><p>Numeric in [0, 1]. Per-tick probability that an empty
-cell grows grass (default 0.05).</p></dd>
+<dd><p>Numeric in [0, 1]. Per-tick regrowth rate of a cell
+below <code>grass_max</code> (default 0.05). Under <code>grass_growth_mode = "stochastic"</code> it is the probability of gaining one unit; under
+<code>"deterministic"</code> it is the amount gained. The expected regrowth per
+tick is the same in both modes.</p></dd>
 
 <dt><code>grass_max</code></dt>
 <dd><p>Numeric. Maximum grass units per cell (default 5).</p></dd>
+
+<dt><code>grass_growth_mode</code></dt>
+<dd><p>Character. <code>"stochastic"</code> (default): each
+cell gains one unit with probability <code>grass_rate</code> per tick.
+<code>"deterministic"</code>: every cell gains <code>grass_rate</code> units per tick, the
+A-life rule. Deterministic growth draws no random numbers, so seeded
+runs differ from stochastic ones. With it, <code>grass_coverage</code> is near 1
+after the first tick; use <code>grass_density</code> instead.</p></dd>
 
 
 </dl></div>

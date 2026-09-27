@@ -88,11 +88,12 @@ for the full Smith-Fretwell quality-quantity options.
 The base food supply: how cells initialise, how often they regrow, and
 the per-cell saturation.
 
-| Parameter         | Default | Type    |
-|:------------------|:--------|:--------|
-| `grass_init_prob` | 0.5     | numeric |
-| `grass_rate`      | 0.05    | numeric |
-| `grass_max`       | 5       | numeric |
+| Parameter           | Default      | Type      |
+|:--------------------|:-------------|:----------|
+| `grass_init_prob`   | 0.5          | numeric   |
+| `grass_rate`        | 0.05         | numeric   |
+| `grass_max`         | 5            | numeric   |
+| `grass_growth_mode` | “stochastic” | character |
 
 ------------------------------------------------------------------------
 
@@ -818,7 +819,7 @@ defs <- default_specs()
 
 # All parameter names
 length(defs)
-#> [1] 310
+#> [1] 311
 
 # First 10 parameters with their values
 str(defs[1:10], max.level = 1, give.attr = FALSE)
