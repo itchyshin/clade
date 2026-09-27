@@ -323,3 +323,33 @@ important project state. Keep entries concise and concrete.
 - Next safest action: open the focused PR, then repair #177 separately so it
   covers predators that die after initialization as well as an initially empty
   predator population.
+
+## 2026-09-27 - Movement-logging defaults in default_specs()
+
+- Branch: `fix/log-movement-freq-default` (off `main` at `6797b53`).
+- Goal: Fix the bug Bhavya reported on #167: setting only
+  `specs$log_movement = TRUE` stopped the run with a Julia `KeyError`
+  for `log_movement_freq`.
+- Cause: `run_clade()` validated the frequency with
+  `get(specs, "log_movement_freq", 1)`, but `log_movement!()` read
+  `env.specs["log_movement_freq"]` with no fallback, and
+  `default_specs()` supplied neither key.
+- Files changed: `R/config.R`, `R/utils.R` (`.SPEC_GROUPS`),
+  `man/default_specs.Rd`, `inst/julia/src/logging.jl`,
+  `inst/julia/test/runtests.jl`, `tests/testthat/test-movement.R`,
+  `NEWS.md`, this log, and
+  `dev/dev-log/after-task/2026-09-27-log-movement-freq-default.md`.
+- Checks run:
+  - Julia repro script (`log_movement = true`, no frequency): `KeyError`
+    before the fix; ticks `1, 2, 3` recorded after it.
+  - Julia `test/runtests.jl`: "Movement Logging Contract (#176)" 17/17
+    pass, including the new no-frequency case. The suite as a whole
+    still reports 1 fail and 2 errors (ANN regularization, Lamarckian
+    genome update); the same three appear on unchanged `main`.
+  - `devtools::document()`: `man/default_specs.Rd` regenerated.
+  - `devtools::test()`: FAIL 0, PASS 1093, SKIP 648. JuliaConnectoR is
+    not installed in this R library, so Julia-gated R tests (including
+    the new end-to-end one) were skipped.
+- Next safest action: run the Julia-gated R tests on a machine with
+  JuliaConnectoR, then merge. Separately triage the three pre-existing
+  Julia failures.

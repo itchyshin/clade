@@ -76,6 +76,11 @@ structure follow in subsequent 0.8.x releases.
 
 ## New spec fields (all default-off / backward-compatible)
 
+- **`log_movement = FALSE`, `log_movement_freq = 1L`** are now listed in
+  `default_specs()`. Previously, setting only `log_movement = TRUE`
+  stopped the run with a Julia `KeyError` for `log_movement_freq`; the
+  Julia recorder now also falls back to `1` when the key is absent.
+
 - **`sex_labels = FALSE`** — master toggle for persistent sex identity
   on agents. When `TRUE`, each `Agent` carries a sticky `sex` field
   (0 = female, 1 = male) set at birth, and `_find_mate()` filters
