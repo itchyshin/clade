@@ -186,7 +186,7 @@ end
         "n_agents_init" => 5,
         "n_predators_init" => 0,
         "energy_init" => 50.0,
-        "repro_threshold" => 9999.0,
+        "min_repro_energy" => 9999.0,   # no births: expressed threshold caps at 1000 > energy_max
         "log_movement_freq" => 1,
         "log_movement" => false,
         "_movement_log" => nothing 
@@ -198,6 +198,10 @@ end
     s_parity["_movement_log"] = nothing
 
     res_seed_on  = Clade.run_clade(s_parity)
+
+    # The comparison is meant to run without reproduction.
+    @test all(res_seed_off.progress.n_births .== 0)
+    @test all(res_seed_on.progress.n_births .== 0)
 
     # Compare ALL non-recording returned states
     @test res_seed_off.t == res_seed_on.t
@@ -355,6 +359,44 @@ end
     pups = e4.predators[(np0 + 1):end]
     @test !isempty(pups)
     @test all(p -> p.last_action == Int8(0), pups)
+end
+
+# Warning messages emitted by `f()`. Uses Test.TestLogger directly:
+# on Julia 1.10.0 a failing @test_logs crashes while recording the
+# failure (Test.scrub_backtrace MethodError), hiding the real cause.
+function _warnings(f)
+    tl = Test.TestLogger()
+    Base.CoreLogging.with_logger(f, tl)
+    [string(l.message) for l in tl.logs if l.level == Base.CoreLogging.Warn]
+end
+
+@testset "Unknown spec keys warn (#185)" begin
+    # A key the kernel never reads is almost always a typo or a name from
+    # another codebase (e.g. A-life's `repro_threshold`; clade uses
+    # `min_repro_energy`). It must not pass silently.
+    w = _warnings(() -> Clade.normalize_specs(
+        Dict{String,Any}("repro_threshold" => 150.0)))
+    @test length(w) == 1
+    @test occursin("repro_threshold", w[1])
+    @test occursin("min_repro_energy", w[1])   # names the clade spec
+
+    # One warning per unknown key.
+    w2 = _warnings(() -> Clade.normalize_specs(
+        Dict{String,Any}("foo_a" => 1, "foo_b" => 2)))
+    @test length(w2) == 2
+    @test any(m -> occursin("foo_a", m), w2)
+    @test any(m -> occursin("foo_b", m), w2)
+
+    # Known keys, keys R sends, and Julia-internal `_` keys stay silent.
+    @test isempty(_warnings(() -> Clade.normalize_specs(Dict{String,Any}(
+        "max_ticks" => 5, "log_movement" => true, "log_movement_freq" => 2,
+        "grass_growth_mode" => "deterministic", "_movement_log" => nothing))))
+
+    # Unknown keys still pass through (warn, not error).
+    kept = Ref{Any}(nothing)
+    _warnings(() -> kept[] = Clade.normalize_specs(
+        Dict{String,Any}("repro_threshold" => 1.0)))
+    @test kept[]["repro_threshold"] == 1.0
 end
 
 @testset "Clade Julia unit tests" begin
