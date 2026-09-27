@@ -262,31 +262,103 @@ end
     @test_throws ArgumentError Clade.grow_grass!(Clade.create_environment(sbad))
 end
 
+
+# Test-only brain that always prefers action `a` (1..5).
+struct _FixedActionBrain <: Clade.AbstractBrain
+    a::Int
+    nin::Int32   # copied from the brain it replaces, so sensing is unchanged
+end
+_FixedActionBrain(a::Int, old::Clade.AbstractBrain) =
+    _FixedActionBrain(a, Clade.n_inputs(old))
+Clade.n_inputs(b::_FixedActionBrain) = b.nin
+function Clade.forward(b::_FixedActionBrain, ::Vector{Float32})
+    v = zeros(Float32, 5); v[b.a] = 1.0f0; v
+end
+
+@testset "last_action contract (#164)" begin
+    # Encoding = the brain's output index: 0 = no action yet,
+    # 1 = N, 2 = E, 3 = S, 4 = W, 5 = stay (prey idle; predator
+    # stay-and-attack). Death is alive = false, never a code.
+    base = Clade.get_default_specs()
+    base["grid_rows"] = 10; base["grid_cols"] = 10
+    base["random_seed"] = 5
+    base["brain_energy_mode"] = "none"
+
+    # 1. Founders start at 0.
+    env = Clade.create_environment(copy(base))
+    @test !isempty(env.agents)
+    @test all(ag -> ag.last_action == Int8(0), env.agents)
+
+    # 2. Real brains: after one tick every living agent holds a code in 1..5.
+    Clade.tick_agents!(env)
+    @test all(ag -> ag.last_action in Int8(1):Int8(5),
+              filter(ag -> ag.alive, env.agents))
+
+    # 3. Each code is recorded exactly, with the matching move.
+    #    Direction deltas as in tick.jl: N = row-1, E = col+1, S = row+1, W = col-1.
+    deltas = Dict(1 => (-1, 0), 2 => (0, 1), 3 => (1, 0), 4 => (0, -1), 5 => (0, 0))
+    for a in 1:5
+        s1 = copy(base); s1["n_agents_init"] = 1
+        e1 = Clade.create_environment(s1)
+        ag = e1.agents[1]
+        ag.x = Int32(5); ag.y = Int32(5)
+        ag.brain = _FixedActionBrain(a, ag.brain)
+        Clade.tick_agents!(e1)
+        @test ag.last_action == Int8(a)
+        @test (ag.x, ag.y) == (Int32(5 + deltas[a][1]), Int32(5 + deltas[a][2]))
+    end
+
+    # 4. A blocked move still records the choice (intent, not outcome).
+    s2 = copy(base); s2["n_agents_init"] = 2; s2["random_tick_order"] = false
+    e2 = Clade.create_environment(s2)
+    mover, blocker = e2.agents[1], e2.agents[2]
+    mover.x, mover.y = Int32(5), Int32(5)
+    blocker.x, blocker.y = Int32(5), Int32(6)          # east of mover
+    mover.brain = _FixedActionBrain(2, mover.brain)                 # tries E
+    blocker.brain = _FixedActionBrain(5, blocker.brain)               # stays
+    Clade.tick_agents!(e2)
+    @test mover.last_action == Int8(2)
+    @test (mover.x, mover.y) == (Int32(5), Int32(5))
+
+    # 5. Offspring start at 0.
+    s3 = copy(base); s3["n_agents_init"] = 20
+    e3 = Clade.create_environment(s3)
+    n0 = length(e3.agents)
+    for ag in e3.agents
+        ag.energy = 190.0f0; ag.age = Int32(50); ag.last_action = Int8(3)
+    end
+    Clade.create_offspring!(e3)
+    newborns = e3.agents[(n0 + 1):end]
+    @test !isempty(newborns)
+    @test all(ag -> ag.last_action == Int8(0), newborns)
+
+    # 6. Predators: founders 0, each chosen code recorded, offspring 0.
+    s4 = copy(base); s4["n_predators_init"] = 3
+    e4 = Clade.create_environment(s4)
+    Clade.seed_predators!(e4)
+    @test length(e4.predators) == 3
+    @test all(p -> p.last_action == Int8(0), e4.predators)
+    real_brains = [p.brain for p in e4.predators]
+    for (p, a) in zip(e4.predators, (1, 4, 5))
+        p.brain = _FixedActionBrain(a, p.brain)
+    end
+    Clade.tick_predators!(e4)
+    for (p, a) in zip(e4.predators, (1, 4, 5))
+        p.alive && @test p.last_action == Int8(a)
+    end
+    np0 = length(e4.predators)
+    for (p, b) in zip(e4.predators, real_brains)
+        p.brain = b      # reproduction mutates a copy of the parent brain
+        p.alive = true; p.energy = 1000.0f0; p.age = Int32(100)
+    end
+    Clade._predator_reproduction!(e4)
+    pups = e4.predators[(np0 + 1):end]
+    @test !isempty(pups)
+    @test all(p -> p.last_action == Int8(0), pups)
+end
+
 @testset "Clade Julia unit tests" begin
     include("test_ann_quantization.jl")
     include("test_ann_regularization.jl")
     include("test_lamarckian.jl")
-end
-
-@testset "Behavioral Diversity Actions (#164)" begin
-    # Proposing Schema: 
-    # 0=Idle/Dead, 1=North, 2=East, 3=South, 4=West, 5=Eat, 6=Reproduce, 7=Attack
-    
-    # 1. Test Founder Initialization (Defaults to 0)
-    ag_founder = Clade.Agent(
-        Int64(1), Int64(0), Int64(0), Int32(1), Int32(1), 100.0f0, Int32(0), Int32(0), true,
-        Clade.make_random_brain(Int32[4,3]), Clade.DiploidGenome(Float32[], Float32[], Float32[], Float32[], Int32[]), Bool[],
-        1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
-        zeros(Float32, 1), zeros(Float32, 1), 1.0, Float32[], Float32[],
-        false, false, Int32(0), Int32(0), Any[], Int32(0), 0.0f0, 100.0f0,
-        false, Int32(0), Int32(0), Int32(0), Int8(0), # <--- last_action initialized to 0
-        Int32(0), Int32(1), Int32(1), 1.0, 1.0, 1.0, 1.0, Int32(1), 1.0,
-        1.0, 1.0, 1.0, 0.0f0, 1.0, 1.0, 1.0, Int64[], Int8[], 1.0, 1, Int64(0), Int32(0), Int64(0)
-    )
-    
-    @test ag_founder.last_action == Int8(0)
-    
-    # 2. Test manual assignment based on schema
-    ag_founder.last_action = Int8(1) # Simulated Move North
-    @test ag_founder.last_action == Int8(1)
 end

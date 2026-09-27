@@ -261,7 +261,13 @@ in hot-path code when the corresponding module is disabled.
 - `num_offspring::Int32` — cumulative offspring count.
 - `num_choices::Int32` — cumulative action choices made.
 - `num_greedy_choices::Int32` — actions that matched arg-max of logits.
-- `last_action::Int8` — the action (1=N, 2=E, 3=S, 4=W, 5=Idle) chosen by the agent in the most recent tick. Used for behavioral diversity metrics.
+- `last_action::Int8` — the action the brain chose on the most recent
+  tick: `0` = no action yet (founders and newborns), `1` = N, `2` = E,
+  `3` = S, `4` = W, `5` = stay (idle for prey; stay-and-attack for
+  predators). It records the choice even when a move is blocked by an
+  occupied cell, and ignores later module moves (responsiveness,
+  dispersal, habitat preference). Death is `alive = false`, not a code.
+  Groundwork for a behavioural-diversity metric (#164).
 
 ## Speciation
 - `species_id::Int32` — cluster ID assigned at each logging tick by

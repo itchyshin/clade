@@ -383,3 +383,32 @@ important project state. Keep entries concise and concrete.
     52. Not a calibrated result.
 - Next safest action: merge when green; Sergio and Shinichi decide
   whether deterministic should become the default.
+
+## 2026-09-27 - last_action contract for behavioural diversity (#164)
+
+- Branch: `claude/behavioral-diversity-actions` (off `main` at
+  `595069f`), carrying Bhavya's two #179 commits (authorship kept).
+- Goal: implement the recording contract agreed on #164 before any
+  metric or R API: code 0 only for "no action yet", death stays
+  `alive = false`, every real decision path updates `last_action`.
+- Encoding: the brain's output index. 0 = no action yet, 1 = N, 2 = E,
+  3 = S, 4 = W, 5 = stay (idle for prey, stay-and-attack for predators).
+  Eat and reproduce are automatic in clade, not decisions, so the
+  8-code proposal on #164 was reduced to these six.
+- Files changed: `inst/julia/src/types.jl`, `inst/julia/src/tick.jl`,
+  `inst/julia/src/modules/tick_predators.jl`, `inst/julia/src/Clade.jl`,
+  `inst/julia/src/reproduce.jl` (constructors start at 0, not 5),
+  `inst/julia/test/runtests.jl`, this log, and
+  `dev/dev-log/after-task/2026-09-27-last-action-contract.md`.
+- Checks run:
+  - Julia "last_action contract (#164)" 24/24: founders 0; each code
+    1 to 5 recorded with the matching move; blocked move records intent;
+    offspring 0; predator founders 0, chosen codes recorded, predator
+    offspring 0. Same three pre-existing failures as `main` remain.
+  - Seeded parity against `main` (`595069f` worktree), 60 ticks:
+    identical progress tables and agents (excluding the new field) for
+    default, predators, niche construction, seasonal spatial bias.
+  - Test order fix: the new testset sits before "Clade Julia unit
+    tests". That block fails on `main` and aborts the script, so any
+    testset after it (including the #179 placeholder) never ran.
+- Next safest action: review; then design the metric and R extraction.

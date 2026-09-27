@@ -162,6 +162,7 @@ function tick_agents!(env::Environment)
             action = rand(env.rng, 1:length(logits))
             ag.num_greedy_choices -= Int32(1)    # undo: this wasn't greedy
         end
+        ag.last_action = Int8(action)     # #164: brain's choice, 1..5
 
         # ── Move ──────────────────────────────────────────────────────────
         # 0.7.0 Phase 2: one-agent-per-cell at movement — restored from the
