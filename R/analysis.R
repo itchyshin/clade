@@ -14,7 +14,9 @@
 #'     `n_agents`, `n_births`, `n_deaths`, `n_starvations`,
 #'     `n_age_deaths`, `mean_energy`, `sd_energy`, `mean_age`, `sd_age`,
 #'     `mean_body_size`, `sd_body_size`, `genetic_diversity`, `n_species`,
-#'     `grass_coverage`. Module-specific columns are present as zeros
+#'     `grass_coverage` (share of cells with any grass), `grass_density`
+#'     (total grass as a share of `N * grass_max`; can exceed 1 only when
+#'     `fixed_patch_value > grass_max`). Module-specific columns are present as zeros
 #'     when the corresponding module is disabled (so the data frame
 #'     shape is stable across specs), including
 #'     `mean_cooperation_level`, `mean_immune_strength`, `sd_immune_strength`,

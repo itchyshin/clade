@@ -353,3 +353,33 @@ important project state. Keep entries concise and concrete.
 - Next safest action: run the Julia-gated R tests on a machine with
   JuliaConnectoR, then merge. Separately triage the three pre-existing
   Julia failures.
+
+## 2026-09-27 - grass_growth_mode toggle and grass_density column
+
+- Branch: `feat/grass-growth-mode` (off `main` at `e008b85`).
+- Goal: Answer #167 (Bhavya, Sergio): offer A-life's deterministic grass
+  regrowth, `min(grass + rate, gmax)`, as an opt-in mode, and add a
+  grass measure that does not saturate under it.
+- Files changed: `inst/julia/src/Clade.jl` (`grow_grass!`, new
+  `_grown_cell`), `inst/julia/src/defaults.jl`,
+  `inst/julia/src/logging.jl`, `R/config.R`, `R/run.R`, `R/utils.R`,
+  `R/search.R`, `R/analysis.R`, `man/default_specs.Rd`,
+  `man/get_run_data.Rd`, `inst/julia/test/runtests.jl`,
+  `tests/testthat/test-grass-growth-mode.R` (new), `NEWS.md`, this log,
+  and `dev/dev-log/after-task/2026-09-27-grass-growth-mode.md`.
+- Checks run:
+  - Julia `test/runtests.jl`: "Grass growth mode (#167)" 12/12,
+    movement contract 15/15. The same three pre-existing failures as
+    on `main` (ANN regularization, Lamarckian) remain.
+  - Seeded parity against `main` (`e008b85` worktree): progress tables
+    and agents identical over 60 ticks for the default, niche
+    construction, and seasonal spatial bias branches.
+  - `devtools::document()`: `default_specs.Rd`, `get_run_data.Rd`.
+  - `devtools::test()`: FAIL 0, PASS 1095, SKIP 648 (JuliaConnectoR
+    not installed; Julia-gated R tests skipped).
+  - Indicative comparison, 5 seeds x 300 ticks, default specs: tick 1
+    coverage 0.52 stochastic vs 0.97 deterministic, density 0.48 in
+    both; ticks 201 to 300 density 0.28 vs 0.25, mean `n_agents` 47 vs
+    52. Not a calibrated result.
+- Next safest action: merge when green; Sergio and Shinichi decide
+  whether deterministic should become the default.

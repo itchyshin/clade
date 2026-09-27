@@ -80,9 +80,18 @@
 #' \describe{
 #'   \item{`grass_init_prob`}{Numeric in \[0, 1\]. Probability each cell starts
 #'     with grass (default 0.5).}
-#'   \item{`grass_rate`}{Numeric in \[0, 1\]. Per-tick probability that an empty
-#'     cell grows grass (default 0.05).}
+#'   \item{`grass_rate`}{Numeric in \[0, 1\]. Per-tick regrowth rate of a cell
+#'     below `grass_max` (default 0.05). Under `grass_growth_mode =
+#'     "stochastic"` it is the probability of gaining one unit; under
+#'     `"deterministic"` it is the amount gained. The expected regrowth per
+#'     tick is the same in both modes.}
 #'   \item{`grass_max`}{Numeric. Maximum grass units per cell (default 5).}
+#'   \item{`grass_growth_mode`}{Character. `"stochastic"` (default): each
+#'     cell gains one unit with probability `grass_rate` per tick.
+#'     `"deterministic"`: every cell gains `grass_rate` units per tick, the
+#'     A-life rule. Deterministic growth draws no random numbers, so seeded
+#'     runs differ from stochastic ones. With it, `grass_coverage` is near 1
+#'     after the first tick; use `grass_density` instead.}
 #' }
 #'
 #' ## Brain architecture
@@ -1169,6 +1178,7 @@ default_specs <- function() {
     grass_init_prob        = 0.5,
     grass_rate             = 0.05,
     grass_max              = 5.0,
+    grass_growth_mode      = "stochastic",
 
     # ── Brain architecture ─────────────────────────────────────────────────
     brain_type             = "bnn",
