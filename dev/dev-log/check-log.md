@@ -471,3 +471,23 @@ important project state. Keep entries concise and concrete.
   failures went unnoticed.
 - Next safest action: review; consider a PR-triggered Linux job for
   `runtests.jl`.
+
+## 2026-09-27 - julia-tests CI workflow
+
+- Branch: `ci/julia-tests`.
+- Goal: run `inst/julia/test/runtests.jl` on pull requests. No workflow
+  ran it before (`tests.yaml` skips Julia; `fidelity-matrix.yaml` runs
+  paper scripts), which is how three unit tests broke unnoticed (#192).
+- File: `.github/workflows/julia-tests.yaml`. Triggers:
+  `workflow_dispatch`, and `pull_request` only when `inst/julia/**` or
+  the workflow file changes. `ubuntu-latest`, Julia 1.10 (the manifest's
+  minor version), `julia-actions/cache`, 20-minute timeout, PR-scoped
+  `cancel-in-progress`, threads capped.
+- Checks run:
+  - YAML parses (actionlint not installed locally).
+  - Local dry run from an empty depot (`JULIA_DEPOT_PATH` fresh):
+    `Pkg.instantiate()` + precompile 18 s, test suite 20 s. On `main`
+    before #192 the suite exits 1, so the job fails when tests fail.
+  - The job's first real run is on this PR itself.
+- Next safest action: confirm the first run is green, then decide
+  whether to make `julia-tests` a required check (a settings change).
