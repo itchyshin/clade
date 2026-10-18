@@ -491,3 +491,21 @@ important project state. Keep entries concise and concrete.
   - The job's first real run is on this PR itself.
 - Next safest action: confirm the first run is green, then decide
   whether to make `julia-tests` a required check (a settings change).
+
+## 2026-10-18 - Grass density in plot_run (#167)
+
+- Branch: codex/grass-dashboard-density, isolated from the dirty main checkout.
+- Keep stochastic grass growth as the default. Plot both recorded coverage
+  and density in the existing grass panel, with older-data coverage fallback.
+- Files: R/visualization.R, tests/testthat/test-visualization.R,
+  generated man/plot_run.Rd, NEWS.md, after-task report.
+- Rscript -e 'devtools::document(); devtools::test(filter="^visualization$")':
+  visualization PASS 47, FAIL 0, WARN 0, SKIP 0. Documentation regenerated;
+  existing missing-JuliaConnectoR reference messages remain.
+- Rscript -e 'devtools::test(reporter="summary")': exit 0, no reported
+  failures; 649 skipped tests, predominantly JuliaConnectoR unavailable.
+- New density test failed three assertions before implementation.
+- git diff --check passed. Searched plot_run and grass_coverage in
+  tests/testthat/test-visualization.R; inspected callers through graft.
+- Kernel unchanged; no simulation, full package check or site build run.
+- Next: review focused PR; Bhavya retains corrected #185 sampling rerun.
