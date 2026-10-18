@@ -2,6 +2,12 @@
 
 ## clade 0.8.0 (development) — sex / mating-system subsystem + Rees-Baylis 2026 paper reproduction
 
+- [`plot_run()`](https://itchyshin.github.io/clade/reference/plot_run.md)
+  now shows grass biomass density alongside coverage when the recorded
+  data includes `grass_density`. Older saved runs retain the
+  coverage-only panel. Stochastic grass growth remains the default
+  ([\#167](https://github.com/itchyshin/clade/issues/167)).
+
 Phased sex / mating-system subsystem, motivated by the Rees-Baylis et
 al. (2026, *Nature Communications*) paper on sex-biased longevity
 evolution. Three layers — sex foundation, sex-specific trait expression,

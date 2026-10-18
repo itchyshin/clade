@@ -4,10 +4,10 @@ Constructs a 2x3 patchwork grid of time-series diagnostics from the
 output of
 [`get_run_data()`](https://itchyshin.github.io/clade/reference/get_run_data.md):
 population size, mean energy with variability ribbon, genetic diversity,
-births vs deaths per tick, grass coverage, and a sixth panel that
-switches between body size (ANN brain) and BNN prior sigma (the Baldwin
-Effect panel; Baldwin 1896, Hinton & Nowlan 1987) depending on the
-active brain type.
+births vs deaths per tick, grass coverage and density, and a sixth panel
+that switches between body size (ANN brain) and BNN prior sigma (the
+Baldwin Effect panel; Baldwin 1896, Hinton & Nowlan 1987) depending on
+the active brain type.
 
 ## Usage
 
@@ -24,7 +24,10 @@ plot_run(run_data, ...)
   Must contain a `$ticks` data frame with columns `t`, `n_agents`,
   `mean_energy`, `sd_energy`, `genetic_diversity`, `n_births`,
   `n_deaths`, `grass_coverage`, `mean_body_size`, and
-  `mean_prior_sigma`.
+  `mean_prior_sigma`. When `grass_density` is present, the grass panel
+  shows both the fraction of cells containing grass (coverage) and total
+  grass biomass divided by grid capacity (density). Older runs without
+  this column show coverage only.
 
 - ...:
 
