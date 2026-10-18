@@ -60,7 +60,7 @@ NULL
 #' @description
 #' Constructs a 2x3 patchwork grid of time-series diagnostics from the output
 #' of [get_run_data()]: population size, mean energy with variability ribbon,
-#' genetic diversity, births vs deaths per tick, grass coverage, and a sixth
+#' genetic diversity, births vs deaths per tick, grass coverage and density, and a sixth
 #' panel that switches between body size (ANN brain) and BNN prior sigma (the
 #' Baldwin Effect panel; Baldwin 1896, Hinton & Nowlan 1987) depending on the
 #' active brain type.
@@ -69,6 +69,9 @@ NULL
 #'   `$ticks` data frame with columns `t`, `n_agents`, `mean_energy`,
 #'   `sd_energy`, `genetic_diversity`, `n_births`, `n_deaths`, `grass_coverage`,
 #'   `mean_body_size`, and `mean_prior_sigma`.
+#'   When `grass_density` is present, the grass panel shows both the fraction
+#'   of cells containing grass (coverage) and total grass biomass divided by
+#'   grid capacity (density). Older runs without this column show coverage only.
 #' @param ... Currently unused. Reserved for future plotting options.
 #'
 #' @return A [patchwork::wrap_plots()] object composed of six ggplot panels.
@@ -147,7 +150,7 @@ plot_run <- function(run_data, ...) {
     .clade_theme() +
     ggplot2::theme(legend.position = "bottom")
 
-  # 5. Grass coverage
+  # 5. Grass coverage, with biomass density when available.
   p_grass <- ggplot2::ggplot(
     d, ggplot2::aes(x = .data$t, y = .data$grass_coverage)
   ) +
@@ -155,6 +158,29 @@ plot_run <- function(run_data, ...) {
     ggplot2::labs(title = "Grass coverage",
                   x = "Tick", y = "Fraction of grid") +
     .clade_theme()
+
+  if ("grass_density" %in% names(d)) {
+    grass_data <- data.frame(
+      t = rep(d$t, 2L),
+      fraction = c(d$grass_coverage, d$grass_density),
+      measure = factor(rep(c("Coverage", "Density"), each = nrow(d)),
+                       levels = c("Coverage", "Density"))
+    )
+    p_grass <- ggplot2::ggplot(
+      grass_data,
+      ggplot2::aes(x = .data$t, y = .data$fraction,
+                   colour = .data$measure, linetype = .data$measure)
+    ) +
+      ggplot2::geom_line(linewidth = 0.6) +
+      ggplot2::scale_colour_manual(values = c(Coverage = "#238b45",
+                                              Density = "#08519c"), name = NULL) +
+      ggplot2::scale_linetype_manual(values = c(Coverage = "solid",
+                                                Density = "dashed"), name = NULL) +
+      ggplot2::labs(title = "Grass coverage and density", x = "Tick",
+                    y = "Fraction of grid / capacity") +
+      .clade_theme() +
+      ggplot2::theme(legend.position = "bottom")
+  }
 
   # 6. Brain-type panel: BNN sigma decay (Baldwin Effect) or body size
   sigma_col <- if ("mean_prior_sigma" %in% names(d)) "mean_prior_sigma" else NULL
