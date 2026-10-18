@@ -491,6 +491,7 @@ important project state. Keep entries concise and concrete.
   - The job's first real run is on this PR itself.
 - Next safest action: confirm the first run is green, then decide
   whether to make `julia-tests` a required check (a settings change).
+
 ## 2026-10-18 - Grass density in plot_run (#167)
 
 - Branch: codex/grass-dashboard-density, isolated from the dirty main checkout.
@@ -508,4 +509,3 @@ important project state. Keep entries concise and concrete.
   tests/testthat/test-visualization.R; inspected callers through graft.
 - Kernel unchanged; no simulation, full package check or site build run.
 - Next: review focused PR; Bhavya retains corrected #185 sampling rerun.
-
