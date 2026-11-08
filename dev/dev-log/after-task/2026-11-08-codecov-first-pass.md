@@ -104,3 +104,17 @@ the synthetic merge unless the identity step prints
    Codecov GitHub App OIDC grant or add a dedicated Codecov token.
    Do not use `GH_TOKEN` as that token.
 6. Do not add a badge until stage 5 (default-main processed report).
+
+## CI wake (same task, 2026-11-08)
+
+`r-coverage` failed on `bf4478c` because default
+`covr::package_coverage()` is not the `tests.yaml` suite. The
+installed-package run reported FAIL 2 (`NULL` vs `character(0)` in
+vignette/roxygen scanners that look for `vignettes/*.Rmd`).
+`tests.yaml` passed. Julia coverage executed at 39.2507% line hit
+rate and OIDC upload returned HTTP 200, queued on
+https://app.codecov.io/github/itchyshin/clade/commit/bf4478c08a74def326151820fec9acc4cd4d5577
+(associated with exact head; checkout was synthetic merge
+`8623234`). Workflow now runs `test_dir("tests/testthat")` from the
+source tree against the instrumented install. No test or kernel
+edits. No Codecov token. Do not merge.

@@ -190,8 +190,10 @@ julia --project=. -e 'using Pkg; Pkg.instantiate()'
 Coverage uploads live only in `.github/workflows/coverage.yaml`
 (operator notes: `.github/coverage.md`). Do not add a second uploader.
 
-- Flag `r`: `covr::package_coverage()` with `CLADE_SKIP_JULIA_TESTS=true`
-  (same skip as `tests.yaml`). This is the no-Julia testthat tier, not
+- Flag `r`: covr instrumentation plus `testthat::test_dir("tests/testthat")`
+  with `CLADE_SKIP_JULIA_TESTS=true` (same files and skip as
+  `tests.yaml`). Not default `package_coverage()` / `test_check()`,
+  which runs from the install. This is the no-Julia testthat tier, not
   full-kernel R coverage.
 - Flag `julia`: `inst/julia/test/runtests.jl` with `--code-coverage=user`.
 - OIDC only (`id-token: write` on those two jobs). Never pass

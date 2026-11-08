@@ -10,7 +10,8 @@
 #   R-CMD-check.yaml    — R CMD check with --no-tests
 #
 # Flags:
-#   r     — covr on the tests.yaml suite (CLADE_SKIP_JULIA_TESTS=true)
+#   r     — instrumented install + tests/testthat from the checkout
+#           (CLADE_SKIP_JULIA_TESTS=true; not default test_check())
 #   julia — --code-coverage=user on the julia-tests.yaml command
 #
 # Checkout: pull_request uses the synthetic merge commit (actions/checkout
@@ -119,20 +120,37 @@ jobs:
             any::jsonlite
             any::covr
 
+      # Default covr::package_coverage() runs the installed copy via
+      # tests/testthat.R → test_check(). That is not tests.yaml
+      # (devtools::test() on the source tree). On this PR it aborted
+      # with FAIL 2: repo-root scanners saw an install without
+      # vignettes/*.Rmd, so unlist(list()) was NULL instead of
+      # character(0). Do not change those tests. Instrument, attach
+      # the installed package, and run the same testthat files from
+      # the checkout. Do not call devtools::test() here: load_all()
+      # would replace the instrumented code.
       - name: Run covr on the existing no-Julia testthat suite
         run: |
           Rscript - <<'EOF'
           options(crayon.enabled = FALSE)
-          cov <- covr::package_coverage(quiet = FALSE)
+          cov <- covr::package_coverage(
+            quiet = FALSE,
+            type = "none",
+            code = c(
+              "options(crayon.enabled = FALSE)",
+              "library(clade)",
+              "testthat::test_dir('tests/testthat', stop_on_failure = TRUE)"
+            )
+          )
           print(cov)
           pct <- covr::percent_coverage(cov)
           summary_lines <- c(
             "stage=coverage_execution",
             "language=r",
             "flag=r",
-            "suite=testthat_CLADE_SKIP_JULIA_TESTS",
+            "suite=testthat_dir_CLADE_SKIP_JULIA_TESTS",
             sprintf("percent_coverage=%.4f", pct),
-            "note=covr percent_coverage on the existing no-Julia CI suite; not a Codecov processed report and not a default-main baseline."
+            "note=covr percent_coverage from tests/testthat on the source tree against the instrumented install; not a Codecov processed report and not a default-main baseline."
           )
           writeLines(summary_lines, "coverage-r-summary.txt")
           writeLines(summary_lines)

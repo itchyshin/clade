@@ -9,7 +9,7 @@ flag. pigauto, GLLVModels, and other repositories are out of scope.
 
 | Flag | Existing suite | Honest meaning |
 | --- | --- | --- |
-| `r` | `.github/workflows/tests.yaml`: `devtools::test()` with `CLADE_SKIP_JULIA_TESTS=true` | covr over the no-Julia testthat tier. Julia-dependent R tests skip, so kernel-driven R paths are uncovered here on purpose. |
+| `r` | `.github/workflows/tests.yaml`: `devtools::test()` with `CLADE_SKIP_JULIA_TESTS=true` | covr instruments the installed package, then `testthat::test_dir("tests/testthat")` on the source tree (same files and skip as `tests.yaml`). Default `package_coverage()` / `test_check()` is not that suite: it runs from the install, where vignette scanners can see no `vignettes/*.Rmd` and fail `NULL` vs `character(0)`. Do not use `devtools::test()` inside covr (`load_all()` drops instrumentation). Julia-dependent R tests skip, so kernel-driven R paths are uncovered here on purpose. |
 | `julia` | `.github/workflows/julia-tests.yaml`: `julia --project=inst/julia inst/julia/test/runtests.jl` | line coverage of `inst/julia/src` from that unit suite (`--code-coverage=user` added only for instrumentation). |
 
 `R-CMD-check.yaml` uses `--no-tests` and does not produce coverage.

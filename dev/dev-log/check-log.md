@@ -554,3 +554,37 @@ important project state. Keep entries concise and concrete.
   edit. If codecov-action logs a real OIDC/upload failure, the owner
   may grant App OIDC or a dedicated Codecov token; dashboard
   Configure/API unknown is not that proof.
+
+## 2026-11-08 - Codecov r-coverage: use source-tree test_dir
+
+- Branch: `cursor/codecov-first-pass-8e02` (follow-up on PR #195).
+- CI wake on `bf4478c08a74def326151820fec9acc4cd4d5577`: 1 of 4
+  checks failed (`r-coverage`). `tests`, `R-CMD-check`, and
+  `julia-coverage` passed.
+- Checkout identity (both coverage jobs):
+  `checkout_kind=synthetic-merge`, `tested_equals_exact_head=false`,
+  `git_HEAD=8623234881d0821ab00072acedc35f1886dee36d`,
+  `pr_head_sha=bf4478c08a74def326151820fec9acc4cd4d5577`,
+  `pr_base_sha=b1f7934ab9238b2731d7451c9d74f580d2d748f8`.
+- Julia stage 2: `percent_coverage=39.2507` (`lines_hit=1320` /
+  `lines_found=3363`). Artifact `coverage-julia` id `13636388950`.
+- Julia stage 3: OIDC token minted (`Get OIDC token` success).
+  codecov-action tagged the upload to exact head `bf4478c` (not the
+  merge SHA). HTTP 200, queued:
+  https://app.codecov.io/github/itchyshin/clade/commit/bf4478c08a74def326151820fec9acc4cd4d5577
+  Not a processed-report claim. No owner token used.
+- R stage 2 failed before percent/artifact/upload. Default
+  `covr::package_coverage()` ran installed `testthat.R` /
+  `test_check()`. FAIL 2 / SKIP 650 / PASS 1109:
+  `test-vignette-field-references.R` and
+  `test-no-internal-leaks.R` — `unlist(lapply(...))` is `NULL` when
+  `vignettes/*.Rmd` are absent from the temp install, vs
+  `character(0)` on the source tree. `tests.yaml` (`devtools::test()`)
+  passed the same commit. Not a scientific-test defect; not an OIDC
+  failure.
+- Fix (CI only): `type = "none"` plus `library(clade)` and
+  `testthat::test_dir("tests/testthat")` from the checkout. Do not
+  call `devtools::test()` inside covr (`load_all()` drops traces).
+  Tests and Julia source untouched.
+- Next safest action: push, let CI run, subscribe wake. Do not merge.
+  Do not add a Codecov token.
