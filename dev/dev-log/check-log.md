@@ -509,3 +509,48 @@ important project state. Keep entries concise and concrete.
   tests/testthat/test-visualization.R; inspected callers through graft.
 - Kernel unchanged; no simulation, full package check or site build run.
 - Next: review focused PR; Bhavya retains corrected #185 sampling rerun.
+
+## 2026-11-08 - Codecov first pass (R + Julia existing suites, OIDC)
+
+- Branch: `cursor/codecov-first-pass-8e02` off `main` at
+  `b1f7934ab9238b2731d7451c9d74f580d2d748f8`.
+- Goal: honest existing-suite coverage for R and Julia in this
+  repository, language flags, one uploader, documented OIDC least
+  privilege. No scientific src/tests/fixtures changes. No merge.
+- Files changed: `.github/workflows/coverage.yaml` (new),
+  `.github/codecov.yml` (new), `.github/coverage.md` (new),
+  `.gitignore`, `AGENTS.md`, `dev/dev-log/decisions.md`, this log,
+  `dev/dev-log/after-task/2026-11-08-codecov-first-pass.md`.
+- Unchanged on purpose: `.github/workflows/tests.yaml`,
+  `julia-tests.yaml`, `R-CMD-check.yaml`, `fidelity-matrix.yaml`,
+  `pkgdown.yaml`, `R/`, `inst/julia/`, `tests/`, `vignettes/`.
+- Layout: both languages live here (`R/` + `inst/julia/`). pigauto
+  and GLLVModels were not opened.
+- Checks run:
+  - `python3` PyYAML load of `coverage.yaml`, `codecov.yml`, and the
+    five existing workflows: parse OK. Coverage jobs: `use_oidc: true`,
+    no `token` input, flags `r` / `julia`, `disable_search: true`,
+    checkout has no `ref:` override.
+  - `git diff --check`: clean.
+  - `git diff -- .github/workflows/tests.yaml` (and the other four
+    existing workflows): empty.
+- Stale-claim searches:
+  - `rg -n 'CODECOV_TOKEN|token:.*GITHUB_TOKEN' .github AGENTS.md`:
+    comments only; codecov-action steps have no `token:` key.
+  - `rg -n 'covr::codecov|Codecov.submit' .github AGENTS.md`:
+    prohibition comments only.
+  - `rg -n 'codecov.io/.*/badge' README.md AGENTS.md .github`: no
+    matches.
+  - `rg -n '^ignore:|file_exclusions|line_exclusions' .github`: no
+    matches.
+- Not run (runtimes unavailable in this environment):
+  - `Rscript` / `covr::package_coverage()` — Rscript not on PATH.
+  - `julia --project=inst/julia --code-coverage=user inst/julia/test/runtests.jl`
+    — julia not on PATH.
+  - `actionlint` — not installed.
+  - Codecov upload reception, processed report, default-main baseline.
+- Next safest action: open the PR, let CI run, subscribe for
+  evidence-only wakes. Do not merge. Coordinator before any further
+  edit. If codecov-action logs a real OIDC/upload failure, the owner
+  may grant App OIDC or a dedicated Codecov token; dashboard
+  Configure/API unknown is not that proof.

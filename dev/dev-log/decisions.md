@@ -141,3 +141,44 @@ do not need a full design document yet.
 - Evidence: this entry; `inst/julia/src/reproduce.jl`
   (`update_unions!`, `_find_mate` monogamous-pair filter, bond
   formation at successful mating); `vignettes/s-pair-bonds.Rmd`.
+
+## 2026-11-08 — Codecov OIDC, language flags, no second uploader
+
+- Decision: clade reports honest existing-suite coverage from this
+  repository only. R (`R/`, `tests/testthat/`) and Julia
+  (`inst/julia/`) both live here. One new workflow
+  (`.github/workflows/coverage.yaml`) is the sole Codecov uploader:
+  flag `r` from `covr` with `CLADE_SKIP_JULIA_TESTS=true`, flag
+  `julia` from `runtests.jl --code-coverage=user`. Authentication is
+  GitHub Actions OIDC with job-scoped `contents: read` plus
+  `id-token: write`. Existing `tests`, `julia-tests`, and
+  `R-CMD-check` jobs stay the assertion gates and are not rewritten
+  to upload. Status checks stay informational until an authorized
+  owner merge produces a default-`main` report. No README badge
+  before that report. No ignore/exclusion lists. pigauto,
+  GLLVModels, and other repos are not part of this lane.
+- Reason: a token in `GITHUB_TOKEN` would be the wrong credential;
+  a second uploader would duplicate commits; mixing the
+  no-Julia R suite with Julia kernel coverage without flags would
+  hide which suite produced which percent; failing PRs against a
+  missing main baseline would look like a coverage regression.
+- Alternatives considered:
+  - Replace `tests.yaml`'s `devtools::test()` with `covr::package_coverage()`
+    — would change the existing assertion job.
+  - `covr::codecov()` or Coverage.jl `Codecov.submit` in addition to
+    `codecov-action` — duplicate uploads of the same suite.
+  - Repository-wide `id-token: write` — broader than the two upload
+    jobs need.
+  - `token: ${{ secrets.GITHUB_TOKEN }}` — forbidden; that secret is
+    not a Codecov token.
+  - Owner upload token in the first pass — only after a real
+    codecov-action OIDC/upload failure, not because the dashboard
+    still says Configure / unknown.
+- Consequences: PR `coverage` jobs test the synthetic merge commit
+  unless the identity log shows otherwise. R percent is the no-Julia
+  tier. Default-main baseline is not claimed from this PR. Future
+  agents must not add a second uploader or a badge before stage 5
+  in `.github/coverage.md`.
+- Evidence: this entry; `.github/workflows/coverage.yaml`;
+  `.github/codecov.yml`; `.github/coverage.md`; after-task
+  `dev/dev-log/after-task/2026-11-08-codecov-first-pass.md`.

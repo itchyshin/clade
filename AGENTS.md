@@ -185,6 +185,21 @@ cd inst/julia
 julia --project=. -e 'using Pkg; Pkg.instantiate()'
 ```
 
+## Coverage CI
+
+Coverage uploads live only in `.github/workflows/coverage.yaml`
+(operator notes: `.github/coverage.md`). Do not add a second uploader.
+
+- Flag `r`: `covr::package_coverage()` with `CLADE_SKIP_JULIA_TESTS=true`
+  (same skip as `tests.yaml`). This is the no-Julia testthat tier, not
+  full-kernel R coverage.
+- Flag `julia`: `inst/julia/test/runtests.jl` with `--code-coverage=user`.
+- OIDC only (`id-token: write` on those two jobs). Never pass
+  `GITHUB_TOKEN` / `GH_TOKEN` as a Codecov token. Do not call
+  `covr::codecov()` or Coverage.jl `Codecov.submit`.
+- No README badge until a default-`main` report exists after an
+  authorized merge and a successful `coverage` workflow on `main`.
+
 ## Definition Of Done
 
 A feature is done only when implementation, tests, documentation,
@@ -218,6 +233,9 @@ the after-task report must say why.
 | `dev/dev-log/` | check-log, decisions, after-task reports — append-only history |
 | `dev/audit/` | One-off audit docs (Rose+Pat findings, spec-wiring audit, consolidation audit, spot-checks) |
 | `.agents/skills/` | Project-local skills (`after-task-audit`, `prose-style-review`, `simulation-test-plan`) |
+| `.github/workflows/coverage.yaml` | Sole Codecov uploader (R `covr` flag `r`, Julia flag `julia`, OIDC) |
+| `.github/codecov.yml` | Flag carryforward and informational status until a main baseline exists |
+| `.github/coverage.md` | Coverage stages, OIDC least privilege, checkout-identity rules |
 
 ## Conventions
 
