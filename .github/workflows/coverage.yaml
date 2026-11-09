@@ -273,7 +273,8 @@ jobs:
         run: |
           set -eu
           julia --project=inst/julia --check-bounds=yes --code-coverage=user \
-            inst/julia/test/runtests.jl
+            .github/scripts/julia-coverage-runtests.jl
+          cat coverage-julia-test-count.txt
           cov_count="$(find inst/julia -name '*.cov' | wc -l)"
           if [ "${cov_count}" -eq 0 ]; then
             echo "No Julia .cov files after runtests.jl; coverage collection failed."
@@ -313,11 +314,18 @@ jobs:
                   if count > 0:
                       covered += 1
           pct = (100.0 * covered / hits) if hits else 0.0
+          count_path = Path("coverage-julia-test-count.txt")
+          test_counts = (
+              count_path.read_text(encoding="utf-8").strip()
+              if count_path.is_file()
+              else "julia_test_pass_count=unknown"
+          )
           summary = [
               "stage=coverage_execution",
               "language=julia",
               "flag=julia",
               "suite=inst/julia/test/runtests.jl",
+              test_counts,
               f"lines_hit={covered}",
               f"lines_found={hits}",
               f"percent_coverage={pct:.4f}",
@@ -334,6 +342,7 @@ jobs:
           path: |
             lcov.info
             coverage-julia-summary.txt
+            coverage-julia-test-count.txt
           if-no-files-found: error
           retention-days: 14
 
