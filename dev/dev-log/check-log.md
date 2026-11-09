@@ -509,3 +509,115 @@ important project state. Keep entries concise and concrete.
   tests/testthat/test-visualization.R; inspected callers through graft.
 - Kernel unchanged; no simulation, full package check or site build run.
 - Next: review focused PR; Bhavya retains corrected #185 sampling rerun.
+
+## 2026-11-08 - Codecov first pass (R + Julia existing suites, OIDC)
+
+- Branch: `cursor/codecov-first-pass-8e02` off `main` at
+  `b1f7934ab9238b2731d7451c9d74f580d2d748f8`.
+- Goal: honest existing-suite coverage for R and Julia in this
+  repository, language flags, one uploader, documented OIDC least
+  privilege. No scientific src/tests/fixtures changes. No merge.
+- Files changed: `.github/workflows/coverage.yaml` (new),
+  `.github/codecov.yml` (new), `.github/coverage.md` (new),
+  `.gitignore`, `AGENTS.md`, `dev/dev-log/decisions.md`, this log,
+  `dev/dev-log/after-task/2026-11-08-codecov-first-pass.md`.
+- Unchanged on purpose: `.github/workflows/tests.yaml`,
+  `julia-tests.yaml`, `R-CMD-check.yaml`, `fidelity-matrix.yaml`,
+  `pkgdown.yaml`, `R/`, `inst/julia/`, `tests/`, `vignettes/`.
+- Layout: both languages live here (`R/` + `inst/julia/`). pigauto
+  and GLLVModels were not opened.
+- Checks run:
+  - `python3` PyYAML load of `coverage.yaml`, `codecov.yml`, and the
+    five existing workflows: parse OK. Coverage jobs: `use_oidc: true`,
+    no `token` input, flags `r` / `julia`, `disable_search: true`,
+    checkout has no `ref:` override.
+  - `git diff --check`: clean.
+  - `git diff -- .github/workflows/tests.yaml` (and the other four
+    existing workflows): empty.
+- Stale-claim searches:
+  - `rg -n 'CODECOV_TOKEN|token:.*GITHUB_TOKEN' .github AGENTS.md`:
+    comments only; codecov-action steps have no `token:` key.
+  - `rg -n 'covr::codecov|Codecov.submit' .github AGENTS.md`:
+    prohibition comments only.
+  - `rg -n 'codecov.io/.*/badge' README.md AGENTS.md .github`: no
+    matches.
+  - `rg -n '^ignore:|file_exclusions|line_exclusions' .github`: no
+    matches.
+- Not run (runtimes unavailable in this environment):
+  - `Rscript` / `covr::package_coverage()` — Rscript not on PATH.
+  - `julia --project=inst/julia --code-coverage=user inst/julia/test/runtests.jl`
+    — julia not on PATH.
+  - `actionlint` — not installed.
+  - Codecov upload reception, processed report, default-main baseline.
+- Next safest action: open the PR, let CI run, subscribe for
+  evidence-only wakes. Do not merge. Coordinator before any further
+  edit. If codecov-action logs a real OIDC/upload failure, the owner
+  may grant App OIDC or a dedicated Codecov token; dashboard
+  Configure/API unknown is not that proof.
+
+## 2026-11-08 - Codecov r-coverage: use source-tree test_dir
+
+- Branch: `cursor/codecov-first-pass-8e02` (follow-up on PR #195).
+- CI wake on `bf4478c08a74def326151820fec9acc4cd4d5577`: 1 of 4
+  checks failed (`r-coverage`). `tests`, `R-CMD-check`, and
+  `julia-coverage` passed.
+- Checkout identity (both coverage jobs):
+  `checkout_kind=synthetic-merge`, `tested_equals_exact_head=false`,
+  `git_HEAD=8623234881d0821ab00072acedc35f1886dee36d`,
+  `pr_head_sha=bf4478c08a74def326151820fec9acc4cd4d5577`,
+  `pr_base_sha=b1f7934ab9238b2731d7451c9d74f580d2d748f8`.
+- Julia stage 2: `percent_coverage=39.2507` (`lines_hit=1320` /
+  `lines_found=3363`). Artifact `coverage-julia` id `13636388950`.
+- Julia stage 3: OIDC token minted (`Get OIDC token` success).
+  codecov-action tagged the upload to exact head `bf4478c` (not the
+  merge SHA). HTTP 200, queued:
+  https://app.codecov.io/github/itchyshin/clade/commit/bf4478c08a74def326151820fec9acc4cd4d5577
+  Not a processed-report claim. No owner token used.
+- R stage 2 failed before percent/artifact/upload. Default
+  `covr::package_coverage()` ran installed `testthat.R` /
+  `test_check()`. FAIL 2 / SKIP 650 / PASS 1109:
+  `test-vignette-field-references.R` and
+  `test-no-internal-leaks.R` — `unlist(lapply(...))` is `NULL` when
+  `vignettes/*.Rmd` are absent from the temp install, vs
+  `character(0)` on the source tree. `tests.yaml` (`devtools::test()`)
+  passed the same commit. Not a scientific-test defect; not an OIDC
+  failure.
+- Fix (CI only): `type = "none"` plus `library(clade)` and
+  `testthat::test_dir("tests/testthat")` from the checkout. Do not
+  call `devtools::test()` inside covr (`load_all()` drops traces).
+  Tests and Julia source untouched.
+- Next safest action: push, let CI run, subscribe wake. Do not merge.
+  Do not add a Codecov token.
+
+## 2026-11-08 - Codecov r-coverage: root cause of the `test_dir` failure; run with package namespace
+
+- Branch: `cursor/codecov-first-pass-8e02` (PR #195, follow-up on
+  `196373c`). CI-only change; tests and `inst/julia/src/` untouched.
+- Failure on `196373c` (run 42529873753, job 128881480156): covr
+  `Failure in .../clade-commands.Rout.fail`; the log hides the test
+  output. Reproduced locally (R 4.3.3, same env vars): bare
+  `testthat::test_dir("tests/testthat")` (no `package=`) after
+  `library(clade)` errors in `test-stream-submit.R` (5 errors,
+  `local_mocked_bindings()` -> `dev_package()`: "No packages loaded
+  with pkgload"). Cause: the previous fix dropped the package
+  namespace, i.e. not equivalent to `test_check()` or `devtools::test()`.
+- Default `covr::package_coverage()` (`test_check()` from the install)
+  failed 2 tests on `bf4478c` (run 42529230191): `.find_repo_root()` in
+  `test-vignette-field-references.R` / `test-no-internal-leaks.R`
+  resolves to the installed package dir (has DESCRIPTION, R, tests) with
+  no `vignettes/`. Source-tree assumption in tests, not a kernel bug.
+- Fix: `test_dir("tests/testthat", package = "clade",
+  load_package = "installed", stop_on_failure = FALSE)` inside the covr
+  `code`, then write per-test CSV + SummaryReporter log, then `stop()`
+  on any failed/error. This is test_check()'s namespace/install setting
+  run from the checkout.
+- Equivalence evidence (local, `CLADE_SKIP_JULIA_TESTS=true`):
+  `devtools::test()` vs covr run: 1158 tests / 1763 expectations /
+  0 failed / 648 skipped / 0 errors / 0 warnings in both;
+  per-test `file,test,nb,failed,skipped,error,warning` tables
+  `all.equal` TRUE. covr `percent_coverage=61.9490`.
+- Negative control: a temporary failing test in a scratch copy made the
+  step exit 1 (`testthat failures under coverage`).
+- Not run: CI (pending push), Julia-enabled tests.
+- Next safest action: push, confirm `r-coverage` and all PR checks.
+  Do not merge. Do not add a Codecov token.

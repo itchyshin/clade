@@ -1,0 +1,331 @@
+# Honest coverage for the suites CI already runs.
+#
+# This is the only Codecov uploader in the repository. Do not add
+# covr::codecov(), Coverage.jl Codecov.submit, a token upload, or a
+# second workflow that posts the same reports.
+#
+# Existing jobs are unchanged:
+#   tests.yaml          — assertion gate for the no-Julia testthat suite
+#   julia-tests.yaml    — assertion gate for inst/julia/test/runtests.jl
+#   R-CMD-check.yaml    — R CMD check with --no-tests
+#
+# Flags:
+#   r     — instrumented install + tests/testthat from the checkout,
+#           run with test_check()'s package/installed settings
+#           (CLADE_SKIP_JULIA_TESTS=true); see the step comment for
+#           why default package_coverage() is not used
+#   julia — --code-coverage=user on the julia-tests.yaml command
+#
+# Checkout: pull_request uses the synthetic merge commit (actions/checkout
+# default). Exact head and base SHAs are logged; this is not exact-head
+# testing unless that log shows HEAD == pull_request.head.sha.
+#
+# Auth: OIDC only. Job-level id-token: write. Never pass GITHUB_TOKEN,
+# GITHUB_PAT, or secrets.GH_TOKEN as a Codecov token. Do not add
+# secrets.CODECOV_TOKEN unless an upload log shows a real OIDC failure.
+# A Codecov dashboard "Configure" / API-unknown page is not that proof.
+#
+# Stages (keep distinct in logs and handoff notes):
+#   1. config
+#   2. coverage execution / percent (this job's summary + artifacts)
+#   3. upload reception (codecov-action log)
+#   4. processed Codecov report
+#   5. default-main baseline (authorized owner merge + successful main
+#      run of this workflow; this workflow must not merge)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+    paths-ignore:
+      - '**/*.md'
+      - 'dev/**'
+      - '_pkgdown.yml'
+  pull_request:
+    branches: [main, master]
+    paths-ignore:
+      - '**/*.md'
+      - 'dev/**'
+      - '_pkgdown.yml'
+
+name: coverage
+
+permissions:
+  contents: read
+
+concurrency:
+  group: coverage-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  r-coverage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      id-token: write
+
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      R_KEEP_PKG_SOURCE: yes
+      NOT_CRAN: true
+      CLADE_SKIP_JULIA_TESTS: 'true'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Record coverage checkout identity
+        run: |
+          set -eu
+          echo "event_name=${{ github.event_name }}"
+          echo "github.sha=${{ github.sha }}"
+          echo "git_HEAD=$(git rev-parse HEAD)"
+          echo "git_HEAD_subject=$(git log -1 --format='%H %s')"
+          echo "ref=${{ github.ref }}"
+          echo "head_ref=${{ github.head_ref }}"
+          echo "base_ref=${{ github.base_ref }}"
+          echo "pr_number=${{ github.event.pull_request.number }}"
+          echo "pr_head_sha=${{ github.event.pull_request.head.sha }}"
+          echo "pr_base_sha=${{ github.event.pull_request.base.sha }}"
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "checkout_kind=synthetic-merge (actions/checkout default for pull_request)"
+            if [ "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha }}" ]; then
+              echo "tested_equals_exact_head=true"
+            else
+              echo "tested_equals_exact_head=false"
+            fi
+          else
+            echo "checkout_kind=exact-ref (${{ github.event_name }})"
+          fi
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: 'release'
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-pandoc@v2
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libcurl4-openssl-dev libssl-dev libxml2-dev \
+                                  libfontconfig1-dev libharfbuzz-dev \
+                                  libfribidi-dev libfreetype6-dev \
+                                  libpng-dev libtiff5-dev libjpeg-dev
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: |
+            any::devtools
+            any::testthat
+            any::withr
+            any::jsonlite
+            any::covr
+
+      # Default covr::package_coverage() (type = "tests") runs the
+      # installed copy via tests/testthat.R -> test_check(). On this
+      # repo that aborts with FAIL 2 (test-vignette-field-references.R,
+      # test-no-internal-leaks.R): their .find_repo_root() resolves to
+      # the installed package dir (DESCRIPTION + R + tests all exist
+      # there), which has no vignettes/*.Rmd, so unlist(list()) is NULL
+      # instead of character(0). Those tests assume a source tree.
+      #
+      # So: instrument + install (type = "none"), then run the same
+      # files tests.yaml runs, from the checkout, with test_check()'s
+      # own settings: package = "clade", load_package = "installed"
+      # (tests evaluate in the clade namespace, internals visible).
+      # Passing no package= (bare test_dir) fails
+      # test-stream-submit.R: local_mocked_bindings() needs a package.
+      # devtools::test() cannot be used: load_all() drops the traces.
+      #
+      # Every failure or error fails the job. Per-test results are
+      # written to coverage-r-results.csv and can be diffed against
+      # devtools::test() results.
+      - name: Run covr on the existing no-Julia testthat suite
+        run: |
+          Rscript - <<'EOF'
+          options(crayon.enabled = FALSE)
+          log_path <- file.path(getwd(), "coverage-r-testthat.log")
+          csv_path <- file.path(getwd(), "coverage-r-results.csv")
+          cov <- covr::package_coverage(
+            quiet = FALSE,
+            type = "none",
+            code = c(
+              "options(crayon.enabled = FALSE)",
+              sprintf(
+                paste0("res <- testthat::test_dir('tests/testthat', ",
+                       "package = 'clade', load_package = 'installed', ",
+                       "reporter = testthat::SummaryReporter$new(file = %s), ",
+                       "stop_on_failure = FALSE)"),
+                deparse(log_path)
+              ),
+              "df <- as.data.frame(res)",
+              sprintf(
+                "write.csv(df[, c('file', 'test', 'nb', 'failed', 'skipped', 'error', 'warning')], %s, row.names = FALSE)",
+                deparse(csv_path)
+              ),
+              "stopifnot(nrow(df) > 0L)",
+              "if (any(df$failed > 0L) || any(df$error)) stop('testthat failures under coverage')"
+            )
+          )
+          print(cov)
+          pct <- covr::percent_coverage(cov)
+          df <- read.csv(csv_path)
+          summary_lines <- c(
+            "stage=coverage_execution",
+            "language=r",
+            "flag=r",
+            "suite=testthat_dir_installed_CLADE_SKIP_JULIA_TESTS",
+            sprintf("percent_coverage=%.4f", pct),
+            sprintf("testthat_tests=%d", nrow(df)),
+            sprintf("testthat_expectations=%d", sum(df$nb)),
+            sprintf("testthat_failed=%d", sum(df$failed)),
+            sprintf("testthat_errors=%d", sum(df$error)),
+            sprintf("testthat_skipped=%d", sum(df$skipped)),
+            "note=covr percent_coverage from tests/testthat (package='clade', load_package='installed') against the instrumented install; not a Codecov processed report and not a default-main baseline."
+          )
+          writeLines(summary_lines, "coverage-r-summary.txt")
+          writeLines(summary_lines)
+          covr::to_cobertura(cov, filename = "coverage-r.xml")
+          EOF
+
+      - name: Show testthat log
+        if: always()
+        run: |
+          if [ -f coverage-r-testthat.log ]; then
+            tail -n 80 coverage-r-testthat.log
+          else
+            echo "coverage-r-testthat.log not written"
+          fi
+
+      - name: Upload R coverage artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-r
+          path: |
+            coverage-r.xml
+            coverage-r-summary.txt
+            coverage-r-results.csv
+            coverage-r-testthat.log
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload R coverage to Codecov (OIDC)
+        uses: codecov/codecov-action@v5
+        with:
+          use_oidc: true
+          files: coverage-r.xml
+          flags: r
+          name: r-testthat-no-julia
+          disable_search: true
+          fail_ci_if_error: true
+          verbose: true
+
+  julia-coverage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      id-token: write
+
+    env:
+      JULIA_NUM_THREADS: '4'
+      OPENBLAS_NUM_THREADS: '1'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Record coverage checkout identity
+        run: |
+          set -eu
+          echo "event_name=${{ github.event_name }}"
+          echo "github.sha=${{ github.sha }}"
+          echo "git_HEAD=$(git rev-parse HEAD)"
+          echo "git_HEAD_subject=$(git log -1 --format='%H %s')"
+          echo "ref=${{ github.ref }}"
+          echo "head_ref=${{ github.head_ref }}"
+          echo "base_ref=${{ github.base_ref }}"
+          echo "pr_number=${{ github.event.pull_request.number }}"
+          echo "pr_head_sha=${{ github.event.pull_request.head.sha }}"
+          echo "pr_base_sha=${{ github.event.pull_request.base.sha }}"
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "checkout_kind=synthetic-merge (actions/checkout default for pull_request)"
+            if [ "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha }}" ]; then
+              echo "tested_equals_exact_head=true"
+            else
+              echo "tested_equals_exact_head=false"
+            fi
+          else
+            echo "checkout_kind=exact-ref (${{ github.event_name }})"
+          fi
+
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: '1.10'
+
+      - uses: julia-actions/cache@v2
+
+      - name: Instantiate kernel environment
+        run: julia --project=inst/julia -e 'using Pkg; Pkg.instantiate()'
+
+      - name: Run inst/julia/test/runtests.jl with coverage
+        run: julia --project=inst/julia --code-coverage=user inst/julia/test/runtests.jl
+
+      - name: List Julia .cov files
+        run: |
+          echo "julia_cov_files<<EOF"
+          find inst/julia -name '*.cov' -print | sort
+          echo "EOF"
+
+      - uses: julia-actions/julia-processcoverage@v1
+        with:
+          directories: inst/julia/src
+
+      - name: Summarise Julia coverage execution percent
+        run: |
+          python3 - <<'EOF'
+          from pathlib import Path
+          path = Path("lcov.info")
+          hits = 0
+          covered = 0
+          for line in path.read_text(encoding="utf-8").splitlines():
+              if line.startswith("DA:"):
+                  hits += 1
+                  count = int(line.split(",", 1)[1])
+                  if count > 0:
+                      covered += 1
+          pct = (100.0 * covered / hits) if hits else 0.0
+          summary = [
+              "stage=coverage_execution",
+              "language=julia",
+              "flag=julia",
+              "suite=inst/julia/test/runtests.jl",
+              f"lines_hit={covered}",
+              f"lines_found={hits}",
+              f"percent_coverage={pct:.4f}",
+              "note=lcov line hit rate on inst/julia/src from the existing Julia unit suite; not a Codecov processed report and not a default-main baseline.",
+          ]
+          Path("coverage-julia-summary.txt").write_text("\n".join(summary) + "\n", encoding="utf-8")
+          print("\n".join(summary))
+          EOF
+
+      - name: Upload Julia coverage artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-julia
+          path: |
+            lcov.info
+            coverage-julia-summary.txt
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload Julia coverage to Codecov (OIDC)
+        uses: codecov/codecov-action@v5
+        with:
+          use_oidc: true
+          files: lcov.info
+          flags: julia
+          name: julia-runtests
+          disable_search: true
+          fail_ci_if_error: true
+          verbose: true
