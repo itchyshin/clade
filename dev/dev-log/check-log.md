@@ -621,3 +621,30 @@ important project state. Keep entries concise and concrete.
 - Not run: CI (pending push), Julia-enabled tests.
 - Next safest action: push, confirm `r-coverage` and all PR checks.
   Do not merge. Do not add a Codecov token.
+
+## 2026-11-09 - Batch C5: Julia coverage lane (flag `julia`)
+
+- Branch: `cursor/c5-julia-coverage-lane-a4d2` off `main` at `a7e3cbe`
+  (post-#195 first-pass Codecov).
+- Goal: `inst/julia/src` line coverage via
+  `inst/julia/test/runtests.jl` + `--code-coverage=user`, lcov upload
+  under flag `julia`, merged with flag `r` in Codecov
+  (`.github/codecov.yml` carryforward). No test or source edits.
+- Files changed: `.github/workflows/coverage.yaml` (julia job
+  fail-fast shell + header comment), `.github/coverage.md`,
+  `dev/dev-log/check-log.md`,
+  `dev/dev-log/after-task/2026-11-09-c5-julia-coverage-lane.md`.
+- Existing layout: `julia-coverage` job already introduced in #195;
+  this batch documents C5 and adds explicit `set -euo pipefail` on the
+  test step so failures cannot reach lcov/Codecov upload.
+- Stale-claim searches:
+  - `rg -n 'Codecov.submit|covr::codecov' .github`: prohibition only.
+  - `rg -n 'codecov-action' .github/workflows`: `coverage.yaml` only.
+- Not run: local Julia (not on PATH). CI pending push.
+- Codecov baseline (`main` `a7e3cbe`, processed): project **50.55%**
+  (R flag execution 61.9490%; Julia execution 39.2507%). Pre-Codecov
+  parent `b1f7934`: no Codecov commit (404).
+- R assertion CI (`tests.yaml`): recent runs green on PR branches; not
+  re-run on this VM.
+- Next safest action: push, open draft PR, subscribe coverage workflow.
+  Do not merge.

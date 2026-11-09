@@ -9,12 +9,16 @@
 #   julia-tests.yaml    — assertion gate for inst/julia/test/runtests.jl
 #   R-CMD-check.yaml    — R CMD check with --no-tests
 #
-# Flags:
+# Flags (Codecov merges both into one project report via
+# .github/codecov.yml flag_management and carryforward):
 #   r     — instrumented install + tests/testthat from the checkout,
 #           run with test_check()'s package/installed settings
 #           (CLADE_SKIP_JULIA_TESTS=true); see the step comment for
 #           why default package_coverage() is not used
-#   julia — --code-coverage=user on the julia-tests.yaml command
+#   julia — same assertion suite as julia-tests.yaml, plus
+#           --code-coverage=user; CoverageTools -> lcov.info under
+#           inst/julia/src; upload flag julia. Any test failure exits
+#           non-zero before processcoverage or Codecov upload.
 #
 # Checkout: pull_request uses the synthetic merge commit (actions/checkout
 # default). Exact head and base SHAs are logged; this is not exact-head
@@ -268,8 +272,12 @@ jobs:
       - name: Instantiate kernel environment
         run: julia --project=inst/julia -e 'using Pkg; Pkg.instantiate()'
 
+      # Same command as julia-tests.yaml except --code-coverage=user.
+      # Non-zero exit on any failed testset stops the job (no upload).
       - name: Run inst/julia/test/runtests.jl with coverage
-        run: julia --project=inst/julia --code-coverage=user inst/julia/test/runtests.jl
+        run: |
+          set -euo pipefail
+          julia --project=inst/julia --code-coverage=user inst/julia/test/runtests.jl
 
       - name: List Julia .cov files
         run: |
