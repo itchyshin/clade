@@ -621,3 +621,20 @@ important project state. Keep entries concise and concrete.
 - Not run: CI (pending push), Julia-enabled tests.
 - Next safest action: push, confirm `r-coverage` and all PR checks.
   Do not merge. Do not add a Codecov token.
+
+## 2026-11-09 - Coverage batch C1 (Julia zero-hit quartet)
+
+- Branch: `cursor/coverage-clade-c1-f588` (off `main` at `a7e3cbe`).
+- Goal: Julia unit tests for `ctrnn.jl`, `grn.jl`, `group_defense.jl`,
+  `social_learning.jl` (coverage plan batch C1 slice requested by owner).
+- Files changed: `inst/julia/test/test_{ctrnn,grn,group_defense,social_learning}.jl`
+  (new); `inst/julia/test/runtests.jl` (includes only).
+- Checks run:
+  - `julia --project=inst/julia inst/julia/test/runtests.jl`: **88 PASS**
+    (unit block), 0 fail, 0 error.
+  - Julia `--code-coverage=user` on same suite; per-file executable-line
+    hits (Julia `.cov` parser, count>0): ctrnn 0→70/70, grn 0→54/54,
+    group_defense 0→25/25, social_learning 0→61/64 (three trailing
+    `nothing` return lines still at 0).
+- Not run: R `testthat`, CI merge, Codecov upload from this VM.
+- Next safest action: open draft PR; after merge confirm Julia coverage job.

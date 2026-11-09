@@ -403,4 +403,8 @@ end
     include("test_ann_quantization.jl")
     include("test_ann_regularization.jl")
     include("test_lamarckian.jl")
+    include("test_ctrnn.jl")
+    include("test_grn.jl")
+    include("test_group_defense.jl")
+    include("test_social_learning.jl")
 end
