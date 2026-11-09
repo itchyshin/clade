@@ -9,11 +9,15 @@ const RUNTESTS =
 
 function tally(ts::Test.DefaultTestSet)
     passes = ts.n_passed
-    fails = ts.n_failed + ts.n_error + ts.n_broken + ts.n_invalid
-    for child in ts.sets
-        cpass, cfail = tally(child)
-        passes += cpass
-        fails += cfail
+    fails = 0
+    for r in ts.results
+        if r isa Test.DefaultTestSet
+            p, f = tally(r)
+            passes += p
+            fails += f
+        elseif r isa Union{Test.Fail, Test.Error, Test.Broken, Test.Illegal}
+            fails += 1
+        end
     end
     return passes, fails
 end
