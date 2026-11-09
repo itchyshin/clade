@@ -10,7 +10,7 @@ flag. pigauto, GLLVModels, and other repositories are out of scope.
 | Flag | Existing suite | Honest meaning |
 | --- | --- | --- |
 | `r` | `.github/workflows/tests.yaml`: `devtools::test()` with `CLADE_SKIP_JULIA_TESTS=true` | covr instruments the installed package, then `testthat::test_dir("tests/testthat", package = "clade", load_package = "installed")` from the checkout (same files, namespace and skip as `tests.yaml`; any failure or error fails the job). Default `package_coverage()` / `test_check()` runs from the install, where repo-root scanners resolve to the installed dir with no `vignettes/*.Rmd` and fail `NULL` vs `character(0)` (2 failures). Bare `test_dir()` without `package=` fails `test-stream-submit.R` (`local_mocked_bindings` needs a package). Per-test results are in artifact `coverage-r` (`coverage-r-results.csv`). Do not use `devtools::test()` inside covr (`load_all()` drops instrumentation). Julia-dependent R tests skip, so kernel-driven R paths are uncovered here on purpose. |
-| `julia` | `.github/workflows/julia-tests.yaml`: `julia --project=inst/julia inst/julia/test/runtests.jl` | line coverage of `inst/julia/src` from that unit suite (`--code-coverage=user` added only for instrumentation). |
+| `julia` | `coverage.yaml` `julia-coverage` job: `julia --project=inst/julia --check-bounds=yes --code-coverage=user inst/julia/test/runtests.jl` | line coverage of `inst/julia/src` from that unit suite. `.github/workflows/julia-tests.yaml` remains the assertion gate (no coverage instrumentation). |
 
 `R-CMD-check.yaml` uses `--no-tests` and does not produce coverage.
 `fidelity-matrix.yaml` is a manual reproduction harness, not the
@@ -79,7 +79,9 @@ Keep these separate. Passing one is not passing the next.
    coverage agent. Do not add README badges before stage 5.
 
 Status checks in `.github/codecov.yml` are informational so a missing
-baseline cannot look like a coverage-gate failure.
+baseline cannot look like a coverage-gate failure. The `project.default`
+status combines flags `r` and `julia` over paths `R/` and
+`inst/julia/src/` so the headline project coverage includes the kernel.
 
 ## Local runtimes
 

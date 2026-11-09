@@ -1,8 +1,11 @@
-# clade Codecov — first pass.
+# clade Codecov — R package + Julia kernel (batch C5 / D-3).
 #
 # Flags:
 #   r     — covr on the existing tests.yaml suite (CLADE_SKIP_JULIA_TESTS)
-#   julia — CoverageTools lcov from inst/julia/test/runtests.jl
+#   julia — inst/julia/test/runtests.jl with --code-coverage=user
+#
+# The default project status combines both flags so the headline Codecov
+# number covers R/ and inst/julia/src/ (carryforward when one lane skips).
 #
 # No ignore/exclusion lists. Status is informational until a verified
 # default-main report exists. Do not add README badges before that.
@@ -31,6 +34,12 @@ coverage:
     project:
       default:
         informational: true
+        flags:
+          - r
+          - julia
+        paths:
+          - R/
+          - inst/julia/src/
       r:
         flags:
           - r

@@ -621,3 +621,25 @@ important project state. Keep entries concise and concrete.
 - Not run: CI (pending push), Julia-enabled tests.
 - Next safest action: push, confirm `r-coverage` and all PR checks.
   Do not merge. Do not add a Codecov token.
+
+## 2026-11-09 - CI batch C5: Julia Codecov lane hardening + combined project flags
+
+- Branch: `cursor/ci-julia-coverage-e24e` off `main` at `a7e3cbe`.
+  CI and Codecov config only; no `R/`, `tests/`, or `inst/julia/` edits
+  (PR #196 untouched).
+- Goal: batch C5 (D-3) — `inst/julia/test/runtests.jl` with
+  `--code-coverage=user`, upload flag `julia` beside flag `r`; combined
+  Codecov project spans `R/` and `inst/julia/src/`.
+- Baseline (main `a7e3cbe`, coverage run 42642785270 artifacts):
+  R `percent_coverage=61.9490`; Julia `percent_coverage=39.2507`
+  (`lines_hit=1320` / `lines_found=3363`); campaign plan combined ~50.55%.
+- Files: `.github/workflows/coverage.yaml` (julia job bounds, fail if no
+  `.cov` or empty lcov), `.github/codecov.yml` (`project.default` flags
+  `r`+`julia`), `.github/coverage.md`, this log.
+- Local: `python3` PyYAML load of workflow + codecov.yml — OK.
+  R/Julia suites not executed in this VM.
+- R runner note: earlier `r-coverage` failures were covr/test_dir
+  wiring (#195 fixes `787f6a1`); `tests.yaml` green on the codecov PR
+  branch in CI. Not re-diagnosed here.
+- Next: push, draft PR `CI: add Julia coverage to clade`, read coverage
+  job artifacts for before/after percent lines. Do not merge.
