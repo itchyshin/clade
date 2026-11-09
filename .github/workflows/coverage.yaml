@@ -14,7 +14,8 @@
 #           run with test_check()'s package/installed settings
 #           (CLADE_SKIP_JULIA_TESTS=true); see the step comment for
 #           why default package_coverage() is not used
-#   julia — --code-coverage=user on the julia-tests.yaml command
+#   julia — inst/julia/test/runtests.jl with --code-coverage=user
+#           (batch C5; assertion gate remains julia-tests.yaml)
 #
 # Checkout: pull_request uses the synthetic merge commit (actions/checkout
 # default). Exact head and base SHAs are logged; this is not exact-head
@@ -269,17 +270,35 @@ jobs:
         run: julia --project=inst/julia -e 'using Pkg; Pkg.instantiate()'
 
       - name: Run inst/julia/test/runtests.jl with coverage
-        run: julia --project=inst/julia --code-coverage=user inst/julia/test/runtests.jl
+        run: |
+          set -eu
+          julia --project=inst/julia --check-bounds=yes --code-coverage=user \
+            .github/scripts/julia-coverage-runtests.jl
+          cat coverage-julia-test-count.txt
+          cov_count="$(find inst/julia -name '*.cov' | wc -l)"
+          if [ "${cov_count}" -eq 0 ]; then
+            echo "No Julia .cov files after runtests.jl; coverage collection failed."
+            exit 1
+          fi
+          echo "julia_cov_file_count=${cov_count}"
 
       - name: List Julia .cov files
-        run: |
-          echo "julia_cov_files<<EOF"
-          find inst/julia -name '*.cov' -print | sort
-          echo "EOF"
+        run: find inst/julia -name '*.cov' -print | sort
 
       - uses: julia-actions/julia-processcoverage@v1
         with:
           directories: inst/julia/src
+
+      - name: Require non-empty lcov for inst/julia/src
+        run: |
+          set -eu
+          test -s lcov.info
+          src_files="$(grep -c '^SF:inst/julia/src/' lcov.info || true)"
+          if [ "${src_files}" -eq 0 ]; then
+            echo "lcov.info has no SF:inst/julia/src/ entries."
+            exit 1
+          fi
+          echo "lcov_source_files=${src_files}"
 
       - name: Summarise Julia coverage execution percent
         run: |
@@ -295,11 +314,18 @@ jobs:
                   if count > 0:
                       covered += 1
           pct = (100.0 * covered / hits) if hits else 0.0
+          count_path = Path("coverage-julia-test-count.txt")
+          test_counts = (
+              count_path.read_text(encoding="utf-8").strip()
+              if count_path.is_file()
+              else "julia_test_pass_count=unknown"
+          )
           summary = [
               "stage=coverage_execution",
               "language=julia",
               "flag=julia",
               "suite=inst/julia/test/runtests.jl",
+              test_counts,
               f"lines_hit={covered}",
               f"lines_found={hits}",
               f"percent_coverage={pct:.4f}",
@@ -316,6 +342,7 @@ jobs:
           path: |
             lcov.info
             coverage-julia-summary.txt
+            coverage-julia-test-count.txt
           if-no-files-found: error
           retention-days: 14
 
