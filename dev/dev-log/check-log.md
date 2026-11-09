@@ -588,3 +588,36 @@ important project state. Keep entries concise and concrete.
   Tests and Julia source untouched.
 - Next safest action: push, let CI run, subscribe wake. Do not merge.
   Do not add a Codecov token.
+
+## 2026-11-08 - Codecov r-coverage: root cause of the `test_dir` failure; run with package namespace
+
+- Branch: `cursor/codecov-first-pass-8e02` (PR #195, follow-up on
+  `196373c`). CI-only change; tests and `inst/julia/src/` untouched.
+- Failure on `196373c` (run 42529873753, job 128881480156): covr
+  `Failure in .../clade-commands.Rout.fail`; the log hides the test
+  output. Reproduced locally (R 4.3.3, same env vars): bare
+  `testthat::test_dir("tests/testthat")` (no `package=`) after
+  `library(clade)` errors in `test-stream-submit.R` (5 errors,
+  `local_mocked_bindings()` -> `dev_package()`: "No packages loaded
+  with pkgload"). Cause: the previous fix dropped the package
+  namespace, i.e. not equivalent to `test_check()` or `devtools::test()`.
+- Default `covr::package_coverage()` (`test_check()` from the install)
+  failed 2 tests on `bf4478c` (run 42529230191): `.find_repo_root()` in
+  `test-vignette-field-references.R` / `test-no-internal-leaks.R`
+  resolves to the installed package dir (has DESCRIPTION, R, tests) with
+  no `vignettes/`. Source-tree assumption in tests, not a kernel bug.
+- Fix: `test_dir("tests/testthat", package = "clade",
+  load_package = "installed", stop_on_failure = FALSE)` inside the covr
+  `code`, then write per-test CSV + SummaryReporter log, then `stop()`
+  on any failed/error. This is test_check()'s namespace/install setting
+  run from the checkout.
+- Equivalence evidence (local, `CLADE_SKIP_JULIA_TESTS=true`):
+  `devtools::test()` vs covr run: 1158 tests / 1763 expectations /
+  0 failed / 648 skipped / 0 errors / 0 warnings in both;
+  per-test `file,test,nb,failed,skipped,error,warning` tables
+  `all.equal` TRUE. covr `percent_coverage=61.9490`.
+- Negative control: a temporary failing test in a scratch copy made the
+  step exit 1 (`testthat failures under coverage`).
+- Not run: CI (pending push), Julia-enabled tests.
+- Next safest action: push, confirm `r-coverage` and all PR checks.
+  Do not merge. Do not add a Codecov token.

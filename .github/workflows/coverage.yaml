@@ -10,8 +10,10 @@
 #   R-CMD-check.yaml    — R CMD check with --no-tests
 #
 # Flags:
-#   r     — instrumented install + tests/testthat from the checkout
-#           (CLADE_SKIP_JULIA_TESTS=true; not default test_check())
+#   r     — instrumented install + tests/testthat from the checkout,
+#           run with test_check()'s package/installed settings
+#           (CLADE_SKIP_JULIA_TESTS=true); see the step comment for
+#           why default package_coverage() is not used
 #   julia — --code-coverage=user on the julia-tests.yaml command
 #
 # Checkout: pull_request uses the synthetic merge commit (actions/checkout
@@ -120,42 +122,81 @@ jobs:
             any::jsonlite
             any::covr
 
-      # Default covr::package_coverage() runs the installed copy via
-      # tests/testthat.R → test_check(). That is not tests.yaml
-      # (devtools::test() on the source tree). On this PR it aborted
-      # with FAIL 2: repo-root scanners saw an install without
-      # vignettes/*.Rmd, so unlist(list()) was NULL instead of
-      # character(0). Do not change those tests. Instrument, attach
-      # the installed package, and run the same testthat files from
-      # the checkout. Do not call devtools::test() here: load_all()
-      # would replace the instrumented code.
+      # Default covr::package_coverage() (type = "tests") runs the
+      # installed copy via tests/testthat.R -> test_check(). On this
+      # repo that aborts with FAIL 2 (test-vignette-field-references.R,
+      # test-no-internal-leaks.R): their .find_repo_root() resolves to
+      # the installed package dir (DESCRIPTION + R + tests all exist
+      # there), which has no vignettes/*.Rmd, so unlist(list()) is NULL
+      # instead of character(0). Those tests assume a source tree.
+      #
+      # So: instrument + install (type = "none"), then run the same
+      # files tests.yaml runs, from the checkout, with test_check()'s
+      # own settings: package = "clade", load_package = "installed"
+      # (tests evaluate in the clade namespace, internals visible).
+      # Passing no package= (bare test_dir) fails
+      # test-stream-submit.R: local_mocked_bindings() needs a package.
+      # devtools::test() cannot be used: load_all() drops the traces.
+      #
+      # Every failure or error fails the job. Per-test results are
+      # written to coverage-r-results.csv and can be diffed against
+      # devtools::test() results.
       - name: Run covr on the existing no-Julia testthat suite
         run: |
           Rscript - <<'EOF'
           options(crayon.enabled = FALSE)
+          log_path <- file.path(getwd(), "coverage-r-testthat.log")
+          csv_path <- file.path(getwd(), "coverage-r-results.csv")
           cov <- covr::package_coverage(
             quiet = FALSE,
             type = "none",
             code = c(
               "options(crayon.enabled = FALSE)",
-              "library(clade)",
-              "testthat::test_dir('tests/testthat', stop_on_failure = TRUE)"
+              sprintf(
+                paste0("res <- testthat::test_dir('tests/testthat', ",
+                       "package = 'clade', load_package = 'installed', ",
+                       "reporter = testthat::SummaryReporter$new(file = %s), ",
+                       "stop_on_failure = FALSE)"),
+                deparse(log_path)
+              ),
+              "df <- as.data.frame(res)",
+              sprintf(
+                "write.csv(df[, c('file', 'test', 'nb', 'failed', 'skipped', 'error', 'warning')], %s, row.names = FALSE)",
+                deparse(csv_path)
+              ),
+              "stopifnot(nrow(df) > 0L)",
+              "if (any(df$failed > 0L) || any(df$error)) stop('testthat failures under coverage')"
             )
           )
           print(cov)
           pct <- covr::percent_coverage(cov)
+          df <- read.csv(csv_path)
           summary_lines <- c(
             "stage=coverage_execution",
             "language=r",
             "flag=r",
-            "suite=testthat_dir_CLADE_SKIP_JULIA_TESTS",
+            "suite=testthat_dir_installed_CLADE_SKIP_JULIA_TESTS",
             sprintf("percent_coverage=%.4f", pct),
-            "note=covr percent_coverage from tests/testthat on the source tree against the instrumented install; not a Codecov processed report and not a default-main baseline."
+            sprintf("testthat_tests=%d", nrow(df)),
+            sprintf("testthat_expectations=%d", sum(df$nb)),
+            sprintf("testthat_failed=%d", sum(df$failed)),
+            sprintf("testthat_errors=%d", sum(df$error)),
+            sprintf("testthat_skipped=%d", sum(df$skipped)),
+            "note=covr percent_coverage from tests/testthat (package='clade', load_package='installed') against the instrumented install; not a Codecov processed report and not a default-main baseline."
           )
           writeLines(summary_lines, "coverage-r-summary.txt")
           writeLines(summary_lines)
           covr::to_cobertura(cov, filename = "coverage-r.xml")
           EOF
+
+      - name: Show testthat log
+        if: always()
+        run: |
+          if [ -f coverage-r-testthat.log ]; then
+            tail -n 80 coverage-r-testthat.log
+          else
+            echo "coverage-r-testthat.log not written"
+          fi
 
       - name: Upload R coverage artifacts
         uses: actions/upload-artifact@v4
@@ -164,6 +205,8 @@ jobs:
           path: |
             coverage-r.xml
             coverage-r-summary.txt
+            coverage-r-results.csv
+            coverage-r-testthat.log
           if-no-files-found: error
           retention-days: 14
 

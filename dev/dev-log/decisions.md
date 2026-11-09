@@ -148,8 +148,9 @@ do not need a full design document yet.
   repository only. R (`R/`, `tests/testthat/`) and Julia
   (`inst/julia/`) both live here. One new workflow
   (`.github/workflows/coverage.yaml`) is the sole Codecov uploader:
-  flag `r` from covr instrumentation plus source-tree
-  `testthat::test_dir("tests/testthat")` with
+  flag `r` from covr instrumentation plus
+  `testthat::test_dir("tests/testthat", package = "clade",
+  load_package = "installed")` from the checkout with
   `CLADE_SKIP_JULIA_TESTS=true`, flag
   `julia` from `runtests.jl --code-coverage=user`. Authentication is
   GitHub Actions OIDC with job-scoped `contents: read` plus
