@@ -13,7 +13,7 @@
 }
 \value{
 A named R list with fields \verb{$agents}, \verb{$t}, \verb{$specs}, \verb{$progress},
-\verb{$deaths}, \verb{$genome_log}.
+\verb{$deaths}, \verb{$genome_log}, \verb{$movement_log}.
 }
 \description{
 JuliaConnectoR returns Julia structs as named R lists. This function

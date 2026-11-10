@@ -138,7 +138,47 @@ mid-run (the post-crash zero-padded rows are filtered by `t > 0`).
 So you can pipe a viability-flagged crashed run straight into
 `plot_run()` and read the partial story.
 
-## 5. What next?
+## 5. Recording agent trajectories
+
+The extractors above (`get_run_data()`, `get_genome_data()`) all
+operate on population- and per-death aggregates. When you need the
+per-agent, per-tick spatial trace — for example, to plot foraging
+paths, to score dispersal against a fitness gradient, or to build
+an animation of a run — opt into movement logging by setting two
+extra specs (neither is in `default_specs()`, because full
+trajectory logging is memory-hungry and off by default):
+
+```{r}
+specs$log_movement      <- TRUE
+specs$log_movement_freq <- 5L   # record every 5 ticks; 1L = every tick
+```
+
+`get_movement_data(env)` returns a tidy data frame with one row
+per (logged tick × agent) and columns `t`, `id`, `x`, `y`, `age`,
+`energy`, `alive`. It is `NULL` when `log_movement = FALSE`, so
+downstream code can guard cleanly with `if (is.null(md)) ...`.
+
+```{r}
+env <- run_alife(specs)
+md  <- get_movement_data(env)
+head(md)
+```
+
+`plot_movement(md)` draws a static snapshot (or, with `tick = t`,
+a single-tick overlay). `plot_run_movie(md)` returns an unrendered
+`gganim` object; hand it to `gganimate::animate()` and
+`gganimate::anim_save()` to write a GIF or MP4. `gganimate` is in
+`Suggests`, so install it once (`install.packages("gganimate")`)
+and only when you want the movie.
+
+```{r}
+plot_movement(md)
+mv <- plot_run_movie(md)
+gganimate::animate(mv, fps = 10)
+gganimate::anim_save("run.gif", mv)
+```
+
+## 6. What next?
 
 Once you can read `plot_run()` you have most of clade's surface.
 Where to go from here, in order of investment:

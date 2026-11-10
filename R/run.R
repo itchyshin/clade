@@ -933,7 +933,7 @@ Rscript -e %s
 #' @param env_julia The raw return value from `juliaCall("Clade.run_clade", ...)`.
 #' @param specs The specs list used for this run.
 #' @return A named R list with fields `$agents`, `$t`, `$specs`, `$progress`,
-#'   `$deaths`, `$genome_log`.
+#'   `$deaths`, `$genome_log`, `$movement_log`.
 #' @keywords internal
 .julia_env_to_r <- function(env_julia, specs) {
   # env_julia$grass is a 2D Julia array; tryCatch in case grass is not
@@ -957,6 +957,11 @@ Rscript -e %s
       progress      = as.data.frame(env_julia$progress),
       deaths        = as.data.frame(env_julia$deaths),
       genome_log    = env_julia$genome_log,
+      # 0.7.x: opt-in per-tick agent-position log. `env_julia$movement_log`
+      # is either the Julia Dict{String,Vector} (see logging.jl::log_movement!)
+      # when `specs$log_movement = TRUE`, or NULL otherwise. Consumed R-side
+      # by get_movement_data().
+      movement_log  = env_julia$movement_log,
       total_carrion = env_julia$total_carrion,
       total_shelter = env_julia$total_shelter
     ),
