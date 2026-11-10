@@ -55,6 +55,7 @@ function apply_group_defense!(env::Environment,
 
     for (i, ag) in enumerate(env.agents)
         damage[i] > 0.0f0 || continue
+        ag.alive || continue # Skip dead focal agents
         x, y = Int(ag.x), Int(ag.y)
 
         # Count live prey within Chebyshev radius (toroidal)
@@ -63,7 +64,11 @@ function apply_group_defense!(env::Environment,
             (dx == 0 && dy == 0) && continue
             nx = wrap_or_clamp(x + dx, rows, toroidal)
             ny = wrap_or_clamp(y + dy, cols, toroidal)
-            env.agent_map[nx, ny] > 0 && (n_nearby += 1)
+            occ_id = env.agent_map[nx, ny]
+            if occ_id > 0
+                nb = env.agents[occ_id]
+                nb.alive && (n_nearby += 1) # Only count living neighbours
+            end
         end
 
         if n_nearby > 0
