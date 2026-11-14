@@ -412,3 +412,6 @@ include("test_behavioral_diversity.jl")
 include("test_genetic_diversity.jl")
 
 include("test_sample_env.jl")
+
+include("test_matched_initialization.jl")
+include("test_matched_founders.jl")

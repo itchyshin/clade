@@ -749,3 +749,28 @@ trailing whitespace from captured output; numeric results unchanged.
 The source metric is RMS genome-weight distance, nonnegative without a fixed
 upper bound of one; removed the review script's unsupported upper-bound
 assertion. Saved-spec compatibility fix is included from #203.
+
+
+## 2026-11-14: Matched-founder experiment setup
+
+- User authorized a matched-founder experiment on Totoro. Branch:
+  codex/matched-founder-experiment, base main 13430c1; narrow file lease.
+- Minimal private _run_clade initializer seam reuses the canonical loop.
+  Public functions/defaults unchanged. Runner holds reference scalar traits
+  fixed, rescales founder alleles, then restores offspring mutation specs.
+- Design: 2 worlds x 3 founder SDs x 3 mutation SDs x 2 BNN exploration
+  modes x 100 seeds = 3600 runs. Fixed exploration is primary; default
+  heterozygosity is sensitivity. Plan and analysis in dev/data/matched-founders/.
+- Checks: Julia suite 277 assertions pass, exit 0. Independent prior-source
+  five-seed full-result parity 5/5. Live R entropy/extractor 41 and sensory
+  snapshot 14 pass. Tiny 72-run output/analysis smoke passes.
+- Tests of tests: missing initializer first failed; zero-founder/zero-M
+  control remains zero and positive-M offspring generate variation.
+  Initial state hashes agree across M. An incomplete-world CSV fixture is
+  rejected by the exact Cartesian design check. Existing-output guard passes.
+- First numeric check incorrectly compared normalized Float32 mutation to a
+  Float64 literal; assertion now checks the actual Float32 contract.
+- Independent review required fixed-exploration control and complete run/
+  trajectory keys. Both addressed. No scientific campaign started yet.
+- Next: commit exact source, timed 72-run Totoro pilot at 1000 ticks,
+  inspect match/data/viability checks, estimate and run full campaign.
