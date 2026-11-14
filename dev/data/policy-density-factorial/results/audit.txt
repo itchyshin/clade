@@ -1,0 +1,1 @@
+PASS: 100 source blocks, 14400 assay runs, 288000 windows, physical/panel matches and 84 summary means independently reconstructed.

@@ -1,0 +1,36 @@
+{
+  "assessment_performed": true,
+  "draft_sha256": "2ef13bc6dd2e81ff72faa750cbc7de7774278b191e425a082a37ba9df63a0d2f",
+  "draft_version": "v1",
+  "requested_mode": "independent",
+  "assessor_type": "self",
+  "reviewer": "Codex",
+  "method": "Post-draft self-review against simulation outputs and audit records.",
+  "genre": "Simulation research record",
+  "coverage": "Whole exact draft",
+  "score": 2,
+  "style_status": "scored",
+  "score_reason": "Concrete results, experimental design, and limits stated directly.",
+  "confidence": "moderate",
+  "confidence_reason": "Uncalibrated editorial self-review.",
+  "examples": [
+    {
+      "location": "Line 3",
+      "line": 3,
+      "quote": "See `plan.md` for the prespecified comparisons and `findings.md` for results and limitations. The source commit is `2b6ea12bbbccf06f62e700edf5653eeb7c950cc6`. In an isolated source copy, apply `dev/data/policy-stability/assay-final.patch`, `dev/data/policy-stability/unique-source.patch`, then `dynamic-density.patch`, and copy `driver.jl` and `launch.py` into its root. Execution paths and worker limits are recorded in `launch.py` and the receipts. Source-state files remain on Totoro and are indexed by the included SHA-256 manifest.",
+      "cue": "See `plan.md` for the prespecified comparisons and `findings",
+      "impact": "States the scope or result directly.",
+      "repair": "no change needed"
+    }
+  ],
+  "evidence_none_reason": null,
+  "science_gate": "pass",
+  "science_gate_reason": "Matched design, estimands, uncertainty and limits checked against the recorded results.",
+  "facts_gate": "pass",
+  "facts_gate_reason": "Execution receipts, matched ledgers and independent reconstruction checked.",
+  "references_gate": "pass",
+  "references_gate_reason": "Local scripts and sources checked.",
+  "date": "2026-11-14",
+  "calibration_status": "No held-out controls.",
+  "interpretation": "perceived_style_not_authorship"
+}

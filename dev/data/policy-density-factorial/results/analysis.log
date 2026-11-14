@@ -1,0 +1,115 @@
+
+viable
+   100
+, , food_rate = 0.025, viability = crashed
+
+       threshold
+density   80  120
+     48    0    1
+     96    0    0
+
+, , food_rate = 0.05, viability = crashed
+
+       threshold
+density   80  120
+     48    0    0
+     96    0    0
+
+, , food_rate = 0.025, viability = viable
+
+       threshold
+density   80  120
+     48 1800 1798
+     96 1790 1771
+
+, , food_rate = 0.05, viability = viable
+
+       threshold
+density   80  120
+     48 1800 1800
+     96 1800 1800
+
+, , food_rate = 0.025, viability = weak
+
+       threshold
+density   80  120
+     48    0    1
+     96   10   29
+
+, , food_rate = 0.05, viability = weak
+
+       threshold
+density   80  120
+     48    0    0
+     96    0    0
+
+             type                  label tick   n     mean       lower
+             food           48 120 fixed 1000 100  7.52250   6.0999738
+             food            48 80 fixed 1000 100 -0.14750  -1.7484941
+             food           96 120 fixed 1000 100  2.42250   0.8541685
+             food            96 80 fixed 1000 100  0.78750  -0.8083125
+ threshold_change               48 fixed 1000 100 -7.67000  -9.5664711
+ threshold_change               96 fixed 1000 100 -1.63500  -4.0229184
+   density_change              120 fixed 1000 100 -5.10000  -7.1238960
+   density_change               80 fixed 1000 100  0.93500  -1.4071910
+      interaction                  fixed 1000 100  6.03500   3.2223772
+             food       48 120 staggered 1000 100  5.76500   4.3150614
+             food        48 80 staggered 1000 100 -2.33250  -3.8852762
+             food       96 120 staggered 1000 100  2.88000   1.4504994
+             food        96 80 staggered 1000 100 -1.16750  -2.6380303
+ threshold_change           48 staggered 1000 100 -8.09750 -10.3664695
+ threshold_change           96 staggered 1000 100 -4.04750  -6.0655195
+   density_change          120 staggered 1000 100 -2.88500  -4.7339595
+   density_change           80 staggered 1000 100  1.16500  -0.9972528
+      interaction              staggered 1000 100  4.05000   1.2154342
+      time_change      48 120 0.05 fixed 1000 100 -0.51125  -2.6476892
+      time_change  48 120 0.05 staggered 1000 100  0.79000  -1.3262717
+      time_change     48 120 0.025 fixed 1000 100  7.31625   5.4901478
+      time_change 48 120 0.025 staggered 1000 100  7.66375   5.8486577
+      time_change       48 80 0.05 fixed 1000 100  0.66125  -1.0806722
+      time_change   48 80 0.05 staggered 1000 100  3.29125   1.5632682
+      time_change      48 80 0.025 fixed 1000 100 -1.48375  -2.9506266
+      time_change  48 80 0.025 staggered 1000 100 -1.24125  -2.8999692
+      time_change      96 120 0.05 fixed 1000 100 -2.92875  -4.9685740
+      time_change  96 120 0.05 staggered 1000 100 -2.83000  -4.6287983
+      time_change     96 120 0.025 fixed 1000 100  3.36750   1.7466849
+      time_change 96 120 0.025 staggered 1000 100  4.01625   2.3066497
+      time_change       96 80 0.05 fixed 1000 100 -0.75750  -2.6348156
+      time_change   96 80 0.05 staggered 1000 100  1.40625  -0.3652332
+      time_change      96 80 0.025 fixed 1000 100 -0.35875  -1.6917049
+      time_change  96 80 0.025 staggered 1000 100 -0.69375  -2.3260852
+       upper bootstrap_lower bootstrap_upper mix control
+  8.94502624       6.0597812       8.9125313  NA      NA
+  1.45349412      -1.6850625       1.3755312  NA      NA
+  3.99083154       0.8821875       3.9375312  NA      NA
+  2.38331247      -0.8513125       2.3887812  NA      NA
+ -5.77352893      -9.5263125      -5.7823438  NA      NA
+  0.75291839      -4.0088437       0.7802187  NA      NA
+ -3.07610399      -7.0954063      -3.1361875  NA      NA
+  3.27719105      -1.5489375       3.1514375  NA      NA
+  8.84762280       3.4260625       8.9225937  NA      NA
+  7.21493862       4.3362500       7.1613750  NA      NA
+ -0.77972377      -3.7987500      -0.7323438  NA      NA
+  4.30950063       1.3974687       4.2313750  NA      NA
+  0.30303025      -2.6179062       0.3213750  NA      NA
+ -5.82853051     -10.3401250      -5.7011875  NA      NA
+ -2.02948046      -6.0100312      -2.0811875  NA      NA
+ -1.03604048      -4.6426875      -1.0206250  NA      NA
+  3.32725282      -0.8963750       3.2688125  NA      NA
+  6.88456580       1.4499687       6.8100000  NA      NA
+  1.62518919      -2.6002813       1.6065625  NA      NA
+  2.90627165      -1.1764063       2.9113125  NA      NA
+  9.14235220       5.5223750       9.0864375  NA      NA
+  9.47884235       5.8110937       9.3650313  NA      NA
+  2.40317220      -1.0840625       2.3775000  NA      NA
+  5.01923180       1.5799688       4.9138125  NA      NA
+ -0.01687337      -2.9239063       0.0162500  NA      NA
+  0.41746922      -2.7427188       0.4017187  NA      NA
+ -0.88892598      -4.9364062      -0.8635938  NA      NA
+ -1.03120171      -4.6279062      -1.0698438  NA      NA
+  4.98831508       1.8386875       4.9600625  NA      NA
+  5.72585035       2.4850000       5.7408125  NA      NA
+  1.11981562      -2.5638438       0.9826250  NA      NA
+  3.17773322      -0.3375625       3.1637812  NA      NA
+  0.97420493      -1.7064687       0.9762812  NA      NA
+  0.93858518      -2.2775625       0.8938750  NA      NA

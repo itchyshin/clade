@@ -1,0 +1,21 @@
+--- a/inst/julia/scripts/mixture_assay.jl	2026-11-14 17:22:29
++++ b/inst/julia/scripts/mixture_assay.jl	2026-11-14 17:22:29
+@@ -26 +26 @@
+- length(ids)==96 && all(1 .<= ids .<= length(brains)) || throw(ArgumentError("invalid policy assignment"))
++ length(ids)==Int(s["n_agents_init"]) && all(1 .<= ids .<= length(brains)) || throw(ArgumentError("invalid policy assignment"))
+@@ -28 +28 @@
+- cells=randperm(Xoshiro(130000+seed),900)[1:96]
++ cells=randperm(Xoshiro(130000+seed),900)[1:length(ids)]
+@@ -48 +47,0 @@
+- k=length(brains);ids=mono==0 ? assignments(k,96,seed) : fill(mono,96)
+@@ -49,0 +49 @@
++ ninit=Int(s["n_agents_init"]);k=length(brains);ids=mono==0 ? assignments(k,ninit,seed) : fill(mono,ninit)
+@@ -55 +55 @@
+-  env=initialize(s,brains,ids,seed);environment[]=env;physical[]=physical_digest(env)
++  env=initialize(s,brains,ids,seed);@assert all(a.repro_threshold==Float32(s["min_repro_energy"]) for a in env.agents);environment[]=env;physical[]=physical_digest(env)
+@@ -85 +85 @@
+-    pre[t]==post[t]==96 && births[t]==deaths[t]==0 || error("equal density violated")
++    pre[t]==post[t]==ninit && births[t]==deaths[t]==0 || error("equal density violated")
+@@ -111 +111 @@
+-    nstart=lo==1 ? 96 : post[lo-1],nend=post[min(lo+49,h)],
++    nstart=lo==1 ? ninit : post[lo-1],nend=post[min(lo+49,h)],

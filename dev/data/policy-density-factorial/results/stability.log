@@ -1,0 +1,36 @@
+sources 100 min>=20 100 endpoint viable 100 cap ticks 0 min range 47 74 max peak 616
+assays 14400 min>=20 9095 endpoint viable 14359 weak 40 crashed 1 extinct 1 cap ticks 0 min range 0 91 max peak 648
+ density threshold food_rate  age_mode   n stable viable extinct cap_ticks min
+      48       120     0.025     fixed 900     54    899       1         0   0
+      48       120     0.025 staggered 900     48    899       0         0   2
+      48       120     0.050     fixed 900    291    900       0         0   3
+      48       120     0.050 staggered 900    273    900       0         0   4
+      48        80     0.025     fixed 900    893    900       0         0  16
+      48        80     0.025 staggered 900    891    900       0         0  15
+      48        80     0.050     fixed 900    900    900       0         0  45
+      48        80     0.050 staggered 900    900    900       0         0  35
+      96       120     0.025     fixed 900    189    888       0         0   3
+      96       120     0.025 staggered 900     91    883       0         0   2
+      96       120     0.050     fixed 900    542    900       0         0   6
+      96       120     0.050 staggered 900    426    900       0         0   4
+      96        80     0.025     fixed 900    899    896       0         0  19
+      96        80     0.025 staggered 900    898    894       0         0  16
+      96        80     0.050     fixed 900    900    900       0         0  51
+      96        80     0.050 staggered 900    900    900       0         0  46
+ max_peak
+      219
+      218
+      432
+      435
+      300
+      296
+      585
+      588
+      254
+      251
+      469
+      468
+      336
+      346
+      642
+      648
