@@ -939,26 +939,24 @@ compute_relatedness <- function(id_a, id_b, env) {
 
 #' Build the sensory input vector for an agent
 #'
-#' `sense_env()` reconstructs the 11-element (or longer, when predators or
-#' parental care are active) sensory input vector that the agent's brain would
-#' receive on the current tick. It mirrors the Julia-side sensing logic so that
-#' you can inspect, plot, or replay individual agent decisions from R.
+#' For results from [run_alife()], return the Julia kernel's sensory input
+#' computed from the final environment state in the agent brain's input order.
+#' This snapshot reflects the selected `sense_mode`. It is not the input to the
+#' agent's last decision: the environment may have changed since that decision,
+#' and a stochastic brain may choose differently on another forward pass.
 #'
-#' The function requires `env$grass` (returned automatically by [run_alife()])
-#' and `env$agents`. Agent-map occupancy is reconstructed from agent positions.
-#' When `env$grass` is `NULL` (e.g. from a mock env), grass slots are set to 0.
+#' Older results or manually constructed environments without a snapshot use a
+#' legacy 11-value approximation in `per_cell` mode. It does not reproduce the
+#' current kernel's layout. In `weighted_sum` mode a snapshot is required; rerun
+#' the simulation if it is absent.
 #'
 #' @param env Environment list from [run_alife()].
-#' @param i Integer; index into `env$agents` (1-based). Use `agent_id` to
-#'   locate the index by ID: `which(sapply(env$agents, \(a) a$id) == agent_id)`.
+#' @param i Integer; index into `env$agents` (1-based).
 #'
-#' @return A named numeric vector. Slots:
-#' \describe{
-#'   \item{`grass_L/U/R/D/C`}{Grass value in left, up, right, down, centre.}
-#'   \item{`agent_L/U/R/D`}{Agent presence (0/1) in four cardinal directions.}
-#'   \item{`energy`}{Agent's current energy.}
-#'   \item{`age_norm`}{Agent age normalised by `specs$max_age`.}
-#' }
+#' @return A named numeric vector. For a saved snapshot, names follow the
+#'   kernel order: energy, age, directional grass and agent occupancy, bias,
+#'   then optional predator, parental-care, and signal channels. Per-cell
+#'   directional names include the distance; weighted sums use one per direction.
 #'
 #' @examples
 #' \dontrun{
@@ -978,6 +976,30 @@ sense_env <- function(env, i = 1L) {
 
   ag    <- env$agents[[i]]
   specs <- env$specs
+  mode <- if (is.null(specs$sense_mode)) "per_cell" else specs$sense_mode
+  if (!is.null(env$sensory_inputs)) {
+    radius <- if (is.null(specs$input_radius)) 1L else as.integer(specs$input_radius)
+    dirs <- c("N", "E", "S", "W")
+    channels <- function(prefix) {
+      if (identical(mode, "weighted_sum")) return(paste0(prefix, "_", dirs))
+      unlist(lapply(seq_len(radius), function(d) paste0(prefix, "_", dirs, "_", d)),
+             use.names = FALSE)
+    }
+    input_names <- c("energy", "age_norm", channels("grass"), channels("agent"), "bias")
+    if (!is.null(specs$n_predators_init) && specs$n_predators_init > 0L)
+      input_names <- c(input_names, channels("predator"))
+    if (isTRUE(specs$parental_care))
+      input_names <- c(input_names, "care_load", "offspring_energy")
+    signal_dims <- if (is.null(specs$signal_dims)) 0L else as.integer(specs$signal_dims)
+    if (signal_dims > 0L) input_names <- c(input_names, paste0("signal_", seq_len(signal_dims)))
+    values <- as.numeric(env$sensory_inputs[[i]])
+    if (length(values) != length(input_names))
+      stop("Saved sensory input length does not match the run specs.", call. = FALSE)
+    return(stats::setNames(values, input_names))
+  }
+  if (identical(mode, "weighted_sum"))
+    stop("Weighted sensory input is unavailable; rerun the simulation to save a snapshot.",
+         call. = FALSE)
   nr    <- as.integer(specs$grid_rows)
   nc    <- as.integer(specs$grid_cols)
   rad   <- if (!is.null(specs$input_radius)) as.integer(specs$input_radius) else 1L

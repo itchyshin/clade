@@ -662,9 +662,10 @@ end
     _compute_n_inputs(specs) -> Int32
 
 Sensory input vector length depends on `input_radius` (r) and active modules:
-- Base: 3 + 8r inputs (r=1 → 11, r=2 → 19)
-  - 2 self slots (energy, age) + 4r grass + 4r occupancy + 1 bias
-- + predators:     +4r (predator N/E/S/W at distances 1..r)
+- `sense_mode = "per_cell"` (default): base `3 + 8r` (r=1 → 11, r=2 → 19)
+- `sense_mode = "weighted_sum"`: base 11 at every radius; four grass and four
+  occupancy values collapse distances using `sum(value[d] / d)`.
+- Predators: `+4r` in per-cell mode or `+4` in weighted-sum mode
 - + parental care: +2  (care_load, offspring_energy)
 - + signal_dims:   +signal_dims (own signal)
 
@@ -672,8 +673,14 @@ Must stay in sync with sense_agent() in sense.jl.
 """
 function _compute_n_inputs(specs::Dict{String,Any})::Int32
     r = Int32(get(specs, "input_radius", 1))
-    n = Int32(3) + Int32(8) * r          # base: 2 self + 4r grass + 4r occ + 1 bias
-    Int(get(specs, "n_predators_init", 0)) > 0 && (n += Int32(4) * r)
+    r >= 1 || throw(ArgumentError("input_radius must be positive"))
+    mode = String(get(specs, "sense_mode", "per_cell"))
+    mode in ("per_cell", "weighted_sum") ||
+        throw(ArgumentError("sense_mode must be \"per_cell\" or \"weighted_sum\", got \"$mode\""))
+    per_cell = mode == "per_cell"
+    n = per_cell ? Int32(3) + Int32(8) * r : Int32(11)
+    Int(get(specs, "n_predators_init", 0)) > 0 &&
+        (n += (per_cell ? Int32(4) * r : Int32(4)))
     Bool(get(specs, "parental_care",   false)) && (n += Int32(2))
     sig = Int(get(specs, "signal_dims", 0))
     n += Int32(sig)
@@ -866,6 +873,7 @@ JuliaConnectoR serialises all fields without loss.
 function _env_to_result(env::Environment)
     (
         agents        = _agents_to_records(env.agents),
+        sensory_inputs = [sense_agent(ag, env) for ag in env.agents],
         t             = Int(env.t),
         progress      = _dict_to_nt(env.progress),
         deaths        = _dict_to_nt(env.deaths),

@@ -1,3 +1,13 @@
+# Development version
+
+- `sense_mode = "weighted_sum"` offers inverse-distance directional sensing
+  with a fixed brain input width. The default remains `"per_cell"` (#120).
+- `sense_env()` reads the exact final sensory vectors from new Julia runs,
+  including optional channels. These snapshots describe the final state;
+  they do not replay an earlier stochastic decision.
+- Predator sensing now respects bounded grids when `toroidal = FALSE`,
+  consistently with grass and agent sensing.
+
 # clade 0.8.0 (development) — sex / mating-system subsystem + Rees-Baylis 2026 paper reproduction
 
 - `plot_run()` now shows grass biomass density alongside coverage when the

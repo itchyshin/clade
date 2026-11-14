@@ -405,3 +405,5 @@ end
     include("test_lamarckian.jl")
 end
 include("test_group_defense.jl")
+
+include("test_sense_mode.jl")

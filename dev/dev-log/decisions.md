@@ -185,3 +185,27 @@ do not need a full design document yet.
 - Evidence: this entry; `.github/workflows/coverage.yaml`;
   `.github/codecov.yml`; `.github/coverage.md`; after-task
   `dev/dev-log/after-task/2026-11-08-codecov-first-pass.md`.
+
+
+## 2026-11-14: Optional inverse-distance sensing and final inspection
+
+Resolve #120 with an opt-in sense_mode = "weighted_sum"; keep per_cell as
+the default. For each cardinal direction and channel, aggregate the existing
+normalised cell inputs with sum(value[d] / d), nearest first. Grass and
+occupancy each occupy four slots, as do optional predator inputs, regardless
+of radius. Energy, age, bias, care and signal channels retain their clade
+layout. Graded predator inputs already contain 1/(d+1), so their weighted
+contribution is occupancy/[d(d+1)]. Sums are unnormalised and may exceed one.
+
+The directional formula follows alifeR/R/sense_env.R::dir_sense and the
+MATLAB dirSense.m::weightedSum ancestor; this is no claim of full input-layout
+parity. The ancestor includes centre grass and uses a different state order.
+Nonpositive radii and unsupported modes are rejected. Predator lookup now
+uses the same wrap_or_clamp boundary as other channels.
+
+The R sense_env reconstruction used a legacy input layout. New results now
+carry final sensory vectors computed in Julia, returned at the existing
+run boundary. R inspection reads those exact vectors. Older or manually
+built lists retain the legacy display fallback; weighted sensing requires
+a saved snapshot. Snapshots describe final state, not a historical decision
+or stochastic brain replay.

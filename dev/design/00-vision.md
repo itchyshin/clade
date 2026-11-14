@@ -222,7 +222,7 @@ note in `dev/dev-log/decisions.md`.
 
 | Contract | Meaning | Where Implemented | Validation |
 | --- | --- | --- | --- |
-| `default_specs()` | Returns the canonical 296-field spec list. Single source of truth for parameter names, defaults, and types. | `R/config.R` | `test-specs.R`, `test-config.R`, `test-spec-wiring.R` |
+| `default_specs()` | Returns the canonical 312-field spec list. Single source of truth for parameter names, defaults, and types. | `R/config.R` | `test-specs.R`, `test-config.R`, `test-spec-wiring.R` |
 | `run_alife()` / `run_clade()` | Primary entry point. R↔Julia boundary crossed once per call. | `R/run.R` | `test-integration.R` |
 | `batch_alife()` / `batch_seeds()` | Parallel batch runners. PSOCK cluster; one Julia per worker. | `R/run.R` | `test-integration.R` |
 | `get_run_data(env)$ticks` | Per-tick population statistics in long form. Stable column set. | `R/analysis.R` | `test-run-data.R` |
@@ -232,6 +232,8 @@ note in `dev/dev-log/decisions.md`.
 | `wolf_personality_specs()`, `trivers_reciprocity_specs()`, `wolf2008_responsiveness_specs()` | Paper-reproduction presets. | `R/scenarios.R` | per-paper test files |
 | `search_map_elites()`, `search_cmaes()`, `search_gradient()`, `search_viability()` | World-evolution search tools. | `R/search.R` | `test-search.R`, `test-search-scenarios.R` |
 | `hypothesis_sweep()` / `hypothesis_report()` | Researcher-facing sweep helpers. | `R/hypothesis.R` | `test-hypothesis.R` |
+| `sense_mode` | `per_cell` retains distance-specific cardinal inputs; `weighted_sum` sums each directional channel with inverse-distance weights and keeps brain input width fixed. Default remains `per_cell`. | `sense.jl`, `_compute_n_inputs`, `R/config.R` | `test_sense_mode.jl`, `test-sense-mode.R` |
+| `sense_env(env, i)` | Inspects the exact final-state sensory snapshot returned by new runs; legacy hand-built environments retain the older display layout. | `Clade.jl::_env_to_result`, `R/analysis.R` | `test-sensory-snapshot.R` |
 | Spec field naming | `<module>` for module flags (`kin_selection`, `personality_syndrome`); `<trait>_init_mean`, `<trait>_mutation_sd`, `<trait>_min`, `<trait>_max` for heritable trait controls. | `R/config.R` | `test-spec-wiring.R` |
 | Module gate semantics | One boolean flag per module in `default_specs()`. TRUE enables; FALSE disables; no other side effects. | `inst/julia/src/Clade.jl` tick loop | `test-spec-wiring.R` |
 | R↔Julia boundary | Crossed exactly once per `run_alife()` call. | `R/run.R::.specs_to_julia` + `R/run.R::.julia_env_to_r` | `test-integration.R` |
