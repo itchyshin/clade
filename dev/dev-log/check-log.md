@@ -683,6 +683,45 @@ important project state. Keep entries concise and concrete.
 - Report: after-task/2026-11-14-diversity-logging.md.
 - Next: settled green PR merge, then replay-safe #185 rerun.
 
+## 2026-11-14: Replay-safe diversity campaign driver
+
+- Branch: codex/campaign-replay, includes merged #201 and Bhavya's #185 history.
+- Driver now uses isolated Xoshiro(42), round-trip input precision, actual
+  final tick, and NA for snapshots after termination. Invalid counts/seeds
+  fail before opening the output file. Both entry scripts are include-safe.
+- Julia 1.10.0 full suite: exit 0, 166 assertions pass, including driver 23.
+  The test first caught invalid arguments overwriting an existing file.
+- Integration found `using Clade` tried to redefine a locally included module;
+  entry scripts now load the package only when Clade is not already bound.
+- Searches: `repro_threshold|full_drac_results|sample_environments` in scripts
+  and data README. Both submitted CSV files remain byte-for-byte unchanged.
+- Next: commit the exact driver, run a timed one-environment Totoro pilot,
+  inspect output before the full 100 by five rerun, record revision/checksums.
+
+
+## 2026-11-14: Corrected diversity rerun and review
+
+- Driver/source d00ae6f on Totoro, Julia +1.10.0. Pilot five runs took
+  10.32 s; full 500 runs took 74.29 s, max RSS 405500 KiB, exit 0.
+- New verified_results.csv has 500 unique pairs, 100 environments and seeds
+  101:105. 309 survive, 191 go extinct, four end with one agent. All 672
+  post-termination snapshot fields are NA; no missing observed snapshots.
+- Both submitted CSVs are byte-identical to origin/diversity-vald. New CSV
+  SHA256 5d72d3ee0789fe0a3ff2db7eea401ee51eb2f655d92b2cacfe6dd10119df6ae5
+  matches Totoro. Exact source, commands, timing and hashes in verified-run.json.
+- Same-host input replay: one survivor and one extinction, eight assertions
+  pass (tick, counts, diversity at saved six-decimal precision).
+- Independent audit agrees. Exploratory lme4 two-stage models converge
+  without warnings and are nonsingular. Gaussian conditional model has a
+  negative fitted minimum and asymmetric residuals; coefficients are
+  exploratory. Genetic distance is nonnegative, not constrained to [0,1].
+- Reproducible review and raw output saved under dev/data/diversity-vald/.
+  No global optimum, biological calibration or causal claim is supported.
+- Report: after-task/2026-11-14-diversity-campaign.md. Full driver suite
+  passed 166 assertions before integration of sensing changes.
+- Next: merge current main, rerun integrated checks, update #185, and only
+  after settled green integration send the consolidated Bhavya reply.
+
 
 ### Integration verification for weighted sensing
 
@@ -698,3 +737,15 @@ Independent review reproduced R validation rejecting saved spec lists that
 predate sense_mode. The added regression failed before the fix. Validation
 now accepts an absent field (Julia defaults it to per_cell), while explicit
 invalid modes still fail. No saved-spec migration is required.
+
+
+### Final campaign integration checks
+
+Integrated main f69b38c (#203). Preserved append-only histories while resolving
+check-log conflict; all Julia includes retained. Full Julia suite: 225 pass,
+exit 0. Portable R suite: exit 0, no fail/warn, 647 gated skips. Reproduced
+both exploratory models with the saved R script and data assertions. Trimmed
+trailing whitespace from captured output; numeric results unchanged.
+The source metric is RMS genome-weight distance, nonnegative without a fixed
+upper bound of one; removed the review script's unsupported upper-bound
+assertion. Saved-spec compatibility fix is included from #203.

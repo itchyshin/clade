@@ -1,0 +1,37 @@
+{
+  "date": "2026-11-14",
+  "host": "totoro.biology.ualberta.ca",
+  "platform": "Linux x86_64",
+  "julia_version": "1.10.0",
+  "source_commit": "d00ae6fdf6279fa4984e5ce103c5f2d9a39de3c6",
+  "source_archive_sha256": "d269a4fc1fe05fae361686d92ac9daa51b1c58ee682b23479b32c5af491d84ff",
+  "command": "julia +1.10.0 --project=inst/julia inst/julia/scripts/sample_env.jl 100 verified_results.csv",
+  "environment": {
+    "OPENBLAS_NUM_THREADS": "1",
+    "JULIA_NUM_THREADS": "4"
+  },
+  "design_rng": "Xoshiro(42)",
+  "simulation_seeds": [
+    101,
+    102,
+    103,
+    104,
+    105
+  ],
+  "n_environments": 100,
+  "max_ticks": 1000,
+  "n_agents_init": 50,
+  "grass_growth_mode": "stochastic",
+  "wall_seconds": 74.29,
+  "max_rss_kib": 405500,
+  "exit_status": 0,
+  "archive_path": "/home/snakagaw/sim-archive/clade/2026-11-14-bhavya",
+  "csv_sha256": "5d72d3ee0789fe0a3ff2db7eea401ee51eb2f655d92b2cacfe6dd10119df6ae5",
+  "submitted_files_sha256": {
+    "full_drac_results.csv": "7c93b5e9ffe3306ff662e2930d56d75ea8a2579385e081cb9be751ec34c4858c",
+    "drac_results_legacy_repro.csv": "00d3a54fcc8f33a96545255e22d3ad1422bb5a00809d8cb1813bd566874a51a1"
+  },
+  "replay_command": "julia +1.10.0 --project=inst/julia inst/julia/scripts/check_diversity_replay.jl dev/data/diversity-vald/verified_results.csv",
+  "replay_assertions_passed": 8,
+  "source_archive_path": "/home/snakagaw/sim-archive/clade/2026-11-14-bhavya/source-d00ae6f.tar.gz"
+}
