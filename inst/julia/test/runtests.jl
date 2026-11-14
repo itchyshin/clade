@@ -415,3 +415,5 @@ include("test_sample_env.jl")
 
 include("test_matched_initialization.jl")
 include("test_matched_founders.jl")
+
+include("test_behaviour_assay.jl")

@@ -816,3 +816,22 @@ assertion. Saved-spec compatibility fix is included from #203.
   calibration tested. After-task report records limits and next action.
 - Next safest action: review PR #204 and interpret behavioural consequences
   in viable populations with ploidy controlled. No new Bhavya message.
+
+## 2026-11-14: Behavioural consequences with fixed ploidy, setup
+
+- User approved Totoro follow-up. Branch codex/behaviour-ploidy builds on
+  prior matched-founder source. New private research script only; no public
+  API, spec, defaults or kernel loop changes. Narrow file lease acquired.
+- Plan in dev/data/behaviour-ploidy/plan.md: six cells, 100 matched seeds,
+  F=.05, M0/.05/.20, fixed haploid or diploid with selfing fallback, fixed
+  BNN sigma .5. Actual viability_report gates paired behavioural contrasts.
+- Independent design/source review required actual argmax frequencies,
+  fixed exploration, matched noise across treatments, independent banks
+  to remove finite-draw squared-distance inflation, and within-agent noise
+  separate from between-agent differences. Implemented those conditions.
+- Local default Julia launcher points to missing1.10.0 installation; use
+  installed +1.10 (1.10.12) locally, pin Totoro+1.10.0 for campaign/replay.
+  A misspelled action_epsilon spec triggered a kernel warning; corrected
+  to existing action_exploration_epsilon before campaign source is pinned.
+- No simulations launched on Totoro yet. Next: local tests/toy output,
+  timed12-run full-horizon pilot, actual viability, then measured full estimate.
