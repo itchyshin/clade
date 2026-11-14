@@ -168,9 +168,9 @@
     "dev/data/performance-ploidy/run_totoro.py": "9bd8e09a217a8494f1cc32a783f374035625681896c2dedd2b5b9f3649fd254f"
   },
   "replay": "First seed20001 all6 cells exact all fields:6 runs,12windows,5658cohorts,60gardens,288behavior rows. Canonical death records agree with5658births. Observation-disabled control uses identical matched-founder initialization. Helper patched separately after frozen simulation source; no campaign code or data changed.",
-  "notes": "All4 garden precision checks pass. Independent audit resamples separately so bootstrap limits differ slightly. Peak resident memory recorded per process in shard timing files; wall392.1265sec includes reassay. No current-source claim for legacy campaigns.",
+  "notes": "All4 garden precision checks pass. Independent audit resamples separately so bootstrap limits differ slightly. Peak resident memory recorded per process in shard timing files; wall392.1265sec includes reassay. No current-source claim for legacy campaigns. Text receipts have trailing whitespace trimmed without changing numeric contents.",
   "packaged_sha256": {
-    "R-session-info.txt": "1c3d7366e1e2c39e2e23d73c7e7ff410b2c06f71dcc9259599f80c874bd02cf7",
+    "R-session-info.txt": "5723e7811d7a30f88ee17919c69190b35f9fd77c0c0e84539ecee3acd750ed78",
     "analysis-output.txt": "1e7815a7f2766b34888c514bcc23301666e7f9074da0f0a556ad55188e2c5c01",
     "behavior.csv.gz": "7c183666056b69a5d64d6cc5371ba49d74a4f4d0c22d55ee489152ca4b3b487c",
     "cell_summary.csv": "25c371f42100537ddaa7fd654efc9176f6856b0777eae399f0655b4955ff12e5",
