@@ -507,6 +507,7 @@ end
 Add Gaussian noise N(0, mutation_sd) to each element of `w` in place.
 Returns `w` (modified).
 """
+# This helper mutates inherited weight vectors, without updating a live brain.
 # Prey reproduction mutates inherited genome alleles here. Predator offspring
 # use architecture-specific brain mutation; see dev/design/mutation-paths.md.
 function _mutate_weights(w::Vector{Float32}, specs::Dict{String,Any},
