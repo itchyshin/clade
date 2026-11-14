@@ -17,6 +17,8 @@ population-level columns. Core columns always present: \code{t},
 \code{n_agents}, \code{n_births}, \code{n_deaths}, \code{n_starvations},
 \code{n_age_deaths}, \code{mean_energy}, \code{sd_energy}, \code{mean_age}, \code{sd_age},
 \code{mean_body_size}, \code{sd_body_size}, \code{genetic_diversity}, \code{n_species},
+\code{behavioral_diversity}, \code{n_behavioral_agents},
+\code{predator_behavioral_diversity}, \code{n_behavioral_predators},
 \code{grass_coverage} (share of cells with any grass), \code{grass_density}
 (total grass as a share of \code{N * grass_max}; can exceed 1 only when
 \code{fixed_patch_value > grass_max}). Module-specific columns are present as zeros
@@ -38,6 +40,16 @@ shape is stable across specs), including
 \verb{inst/julia/src/logging.jl::_init_progress}; use
 \code{colnames(get_run_data(env)$ticks)} to see every column for a
 specific run.}
+\item{Action diversity}{\code{behavioral_diversity} is Shannon entropy in nats
+(\code{-sum(p * log(p))}) of living prey's last chosen actions: 1 to 4 are
+north, east, south and west; 5 is stay. A blocked move still counts as
+that chosen direction. Dead individuals and code 0 (no decision yet,
+including newborns) are excluded. \code{n_behavioral_agents} is the number
+included. The predator columns use the same definition separately
+(predator action 5 is stay and attack). Entropy is 0 for one chosen
+category and at most \code{log(5)}; it is \code{NaN} when no decisions are
+available or the tick was not logged. This measures population
+diversity of decisions, not individual behavioural repeatability.}
 \item{\verb{$deaths}}{A data frame with one row per agent death and columns:
 \code{id}, \code{t}, \code{age}, \code{energy}, \code{cause}, \code{body_size}, \code{num_offspring}.}
 \item{\verb{$genomes}}{A long data frame with one row per (tick, agent) and
@@ -59,6 +71,8 @@ into a list of two tidy data frames:
 env  <- run_alife(default_specs())
 data <- get_run_data(env)
 head(data$ticks)
+with(data$ticks, plot(t, behavioral_diversity, type = "l",
+                      ylab = "Action entropy (nats)"))
 hist(data$deaths$age, main = "Age at death")
 }
 
