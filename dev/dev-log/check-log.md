@@ -659,3 +659,27 @@ important project state. Keep entries concise and concrete.
   and data README. Both submitted CSV files remain byte-for-byte unchanged.
 - Next: commit the exact driver, run a timed one-environment Totoro pilot,
   inspect output before the full 100 by five rerun, record revision/checksums.
+
+
+## 2026-11-14: Corrected diversity rerun and review
+
+- Driver/source d00ae6f on Totoro, Julia +1.10.0. Pilot five runs took
+  10.32 s; full 500 runs took 74.29 s, max RSS 405500 KiB, exit 0.
+- New verified_results.csv has 500 unique pairs, 100 environments and seeds
+  101:105. 309 survive, 191 go extinct, four end with one agent. All 672
+  post-termination snapshot fields are NA; no missing observed snapshots.
+- Both submitted CSVs are byte-identical to origin/diversity-vald. New CSV
+  SHA256 5d72d3ee0789fe0a3ff2db7eea401ee51eb2f655d92b2cacfe6dd10119df6ae5
+  matches Totoro. Exact source, commands, timing and hashes in verified-run.json.
+- Same-host input replay: one survivor and one extinction, eight assertions
+  pass (tick, counts, diversity at saved six-decimal precision).
+- Independent audit agrees. Exploratory lme4 two-stage models converge
+  without warnings and are nonsingular. Gaussian conditional model has a
+  negative fitted minimum and asymmetric residuals; coefficients are
+  exploratory. Genetic distance is nonnegative, not constrained to [0,1].
+- Reproducible review and raw output saved under dev/data/diversity-vald/.
+  No global optimum, biological calibration or causal claim is supported.
+- Report: after-task/2026-11-14-diversity-campaign.md. Full driver suite
+  passed 166 assertions before integration of sensing changes.
+- Next: merge current main, rerun integrated checks, update #185, and only
+  after settled green integration send the consolidated Bhavya reply.

@@ -32,11 +32,37 @@ there is no observed pairwise distance when fewer than two remain.
 
 The corrected distinct-pair estimator changes random draws and simulation
 trajectories. Results from different estimator versions require separate
-labels. A new run and its machine, exact code revision, command, Julia
-version, timings and checksums will be recorded before interpreting it.
+labels. The new run is recorded below, with its exact source, machine, command,
+version, timings and checksums.
 
 These are exploratory simulations, with five seeds sharing each sampled
 environment. Extinction and diversity conditional on survival answer
 separate questions. Surviving runs are selected by the environment and
 population dynamics; adjusting for final population size does not establish
 a causal environmental effect.
+
+
+## Verified rerun on 14 November 2026
+
+`verified_results.csv` contains the 100 by five rerun using the distinct-pair
+estimator from #201 and the replay-safe driver at
+`d00ae6fdf6279fa4984e5ce103c5f2d9a39de3c6`. It ran on Totoro with Julia
+1.10.0 in 74.29 seconds, using at most 405500 KiB (about 396 MiB).
+The one-environment pilot took 10.32 seconds and produced five valid rows.
+
+Exact command, environment variables, source archive and file checksums
+are in `verified-run.json`; raw timing is in `verified-run-time.txt`.
+The source archive and full output remain on Totoro under the recorded
+archive path. Both submitted CSVs remain unchanged.
+
+A surviving and an extinct run were replayed on the same machine and Julia
+version from the recorded CSV inputs. Tick, population counts and the
+six-decimal genetic-distance output matched (eight assertions). Replay
+on a different Julia version or CPU is not established by those checks.
+
+
+The independent data audit confirmed all 500 unique pairs, sampled ranges,
+within-environment parameter constancy, extinction flags and missing-value
+positions. Exploratory two-stage results, diagnostics and their limits are
+in `analysis.md`; `analyze_verified.R` and `analysis-output.txt` make the
+review reproducible. No overall best environment is claimed.

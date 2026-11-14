@@ -1,0 +1,71 @@
+rows_cols: 500 22 
+env_ids: 100 1 100 seeds: 101,102,103,104,105 
+unique_pairs: 500 duplicates: 0 missing_pairs: 0 unexpected_pairs: 0 
+rows_per_env: 5-5 env_parameter_constancy:move_costmax_unique=1grass_maxmax_unique=1min_repro_energymax_unique=1energy_initmax_unique=1mutation_sdmax_unique=1
+parameter_ranges:
+move_cost 0.16755775850417 .. 11.9962213238834 
+grass_max 5.03817509909168 .. 49.4741022689706 
+min_repro_energy 50.6421403689192 .. 199.707911447744 
+energy_init 10.8187063853706 .. 98.9801102367285 
+mutation_sd 0.0111157690337806 .. 0.199226624551319 
+
+final_ticks: 54-1000 at_1000: 309 early_stop: 191 extinct: 191 survivors: 309 one_agent: 4 at_least_two: 305 predators_nonzero: 0 
+extinct_by_final_tick_relation: TRUE 
+snapshot 50 reached 500 NA_after_stop 0 actual_zero_agents 0 actual_zero_diversity 2 
+snapshot 100 reached 499 NA_after_stop 1 actual_zero_agents 0 actual_zero_diversity 8 
+snapshot 200 reached 499 NA_after_stop 1 actual_zero_agents 53 actual_zero_diversity 74 
+snapshot 500 reached 357 NA_after_stop 143 actual_zero_agents 0 actual_zero_diversity 7 
+snapshot 1000 reached 309 NA_after_stop 191 actual_zero_agents 0 actual_zero_diversity 4 
+endpoint_match_at_1000: 309 max_diversity_rounding_error: 0 
+final_zero_diversity: 195 among_extinct: 191 among_survivors: 4 
+
+correlations diversity vs population (associational summaries):
+50 n= 500 Pearson= 0.1736142 Spearman= 0.1588642 
+100 n= 499 Pearson= 0.1983268 Spearman= 0.219306 
+200 n= 499 Pearson= 0.186216 Spearman= 0.4040413 
+500 n= 357 Pearson= 0.2800344 Spearman= 0.3662005 
+1000 n= 309 Pearson= 0.3923974 Spearman= 0.4486379 
+final among survivors: n= 309 Pearson= 0.3923974 Spearman= 0.4486379 
+
+predictor correlation matrix:
+                   move_cost_z grass_max_z min_repro_energy_z energy_init_z
+move_cost_z              1.000       0.136             -0.044        -0.087
+grass_max_z              0.136       1.000             -0.107        -0.124
+min_repro_energy_z      -0.044      -0.107              1.000        -0.181
+energy_init_z           -0.087      -0.124             -0.181         1.000
+mutation_sd_z            0.118       0.050             -0.054        -0.082
+                   mutation_sd_z
+move_cost_z                0.118
+grass_max_z                0.050
+min_repro_energy_z        -0.054
+energy_init_z             -0.082
+mutation_sd_z              1.000
+predictor correlation kappa: 2.309786 
+
+stage1 model (scaled predictor estimates, SE, approximate Wald 95% CI, and OR):
+                      estimate        SE      lower      upper          OR
+move_cost_z        -3.69820540 0.7451575 -5.1587141 -2.2376967  0.02476794
+grass_max_z         0.41823817 0.4783256 -0.5192800  1.3557563  1.51928247
+min_repro_energy_z  3.37062435 0.6903118  2.0176133  4.7236354 29.09668792
+energy_init_z      -0.04817081 0.4901105 -1.0087875  0.9124458  0.95297099
+mutation_sd_z      -0.01661369 0.4438467 -0.8865533  0.8533259  0.98352356
+                      OR_lower   OR_upper
+move_cost_z        0.005749088   0.106704
+grass_max_z        0.594948772   3.879694
+min_repro_energy_z 7.520354786 112.576770
+energy_init_z      0.364660880   2.490406
+mutation_sd_z      0.412073602   2.347441
+stage1 converged_messages:  singular: FALSE random_variance: 10.77312 captured_warnings:  
+
+stage2 n: 305 outcome_mean_sd: 0.3320424 0.2007517 zero_one_counts: 0 0 
+stage2 model (scaled predictor estimates, SE, approximate Wald 95% CI):
+                      estimate          SE        lower      upper
+move_cost_z        0.036863758 0.012754548  0.011864844 0.06186267
+grass_max_z        0.004309378 0.009003431 -0.013337348 0.02195610
+min_repro_energy_z 0.022120988 0.008671625  0.005124603 0.03911737
+energy_init_z      0.000994206 0.008753360 -0.016162380 0.01815079
+mutation_sd_z      0.142399292 0.008365204  0.126003493 0.15879509
+log_final_agents_z 0.124068090 0.011065776  0.102379170 0.14575701
+stage2 predictor correlation kappa: 2.075693 
+stage2 residual quantiles: -0.24, -0.097, -0.031, -0.002, 0.034, 0.094, 0.425 resid_fitted_cor: 0.07094143 normal_qq_correlation: 0.9580894 fitted_range: -0.029 .. 0.779 
+stage2 converged_messages:  singular: FALSE random_variance: 0.003896017 captured_warnings:  
