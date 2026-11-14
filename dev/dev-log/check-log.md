@@ -889,3 +889,29 @@ assertion. Saved-spec compatibility fix is included from #203.
 
 - Main a9a7ad4 after PR204 completed R-CMD-check, coverage and pkgdown
   successfully. Final scientific review found no blocker in findings.md.
+
+## 2026-11-14: Iteroparous focal-reproduction gate correction
+
+- Branch codex/iteroparous-reset, based on main660a4b8. Source defect:
+  reproduce.jl skips reproduced=true and sets it after a successful focal
+  episode; no reset existed. Red regression: founder births1 versus3
+  expected on three eligible ticks (two assertions fail).
+- Clear surviving flags after kill_dead/remove_dead, before reproduction.
+  Preserve same-tick guard and next-tick semel mortality. No default or
+  public signature change. Counterpart code/type/R docs/NEWS updated;
+  man/default_specs.Rd generated with devtools::document().
+- Full Julia suite308 assertions pass, including13 new life-history
+  assertions: successive ticks, same-tick duplicate guard, failed attempt,
+  multi-offspring semel clutch and death at next mortality phase.
+- Earlier matched-founder, behavioural and diversity-campaign README/
+  findings now carry source-bound legacy qualifications; raw outputs are
+  retained. Decisions log records phase ordering and campaign boundary.
+- Corrected populations and endpoint brains will be generated for the
+  performance task after a fresh viability/runtime pilot; legacy600 is
+  not used as corrected reproductive evidence.
+
+- Live R life-history tests:29 pass,0 failures/skips,2 viability-crash
+  warnings from existing semelparous fixtures. No warning-free release
+  claim. Linked after-task report exists; direct legacy analysis.md also
+  receives the source qualification. Independent source review approves
+  reset placement and distinguishes focal/mate contributions.

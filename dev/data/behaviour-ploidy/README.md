@@ -1,5 +1,13 @@
 # Does additional genetic variation change behaviour?
 
+> **Kernel qualification, 14 November 2026.** These results describe a
+> pinned legacy implementation that limited each agent to one focal
+> reproductive episode in its lifetime, including the default iteroparous
+> mode. Mate contributions were not restricted by that flag. The numbers
+> remain historical source-bound results and require rerunning before
+> interpreting the corrected iteroparous model. See the
+> [reproduction reset report](../../dev-log/after-task/2026-11-14-iteroparous-reset.md).
+
 This experiment tests individual action preferences under common sensory
 conditions, separately within fixed haploid and fixed diploid populations.
 It follows the matched-founder study in ../matched-founders, which showed

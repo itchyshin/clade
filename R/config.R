@@ -416,7 +416,9 @@
 #' ## Life history
 #' \describe{
 #'   \item{`life_history`}{Character. `"iteroparous"` (default) or
-#'     `"semelparous"`. Semelparous agents die immediately after reproducing.
+#'     `"semelparous"`. Iteroparous agents may reproduce on successive
+#'     eligible ticks. Semelparous agents die at the next mortality phase
+#'     after their focal reproductive episode (on the following tick).
 #'     Reference: Stearns (1992) *The Evolution of Life Histories*, Oxford UP.}
 #'   \item{`max_age`}{Integer. Maximum lifespan in ticks; agents die at this
 #'     age regardless of energy (default 200L). The hard cap applies only

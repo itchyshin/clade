@@ -441,7 +441,9 @@ the pre-0.4.2 binary presence signal. No effect when
 
 \describe{
 \item{\code{life_history}}{Character. \code{"iteroparous"} (default) or
-\code{"semelparous"}. Semelparous agents die immediately after reproducing.
+\code{"semelparous"}. Iteroparous agents may reproduce on successive
+eligible ticks. Semelparous agents die at the next mortality phase
+after their focal reproductive episode (on the following tick).
 Reference: Stearns (1992) \emph{The Evolution of Life Histories}, Oxford UP.}
 \item{\code{max_age}}{Integer. Maximum lifespan in ticks; agents die at this
 age regardless of energy (default 200L). The hard cap applies only
