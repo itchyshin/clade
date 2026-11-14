@@ -51,8 +51,9 @@ No late ticks reach the configured population cap in any run.
 
 ## Behavioural differences persist after the fix
 
-Between-individual policy disagreement rises from .00057 to .13637 in haploids
-and .00045 to .10385 in diploids at mutation SD .20. Repeated-choice randomness
+Between-individual squared policy distance B rises from .00057 to .13637 in haploids
+and .00045 to .10385 in diploids at mutation SD .20. B is half the squared distance between individuals' choice-probability
+vectors, averaged across pairs and contexts. Repeated-choice disagreement
 within individuals falls from .79920 to .62516 and .79943 to .67886,
 respectively. These are corrected-source estimates from the same endpoint
 brains used for the performance assays. The large behavioural change therefore
@@ -73,5 +74,8 @@ of endpoint brains into the same resource worlds, comparing their full
 mixture with replicated individual policies. Match ploidy, initial energy,
 exploration and food supply, disable new mutation during the short assay,
 and measure net energy plus offspring surviving to a fixed age. That would
-separate benefits of mixing policies from changes in mean policy and density.
-It is a proposed experiment, not a completed result of this campaign.
+test effects of policy mixing at matched starting density. Separating those
+effects from mean-policy changes requires a balanced comparator, with single
+policies sampled according to their weights in the original mixture and
+replicated enough to match the initial marginal policy in expectation.
+This experiment remains a proposal.
