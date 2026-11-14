@@ -453,6 +453,11 @@ function _run_clade(user_specs::AbstractDict, initialize; observe=nothing)
         log_movement!(env) 
 
         remove_dead!(env)
+        # Semelparous mortality must consume the previous episode flag first.
+        # Surviving iteroparous agents can then reproduce again this tick.
+        for agent in env.agents
+            agent.reproduced = false
+        end
         # 0.8.0: persistent monogamous pair-bond maintenance. No-op when
         # mating_system != "monogamous_pair". Must run after remove_dead!
         # so partner-alive lookups see the up-to-date population.

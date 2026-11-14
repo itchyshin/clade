@@ -256,8 +256,9 @@ in hot-path code when the corresponding module is disabled.
 - `energy_last_tick::Float32` — energy at end of previous tick.
 
 ## Reproductive tracking
-- `reproduced::Bool` — true if reproduced this tick (used by semelparous
-  life history).
+- `reproduced::Bool` — true after a focal reproductive episode. Mortality
+  reads the flag for semelparous agents before survivors are reset for
+  the next reproductive phase.
 - `num_offspring::Int32` — cumulative offspring count.
 - `num_choices::Int32` — cumulative action choices made.
 - `num_greedy_choices::Int32` — actions that matched arg-max of logits.

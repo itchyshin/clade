@@ -1,5 +1,13 @@
 # Exploratory review of the verified rerun
 
+> **Kernel qualification, 14 November 2026.** These results describe a
+> pinned legacy implementation that limited each agent to one focal
+> reproductive episode in its lifetime, including the default iteroparous
+> mode. Mate contributions were not restricted by that flag. The numbers
+> remain historical source-bound results and require rerunning before
+> interpreting the corrected iteroparous model. See the
+> [reproduction reset report](../../dev-log/after-task/2026-11-14-iteroparous-reset.md).
+
 The 500 runs comprise 100 sampled environments with five seeds each.
 There are 309 survivors and 191 extinctions. Four survivors have one agent,
 so the conditional diversity model uses 305 runs with at least two agents.
