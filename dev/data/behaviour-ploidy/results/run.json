@@ -1,0 +1,71 @@
+{
+  "date": "2026-11-14",
+  "host": "totoro.biology.ualberta.ca",
+  "simulation_source_commit": "7a2d78b9fa4efbd6f6ab5553f00f0422491ffa80",
+  "source_archive_sha256": "eabfdc2089a7b30f63c2af1c59f940ed59c461e2c108f9452252c07dbc118181",
+  "remote_source": "/home/snakagaw/hsq_work/clade-behaviour-20261114",
+  "remote_archive": "/home/snakagaw/sim-archive/clade/2026-11-14-behaviour-ploidy",
+  "endpoint_brains": "full-100/states; 600 Julia Serialization files, bound by states.sha256; not duplicated in repository",
+  "julia_version": "1.10.0",
+  "OPENBLAS_NUM_THREADS": 1,
+  "JULIA_NUM_THREADS": 4,
+  "full_wall_seconds": 376.18,
+  "reassay_wall_seconds": 44.87,
+  "full_peak_memory_kib": 466712,
+  "command": "julia +1.10.0 --project=inst/julia inst/julia/scripts/behaviour_assay.jl 100 OUTDIR 64 1000",
+  "reassay_command": "julia +1.10.0 --project=inst/julia inst/julia/scripts/behaviour_assay.jl reassay OUTDIR/states OUTDIR/reassay.csv 256 10",
+  "analysis_command": "Rscript dev/data/behaviour-ploidy/analyze.R OUTDIR 100",
+  "analysis_sha256": "92247aad7b618cbe7891fcb35a32941071547ff35a5fd58a1d17180e28cce8ee",
+  "plot_sha256": "f7065cccf7cbc95f0334fe9342a00243d7959b64facea727deb9ea8f70a8165f",
+  "design": {
+    "runs": 600,
+    "ploidy": [
+      1,
+      2
+    ],
+    "mutation_sd": [
+      0,
+      0.05,
+      0.2
+    ],
+    "founder_sd": 0.05,
+    "seed_range": [
+      20001,
+      20100
+    ],
+    "max_ticks": 1000,
+    "contexts": 48,
+    "draws_per_bank": 64,
+    "independent_banks": 2,
+    "reassay_populations": 60,
+    "reassay_draws_per_bank": 256
+  },
+  "raw_sha256": {
+    "runs.csv": "3e16969f874633653efe387ed5ed1ee178d9e9381d7a742b208b46f542e8e325",
+    "assay.csv": "2073e90c13e1f9245b0f9c54443e28e17907890e4a12883b1e091f0bf886f188",
+    "contexts.csv": "1ff37bbb45c6270794c81bbde34a9646b8eff74157b87a345cd820f536882d05",
+    "reassay.csv": "ace564d3d3742f5b5341dba735c36491deb8941e54f992835c9e856b7514fbcf"
+  },
+  "packaged_sha256": {
+    "R-session-info.txt": "5723e7811d7a30f88ee17919c69190b35f9fd77c0c0e84539ecee3acd750ed78",
+    "analysis-output.txt": "1520ea2245f25a194e501fb75e7df74b3aa18f98f865ae6d46318f38fd25943e",
+    "assay.csv.gz": "34a579c5ae213e6f34765f3b9b4bdd60f196200e6151b5eb893690514625dd06",
+    "behaviour-ploidy.png": "1dd5a1a1750a596c17dd792df677b9a37dddcdd3838176c646293a64da6dc289",
+    "cell_summary.csv": "568130186e62f5f1e00fb865b87fcab38ec384ba55f87ba4b5e9ecdd08f66370",
+    "contexts.csv": "1ff37bbb45c6270794c81bbde34a9646b8eff74157b87a345cd820f536882d05",
+    "full-time.txt": "1449cf944e79917114727cad1e3a194b1dd9a8a77d9016e22705577a7d5d02f5",
+    "incomplete-fixture-check.txt": "6665a75cb978448e014954d4d339c7eb2378d6cdcfb901f36e252ac6d2de99e1",
+    "independent-audit.txt": "8287d95c76b6bf5d67eed261ad570a01d9c10d52456a8710dba8875382f397c8",
+    "paired_contrasts.csv": "0ce3d57555e4a9e055b94538f314d2e89803496d8ede400e2a8f10928b847edb",
+    "pilot-time.txt": "17ba1a6bc76397f7ae7e77d449326001f36edac3e9a1995ec0c8c813315bf189",
+    "precision_review.csv": "da17850af7481f715773e0b875202c4cc1a59de9da2e04aef0f94e5a624eecdd",
+    "reassay-time.txt": "c65c9c0077138446064476a70a9f050db7194f2bd2467c2062ff1f10f81cb1c2",
+    "reassay.csv": "ace564d3d3742f5b5341dba735c36491deb8941e54f992835c9e856b7514fbcf",
+    "reassay_comparison.csv": "df35019b08da816e72818202ca11acc435e4945b10479c95cc6a1f79314aec48",
+    "replay-check.txt": "9e57c0a76215d0ebf6ebcfc72a754eaa87a38ef5d0e5a6104b08254df42e1e27",
+    "runs.csv.gz": "664563e9cd7c9c127e224372f46675805cd2197abcbf9fdc808e73d254ebb444",
+    "states.sha256": "274f31d17f0d313eee003312fd037cf28766881c2b926abd487b40d4710ccea1"
+  },
+  "replay": "Separate-process seed20001 replay across all6 cells: all19 fields in6 run rows and all20 fields in288 assay rows exactly reproduced on the same machine and Julia version.",
+  "notes": "Text receipts have trailing whitespace trimmed; numeric contents unchanged. Final analysis adds exact binomial proportion intervals and strengthened precision/eligibility gates after the pilot. No cross-platform bitwise claim."
+}

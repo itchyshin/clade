@@ -816,3 +816,76 @@ assertion. Saved-spec compatibility fix is included from #203.
   calibration tested. After-task report records limits and next action.
 - Next safest action: review PR #204 and interpret behavioural consequences
   in viable populations with ploidy controlled. No new Bhavya message.
+
+## 2026-11-14: Behavioural consequences with fixed ploidy, setup
+
+- User approved Totoro follow-up. Branch codex/behaviour-ploidy builds on
+  prior matched-founder source. New private research script only; no public
+  API, spec, defaults or kernel loop changes. Narrow file lease acquired.
+- Plan in dev/data/behaviour-ploidy/plan.md: six cells, 100 matched seeds,
+  F=.05, M0/.05/.20, fixed haploid or diploid with selfing fallback, fixed
+  BNN sigma .5. Actual viability_report gates paired behavioural contrasts.
+- Independent design/source review required actual argmax frequencies,
+  fixed exploration, matched noise across treatments, independent banks
+  to remove finite-draw squared-distance inflation, and within-agent noise
+  separate from between-agent differences. Implemented those conditions.
+- Local default Julia launcher points to missing1.10.0 installation; use
+  installed +1.10 (1.10.12) locally, pin Totoro+1.10.0 for campaign/replay.
+  A misspelled action_epsilon spec triggered a kernel warning; corrected
+  to existing action_exploration_epsilon before campaign source is pinned.
+- No simulations launched on Totoro yet. Next: local tests/toy output,
+  timed12-run full-horizon pilot, actual viability, then measured full estimate.
+- Local Julia suite295 assertions pass; six-run two-tick output and R
+  analysis smoke pass. Independent-bank arithmetic recovers the known
+  opposite-bias value1 and cloned-brain value0; negative finite-draw
+  cross-products are retained. Threshold flags remain provisional until
+  the same both-viable first10 pairs pass the fourfold-draw precision check.
+- Totoro pilot12 runs at1000 ticks: exit0,21.60 seconds,peak440732 KiB.
+  All12 viable, four initial-state blocks matched, exact fixed endpoint
+  ploidy and sigma .5. Full600 plus first10-block reassay launched at
+  source7a2d78b9fa4efbd6f6ab5553f00f0422491ffa80, estimate25 minutes.
+
+## 2026-11-14: Fixed-ploidy behavioural campaign completed
+
+- Totoro source 7a2d78b9fa4efbd6f6ab5553f00f0422491ffa80, Julia 1.10.0,
+  OPENBLAS_NUM_THREADS=1,JULIA_NUM_THREADS=4. Full 600 runs: 6:16.18,
+  peak 466712 KiB,exit 0. Fourfold reassay 60 endpoint populations: 44.87s,
+  peak 340556 KiB,exit 0. Both finish within the 25-minute estimate.
+- Rscript dev/data/behaviour-ploidy/analyze.R OUTDIR 100 passes complete
+  Cartesian design, 200 matched founder blocks, 600 fixed-ploidy endpoints,
+  28800 complete assay rows and independent integer-statistic reconstruction.
+  Actual viability_report:600/600 viable, 100/100 in each cell; no exclusions.
+- Primary paired deltaB at M.20: haploid .214551 [.207282,.221821],
+  diploid .151711 [.148049,.155372], each 100 viable seed pairs. Moderate
+  mutation also exceeds .00625. All four first 10-block precision checks
+  pass; max mean numerical change .0006433, max numerical MCSE .0004475,
+  both below .0015625. Full source and boundaries are in findings.md.
+- Independent mechanical audit agrees on all keys, ploidy, context counts,
+  sufficient-statistic reconstruction, viable denominators and intervals.
+  Exact separate-process seed20001 replay: six run rows x19 fields and
+  288 assay rows x20 fields identical. Compressed evidence plus 600-state
+  checksum manifest saved; full endpoint states retained on Totoro.
+- R proportion intervals corrected after review to exact binomial limits;
+  all-success lower bound checked independently as .025^(1/100). Full
+  intervals do not imply100% survival certainty. Plot regenerated using
+  segments for subpixel intervals, avoiding zero-arrow warnings.
+- Source tests 295 assertions pass. Local six-run toy and low-replication
+  reassay branch pass and retain provisional importance flags. A missing-
+  treatment fixture is rejected; no full R package check repeated because
+  public R code, signatures/defaults and Julia kernel are unchanged.
+- PR #204 merged only after exact-head settled green checks. Its main R
+  check and coverage pass; pkgdown status is tracked separately. New work
+  in PR #205, based on merged main. No new message to Bhavya.
+- Consistency searches: rg 'action_epsilon|operationally_meaningful|ploidy'
+  over the new runner/tests/analysis; rg 'TODO|FIXME|not implemented|planned.*implemented'
+  over the experiment scope; git diff --check. Correct field is
+  action_exploration_epsilon; the earlier typo remains only in this history.
+- No ecological importance, adaptation, temporal personality, or pure
+  copy-number claim. Within-agent repeated-choice disagreement changed;
+  Gaussian exploration sigma stayed .5. Exact prose assessment and the
+  after-task report record the scientific and factual review.
+- Next scientific action: assess foraging and reproduction under the same
+  controls. No further campaign started; report awaits user review.
+
+- Main a9a7ad4 after PR204 completed R-CMD-check, coverage and pkgdown
+  successfully. Final scientific review found no blocker in findings.md.

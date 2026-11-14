@@ -1,0 +1,2 @@
+runs.csv : 6 rows, all 19 columns exactly reproduced
+assay.csv : 288 rows, all 20 columns exactly reproduced

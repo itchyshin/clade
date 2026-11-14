@@ -1,0 +1,36 @@
+{
+  "assessment_performed": true,
+  "draft_sha256": "06a52461af535e464a34f2103cebb400c4340fd7ef5ae7c2e39d21fe54760025",
+  "draft_version": "v1",
+  "requested_mode": "independent",
+  "assessor_type": "self",
+  "reviewer": "Codex integrator",
+  "method": "Separate post-draft self-review against source, recorded outputs and independent scientific/data reviews.",
+  "genre": "Reproducible research README",
+  "coverage": "Whole exact saved draft",
+  "score": 2,
+  "style_status": "scored",
+  "score_reason": "Concrete controls, quantities and limits; technical structure is appropriate to this genre. Some protocol/checklist phrasing remains.",
+  "confidence": "moderate",
+  "confidence_reason": "Subjective editorial self-judgment; no calibrated authorship detector or human-style validation.",
+  "examples": [
+    {
+      "location": "Line 16",
+      "line": 16,
+      "quote": "The BNN chooses among four movements or staying by taking the largest",
+      "cue": "The BNN chooses among four movements",
+      "impact": "Explains the actual action rule before giving commands.",
+      "repair": "no change needed"
+    }
+  ],
+  "evidence_none_reason": null,
+  "science_gate": "pass",
+  "science_gate_reason": "Design, estimators, ploidy/viability controls, paired units, importance margin and interpretation match the implemented study; biological validity remains explicitly outside scope.",
+  "facts_gate": "pass",
+  "facts_gate_reason": "Numbers, commands and source identity checked against recorded CSVs, timings, receipts and current files; findings received a separate scientific review.",
+  "references_gate": "not_applicable",
+  "references_gate_reason": "No external literature references; local source and evidence paths are present in the repository.",
+  "date": "2026-11-14",
+  "calibration_status": "Read protocol calibration summary; no held-out style controls used.",
+  "interpretation": "perceived_style_not_authorship"
+}
