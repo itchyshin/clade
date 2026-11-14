@@ -1,0 +1,36 @@
+{
+  "assessment_performed": true,
+  "draft_sha256": "e90751193af26d5b3d8ecbdef473c1b39e8f1e6a2fe7a7bd5232d2661fdf5ee0",
+  "draft_version": "v1",
+  "requested_mode": "independent",
+  "assessor_type": "self",
+  "reviewer": "Codex",
+  "method": "Post-draft self-review against raw audits, matched factorial results and replay.",
+  "genre": "Simulation research record",
+  "coverage": "Whole exact draft",
+  "score": 2,
+  "style_status": "scored",
+  "score_reason": "Concrete estimands, effects and limits are stated directly.",
+  "confidence": "moderate",
+  "confidence_reason": "Uncalibrated editorial self-review.",
+  "examples": [
+    {
+      "location": "Line 7",
+      "line": 7,
+      "quote": "The simulation source is commit 2b6ea12bbbccf06f62e700edf5653eeb7c950cc6.",
+      "cue": "The simulation source",
+      "impact": "States the question or result concretely.",
+      "repair": "no change needed"
+    }
+  ],
+  "evidence_none_reason": null,
+  "science_gate": "pass",
+  "science_gate_reason": "Matched seed contrasts, simultaneous changes, mean-age difference, viability and uncertainty checked.",
+  "facts_gate": "pass",
+  "facts_gate_reason": "Raw ledgers, independent factorial calculations, exact prior replay and source hashes checked.",
+  "references_gate": "pass",
+  "references_gate_reason": "Local scripts, source archives and evidence files checked.",
+  "date": "2026-11-14",
+  "calibration_status": "No held-out controls.",
+  "interpretation": "perceived_style_not_authorship"
+}

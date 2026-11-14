@@ -1,0 +1,36 @@
+{
+  "assessment_performed": true,
+  "draft_sha256": "7abed4e4af3ba222c48a6d052a6a37de50311b72b32ab0122144c3eb682fe295",
+  "draft_version": "v1",
+  "requested_mode": "independent",
+  "assessor_type": "self",
+  "reviewer": "Codex",
+  "method": "Post-draft self-review against raw audits, matched factorial results and replay.",
+  "genre": "Simulation research record",
+  "coverage": "Whole exact draft",
+  "score": 2,
+  "style_status": "scored",
+  "score_reason": "Concrete estimands, effects and limits are stated directly.",
+  "confidence": "moderate",
+  "confidence_reason": "Uncalibrated editorial self-review.",
+  "examples": [
+    {
+      "location": "Line 3",
+      "line": 3,
+      "quote": "The matched experiment points to food conditions as the clearer influence on",
+      "cue": "The matched experiment",
+      "impact": "States the question or result concretely.",
+      "repair": "no change needed"
+    }
+  ],
+  "evidence_none_reason": null,
+  "science_gate": "pass",
+  "science_gate_reason": "Matched seed contrasts, simultaneous changes, mean-age difference, viability and uncertainty checked.",
+  "facts_gate": "pass",
+  "facts_gate_reason": "Raw ledgers, independent factorial calculations, exact prior replay and source hashes checked.",
+  "references_gate": "pass",
+  "references_gate_reason": "Local scripts, source archives and evidence files checked.",
+  "date": "2026-11-14",
+  "calibration_status": "No held-out controls.",
+  "interpretation": "perceived_style_not_authorship"
+}

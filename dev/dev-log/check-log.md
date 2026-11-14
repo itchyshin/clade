@@ -1120,3 +1120,35 @@ assertion. Saved-spec compatibility fix is included from #203.
   subset and avoid extrapolation beyond 1,000 ticks or to lifetime fitness.
   Raw tables, source patch, timing, hashes, findings and after-task included.
   Exact stale-claim search: rg 'viable|extinct|regrowth|age|1000' dev/data/policy-long.
+
+## 2026-11-14: Matched food by founder-age factorial
+
+- Branch codex/policy-factorial. Source commit 2b6ea12bbbccf06f62e700edf5653eeb7c950cc6
+  plus isolated age-treatment patch, exact patched SHA 3346ce1881b7531c398da5563f9dd33383967d57021d4333c0b8fb31c075e90c.
+  Cross fixed age 50 and ages 25:72 with original food (.50/.05), moderate
+  (.25/.025) and severe (.25/.0125), 100 matched seed blocks per ploidy.
+- Pilot 108 runs in 53.80 seconds. Full 10,800 runs completed on Totoro in
+  596.10 seconds, eight workers capped at four Julia threads and one BLAS
+  thread each, within the stated 15-minute bound. All 42 matched initial-state
+  assertions pass. No source or kernel mutation outside isolated copy.
+- Actual R viability guard and independent audit pass 10,800 complete keys,
+  216,000 50-tick windows, demographic/exposure ledgers and factorial means.
+  Repeated limited-food cases reproduce all 3,600 prior run rows and 72,000
+  windows exactly. Original fixed-age food case reproduces population, birth
+  and death totals for all 1,800 preceding 300-tick runs. Source 600 hashes
+  pass. A two-seed synthetic fixture validates the analyzer and independent
+  calculator; removing a row triggers the complete-design guard.
+- Tick 1,000 food-regime effect on mixture advantage: moderate versus original
+  +6.51 agents (95% interval 4.90:8.13) in fixed-age haploids and +2.93
+  (1.45:4.42) in diploids; staggered comparisons +5.65 and +2.28. Severe
+  versus moderate is negative in both ploidies and both age treatments.
+  Every matched staggered-minus-fixed age interval and interaction interval
+  includes zero. Severe conditions have zero all-nine-viable blocks.
+- Original-food fixed-age haploid mixture advantage +22.07% at tick 300,
+  +8.07% at 600 and -3.57% at 1,000. This time change is within the same
+  matched setting; 300-tick checkpoint matches previous study exactly.
+- Full raw evidence, matched block estimates, t and bootstrap intervals,
+  viability sensitivity, source patch, figure and after-task report included.
+  Age treatments differ in mean age by 1.5 ticks; original-versus-limited
+  changes initial food and regrowth together. No lifetime-fitness claim.
+  Stale search: rg 'age|regrowth|viable|interaction|1,000' dev/data/policy-factorial.

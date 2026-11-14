@@ -1,0 +1,2 @@
+runs: all 3600 earlier staggered-age limited-food rows and fields reproduce exactly.
+windows: all 72000 earlier staggered-age limited-food rows and fields reproduce exactly.

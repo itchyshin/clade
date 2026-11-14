@@ -1,0 +1,153 @@
+, , age_mode = fixed, viability = crashed
+
+      food_rate
+ploidy 0.0125 0.025 0.05
+     1    590     2    0
+     2    399     0    0
+
+, , age_mode = staggered, viability = crashed
+
+      food_rate
+ploidy 0.0125 0.025 0.05
+     1    582     0    0
+     2    388     0    0
+
+, , age_mode = fixed, viability = viable
+
+      food_rate
+ploidy 0.0125 0.025 0.05
+     1    233   898  900
+     2    352   900  900
+
+, , age_mode = staggered, viability = viable
+
+      food_rate
+ploidy 0.0125 0.025 0.05
+     1    234   900  900
+     2    380   900  900
+
+, , age_mode = fixed, viability = weak
+
+      food_rate
+ploidy 0.0125 0.025 0.05
+     1     77     0    0
+     2    149     0    0
+
+, , age_mode = staggered, viability = weak
+
+      food_rate
+ploidy 0.0125 0.025 0.05
+     1     84     0    0
+     2    132     0    0
+
+ ploidy     metric                 type            label   n     mean
+      1 population                 cell       0.05 fixed 100 -4.42375
+      1 population                 cell   0.05 staggered 100 -3.46500
+      1 population                 cell      0.025 fixed 100  2.08875
+      1 population                 cell  0.025 staggered 100  2.18000
+      1 population                 cell     0.0125 fixed 100 -3.75250
+      1 population                 cell 0.0125 staggered 100 -2.94625
+      1 population           age_effect             0.05 100  0.95875
+      1 population           age_effect            0.025 100  0.09125
+      1 population           age_effect           0.0125 100  0.80625
+      1 population          food_effect      0.025 fixed 100  6.51250
+      1 population          food_effect  0.025 staggered 100  5.64500
+      1 population          food_effect     0.0125 fixed 100  0.67125
+      1 population          food_effect 0.0125 staggered 100  0.51875
+      1 population      regrowth_effect            fixed 100 -5.84125
+      1 population      regrowth_effect        staggered 100 -5.12625
+      1 population          interaction            0.025 100 -0.86750
+      1 population          interaction           0.0125 100 -0.15250
+      1 population regrowth_interaction    .0125 vs .025 100  0.71500
+      2 population                 cell       0.05 fixed 100 -1.86250
+      2 population                 cell   0.05 staggered 100 -1.37250
+      2 population                 cell      0.025 fixed 100  1.06875
+      2 population                 cell  0.025 staggered 100  0.91000
+      2 population                 cell     0.0125 fixed 100 -1.68875
+      2 population                 cell 0.0125 staggered 100 -2.42125
+      2 population           age_effect             0.05 100  0.49000
+      2 population           age_effect            0.025 100 -0.15875
+      2 population           age_effect           0.0125 100 -0.73250
+      2 population          food_effect      0.025 fixed 100  2.93125
+      2 population          food_effect  0.025 staggered 100  2.28250
+      2 population          food_effect     0.0125 fixed 100  0.17375
+      2 population          food_effect 0.0125 staggered 100 -1.04875
+      2 population      regrowth_effect            fixed 100 -2.75750
+      2 population      regrowth_effect        staggered 100 -3.33125
+      2 population          interaction            0.025 100 -0.64875
+      2 population          interaction           0.0125 100 -1.22250
+      2 population regrowth_interaction    .0125 vs .025 100 -0.57375
+      lower      upper bootstrap_lower bootstrap_upper    mix   control
+ -5.4867206 -3.3607794     -5.48131250      -3.3812500 119.50 123.92375
+ -4.4930906 -2.4369094     -4.47512500      -2.4725000 120.46 123.92500
+  1.0292375  3.1482625      1.07353125       3.0787813  63.63  61.54125
+  1.1568093  3.2031907      1.20121875       3.1950625  63.64  61.46000
+ -5.7996394 -1.7053606     -5.71253125      -1.7120313  12.98  16.73250
+ -5.2480204 -0.6444796     -5.11925000      -0.6711563  13.85  16.79625
+ -0.4230885  2.3405885     -0.34046875       2.3326875     NA        NA
+ -1.3426600  1.5251600     -1.34000000       1.4576562     NA        NA
+ -2.1072732  3.7197732     -1.92056250       3.8291562     NA        NA
+  4.8981359  8.1268641      4.81362500       8.1303125     NA        NA
+  4.0902621  7.1997379      4.09484375       7.1840312     NA        NA
+ -1.6080673  2.9505673     -1.50628125       2.9740000     NA        NA
+ -1.9516339  2.9891339     -1.80512500       3.0087500     NA        NA
+ -8.3068362 -3.3756638     -8.25768750      -3.3635938     NA        NA
+ -7.7790441 -2.4734559     -7.66146875      -2.4111563     NA        NA
+ -2.9480262  1.2130262     -2.91634375       1.2376250     NA        NA
+ -3.3382234  3.0332234     -3.28753125       3.0563750     NA        NA
+ -2.6630214  4.0930214     -2.59025000       4.1288125     NA        NA
+ -3.0244099 -0.7005901     -2.97500000      -0.7485625 113.94 115.80250
+ -2.3447491 -0.4002509     -2.35375000      -0.4257188 114.31 115.68250
+  0.1131236  2.0243764      0.06359375       2.0050313  58.13  57.06125
+ -0.1732903  1.9932903     -0.15381250       2.0325312  57.65  56.74000
+ -3.7272096  0.3497096     -3.62625000       0.2703125  21.18  22.86875
+ -4.6427472 -0.1997528     -4.48793750      -0.2071875  20.47  22.89125
+ -1.0657885  2.0457885     -1.07006250       2.0876562     NA        NA
+ -1.5175745  1.2000745     -1.49540625       1.1925625     NA        NA
+ -3.8572719  2.3922719     -3.68528125       2.2788750     NA        NA
+  1.4461579  4.4163421      1.46593750       4.4050937     NA        NA
+  0.7883132  3.7766868      0.77084375       3.7250312     NA        NA
+ -2.2633008  2.6108008     -2.12915625       2.7383750     NA        NA
+ -3.6237641  1.5262641     -3.44003125       1.4190937     NA        NA
+ -5.0050404 -0.5099596     -4.97903125      -0.6060625     NA        NA
+ -5.8569166 -0.8055834     -5.84778125      -0.6870625     NA        NA
+ -2.5401855  1.2426855     -2.55268750       1.2452187     NA        NA
+ -4.9470292  2.5020292     -4.80906250       2.4770625     NA        NA
+ -3.9334166  2.7859166     -3.96003125       2.7475000     NA        NA
+ all9_viable
+         100
+         100
+          98
+         100
+           0
+           0
+          NA
+          NA
+          NA
+          NA
+          NA
+          NA
+          NA
+          NA
+          NA
+          NA
+          NA
+          NA
+         100
+         100
+         100
+         100
+           0
+           0
+          NA
+          NA
+          NA
+          NA
+          NA
+          NA
+          NA
+          NA
+          NA
+          NA
+          NA
+          NA

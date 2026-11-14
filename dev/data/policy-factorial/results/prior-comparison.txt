@@ -1,0 +1,3 @@
+runs: all 3600 prior staggered limited-food rows and fields match exactly
+windows: all 72000 prior staggered limited-food rows and fields match exactly
+All 1800 earlier 300-tick baseline runs match population, births and deaths
