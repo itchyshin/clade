@@ -199,11 +199,23 @@ each entry for the primary literature.
 
 - `input_radius`:
 
-  Integer. Radius of the Moore neighbourhood used when building each
-  agent's sensory input vector (default `1L`). Radius 1 gives the
-  standard 8-cell neighbourhood; radius 2 extends to the 24-cell
-  neighbourhood. Increasing this value expands the input vector and the
-  brain's first-layer width accordingly.
+  Integer. Number of cells sensed along each cardinal direction (default
+  `1L`). With `sense_mode = "per_cell"`, increasing the radius expands
+  the input vector and the brain's first-layer width. With
+  `sense_mode = "weighted_sum"`, each direction is collapsed to one
+  value using `sum(value[d] / d)`, so the input width stays constant.
+
+- `sense_mode`:
+
+  Character. Sensory encoding: `"per_cell"` (default) keeps one value
+  for each cardinal direction and distance, while `"weighted_sum"`
+  collapses each directional grass, occupancy, and predator channel
+  using `sum(value[d] / d)` (nearest cell first). The sums are not
+  normalised and can exceed 1. Both modes sense only the four cardinal
+  directions; `"weighted_sum"` preserves clade's energy, age, bias, and
+  optional input slots, and does not reproduce the ancestor's full input
+  ordering. Graded predator signals already include `1/(d+1)`; weighted
+  mode applies `1/d` to those existing signals.
 
 - `n_genes`:
 
@@ -1753,5 +1765,7 @@ specs <- default_specs()
 specs$brain_type   <- "bnn"
 specs$ploidy       <- 2L
 specs$n_agents_init <- 100L
+specs$sense_mode <- "weighted_sum"
+specs$input_radius <- 3L  # input width stays fixed as radius increases
 # run_alife(specs)   # requires Julia
 ```

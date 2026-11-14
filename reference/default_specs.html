@@ -294,11 +294,22 @@ of the five working types.</p></dd>
 <code>c(16L, 8L)</code> for two hidden layers.</p></dd>
 
 <dt><code>input_radius</code></dt>
-<dd><p>Integer. Radius of the Moore neighbourhood used when
-building each agent's sensory input vector (default <code>1L</code>). Radius 1 gives
-the standard 8-cell neighbourhood; radius 2 extends to the 24-cell
-neighbourhood. Increasing this value expands the input vector and the
-brain's first-layer width accordingly.</p></dd>
+<dd><p>Integer. Number of cells sensed along each cardinal
+direction (default <code>1L</code>). With <code>sense_mode = "per_cell"</code>, increasing the
+radius expands the input vector and the brain's first-layer width. With
+<code>sense_mode = "weighted_sum"</code>, each direction is collapsed to one value
+using <code>sum(value[d] / d)</code>, so the input width stays constant.</p></dd>
+
+<dt><code>sense_mode</code></dt>
+<dd><p>Character. Sensory encoding: <code>"per_cell"</code> (default)
+keeps one value for each cardinal direction and distance, while
+<code>"weighted_sum"</code> collapses each directional grass, occupancy, and
+predator channel using <code>sum(value[d] / d)</code> (nearest cell first). The
+sums are not normalised and can exceed 1. Both modes sense only the four
+cardinal directions; <code>"weighted_sum"</code> preserves clade's energy, age,
+bias, and optional input slots, and does not reproduce the ancestor's
+full input ordering. Graded predator signals already include <code>1/(d+1)</code>;
+weighted mode applies <code>1/d</code> to those existing signals.</p></dd>
 
 <dt><code>n_genes</code></dt>
 <dd><p>Integer. Number of genes for <code>"grn"</code> brain type
@@ -1887,6 +1898,8 @@ every 100 ticks during <code><a href="run_alife.html">run_alife()</a></code>. De
 <span class="r-in"><span><span class="va">specs</span><span class="op">$</span><span class="va">brain_type</span>   <span class="op">&lt;-</span> <span class="st">"bnn"</span></span></span>
 <span class="r-in"><span><span class="va">specs</span><span class="op">$</span><span class="va">ploidy</span>       <span class="op">&lt;-</span> <span class="fl">2L</span></span></span>
 <span class="r-in"><span><span class="va">specs</span><span class="op">$</span><span class="va">n_agents_init</span> <span class="op">&lt;-</span> <span class="fl">100L</span></span></span>
+<span class="r-in"><span><span class="va">specs</span><span class="op">$</span><span class="va">sense_mode</span> <span class="op">&lt;-</span> <span class="st">"weighted_sum"</span></span></span>
+<span class="r-in"><span><span class="va">specs</span><span class="op">$</span><span class="va">input_radius</span> <span class="op">&lt;-</span> <span class="fl">3L</span>  <span class="co"># input width stays fixed as radius increases</span></span></span>
 <span class="r-in"><span><span class="co"># run_alife(specs)   # requires Julia</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

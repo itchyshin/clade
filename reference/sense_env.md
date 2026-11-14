@@ -1,10 +1,12 @@
 # Build the sensory input vector for an agent
 
-`sense_env()` reconstructs the 11-element (or longer, when predators or
-parental care are active) sensory input vector that the agent's brain
-would receive on the current tick. It mirrors the Julia-side sensing
-logic so that you can inspect, plot, or replay individual agent
-decisions from R.
+For results from
+[`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md),
+return the Julia kernel's sensory input computed from the final
+environment state in the agent brain's input order. This snapshot
+reflects the selected `sense_mode`. It is not the input to the agent's
+last decision: the environment may have changed since that decision, and
+a stochastic brain may choose differently on another forward pass.
 
 ## Usage
 
@@ -21,36 +23,22 @@ sense_env(env, i = 1L)
 
 - i:
 
-  Integer; index into `env$agents` (1-based). Use `agent_id` to locate
-  the index by ID: `which(sapply(env$agents, \(a) a$id) == agent_id)`.
+  Integer; index into `env$agents` (1-based).
 
 ## Value
 
-A named numeric vector. Slots:
-
-- `grass_L/U/R/D/C`:
-
-  Grass value in left, up, right, down, centre.
-
-- `agent_L/U/R/D`:
-
-  Agent presence (0/1) in four cardinal directions.
-
-- `energy`:
-
-  Agent's current energy.
-
-- `age_norm`:
-
-  Agent age normalised by `specs$max_age`.
+A named numeric vector. For a saved snapshot, names follow the kernel
+order: energy, age, directional grass and agent occupancy, bias, then
+optional predator, parental-care, and signal channels. Per-cell
+directional names include the distance; weighted sums use one per
+direction.
 
 ## Details
 
-The function requires `env$grass` (returned automatically by
-[`run_alife()`](https://itchyshin.github.io/clade/reference/run_alife.md))
-and `env$agents`. Agent-map occupancy is reconstructed from agent
-positions. When `env$grass` is `NULL` (e.g. from a mock env), grass
-slots are set to 0.
+Older results or manually constructed environments without a snapshot
+use a legacy 11-value approximation in `per_cell` mode. It does not
+reproduce the current kernel's layout. In `weighted_sum` mode a snapshot
+is required; rerun the simulation if it is absent.
 
 ## See also
 

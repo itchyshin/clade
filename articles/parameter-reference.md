@@ -108,6 +108,7 @@ if either is requested at present.
 | `brain_type`                 | “bnn”            | character |
 | `hidden_layers`              | 8                | integer   |
 | `input_radius`               | 1                | integer   |
+| `sense_mode`                 | “per_cell”       | character |
 | `n_genes`                    | 20               | integer   |
 | `transformer_history`        | 8                | integer   |
 | `transformer_heads`          | 2                | integer   |
@@ -819,7 +820,7 @@ defs <- default_specs()
 
 # All parameter names
 length(defs)
-#> [1] 311
+#> [1] 312
 
 # First 10 parameters with their values
 str(defs[1:10], max.level = 1, give.attr = FALSE)
