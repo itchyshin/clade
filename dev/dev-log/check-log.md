@@ -889,3 +889,23 @@ assertion. Saved-spec compatibility fix is included from #203.
 
 - Main a9a7ad4 after PR204 completed R-CMD-check, coverage and pkgdown
   successfully. Final scientific review found no blocker in findings.md.
+
+## 2026-11-14: Foraging and reproductive consequences, setup
+
+- User approved Totoro follow-up with the same controls. Branch
+  codex/foraging-reproduction; narrow lease includes the private loop seam.
+  Plan: replay the same 600 populations, observe actual intake/net foraging
+  energy, births and pre-action agent-time; primary ticks501:1000.
+- Existing endpoint brains receive a separate ten-case common-garden assay
+  through canonical tick_agents!, with fresh copied caches and independent
+  trial resets. Recruitment follows birth IDs for100 ticks, with censoring.
+- Private no-op observer phases before/after agents and after logging,
+  before extinction break. Public signature/defaults and R boundary stay.
+- TDD red: unsupported observe keyword. Focused tests then pass: exact
+  full returned-result equality in five seeds, known food/cost and cache
+  fixtures, population conservation and extinction-tick death counts.
+- Source review found standard logged death counters omit the extinction
+  tick; this experiment reads actual counters through the observer. It
+  does not claim population intake alone measures inherent foraging skill.
+- Next: full Julia suite, tiny output/analysis, pinned-source Totoro pilot,
+  then measured full-run estimate. No Totoro performance run started yet.
