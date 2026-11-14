@@ -1,0 +1,12 @@
+--- a/inst/julia/scripts/performance_assay.jl	2026-11-14 17:00:41
++++ b/inst/julia/scripts/performance_assay.jl	2026-11-14 17:00:42
+@@ -18,0 +19,7 @@
++        # Matched research setup: distinct source cells, using a separate RNG.
++        cells=randperm(Xoshiro(260000+Int(specs["random_seed"])),900)[1:length(env.agents)]
++        fill!(env.agent_map,0)
++        for (i,a) in enumerate(env.agents)
++            a.x=Int32(mod1(cells[i],30));a.y=Int32(cld(cells[i],30));env.agent_map[a.x,a.y]=i
++        end
++        @assert length(unique((a.x,a.y) for a in env.agents))==length(env.agents)
+@@ -32,0 +40 @@
++            @assert length(unique((a.x,a.y) for a in env.agents))==length(env.agents)

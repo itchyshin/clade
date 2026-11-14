@@ -1,0 +1,4 @@
+--- a/inst/julia/scripts/mixture_assay.jl	2026-11-14 17:00:41
++++ b/inst/julia/scripts/mixture_assay.jl	2026-11-14 17:00:42
+@@ -69,0 +70 @@
++   @assert length(unique((a.x,a.y) for a in env.agents))==length(env.agents)

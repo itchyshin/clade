@@ -1,0 +1,5 @@
+Gate arguments: 95:90:85 96 0 0
+threshold=95 sources_stable=5/5 valid_panels=5/5 assays_stable=169/180 all36_blocks_stable=0/5 cap_tick_fraction=0.003378 source_cap_fraction=not_recorded PASS=False
+threshold=90 sources_stable=5/5 valid_panels=5/5 assays_stable=175/180 all36_blocks_stable=2/5 cap_tick_fraction=0.006394 source_cap_fraction=not_recorded PASS=False
+threshold=85 sources_stable=5/5 valid_panels=5/5 assays_stable=179/180 all36_blocks_stable=4/5 cap_tick_fraction=0.010894 source_cap_fraction=not_recorded PASS=False
+AUDIT PASS: 15 source rows; 540 matched assay rows; 10800 demographic windows.

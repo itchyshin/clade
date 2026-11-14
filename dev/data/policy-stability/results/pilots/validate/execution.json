@@ -1,0 +1,12 @@
+{
+  "wall_seconds": 38.012981733772904,
+  "first_seed": 50026,
+  "seed_count": 5,
+  "thresholds": "80",
+  "source_commit": "2b6ea12bbbccf06f62e700edf5653eeb7c950cc6",
+  "driver_sha256": "d4fa311c3972dab80f25ad9c766d358ec554bf9a969663928375eec2b07b410f",
+  "assay_sha256": "fa71e806afe1ed0179ad1c3f1f7fee4f3ae309fa4236b48c707d1e8123a10748",
+  "workers": 5,
+  "julia_threads": 4,
+  "blas_threads": 1
+}

@@ -1,0 +1,46 @@
+Source runs: 100 stable throughout: 100 endpoint viable: 100 cap ticks: 0 min range: 42 81 peak max: 628
+Assay runs: 3600 stable throughout: 3595 endpoint viable: 3585 cap ticks: 0 min range: 16 94 peak max: 644
+, , stable = FALSE
+
+         age_mode
+food_rate fixed staggered
+    0.025     4         1
+    0.05      0         0
+
+, , stable = TRUE
+
+         age_mode
+food_rate fixed staggered
+    0.025   896       899
+    0.05    900       900
+
+, , viability = viable
+
+         age_mode
+food_rate fixed staggered
+    0.025   896       889
+    0.05    900       900
+
+, , viability = weak
+
+         age_mode
+food_rate fixed staggered
+    0.025     4        11
+    0.05      0         0
+
+  food_rate  age_mode cap_ticks max_population min_population
+1     0.025     fixed         0       273.9656       30.91889
+2     0.050     fixed         0       569.3300       71.41556
+3     0.025 staggered         0       273.6644       32.74667
+4     0.050 staggered         0       569.2000       70.38222
+Blocks with all 36 stable: 95 / 100
+Blocks with source and all 36 stable: 95 / 100
+ food_rate  age_mode tick  n        mean      lower       upper
+     0.050     fixed  800 95 -0.72500000 -1.8800900  0.43009002
+     0.050     fixed 1000 95 -2.01052632 -3.4459522 -0.57510039
+     0.050 staggered  800 95 -1.85000000 -3.0610286 -0.63897136
+     0.050 staggered 1000 95 -0.10657895 -1.2785847  1.06542685
+     0.025     fixed  800 95 -0.05789474 -1.1030253  0.98723585
+     0.025     fixed 1000 95 -0.49078947 -1.5311401  0.54956119
+     0.025 staggered  800 95  1.00394737 -0.1085109  2.11640562
+     0.025 staggered 1000 95 -0.90789474 -1.9107510  0.09496153

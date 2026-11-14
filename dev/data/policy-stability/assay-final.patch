@@ -1,0 +1,28 @@
+--- a/inst/julia/scripts/mixture_assay.jl	2026-11-14 16:58:04
++++ b/inst/julia/scripts/mixture_assay.jl	2026-11-14 17:00:42
+@@ -21 +21 @@
+- s["n_agents_init"]=48
++ s["n_agents_init"]=96
+@@ -26 +26 @@
+- length(ids)==48 && all(1 .<= ids .<= length(brains)) || throw(ArgumentError("invalid policy assignment"))
++ length(ids)==96 && all(1 .<= ids .<= length(brains)) || throw(ArgumentError("invalid policy assignment"))
+@@ -28 +28 @@
+- cells=randperm(Xoshiro(130000+seed),900)[1:48]
++ cells=randperm(Xoshiro(130000+seed),900)[1:96]
+@@ -37 +37 @@
+-  a.brain=b;a.age=Int32(50);a.energy=70f0;a.energy_last_tick=70f0
++  a.brain=b;a.age=Int32(get(ENV,"CLADE_FACTORIAL_AGE","invalid")=="fixed" ? 50 : get(ENV,"CLADE_FACTORIAL_AGE","invalid")=="staggered" ? 24+mod1(i,48) : error("age mode"));a.energy=70f0;a.energy_last_tick=70f0
+@@ -48 +48 @@
+- k=length(brains);ids=mono==0 ? assignments(k,48,seed) : fill(mono,48)
++ k=length(brains);ids=mono==0 ? assignments(k,96,seed) : fill(mono,96)
+@@ -69,0 +70 @@
++   @assert length(unique((a.x,a.y) for a in env.agents))==length(env.agents)
+@@ -84 +85 @@
+-    pre[t]==post[t]==48 && births[t]==deaths[t]==0 || error("equal density violated")
++    pre[t]==post[t]==96 && births[t]==deaths[t]==0 || error("equal density violated")
+@@ -110 +111 @@
+-    nstart=lo==1 ? 48 : post[lo-1],nend=post[min(lo+49,h)],
++    nstart=lo==1 ? 96 : post[lo-1],nend=post[min(lo+49,h)],
+@@ -145 +146 @@
+-    MatchedFounders.row(io["runs"],(p,m,seed,mode,mono,r.physical,ph,Int(r.env.t),length(r.env.agents),minimum(r.post),argmin(r.post),r.exposure,r.food,r.net,r.reward,r.clipping,r.births,r.deaths,sum(r.pre[1:max(0,h-100)]),length(eligible),sum(c.survived for c in eligible;init=0),count(c->c.parent<=48,r.cohorts)))
++    MatchedFounders.row(io["runs"],(p,m,seed,mode,mono,r.physical,ph,Int(r.env.t),length(r.env.agents),minimum(r.post),argmin(r.post),r.exposure,r.food,r.net,r.reward,r.clipping,r.births,r.deaths,sum(r.pre[1:max(0,h-100)]),length(eligible),sum(c.survived for c in eligible;init=0),count(c->c.parent<=96,r.cohorts)))
