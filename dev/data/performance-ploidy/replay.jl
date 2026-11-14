@@ -8,7 +8,13 @@ open(joinpath(ARGS[1],"cohort_truth.csv"),"w") do io
  for p in (1,2),m in (0.0,.05,.2)
   specs=BehaviourAssay.specs(p,m,20001)
   r=PerformanceAssay.trial(specs)
-  isequal(r.result,Clade.run_clade(specs)) || error("observer changed canonical corrected result")
+  # The experimental initializer fixes founder SD independently of treatment M.
+  # Compare the same initializer with observation disabled, not default founders.
+  initialize(s)=begin
+   reference=copy(s);reference["mutation_sd"]=.05
+   env=Clade.create_environment(reference);env.specs=s;env
+  end
+  isequal(r.result,Clade._run_clade(specs,initialize)) || error("observer changed canonical corrected result")
   ids=r.env.deaths["id"];ticks=r.env.deaths["t"]
   length(unique(ids))==length(ids) || error("duplicate canonical death IDs")
   deaths=Dict(Int(id)=>Int(t) for (id,t) in zip(ids,ticks))

@@ -1,0 +1,36 @@
+{
+  "assessment_performed": true,
+  "draft_sha256": "457753afec9b4eb51165d544922024f2590e3cefb533587e8d7c89f9e70e4f34",
+  "draft_version": "v1",
+  "requested_mode": "independent",
+  "assessor_type": "self",
+  "reviewer": "Codex integrator",
+  "method": "Post-draft self-review of the complete report; separate raw-data audit and scientific review assess evidence.",
+  "genre": "Simulation campaign after-task record",
+  "coverage": "Whole exact after-task draft",
+  "score": 2,
+  "style_status": "scored",
+  "score_reason": "Direct source-bound results, explicit costs and numerical failures; compact validation details remain technical.",
+  "confidence": "moderate",
+  "confidence_reason": "Subjective self-review, not a calibrated style or authorship detector.",
+  "examples": [
+    {
+      "location": "Line 13",
+      "line": 13,
+      "quote": "High mutation gives small intake and birth-yield gains but lower offspring",
+      "cue": "small intake",
+      "impact": "Names the observed tradeoff before technical receipts.",
+      "repair": "no change needed"
+    }
+  ],
+  "evidence_none_reason": null,
+  "science_gate": "pass",
+  "science_gate_reason": "Matched seed comparisons and viability/precision gates support only specified-world mutation-regime effects, with no causal diversity or fitness claim.",
+  "facts_gate": "pass",
+  "facts_gate_reason": "Checked342 Julia assertions receipt,600 raw runs, independent audit, exact replay and recorded392.13sec execution.",
+  "references_gate": "not_applicable",
+  "references_gate_reason": "Only local source/report links; referenced after-task report exists.",
+  "date": "2026-11-14",
+  "calibration_status": "Protocol guidance read; no held-out style controls used.",
+  "interpretation": "perceived_style_not_authorship"
+}

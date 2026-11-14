@@ -1002,3 +1002,32 @@ assertion. Saved-spec compatibility fix is included from #203.
   thread/process. Same source b982e9739c1064224ca49f77ff56d06ec8e0c7c4.
   Estimate30 minutes including precision reassay, before launch. Wrapper
   checks combined keys and terminates its process groups on failure/overrun.
+
+### Corrected performance campaign completed and audited
+
+- Branch codex/foraging-reproduction; simulation source b982e9739c1064224ca49f77ff56d06ec8e0c7c4.
+  Fresh600 runs on Totoro, four25-seed processes,4 Julia threads each,1 BLAS
+  thread:392.13sec including first10-block256-draw reassay. Actual R
+  viability_report600/600 viable; all4 precision gates pass; no late capacity ticks.
+- Full combined Julia suite342 assertions passed before launch. Corrected
+  pilot6 runs:24.52sec,474480KiB peak, all viable. No legacy brains reused.
+- Rscript dev/data/performance-ploidy/analyze.R OUTDIR100 and plot.R OUTDIR
+  pass. Independent raw audit passes600runs,1200windows,574476cohorts,
+  6000garden cases,28800policy contexts,600reassays and all viable pairs.
+- Separate-process first-seed replay: exact all fields for6runs,12windows,
+  5658cohorts,60garden and288behavior rows. Canonical death truth agrees
+  with5658births and observation-disabled matched-initializer control.
+  First helper incorrectly compared default founders; diagnosis found same
+  initializer parity true at all three mutation levels, default parity only
+  at.05. Patched validation helper only; raw campaign remains unchanged.
+- M=.20 vs0: standardized food+1.86% haploid/+0.43% diploid; late birth yield
+  +0.83%/+2.62%; survival to100ticks -2.06/-2.83 percentage points; endpoint
+  population -6.88%/-3.17%. Garden net energy lower in both. Primary food/
+  birth95% intervals remain inside +/-5%. No general fitness benefit claim.
+- Added README/findings/figure, compressed raw tables, independent/replay
+  receipts, commands/timings and SHA256 manifest. Full endpoint states and
+  source archive remain on Totoro; legacy campaign preserved separately.
+- After-task report and structure check pass. Exact stale-claim search:
+  rg 'legacy|corrected|same.*brain|PASS|5%' dev/data/performance-ploidy.
+  Final evidence-only edits do not warrant repeating passed kernel checks;
+  current-head CI is required before marking PR206 ready. No CRAN or release.

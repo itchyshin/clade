@@ -1,0 +1,200 @@
+{
+  "date": "2026-11-14",
+  "host": "totoro.biology.ualberta.ca",
+  "simulation_source_commit": "b982e9739c1064224ca49f77ff56d06ec8e0c7c4",
+  "reproduction_fix_merge": "51439c3828c5ca42ae9d939219b53d7a152b7af0",
+  "source_archive_sha256": "f43934f92c2ee7bc2d77d22feef4d7c9a607371814f325c34640c65bf2eefab2",
+  "remote_source": "/home/snakagaw/hsq_work/clade-performance-corrected-20261114",
+  "remote_archive": "/home/snakagaw/sim-archive/clade/2026-11-14-performance-corrected",
+  "legacy_archive": "/home/snakagaw/sim-archive/clade/2026-11-14-performance-ploidy; original600 and failed64/256 precision retained; not corrected results",
+  "julia_version": "1.10.0",
+  "endpoint_brains": "600 Julia Serialization files at full-100/states, relative symlinks to4 shard states; states.sha256 binds contents",
+  "design": {
+    "runs": 600,
+    "seeds": [
+      20001,
+      20100
+    ],
+    "ploidy": [
+      1,
+      2
+    ],
+    "mutation_sd": [
+      0,
+      0.05,
+      0.2
+    ],
+    "founder_sd": 0.05,
+    "exploration_sigma": 0.5,
+    "ticks": 1000,
+    "viable": 600,
+    "primary_window": [
+      501,
+      1000
+    ],
+    "cohort_birth_window": [
+      501,
+      900
+    ],
+    "followup": 100,
+    "garden_cases": 10,
+    "garden_draws": 64,
+    "reassay_populations": 60,
+    "reassay_draws": 256,
+    "policy_contexts": 48,
+    "policy_draws_per_bank": 64
+  },
+  "execution": {
+    "source_revision": "b982e9739c1064224ca49f77ff56d06ec8e0c7c4",
+    "source_root": "/home/snakagaw/hsq_work/clade-performance-corrected-20261114",
+    "commands": [
+      {
+        "label": "shard-0",
+        "pid": 3477991,
+        "command": [
+          "/usr/bin/time",
+          "-v",
+          "-o",
+          "/home/snakagaw/sim-archive/clade/2026-11-14-performance-corrected/shard-0.time",
+          "/home/snakagaw/.juliaup/bin/julia",
+          "+1.10.0",
+          "--project=inst/julia",
+          "inst/julia/scripts/performance_assay.jl",
+          "25",
+          "/home/snakagaw/sim-archive/clade/2026-11-14-performance-corrected/shard-0",
+          "64",
+          "1000",
+          "20001"
+        ]
+      },
+      {
+        "label": "shard-1",
+        "pid": 3477992,
+        "command": [
+          "/usr/bin/time",
+          "-v",
+          "-o",
+          "/home/snakagaw/sim-archive/clade/2026-11-14-performance-corrected/shard-1.time",
+          "/home/snakagaw/.juliaup/bin/julia",
+          "+1.10.0",
+          "--project=inst/julia",
+          "inst/julia/scripts/performance_assay.jl",
+          "25",
+          "/home/snakagaw/sim-archive/clade/2026-11-14-performance-corrected/shard-1",
+          "64",
+          "1000",
+          "20026"
+        ]
+      },
+      {
+        "label": "shard-2",
+        "pid": 3477994,
+        "command": [
+          "/usr/bin/time",
+          "-v",
+          "-o",
+          "/home/snakagaw/sim-archive/clade/2026-11-14-performance-corrected/shard-2.time",
+          "/home/snakagaw/.juliaup/bin/julia",
+          "+1.10.0",
+          "--project=inst/julia",
+          "inst/julia/scripts/performance_assay.jl",
+          "25",
+          "/home/snakagaw/sim-archive/clade/2026-11-14-performance-corrected/shard-2",
+          "64",
+          "1000",
+          "20051"
+        ]
+      },
+      {
+        "label": "shard-3",
+        "pid": 3477996,
+        "command": [
+          "/usr/bin/time",
+          "-v",
+          "-o",
+          "/home/snakagaw/sim-archive/clade/2026-11-14-performance-corrected/shard-3.time",
+          "/home/snakagaw/.juliaup/bin/julia",
+          "+1.10.0",
+          "--project=inst/julia",
+          "inst/julia/scripts/performance_assay.jl",
+          "25",
+          "/home/snakagaw/sim-archive/clade/2026-11-14-performance-corrected/shard-3",
+          "64",
+          "1000",
+          "20076"
+        ]
+      },
+      {
+        "label": "reassay",
+        "pid": 3480367,
+        "command": [
+          "/usr/bin/time",
+          "-v",
+          "-o",
+          "/home/snakagaw/sim-archive/clade/2026-11-14-performance-corrected/reassay.time",
+          "/home/snakagaw/.juliaup/bin/julia",
+          "+1.10.0",
+          "--project=inst/julia",
+          "inst/julia/scripts/performance_assay.jl",
+          "reassay",
+          "/home/snakagaw/sim-archive/clade/2026-11-14-performance-corrected/full-100/states",
+          "/home/snakagaw/sim-archive/clade/2026-11-14-performance-corrected/full-100/reassay.csv",
+          "10",
+          "256"
+        ]
+      }
+    ],
+    "wall_seconds": 392.1264998912811,
+    "workers": 4,
+    "julia_threads_per_worker": 4,
+    "blas_threads": 1,
+    "orchestrator_sha256": "9bd8e09a217a8494f1cc32a783f374035625681896c2dedd2b5b9f3649fd254f"
+  },
+  "analysis_command": "Rscript dev/data/performance-ploidy/analyze.R OUTDIR 100",
+  "plot_command": "Rscript dev/data/performance-ploidy/plot.R OUTDIR",
+  "raw_sha256": {
+    "runs.csv": "c8595cf6ee57988d3f22169534872108b4721b24c56032d555e13e60c78555e4",
+    "windows.csv": "fee74b63226e469531309d5d7b04a85c06818fd885dc0e624167ffd33e47da79",
+    "cohorts.csv": "f61de315f39173c074482ec0880da2c900abbb8f2899fb66b3fd4c0ac2fa3f1b",
+    "garden.csv": "346bfb8f570a6e78749d2fce838ad0a873bae4ecd6a27147c6e229f8bc55aa68",
+    "behavior.csv": "42868a130d59d64e68f8a6a5e73c14fc83133217dea361f5c8f182db3ff2c995",
+    "reassay.csv": "4f6c849aec92da5306ec0bad56cd7eecf88cf92ae14e1363f81d69e14bfbec7a"
+  },
+  "script_sha256": {
+    "inst/julia/scripts/performance_assay.jl": "d60e4451a71b1e08fccfaffa3287750ee93a3c1b524ff650bc0bbfb36c67012e",
+    "dev/data/performance-ploidy/analyze.R": "77df665641c0b3ba5e546c76145b881be7749534453a7be0caed81591b808b25",
+    "dev/data/performance-ploidy/plot.R": "b1b9d650fc5a798e31d18b5b2e666754e5b5f8e8c28f73936cc8c53c4b22436c",
+    "dev/data/performance-ploidy/replay.jl": "c54dd3a1725a16f948552474097bfc8f66d4a8d72e5e9e644b100967fa8e428d",
+    "dev/data/performance-ploidy/run_totoro.py": "9bd8e09a217a8494f1cc32a783f374035625681896c2dedd2b5b9f3649fd254f"
+  },
+  "replay": "First seed20001 all6 cells exact all fields:6 runs,12windows,5658cohorts,60gardens,288behavior rows. Canonical death records agree with5658births. Observation-disabled control uses identical matched-founder initialization. Helper patched separately after frozen simulation source; no campaign code or data changed.",
+  "notes": "All4 garden precision checks pass. Independent audit resamples separately so bootstrap limits differ slightly. Peak resident memory recorded per process in shard timing files; wall392.1265sec includes reassay. No current-source claim for legacy campaigns.",
+  "packaged_sha256": {
+    "R-session-info.txt": "1c3d7366e1e2c39e2e23d73c7e7ff410b2c06f71dcc9259599f80c874bd02cf7",
+    "analysis-output.txt": "1e7815a7f2766b34888c514bcc23301666e7f9074da0f0a556ad55188e2c5c01",
+    "behavior.csv.gz": "7c183666056b69a5d64d6cc5371ba49d74a4f4d0c22d55ee489152ca4b3b487c",
+    "cell_summary.csv": "25c371f42100537ddaa7fd654efc9176f6856b0777eae399f0655b4955ff12e5",
+    "cohorts.csv.gz": "fb9b5dd31daedaa6a8e37823eb9a4b98420eeecd8fe8158fa124c320a6f0fc31",
+    "execution.json": "29995ad05a2ce7f823be28abbb32438fe647c99c448bba7012247ad0e1ea2730",
+    "garden.csv.gz": "95a5f6116a52618424922d7ef2ff69a7176fbe2cc8e321c9b59299786ccea637",
+    "independent-audit.py": "015f5f39a1ea37e0738059326cc6855073195e9b6c88b70b3e642540321b060d",
+    "independent-audit.txt": "fd31257f66cb77ebed1804fe686b92a81fc9e819efda517512804a975db21d21",
+    "independent-viability.R": "f9d06fda657173b92decd07f7ba200306da3e92d18eb717e5d585b1c88615755",
+    "julia-suite.txt": "a3cd99b4e11c74fb0190d9a61c135a776be1acb5080a8c01267cf0b4d2a39c1e",
+    "paired_contrasts.csv": "ab315c08a17d7e53aab551568f289b55b83b3456ea0bdb2939ae4ffe7948e655",
+    "performance-ploidy.png": "8c1e86027e117c39b43460c990c66081c86caecc56895d7d4d6d65a044ffc630",
+    "pilot.time": "acd4bd827d771068580343bd2c910ae4d16b98a78b078ea04a2099b93d03076a",
+    "precision_review.csv": "b09e89e1bdc6515b9849bc25b648b4e1b9953dc3df051a2eb881138d350edce6",
+    "reassay.csv.gz": "272404ac22a9dc2c835adb0fb35f390daa11b86a698f36e2900694ddc00c66d6",
+    "reassay.time": "3ad815fe37db68b61e09e7468806ebb005aa07c2e922d3241ba9d2657060f6a5",
+    "replay-check.txt": "7c5b0bda00dfc87b15352a42cfc56cceea04b01f4ea24faec54ab249e29f19f5",
+    "replay-cohort-truth.csv": "08ee26b607e8b696d7ed4531d8afcb2b64543fb126e37a4aeca79ea9db4906f0",
+    "runs.csv.gz": "a4d3d133160160b1f0300cea23adb69a31fbad6eff593b7a2cbb8e28fa8e3e3f",
+    "shard-0.time": "0d6a55e745dab8bf4da9c2927497a69847f22b9fd627274a083f9b4495ee396a",
+    "shard-1.time": "0dcec18517693e20821d1c4b5002d6ea705b2e62424014cd68d8ad860ad1e256",
+    "shard-2.time": "a190e9f7d49550e1dbdc5f289d1ab88fdd84bc5ef940137b73164b697e1598c9",
+    "shard-3.time": "a0019a5c0bb6428d5ad3a53c0353b18a21728daca6d075791e407e0a1caef040",
+    "states.sha256": "1b0446ca8f292e4d4cd506af20d1e8318e35b698e0c5b10b76b2f03d0136b740",
+    "windows.csv.gz": "c96a21807c33d6c26b5b12708d705b6c26d48b04d6b15ea5d90dc2fbb1d19d33"
+  }
+}
