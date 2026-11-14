@@ -1,0 +1,7 @@
+a<-commandArgs(TRUE);p<-a[1];b<-read.csv(file.path(p,'summary.csv'));f<-read.csv(file.path(p,'regrowth-effects.csv'));age<-read.csv(file.path(p,'age-summary.csv'))
+png(file.path(p,'diagnostics.png'),width=1500,height=1050,res=150);par(mfrow=c(2,2),mar=c(4,5,3,1),oma=c(0,0,2,0))
+d<-b[b$metric=='advantage',];r<-f[f$metric=='advantage',];plot(d$tick,d$mean,type='l',lwd=2,ylim=range(c(d$mean,d$mean+r$mean,0)),xlab='Tick',ylab='Mixture minus controls (agents)',main='Advantage changes repeatedly');lines(r$tick,d$mean+r$mean,col='#B45B24',lwd=2,lty=2);abline(h=0,col='grey60',lty=3);legend('topright',c('Original regrowth .05','Higher regrowth .10'),col=c('black','#B45B24'),lty=c(1,2),lwd=2,bty='n',cex=.8)
+d<-b[b$metric=='effective_policies',];plot(d$tick,d$mean,type='l',lwd=2,ylim=c(0,8),xlab='Tick',ylab='Effective number of policies',main='Policy frequencies concentrate')
+d<-age[age$metric=='mean_age_difference',];plot(d$tick,d$mean,type='l',lwd=2,ylim=range(c(d$mean,0)),xlab='Tick',ylab='Mixture minus controls (ticks)',main='Age structure changes phase');abline(h=0,col='grey60',lty=3)
+d<-f[f$metric=='advantage',];plot(d$tick,d$mean,type='l',lwd=2,ylim=range(c(d$lower,d$upper,0)),xlab='Tick',ylab='Change in mixture advantage (agents)',main='Effect of higher regrowth');lines(d$tick,d$lower,lty=2,col='grey50');lines(d$tick,d$upper,lty=2,col='grey50');abline(h=0,col='grey60',lty=3)
+mtext('100 matched seed blocks | dashed bounds: 95% paired intervals',outer=TRUE,cex=.85);dev.off()

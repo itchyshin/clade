@@ -1,0 +1,4 @@
+a<-commandArgs(TRUE);p<-a[1];source('R/analysis.R');x<-read.csv(file.path(p,'high-trace.csv'));x<-x[x$policy==1,]
+keys<-unique(x[c('seed','mono')]);out<-list()
+for(i in seq_len(nrow(keys))){z<-x[x$seed==keys$seed[i] & x$mono==keys$mono[i],];z<-z[order(z$tick),];stopifnot(nrow(z)==20);v<-viability_report(data.frame(t=c(0,1000),n_agents=c(48,tail(z$n_total,1))),n_agents_init=48)$verdict;out[[i]]<-data.frame(seed=keys$seed[i],mono=keys$mono[i],final_agents=tail(z$n_total,1),viability=v,cap_ticks=sum(z$capacity_ticks),max_population=max(z$max_population))}
+y<-do.call(rbind,out);write.csv(y,file.path(p,'high-viability.csv'),row.names=FALSE);print(table(y$viability));cat('Runs with cap ticks:',sum(y$cap_ticks>0),'of',nrow(y),'; cap ticks:',sum(y$cap_ticks),'of',nrow(y)*1000,'\n');cat('Seed blocks with any cap:',sum(vapply(split(y$cap_ticks,y$seed),function(v)any(v>0),logical(1))),'of100\n')

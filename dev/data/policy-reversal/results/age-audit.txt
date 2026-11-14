@@ -1,0 +1,1 @@
+PASS: all 144000 age-replay rows exactly reproduce previous trace fields; 18000 group snapshots have valid pre-reproduction ages, energy and eligibility counts.

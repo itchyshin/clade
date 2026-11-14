@@ -1,0 +1,1 @@
+PASS: 18000 matched prior windows and 144000 policy rows satisfy counts, births, deaths, exposures, food and initial-state checks; decomposition identity holds

@@ -1,0 +1,3 @@
+a<-commandArgs(TRUE);root<-a[1];b<-read.csv(file.path(root,'blocks.csv'));metrics<-setdiff(names(b),c('seed','tick'));out<-list();j<-0
+for(t in sort(unique(b$tick)))for(m in metrics){z<-b[b$tick==t,m];z<-z[is.finite(z)];n<-length(z);mean<-if(n)mean(z) else NA;se<-if(n>1)sd(z)/sqrt(n)else NA;h<-if(n>1)qt(.975,n-1)*se else NA;j<-j+1;out[[j]]<-data.frame(tick=t,metric=m,n=n,mean=mean,lower=mean-h,upper=mean+h)}
+s<-do.call(rbind,out);write.csv(s,file.path(root,'summary.csv'),row.names=FALSE,na='NA');print(s[s$tick %in% c(50,300,600,1000) & s$metric %in% c('n_mix','n_control','advantage','grass_mix','grass_control','effective_policies','surviving_policies','dominant_frequency','composition','residual'),],row.names=FALSE)

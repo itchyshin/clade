@@ -1,0 +1,3 @@
+Age pilot: 1440 original fields reproduced exactly.
+High-regrowth pilot: 1440 original fields reproduced exactly after cap instrumentation.
+High-regrowth pilot: 5 group-ticks at cap.

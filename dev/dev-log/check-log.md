@@ -1152,3 +1152,39 @@ assertion. Saved-spec compatibility fix is included from #203.
   Age treatments differ in mean age by 1.5 ticks; original-versus-limited
   changes initial food and regrowth together. No lifetime-fitness claim.
   Stale search: rg 'age|regrowth|viable|interaction|1,000' dev/data/policy-factorial.
+
+## 2026-11-14: Policy-frequency and density reversal investigation
+
+- Branch codex/policy-reversal. Source 2b6ea12bbbccf06f62e700edf5653eeb7c950cc6;
+  100 haploid high-source-mutation seed blocks, mixture and eight controls,
+  original food, fixed founder age, mutation disabled, 1,000 ticks. Exact
+  policy identities tracked via clonal parentage and genome equality.
+- Totoro: original trace 900 runs in 100.47 sec; matched .10 regrowth 900
+  runs in 152.29 sec; passive age/energy replay 900 runs in 90.31 sec. Each
+  used eight workers with four Julia threads and one BLAS thread. Full
+  bounds were eight minutes. Three source/driver SHA256s in results/run.json.
+- Original 144,000 policy rows reproduce all 18,000 factorial windows on
+  population, births, deaths, exposure and food. Age observer reproduces all
+  144,000 trace rows exactly. Higher-regrowth physical starts match all paired
+  original runs; policy/population, capacity and exposure checks pass. Paired
+  regrowth means independently reconstructed from 2,000 blocks. All 600
+  original source state hashes pass. 900 higher-regrowth viability verdicts
+  are viable. Timecourse, age-wave and forensic decomposition included.
+- Mixture advantage oscillates: +10.28 at 300, -8.91 at 400, +7.50 at 600,
+  -6.23 at 750, +4.34 at 850 and -4.42 at 1,000. Staggered founders retain
+  the broad waves. Effective policies 4.55 at 300 and 2.00 at 1,000; dominant
+  frequency .346 and .700. From 600 to 1,000 birth count difference -10.92
+  (95% interval -12.98:-8.86), death difference +1.00 (-.90:2.91).
+- Doubling regrowth changes endpoint advantage by -.07 agents (-1.94:1.79),
+  while mixture mean N changes 119.50 to 226.55. Higher-regrowth cap reached
+  in 250/900 runs, 2,596/900,000 ticks, all through tick 150; cap-free
+  32-block sensitivity +1.04 (-2.99:5.07). Regrowth affects transient waves.
+- Age and resource snapshots are associations and checkpoint readiness is a
+  proxy, not a causal decomposition. The policy-frequency/monoculture
+  weighting is arithmetic only. Report evidence for haploid clonal policy
+  lineages, not diploid recombination or lifetime fitness. Code, plots and
+  full raw evidence are under dev/data/policy-reversal; after-task included.
+  Exact stale search: rg 'policy|density|birth|cap|causal|regrowth' dev/data/policy-reversal.
+- Independent temporal accounting verifies all 300 seed/interval changes as
+  birth-minus-death differences. All 50 remote kernel and prior-assay files
+  match the local pinned source. Raw, packaged and analysis-script hashes pass.
