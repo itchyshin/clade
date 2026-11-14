@@ -36,6 +36,7 @@ d$viability<-vapply(seq_len(nrow(d)),function(i)scope$viability_report(
  data.frame(t=c(d$tick_of_min[i],d$final_tick[i]),n_agents=c(d$min_population[i],d$final_agents[i])),n_agents_init=50)$verdict,character(1))
 write.csv(d,file.path(out,"runs_with_viability.csv"),row.names=FALSE,na="NA")
 stats<-function(z){z<-z[is.finite(z)];n<-length(z);m<-if(n)mean(z) else NA_real_; se<-if(n>1)sd(z)/sqrt(n) else NA_real_;h<-if(n>1)qt(.975,n-1)*se else NA_real_;c(n=n,mean=m,mcse=se,lower=m-h,upper=m+h)}
+prop_stats<-function(z){n<-length(z);p<-mean(z);ci<-binom.test(sum(z),n)$conf.int;c(n=n,mean=p,mcse=sqrt(p*(1-p)/n),lower=ci[1],upper=ci[2])}
 summary<-list();count<-0
 for(p in 1:2)for(m in c(0,.05,.2)) {
  z<-d[d$ploidy==p & d$mutation_sd==m,];v<-z[z$viability=="viable",]
@@ -44,7 +45,7 @@ for(p in 1:2)for(m in c(0,.05,.2)) {
  between_viable=v$between,within_viable=v$within,
  deterministic_disagreement_viable=v$deterministic_disagreement,
  behavioral_entropy_last100_viable=v$behavioral_entropy_last100)
- for(metric in names(metrics)){count<-count+1; s<-stats(metrics[[metric]]);summary[[count]]<-data.frame(ploidy=p,mutation_sd=m,metric=metric,t(s),row.names=NULL)}
+ for(metric in names(metrics)){count<-count+1; s<-if(metric%in%c("survival","viable"))prop_stats(metrics[[metric]]) else stats(metrics[[metric]]);summary[[count]]<-data.frame(ploidy=p,mutation_sd=m,metric=metric,t(s),row.names=NULL)}
 }
 write.csv(do.call(rbind,summary),file.path(out,"cell_summary.csv"),row.names=FALSE,na="NA")
 pairs<-list();count<-0

@@ -1,0 +1,58 @@
+Complete design: 600 runs; 200 matched founder blocks; 28800 assay contexts
+Independent recovery of B/W from integer sufficient statistics: passed
+, , viability = viable
+
+      mutation_sd
+ploidy   0 0.05 0.2
+     1 100  100 100
+     2 100  100 100
+
+ ploidy mutation_sd  n original_mean original_lower original_upper reassay_mean
+      1        0.05 10   0.016467920    0.014112952     0.01882289  0.016598856
+      1        0.20 10   0.210389695    0.192009122     0.22877027  0.210587019
+      2        0.05 10   0.009484758    0.008103017     0.01086650  0.009499995
+      2        0.20 10   0.149119309    0.140738593     0.15750002  0.149762562
+ reassay_lower reassay_upper numerical_difference numerical_mcse precision_pass
+   0.014291495    0.01890622         1.309367e-04   9.408975e-05           TRUE
+   0.192341007    0.22883303         1.973237e-04   4.474726e-04           TRUE
+   0.008139062    0.01086093         1.523724e-05   7.291471e-05           TRUE
+   0.141472879    0.15805225         6.432537e-04   2.665500e-04           TRUE
+ ploidy mutation_sd reference          metric total_pairs   n         mean
+      1        0.05         0 final_diversity         100 100  0.231853285
+      1        0.05         0         between         100 100  0.017884536
+      1        0.05         0          within         100 100 -0.019392170
+      1        0.20         0 final_diversity         100 100  1.093793344
+      1        0.20         0         between         100 100  0.214551392
+      1        0.20         0          within         100 100 -0.234898371
+      2        0.05         0 final_diversity         100 100  0.173005046
+      2        0.05         0         between         100 100  0.009458877
+      2        0.05         0          within         100 100 -0.011091876
+      2        0.20         0 final_diversity         100 100  0.817255501
+      2        0.20         0         between         100 100  0.151710773
+      2        0.20         0          within         100 100 -0.169243716
+         mcse       lower        upper operational_margin
+ 0.0010409169  0.22978788  0.233918689                 NA
+ 0.0004128462  0.01706536  0.018703713            0.00625
+ 0.0005043190 -0.02039285 -0.018391491                 NA
+ 0.0036870335  1.08647747  1.101109219                 NA
+ 0.0036635515  0.20728211  0.221820673            0.00625
+ 0.0038217128 -0.24248148 -0.227315264                 NA
+ 0.0011146402  0.17079336  0.175216734                 NA
+ 0.0002237642  0.00901488  0.009902874            0.00625
+ 0.0002887205 -0.01166476 -0.010518992                 NA
+ 0.0037406513  0.80983324  0.824677764                 NA
+ 0.0018454114  0.14804908  0.155372469            0.00625
+ 0.0023668240 -0.17394001 -0.164547424                 NA
+ operationally_meaningful
+                       NA
+                     TRUE
+                       NA
+                       NA
+                     TRUE
+                       NA
+                       NA
+                     TRUE
+                       NA
+                       NA
+                     TRUE
+                       NA

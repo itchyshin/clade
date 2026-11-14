@@ -14,11 +14,14 @@ for(j in seq_along(metrics)) {
  for(p in 1:2) {
   x<-z[z$ploidy==p,];x<-x[order(x$mutation_sd),]
   lines(x$mutation_sd,x$mean,type="b",pch=c(16,17)[p],col=cols[p],lwd=2)
-  arrows(x$mutation_sd,x$lower,x$mutation_sd,x$upper,angle=90,code=3,length=.035,col=cols[p])
+  segments(x$mutation_sd,x$lower,x$mutation_sd,x$upper,col=cols[p])
+  segments(x$mutation_sd-.0015,x$lower,x$mutation_sd+.0015,x$lower,col=cols[p])
+  segments(x$mutation_sd-.0015,x$upper,x$mutation_sd+.0015,x$upper,col=cols[p])
  }
  if(j==1)legend("topleft",c("Haploid","Diploid, selfing allowed"),col=cols,pch=c(16,17),lty=1,bty="n",cex=.75)
  if(j==4)abline(h=log(5),lty=3,col="grey50")
- mtext(paste0("Viable seeds per cell: ",min(z$n)," to ",max(z$n)),side=3,line=.25,cex=.65)
+ mtext(if(min(z$n)==max(z$n))paste0(z$n[1]," viable seeds per cell") else
+  paste0("Viable seeds per cell: ",min(z$n)," to ",max(z$n)),side=3,line=.25,cex=.65)
 }
 mtext("Matched founders and fixed exploration; 95% Monte Carlo intervals",outer=TRUE,cex=1)
 dev.off()

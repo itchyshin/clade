@@ -1,0 +1,41 @@
+PASS raw structure and sufficient-statistic checks
+runs=600; matched blocks=200; assay eligible=600; assay rows=28800; contexts=48; reassay runs=60
+primary ploidy=1 M=0.05 vs 0: both_viable=100 / all_seed_pairs=100
+  between: n=100 mean=0.0178845365 MCSE=0.000412846169 95%t=[0.0170653601,0.0187037128]
+  within: n=100 mean=-0.0193921698 MCSE=0.000504319046 95%t=[-0.0203928482,-0.0183914914]
+  deterministic_disagreement: n=100 mean=0.023704515 MCSE=0.00606890097 95%t=[0.0116624988,0.0357465311]
+  behavioral_entropy_last100: n=100 mean=-0.00244362912 MCSE=0.000827223926 95%t=[-0.00408502086,-0.000802237382]
+  final_diversity: n=100 mean=0.231853285 MCSE=0.00104091686 95%t=[0.22978788,0.233918689]
+  reassay precision: first10 both-viable n=10; original/reassay class=above/above; mean delta difference=0.000130936668, MCSE=9.4089753e-05; precision_pass=True
+primary ploidy=1 M=0.2 vs 0: both_viable=100 / all_seed_pairs=100
+  between: n=100 mean=0.214551392 MCSE=0.00366355149 95%t=[0.207282111,0.221820673]
+  within: n=100 mean=-0.234898371 MCSE=0.00382171279 95%t=[-0.242481478,-0.227315264]
+  deterministic_disagreement: n=100 mean=0.0155808142 MCSE=0.00546688731 95%t=[0.00473332372,0.0264283047]
+  behavioral_entropy_last100: n=100 mean=-0.0439394813 MCSE=0.00364476251 95%t=[-0.0511714809,-0.0367074818]
+  final_diversity: n=100 mean=1.09379334 MCSE=0.00368703354 95%t=[1.08647747,1.10110922]
+  reassay precision: first10 both-viable n=10; original/reassay class=above/above; mean delta difference=0.000197323687, MCSE=0.000447472554; precision_pass=True
+primary ploidy=2 M=0.05 vs 0: both_viable=100 / all_seed_pairs=100
+  between: n=100 mean=0.00945887705 MCSE=0.00022376423 95%t=[0.00901488027,0.00990287382]
+  within: n=100 mean=-0.0110918762 MCSE=0.000288720484 95%t=[-0.0116647602,-0.0105189921]
+  deterministic_disagreement: n=100 mean=0.0815044912 MCSE=0.0104996781 95%t=[0.0606708519,0.102338131]
+  behavioral_entropy_last100: n=100 mean=-0.0045467119 MCSE=0.000861292889 95%t=[-0.00625570385,-0.00283771995]
+  final_diversity: n=100 mean=0.173005046 MCSE=0.00111464016 95%t=[0.170793358,0.175216734]
+  reassay precision: first10 both-viable n=10; original/reassay class=above/above; mean delta difference=1.52372355e-05, MCSE=7.29147085e-05; precision_pass=True
+primary ploidy=2 M=0.2 vs 0: both_viable=100 / all_seed_pairs=100
+  between: n=100 mean=0.151710773 MCSE=0.00184541136 95%t=[0.148049076,0.155372469]
+  within: n=100 mean=-0.169243716 MCSE=0.00236682405 95%t=[-0.173940009,-0.164547424]
+  deterministic_disagreement: n=100 mean=0.0899702124 MCSE=0.00983049748 95%t=[0.0704643727,0.109476052]
+  behavioral_entropy_last100: n=100 mean=-0.0378264328 MCSE=0.00312231166 95%t=[-0.0440217765,-0.0316310891]
+  final_diversity: n=100 mean=0.817255501 MCSE=0.00374065128 95%t=[0.809833237,0.824677764]
+  reassay precision: first10 both-viable n=10; original/reassay class=above/above; mean delta difference=0.000643253701, MCSE=0.00026654996; precision_pass=True
+
+Independent audit method and additional checks
+- CSVs were read directly with a standalone Python standard-library script, not by sourcing or importing the analyzer.
+- For each run, viability was recomputed by sourcing the package's actual R/analysis.R and calling viability_report() with n_agents_init=50, using the recorded minimum population/tick and final population/tick. All 600 runs are classified viable; all six cells have 100/100 viable runs. (The reported minimum population can be <20; the package verdict uses endpoint population thresholds.)
+- All four raw tables have zero missing/blank/NaN cells. All 600 runs end at tick 1000 and have final N>=2, so all produce the expected 48 assays. Every endpoint haploid fraction is exactly 1 in ploidy=1 and 0 in ploidy=2.
+- Each of the 200 ploidy/seed founder-hash blocks contains exactly three mutation cells with one shared hash. The assay table has 28,800 rows (600 x 48). Every context has a unique ID 1..48, finite inputs in [0,1], and bias slot 1.
+- For every context, independent recomputation from integer action totals and cross statistic recovers B and W within 1e-12; action counts conserve N x draws in each bank. Across 48 contexts, direct means recover each run-level B, W, and deterministic disagreement within 1e-12.
+- Reassay contains 60 unique rows: first ten seeds in each of six cells, each at 4x draws. For each ploidy x mutation contrast among first-ten both-viable pairs (n=10), original and reassay 95% intervals are both above deltaB=.00625; mean repeat-minus-original changes and their MCSEs are each below deltaB/4. All four independent precision checks pass.
+- Primary contrasts use the package's actual viability verdict and all 100/100 matched seed pairs per ploidy x mutation contrast are both viable. Seed blocks are the replicate unit; no eventwise pairing claim is made.
+
+Reproducibility files: /tmp/clade-behaviour-independent-audit.py and /tmp/clade-behaviour-viability.R. These are temporary audit tools; no repository files were changed.

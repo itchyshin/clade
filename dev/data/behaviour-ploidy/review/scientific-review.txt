@@ -1,0 +1,4 @@
+Independent scientific review: no scientific or factual blockers in findings.md
+Reviewed draft SHA-256: 41169d4ef37321ce6240ed6018a60f0a36cf61525c2d6841ef99282f3ce26bc8
+Separate mechanical audit receipt is in results/independent-audit.txt.
+Style scores are subjective self-judgments, not authorship or scientific-validity scores.
