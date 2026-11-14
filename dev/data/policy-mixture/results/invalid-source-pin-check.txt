@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/Users/z3437171/.codex/worktrees/clade-ownership-record/clade/dev/data/policy-mixture/run_totoro.py", line 4, in <module>
+    if re.fullmatch(r"[0-9a-f]{40}",revision) is None:raise ValueError("exact40-character source revision required before launch")
+ValueError: exact40-character source revision required before launch

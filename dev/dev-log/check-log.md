@@ -1066,3 +1066,31 @@ assertion. Saved-spec compatibility fix is included from #203.
   lowercase Julia boolean parsing. Source dynamics unchanged. Full10800run
   estimate20minutes, based on pilot×100/4≈11.7min plus margin; wrapper stops
   own groups at1200sec. Resource cap16Julia threads plus1BLAS/worker.
+- Full campaign completed:10,800runs in398.45sec, four capped workers;
+  peak536576KiB/process. Primary5,400worlds exactN48 and all viable.
+  Secondary5,042viable/214weak/144crashed; no dropped comparators.
+- Analyzer and independent raw audit pass:600panels,4800policies,37800windows,
+  2,178,703births and2,229,971deaths. All12000block metric rows agree to
+  ~7.1e-15; n/mean/MCSE across240summary rows to~4.4e-14. Four-thousand-
+  bootstrap sensitivity agrees with primary tinterval directions.
+- All12primary food/net intervals inside +/-5%/+/-.05energy margins.
+  SourceSD.20 mixtures: food-.24%hap/-.08%dip; secondary finalN+22.07%/+3.99%,
+  birthyield+3.57%/+.97%, survival100 -1.82/-.42points. HighM all9viable
+  sensitivity77/97blocks keeps population effect+20.85%/+4.01%.
+- First-seed exact replay: all6raw tables match (108runs,378windows,21649
+  births,22270deaths,6panels,48policies); all24observer controls pass.
+  Source file hashes in all600panels match original corrected states manifest.
+- Source metadata mistake retained: launch revision argument34dummypin was
+  not the source SHA. Actual local/remote archive05017a34..., driver5eaaa12f...
+  and executed wrapper5cf7f4cb... bind exactcommit2e8a30f3932c297c09db106181f7615e4194f3c6.
+  source-binding.json records the distinction; originalexecution.json stays
+  unchanged. Final wrapper rejects malformed pins before launching workers.
+- Independent scientific review approves findings SHA256
+  eaf29ee6a4c87583b28d1c5abc5d12471e9720053b5767cdb01697856a8b82ab.
+  Added cap-loss qualification (~46%), transientendpoint and selection versus
+  complementarity limits; fixed README continuation and audit-field scope.
+- Exact stale search: rg 'equal|balanced|viable|mutation|fitness|100|300'
+  dev/data/policy-mixture. Figure generated/visually checked. Source/checksum,
+  raw compressed tables, commands/times, audits and after-task report included.
+  No full local Rcheck repeated for research-only scripts; exact-head CI is
+  the package-wide gate. No public default, API or kernel phase change.

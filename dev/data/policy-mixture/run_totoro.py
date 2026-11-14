@@ -1,6 +1,7 @@
 """Four isolated seed-block shards; stop owned process groups on failure/overrun."""
-import csv,hashlib,json,os,pathlib,signal,subprocess,sys,time
+import csv,hashlib,json,os,pathlib,re,signal,subprocess,sys,time
 archive=pathlib.Path(sys.argv[1]).resolve();revision=sys.argv[2]
+if re.fullmatch(r"[0-9a-f]{40}",revision) is None:raise ValueError("exact40-character source revision required before launch")
 source=pathlib.Path.cwd();archive.mkdir(parents=True,exist_ok=True)
 state_dir=pathlib.Path('/home/snakagaw/sim-archive/clade/2026-11-14-performance-corrected/full-100/states')
 env=os.environ.copy();env.update(OPENBLAS_NUM_THREADS='1',JULIA_NUM_THREADS='4')

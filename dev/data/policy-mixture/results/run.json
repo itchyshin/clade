@@ -1,0 +1,197 @@
+{
+  "date": "2026-11-14",
+  "host": "totoro.biology.ualberta.ca",
+  "simulation_source_commit": "2e8a30f3932c297c09db106181f7615e4194f3c6",
+  "source_archive_sha256": "05017a3484fc0bf876951d8d123cf0035384dda148c47b24eed8d38dc28da582",
+  "source_binding": "../source-binding.json; raw execution.json revision label was erroneous and is retained unchanged. Actual local/remote archive, driver and executed orchestrator identity verified by checksums. Final wrapper adds prelaunch40hex validation.",
+  "remote_source": "/home/snakagaw/hsq_work/clade-mixture-20261114",
+  "remote_archive": "/home/snakagaw/sim-archive/clade/2026-11-14-policy-mixture",
+  "source_policy_archive": "/home/snakagaw/sim-archive/clade/2026-11-14-performance-corrected/full-100/states",
+  "source_policy_commit": "b982e9739c1064224ca49f77ff56d06ec8e0c7c4",
+  "julia_version": "1.10.0",
+  "design": {
+    "runs": 10800,
+    "source_panels": 600,
+    "policies_per_panel": 8,
+    "source_seed_range": [
+      20001,
+      20100
+    ],
+    "ploidy": [
+      1,
+      2
+    ],
+    "source_mutation_sd": [
+      0,
+      0.05,
+      0.2
+    ],
+    "transplant_mutation_sd": 0,
+    "exploration_sigma": 0.5,
+    "N_init": 48,
+    "grid": [
+      30,
+      30
+    ],
+    "initial_age": 50,
+    "initial_energy": 70,
+    "mixture_policy_copies": 6,
+    "monocultures_per_panel": 8,
+    "primary_ticks": 50,
+    "primary_reproduction": false,
+    "demographic_ticks": 300,
+    "cohort_followup": 100,
+    "cohort_birth_window": [
+      1,
+      200
+    ]
+  },
+  "estimand": "One paired contrast per source seed: mixture outcome minus equal mean of all8 complete monoculture outcomes. Analyze100 blocks perP/sourceM separately; do not pool monoculture counts/exposure.",
+  "execution": {
+    "source_revision": "34dummypin",
+    "source_root": "/home/snakagaw/hsq_work/clade-mixture-20261114",
+    "commands": [
+      {
+        "pid": 3558035,
+        "command": [
+          "/usr/bin/time",
+          "-v",
+          "-o",
+          "/home/snakagaw/sim-archive/clade/2026-11-14-policy-mixture/shard-0.time",
+          "/home/snakagaw/.juliaup/bin/julia",
+          "+1.10.0",
+          "--project=inst/julia",
+          "inst/julia/scripts/mixture_assay.jl",
+          "25",
+          "/home/snakagaw/sim-archive/clade/2026-11-14-policy-mixture/shard-0",
+          "/home/snakagaw/sim-archive/clade/2026-11-14-performance-corrected/full-100/states",
+          "20001"
+        ]
+      },
+      {
+        "pid": 3558036,
+        "command": [
+          "/usr/bin/time",
+          "-v",
+          "-o",
+          "/home/snakagaw/sim-archive/clade/2026-11-14-policy-mixture/shard-1.time",
+          "/home/snakagaw/.juliaup/bin/julia",
+          "+1.10.0",
+          "--project=inst/julia",
+          "inst/julia/scripts/mixture_assay.jl",
+          "25",
+          "/home/snakagaw/sim-archive/clade/2026-11-14-policy-mixture/shard-1",
+          "/home/snakagaw/sim-archive/clade/2026-11-14-performance-corrected/full-100/states",
+          "20026"
+        ]
+      },
+      {
+        "pid": 3558038,
+        "command": [
+          "/usr/bin/time",
+          "-v",
+          "-o",
+          "/home/snakagaw/sim-archive/clade/2026-11-14-policy-mixture/shard-2.time",
+          "/home/snakagaw/.juliaup/bin/julia",
+          "+1.10.0",
+          "--project=inst/julia",
+          "inst/julia/scripts/mixture_assay.jl",
+          "25",
+          "/home/snakagaw/sim-archive/clade/2026-11-14-policy-mixture/shard-2",
+          "/home/snakagaw/sim-archive/clade/2026-11-14-performance-corrected/full-100/states",
+          "20051"
+        ]
+      },
+      {
+        "pid": 3558040,
+        "command": [
+          "/usr/bin/time",
+          "-v",
+          "-o",
+          "/home/snakagaw/sim-archive/clade/2026-11-14-policy-mixture/shard-3.time",
+          "/home/snakagaw/.juliaup/bin/julia",
+          "+1.10.0",
+          "--project=inst/julia",
+          "inst/julia/scripts/mixture_assay.jl",
+          "25",
+          "/home/snakagaw/sim-archive/clade/2026-11-14-policy-mixture/shard-3",
+          "/home/snakagaw/sim-archive/clade/2026-11-14-performance-corrected/full-100/states",
+          "20076"
+        ]
+      }
+    ],
+    "wall_seconds": 398.4517273902893,
+    "workers": 4,
+    "julia_threads_per_worker": 4,
+    "blas_threads": 1,
+    "orchestrator_sha256": "5cf7f4cb1712a57035532b51a0fdd6af1a1c9091e719857e69c05f15e184262e"
+  },
+  "source_binding_receipt_sha256": "8faa74f7fbc7e611ad89f5e11ab2f7379504911f600faf584c1cbe3572812034",
+  "checks": {
+    "julia_assertions": 370,
+    "forage_viable": 5400,
+    "forage_exact_N": 48,
+    "demography_viable": 5042,
+    "demography_weak": 214,
+    "demography_crashed": 144,
+    "independent_cohort_rows": 2178703,
+    "independent_death_rows": 2229971,
+    "independent_windows": 37800,
+    "independent_summary_fields": "n,mean,MCSE in all240 rows; fullmix/control/delta/all_viable in12000 block rows",
+    "source_file_hashes_match_original_manifest": 600,
+    "primary_intervals_within_margin": 12
+  },
+  "analysis_commands": [
+    "Rscript dev/data/policy-mixture/analyze.R OUTDIR 100",
+    "Rscript dev/data/policy-mixture/plot.R OUTDIR",
+    "Rscript dev/data/policy-mixture/robustness.R OUTDIR"
+  ],
+  "raw_sha256": {
+    "runs.csv": "9d3e22763a7f1e7bf07d4d7274ea24da4e68534b41b5990f7dc8fa01b4a315fc",
+    "windows.csv": "64496fbdca0eb6e60e04ce26247668bd527ab9336073098d85c50ad5d5197af6",
+    "cohorts.csv": "975552a72e90612b52523a3f5518b1375593ad0d30c043295f26d16ab91abcd8",
+    "deaths.csv": "92f73dec791cd05303bca3b05868a56be1d79a10b18a6a658c34d36d9753a835",
+    "panels.csv": "9e645bf5e6930346a9294e4022a8dc663dc45c94a193979c2854f79732abbdd8",
+    "policies.csv": "2c89e8f331303965d40262c78a0df1f58c2060b851cb954d00486e8f63d2fbca"
+  },
+  "script_sha256": {
+    "inst/julia/scripts/mixture_assay.jl": "5eaaa12f1793811b562441b462649e50400a7aa2741636bf77f0caaa5993e067",
+    "dev/data/policy-mixture/analyze.R": "290c774ecc735a256b38cc3c87956ebb1a273e8042493869464130af519cbc24",
+    "dev/data/policy-mixture/plot.R": "9d114c0753d0f8ea98f793cd11e6f15648f9d066c7d29066bb3793d50c4f1b7e",
+    "dev/data/policy-mixture/robustness.R": "e9e75bbce6222c8b1493e577556f1c5e855580a57ed2cdd8343b2a60021b447e",
+    "dev/data/policy-mixture/replay.jl": "72c300d621a8b404df58816472baa4cc4145891e509d7098b28ffde9c820efe4",
+    "dev/data/policy-mixture/run_totoro.py": "fb7701ea6753fd95eb7ebea325a4bcdb74945baa806bd41a43e4cad2fc7922b7"
+  },
+  "notes": "Package text receipts have trailing whitespace trimmed. Bootstrap robustness is secondary to prespecified t/relative-bootstrap analysis. Raw endpoint policies were not regenerated; no kernel changes in this task. Primary energy ceiling remains active and uncapped return is accounting on recorded actions only.",
+  "packaged_sha256": {
+    "R-session-info.txt": "5723e7811d7a30f88ee17919c69190b35f9fd77c0c0e84539ecee3acd750ed78",
+    "analysis-output.txt": "fd8f12b99fbe8bcec50dab5867459530cabc0663b981d7e421868f950eb26862",
+    "block_contrasts.csv": "3b14c7a1c050226ed728974c1e38a8fb0d4b26be022df7b12fa23a833c27016d",
+    "cohorts.csv.gz": "3e8c7db46cfcabaeb3cdb98e4471a4f8419256b54f1dd9bbcf9f89ff1cebfce3",
+    "deaths.csv.gz": "e451e4c9c7410b72002722bbaba3e9bfba069467d52d65c5e582ba961302bea3",
+    "execution.json": "84f3bfecb16072d451665d6d993b4ceb69937b597d19b3bb238d6ddc59c4959c",
+    "incomplete-control-check.txt": "0e6041a6da43f444c9ff15a9953bef41c349644ca35ad9f172a5d9ae74285632",
+    "independent-audit.py": "de956f8c8dad8c3fbea47a6b7cc7589b8fd73c70dde77764c1ef7f961fbfa91e",
+    "independent-audit.txt": "9c587b24bee8bf7790a6c566703d8f397a2f507ba0295088a828ab3968c83162",
+    "independent-viability.R": "75dbe788aa51dcc89e08ef952b288fe147d9d8812a43f6634b348ce6279f7f43",
+    "invalid-source-pin-check.txt": "f021d8e0bf0f573071bc6b6c82de74f253095493a5858c22cc9fc983eb3ad2c3",
+    "julia-suite.txt": "99ae095453dda6d58229b540d88e340c6af04f18fcaf251d2f84eeb2e98a3391",
+    "panels.csv.gz": "ab6ba75a0d39be11f54b635c27bb0c7b7093cb9fa18a62930d1f1e1f5ce16f9a",
+    "pilot.time": "dece9c2ff7fed40d29c7eb25a362f14e6b044226c354594519e34b23169e2860",
+    "policies.csv.gz": "af82a4b9591dec26afc5f998e4375e9392affd46f1595f65454152248abc6f51",
+    "policy-mixture.png": "b05fd71d9bebd6dc240284153b8099b61657780059e883e8d23e2d3a3e71ca1f",
+    "replay-check.txt": "68721f465ea158bd7a74686c568e4fe18d8fbb89e6e5b9f2c8765d9c8b5bc863",
+    "replay.time": "84f5e45d0b06e7a7ef61c6243d2ecbce04772191c6e0e6214d989bc05bea6668",
+    "robustness.csv": "915ba1acb5caa17abeebda41d33fc14a2162a6720fa576abbbd50d729cdc3cac",
+    "runs.csv.gz": "a3e9c100888f81f2b0fa5712ead91e99e44349c6a00cf7ada14b36c2c5dc3800",
+    "scientific-review.txt": "3c2fb92420b3eca0c6a7c980ded8abb339b97370f4b6558e699b855d838e46c0",
+    "shard-0.time": "52888d8eb5842d548a12cfd5df1d198f91c0dd9447c41fc0db3efc8fb0d08409",
+    "shard-1.time": "c17a08d9807f9343a7a2fd289cc42590b227e80d3c9cac54f7c597013593b082",
+    "shard-2.time": "59ecc241dbc5a9c14c37c74f32a0b82b8330d3de096b6469e20a18f2ed815dfa",
+    "shard-3.time": "b6fc5c31aac08a181d2add86f5f231f1f8396d92110fc5a74e74fb1f8ff7db50",
+    "source-manifest-check.txt": "33979c87db40b40b9ef2a99a750eb2b49ed5d252487bf5246eb43c33bd683772",
+    "source-states.sha256": "1b0446ca8f292e4d4cd506af20d1e8318e35b698e0c5b10b76b2f03d0136b740",
+    "summary.csv": "3a364dfe1fc5ecdf8f6030441b0e34651b7117de2c6b9ec0eb100b8b09a24258",
+    "windows.csv.gz": "a3b2158f416918cb96effb0a690b5e6406cb02468992f5d06223f032cc02b1e9"
+  }
+}

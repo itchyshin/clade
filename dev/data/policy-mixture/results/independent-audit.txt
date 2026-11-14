@@ -1,0 +1,36 @@
+PASS mixture design, population/energy/death/cohort/selection/hash ledgers
+runs=10800 panels=600 policy rows=4800 windows=37800 deaths=2229971 cohorts=2178703
+Actual R viability_report verdict counts: Counter({'viable': 10442, 'weak': 214, 'crashed': 144})
+Hashes checked for exact 9-assemblage equality within each P/seed/mode and each panel block; no legacy endpoint parity asserted.
+contrast P=1 source_M=0.0 mode=demography outcome=birth_yield all-block n=100 mean=-4.1222941e-06 MCSE=2.32483e-05 all9-viable n=30 mean=-5.71816309e-05 MCSE=3.69981e-05
+contrast P=1 source_M=0.0 mode=demography outcome=recruit_yield all-block n=100 mean=7.84557824e-06 MCSE=1.14261e-05 all9-viable n=30 mean=2.91278519e-05 MCSE=1.93027e-05
+contrast P=1 source_M=0.0 mode=forage outcome=food all-block n=100 mean=0.00474010417 MCSE=0.00346897 all9-viable n=100 mean=0.00474010417 MCSE=0.00346897
+contrast P=1 source_M=0.0 mode=forage outcome=net all-block n=100 mean=0.00109938755 MCSE=0.00195114 all9-viable n=100 mean=0.00109938755 MCSE=0.00195114
+contrast P=1 source_M=0.0 mode=forage outcome=reward all-block n=100 mean=0.0236369792 MCSE=0.017327 all9-viable n=100 mean=0.0236369792 MCSE=0.017327
+contrast P=1 source_M=0.05 mode=demography outcome=birth_yield all-block n=100 mean=2.5144255e-05 MCSE=2.08885e-05 all9-viable n=31 mean=-3.07662192e-05 MCSE=2.82968e-05
+contrast P=1 source_M=0.05 mode=demography outcome=recruit_yield all-block n=100 mean=1.26514707e-05 MCSE=1.0209e-05 all9-viable n=31 mean=7.56143615e-06 MCSE=1.83621e-05
+contrast P=1 source_M=0.05 mode=forage outcome=food all-block n=100 mean=0.00316875 MCSE=0.00313624 all9-viable n=100 mean=0.00316875 MCSE=0.00313624
+contrast P=1 source_M=0.05 mode=forage outcome=net all-block n=100 mean=-0.000778244404 MCSE=0.00169806 all9-viable n=100 mean=-0.000778244404 MCSE=0.00169806
+contrast P=1 source_M=0.05 mode=forage outcome=reward all-block n=100 mean=0.0158619792 MCSE=0.0155278 all9-viable n=100 mean=0.0158619792 MCSE=0.0155278
+contrast P=1 source_M=0.2 mode=demography outcome=birth_yield all-block n=100 mean=0.000276620442 MCSE=2.38334e-05 all9-viable n=77 mean=0.00028160955 MCSE=2.77505e-05
+contrast P=1 source_M=0.2 mode=demography outcome=recruit_yield all-block n=100 mean=-1.10340492e-06 MCSE=1.2133e-05 all9-viable n=77 mean=-2.75522167e-06 MCSE=1.476e-05
+contrast P=1 source_M=0.2 mode=forage outcome=food all-block n=100 mean=-0.00298125 MCSE=0.00278079 all9-viable n=100 mean=-0.00298125 MCSE=0.00278079
+contrast P=1 source_M=0.2 mode=forage outcome=net all-block n=100 mean=-0.00168655183 MCSE=0.00152159 all9-viable n=100 mean=-0.00168655183 MCSE=0.00152159
+contrast P=1 source_M=0.2 mode=forage outcome=reward all-block n=100 mean=-0.0148330729 MCSE=0.0138577 all9-viable n=100 mean=-0.0148330729 MCSE=0.0138577
+contrast P=2 source_M=0.0 mode=demography outcome=birth_yield all-block n=100 mean=1.31423386e-05 MCSE=2.18207e-05 all9-viable n=89 mean=-2.7552343e-08 MCSE=2.23714e-05
+contrast P=2 source_M=0.0 mode=demography outcome=recruit_yield all-block n=100 mean=-8.21817197e-06 MCSE=1.23444e-05 all9-viable n=89 mean=-6.00461604e-06 MCSE=1.24367e-05
+contrast P=2 source_M=0.0 mode=forage outcome=food all-block n=100 mean=-0.0013734375 MCSE=0.00338608 all9-viable n=100 mean=-0.0013734375 MCSE=0.00338608
+contrast P=2 source_M=0.0 mode=forage outcome=net all-block n=100 mean=-0.00118892826 MCSE=0.00196408 all9-viable n=100 mean=-0.00118892826 MCSE=0.00196408
+contrast P=2 source_M=0.0 mode=forage outcome=reward all-block n=100 mean=-0.00710963542 MCSE=0.01691 all9-viable n=100 mean=-0.00710963542 MCSE=0.01691
+contrast P=2 source_M=0.05 mode=demography outcome=birth_yield all-block n=100 mean=2.63622124e-05 MCSE=2.21727e-05 all9-viable n=87 mean=2.15264724e-05 MCSE=2.38509e-05
+contrast P=2 source_M=0.05 mode=demography outcome=recruit_yield all-block n=100 mean=5.07128141e-07 MCSE=1.10205e-05 all9-viable n=87 mean=6.16290656e-06 MCSE=1.18027e-05
+contrast P=2 source_M=0.05 mode=forage outcome=food all-block n=100 mean=-0.00210729167 MCSE=0.00374171 all9-viable n=100 mean=-0.00210729167 MCSE=0.00374171
+contrast P=2 source_M=0.05 mode=forage outcome=net all-block n=100 mean=-0.00115258609 MCSE=0.00206581 all9-viable n=100 mean=-0.00115258609 MCSE=0.00206581
+contrast P=2 source_M=0.05 mode=forage outcome=reward all-block n=100 mean=-0.0113572917 MCSE=0.0186807 all9-viable n=100 mean=-0.0113572917 MCSE=0.0186807
+contrast P=2 source_M=0.2 mode=demography outcome=birth_yield all-block n=100 mean=7.63557263e-05 MCSE=2.69776e-05 all9-viable n=97 mean=7.9446958e-05 MCSE=2.65979e-05
+contrast P=2 source_M=0.2 mode=demography outcome=recruit_yield all-block n=100 mean=4.18017584e-05 MCSE=1.10076e-05 all9-viable n=97 mean=4.23388477e-05 MCSE=1.12648e-05
+contrast P=2 source_M=0.2 mode=forage outcome=food all-block n=100 mean=-0.00100885417 MCSE=0.0033283 all9-viable n=100 mean=-0.00100885417 MCSE=0.0033283
+contrast P=2 source_M=0.2 mode=forage outcome=net all-block n=100 mean=-0.00228235225 MCSE=0.00218882 all9-viable n=100 mean=-0.00228235225 MCSE=0.00218882
+contrast P=2 source_M=0.2 mode=forage outcome=reward all-block n=100 mean=-0.00534557292 MCSE=0.0166343 all9-viable n=100 mean=-0.00534557292 MCSE=0.0166343
+PASS independent recomputation matches main block_contrasts.csv: 12,000 metric-by-block rows; mix, balanced control, delta, and all_viable agree to max absolute error 7.11e-15.
+PASS independent main-summary aggregation: all 240 summary rows' n, mean, and MCSE match from the seed-level block contrasts (max absolute error 4.44e-14).

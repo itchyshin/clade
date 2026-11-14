@@ -1,0 +1,36 @@
+{
+  "assessment_performed": true,
+  "draft_sha256": "109b6da8d170dd0f481c0910d36f56fd9888df09c55d19b2bf200b46130f0889",
+  "draft_version": "v1",
+  "requested_mode": "independent",
+  "assessor_type": "self",
+  "reviewer": "Codex integrator",
+  "method": "Post-draft self-review of exact saved text; separate scientific review checked findings and source limits.",
+  "genre": "Simulation protocol",
+  "coverage": "Whole exact draft",
+  "score": 3,
+  "style_status": "scored",
+  "score_reason": "Concrete experiment, outcomes and limits lead; protocol and validation records retain technical structure.",
+  "confidence": "moderate",
+  "confidence_reason": "Subjective editorial self-review without held-out calibration.",
+  "examples": [
+    {
+      "location": "Line 11",
+      "line": 11,
+      "quote": "The paired mixing effect is D=Ymix-(Y 1+...+Y 8)/8. Average D over 100 independent",
+      "cue": "The paired mixing effect",
+      "impact": "States the scientific question or comparator concretely.",
+      "repair": "no change needed"
+    }
+  ],
+  "evidence_none_reason": null,
+  "science_gate": "pass",
+  "science_gate_reason": "Compared stated estimand, margins, windows, paired block units and limits with frozen protocol, driver and summary outputs; independent review checked findings.",
+  "facts_gate": "pass",
+  "facts_gate_reason": "Raw ledgers, exact replay, independent block/summary audit, timing and file checksums support claims within stated scope; original metadata-label error remains explicit.",
+  "references_gate": "pass",
+  "references_gate_reason": "Named local reports, scripts and result files exist; source archives and commits are bound by checksums.",
+  "date": "2026-11-14",
+  "calibration_status": "No held-out style controls used; perceived style only.",
+  "interpretation": "perceived_style_not_authorship"
+}

@@ -1,0 +1,14 @@
+Independent scientific and prose review, 14 November 2026.
+Coverage: protocol/design, primary and demographic summaries, README,
+findings and after-task report. Reviewer: separate Fisher/Gauss perspective.
+Findings SHA256: eaf29ee6a4c87583b28d1c5abc5d12471e9720053b5767cdb01697856a8b82ab.
+Scientific findings and reported intervals pass the scoped review.
+All 5,400 primary worlds retain48 agents and all twelve primary confidence
+intervals lie within the prespecified margins. The demographic abundance
+comparison uses the average monoculture benchmark and includes all100 blocks.
+Energy clipping, synchronized founder ages, changing density/frequencies and
+diploid recombination limit interpretation. Complementarity, superiority to
+the best policy, lifetime fitness and general diversity benefits remain untested.
+Two remaining documentation edits were applied: README shell continuation
+uses one backslash; after-task audit coverage specifies n/mean/MCSE fields.
+The review is limited to the named sources and claims.

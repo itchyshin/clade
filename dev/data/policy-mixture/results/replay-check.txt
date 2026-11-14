@@ -1,0 +1,7 @@
+runs: all 108 first-seed rows and every field exactly reproduce full campaign
+windows: all 378 first-seed rows and every field exactly reproduce full campaign
+cohorts: all 21649 first-seed rows and every field exactly reproduce full campaign
+deaths: all 22270 first-seed rows and every field exactly reproduce full campaign
+panels: all 6 first-seed rows and every field exactly reproduce full campaign
+policies: all 48 first-seed rows and every field exactly reproduce full campaign
+Additional observer controls: all24 full-result equalities pass. Canonical death-record truth checked in every trial. See replay.time for isolated validation runtime.
