@@ -404,3 +404,4 @@ end
     include("test_ann_regularization.jl")
     include("test_lamarckian.jl")
 end
+include("test_group_defense.jl")
