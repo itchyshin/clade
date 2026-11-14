@@ -69,8 +69,8 @@ are presence/[d(d+1)]; docs state this explicitly.
 
 ## 9. What Did Not Go Smoothly
 
-Independent review caught invalid radii, a predator boundary mismatch and
-the misleading legacy R inspector. These were corrected and tested. The
+Independent review caught invalid radii, a predator boundary mismatch,
+the misleading legacy R inspector and rejection of older saved specs. These were corrected and tested. The
 app restart preserved all worktrees. Transfer copies remain recoverable
 in the original task worktree and a temporary archive.
 
@@ -105,3 +105,9 @@ moderate confidence; named test cases and explicit limits keep the account
 concrete. Science and facts checked against source and logs; references
 are repository source paths. Exact-draft completion check NOTASSESSED.
 Self-review, 14 November 2026.
+
+
+Saved-spec regression: validation accepts a missing sense_mode and
+run_alife records the per_cell default in returned metadata. The new
+regression failed before the fix; all six focused schema/live compatibility
+assertions pass after it. Explicit invalid values continue to fail.

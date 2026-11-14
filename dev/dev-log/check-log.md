@@ -673,3 +673,11 @@ Merged main c3c0731 (#201). Resolved append-only conflicts by retaining
 both log/decision/NEWS sections and all three Julia test includes. Julia
 suite now passes 202 assertions. Live R snapshot 14 and entropy 41 pass;
 config/spec-groups/spec-wiring/sense-mode pass 64. No failures or skips.
+
+
+### Saved-spec compatibility review
+
+Independent review reproduced R validation rejecting saved spec lists that
+predate sense_mode. The added regression failed before the fix. Validation
+now accepts an absent field (Julia defaults it to per_cell), while explicit
+invalid modes still fail. No saved-spec migration is required.

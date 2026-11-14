@@ -49,6 +49,7 @@
 #'   [search_map_elites()]
 #' @export
 run_alife <- function(specs = default_specs(), verbose = TRUE) {
+  if (!"sense_mode" %in% names(specs)) specs$sense_mode <- "per_cell"
   .clade_start_julia(verbose = verbose)
   .validate_specs(specs)
 
@@ -829,7 +830,8 @@ Rscript -e %s
   check_choice("brain_energy_mode",
                c("none", "size", "activity", "prediction_error"))
   check_choice("grass_growth_mode", c("stochastic", "deterministic"))
-  check_choice("sense_mode", c("per_cell", "weighted_sum"))
+  if ("sense_mode" %in% names(specs))
+    check_choice("sense_mode", c("per_cell", "weighted_sum"))
 
   if (!specs$ploidy %in% c(1L, 2L))
     stop("specs$ploidy must be 1L (haploid) or 2L (diploid).", call. = FALSE)
