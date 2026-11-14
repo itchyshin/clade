@@ -1,0 +1,36 @@
+{
+  "assessment_performed": true,
+  "draft_sha256": "0818a8eeed35b61cad97fa788336f03c5cffc419c0898825f3c438d5f17392b5",
+  "draft_version": "kernel-qualified-v2",
+  "requested_mode": "independent",
+  "assessor_type": "self",
+  "reviewer": "Codex integrator",
+  "method": "Post-draft source and wording review; separate independent source review confirmed the defect and reset ordering.",
+  "genre": "Source qualification and software validation record",
+  "coverage": "Added kernel qualification only; historical body is unchanged",
+  "score": 2,
+  "style_status": "scored",
+  "score_reason": "Specific biological mechanism and source boundary are stated directly; technical repetition is intentional.",
+  "confidence": "moderate",
+  "confidence_reason": "Subjective self-review, not a calibrated style or authorship detector.",
+  "examples": [
+    {
+      "location": "Line 3",
+      "line": 3,
+      "quote": "> **Kernel qualification, 14 November 2026.** These results describe a",
+      "cue": "> **Kernel qualification",
+      "impact": "Makes the changed biological mechanism and legacy evidence boundary visible.",
+      "repair": "no change needed"
+    }
+  ],
+  "evidence_none_reason": null,
+  "science_gate": "pass",
+  "science_gate_reason": "Within the stated review coverage, focal versus mate reproduction and semel mortality order match source and regression tests.",
+  "facts_gate": "pass",
+  "facts_gate_reason": "Checked the original missing reset, red regression, corrected source, Julia308 and R29/two-warning receipts; original numerical data were retained.",
+  "references_gate": "not_applicable",
+  "references_gate_reason": "Only local source/report links; referenced after-task report exists.",
+  "date": "2026-11-14",
+  "calibration_status": "Protocol guidance read; no held-out style controls used.",
+  "interpretation": "perceived_style_not_authorship"
+}
