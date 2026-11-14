@@ -10,6 +10,10 @@ stopifnot(nrow(d)==6*ns,!anyDuplicated(key(d)),setequal(key(d),key(expected)),
  all(d$final_tick>=1 & d$final_tick<=horizon),all(d$initial_diversity>0),
  all((d$final_agents<2)==is.na(d$between)),
  all(d$final_haploid_fraction[d$final_agents>0]==as.numeric(d$ploidy[d$final_agents>0]==1)))
+for(metric in c("final_diversity","between","within","deterministic_disagreement")) {
+ stopifnot(all(is.na(d[[metric]])==(d$final_agents<2)),all(is.finite(d[[metric]][d$final_agents>=2])))
+}
+stopifnot(all(d$final_agents>=0),all(d$assay_draws>0),all(grepl("^[0-9a-f]{64}$",d$initial_fingerprint)))
 blocks<-interaction(d[c("ploidy","seed")],drop=TRUE)
 stopifnot(all(vapply(split(d$initial_fingerprint,blocks),function(z)length(unique(z))==1,logical(1))))
 i<-match(key(x),key(d)); stopifnot(!anyNA(i),all(x$n==d$final_agents[i]),all(x$draws==d$assay_draws[i]))
@@ -60,14 +64,14 @@ paired<-do.call(rbind,pairs);write.csv(paired,file.path(out,"paired_contrasts.cs
 cat("Complete design:",nrow(d),"runs;",nlevels(blocks),"matched founder blocks;",nrow(x),"assay contexts\n")
 cat("Independent recovery of B/W from integer sufficient statistics: passed\n")
 print(with(d,table(ploidy,mutation_sd,viability)))
-print(paired[paired$metric%in%c("between","within","final_diversity"),],row.names=FALSE)
 writeLines(capture.output(sessionInfo()),file.path(out,"R-session-info.txt"))
 # Threshold flags remain provisional until endpoint-only precision checks pass.
 rf<-file.path(out,"reassay.csv")
 if(file.exists(rf)) {
- r<-read.csv(rf);stopifnot(nrow(r)==6*min(10,ns),!anyDuplicated(key(r)))
- expected_reassay<-expected[expected$seed<=20000+min(10,ns),]
+ r<-read.csv(rf);stopifnot(!anyDuplicated(key(r)))
+ expected_reassay<-d[d$seed<=20000+min(10,ns) & d$final_agents>=2,keys]
  stopifnot(setequal(key(r),key(expected_reassay)))
+ stopifnot(all(is.finite(r$between)),all(is.finite(r$within)))
  ri<-match(key(r),key(d));r$original_between<-d$between[ri];r$viability<-d$viability[ri]
  stopifnot(all(r$draws==4*d$assay_draws[ri]))
  r$error<-r$between-r$original_between
@@ -76,7 +80,7 @@ if(file.exists(rf)) {
  classify<-function(s)if(s["lower"]>.00625)"above" else if(s["upper"]<.00625)"below" else "uncertain"
  for(p in 1:2)for(m in c(.05,.2)) {
   z<-r[r$ploidy==p,];lo<-z[z$mutation_sd==0,];hi<-z[z$mutation_sd==m,];hi<-hi[match(lo$seed,hi$seed),]
-  keep<-lo$viability=="viable" & hi$viability=="viable"
+  keep<-!is.na(hi$seed) & lo$viability=="viable" & hi$viability=="viable"
   original<-hi$original_between[keep]-lo$original_between[keep]
   repeated<-hi$between[keep]-lo$between[keep]
   u<-stats(original);v<-stats(repeated);err<-stats(repeated-original)
@@ -95,3 +99,5 @@ if(file.exists(rf)) {
  write.csv(paired,file.path(out,"paired_contrasts.csv"),row.names=FALSE,na="NA")
  print(precision,row.names=FALSE)
 }
+
+print(paired[paired$metric%in%c("between","within","final_diversity"),],row.names=FALSE)

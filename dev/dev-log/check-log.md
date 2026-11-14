@@ -835,3 +835,12 @@ assertion. Saved-spec compatibility fix is included from #203.
   to existing action_exploration_epsilon before campaign source is pinned.
 - No simulations launched on Totoro yet. Next: local tests/toy output,
   timed12-run full-horizon pilot, actual viability, then measured full estimate.
+- Local Julia suite295 assertions pass; six-run two-tick output and R
+  analysis smoke pass. Independent-bank arithmetic recovers the known
+  opposite-bias value1 and cloned-brain value0; negative finite-draw
+  cross-products are retained. Threshold flags remain provisional until
+  the same both-viable first10 pairs pass the fourfold-draw precision check.
+- Totoro pilot12 runs at1000 ticks: exit0,21.60 seconds,peak440732 KiB.
+  All12 viable, four initial-state blocks matched, exact fixed endpoint
+  ploidy and sigma .5. Full600 plus first10-block reassay launched at
+  source7a2d78b9fa4efbd6f6ab5553f00f0422491ffa80, estimate25 minutes.
