@@ -909,3 +909,14 @@ assertion. Saved-spec compatibility fix is included from #203.
   does not claim population intake alone measures inherent foraging skill.
 - Next: full Julia suite, tiny output/analysis, pinned-source Totoro pilot,
   then measured full-run estimate. No Totoro performance run started yet.
+- Full local Julia suite326 assertions pass, including an oracle policy
+  that obtains five times uniform-choice intake and independent cohort
+  censoring/death fixtures. Live R-to-Julia entropy41 and sensory14 pass.
+- Totoro pilot12 runs:21.54 seconds,peak431076 KiB,exit0; all12 viable,
+  four matched founder blocks, all endpoint brains exactly match prior
+  archived states. Analysis validates4857 birth cohorts and120 garden rows.
+- Full600 replay and60-population256-draw reassay launched at source
+  121b0a4b9d12e02881e7ef004a0f740319ab414f, estimate25 minutes. Progress
+  meter uses completion receipt; actual row counts provide run progress.
+- PR205 merged only after all exact-head checks settled green. Its main
+  R-CMD-check,coverage and pkgdown workflows all completed successfully.
