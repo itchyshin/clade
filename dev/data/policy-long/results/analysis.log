@@ -1,0 +1,39 @@
+, , viability = crashed
+
+      food_rate
+ploidy 0.0125 0.025
+     1    582     0
+     2    388     0
+
+, , viability = viable
+
+      food_rate
+ploidy 0.0125 0.025
+     1    234   900
+     2    380   900
+
+, , viability = weak
+
+      food_rate
+ploidy 0.0125 0.025
+     1     84     0
+     2    132     0
+
+ ploidy food_rate tick     metric guard   n all9_viable   mix  control     mean
+      1    0.0125 1000    extinct   all 100           0  0.18  0.27750 -0.09750
+      2    0.0125 1000    extinct   all 100           0  0.06  0.12125 -0.06125
+      1    0.0250 1000    extinct   all 100         100  0.00  0.00000  0.00000
+      2    0.0250 1000    extinct   all 100         100  0.00  0.00000  0.00000
+      1    0.0125 1000 population   all 100           0 13.85 16.79625 -2.94625
+      2    0.0125 1000 population   all 100           0 20.47 22.89125 -2.42125
+      1    0.0250 1000 population   all 100         100 63.64 61.46000  2.18000
+      2    0.0250 1000 population   all 100         100 57.65 56.74000  0.91000
+      lower       upper   relative relative_lower relative_upper
+ -0.1773137 -0.01768631         NA             NA             NA
+ -0.1114153 -0.01108466         NA             NA             NA
+  0.0000000  0.00000000         NA             NA             NA
+  0.0000000  0.00000000         NA             NA             NA
+ -5.2480204 -0.64447957 -17.541118     -29.703067      -3.640925
+ -4.6427472 -0.19975276 -10.577186     -19.580034      -1.441789
+  1.1568093  3.20319067   3.547022       1.845710       5.194124
+ -0.1732903  1.99329029   1.603807      -0.345332       3.397185

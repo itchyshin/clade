@@ -1,0 +1,36 @@
+{
+  "assessment_performed": true,
+  "draft_sha256": "cd52043c909094a9f73b39134edf7984a3ada658b41a35491a500493800b3841",
+  "draft_version": "v1",
+  "requested_mode": "independent",
+  "assessor_type": "self",
+  "reviewer": "Codex",
+  "method": "Post-draft self-review against source tables, independent raw audit and checks.",
+  "genre": "Simulation research record",
+  "coverage": "Whole exact draft",
+  "score": 2,
+  "style_status": "scored",
+  "score_reason": "Concrete design, estimates and limitations.",
+  "confidence": "moderate",
+  "confidence_reason": "Uncalibrated editorial self-review.",
+  "examples": [
+    {
+      "location": "Line 3",
+      "line": 3,
+      "quote": "At half the original food-regrowth rate, mixed haploid populations retain a",
+      "cue": "At half the original",
+      "impact": "States the task or result directly.",
+      "repair": "no change needed"
+    }
+  ],
+  "evidence_none_reason": null,
+  "science_gate": "pass",
+  "science_gate_reason": "Contrasts and uncertainty checked against source tables; simultaneous age and food changes are explicit.",
+  "facts_gate": "pass",
+  "facts_gate_reason": "Pilot, full run, independent raw audit, replay and hashes checked.",
+  "references_gate": "pass",
+  "references_gate_reason": "Local source and archived artifact identities checked.",
+  "date": "2026-11-14",
+  "calibration_status": "No held-out controls.",
+  "interpretation": "perceived_style_not_authorship"
+}
