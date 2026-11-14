@@ -66,3 +66,9 @@ end
  @test length(r.cohorts)==sum(r.births)
  @test all(c.survived_100==-1 for c in r.cohorts if c.followup_tick>110)
 end
+@testset "Independent performance-assay RNG keys" begin
+ keys=Set(PerformanceAssay.garden_seed(s,i,c,r) for s in 20001:20002 for i in 1:2 for c in 1:10 for r in 1:1024)
+ @test length(keys)==2*2*10*1024
+ @test PerformanceAssay.garden_seed(20001,1,1,1)!=PerformanceAssay.garden_seed(20001,2,1,1)
+ @test_throws ArgumentError PerformanceAssay.garden_seed(20001,1,1,65536)
+end

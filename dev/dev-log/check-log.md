@@ -920,3 +920,22 @@ assertion. Saved-spec compatibility fix is included from #203.
   meter uses completion receipt; actual row counts provide run progress.
 - PR205 merged only after all exact-head checks settled green. Its main
   R-CMD-check,coverage and pkgdown workflows all completed successfully.
+
+### Performance assay numerical refinement, before interpreting benefit
+
+- All600 population replays complete and exactly match prior endpoints.
+  Independent audit passes raw design, exposure, cohort and energy ledgers.
+  Initial garden precision fails all4 gates; max numerical MCSE .00654,
+  with one first10 classification changing. No garden benefit/equivalence
+  claim is accepted from that version. Raw64/256 outputs are preserved.
+- Independent review approves independent RNG across brain indices for
+  linear mean reward, still paired by index/case/repetition across M.
+  This is a numerical variance change, not an intervention or agent match.
+  Old population simulations and behavioural-distance assay are untouched.
+- Repeat only all600 gardens at256 trials and first10 blocks at1024.
+  Frozen bit-packed keys exclude M and are collision-tested. Same5%
+  margin and precision/classification gates. Estimate20 minutes from
+  measured57.58s for60 populations at256 trials, before this phase starts.
+- Analysis initially rebuilt cohort string keys repeatedly; stopped only
+  that analysis process, cached group indices and reran. No simulation or
+  raw output was interrupted or replaced.

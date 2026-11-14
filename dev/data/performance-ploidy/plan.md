@@ -95,3 +95,23 @@ OPENBLAS_NUM_THREADS=1,JULIA_NUM_THREADS=4. Reuse saved endpoint states;
 never rerun the older behavioural assay merely to create activity. Archive
 source, raw sufficient statistics, per-birth cohort records, timings and
 checksums. No simulations on GitHub Actions.
+
+## Numerical refinement after the first precision check
+
+The original64/256-draw assay failed its numerical gate in all four
+comparisons (maximum paired numerical MCSE .00654 grass/trial). Its common
+noise across all brains made population-average rewards unnecessarily
+variable. Preserve those data and their failed precision receipt.
+
+For this linear mean-reward assay, use independent trials across brain
+indices, paired by index/case/repetition across mutation treatments.
+This changes numerical variance, not the reward estimand; index pairing
+is not biological matching of individuals. Do not alter the earlier
+cross-bank behavioural-distance assay. Repeat all600 gardens at256 draws
+and the first10 blocks at1024 draws, without repeating population dynamics.
+Use stable collision-free bit-packed RNG keys and retain the same benefit
+margin and precision/classification gates. Original simulation controls,
+biological hypotheses, seed count and cohort definitions stay fixed.
+Measured60-population256-draw time57.58s implies about13.5 minutes plus
+compilation; conservative new-phase estimate20 minutes. This refinement
+was recorded before examining its outcomes.

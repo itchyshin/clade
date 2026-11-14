@@ -71,6 +71,13 @@ function one_step!(env,brain,location,amount,seed)
     (food=eaten,net=energy(env)-before,action=Int(a.last_action))
 end
 
+# Collision-free keys: paired across treatments, independent across brain indices.
+function garden_seed(seed,index,case,rep)
+    0<=seed<2^24 && 0<index<2^16 && 0<case<2^8 && 0<rep<2^16 ||
+        throw(ArgumentError("garden RNG key outside supported range"))
+    (UInt64(seed)<<40) | (UInt64(case)<<32) | (UInt64(index)<<16) | UInt64(rep)
+end
+
 function garden(brains,ploidy,seed;draws=64)
     isempty(brains) && throw(ArgumentError("brains required"))
     draws>0 || throw(ArgumentError("positive draws required"))
@@ -81,10 +88,10 @@ function garden(brains,ploidy,seed;draws=64)
     rows=NamedTuple[]
     for (level,amount) in enumerate((.5,20.0)),location in 1:5
         food=0.0;net=0.0;success=0;idle=0;trials=length(brains)*draws
-        for original in brains
+        for (index,original) in enumerate(brains)
             brain=deepcopy(original)
             for rep in 1:draws
-                trial_seed=Int(90000000+1000000*seed+10000*(5*(level-1)+location)+rep)
+                trial_seed=garden_seed(seed,index,5*(level-1)+location,rep)
                 r=one_step!(env,brain,location,amount,trial_seed)
                 food+=r.food;net+=r.net;success+=r.food>0;idle+=r.action==5
             end

@@ -13,8 +13,9 @@ if(nrow(c)) {
  c$observed<-tolower(as.character(c$followup_observed))=="true"
  stopifnot(!anyDuplicated(paste(key(c),c$id)),all(c$followup_tick==c$birth_tick+100),all(c$observed==(c$followup_tick<=H)),all(is.na(c$survived_100)==!c$observed),all(c$survived_100[c$observed]%in%c(0,1)))
 }
-for(i in seq_len(nrow(r)))stopifnot(sum(key(c)==rk[i])==r$total_births[i])
-for(i in seq_len(nrow(w))){idx<-key(c)==key(w)[i] & c$birth_tick>=w$start_tick[i] & c$birth_tick<=w$cohort_end_tick[i];stopifnot(sum(idx)==w$cohort_births[i],sum(c$survived_100[idx])==w$recruits_100[i])}
+cohort_rows<-split(seq_len(nrow(c)),key(c));wk<-key(w)
+for(i in seq_len(nrow(r)))stopifnot(length(cohort_rows[[rk[i]]])==r$total_births[i])
+for(i in seq_len(nrow(w))){idx<-cohort_rows[[wk[i]]];idx<-idx[c$birth_tick[idx]>=w$start_tick[i] & c$birth_tick[idx]<=w$cohort_end_tick[i]];stopifnot(length(idx)==w$cohort_births[i],sum(c$survived_100[idx])==w$recruits_100[i])}
 check_garden<-function(g,expected_runs,draws=NULL) {
  expected_keys<-as.vector(outer(key(expected_runs),paste(rep(c(.5,20),each=5),1:5,sep="@"),paste,sep="@"))
  actual<-paste(key(g),g$amount,g$location,sep="@")
@@ -64,7 +65,7 @@ for(p in 1:2)for(metric in unique(v$metric)) {
 summaries<-do.call(rbind,summaries);paired<-do.call(rbind,pairs)
 precision<-NULL
 if(file.exists(file.path(out,"reassay.csv"))) {
- rg<-read.csv(file.path(out,"reassay.csv"));er<-r[r$seed<=20000+min(10,ns),];check_garden(rg,er,256)
+ rg<-read.csv(file.path(out,"reassay.csv"));er<-r[r$seed<=20000+min(10,ns),];stopifnot(length(unique(g$draws))==1);check_garden(rg,er,4*unique(g$draws))
  ra<-garden_rates(rg);ga10<-ga[match(key(ra),key(ga)),];precision<-list();idx<-0
  for(p in 1:2)for(m in c(.05,.2)){
   ix0<-which(ra$ploidy==p & ra$mutation_sd==0);ix1<-match(paste(p,m,ra$seed[ix0],sep="|"),key(ra))
