@@ -644,6 +644,23 @@ important project state. Keep entries concise and concrete.
 - Next: integrate current main, rerun affected tests, open focused PR.
 
 
+## 2026-11-14: Kernel ownership and mutation-path decision
+
+- Branch: codex/kernel-maintenance-decisions, main d012fe0.
+- Goal: record Shinichi's ownership correction and resolve #111's mutation
+  duplication question using current source.
+- Changed AGENTS.md and added dev/design/mutation-paths.md; decision and
+  after-task records explain why the two mutation paths remain separate.
+- Reviewed meiosis calls in genome.jl, predator reproduction in
+  modules/tick_predators.jl, and mutate methods in brains/{ann,bnn,ctrnn,grn}.jl.
+- Searches: `Sergio|Track A|Track B|coordination` in AGENTS.md;
+  `_mutate_weights|mutate\(` in Julia source. Only historical ownership
+  context remains. No source code or public API changed.
+- Checks: git diff --check clean; after-task structure and prose checks
+  passed. No simulation or package suite rerun for this documentation change.
+- Next: merge the decision record, then close #111 with the source rationale
+  in the final issue sweep. Do not infer a v0.8 reset from this record.
+
 ## 2026-11-14: Action entropy and distinct genetic pairs
 
 - Branch: codex/diversity-metrics, based on main d012fe0 (includes #200).

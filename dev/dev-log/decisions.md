@@ -210,6 +210,20 @@ built lists retain the legacy display fallback; weighted sensing requires
 a saved snapshot. Snapshots describe final state, not a historical decision
 or stochastic brain replay.
 
+## 2026-11-14: Kernel ownership and mutation paths
+
+Shinichi confirmed that Sergio no longer works on clade and that the AI
+integrator now owns the remaining Julia work. AGENTS.md removes the old
+Sergio reservation; existing branch and file-lease checks remain in force.
+PR #122 remains historical reset scoping, not a live ownership boundary.
+
+Resolve #111 by documenting the distinct genome-allele and predator-brain
+mutation paths in dev/design/mutation-paths.md. Retain both operations:
+prey offspring inherit mutated genome alleles, while predator offspring
+currently receive a directly mutated brain. Architecture-specific state
+handling makes consolidation a biological design change rather than a
+safe duplication cleanup. No simulation behavior changes in this decision.
+
 ## 2026-11-14: Action diversity and genetic pair sampling
 
 For #164, action diversity is H = -sum(p_a log(p_a)) in nats over the
