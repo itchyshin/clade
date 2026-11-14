@@ -749,3 +749,70 @@ trailing whitespace from captured output; numeric results unchanged.
 The source metric is RMS genome-weight distance, nonnegative without a fixed
 upper bound of one; removed the review script's unsupported upper-bound
 assertion. Saved-spec compatibility fix is included from #203.
+
+
+## 2026-11-14: Matched-founder experiment setup
+
+- User authorized a matched-founder experiment on Totoro. Branch:
+  codex/matched-founder-experiment, base main 13430c1; narrow file lease.
+- Minimal private _run_clade initializer seam reuses the canonical loop.
+  Public functions/defaults unchanged. Runner holds reference scalar traits
+  fixed, rescales founder alleles, then restores offspring mutation specs.
+- Design: 2 worlds x 3 founder SDs x 3 mutation SDs x 2 BNN exploration
+  modes x 100 seeds = 3600 runs. Fixed exploration is primary; default
+  heterozygosity is sensitivity. Plan and analysis in dev/data/matched-founders/.
+- Checks: Julia suite 277 assertions pass, exit 0. Independent prior-source
+  five-seed full-result parity 5/5. Live R entropy/extractor 41 and sensory
+  snapshot 14 pass. Tiny 72-run output/analysis smoke passes.
+- Tests of tests: missing initializer first failed; zero-founder/zero-M
+  control remains zero and positive-M offspring generate variation.
+  Initial state hashes agree across M. An incomplete-world CSV fixture is
+  rejected by the exact Cartesian design check. Existing-output guard passes.
+- First numeric check incorrectly compared normalized Float32 mutation to a
+  Float64 literal; assertion now checks the actual Float32 contract.
+- Independent review required fixed-exploration control and complete run/
+  trajectory keys. Both addressed. No scientific campaign started yet.
+- Next: commit exact source, timed 72-run Totoro pilot at 1000 ticks,
+  inspect match/data/viability checks, estimate and run full campaign.
+
+## 2026-11-14: Matched-founder campaign completed on Totoro
+
+- Branch codex/matched-founder-experiment; draft PR #204. Simulation source
+  07bc4949b9ff9fe64119335736897dbe7e960af8. Source archive and canonical
+  outputs: ~/sim-archive/clade/2026-11-14-matched-founders on Totoro.
+- Command: OPENBLAS_NUM_THREADS=1 JULIA_NUM_THREADS=4 julia +1.10.0
+  --project=inst/julia inst/julia/scripts/matched_founders.jl 100 OUTDIR 1000.
+  The 72-run pilot took 31.27 seconds; estimate stated before full launch:
+  30 minutes. Full 3600 runs completed in 16:25.48, peak 429372 KiB, exit 0.
+- All 36 cells, 1200 complete matched-state hash blocks and 400 zero/zero
+  controls passed. Independent raw-data audit: 26 checks pass; 193 extinct,
+  13 singleton, 3394 pairwise-measurable endpoints; 39792 trace rows with
+  all 238 post-termination rows correctly missing. Audit checker corrected
+  its expected founder-scaling stratum count from 360 to 1200 before rerun.
+- Final Rscript dev/data/matched-founders/analyze.R OUTDIR 100 and plot.R
+  OUTDIR passed. Added direct singleton intervals after pilot review.
+  Actual viability_report: fixed low-cost 900 viable, high-cost 0 viable;
+  usual exploration low-cost 899 viable/1 weak, high-cost 2 viable.
+- Separate-process seed10001 replay of all 36 conditions: all 19 columns
+  in 36 run rows and all 9 columns in 396 trajectory rows exactly identical.
+- Full local Julia suite now 278 pass after independent three-genome exact
+  distance fixture. Portable R suite passes with 647 gated skips; live R
+  boundary 55 assertions pass. Independent previous-source parity 5/5.
+- devtools::check(document=FALSE,args="--no-manual",error_on="error"):
+  0 errors, 3 warnings, 5 notes; includes vignette rebuild and passing tests.
+  Warnings are unchanged non-ASCII R source and undeclared optional NLMR/
+  yaml dependencies. Notes include temporary graft cache and existing
+  docs findings. This is not a clean release check; cache not committed.
+- Scientific review: scope founder attenuation to the low-cost world.
+  High-cost default interaction interval includes zero and both-viable
+  paired diversity has no eligible pairs. No fitness or ancestry-fraction
+  claim. Compressed raw evidence, summary contrasts and checksums saved
+  under dev/data/matched-founders/results; findings explain denominators.
+- Searches: rg 'matched.founder|founder.*mutation|mutation.*founder' and
+  rg 'TODO|FIXME|not implemented|planned.*implemented' over experiment,
+  runner and tests; no stale implementation claims. git diff --check clean.
+- No public API/default/spec changes; no roxygen generation needed. No
+  other architectures, optional modules, longer horizons or biological
+  calibration tested. After-task report records limits and next action.
+- Next safest action: review PR #204 and interpret behavioural consequences
+  in viable populations with ploidy controlled. No new Bhavya message.

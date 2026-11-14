@@ -340,6 +340,12 @@ Returns a NamedTuple with fields:
 run_clade(specs) = run_clade(r_specs_to_dict(specs))
 
 function run_clade(user_specs::AbstractDict)
+    _run_clade(user_specs, create_environment)
+end
+
+# Internal seam for controlled starting states; the public path uses
+# create_environment and shares this same tick loop.
+function _run_clade(user_specs::AbstractDict, initialize)
     # Normalize
     specs = normalize_specs(user_specs)
 
@@ -357,7 +363,7 @@ function run_clade(user_specs::AbstractDict)
         specs["_movement_log"] = nothing
     end
 
-    env = create_environment(specs)
+    env = initialize(specs)
     max_t = Int(specs["max_ticks"])
     verbose = Bool(get(specs, "verbose", false))
 
