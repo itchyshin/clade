@@ -4,7 +4,7 @@ r<-read.csv(file.path(out,"runs.csv"));w<-read.csv(file.path(out,"windows.csv"))
 keys<-c("ploidy","mutation_sd","seed");key<-function(d)do.call(paste,c(d[keys],sep="|"))
 expected<-expand.grid(ploidy=1:2,mutation_sd=c(0,.05,.2),seed=20001:(20000+ns));rk<-key(r)
 stopifnot(nrow(r)==6*ns,!anyDuplicated(rk),setequal(rk,key(expected)),all(r$final_tick<=H),all(r$final_agents>=0),all(50+r$total_births-r$total_deaths==r$final_agents))
-stopifnot(all(r$final_haploid_fraction==as.integer(r$ploidy==1)))
+stopifnot(all(is.na(r$final_haploid_fraction)==(r$final_agents==0)),all(r$final_haploid_fraction[r$final_agents>0]==as.integer(r$ploidy[r$final_agents>0]==1)))
 blocks<-interaction(r[c("ploidy","seed")],drop=TRUE);stopifnot(all(vapply(split(r$initial_fingerprint,blocks),function(z)length(unique(z))==1,logical(1))))
 stopifnot(nrow(w)==2*nrow(r),!anyDuplicated(paste(key(w),w$window)),setequal(paste(key(w),w$window),as.vector(outer(rk,c("full","late"),paste))))
 stopifnot(all(w$agent_ticks==w$post_agent_ticks+w$n_at_start-w$n_at_end),all(w$n_at_end==w$n_at_start+w$births-w$deaths),all(w$food>=0 & w$food<=2*w$agent_ticks),all(w$starvations<=w$deaths))
@@ -22,26 +22,40 @@ check_garden<-function(g,expected_runs,draws=NULL) {
  stopifnot(!anyDuplicated(actual),setequal(actual,expected_keys),all(g$trials>0),all(g$successes>=0 & g$successes<=g$trials),all(g$idle_choices>=0 & g$idle_choices<=g$trials),all(g$food==g$successes*pmin(g$amount,2)))
  # BNN architecture 11-8-5:282 parameters,brain cost .001*282+.5/5=.382.
  expected_net<-5*g$food-1.382*g$trials+.5*g$idle_choices
- stopifnot(max(abs(g$net_energy-expected_net)/g$trials)<2e-5)
+ if(nrow(g))stopifnot(max(abs(g$net_energy-expected_net)/g$trials)<2e-5)
  if(!is.null(draws))stopifnot(all(g$draws==draws))
  invisible(TRUE)
 }
-check_garden(g,r)
+check_garden(g,r[r$final_agents>0,])
 ni<-match(key(g),rk);stopifnot(all(g$trials==r$final_agents[ni]*g$draws))
+b<-read.csv(file.path(out,"behavior.csv"));bk<-key(b)
+expected_b<-unlist(lapply(which(r$final_agents>=2),function(i)paste(rk[i],1:48,sep="@")))
+stopifnot(!anyDuplicated(paste(bk,b$context,sep="@")),setequal(paste(bk,b$context,sep="@"),expected_b))
+if(nrow(b)) {
+ A<-as.matrix(b[paste0("a",1:5)]);B<-as.matrix(b[paste0("b",1:5)])
+ stopifnot(all(rowSums(A)==b$n*b$draws),all(rowSums(B)==b$n*b$draws))
+ reconstructed<-(b$n*b$cross-rowSums(A*B))/(b$n*(b$n-1)*b$draws^2)
+ stopifnot(max(abs(reconstructed-b$between))<1e-12,max(abs(1-b$cross/(b$n*b$draws^2)-b$within))<1e-12)
+ for(metric in c("between","within","deterministic_disagreement")) {
+  z<-aggregate(b[[metric]],list(key=bk),mean)
+  stopifnot(max(abs(z$x-r[[metric]][match(z$key,rk)]))<1e-12)
+ }
+}
+for(metric in c("between","within","deterministic_disagreement"))stopifnot(all(is.na(r[[metric]])==(r$final_agents<2)))
 scope<-new.env(parent=globalenv());sys.source("R/analysis.R",envir=scope)
 r$viability<-vapply(seq_len(nrow(r)),function(i)scope$viability_report(data.frame(t=c(r$tick_of_min[i],r$final_tick[i]),n_agents=c(r$min_population[i],r$final_agents[i])),n_agents_init=50)$verdict,character(1))
 write.csv(r,file.path(out,"runs_with_viability.csv"),row.names=FALSE,na="NA")
 stat<-function(z){z<-z[is.finite(z)];n<-length(z);m<-if(n)mean(z)else NA_real_;se<-if(n>1)sd(z)/sqrt(n)else NA_real_;h<-if(n>1)qt(.975,n-1)*se else NA_real_;c(n=n,mean=m,mcse=se,lower=m-h,upper=m+h)}
 ratio<-function(x,y)ifelse(y>0,x/y,NA_real_)
-garden_rates<-function(g){z<-data.frame(g[keys],food=g$food/g$trials,net=g$net_energy/g$trials);aggregate(z[c("food","net")],z[keys],mean)}
+garden_rates<-function(g){if(!nrow(g))return(data.frame(ploidy=integer(),mutation_sd=numeric(),seed=integer(),food=numeric(),net=numeric()));z<-data.frame(g[keys],food=g$food/g$trials,net=g$net_energy/g$trials);aggregate(z[c("food","net")],z[keys],mean)}
 ga<-garden_rates(g)
 values<-list();i<-0
 for(j in seq_len(nrow(r))) {
  z<-r[j,];gw<-ga[match(rk[j],key(ga)),]
- metrics<-c(garden_food=gw$food,garden_net=gw$net,final_agents=z$final_agents,total_births=z$total_births)
+ metrics<-c(garden_food=gw$food,garden_net=gw$net,final_agents=z$final_agents,total_births=z$total_births,between=z$between,within=z$within,deterministic_disagreement=z$deterministic_disagreement)
  for(win in c("late","full")){
   x<-w[key(w)==rk[j] & w$window==win,]
-  metrics<-c(metrics,setNames(c(ratio(x$food,x$agent_ticks),ratio(x$net_energy,x$agent_ticks),1000*ratio(x$births,x$agent_ticks),1000*ratio(x$deaths,x$agent_ticks),ratio(x$recruits_100,x$cohort_births),1000*ratio(x$recruits_100,x$cohort_agent_ticks)),paste0(win,c("_food","_net","_birth_yield","_death_yield","_survival100","_recruit_yield"))))
+  metrics<-c(metrics,setNames(c(ratio(x$food,x$agent_ticks),ratio(x$net_energy,x$agent_ticks),1000*ratio(x$births,x$agent_ticks),1000*ratio(x$deaths,x$agent_ticks),ratio(x$recruits_100,x$cohort_births),1000*ratio(x$recruits_100,x$cohort_agent_ticks),x$capacity_ticks/(x$end_tick-x$start_tick+1)),paste0(win,c("_food","_net","_birth_yield","_death_yield","_survival100","_recruit_yield","_capacity_fraction"))))
  }
  for(metric in names(metrics)){i<-i+1;values[[i]]<-data.frame(z[keys],viability=z$viability,metric=metric,value=unname(metrics[metric]),row.names=NULL)}
 }
@@ -65,7 +79,7 @@ for(p in 1:2)for(metric in unique(v$metric)) {
 summaries<-do.call(rbind,summaries);paired<-do.call(rbind,pairs)
 precision<-NULL
 if(file.exists(file.path(out,"reassay.csv"))) {
- rg<-read.csv(file.path(out,"reassay.csv"));er<-r[r$seed<=20000+min(10,ns),];stopifnot(length(unique(g$draws))==1);check_garden(rg,er,4*unique(g$draws))
+ rg<-read.csv(file.path(out,"reassay.csv"));er<-r[r$seed<=20000+min(10,ns) & r$final_agents>0,];stopifnot(length(unique(g$draws))==1);check_garden(rg,er,4*unique(g$draws))
  ra<-garden_rates(rg);ga10<-ga[match(key(ra),key(ga)),];precision<-list();idx<-0
  for(p in 1:2)for(m in c(.05,.2)){
   ix0<-which(ra$ploidy==p & ra$mutation_sd==0);ix1<-match(paste(p,m,ra$seed[ix0],sep="|"),key(ra))

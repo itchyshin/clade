@@ -1,5 +1,9 @@
 # Foraging and reproductive performance at fixed ploidy
 
+> Protocol revision: the legacy replay assumptions below were superseded
+> after a confirmed iteroparous reproduction defect. The current corrected
+> protocol is specified at the end; legacy data remain source-bound.
+
 ## Aim and controls
 
 Replay the same 600 populations from the behavioural study: 100 matched
@@ -115,3 +119,40 @@ biological hypotheses, seed count and cohort definitions stay fixed.
 Measured60-population256-draw time57.58s implies about13.5 minutes plus
 compilation; conservative new-phase estimate20 minutes. This refinement
 was recorded before examining its outcomes.
+
+## Corrected kernel protocol, superseding legacy replay assumptions
+
+The original reproduced flag was never reset. It restricted default
+iteroparous agents to one focal episode/lifetime, despite documentation.
+A focused correction resets survivors after mortality, before reproduction,
+with successive-tick and semelparous timing regressions. Earlier600-run
+outputs and precision failures are retained as legacy diagnostics, not
+results for the corrected model.
+
+Generate fresh populations under the SAME exogenous controls, seed blocks,
+founder spread, ploidy, exploration and1000-tick horizon. Archive NEW
+endpoint brains and use them in every corrected common-garden assay.
+Do not require equality to legacy endpoint brains or mix legacy gardens
+with corrected demography. Observer-on/off corrected-source result parity
+is tested separately and in the first-seed six-condition replay.
+
+Recheck behavioural policy heterogeneity using the existing independent-
+bank BehaviourAssay on corrected endpoints (64 draws per bank). This is
+supporting verification; performance endpoints, time windows,5% reporting
+margin, cohort censoring and precision gates stay as specified above.
+Record capacity-bound ticks alongside birth yield to expose ecological
+ceilings. Never interpret a capacity-limited birth rate as intrinsic
+reproductive potential or biological fitness.
+
+Use independent trial streams across brain indices for mean-reward
+estimation, paired by index/case/repetition across M. Start corrected
+gardens at64 draws and first10 blocks at256; larger population samples
+may improve numerical precision. If gates fail, refine only garden draws
+on the corrected saved brains. Biological parameters and seed count remain
+fixed. Numerical refinement is documented before any benefit claim.
+
+Corrected full-horizon pilot is one seed per cell (six runs), estimated
+under5 minutes before launch. Verify viability and measure runtime before
+committing the600-run campaign. Separate process shards may be used with
+disjoint seed blocks and identical code if measured runtime warrants it;
+combined design keys and all RNG/source checks must pass.

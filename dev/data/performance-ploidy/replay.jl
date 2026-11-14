@@ -1,12 +1,14 @@
 # Same-machine exact replay and independent cohort truth from canonical deaths.
 include(joinpath(@__DIR__,"..","..","..","inst","julia","scripts","performance_assay.jl"))
-length(ARGS)==2 || error("usage: replay.jl STATE_DIR NEW_OUTDIR")
-PerformanceAssay.study(1,ARGS[2],ARGS[1];draws=64,max_ticks=1000)
+length(ARGS)==1 || error("usage: replay.jl NEW_OUTDIR")
+PerformanceAssay.study(1,ARGS[1];draws=64,max_ticks=1000)
 checked=0
-open(joinpath(ARGS[2],"cohort_truth.csv"),"w") do io
+open(joinpath(ARGS[1],"cohort_truth.csv"),"w") do io
  println(io,"ploidy,mutation_sd,seed,id,birth_tick,followup_tick,followup_observed,death_tick,expected_survived_100")
  for p in (1,2),m in (0.0,.05,.2)
-  r=PerformanceAssay.trial(BehaviourAssay.specs(p,m,20001))
+  specs=BehaviourAssay.specs(p,m,20001)
+  r=PerformanceAssay.trial(specs)
+  isequal(r.result,Clade.run_clade(specs)) || error("observer changed canonical corrected result")
   ids=r.env.deaths["id"];ticks=r.env.deaths["t"]
   length(unique(ids))==length(ids) || error("duplicate canonical death IDs")
   deaths=Dict(Int(id)=>Int(t) for (id,t) in zip(ids,ticks))

@@ -979,3 +979,18 @@ assertion. Saved-spec compatibility fix is included from #203.
   claim. Linked after-task report exists; direct legacy analysis.md also
   receives the source qualification. Independent source review approves
   reset placement and distinguishes focal/mate contributions.
+
+### Corrected performance protocol after reproduction repair
+
+- Integrated focused reproduction reset fix into the performance branch.
+  Preserve mortality before flag clearing and shared canonical loop.
+- Driver now generates/saves corrected endpoint brains, assays those same
+  brains, and rechecks between/within policy metrics. Removed the invalid
+  legacy-brain equality dependency. Added capacity ticks to output.
+- Original600 replay, original numerical failures and six-brain-set probe
+  remain legacy receipts. No full legacy numerical refinement was launched.
+- Same biological controls, seed blocks,primary time windows/cohorts and5%
+  margins. Corrected garden uses independent brain-index trials64/256,
+  with the same numerical/classification gates; refine draws only if needed.
+- Corrected tiny six-run two-tick output/analysis passes. Next: full combined
+  Julia checks and six-run full-horizon corrected pilot, estimate<5 minutes.
