@@ -507,6 +507,8 @@ end
 Add Gaussian noise N(0, mutation_sd) to each element of `w` in place.
 Returns `w` (modified).
 """
+# Prey reproduction mutates inherited genome alleles here. Predator offspring
+# use architecture-specific brain mutation; see dev/design/mutation-paths.md.
 function _mutate_weights(w::Vector{Float32}, specs::Dict{String,Any},
                           rng::AbstractRNG)::Vector{Float32}
     sd = Float32(get(specs, "mutation_sd", 0.1))
