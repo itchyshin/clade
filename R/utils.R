@@ -25,6 +25,7 @@
   "Grass dynamics"        = c("grass_init_prob", "grass_rate", "grass_max",
                               "grass_growth_mode"),
   "Brain architecture"    = c("brain_type", "hidden_layers", "input_radius",
+                               "sense_mode",
                                "n_genes", "transformer_history",
                                "transformer_heads", "synthesis_max_rules",
                                "ann_weight_values",

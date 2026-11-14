@@ -622,6 +622,27 @@ important project state. Keep entries concise and concrete.
 - Next safest action: push, confirm `r-coverage` and all PR checks.
   Do not merge. Do not add a Codecov token.
 
+## 2026-11-14: Weighted directional sensing and exact R snapshots
+
+- Branch: codex/weighted-directional-sensing; resolves #120.
+- Added sense_mode to R/Julia defaults and spec groups; per_cell remains
+  default. Weighted channels sum value/distance. Updated Core Contract and
+  decisions; generated help with devtools::document.
+- Corrected predator bounded-grid lookup. New run results return exact final
+  sensory snapshots; R sense_env reads them without a per-tick bridge.
+- Julia suite: exit 0, 174 assertions pass. Live R snapshot 14 pass and schema
+  2 pass, no skips. Portable R suite exit 0, 644 Julia skips, no failures or
+  warnings. Five-seed default source parity: 10 equality checks pass.
+- Tests of tests: four invalid-radius checks failed before validation.
+  Independent review identified and verified optional tails, boundaries,
+  graded predator weighting and the misleading R legacy reconstruction.
+- Searches: sense_mode|input_radius|sense_env|_compute_n_inputs across source,
+  tests/help/design. Default schema count checked in R: 312.
+- Limits: no biological calibration/full MATLAB parity or performance study.
+  Legacy serialized environments retain a documented approximate fallback.
+- Report: after-task/2026-11-14-directional-sensing.md.
+- Next: integrate current main, rerun affected tests, open focused PR.
+
 
 ## 2026-11-14: Kernel ownership and mutation-path decision
 
@@ -661,3 +682,19 @@ important project state. Keep entries concise and concrete.
   #185 data must remain separate from results generated after this fix.
 - Report: after-task/2026-11-14-diversity-logging.md.
 - Next: settled green PR merge, then replay-safe #185 rerun.
+
+
+### Integration verification for weighted sensing
+
+Merged main c3c0731 (#201). Resolved append-only conflicts by retaining
+both log/decision/NEWS sections and all three Julia test includes. Julia
+suite now passes 202 assertions. Live R snapshot 14 and entropy 41 pass;
+config/spec-groups/spec-wiring/sense-mode pass 64. No failures or skips.
+
+
+### Saved-spec compatibility review
+
+Independent review reproduced R validation rejecting saved spec lists that
+predate sense_mode. The added regression failed before the fix. Validation
+now accepts an absent field (Julia defaults it to per_cell), while explicit
+invalid modes still fail. No saved-spec migration is required.

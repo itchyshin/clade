@@ -9,28 +9,26 @@ sense_env(env, i = 1L)
 \arguments{
 \item{env}{Environment list from \code{\link[=run_alife]{run_alife()}}.}
 
-\item{i}{Integer; index into \code{env$agents} (1-based). Use \code{agent_id} to
-locate the index by ID: \verb{which(sapply(env$agents, \\(a) a$id) == agent_id)}.}
+\item{i}{Integer; index into \code{env$agents} (1-based).}
 }
 \value{
-A named numeric vector. Slots:
-\describe{
-\item{\code{grass_L/U/R/D/C}}{Grass value in left, up, right, down, centre.}
-\item{\code{agent_L/U/R/D}}{Agent presence (0/1) in four cardinal directions.}
-\item{\code{energy}}{Agent's current energy.}
-\item{\code{age_norm}}{Agent age normalised by \code{specs$max_age}.}
-}
+A named numeric vector. For a saved snapshot, names follow the
+kernel order: energy, age, directional grass and agent occupancy, bias,
+then optional predator, parental-care, and signal channels. Per-cell
+directional names include the distance; weighted sums use one per direction.
 }
 \description{
-\code{sense_env()} reconstructs the 11-element (or longer, when predators or
-parental care are active) sensory input vector that the agent's brain would
-receive on the current tick. It mirrors the Julia-side sensing logic so that
-you can inspect, plot, or replay individual agent decisions from R.
+For results from \code{\link[=run_alife]{run_alife()}}, return the Julia kernel's sensory input
+computed from the final environment state in the agent brain's input order.
+This snapshot reflects the selected \code{sense_mode}. It is not the input to the
+agent's last decision: the environment may have changed since that decision,
+and a stochastic brain may choose differently on another forward pass.
 }
 \details{
-The function requires \code{env$grass} (returned automatically by \code{\link[=run_alife]{run_alife()}})
-and \code{env$agents}. Agent-map occupancy is reconstructed from agent positions.
-When \code{env$grass} is \code{NULL} (e.g. from a mock env), grass slots are set to 0.
+Older results or manually constructed environments without a snapshot use a
+legacy 11-value approximation in \code{per_cell} mode. It does not reproduce the
+current kernel's layout. In \code{weighted_sum} mode a snapshot is required; rerun
+the simulation if it is absent.
 }
 \examples{
 \dontrun{
