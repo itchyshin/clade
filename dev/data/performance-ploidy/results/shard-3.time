@@ -1,0 +1,23 @@
+	Command being timed: "/home/snakagaw/.juliaup/bin/julia +1.10.0 --project=inst/julia inst/julia/scripts/performance_assay.jl 25 /home/snakagaw/sim-archive/clade/2026-11-14-performance-corrected/shard-3 64 1000 20076"
+	User time (seconds): 261.26
+	System time (seconds): 1.23
+	Percent of CPU this job got: 101%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 4:19.88
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 441376
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 1200076
+	Voluntary context switches: 11037
+	Involuntary context switches: 339
+	Swaps: 0
+	File system inputs: 15292
+	File system outputs: 77055
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

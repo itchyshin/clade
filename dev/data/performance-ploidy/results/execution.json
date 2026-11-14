@@ -1,0 +1,106 @@
+{
+  "source_revision": "b982e9739c1064224ca49f77ff56d06ec8e0c7c4",
+  "source_root": "/home/snakagaw/hsq_work/clade-performance-corrected-20261114",
+  "commands": [
+    {
+      "label": "shard-0",
+      "pid": 3477991,
+      "command": [
+        "/usr/bin/time",
+        "-v",
+        "-o",
+        "/home/snakagaw/sim-archive/clade/2026-11-14-performance-corrected/shard-0.time",
+        "/home/snakagaw/.juliaup/bin/julia",
+        "+1.10.0",
+        "--project=inst/julia",
+        "inst/julia/scripts/performance_assay.jl",
+        "25",
+        "/home/snakagaw/sim-archive/clade/2026-11-14-performance-corrected/shard-0",
+        "64",
+        "1000",
+        "20001"
+      ]
+    },
+    {
+      "label": "shard-1",
+      "pid": 3477992,
+      "command": [
+        "/usr/bin/time",
+        "-v",
+        "-o",
+        "/home/snakagaw/sim-archive/clade/2026-11-14-performance-corrected/shard-1.time",
+        "/home/snakagaw/.juliaup/bin/julia",
+        "+1.10.0",
+        "--project=inst/julia",
+        "inst/julia/scripts/performance_assay.jl",
+        "25",
+        "/home/snakagaw/sim-archive/clade/2026-11-14-performance-corrected/shard-1",
+        "64",
+        "1000",
+        "20026"
+      ]
+    },
+    {
+      "label": "shard-2",
+      "pid": 3477994,
+      "command": [
+        "/usr/bin/time",
+        "-v",
+        "-o",
+        "/home/snakagaw/sim-archive/clade/2026-11-14-performance-corrected/shard-2.time",
+        "/home/snakagaw/.juliaup/bin/julia",
+        "+1.10.0",
+        "--project=inst/julia",
+        "inst/julia/scripts/performance_assay.jl",
+        "25",
+        "/home/snakagaw/sim-archive/clade/2026-11-14-performance-corrected/shard-2",
+        "64",
+        "1000",
+        "20051"
+      ]
+    },
+    {
+      "label": "shard-3",
+      "pid": 3477996,
+      "command": [
+        "/usr/bin/time",
+        "-v",
+        "-o",
+        "/home/snakagaw/sim-archive/clade/2026-11-14-performance-corrected/shard-3.time",
+        "/home/snakagaw/.juliaup/bin/julia",
+        "+1.10.0",
+        "--project=inst/julia",
+        "inst/julia/scripts/performance_assay.jl",
+        "25",
+        "/home/snakagaw/sim-archive/clade/2026-11-14-performance-corrected/shard-3",
+        "64",
+        "1000",
+        "20076"
+      ]
+    },
+    {
+      "label": "reassay",
+      "pid": 3480367,
+      "command": [
+        "/usr/bin/time",
+        "-v",
+        "-o",
+        "/home/snakagaw/sim-archive/clade/2026-11-14-performance-corrected/reassay.time",
+        "/home/snakagaw/.juliaup/bin/julia",
+        "+1.10.0",
+        "--project=inst/julia",
+        "inst/julia/scripts/performance_assay.jl",
+        "reassay",
+        "/home/snakagaw/sim-archive/clade/2026-11-14-performance-corrected/full-100/states",
+        "/home/snakagaw/sim-archive/clade/2026-11-14-performance-corrected/full-100/reassay.csv",
+        "10",
+        "256"
+      ]
+    }
+  ],
+  "wall_seconds": 392.1264998912811,
+  "workers": 4,
+  "julia_threads_per_worker": 4,
+  "blas_threads": 1,
+  "orchestrator_sha256": "9bd8e09a217a8494f1cc32a783f374035625681896c2dedd2b5b9f3649fd254f"
+}

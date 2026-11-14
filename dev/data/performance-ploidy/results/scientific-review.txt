@@ -1,0 +1,14 @@
+Independent read-only scientific review, 14 November 2026.
+Coverage: README/findings and corrected paired/cell/precision outputs.
+Reviewer: separate numerical/scientific agent (Fisher/Gauss perspective).
+Initial findings required two edits: B is half squared choice-probability
+vector distance; the former wording described sampled-choice disagreement;
+equal density alone does not match mean policy in the proposed mixture test.
+Both edits were made and the reviewer approved the revised findings within
+scope, with no remaining scientific or factual blockers.
+Reviewed findings SHA256: 9c5a0a619a4f496f7956e23d15feb851735a723fea9970efbd935e29f494d94a.
+The whole-interval 5% conclusion and percent/percentage-point distinctions
+were checked. Limit: one world and a short assay do not establish lifetime
+fitness or causal benefits of heterogeneity. Review covers the named files
+and claims only. Biological validation across worlds and uncertainty
+calibration remain untested.

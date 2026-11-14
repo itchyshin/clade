@@ -1,0 +1,7 @@
+runs: all fields exactly equal, 6 rows
+windows: all fields exactly equal, 12 rows
+cohorts: all fields exactly equal, 5658 rows
+garden: all fields exactly equal, 60 rows
+behavior: all fields exactly equal, 288 rows
+Canonical death ledger agrees with 5658 birth records; observer-on/off equality uses identical matched-founder initialization across all6 cells.
+Initial helper incorrectly used default founders; corrected helper changes validation only. Both failed and passing logs preserved remotely.

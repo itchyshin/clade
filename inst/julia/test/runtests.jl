@@ -418,4 +418,6 @@ include("test_matched_founders.jl")
 
 include("test_behaviour_assay.jl")
 
+include("test_performance_assay.jl")
+
 include("test_reproduction_reset.jl")

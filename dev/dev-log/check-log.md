@@ -890,6 +890,70 @@ assertion. Saved-spec compatibility fix is included from #203.
 - Main a9a7ad4 after PR204 completed R-CMD-check, coverage and pkgdown
   successfully. Final scientific review found no blocker in findings.md.
 
+## 2026-11-14: Foraging and reproductive consequences, setup
+
+- User approved Totoro follow-up with the same controls. Branch
+  codex/foraging-reproduction; narrow lease includes the private loop seam.
+  Plan: replay the same 600 populations, observe actual intake/net foraging
+  energy, births and pre-action agent-time; primary ticks501:1000.
+- Existing endpoint brains receive a separate ten-case common-garden assay
+  through canonical tick_agents!, with fresh copied caches and independent
+  trial resets. Recruitment follows birth IDs for100 ticks, with censoring.
+- Private no-op observer phases before/after agents and after logging,
+  before extinction break. Public signature/defaults and R boundary stay.
+- TDD red: unsupported observe keyword. Focused tests then pass: exact
+  full returned-result equality in five seeds, known food/cost and cache
+  fixtures, population conservation and extinction-tick death counts.
+- Source review found standard logged death counters omit the extinction
+  tick; this experiment reads actual counters through the observer. It
+  does not claim population intake alone measures inherent foraging skill.
+- Next: full Julia suite, tiny output/analysis, pinned-source Totoro pilot,
+  then measured full-run estimate. No Totoro performance run started yet.
+- Full local Julia suite326 assertions pass, including an oracle policy
+  that obtains five times uniform-choice intake and independent cohort
+  censoring/death fixtures. Live R-to-Julia entropy41 and sensory14 pass.
+- Totoro pilot12 runs:21.54 seconds,peak431076 KiB,exit0; all12 viable,
+  four matched founder blocks, all endpoint brains exactly match prior
+  archived states. Analysis validates4857 birth cohorts and120 garden rows.
+- Full600 replay and60-population256-draw reassay launched at source
+  121b0a4b9d12e02881e7ef004a0f740319ab414f, estimate25 minutes. Progress
+  meter uses completion receipt; actual row counts provide run progress.
+- PR205 merged only after all exact-head checks settled green. Its main
+  R-CMD-check,coverage and pkgdown workflows all completed successfully.
+
+### Performance assay numerical refinement, before interpreting benefit
+
+- All600 population replays complete and exactly match prior endpoints.
+  Independent audit passes raw design, exposure, cohort and energy ledgers.
+  Initial garden precision fails all4 gates; max numerical MCSE .00654,
+  with one first10 classification changing. No garden benefit/equivalence
+  claim is accepted from that version. Raw64/256 outputs are preserved.
+- Independent review approves independent RNG across brain indices for
+  linear mean reward, still paired by index/case/repetition across M.
+  This is a numerical variance change, not an intervention or agent match.
+  Old population simulations and behavioural-distance assay are untouched.
+- Repeat only all600 gardens at256 trials and first10 blocks at1024.
+  Frozen bit-packed keys exclude M and are collision-tested. Same5%
+  margin and precision/classification gates. Estimate20 minutes from
+  measured57.58s for60 populations at256 trials, before this phase starts.
+- Analysis initially rebuilt cohort string keys repeatedly; stopped only
+  that analysis process, cached group indices and reran. No simulation or
+  raw output was interrupted or replaced.
+
+### Critical reproduction qualification found during performance work
+
+- Source review and energy-budget discrepancy exposed reproduced=true
+  never being cleared. create_offspring! therefore permits only one focal
+  episode/lifetime even for iteroparous agents. Mate contributions are a
+  separate pathway. Independent review confirms the bug and recommends
+  clearing surviving flags after mortality, before reproduction.
+- Legacy600 results are source-bound diagnostics and cannot establish
+  intended iteroparous performance. Preserve them and failed precision
+  outputs. Do not refine/interpret legacy brains as corrected populations.
+- No full numerical refinement was launched; only six-population probe.
+  Next: focused fix/regressions, then corrected-source pilot and fresh
+  endpoint archives under the same exogenous controls.
+
 ## 2026-11-14: Iteroparous focal-reproduction gate correction
 
 - Branch codex/iteroparous-reset, based on main660a4b8. Source defect:
@@ -915,3 +979,61 @@ assertion. Saved-spec compatibility fix is included from #203.
   claim. Linked after-task report exists; direct legacy analysis.md also
   receives the source qualification. Independent source review approves
   reset placement and distinguishes focal/mate contributions.
+
+### Corrected performance protocol after reproduction repair
+
+- Integrated focused reproduction reset fix into the performance branch.
+  Preserve mortality before flag clearing and shared canonical loop.
+- Driver now generates/saves corrected endpoint brains, assays those same
+  brains, and rechecks between/within policy metrics. Removed the invalid
+  legacy-brain equality dependency. Added capacity ticks to output.
+- Original600 replay, original numerical failures and six-brain-set probe
+  remain legacy receipts. No full legacy numerical refinement was launched.
+- Same biological controls, seed blocks,primary time windows/cohorts and5%
+  margins. Corrected garden uses independent brain-index trials64/256,
+  with the same numerical/classification gates; refine draws only if needed.
+- Corrected tiny six-run two-tick output/analysis passes. Next: full combined
+  Julia checks and six-run full-horizon corrected pilot, estimate<5 minutes.
+- Corrected pilot6 runs at1000 ticks:24.52 seconds,peak474480 KiB,exit0;
+  all6 viable, finalN114:131, late capacity ticks0. Policy heterogeneity
+  remeasured on fresh corrected brains. No legacy endpoint reuse.
+- Full600 corrected campaign launched on four isolated process shards,
+  disjoint25-seed blocks each;16 capped Julia threads total, single BLAS
+  thread/process. Same source b982e9739c1064224ca49f77ff56d06ec8e0c7c4.
+  Estimate30 minutes including precision reassay, before launch. Wrapper
+  checks combined keys and terminates its process groups on failure/overrun.
+
+### Corrected performance campaign completed and audited
+
+- Branch codex/foraging-reproduction; simulation source b982e9739c1064224ca49f77ff56d06ec8e0c7c4.
+  Fresh600 runs on Totoro, four25-seed processes,4 Julia threads each,1 BLAS
+  thread:392.13sec including first10-block256-draw reassay. Actual R
+  viability_report600/600 viable; all4 precision gates pass; no late capacity ticks.
+- Full combined Julia suite342 assertions passed before launch. Corrected
+  pilot6 runs:24.52sec,474480KiB peak, all viable. No legacy brains reused.
+- Rscript dev/data/performance-ploidy/analyze.R OUTDIR100 and plot.R OUTDIR
+  pass. Independent raw audit passes600runs,1200windows,574476cohorts,
+  6000garden cases,28800policy contexts,600reassays and all viable pairs.
+- Separate-process first-seed replay: exact all fields for6runs,12windows,
+  5658cohorts,60garden and288behavior rows. Canonical death truth agrees
+  with5658births and observation-disabled matched-initializer control.
+  First helper incorrectly compared default founders; diagnosis found same
+  initializer parity true at all three mutation levels, default parity only
+  at.05. Patched validation helper only; raw campaign remains unchanged.
+- M=.20 vs0: standardized food+1.86% haploid/+0.43% diploid; late birth yield
+  +0.83%/+2.62%; survival to100ticks -2.06/-2.83 percentage points; endpoint
+  population -6.88%/-3.17%. Garden net energy lower in both. Primary food/
+  birth95% intervals remain inside +/-5%. No general fitness benefit claim.
+- Added README/findings/figure, compressed raw tables, independent/replay
+  receipts, commands/timings and SHA256 manifest. Full endpoint states and
+  source archive remain on Totoro; legacy campaign preserved separately.
+- After-task report and structure check pass. Exact stale-claim search:
+  rg 'legacy|corrected|same.*brain|PASS|5%' dev/data/performance-ploidy.
+  Final evidence-only edits do not warrant repeating passed kernel checks;
+  current-head CI is required before marking PR206 ready. No CRAN or release.
+- Final independent scientific review approved revised findings SHA256
+  9c5a0a619a4f496f7956e23d15feb851735a723fea9970efbd935e29f494d94a.
+  Corrected B terminology and balanced proposed mixture control. Whole-
+  interval5% conclusion and percent versus percentage points checked.
+  Packaged/raw-decompressed/script SHA256 checks all pass. PR206 body exact
+  read-back passes. Scientific review receipt included; CI awaits final head.

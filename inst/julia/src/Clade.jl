@@ -345,7 +345,8 @@ end
 
 # Internal seam for controlled starting states; the public path uses
 # create_environment and shares this same tick loop.
-function _run_clade(user_specs::AbstractDict, initialize)
+# Research observers must only read state and must not draw from env.rng.
+function _run_clade(user_specs::AbstractDict, initialize; observe=nothing)
     # Normalize
     specs = normalize_specs(user_specs)
 
@@ -381,7 +382,9 @@ function _run_clade(user_specs::AbstractDict, initialize)
         apply_niche_construction!(env)
         # Seed predators on first tick if enabled
         t == 1 && seed_predators!(env)
+        observe === nothing || observe(:before_agents, env)
         tick_agents!(env)
+        observe === nothing || observe(:after_agents, env)
         # 0.7.0: Wolf 2008 responsive personalities — runs immediately after
         # tick_agents! so responsive agents can override their move toward
         # the richest free cardinal-neighbour cell. No-op when off.
@@ -477,6 +480,7 @@ function _run_clade(user_specs::AbstractDict, initialize)
             log_genomes!(env)
         end
 
+        observe === nothing || observe(:after_tick, env)
         if verbose && t % 100 == 0
             @info "tick $t: $(length(env.agents)) agents alive"
         end
