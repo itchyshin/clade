@@ -240,3 +240,21 @@ continues to return zero by convention, not as a measured pairwise
 distance. The changed random draws affect seeded trajectories, since the
 logger shares the environment RNG. Existing datasets remain historical;
 new comparative claims require results generated with the corrected code.
+
+## 2026-11-14: Reset focal reproduction flags after mortality
+
+A confirmed stale flag restricted the documented iteroparous model to one
+focal reproductive episode per lifetime. Reset surviving agents' flags
+once after kill_dead!/remove_dead!, before the reproductive phase.
+Resetting at tick start would mask the previous episode from semelparous
+mortality; resetting inside create_offspring! would permit duplicate
+same-tick episodes. Preserve existing next-tick semelparous death and
+clarify the inaccurate immediate-death wording in the R documentation.
+Mate contributions do not set this focal flag and are a separate pathway.
+
+Defaults and public signatures stay unchanged; this restores the stated
+biological contract. Seeded trajectories and demographic equilibria change.
+Earlier diversity/behaviour/performance experiments remain pinned legacy
+results, with explicit reader qualifications. Corrected performance work
+must generate its own populations and endpoint brains rather than mixing
+legacy policies with corrected demography.

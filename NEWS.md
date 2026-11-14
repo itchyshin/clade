@@ -1,5 +1,12 @@
 # Development version
 
+- Iteroparous agents can reproduce again on later eligible ticks. A stale
+  focal-reproduction flag previously blocked all later episodes. Surviving
+  flags now reset after mortality, preserving semelparous next-tick death.
+  This changes seeded trajectories; rerun quantitative simulations from
+  earlier kernels. Historical diversity/behaviour campaigns are explicitly
+  qualified as descriptions of the former implementation.
+
 - `sense_mode = "weighted_sum"` offers inverse-distance directional sensing
   with a fixed brain input width. The default remains `"per_cell"` (#120).
 - `sense_env()` reads the exact final sensory vectors from new Julia runs,
