@@ -119,7 +119,7 @@ test_that("minimal run exercises scavenging event counts", {
 test_that("minimal run exercises speciation metric (may be flat at short scale)", {
   skip_no_julia()
   s <- default_specs()
-  s$speciation_threshold <- 0.5
+  s$speciation           <- TRUE   # was speciation_threshold, not a clade spec (#185)
   s$max_ticks            <- 80L
   s$n_agents_init        <- 60L
   env <- run_alife(s, verbose = FALSE)

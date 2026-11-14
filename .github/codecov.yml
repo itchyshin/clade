@@ -1,0 +1,57 @@
+# clade Codecov — first pass.
+#
+# Flags:
+#   r     — covr on the existing tests.yaml suite (CLADE_SKIP_JULIA_TESTS)
+#   julia — CoverageTools lcov from inst/julia/test/runtests.jl
+#
+# No ignore/exclusion lists. Status is informational until a verified
+# default-main report exists. Do not add README badges before that.
+#
+# Stages (do not collapse):
+#   1. config (this file + .github/workflows/coverage.yaml)
+#   2. coverage execution / percent (CI logs + artifacts)
+#   3. upload reception (codecov-action log)
+#   4. processed report (Codecov UI)
+#   5. default-main baseline (authorized owner merge + successful main run)
+
+codecov:
+  require_ci_to_pass: false
+  notify:
+    wait_for_ci: true
+
+comment:
+  layout: "condensed_header, flags, files, footer"
+  behavior: default
+  require_changes: false
+  require_base: false
+  require_head: true
+
+coverage:
+  status:
+    project:
+      default:
+        informational: true
+      r:
+        flags:
+          - r
+        informational: true
+      julia:
+        flags:
+          - julia
+        informational: true
+    patch:
+      default:
+        informational: true
+
+flag_management:
+  default_rules:
+    carryforward: true
+  individual_flags:
+    - name: r
+      paths:
+        - R/
+      carryforward: true
+    - name: julia
+      paths:
+        - inst/julia/src/
+      carryforward: true

@@ -10,7 +10,10 @@ plot_run(run_data, ...)
 \item{run_data}{A list as returned by \code{\link[=get_run_data]{get_run_data()}}. Must contain a
 \verb{$ticks} data frame with columns \code{t}, \code{n_agents}, \code{mean_energy},
 \code{sd_energy}, \code{genetic_diversity}, \code{n_births}, \code{n_deaths}, \code{grass_coverage},
-\code{mean_body_size}, and \code{mean_prior_sigma}.}
+\code{mean_body_size}, and \code{mean_prior_sigma}.
+When \code{grass_density} is present, the grass panel shows both the fraction
+of cells containing grass (coverage) and total grass biomass divided by
+grid capacity (density). Older runs without this column show coverage only.}
 
 \item{...}{Currently unused. Reserved for future plotting options.}
 }
@@ -20,7 +23,7 @@ A \code{\link[patchwork:wrap_plots]{patchwork::wrap_plots()}} object composed of
 \description{
 Constructs a 2x3 patchwork grid of time-series diagnostics from the output
 of \code{\link[=get_run_data]{get_run_data()}}: population size, mean energy with variability ribbon,
-genetic diversity, births vs deaths per tick, grass coverage, and a sixth
+genetic diversity, births vs deaths per tick, grass coverage and density, and a sixth
 panel that switches between body size (ANN brain) and BNN prior sigma (the
 Baldwin Effect panel; Baldwin 1896, Hinton & Nowlan 1987) depending on the
 active brain type.

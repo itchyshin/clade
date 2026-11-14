@@ -28,16 +28,24 @@
         @test c ≈ Float32(n ÷ 2)
     end
 
-    @testset "weight_magnitude > weight_count for typical brain" begin
-        rng   = MersenneTwister(1)
-        arch  = Int32[4, 8, 3]
-        n     = Clade.arch_to_n_weights(arch)
-        brain = Clade.make_ann_brain(randn(rng, Float32, n), arch)
-        # weight_magnitude = sum(|w|); weight_count = number of non-zero weights
-        # For random weights, magnitude >> count (magnitudes >> 1 on average)
-        mag   = Clade._ann_weight_magnitude(brain)
-        count = Clade._ann_weight_count(brain)
-        @test mag > count   # sum(|w|) > n_nonzero when mean |w| > 1
+    @testset "magnitude and count match independent computation" begin
+        # sum(|w|) and the count of |w| > threshold measure different things.
+        # Which is larger depends on mean |w|: for standard-normal weights
+        # E|w| = sqrt(2/pi) ~ 0.80 < 1, so magnitude is usually BELOW count.
+        rng  = MersenneTwister(1)
+        arch = Int32[4, 8, 3]
+        n    = Clade.arch_to_n_weights(arch)
+        for scale in (3.0f0, 1.0f0, 0.3f0)
+            w     = scale .* randn(rng, Float32, n)
+            brain = Clade.make_ann_brain(w, arch)
+            @test Clade._ann_weight_magnitude(brain) ≈ sum(abs, w)
+            @test Clade._ann_weight_count(brain) ==
+                  Float32(count(x -> abs(x) > Clade._REG_WEIGHT_THRESHOLD, w))
+        end
+        big   = Clade.make_ann_brain(3.0f0 .* randn(rng, Float32, n), arch)
+        small = Clade.make_ann_brain(0.3f0 .* randn(rng, Float32, n), arch)
+        @test Clade._ann_weight_magnitude(big)   > Clade._ann_weight_count(big)
+        @test Clade._ann_weight_magnitude(small) < Clade._ann_weight_count(small)
     end
 
 end

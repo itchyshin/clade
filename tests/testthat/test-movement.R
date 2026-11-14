@@ -189,6 +189,31 @@ test_that("get_movement_data() round-trips through run_alife() with log_movement
   }
 })
 
+test_that("default_specs() carries movement-logging defaults", {
+  s <- default_specs()
+  expect_false(s$log_movement)
+  expect_identical(s$log_movement_freq, 1L)
+})
+
+test_that("run_alife() records movement with only log_movement = TRUE set", {
+  skip_no_julia()
+
+  s <- default_specs()
+  s$grid_rows     <- 10L
+  s$grid_cols     <- 10L
+  s$n_agents_init <- 5L
+  s$max_ticks     <- 5L
+  s$max_agents    <- 50L
+  s$random_seed   <- 42L
+  s$log_movement  <- TRUE
+  # log_movement_freq deliberately left at its default.
+
+  env <- suppressWarnings(run_alife(s, verbose = FALSE))
+  md  <- get_movement_data(env)
+  expect_s3_class(md, "data.frame")
+  expect_gt(nrow(md), 0L)
+})
+
 test_that("run_alife() with log_movement = FALSE surfaces NULL movement_log", {
   skip_no_julia()
 

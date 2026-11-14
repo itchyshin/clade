@@ -799,6 +799,21 @@ Rscript -e %s
            call. = FALSE)
   }
 
+  # Names clade never reads would otherwise change nothing without any
+  # sign (#185: a 500-run sweep sampled `repro_threshold`, which is the
+  # agent trait, not the spec `min_repro_energy`).
+  unknown <- setdiff(names(specs), names(default_specs()))
+  if (length(unknown) > 0L) {
+    hints <- c(repro_threshold = "min_repro_energy")
+    hint  <- intersect(unknown, names(hints))
+    warning(sprintf(
+      "Unknown spec name(s) ignored by clade: %s.%s Check names against default_specs().",
+      paste(unknown, collapse = ", "),
+      if (length(hint)) paste0(" Did you mean ",
+        paste(sprintf("%s for %s", hints[hint], hint), collapse = ", "), "?") else ""),
+      call. = FALSE)
+  }
+
   check_int_pos("grid_rows")
   check_int_pos("grid_cols")
   check_int_pos("n_agents_init")
@@ -812,6 +827,7 @@ Rscript -e %s
   check_choice("rl_mode",         c("none", "actor_critic", "hebbian"))
   check_choice("brain_energy_mode",
                c("none", "size", "activity", "prediction_error"))
+  check_choice("grass_growth_mode", c("stochastic", "deterministic"))
 
   if (!specs$ploidy %in% c(1L, 2L))
     stop("specs$ploidy must be 1L (haploid) or 2L (diploid).", call. = FALSE)

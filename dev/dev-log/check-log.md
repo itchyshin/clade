@@ -323,3 +323,301 @@ important project state. Keep entries concise and concrete.
 - Next safest action: open the focused PR, then repair #177 separately so it
   covers predators that die after initialization as well as an initially empty
   predator population.
+
+## 2026-09-27 - Movement-logging defaults in default_specs()
+
+- Branch: `fix/log-movement-freq-default` (off `main` at `6797b53`).
+- Goal: Fix the bug Bhavya reported on #167: setting only
+  `specs$log_movement = TRUE` stopped the run with a Julia `KeyError`
+  for `log_movement_freq`.
+- Cause: `run_clade()` validated the frequency with
+  `get(specs, "log_movement_freq", 1)`, but `log_movement!()` read
+  `env.specs["log_movement_freq"]` with no fallback, and
+  `default_specs()` supplied neither key.
+- Files changed: `R/config.R`, `R/utils.R` (`.SPEC_GROUPS`),
+  `man/default_specs.Rd`, `inst/julia/src/logging.jl`,
+  `inst/julia/test/runtests.jl`, `tests/testthat/test-movement.R`,
+  `NEWS.md`, this log, and
+  `dev/dev-log/after-task/2026-09-27-log-movement-freq-default.md`.
+- Checks run:
+  - Julia repro script (`log_movement = true`, no frequency): `KeyError`
+    before the fix; ticks `1, 2, 3` recorded after it.
+  - Julia `test/runtests.jl`: "Movement Logging Contract (#176)" 17/17
+    pass, including the new no-frequency case. The suite as a whole
+    still reports 1 fail and 2 errors (ANN regularization, Lamarckian
+    genome update); the same three appear on unchanged `main`.
+  - `devtools::document()`: `man/default_specs.Rd` regenerated.
+  - `devtools::test()`: FAIL 0, PASS 1093, SKIP 648. JuliaConnectoR is
+    not installed in this R library, so Julia-gated R tests (including
+    the new end-to-end one) were skipped.
+- Next safest action: run the Julia-gated R tests on a machine with
+  JuliaConnectoR, then merge. Separately triage the three pre-existing
+  Julia failures.
+
+## 2026-09-27 - grass_growth_mode toggle and grass_density column
+
+- Branch: `feat/grass-growth-mode` (off `main` at `e008b85`).
+- Goal: Answer #167 (Bhavya, Sergio): offer A-life's deterministic grass
+  regrowth, `min(grass + rate, gmax)`, as an opt-in mode, and add a
+  grass measure that does not saturate under it.
+- Files changed: `inst/julia/src/Clade.jl` (`grow_grass!`, new
+  `_grown_cell`), `inst/julia/src/defaults.jl`,
+  `inst/julia/src/logging.jl`, `R/config.R`, `R/run.R`, `R/utils.R`,
+  `R/search.R`, `R/analysis.R`, `man/default_specs.Rd`,
+  `man/get_run_data.Rd`, `inst/julia/test/runtests.jl`,
+  `tests/testthat/test-grass-growth-mode.R` (new), `NEWS.md`, this log,
+  and `dev/dev-log/after-task/2026-09-27-grass-growth-mode.md`.
+- Checks run:
+  - Julia `test/runtests.jl`: "Grass growth mode (#167)" 12/12,
+    movement contract 15/15. The same three pre-existing failures as
+    on `main` (ANN regularization, Lamarckian) remain.
+  - Seeded parity against `main` (`e008b85` worktree): progress tables
+    and agents identical over 60 ticks for the default, niche
+    construction, and seasonal spatial bias branches.
+  - `devtools::document()`: `default_specs.Rd`, `get_run_data.Rd`.
+  - `devtools::test()`: FAIL 0, PASS 1095, SKIP 648 (JuliaConnectoR
+    not installed; Julia-gated R tests skipped).
+  - Indicative comparison, 5 seeds x 300 ticks, default specs: tick 1
+    coverage 0.52 stochastic vs 0.97 deterministic, density 0.48 in
+    both; ticks 201 to 300 density 0.28 vs 0.25, mean `n_agents` 47 vs
+    52. Not a calibrated result.
+- Next safest action: merge when green; Sergio and Shinichi decide
+  whether deterministic should become the default.
+
+## 2026-09-27 - last_action contract for behavioural diversity (#164)
+
+- Branch: `claude/behavioral-diversity-actions` (off `main` at
+  `595069f`), carrying Bhavya's two #179 commits (authorship kept).
+- Goal: implement the recording contract agreed on #164 before any
+  metric or R API: code 0 only for "no action yet", death stays
+  `alive = false`, every real decision path updates `last_action`.
+- Encoding: the brain's output index. 0 = no action yet, 1 = N, 2 = E,
+  3 = S, 4 = W, 5 = stay (idle for prey, stay-and-attack for predators).
+  Eat and reproduce are automatic in clade, not decisions, so the
+  8-code proposal on #164 was reduced to these six.
+- Files changed: `inst/julia/src/types.jl`, `inst/julia/src/tick.jl`,
+  `inst/julia/src/modules/tick_predators.jl`, `inst/julia/src/Clade.jl`,
+  `inst/julia/src/reproduce.jl` (constructors start at 0, not 5),
+  `inst/julia/test/runtests.jl`, this log, and
+  `dev/dev-log/after-task/2026-09-27-last-action-contract.md`.
+- Checks run:
+  - Julia "last_action contract (#164)" 24/24: founders 0; each code
+    1 to 5 recorded with the matching move; blocked move records intent;
+    offspring 0; predator founders 0, chosen codes recorded, predator
+    offspring 0. Same three pre-existing failures as `main` remain.
+  - Seeded parity against `main` (`595069f` worktree), 60 ticks:
+    identical progress tables and agents (excluding the new field) for
+    default, predators, niche construction, seasonal spatial bias.
+  - Test order fix: the new testset sits before "Clade Julia unit
+    tests". That block fails on `main` and aborts the script, so any
+    testset after it (including the #179 placeholder) never ran.
+- Next safest action: review; then design the metric and R extraction.
+
+## 2026-09-27 - Warn on unknown spec names (R and Julia)
+
+- Branch: `fix/warn-unknown-spec-keys` (off `main` at `b8bfe34`).
+- Goal: stop unknown spec keys passing silently. Trigger: #185 sampled
+  `repro_threshold` in 500 DRAC runs; the kernel never reads it (the
+  spec is `min_repro_energy`), so one design axis was a no-op.
+- Files changed: `inst/julia/src/defaults.jl` (warning in
+  `normalize_specs`, name hint, `log_movement` and `log_movement_freq`
+  defaults), `R/run.R` (`.validate_specs` warning),
+  `inst/julia/test/runtests.jl`, `tests/testthat/test-unknown-specs.R`
+  (new), `tests/testthat/test-scenario-signals.R`, `NEWS.md`, this log,
+  `dev/dev-log/after-task/2026-09-27-warn-unknown-spec-keys.md`.
+- R vs Julia defaults: R had `log_movement` and `log_movement_freq`
+  that Julia lacked (added); Julia has no names R lacks. All nine
+  zero-argument presets use only default names.
+- Checks run:
+  - Julia `test/runtests.jl`: "Unknown spec keys warn (#185)" 8/8;
+    movement contract 19/19 (2 new no-births checks); grass 12/12;
+    last_action 24/24. The three pre-existing failures on `main` remain.
+  - Test of the new no-births check: `min_repro_energy = 10` gives 7
+    births in the parity setup, 9999 gives 0.
+  - `devtools::test()`: FAIL 0, WARN 0, PASS 1109, SKIP 649
+    (JuliaConnectoR not installed).
+  - Speciation test settings run directly in Julia (`speciation = true`,
+    80 ticks, 60 agents): completes, `n_species` 0 to 1.
+- Next safest action: review; Julia-gated R tests on a Julia machine.
+
+## 2026-09-27 - Repair the three failing Julia unit tests
+
+- Branch: `fix/julia-unit-test-failures` (off `main` at `9f047a6`).
+- Goal: make `inst/julia/test/runtests.jl` pass end to end. The
+  "Clade Julia unit tests" block failed on `main` and, because a failing
+  top-level testset aborts the script, hid anything placed after it.
+- Root causes (all in the tests; source code unchanged):
+  - `test_ann_regularization.jl`: asserted `sum(|w|) > n_nonzero` for
+    standard-normal weights on the premise that mean |w| > 1. It is
+    sqrt(2/pi) ~ 0.80, so the claim is false (observed 54.4 vs 67).
+  - `test_lamarckian.jl` (2 tests): `DiploidGenome` gained
+    `n_chromosomes` after the test was written; behind that error, the
+    test also used an `Agent` keyword constructor that does not exist.
+- Fixes: the ANN test now checks both measures against an independent
+  computation at three weight scales and asserts the direction only
+  where it is true (x3: magnitude > count; x0.3: magnitude < count).
+  The Lamarckian tests take a real haploid ANN agent from
+  `create_environment()` and replace only `brain` and `genome`, the two
+  fields `lamarck_genome_update!` reads.
+- Checks run:
+  - Julia `test/runtests.jl`: all testsets pass, exit code 0 (unit
+    block 19/19).
+  - Mutation checks: making `lamarck_genome_update!` a no-op fails the
+    write-back test; dropping biases from `_ann_weight_magnitude` fails
+    4 assertions.
+  - R code untouched; R suite not rerun.
+- Finding: no CI workflow runs the Julia suite (`tests.yaml` skips
+  Julia; `fidelity-matrix.yaml` runs paper scripts), which is how these
+  failures went unnoticed.
+- Next safest action: review; consider a PR-triggered Linux job for
+  `runtests.jl`.
+
+## 2026-09-27 - julia-tests CI workflow
+
+- Branch: `ci/julia-tests`.
+- Goal: run `inst/julia/test/runtests.jl` on pull requests. No workflow
+  ran it before (`tests.yaml` skips Julia; `fidelity-matrix.yaml` runs
+  paper scripts), which is how three unit tests broke unnoticed (#192).
+- File: `.github/workflows/julia-tests.yaml`. Triggers:
+  `workflow_dispatch`, and `pull_request` only when `inst/julia/**` or
+  the workflow file changes. `ubuntu-latest`, Julia 1.10 (the manifest's
+  minor version), `julia-actions/cache`, 20-minute timeout, PR-scoped
+  `cancel-in-progress`, threads capped.
+- Checks run:
+  - YAML parses (actionlint not installed locally).
+  - Local dry run from an empty depot (`JULIA_DEPOT_PATH` fresh):
+    `Pkg.instantiate()` + precompile 18 s, test suite 20 s. On `main`
+    before #192 the suite exits 1, so the job fails when tests fail.
+  - The job's first real run is on this PR itself.
+- Next safest action: confirm the first run is green, then decide
+  whether to make `julia-tests` a required check (a settings change).
+
+## 2026-10-18 - Grass density in plot_run (#167)
+
+- Branch: codex/grass-dashboard-density, isolated from the dirty main checkout.
+- Keep stochastic grass growth as the default. Plot both recorded coverage
+  and density in the existing grass panel, with older-data coverage fallback.
+- Files: R/visualization.R, tests/testthat/test-visualization.R,
+  generated man/plot_run.Rd, NEWS.md, after-task report.
+- Rscript -e 'devtools::document(); devtools::test(filter="^visualization$")':
+  visualization PASS 47, FAIL 0, WARN 0, SKIP 0. Documentation regenerated;
+  existing missing-JuliaConnectoR reference messages remain.
+- Rscript -e 'devtools::test(reporter="summary")': exit 0, no reported
+  failures; 649 skipped tests, predominantly JuliaConnectoR unavailable.
+- New density test failed three assertions before implementation.
+- git diff --check passed. Searched plot_run and grass_coverage in
+  tests/testthat/test-visualization.R; inspected callers through graft.
+- Kernel unchanged; no simulation, full package check or site build run.
+- Next: review focused PR; Bhavya retains corrected #185 sampling rerun.
+
+## 2026-11-08 - Codecov first pass (R + Julia existing suites, OIDC)
+
+- Branch: `cursor/codecov-first-pass-8e02` off `main` at
+  `b1f7934ab9238b2731d7451c9d74f580d2d748f8`.
+- Goal: honest existing-suite coverage for R and Julia in this
+  repository, language flags, one uploader, documented OIDC least
+  privilege. No scientific src/tests/fixtures changes. No merge.
+- Files changed: `.github/workflows/coverage.yaml` (new),
+  `.github/codecov.yml` (new), `.github/coverage.md` (new),
+  `.gitignore`, `AGENTS.md`, `dev/dev-log/decisions.md`, this log,
+  `dev/dev-log/after-task/2026-11-08-codecov-first-pass.md`.
+- Unchanged on purpose: `.github/workflows/tests.yaml`,
+  `julia-tests.yaml`, `R-CMD-check.yaml`, `fidelity-matrix.yaml`,
+  `pkgdown.yaml`, `R/`, `inst/julia/`, `tests/`, `vignettes/`.
+- Layout: both languages live here (`R/` + `inst/julia/`). pigauto
+  and GLLVModels were not opened.
+- Checks run:
+  - `python3` PyYAML load of `coverage.yaml`, `codecov.yml`, and the
+    five existing workflows: parse OK. Coverage jobs: `use_oidc: true`,
+    no `token` input, flags `r` / `julia`, `disable_search: true`,
+    checkout has no `ref:` override.
+  - `git diff --check`: clean.
+  - `git diff -- .github/workflows/tests.yaml` (and the other four
+    existing workflows): empty.
+- Stale-claim searches:
+  - `rg -n 'CODECOV_TOKEN|token:.*GITHUB_TOKEN' .github AGENTS.md`:
+    comments only; codecov-action steps have no `token:` key.
+  - `rg -n 'covr::codecov|Codecov.submit' .github AGENTS.md`:
+    prohibition comments only.
+  - `rg -n 'codecov.io/.*/badge' README.md AGENTS.md .github`: no
+    matches.
+  - `rg -n '^ignore:|file_exclusions|line_exclusions' .github`: no
+    matches.
+- Not run (runtimes unavailable in this environment):
+  - `Rscript` / `covr::package_coverage()` — Rscript not on PATH.
+  - `julia --project=inst/julia --code-coverage=user inst/julia/test/runtests.jl`
+    — julia not on PATH.
+  - `actionlint` — not installed.
+  - Codecov upload reception, processed report, default-main baseline.
+- Next safest action: open the PR, let CI run, subscribe for
+  evidence-only wakes. Do not merge. Coordinator before any further
+  edit. If codecov-action logs a real OIDC/upload failure, the owner
+  may grant App OIDC or a dedicated Codecov token; dashboard
+  Configure/API unknown is not that proof.
+
+## 2026-11-08 - Codecov r-coverage: use source-tree test_dir
+
+- Branch: `cursor/codecov-first-pass-8e02` (follow-up on PR #195).
+- CI wake on `bf4478c08a74def326151820fec9acc4cd4d5577`: 1 of 4
+  checks failed (`r-coverage`). `tests`, `R-CMD-check`, and
+  `julia-coverage` passed.
+- Checkout identity (both coverage jobs):
+  `checkout_kind=synthetic-merge`, `tested_equals_exact_head=false`,
+  `git_HEAD=8623234881d0821ab00072acedc35f1886dee36d`,
+  `pr_head_sha=bf4478c08a74def326151820fec9acc4cd4d5577`,
+  `pr_base_sha=b1f7934ab9238b2731d7451c9d74f580d2d748f8`.
+- Julia stage 2: `percent_coverage=39.2507` (`lines_hit=1320` /
+  `lines_found=3363`). Artifact `coverage-julia` id `13636388950`.
+- Julia stage 3: OIDC token minted (`Get OIDC token` success).
+  codecov-action tagged the upload to exact head `bf4478c` (not the
+  merge SHA). HTTP 200, queued:
+  https://app.codecov.io/github/itchyshin/clade/commit/bf4478c08a74def326151820fec9acc4cd4d5577
+  Not a processed-report claim. No owner token used.
+- R stage 2 failed before percent/artifact/upload. Default
+  `covr::package_coverage()` ran installed `testthat.R` /
+  `test_check()`. FAIL 2 / SKIP 650 / PASS 1109:
+  `test-vignette-field-references.R` and
+  `test-no-internal-leaks.R` — `unlist(lapply(...))` is `NULL` when
+  `vignettes/*.Rmd` are absent from the temp install, vs
+  `character(0)` on the source tree. `tests.yaml` (`devtools::test()`)
+  passed the same commit. Not a scientific-test defect; not an OIDC
+  failure.
+- Fix (CI only): `type = "none"` plus `library(clade)` and
+  `testthat::test_dir("tests/testthat")` from the checkout. Do not
+  call `devtools::test()` inside covr (`load_all()` drops traces).
+  Tests and Julia source untouched.
+- Next safest action: push, let CI run, subscribe wake. Do not merge.
+  Do not add a Codecov token.
+
+## 2026-11-08 - Codecov r-coverage: root cause of the `test_dir` failure; run with package namespace
+
+- Branch: `cursor/codecov-first-pass-8e02` (PR #195, follow-up on
+  `196373c`). CI-only change; tests and `inst/julia/src/` untouched.
+- Failure on `196373c` (run 42529873753, job 128881480156): covr
+  `Failure in .../clade-commands.Rout.fail`; the log hides the test
+  output. Reproduced locally (R 4.3.3, same env vars): bare
+  `testthat::test_dir("tests/testthat")` (no `package=`) after
+  `library(clade)` errors in `test-stream-submit.R` (5 errors,
+  `local_mocked_bindings()` -> `dev_package()`: "No packages loaded
+  with pkgload"). Cause: the previous fix dropped the package
+  namespace, i.e. not equivalent to `test_check()` or `devtools::test()`.
+- Default `covr::package_coverage()` (`test_check()` from the install)
+  failed 2 tests on `bf4478c` (run 42529230191): `.find_repo_root()` in
+  `test-vignette-field-references.R` / `test-no-internal-leaks.R`
+  resolves to the installed package dir (has DESCRIPTION, R, tests) with
+  no `vignettes/`. Source-tree assumption in tests, not a kernel bug.
+- Fix: `test_dir("tests/testthat", package = "clade",
+  load_package = "installed", stop_on_failure = FALSE)` inside the covr
+  `code`, then write per-test CSV + SummaryReporter log, then `stop()`
+  on any failed/error. This is test_check()'s namespace/install setting
+  run from the checkout.
+- Equivalence evidence (local, `CLADE_SKIP_JULIA_TESTS=true`):
+  `devtools::test()` vs covr run: 1158 tests / 1763 expectations /
+  0 failed / 648 skipped / 0 errors / 0 warnings in both;
+  per-test `file,test,nb,failed,skipped,error,warning` tables
+  `all.equal` TRUE. covr `percent_coverage=61.9490`.
+- Negative control: a temporary failing test in a scratch copy made the
+  step exit 1 (`testthat failures under coverage`).
+- Not run: CI (pending push), Julia-enabled tests.
+- Next safest action: push, confirm `r-coverage` and all PR checks.
+  Do not merge. Do not add a Codecov token.

@@ -22,7 +22,8 @@
                                "offspring_energy_mode", "offspring_energy",
                                "offspring_energy_fraction",
                                "starvation_threshold"),
-  "Grass dynamics"        = c("grass_init_prob", "grass_rate", "grass_max"),
+  "Grass dynamics"        = c("grass_init_prob", "grass_rate", "grass_max",
+                              "grass_growth_mode"),
   "Brain architecture"    = c("brain_type", "hidden_layers", "input_radius",
                                "n_genes", "transformer_history",
                                "transformer_heads", "synthesis_max_rules",
@@ -223,7 +224,8 @@
                                "responsiveness_cost",
                                "responsiveness_init_mean",
                                "responsiveness_mutation_sd"),
-  "Logging & search"      = c("log_genomes", "log_freq", "verbose")
+  "Logging & search"      = c("log_genomes", "log_freq", "log_movement",
+                              "log_movement_freq", "verbose")
 )
 
 # Internal: describe the type of a spec value as a short human-readable label.

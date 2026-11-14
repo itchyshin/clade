@@ -17,7 +17,9 @@ population-level columns. Core columns always present: \code{t},
 \code{n_agents}, \code{n_births}, \code{n_deaths}, \code{n_starvations},
 \code{n_age_deaths}, \code{mean_energy}, \code{sd_energy}, \code{mean_age}, \code{sd_age},
 \code{mean_body_size}, \code{sd_body_size}, \code{genetic_diversity}, \code{n_species},
-\code{grass_coverage}. Module-specific columns are present as zeros
+\code{grass_coverage} (share of cells with any grass), \code{grass_density}
+(total grass as a share of \code{N * grass_max}; can exceed 1 only when
+\code{fixed_patch_value > grass_max}). Module-specific columns are present as zeros
 when the corresponding module is disabled (so the data frame
 shape is stable across specs), including
 \code{mean_cooperation_level}, \code{mean_immune_strength}, \code{sd_immune_strength},

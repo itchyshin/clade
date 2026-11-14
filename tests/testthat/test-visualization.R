@@ -80,6 +80,26 @@ test_that("plot_run() returns a patchwork/ggplot object on valid data", {
   expect_s3_class(p, "ggplot")
 })
 
+test_that("plot_run shows grass density alongside coverage when recorded", {
+  rd <- .mock_run_data()
+  rd$ticks$grass_coverage <- rep(1, nrow(rd$ticks))
+  rd$ticks$grass_density <- seq(0.1, 0.3, length.out = nrow(rd$ticks))
+  panel <- plot_run(rd)[[5]]
+  lines <- ggplot2::ggplot_build(panel)$data[[1]]
+  expect_equal(sort(lines$y), sort(c(rd$ticks$grass_coverage,
+                                     rd$ticks$grass_density)))
+  expect_equal(length(unique(lines$group)), 2L)
+  expect_equal(panel$labels$title, "Grass coverage and density")
+})
+
+test_that("plot_run retains coverage for older runs without density", {
+  rd <- .mock_run_data()
+  panel <- plot_run(rd)[[5]]
+  expect_equal(ggplot2::ggplot_build(panel)$data[[1]]$y,
+               rd$ticks$grass_coverage)
+  expect_equal(panel$labels$title, "Grass coverage")
+})
+
 # ── 2. plot_run with BNN sigma shows Baldwin Effect panel ─────────────────────
 
 test_that("plot_run() switches sixth panel when mean_prior_sigma varies", {

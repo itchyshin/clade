@@ -1,5 +1,9 @@
 # clade 0.8.0 (development) — sex / mating-system subsystem + Rees-Baylis 2026 paper reproduction
 
+- `plot_run()` now shows grass biomass density alongside coverage when the
+  recorded data includes `grass_density`. Older saved runs retain the
+  coverage-only panel. Stochastic grass growth remains the default (#167).
+
 Phased sex / mating-system subsystem, motivated by the Rees-Baylis et
 al. (2026, *Nature Communications*) paper on sex-biased longevity
 evolution. Three layers — sex foundation, sex-specific trait
@@ -74,7 +78,32 @@ know their own sex across their lifetime. This release adds the
 minimum foundation; sex-specific trait expression and mating-system
 structure follow in subsequent 0.8.x releases.
 
+## Unknown spec names now warn
+
+- `run_alife()` warns when `specs` contains a name clade does not read,
+  and the Julia kernel warns once per session for each such key it
+  receives. Previously these were accepted silently: a 500-run sweep
+  (#185) sampled `repro_threshold`, which is the agent trait, while the
+  spec that sets it is `min_repro_energy`. The warning suggests
+  `min_repro_energy` for that name.
+- `log_movement` and `log_movement_freq` are now in the Julia defaults
+  as well as R's, so R users see no spurious warning.
+
 ## New spec fields (all default-off / backward-compatible)
+
+- **`grass_growth_mode = "stochastic"`** selects how grass regrows (#167).
+  `"stochastic"` keeps the existing rule (each cell gains one unit with
+  probability `grass_rate`); seeded runs are unchanged. `"deterministic"`
+  adds `grass_rate` to every cell each tick, the A-life rule, in all
+  three growth branches (default, niche construction, seasonal spatial
+  bias). New per-tick column **`grass_density`** reports total grass as
+  a share of capacity, since `grass_coverage` saturates near 1 under
+  deterministic growth.
+
+- **`log_movement = FALSE`, `log_movement_freq = 1L`** are now listed in
+  `default_specs()`. Previously, setting only `log_movement = TRUE`
+  stopped the run with a Julia `KeyError` for `log_movement_freq`; the
+  Julia recorder now also falls back to `1` when the key is absent.
 
 - **`sex_labels = FALSE`** — master toggle for persistent sex identity
   on agents. When `TRUE`, each `Agent` carries a sticky `sex` field

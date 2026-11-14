@@ -1,0 +1,56 @@
+# Run the Julia kernel's own test suite (inst/julia/test/runtests.jl).
+#
+# The other workflows never exercise it: tests.yaml skips every
+# Julia-dependent test via CLADE_SKIP_JULIA_TESTS, and
+# fidelity-matrix.yaml runs paper scripts on demand. Three unit tests
+# broke unnoticed that way (repaired in #192), and a failing top-level
+# testset stops runtests.jl, silently hiding every testset after it.
+#
+# Cheap by design: triggers only when inst/julia/ (or this file)
+# changes, runs on ubuntu-latest only (per CLAUDE.md), and the kernel
+# depends only on Julia standard libraries. Measured locally from an
+# empty depot: ~18 s instantiate + precompile, ~20 s tests.
+#
+# Julia is pinned to 1.10, the minor version inst/julia/Manifest.toml
+# was resolved with (julia_version = "1.10.0").
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main, master]
+    paths:
+      - 'inst/julia/**'
+      - '.github/workflows/julia-tests.yaml'
+
+name: julia-tests
+
+permissions: read-all
+
+concurrency:
+  group: julia-tests-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  julia-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    env:
+      # Shared-runner hygiene: cap threads at launch.
+      JULIA_NUM_THREADS: '4'
+      OPENBLAS_NUM_THREADS: '1'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: '1.10'
+
+      - uses: julia-actions/cache@v2
+
+      - name: Instantiate kernel environment
+        run: julia --project=inst/julia -e 'using Pkg; Pkg.instantiate()'
+
+      - name: Run inst/julia/test/runtests.jl
+        run: julia --project=inst/julia inst/julia/test/runtests.jl
