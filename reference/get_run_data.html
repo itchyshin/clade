@@ -134,6 +134,8 @@ population-level columns. Core columns always present: <code>t</code>,
 <code>n_agents</code>, <code>n_births</code>, <code>n_deaths</code>, <code>n_starvations</code>,
 <code>n_age_deaths</code>, <code>mean_energy</code>, <code>sd_energy</code>, <code>mean_age</code>, <code>sd_age</code>,
 <code>mean_body_size</code>, <code>sd_body_size</code>, <code>genetic_diversity</code>, <code>n_species</code>,
+<code>behavioral_diversity</code>, <code>n_behavioral_agents</code>,
+<code>predator_behavioral_diversity</code>, <code>n_behavioral_predators</code>,
 <code>grass_coverage</code> (share of cells with any grass), <code>grass_density</code>
 (total grass as a share of <code>N * grass_max</code>; can exceed 1 only when
 <code>fixed_patch_value &gt; grass_max</code>). Module-specific columns are present as zeros
@@ -155,6 +157,18 @@ shape is stable across specs), including
 <code>inst/julia/src/logging.jl::_init_progress</code>; use
 <code>colnames(get_run_data(env)$ticks)</code> to see every column for a
 specific run.</p></dd>
+
+<dt>Action diversity</dt>
+<dd><p><code>behavioral_diversity</code> is Shannon entropy in nats
+(<code>-sum(p * log(p))</code>) of living prey's last chosen actions: 1 to 4 are
+north, east, south and west; 5 is stay. A blocked move still counts as
+that chosen direction. Dead individuals and code 0 (no decision yet,
+including newborns) are excluded. <code>n_behavioral_agents</code> is the number
+included. The predator columns use the same definition separately
+(predator action 5 is stay and attack). Entropy is 0 for one chosen
+category and at most <code>log(5)</code>; it is <code>NaN</code> when no decisions are
+available or the tick was not logged. This measures population
+diversity of decisions, not individual behavioural repeatability.</p></dd>
 
 <dt><code>$deaths</code></dt>
 <dd><p>A data frame with one row per agent death and columns:
@@ -179,6 +193,8 @@ columns <code>t</code>, <code>agent_id</code>, <code>trait_1</code>..<code>trait
 <span class="r-in"><span><span class="va">env</span>  <span class="op">&lt;-</span> <span class="fu"><a href="run_alife.html">run_alife</a></span><span class="op">(</span><span class="fu"><a href="default_specs.html">default_specs</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu">get_run_data</span><span class="op">(</span><span class="va">env</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">ticks</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">ticks</span>, <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">t</span>, <span class="va">behavioral_diversity</span>, type <span class="op">=</span> <span class="st">"l"</span>,</span></span>
+<span class="r-in"><span>                      ylab <span class="op">=</span> <span class="st">"Action entropy (nats)"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">deaths</span><span class="op">$</span><span class="va">age</span>, main <span class="op">=</span> <span class="st">"Age at death"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>

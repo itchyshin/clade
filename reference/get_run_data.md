@@ -31,28 +31,42 @@ A list with components:
   columns. Core columns always present: `t`, `n_agents`, `n_births`,
   `n_deaths`, `n_starvations`, `n_age_deaths`, `mean_energy`,
   `sd_energy`, `mean_age`, `sd_age`, `mean_body_size`, `sd_body_size`,
-  `genetic_diversity`, `n_species`, `grass_coverage` (share of cells
-  with any grass), `grass_density` (total grass as a share of
-  `N * grass_max`; can exceed 1 only when
-  `fixed_patch_value > grass_max`). Module-specific columns are present
-  as zeros when the corresponding module is disabled (so the data frame
-  shape is stable across specs), including `mean_cooperation_level`,
-  `mean_immune_strength`, `sd_immune_strength`, `mean_metabolic_rate`,
-  `mean_learning_rate`, `mean_prior_sigma` (BNN only), `n_infected`,
-  `n_new_infections`, `n_altruistic_acts`, `n_shelters_built`,
-  `n_predators`, `n_prey_killed`, `n_juveniles`, `n_helpers`,
-  `mean_signal_magnitude`, `mean_preference_magnitude`,
-  `mean_signal_preference_dist`, `sd_signal_magnitude`, `mean_toxicity`,
-  `mean_plasticity`, `mean_helper_tendency`, `mean_habitat_preference`,
-  `mean_brain_size`, `n_ground_agents`, `n_shrub_agents`,
-  `n_canopy_agents`, `mean_wing_size`, `n_front_agents`,
-  `mean_front_dispersal`, `n_iffolk_transfers`, `mean_relatedness`,
-  `n_scavenge_events`, `n_gd_events`, `mean_shelter_depth`,
-  `mean_mutation_rate`, `mean_clutch_size`, `mean_ann_weight_magnitude`.
-  The authoritative full list is in
-  `inst/julia/src/logging.jl::_init_progress`; use
+  `genetic_diversity`, `n_species`, `behavioral_diversity`,
+  `n_behavioral_agents`, `predator_behavioral_diversity`,
+  `n_behavioral_predators`, `grass_coverage` (share of cells with any
+  grass), `grass_density` (total grass as a share of `N * grass_max`;
+  can exceed 1 only when `fixed_patch_value > grass_max`).
+  Module-specific columns are present as zeros when the corresponding
+  module is disabled (so the data frame shape is stable across specs),
+  including `mean_cooperation_level`, `mean_immune_strength`,
+  `sd_immune_strength`, `mean_metabolic_rate`, `mean_learning_rate`,
+  `mean_prior_sigma` (BNN only), `n_infected`, `n_new_infections`,
+  `n_altruistic_acts`, `n_shelters_built`, `n_predators`,
+  `n_prey_killed`, `n_juveniles`, `n_helpers`, `mean_signal_magnitude`,
+  `mean_preference_magnitude`, `mean_signal_preference_dist`,
+  `sd_signal_magnitude`, `mean_toxicity`, `mean_plasticity`,
+  `mean_helper_tendency`, `mean_habitat_preference`, `mean_brain_size`,
+  `n_ground_agents`, `n_shrub_agents`, `n_canopy_agents`,
+  `mean_wing_size`, `n_front_agents`, `mean_front_dispersal`,
+  `n_iffolk_transfers`, `mean_relatedness`, `n_scavenge_events`,
+  `n_gd_events`, `mean_shelter_depth`, `mean_mutation_rate`,
+  `mean_clutch_size`, `mean_ann_weight_magnitude`. The authoritative
+  full list is in `inst/julia/src/logging.jl::_init_progress`; use
   `colnames(get_run_data(env)$ticks)` to see every column for a specific
   run.
+
+- Action diversity:
+
+  `behavioral_diversity` is Shannon entropy in nats (`-sum(p * log(p))`)
+  of living prey's last chosen actions: 1 to 4 are north, east, south
+  and west; 5 is stay. A blocked move still counts as that chosen
+  direction. Dead individuals and code 0 (no decision yet, including
+  newborns) are excluded. `n_behavioral_agents` is the number included.
+  The predator columns use the same definition separately (predator
+  action 5 is stay and attack). Entropy is 0 for one chosen category and
+  at most `log(5)`; it is `NaN` when no decisions are available or the
+  tick was not logged. This measures population diversity of decisions,
+  not individual behavioural repeatability.
 
 - `$deaths`:
 
@@ -78,6 +92,8 @@ if (FALSE) { # \dontrun{
 env  <- run_alife(default_specs())
 data <- get_run_data(env)
 head(data$ticks)
+with(data$ticks, plot(t, behavioral_diversity, type = "l",
+                      ylab = "Action entropy (nats)"))
 hist(data$deaths$age, main = "Age at death")
 } # }
 ```
