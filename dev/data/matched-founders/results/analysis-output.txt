@@ -1,0 +1,140 @@
+rows 3600 cells 36 matched blocks 1200
+initial matching: all blocks identical across mutation treatments
+zero-founder/zero-mutation control: all measurable endpoints zero
+viability counts:
+, ,  = crashed
+
+
+                 benign costly
+  fixed               0    876
+  heterozygosity      0    870
+
+, ,  = viable
+
+
+                 benign costly
+  fixed             900      0
+  heterozygosity    899      2
+
+, ,  = weak
+
+
+                 benign costly
+  fixed               0     24
+  heterozygosity      1     28
+
+fixed-exploration cell means:
+ exploration  world founder_sd mutation_sd          metric   n       mean
+       fixed benign       0.00        0.00        survival 100 1.00000000
+       fixed benign       0.00        0.00 final_diversity 100 0.00000000
+       fixed costly       0.00        0.00        survival 100 0.90000000
+       fixed costly       0.00        0.00 final_diversity  90 0.00000000
+       fixed benign       0.05        0.00        survival 100 1.00000000
+       fixed benign       0.05        0.00 final_diversity 100 0.05513478
+       fixed costly       0.05        0.00        survival 100 0.89000000
+       fixed costly       0.05        0.00 final_diversity  89 0.01615692
+       fixed benign       0.20        0.00        survival 100 1.00000000
+       fixed benign       0.20        0.00 final_diversity 100 0.21573709
+       fixed costly       0.20        0.00        survival 100 0.87000000
+       fixed costly       0.20        0.00 final_diversity  87 0.06276918
+       fixed benign       0.00        0.05        survival 100 1.00000000
+       fixed benign       0.00        0.05 final_diversity 100 0.23397954
+       fixed costly       0.00        0.05        survival 100 0.87000000
+       fixed costly       0.00        0.05 final_diversity  87 0.14514787
+       fixed benign       0.05        0.05        survival 100 1.00000000
+       fixed benign       0.05        0.05 final_diversity 100 0.23972474
+       fixed costly       0.05        0.05        survival 100 0.90000000
+       fixed costly       0.05        0.05 final_diversity  90 0.14219707
+       fixed benign       0.20        0.05        survival 100 1.00000000
+       fixed benign       0.20        0.05 final_diversity 100 0.32027251
+       fixed costly       0.20        0.05        survival 100 0.91000000
+       fixed costly       0.20        0.05 final_diversity  91 0.16090753
+       fixed benign       0.00        0.20        survival 100 1.00000000
+       fixed benign       0.00        0.20 final_diversity 100 0.92744394
+       fixed costly       0.00        0.20        survival 100 0.91000000
+       fixed costly       0.00        0.20 final_diversity  90 0.57233525
+       fixed benign       0.05        0.20        survival 100 1.00000000
+       fixed benign       0.05        0.20 final_diversity 100 0.92471278
+       fixed costly       0.05        0.20        survival 100 0.93000000
+       fixed costly       0.05        0.20 final_diversity  91 0.56664731
+       fixed benign       0.20        0.20        survival 100 1.00000000
+       fixed benign       0.20        0.20 final_diversity 100 0.95048501
+       fixed costly       0.20        0.20        survival 100 0.89000000
+       fixed costly       0.20        0.20 final_diversity  87 0.54131843
+         mcse      lower      upper
+ 0.0000000000 0.96378331 1.00000000
+ 0.0000000000 0.00000000 0.00000000
+ 0.0300000000 0.82377740 0.95099531
+ 0.0000000000 0.00000000 0.00000000
+ 0.0000000000 0.96378331 1.00000000
+ 0.0003114495 0.05451679 0.05575276
+ 0.0312889757 0.81169887 0.94379298
+ 0.0017263207 0.01272622 0.01958762
+ 0.0000000000 0.96378331 1.00000000
+ 0.0011864488 0.21338291 0.21809126
+ 0.0336303434 0.78795932 0.92892695
+ 0.0074224922 0.04801375 0.07752460
+ 0.0000000000 0.96378331 1.00000000
+ 0.0010848119 0.23182703 0.23613204
+ 0.0336303434 0.78795932 0.92892695
+ 0.0061083936 0.13300479 0.15729096
+ 0.0000000000 0.96378331 1.00000000
+ 0.0009986245 0.23774325 0.24170623
+ 0.0300000000 0.82377740 0.95099531
+ 0.0058424376 0.13058827 0.15380587
+ 0.0000000000 0.96378331 1.00000000
+ 0.0013741723 0.31754586 0.32299917
+ 0.0286181760 0.83601774 0.95801640
+ 0.0079787760 0.14505630 0.17675876
+ 0.0000000000 0.96378331 1.00000000
+ 0.0039789276 0.91954889 0.93533900
+ 0.0286181760 0.83601774 0.95801640
+ 0.0228342988 0.52696398 0.61770651
+ 0.0000000000 0.96378331 1.00000000
+ 0.0034761959 0.91781525 0.93161030
+ 0.0255147016 0.86108027 0.97139471
+ 0.0228196486 0.52131209 0.61198252
+ 0.0000000000 0.96378331 1.00000000
+ 0.0041711317 0.94220858 0.95876144
+ 0.0312889757 0.81169887 0.94379298
+ 0.0239330646 0.49374107 0.58889579
+paired mutation .2 versus zero:
+    exploration  world founder_sd mutation_sd reference_mutation
+          fixed benign       0.00         0.2                  0
+          fixed benign       0.05         0.2                  0
+          fixed benign       0.20         0.2                  0
+          fixed costly       0.00         0.2                  0
+          fixed costly       0.05         0.2                  0
+          fixed costly       0.20         0.2                  0
+ heterozygosity benign       0.00         0.2                  0
+ heterozygosity benign       0.05         0.2                  0
+ heterozygosity benign       0.20         0.2                  0
+ heterozygosity costly       0.00         0.2                  0
+ heterozygosity costly       0.05         0.2                  0
+ heterozygosity costly       0.20         0.2                  0
+                           metric total_pairs   n      mean        mcse
+ diversity_difference_cosurvivors         100 100 0.9274439 0.003978928
+ diversity_difference_cosurvivors         100 100 0.8695780 0.003421511
+ diversity_difference_cosurvivors         100 100 0.7347479 0.004399437
+ diversity_difference_cosurvivors         100  80 0.5920986 0.024171985
+ diversity_difference_cosurvivors         100  80 0.5482494 0.023870448
+ diversity_difference_cosurvivors         100  76 0.4745962 0.027143556
+ diversity_difference_cosurvivors         100 100 0.9245392 0.004213307
+ diversity_difference_cosurvivors         100 100 0.8700290 0.004625137
+ diversity_difference_cosurvivors         100 100 0.7384516 0.003935859
+ diversity_difference_cosurvivors         100  78 0.5275584 0.026617794
+ diversity_difference_cosurvivors         100  79 0.5939975 0.024879038
+ diversity_difference_cosurvivors         100  73 0.5513782 0.028061602
+     lower     upper
+ 0.9195489 0.9353390
+ 0.8627890 0.8763670
+ 0.7260185 0.7434774
+ 0.5439854 0.6402117
+ 0.5007365 0.5957624
+ 0.4205235 0.5286689
+ 0.9161791 0.9328993
+ 0.8608517 0.8792063
+ 0.7306420 0.7462612
+ 0.4745556 0.5805612
+ 0.5444671 0.6435278
+ 0.4954384 0.6073180

@@ -36,6 +36,13 @@ include(joinpath(@__DIR__, "..", "scripts", "matched_founders.jl"))
     @test isnan(MatchedFounders.exact_diversity(r05.env.agents[1:1]))
     @test MatchedFounders.exact_diversity(r05.env.agents[1:2]) ==
           Float64(Clade.genome_distance(r05.env.agents[1].genome,r05.env.agents[2].genome))
+    fixture = deepcopy(r05.env.agents[1:3])
+    for (agent, weight) in zip(fixture, (0.0f0, 1.0f0, 3.0f0))
+        fill!(agent.genome.maternal_weights, weight)
+        fill!(agent.genome.paternal_weights, weight)
+    end
+    # Three constant vectors have pair distances 1, 3 and 2: mean = 2.
+    @test MatchedFounders.exact_diversity(fixture) == 2.0
     @test_throws ArgumentError MatchedFounders.trial(specs, -0.1)
 end
 

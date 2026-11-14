@@ -1,0 +1,50 @@
+{
+  "study": "matched founder weight spread and subsequent offspring mutation",
+  "date": "2026-11-14",
+  "host": "totoro.biology.ualberta.ca",
+  "simulation_source_commit": "07bc4949b9ff9fe64119335736897dbe7e960af8",
+  "source_archive_sha256": "1b03378779b1e8b6d077a3140628e5388e35a38d67553d4142237d21eee0c9f7",
+  "remote_source": "/home/snakagaw/hsq_work/clade-matched-20261114/07bc494",
+  "remote_archive": "/home/snakagaw/sim-archive/clade/2026-11-14-matched-founders",
+  "wall_seconds": 985.48,
+  "peak_memory_kib": 429372,
+  "julia_version": "1.10.0",
+  "OPENBLAS_NUM_THREADS": 1,
+  "JULIA_NUM_THREADS": 4,
+  "command": "/home/snakagaw/.juliaup/bin/julia +1.10.0 --project=inst/julia inst/julia/scripts/matched_founders.jl 100 /home/snakagaw/sim-archive/clade/2026-11-14-matched-founders/full-100 1000",
+  "design": {
+    "cells": 36,
+    "seeds_per_cell": 100,
+    "seed_range": [
+      10001,
+      10100
+    ],
+    "runs": 3600,
+    "max_ticks": 1000,
+    "initial_agents": 50
+  },
+  "analysis_command": "Rscript dev/data/matched-founders/analyze.R OUTDIR 100",
+  "analysis_sha256": "354e0bfd1dc11ccefec5070e5375da2fc12bf3a720848a53582bf04e895eddb4",
+  "plot_sha256": "009391e738bbde15fa86b759a26aa231092d3077605db4f2e87029d8d3c6e8c5",
+  "raw_sha256": {
+    "runs.csv": "f02a1e019e16b246de5a4ba5d083809a5b24368921df1dae062f3f56ed3e5af1",
+    "trajectories.csv": "c43c0cd5fc969c8fbc3bc36e21f46e051d5c83c9ebdfcb28a79daf2ca2176abf"
+  },
+  "packaged_sha256": {
+    "R-session-info.txt": "5723e7811d7a30f88ee17919c69190b35f9fd77c0c0e84539ecee3acd750ed78",
+    "analysis-output.txt": "6153d2d6dc3b89f05e8ebc87632e4e8f476a79d40d9819292028bfbb38b4e692",
+    "cell_summary.csv": "c765ac256c414567948288dceb06ef40106735b14c36c154f6251f1947d28622",
+    "founder_contrasts.csv": "cc841bd785fe6535d834ead15e09e96206505c941d64ff80495d268ab82017f3",
+    "full-time.txt": "f7941fa977ef0b910484cc9a72901a4fad07f0debb5991f4663b1608cfbffc56",
+    "independent-audit.txt": "11a1ae6d93c66bbcf46b65dee5cd063ad08d021acd0655add21764bdaa39153b",
+    "interaction_contrasts.csv": "6e0bcc7233858ad1adcfbab1983637a9a7ff0dbe391a2ec91cfdec6276842431",
+    "matched-founders.png": "659b1f1bb8cdfbdaa21b76b2d9b13aa8a20280c31c750ef37e258ba90d159a5c",
+    "paired_contrasts.csv": "14f777901c4948b33885d73ac54a928f992c0fd60717beb42d646649c781605d",
+    "pilot-time.txt": "48598b36a7507f54901f61858a14e2aa8bb66d34f514ea955e94d9f754bf05ed",
+    "replay-check.txt": "26b9a33f50bd79e724c79023bb1ba553781f3cb668819a6692d881c213327048",
+    "runs.csv.gz": "c6f9d2e433e4ae20b58e00c338a4679394ec94530c3c270acaed0f7472a36084",
+    "trajectories.csv.gz": "11b81a4e6057bb98efb2eca6dedbd33d9289f5846d969944aa106174229ae6ff"
+  },
+  "replay": "36 conditions at seed10001 replayed in a separate Julia process; all run and trajectory fields identical",
+  "limits": "Same pinned Julia and machine; no cross-version or cross-platform bitwise replay claim."
+}

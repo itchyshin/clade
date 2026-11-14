@@ -1,0 +1,23 @@
+	Command being timed: "/home/snakagaw/.juliaup/bin/julia +1.10.0 --project=inst/julia inst/julia/scripts/matched_founders.jl 100 /home/snakagaw/sim-archive/clade/2026-11-14-matched-founders/full-100 1000"
+	User time (seconds): 989.07
+	System time (seconds): 6.28
+	Percent of CPU this job got: 101%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 16:25.48
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 429372
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 5077731
+	Voluntary context switches: 27574
+	Involuntary context switches: 6201
+	Swaps: 0
+	File system inputs: 15244
+	File system outputs: 7842
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

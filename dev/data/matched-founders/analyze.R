@@ -68,6 +68,7 @@ summary <- do.call(rbind,lapply(groups,function(idx) {
   x <- d[idx,]; base <- x[1,key,drop=FALSE]
   metrics <- list(survival=prop_stats(x$final_agents>0),
     at_least_two=prop_stats(x$final_agents>=2),
+    singleton=prop_stats(x$final_agents==1),
     viable=prop_stats(x$viability=="viable"),
     final_agents=mean_stats(x$final_agents),
     final_diversity=mean_stats(x$final_diversity),
