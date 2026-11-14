@@ -20,13 +20,17 @@ helpers would obscure those distinctions or change simulation behavior.
 ## 4. Files Touched
 
 AGENTS.md, dev/design/mutation-paths.md, decisions.md, check-log.md and this
-report. No code, test, generated help or public signature changed.
+report. A source comment in genome.jl links the design note beside the
+allele mutation helper. No executable code, test, generated help or public
+signature changed.
 
 ## 5. Checks Run
 
 Reviewed the active calls in genome.jl::meiosis and predator reproduction,
 then all four implemented neural-brain mutate methods. git diff --check,
-after-task structure check and prose check passed.
+after-task structure check and prose check passed. The portable R suite
+also passed in workflow run 43605037297 at f48ea70. A final source comment
+was added after that run; PR checks are required on the updated head.
 
 ## 6. Tests of the Tests
 
