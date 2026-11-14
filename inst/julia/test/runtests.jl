@@ -421,3 +421,5 @@ include("test_behaviour_assay.jl")
 include("test_performance_assay.jl")
 
 include("test_reproduction_reset.jl")
+
+include("test_mixture_assay.jl")

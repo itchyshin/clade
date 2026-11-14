@@ -1,0 +1,79 @@
+{
+  "source_revision": "34dummypin",
+  "source_root": "/home/snakagaw/hsq_work/clade-mixture-20261114",
+  "commands": [
+    {
+      "pid": 3558035,
+      "command": [
+        "/usr/bin/time",
+        "-v",
+        "-o",
+        "/home/snakagaw/sim-archive/clade/2026-11-14-policy-mixture/shard-0.time",
+        "/home/snakagaw/.juliaup/bin/julia",
+        "+1.10.0",
+        "--project=inst/julia",
+        "inst/julia/scripts/mixture_assay.jl",
+        "25",
+        "/home/snakagaw/sim-archive/clade/2026-11-14-policy-mixture/shard-0",
+        "/home/snakagaw/sim-archive/clade/2026-11-14-performance-corrected/full-100/states",
+        "20001"
+      ]
+    },
+    {
+      "pid": 3558036,
+      "command": [
+        "/usr/bin/time",
+        "-v",
+        "-o",
+        "/home/snakagaw/sim-archive/clade/2026-11-14-policy-mixture/shard-1.time",
+        "/home/snakagaw/.juliaup/bin/julia",
+        "+1.10.0",
+        "--project=inst/julia",
+        "inst/julia/scripts/mixture_assay.jl",
+        "25",
+        "/home/snakagaw/sim-archive/clade/2026-11-14-policy-mixture/shard-1",
+        "/home/snakagaw/sim-archive/clade/2026-11-14-performance-corrected/full-100/states",
+        "20026"
+      ]
+    },
+    {
+      "pid": 3558038,
+      "command": [
+        "/usr/bin/time",
+        "-v",
+        "-o",
+        "/home/snakagaw/sim-archive/clade/2026-11-14-policy-mixture/shard-2.time",
+        "/home/snakagaw/.juliaup/bin/julia",
+        "+1.10.0",
+        "--project=inst/julia",
+        "inst/julia/scripts/mixture_assay.jl",
+        "25",
+        "/home/snakagaw/sim-archive/clade/2026-11-14-policy-mixture/shard-2",
+        "/home/snakagaw/sim-archive/clade/2026-11-14-performance-corrected/full-100/states",
+        "20051"
+      ]
+    },
+    {
+      "pid": 3558040,
+      "command": [
+        "/usr/bin/time",
+        "-v",
+        "-o",
+        "/home/snakagaw/sim-archive/clade/2026-11-14-policy-mixture/shard-3.time",
+        "/home/snakagaw/.juliaup/bin/julia",
+        "+1.10.0",
+        "--project=inst/julia",
+        "inst/julia/scripts/mixture_assay.jl",
+        "25",
+        "/home/snakagaw/sim-archive/clade/2026-11-14-policy-mixture/shard-3",
+        "/home/snakagaw/sim-archive/clade/2026-11-14-performance-corrected/full-100/states",
+        "20076"
+      ]
+    }
+  ],
+  "wall_seconds": 398.4517273902893,
+  "workers": 4,
+  "julia_threads_per_worker": 4,
+  "blas_threads": 1,
+  "orchestrator_sha256": "5cf7f4cb1712a57035532b51a0fdd6af1a1c9091e719857e69c05f15e184262e"
+}

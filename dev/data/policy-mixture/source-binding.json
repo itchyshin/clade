@@ -1,0 +1,8 @@
+{
+  "verified_simulation_revision": "2e8a30f3932c297c09db106181f7615e4194f3c6",
+  "launch_revision_argument": "34dummypin",
+  "source_archive_sha256": "05017a3484fc0bf876951d8d123cf0035384dda148c47b24eed8d38dc28da582",
+  "driver_sha256": "5eaaa12f1793811b562441b462649e50400a7aa2741636bf77f0caaa5993e067",
+  "executed_orchestrator_sha256": "5cf7f4cb1712a57035532b51a0fdd6af1a1c9091e719857e69c05f15e184262e",
+  "verification": "Local git archive of2e8a30f and remote /tmp/clade-mixture-full-source.tar.gz hashes match exactly. Local/remote driver and git-show2e8 orchestrator hashes match. A mistaken non-SHA label was passed to the wrapper; it affects execution.json metadata only. Raw execution receipt is retained unchanged; this binding identifies the actual archived source. Final wrapper rejects malformed source pins before creating archives or starting workers. Scientific dynamics and outputs were not changed or rerun for this correction."
+}

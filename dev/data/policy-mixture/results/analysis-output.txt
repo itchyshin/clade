@@ -1,0 +1,167 @@
+Complete balanced design: 10800 runs; 600 panels; 2178703 births; 2229971 deaths
+, , mode = demography, viability = crashed
+
+      source_mutation
+ploidy   0 0.05 0.2
+     1  79   50   9
+     2   3    3   0
+
+, , mode = forage, viability = crashed
+
+      source_mutation
+ploidy   0 0.05 0.2
+     1   0    0   0
+     2   0    0   0
+
+, , mode = demography, viability = viable
+
+      source_mutation
+ploidy   0 0.05 0.2
+     1 716  782 871
+     2 889  887 897
+
+, , mode = forage, viability = viable
+
+      source_mutation
+ploidy   0 0.05 0.2
+     1 900  900 900
+     2 900  900 900
+
+, , mode = demography, viability = weak
+
+      source_mutation
+ploidy   0 0.05 0.2
+     1 105   68  20
+     2   8   10   3
+
+, , mode = forage, viability = weak
+
+      source_mutation
+ploidy   0 0.05 0.2
+     1   0    0   0
+     2   0    0   0
+
+ ploidy source_mutation       mode       metric      guard total_blocks
+      1            0.00 demography  birth_yield all_blocks          100
+      2            0.00 demography  birth_yield all_blocks          100
+      1            0.05 demography  birth_yield all_blocks          100
+      2            0.05 demography  birth_yield all_blocks          100
+      1            0.20 demography  birth_yield all_blocks          100
+      2            0.20 demography  birth_yield all_blocks          100
+      1            0.00 demography final_agents all_blocks          100
+      2            0.00 demography final_agents all_blocks          100
+      1            0.05 demography final_agents all_blocks          100
+      2            0.05 demography final_agents all_blocks          100
+      1            0.20 demography final_agents all_blocks          100
+      2            0.20 demography final_agents all_blocks          100
+      1            0.00     forage    food_rate all_blocks          100
+      2            0.00     forage    food_rate all_blocks          100
+      1            0.05     forage    food_rate all_blocks          100
+      2            0.05     forage    food_rate all_blocks          100
+      1            0.20     forage    food_rate all_blocks          100
+      2            0.20     forage    food_rate all_blocks          100
+      1            0.00     forage     net_rate all_blocks          100
+      2            0.00     forage     net_rate all_blocks          100
+      1            0.05     forage     net_rate all_blocks          100
+      2            0.05     forage     net_rate all_blocks          100
+      1            0.20     forage     net_rate all_blocks          100
+      2            0.20     forage     net_rate all_blocks          100
+      1            0.00 demography  survival100 all_blocks          100
+      2            0.00 demography  survival100 all_blocks          100
+      1            0.05 demography  survival100 all_blocks          100
+      2            0.05 demography  survival100 all_blocks          100
+      1            0.20 demography  survival100 all_blocks          100
+      2            0.20 demography  survival100 all_blocks          100
+ all9_viable   n        mix    control          mean        mcse        lower
+          30 100  7.4001199  7.4042422 -0.0041222941 0.023248314 -0.050251993
+          89 100  7.6730371  7.6598948  0.0131423386 0.021820663 -0.030154591
+          31 100  7.4704447  7.4453004  0.0251442550 0.020888502 -0.016303064
+          87 100  7.7085289  7.6821666  0.0263622124 0.022172656 -0.017633147
+          77 100  8.0269555  7.7503351  0.2766204415 0.023833400  0.229329805
+          97 100  7.9432085  7.8668528  0.0763557263 0.026977625  0.022826265
+          30 100 31.2700000 30.1212500  1.1487500000 0.849313996 -0.536473229
+          89 100 36.4300000 37.0050000 -0.5750000000 0.618348444 -1.801937464
+          31 100 34.2900000 32.0075000  2.2825000000 0.779361343  0.736078011
+          87 100 38.6300000 37.9112500  0.7187500000 0.588302362 -0.448569518
+          77 100 56.8500000 46.5700000 10.2800000000 0.953955945  8.387144443
+          97 100 47.5000000 45.6787500  1.8212500000 0.849562155  0.135534370
+         100 100  1.2027667  1.1980266  0.0047401042 0.003468966 -0.002143077
+         100 100  1.1975125  1.1988859 -0.0013734375 0.003386078 -0.008092152
+         100 100  1.2100417  1.2068729  0.0031687500 0.003136241 -0.003054232
+         100 100  1.1998083  1.2019156 -0.0021072917 0.003741711 -0.009531657
+         100 100  1.2472083  1.2501896 -0.0029812500 0.002780786 -0.008498933
+         100 100  1.2295958  1.2306047 -0.0010088542 0.003328295 -0.007612914
+         100 100  2.5570102  2.5559108  0.0010993876 0.001951140 -0.002772097
+         100 100  2.5545695  2.5557584 -0.0011889283 0.001964075 -0.005086079
+         100 100  2.5598429  2.5606212 -0.0007782444 0.001698063 -0.004147569
+         100 100  2.5572730  2.5584256 -0.0011525861 0.002065809 -0.005251600
+         100 100  2.5678228  2.5695093 -0.0016865518 0.001521593 -0.004705722
+         100 100  2.5626185  2.5649008 -0.0022823522 0.002188816 -0.006625437
+          30 100  0.6051260  0.6026702  0.0024557838 0.002415205 -0.002336506
+          89 100  0.5752121  0.5779040 -0.0026918823 0.002287854 -0.007231480
+          31 100  0.6020722  0.6010543  0.0010178917 0.002011984 -0.002974321
+          87 100  0.5751788  0.5773607 -0.0021818936 0.002204307 -0.006555717
+          77 100  0.5723939  0.5905911 -0.0181972496 0.002259304 -0.022680198
+          97 100  0.5675677  0.5718056 -0.0042378642 0.002511007 -0.009220246
+         upper relative_percent relative_lower relative_upper classification
+  0.0420074046      -0.05567476     -0.6937044      0.5686825      secondary
+  0.0564392681       0.17157336     -0.4059207      0.7347573      secondary
+  0.0665915741       0.33771982     -0.1942758      0.8765418      secondary
+  0.0703575718       0.34316116     -0.1914426      0.9143958      secondary
+  0.3239110785       3.56914171      2.9882867      4.1867625      secondary
+  0.1298851880       0.97060068      0.2568250      1.6381981      secondary
+  2.8339732289       3.81375275     -1.5756965      9.5664365      secondary
+  0.6519374642      -1.55384408     -4.7741232      1.7987702      secondary
+  3.8289219889       7.13114114      2.2831039     12.0069659      secondary
+  1.8860695184       1.89587523     -1.1078328      5.1096580      secondary
+ 12.1728555566      22.07429676     17.9895426     26.2576701      secondary
+  3.5069656296       3.98708371      0.4983005      7.6873659      secondary
+  0.0116232852       0.39565935     -0.1557992      0.9401361  within_margin
+  0.0053452767      -0.11455948     -0.6633964      0.4386604  within_margin
+  0.0093917320       0.26255871     -0.2295177      0.7893229  within_margin
+  0.0053170738      -0.17532775     -0.7768715      0.4193109  within_margin
+  0.0025364328      -0.23846383     -0.6851639      0.1836154  within_margin
+  0.0055952061      -0.08198036     -0.6042988      0.4472036  within_margin
+  0.0049708724               NA             NA             NA  within_margin
+  0.0027082228               NA             NA             NA  within_margin
+  0.0025910801               NA             NA             NA  within_margin
+  0.0029464281               NA             NA             NA  within_margin
+  0.0013326186               NA             NA             NA  within_margin
+  0.0020607329               NA             NA             NA  within_margin
+  0.0072480739               NA             NA             NA      secondary
+  0.0018477158               NA             NA             NA      secondary
+  0.0050101047               NA             NA             NA      secondary
+  0.0021919301               NA             NA             NA      secondary
+ -0.0137143010               NA             NA             NA      secondary
+  0.0007445176               NA             NA             NA      secondary
+ wins ties
+   49    0
+   51    0
+   47    0
+   56    0
+   88    0
+   62    0
+   55    0
+   47    1
+   60    0
+   53    2
+   86    0
+   63    2
+   58    0
+   49    0
+   49    0
+   48    0
+   49    0
+   49    0
+   55    0
+   54    0
+   51    0
+   57    0
+   56    0
+   51    0
+   55    0
+   48    0
+   54    0
+   42    0
+   22    0
+   41    0

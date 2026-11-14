@@ -1,0 +1,36 @@
+{
+  "assessment_performed": true,
+  "draft_sha256": "907214761d0689a50c376c46294759f8b9b03b799fe8d76bfaacefc2c557d9e8",
+  "draft_version": "v1",
+  "requested_mode": "independent",
+  "assessor_type": "self",
+  "reviewer": "Codex integrator",
+  "method": "Post-draft self-review of exact saved text; separate scientific review checked findings and source limits.",
+  "genre": "Research experiment instructions",
+  "coverage": "Whole exact draft",
+  "score": 2,
+  "style_status": "scored",
+  "score_reason": "Concrete experiment, outcomes and limits lead; protocol and validation records retain technical structure.",
+  "confidence": "moderate",
+  "confidence_reason": "Subjective editorial self-review without held-out calibration.",
+  "examples": [
+    {
+      "location": "Line 12",
+      "line": 12,
+      "quote": "The benchmark is the equally weighted mean of all eight control outcomes.",
+      "cue": "The benchmark is",
+      "impact": "States the scientific question or comparator concretely.",
+      "repair": "no change needed"
+    }
+  ],
+  "evidence_none_reason": null,
+  "science_gate": "pass",
+  "science_gate_reason": "Compared stated estimand, margins, windows, paired block units and limits with frozen protocol, driver and summary outputs; independent review checked findings.",
+  "facts_gate": "pass",
+  "facts_gate_reason": "Raw ledgers, exact replay, independent block/summary audit, timing and file checksums support claims within stated scope; original metadata-label error remains explicit.",
+  "references_gate": "pass",
+  "references_gate_reason": "Named local reports, scripts and result files exist; source archives and commits are bound by checksums.",
+  "date": "2026-11-14",
+  "calibration_status": "No held-out style controls used; perceived style only.",
+  "interpretation": "perceived_style_not_authorship"
+}
