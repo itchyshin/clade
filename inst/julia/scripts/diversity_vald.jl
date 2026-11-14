@@ -1,7 +1,10 @@
 using Statistics
 using Printf
-using Clade
+if !isdefined(@__MODULE__, :Clade)
+    using Clade
+end
 
+function diversity_validation()
 move_costs  = [0.0, 5.0, 10.0]
 grass_maxes = [5.0, 10.0, 20.0]
 seeds = [101, 102, 103, 104, 105]
@@ -27,10 +30,10 @@ for mc in move_costs
             res = Clade.run_clade(specs)
             
             # Extract requested observables
-            div = length(res.progress.genetic_diversity) > 0 ? res.progress.genetic_diversity[end] : 0.0
+            div = res.t > 0 ? res.progress.genetic_diversity[res.t] : 0.0
             t_final = res.t
-            agents_final = length(res.progress.n_agents) > 0 ? res.progress.n_agents[end] : 0
-            preds_final  = length(res.progress.n_predators) > 0 ? res.progress.n_predators[end] : 0
+            agents_final = res.t > 0 ? res.progress.n_agents[res.t] : 0
+            preds_final  = res.t > 0 ? res.progress.n_predators[res.t] : 0
             
             push!(results, (mc=mc, gm=gm, seed=s, div=div, t=t_final, agents=agents_final, preds=preds_final))
             
@@ -63,3 +66,9 @@ for mc in move_costs
     end
 end
 println("-"^75)
+
+end
+
+if abspath(PROGRAM_FILE) == @__FILE__
+    diversity_validation()
+end

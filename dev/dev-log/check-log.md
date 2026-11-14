@@ -644,3 +644,18 @@ important project state. Keep entries concise and concrete.
   #185 data must remain separate from results generated after this fix.
 - Report: after-task/2026-11-14-diversity-logging.md.
 - Next: settled green PR merge, then replay-safe #185 rerun.
+
+## 2026-11-14: Replay-safe diversity campaign driver
+
+- Branch: codex/campaign-replay, includes merged #201 and Bhavya's #185 history.
+- Driver now uses isolated Xoshiro(42), round-trip input precision, actual
+  final tick, and NA for snapshots after termination. Invalid counts/seeds
+  fail before opening the output file. Both entry scripts are include-safe.
+- Julia 1.10.0 full suite: exit 0, 166 assertions pass, including driver 23.
+  The test first caught invalid arguments overwriting an existing file.
+- Integration found `using Clade` tried to redefine a locally included module;
+  entry scripts now load the package only when Clade is not already bound.
+- Searches: `repro_threshold|full_drac_results|sample_environments` in scripts
+  and data README. Both submitted CSV files remain byte-for-byte unchanged.
+- Next: commit the exact driver, run a timed one-environment Totoro pilot,
+  inspect output before the full 100 by five rerun, record revision/checksums.
