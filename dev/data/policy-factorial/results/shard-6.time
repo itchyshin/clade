@@ -1,0 +1,23 @@
+	Command being timed: "/home/snakagaw/.juliaup/bin/julia +1.10.0 --project=inst/julia factorial.jl /home/snakagaw/sim-archive/clade/2026-11-14-policy-factorial/shard-6 20077 12"
+	User time (seconds): 552.76
+	System time (seconds): 3.60
+	Percent of CPU this job got: 101%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 9:06.89
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 438316
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 3064735
+	Voluntary context switches: 13750
+	Involuntary context switches: 1423
+	Swaps: 0
+	File system inputs: 74066
+	File system outputs: 4131
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

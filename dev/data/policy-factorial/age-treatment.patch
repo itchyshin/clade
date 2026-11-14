@@ -1,0 +1,11 @@
+--- a/inst/julia/scripts/mixture_assay.jl
++++ b/inst/julia/scripts/mixture_assay.jl
+@@ -34,7 +34,7 @@
+   t=copy(a.genome.maternal_traits);p=Int(s["ploidy"])
+   a.genome=Clade.DiploidGenome(copy(b.mu),p==2 ? copy(b.mu) : Float32[],
+       t,p==2 ? copy(t) : Float32[],copy(b.arch),a.genome.n_chromosomes)
+-  a.brain=b;a.age=Int32(50);a.energy=70f0;a.energy_last_tick=70f0
++  a.brain=b;a.age=Int32(get(ENV,"CLADE_FACTORIAL_AGE","invalid")=="fixed" ? 50 : get(ENV,"CLADE_FACTORIAL_AGE","invalid")=="staggered" ? 24+i : error("age mode"));a.energy=70f0;a.energy_last_tick=70f0
+   a.x=Int32(mod1(cells[i],30));a.y=Int32(cld(cells[i],30))
+   env.agent_map[a.x,a.y]=i
+   a.brain.mu==Clade.express_weights(a.genome,"additive") || error("policy/genome mismatch")

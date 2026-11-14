@@ -1,0 +1,96 @@
+{
+  "simulation_source_commit": "2b6ea12bbbccf06f62e700edf5653eeb7c950cc6",
+  "source_archive_sha256": "bbe0e9d49afa8aec5a5f18c278d3f7bea68f52a6ef7663fef264722ad035548f",
+  "source_policy_archive": "/home/snakagaw/sim-archive/clade/2026-11-14-performance-corrected/full-100/states",
+  "remote_archive": "/home/snakagaw/sim-archive/clade/2026-11-14-policy-factorial",
+  "source_age_patch": "dev/data/policy-factorial/age-treatment.patch",
+  "execution": {
+    "wall_seconds": 596.0971971019171,
+    "source_commit": "2b6ea12bbbccf06f62e700edf5653eeb7c950cc6",
+    "driver_sha256": "8402d800ae76d416aca28f48c036e74a18f5fbda180f72da1ed5334991ec1b8b",
+    "patched_assay_sha256": "3346ce1881b7531c398da5563f9dd33383967d57021d4333c0b8fb31c075e90c",
+    "threads_per_worker": 4,
+    "workers": 8,
+    "blas_threads": 1
+  },
+  "design": {
+    "runs": 10800,
+    "seed_blocks_per_cell": 100,
+    "ploidy": [
+      1,
+      2
+    ],
+    "source_mutation_sd": 0.2,
+    "transplant_mutation_sd": 0,
+    "age_modes": {
+      "fixed": 50,
+      "staggered": [
+        25,
+        72
+      ]
+    },
+    "food_regimes": [
+      {
+        "initial_grass": 0.5,
+        "regrowth": 0.05
+      },
+      {
+        "initial_grass": 0.25,
+        "regrowth": 0.025
+      },
+      {
+        "initial_grass": 0.25,
+        "regrowth": 0.0125
+      }
+    ],
+    "ticks": 1000,
+    "mixture_size": 48,
+    "policies": 8,
+    "monocultures": 8
+  },
+  "estimand": "Per-seed mixture final population minus mean of eight controls; paired age, food and interaction contrasts of that advantage.",
+  "raw_sha256": {
+    "runs.csv": "89b63b772a2e85d8cde4e0889953e72e135b0136ae83827364b85fde76f692ae",
+    "windows.csv": "73278d7d5ec20c263a6fe627074e35f628755605d1c4c3e2242d872b5213ea15"
+  },
+  "script_sha256": {
+    "dev/data/policy-factorial/age-treatment.patch": "7246d7e8bc7b32eea830b30ddc0e87ed655ebc345ee8106ed846bc2bd3514c17",
+    "dev/data/policy-factorial/analyze.R": "9dbd45fbac78aadffea144e813762a6111a0aa9c0c9eb63fe3b78ac66fbdb6f8",
+    "dev/data/policy-factorial/audit.py": "ced509d4ff13580d71d90b7f370925928c35843737d6a149859bf7df22bc0b88",
+    "dev/data/policy-factorial/check-prior.py": "7ce00a7e5dba7bc6fa1c03b4b303d0c9fa82cffc2dd75757e109ab7d614ddaa6",
+    "dev/data/policy-factorial/driver.jl": "8402d800ae76d416aca28f48c036e74a18f5fbda180f72da1ed5334991ec1b8b",
+    "dev/data/policy-factorial/init-check.jl": "285ee5d652f4c60770f16a8aaf2da6e4402fe8abd773765a08b063f1dc172939",
+    "dev/data/policy-factorial/plot.R": "858d53f55f7eada09b1d1f2a25ff2e830d052f8440be2687dee54b047e2c44e7",
+    "dev/data/policy-factorial/run_totoro.py": "4e0001bb2e2906e8f33b6fc732d89cf8946ab4544faf33a56289f20af96c778e",
+    "dev/data/policy-factorial/timecourse.R": "b2af7eaf53d97eea2993a7fc5b4b6c880ec437e9fe8c751571075bbd86c66c46",
+    "dev/data/policy-factorial/viable-sensitivity.R": "a33449c80925da9851daf4bf587e9a06812d1f3dcf487fc14aa9b929987222fc"
+  },
+  "checks": "42 matched initialization assertions; 10800 unique keys and 216000 window ledger audit; 3600 previous run rows and 72000 window rows exact; 1800 prior baseline runs match at tick300; all600 prior source hashes verified; 2000 bootstrap sensitivity resamples.",
+  "packaged_sha256": {
+    "analysis.log": "5f629f42461233993f663fa28a3f29b787a4d0d1865916d9553ad775049d6d63",
+    "baseline-time-change.csv": "61c32c337b18d02267483b7f257580d33fd3c9aa0a3bc4b9dee8dac657368ac2",
+    "baseline-timecourse.csv": "4e58f64f60ca84af1b0e10657c6622f80c0584d2ec2a310143e5bcbabefc8f0c",
+    "blocks.csv": "f25fd2a1a846cc693ede0c26ec41926554a75ebff5b739ca135c73a7e7e62c33",
+    "execution.json": "947daa931ef202768df076e9295bcfbfb173f2a756a27f2f59d6e3f2f8482512",
+    "factorial.png": "1de2c6ec67d7620857f57a72f3660f8b58fa72362dc08b8f037cbec5fe1fbe71",
+    "factorial_summary.csv": "b286ad5f2d70a3e73266ddc86f695e2fa15c3923bfd671a5194cd462eb8a2ed6",
+    "independent-audit.txt": "e02d6cd0790c04b61a69f67491b05c715585eabbe3b5da175764f16e42712859",
+    "init.log": "87a8dbb588b4ee85e1cc4e51ba91d534a2b0c548c7c8b55d445d6eba4fad75a9",
+    "pilot.time": "ea90c006e655cfd35cfcae077f44bf18d24e5a395c3c34b3829282e72512eeb0",
+    "prior-300-check.txt": "74f481837cde62be41f3d6e0a157a492802f8ab37936d9d87ca7f9e61e8f5f37",
+    "prior-comparison.txt": "40d8022497205def4fb95fa97b16e56b9ca23173ffd6a26ffb42052d205a0380",
+    "prior-replay.txt": "9050fc68cbd0cb8a47ce61c09b4956af1a8d4887f30a4c64e9bbf905bcb968af",
+    "runs.csv.gz": "88072deb11c7924088b85e5f1785bf15a9f5736d8c8b6c39f4f71bc5bd31dc17",
+    "shard-0.time": "d9eda58f6529a8377d1a1a5e4812224063304701231ba8023c33a78734e7e358",
+    "shard-1.time": "fa2ef2e37bd554eb41c39deb4e6a8ad6492fd54b001e1b780f066467dc9429cf",
+    "shard-2.time": "764cc3c114dc063718bacb8da56a4e0de47771630325faa6dab62c9f22fce8cc",
+    "shard-3.time": "fcb750e480d71d514e76b1ad74802e9f325c8f88cb63ae88edb989586ee6d326",
+    "shard-4.time": "0574f91b9dd3e519c1ce27968c5d1e3d441a44875ad3f0087f6ef9a70b6430d6",
+    "shard-5.time": "f8b32d31816dfb196b90f92073fecaf5481f09c94a3c7e0b2089f2092675ab5a",
+    "shard-6.time": "9c25102f064f3ff0d31675232ae57c4dc1aee53ace2803abd03cd73cf13d7117",
+    "shard-7.time": "99c082e426b6c9e11b29d1f01cdc2317ab24826ee073b6b0637c6c37f5045414",
+    "source-states-check.txt": "51c15dfcf8a8389c69155e8bba24cf8ad7e8c8be2cfd34034dff25c77eb97eb6",
+    "viable-sensitivity.csv": "b248a44de9466f9e07983d70b48266ade3253f98cdbb575e447acd3604b4e519",
+    "windows.csv.gz": "ba850641355047ff337f340bf1a4bc85cc86d3c1931d34bff5727c7ece37a3be"
+  }
+}

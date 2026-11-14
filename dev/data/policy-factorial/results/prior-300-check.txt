@@ -1,0 +1,1 @@
+Earlier 300-tick baseline cases: 1800; matching first 300 ticks on final population, total births and deaths: 1800; mismatches: 0.
