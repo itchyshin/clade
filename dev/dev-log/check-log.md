@@ -665,3 +665,11 @@ important project state. Keep entries concise and concrete.
   #185 data must remain separate from results generated after this fix.
 - Report: after-task/2026-11-14-diversity-logging.md.
 - Next: settled green PR merge, then replay-safe #185 rerun.
+
+
+### Integration verification for weighted sensing
+
+Merged main c3c0731 (#201). Resolved append-only conflicts by retaining
+both log/decision/NEWS sections and all three Julia test includes. Julia
+suite now passes 202 assertions. Live R snapshot 14 and entropy 41 pass;
+config/spec-groups/spec-wiring/sense-mode pass 64. No failures or skips.

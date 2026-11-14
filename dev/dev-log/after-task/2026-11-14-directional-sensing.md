@@ -34,12 +34,15 @@ Julia tests, generated help, NEWS, vision, decisions, check log and report.
 
 ## 5. Checks Run
 
-- Julia 1.10.0 full suite: 174 assertions pass, exit 0.
+- Julia 1.10.0 full suite: 174 assertions pass before integration;
+  202 pass after merging current main with #201, exit 0.
 - Live Julia-to-R snapshot tests: 14 pass; spec tests: 2 pass. No skips.
 - Portable full R suite: exit 0, no failures or warnings, 644 Julia skips.
 - Five seeds at radius two: default progress and agents match the previous
   sensing source exactly, ten equality checks pass.
 - devtools::document regenerated help. Default schema has 312 fields.
+- Integrated live R inspector 14 and entropy 41 assertions pass;
+  config/spec group/wiring tests pass (64 assertions).
 - git diff --check and after-task structure check pass.
 
 ## 6. Tests of the Tests
