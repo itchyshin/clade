@@ -1,0 +1,72 @@
+{
+  "simulation_source_commit": "2b6ea12bbbccf06f62e700edf5653eeb7c950cc6",
+  "source_archive_sha256": "bbe0e9d49afa8aec5a5f18c278d3f7bea68f52a6ef7663fef264722ad035548f",
+  "source_policy_archive": "/home/snakagaw/sim-archive/clade/2026-11-14-performance-corrected/full-100/states",
+  "remote_archive": "/home/snakagaw/sim-archive/clade/2026-11-14-policy-long",
+  "age_patch": "dev/data/policy-long/staggered-ages.patch",
+  "actual_patched_assay_sha256": "4a0647241444c886c5109d54ca664837e94a3ac8ee4a42acee42290aba36583a",
+  "driver_sha256": "e1a2bcb68c24c5529cdfc5ab2a6a1940b872b132c2d45fe681767390e5d03b0a",
+  "execution": {
+    "wall_seconds": 270.0425620637834,
+    "source_commit": "2b6ea12bbbccf06f62e700edf5653eeb7c950cc6",
+    "driver_sha256": "e1a2bcb68c24c5529cdfc5ab2a6a1940b872b132c2d45fe681767390e5d03b0a",
+    "patched_assay_sha256": "4a0647241444c886c5109d54ca664837e94a3ac8ee4a42acee42290aba36583a",
+    "threads_per_worker": 4,
+    "workers": 4,
+    "blas_threads": 1
+  },
+  "design": {
+    "runs": 3600,
+    "replicates_per_cell": 100,
+    "ploidy": [
+      1,
+      2
+    ],
+    "source_mutation_sd": 0.2,
+    "transplant_mutation_sd": 0,
+    "founder_ages": [
+      25,
+      72
+    ],
+    "initial_grass_probability": 0.25,
+    "grass_regrowth": [
+      0.025,
+      0.0125
+    ],
+    "ticks": 1000,
+    "mixture_size": 48,
+    "policies": 8,
+    "monocultures": 8
+  },
+  "raw_sha256": {
+    "runs.csv": "294fff85af1ebab2b25e0774c5ed82ce2d9057b8ea18ddbe199e7d96f440f22e",
+    "windows.csv": "5ff74aef8e3a478393b8146cffb250bd58fde81d6235539b7863f1e88f762d08"
+  },
+  "script_sha256": {
+    "dev/data/policy-long/analyze.R": "423c389a4c818e605371627ad6051c10847b511a0494e560c01a6bdcd4d1a977",
+    "dev/data/policy-long/audit.py": "8cc135fbd25720a4bc13884bb76559daf082b66372ec9e6cdb6fe092380e618e",
+    "dev/data/policy-long/driver.jl": "e1a2bcb68c24c5529cdfc5ab2a6a1940b872b132c2d45fe681767390e5d03b0a",
+    "dev/data/policy-long/init-check.jl": "d923d7328420de3135f261537b3e9cfe0ee522cec55278aad342f93782bc44d6",
+    "dev/data/policy-long/plot.R": "8a1380b438474c3b8391a739133ba0559d7e53862b80c9397ee80362b8a8c3d4",
+    "dev/data/policy-long/run_totoro.py": "1c7dabba9e748ef53c2f943e992bc4ca7aa5cb4ebf5ffe77e38f0e3dc8ae94b2",
+    "dev/data/policy-long/staggered-ages.patch": "1e648bece8afc21b27404347ef71d272d11a1ab0523655624213d4ef5d93b709"
+  },
+  "verification": "First-seed 36 run and 720 window rows exact independent replay; 48 initialization assertions; independent audit verifies all raw windows and all-block means; actual R viability_report; original 600 source files pass checksum verification.",
+  "packaged_sha256": {
+    "analysis.log": "c1062e1ad4a110824fb67b88773206fc8ecf11ba627fcce8620b10b7e07b11a3",
+    "blocks.csv": "dc6844a125c006a817cd27d07158b26060f315ce4831c5b58258a9f79b79c78f",
+    "execution.json": "bd8860a05c48bf1276326b13f90ba3566f75c8e0551e5432b6c623d805099430",
+    "independent-audit.txt": "e66ec7798c73af9f1d19d74df76d790cb07986e24b82ca8b962da29f2471c121",
+    "init-check.log": "c194d7182d7e952e378e992684175fb7719b5aed55934534d9fe5936199db8c1",
+    "long-mixture.png": "1401c7fd0223fa11043e5db72ad916a720f06756575d5fb8b342745cb06c48e5",
+    "pilot.time": "18b6db0bbf1e1cd9d463ed9d0aa88b519691f5436c7b0d79d48b6a1908cd161a",
+    "runs.csv.gz": "45fd28265b10b24c8dd5e93ca1ac315507c9318c400e011530d333640bcc2344",
+    "shard-0.time": "b8892485f1a7121a3ce7f1de5ff6638cf3d931862d3f5da111d2517e8eb84e62",
+    "shard-1.time": "e48b1d67ba81991f0bbca3e1de35ee70f866e17791b5a39eafc07b046c23480c",
+    "shard-2.time": "9329b7846dd19a7e1cb1a4d0bedce583b800a9a2e6f46b06e43db3e272852dce",
+    "shard-3.time": "65eeb74a0b7b08582d881e8e68299a89480323569c175309e10f449e860f10ed",
+    "source-states-check.txt": "51c15dfcf8a8389c69155e8bba24cf8ad7e8c8be2cfd34034dff25c77eb97eb6",
+    "summary.csv": "44bb4245d3c93d7d400053e2d6874aaaf2d3c4f147c236b847ab034316c5a1c6",
+    "windows.csv.gz": "88be1fe0eac42096fafd6650fde137f23d79cd3c2e2e0e74e295c22131d8217f"
+  }
+}

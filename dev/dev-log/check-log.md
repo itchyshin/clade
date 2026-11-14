@@ -1094,3 +1094,29 @@ assertion. Saved-spec compatibility fix is included from #203.
   raw compressed tables, commands/times, audits and after-task report included.
   No full local Rcheck repeated for research-only scripts; exact-head CI is
   the package-wide gate. No public default, API or kernel phase change.
+
+## 2026-11-14: Long food-limited staggered-age mixture experiment
+
+- Branch codex/policy-long; source 2b6ea12bbbccf06f62e700edf5653eeb7c950cc6
+  plus isolated one-line staggered-age patch. High-mutation policies, fixed
+  ploidy, 48 founders aged 25:72, same eight balanced controls, 100 seed
+  blocks per cell; initial grass .25 and regrowth .025/.0125, 1,000 ticks.
+- Pilot 36 runs in 20 seconds; full 3,600 runs in 270.04 seconds on four
+  Totoro workers (4 Julia threads and 1 BLAS thread each), within the
+  15-minute estimate. A short separate four-thread initialization check ran
+  concurrently. All 1,800 worlds at .025 viable; .0125 has no all-nine-viable
+  block. Keep all failures, extinct populations and denominators.
+- Rscript dev/data/policy-long/analyze.R OUTDIR checks 3,600 keys and 72,000
+  windows, balance/exposure and actual R viability. Independent Python audit
+  reconstructs all-block means and ledgers. First-seed replay: 36 run rows,
+  720 window rows exact; 48 initialization assertions pass. All 600 source
+  state checksums pass. Figure visually reviewed.
+- At tick 1,000 mixtures vs balanced controls: .025 haploid +3.55% (bootstrap
+  95% 1.85 to 5.19), diploid +1.60% (-.35 to 3.40); .0125 haploid -17.54%
+  (-29.70 to -3.64), diploid -10.58% (-19.58 to -1.44). Under .0125,
+  extinction differences -9.75 and -6.13 percentage points respectively.
+- Food and founder age changed together; do not attribute changes from prior
+  study to either alone. Report absence of an all-nine viable severe-food
+  subset and avoid extrapolation beyond 1,000 ticks or to lifetime fitness.
+  Raw tables, source patch, timing, hashes, findings and after-task included.
+  Exact stale-claim search: rg 'viable|extinct|regrowth|age|1000' dev/data/policy-long.

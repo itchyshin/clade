@@ -1,0 +1,1 @@
+PASS: 3600 unique runs, 72000 windows; population, exposure, births/deaths and every all-block mean independently reconstructed from raw tables.

@@ -1,0 +1,9 @@
+{
+  "wall_seconds": 270.0425620637834,
+  "source_commit": "2b6ea12bbbccf06f62e700edf5653eeb7c950cc6",
+  "driver_sha256": "e1a2bcb68c24c5529cdfc5ab2a6a1940b872b132c2d45fe681767390e5d03b0a",
+  "patched_assay_sha256": "4a0647241444c886c5109d54ca664837e94a3ac8ee4a42acee42290aba36583a",
+  "threads_per_worker": 4,
+  "workers": 4,
+  "blas_threads": 1
+}
