@@ -622,6 +622,44 @@ important project state. Keep entries concise and concrete.
 - Next safest action: push, confirm `r-coverage` and all PR checks.
   Do not merge. Do not add a Codecov token.
 
+## 2026-11-14: Weighted directional sensing and exact R snapshots
+
+- Branch: codex/weighted-directional-sensing; resolves #120.
+- Added sense_mode to R/Julia defaults and spec groups; per_cell remains
+  default. Weighted channels sum value/distance. Updated Core Contract and
+  decisions; generated help with devtools::document.
+- Corrected predator bounded-grid lookup. New run results return exact final
+  sensory snapshots; R sense_env reads them without a per-tick bridge.
+- Julia suite: exit 0, 174 assertions pass. Live R snapshot 14 pass and schema
+  2 pass, no skips. Portable R suite exit 0, 644 Julia skips, no failures or
+  warnings. Five-seed default source parity: 10 equality checks pass.
+- Tests of tests: four invalid-radius checks failed before validation.
+  Independent review identified and verified optional tails, boundaries,
+  graded predator weighting and the misleading R legacy reconstruction.
+- Searches: sense_mode|input_radius|sense_env|_compute_n_inputs across source,
+  tests/help/design. Default schema count checked in R: 312.
+- Limits: no biological calibration/full MATLAB parity or performance study.
+  Legacy serialized environments retain a documented approximate fallback.
+- Report: after-task/2026-11-14-directional-sensing.md.
+- Next: integrate current main, rerun affected tests, open focused PR.
+
+
+## 2026-11-14: Kernel ownership and mutation-path decision
+
+- Branch: codex/kernel-maintenance-decisions, main d012fe0.
+- Goal: record Shinichi's ownership correction and resolve #111's mutation
+  duplication question using current source.
+- Changed AGENTS.md and added dev/design/mutation-paths.md; decision and
+  after-task records explain why the two mutation paths remain separate.
+- Reviewed meiosis calls in genome.jl, predator reproduction in
+  modules/tick_predators.jl, and mutate methods in brains/{ann,bnn,ctrnn,grn}.jl.
+- Searches: `Sergio|Track A|Track B|coordination` in AGENTS.md;
+  `_mutate_weights|mutate\(` in Julia source. Only historical ownership
+  context remains. No source code or public API changed.
+- Checks: git diff --check clean; after-task structure and prose checks
+  passed. No simulation or package suite rerun for this documentation change.
+- Next: merge the decision record, then close #111 with the source rationale
+  in the final issue sweep. Do not infer a v0.8 reset from this record.
 
 ## 2026-11-14: Action entropy and distinct genetic pairs
 
@@ -683,3 +721,19 @@ important project state. Keep entries concise and concrete.
   passed 166 assertions before integration of sensing changes.
 - Next: merge current main, rerun integrated checks, update #185, and only
   after settled green integration send the consolidated Bhavya reply.
+
+
+### Integration verification for weighted sensing
+
+Merged main c3c0731 (#201). Resolved append-only conflicts by retaining
+both log/decision/NEWS sections and all three Julia test includes. Julia
+suite now passes 202 assertions. Live R snapshot 14 and entropy 41 pass;
+config/spec-groups/spec-wiring/sense-mode pass 64. No failures or skips.
+
+
+### Saved-spec compatibility review
+
+Independent review reproduced R validation rejecting saved spec lists that
+predate sense_mode. The added regression failed before the fix. Validation
+now accepts an absent field (Julia defaults it to per_cell), while explicit
+invalid modes still fail. No saved-spec migration is required.

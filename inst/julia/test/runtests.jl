@@ -406,6 +406,8 @@ end
 end
 include("test_group_defense.jl")
 
+include("test_sense_mode.jl")
+
 include("test_behavioral_diversity.jl")
 include("test_genetic_diversity.jl")
 

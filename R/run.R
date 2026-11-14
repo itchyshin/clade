@@ -49,6 +49,7 @@
 #'   [search_map_elites()]
 #' @export
 run_alife <- function(specs = default_specs(), verbose = TRUE) {
+  if (!"sense_mode" %in% names(specs)) specs$sense_mode <- "per_cell"
   .clade_start_julia(verbose = verbose)
   .validate_specs(specs)
 
@@ -818,6 +819,7 @@ Rscript -e %s
   check_int_pos("grid_cols")
   check_int_pos("n_agents_init")
   check_int_pos("max_ticks")
+  check_int_pos("input_radius")
 
   check_choice("brain_type",
                c("bnn", "ann", "ctrnn", "grn", "transformer", "synthesis",
@@ -828,6 +830,8 @@ Rscript -e %s
   check_choice("brain_energy_mode",
                c("none", "size", "activity", "prediction_error"))
   check_choice("grass_growth_mode", c("stochastic", "deterministic"))
+  if ("sense_mode" %in% names(specs))
+    check_choice("sense_mode", c("per_cell", "weighted_sum"))
 
   if (!specs$ploidy %in% c(1L, 2L))
     stop("specs$ploidy must be 1L (haploid) or 2L (diploid).", call. = FALSE)
@@ -949,7 +953,7 @@ Rscript -e %s
 #' @param env_julia The raw return value from `juliaCall("Clade.run_clade", ...)`.
 #' @param specs The specs list used for this run.
 #' @return A named R list with fields `$agents`, `$t`, `$specs`, `$progress`,
-#'   `$deaths`, `$genome_log`, `$movement_log`.
+#'   `$deaths`, `$genome_log`, `$movement_log`, `$sensory_inputs`.
 #' @keywords internal
 .julia_env_to_r <- function(env_julia, specs) {
   # env_julia$grass is a 2D Julia array; tryCatch in case grass is not
@@ -967,6 +971,7 @@ Rscript -e %s
   structure(
     list(
       agents        = env_julia$agents,
+      sensory_inputs = env_julia$sensory_inputs,
       t             = env_julia$t,
       specs         = specs,
       grass         = grass_r,

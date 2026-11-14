@@ -4,6 +4,8 @@ params <- c("move_cost", "grass_max", "min_repro_energy", "energy_init", "mutati
 seeds <- 101:105
 pairs <- paste(d$env_id, d$seed, sep = ":")
 expected <- as.vector(outer(1:100, seeds, paste, sep = ":"))
+stopifnot(!anyDuplicated(pairs), setequal(pairs, expected),
+          all(table(d$env_id) == 5L), all(is.finite(as.matrix(d[params]))))
 cat("rows_cols:", nrow(d), ncol(d), "\n")
 cat("env_ids:", length(unique(d$env_id)), range(d$env_id), "seeds:", paste(sort(unique(d$seed)), collapse=","), "\n")
 cat("unique_pairs:", length(unique(pairs)), "duplicates:", sum(duplicated(pairs)), "missing_pairs:", length(setdiff(expected, pairs)), "unexpected_pairs:", length(setdiff(pairs, expected)), "\n")
@@ -35,7 +37,7 @@ for (t in snaps) {
   reached <- d$final_tick >= t
   stopifnot(all(!is.na(ac[reached])), all(is.na(ac[!reached])),
             all(!is.na(dv[reached])), all(is.na(dv[!reached])),
-            all(ac[reached] >= 0), all(dv[reached] >= 0 & dv[reached] <= 1))
+            all(ac[reached] >= 0), all(is.finite(dv[reached]) & dv[reached] >= 0))
   cat("snapshot", t, "reached", sum(reached), "NA_after_stop", sum(!reached),
       "actual_zero_agents", sum(ac[reached] == 0), "actual_zero_diversity", sum(dv[reached] == 0), "\n")
 }

@@ -21,8 +21,8 @@ between stages. Intervals below are approximate Wald 95% intervals.
 
 | Stage and predictor | Estimate per predictor SD | Approximate 95% interval |
 | --- | ---: | ---: |
-| Survival log odds: move_cost | -3.698 | -5.158 to -2.238 |
-| Survival log odds: min_repro_energy | 3.371 | 2.017 to 4.724 |
+| Survival log odds: move_cost | -3.698 | -5.159 to -2.238 |
+| Survival log odds: min_repro_energy | 3.371 | 2.018 to 4.724 |
 | Conditional diversity: mutation_sd | 0.1424 | 0.1260 to 0.1588 |
 | Conditional diversity: log(final_agents) | 0.1241 | 0.1024 to 0.1458 |
 

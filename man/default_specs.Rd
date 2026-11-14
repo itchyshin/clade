@@ -132,11 +132,20 @@ of the five working types.}
 \item{\code{hidden_layers}}{Integer vector. Hidden layer widths for \code{"ann"} and
 \code{"bnn"} (default \code{c(8L)}; gives one hidden layer of 8 units). Set to
 \code{c(16L, 8L)} for two hidden layers.}
-\item{\code{input_radius}}{Integer. Radius of the Moore neighbourhood used when
-building each agent's sensory input vector (default \code{1L}). Radius 1 gives
-the standard 8-cell neighbourhood; radius 2 extends to the 24-cell
-neighbourhood. Increasing this value expands the input vector and the
-brain's first-layer width accordingly.}
+\item{\code{input_radius}}{Integer. Number of cells sensed along each cardinal
+direction (default \code{1L}). With \code{sense_mode = "per_cell"}, increasing the
+radius expands the input vector and the brain's first-layer width. With
+\code{sense_mode = "weighted_sum"}, each direction is collapsed to one value
+using \code{sum(value[d] / d)}, so the input width stays constant.}
+\item{\code{sense_mode}}{Character. Sensory encoding: \code{"per_cell"} (default)
+keeps one value for each cardinal direction and distance, while
+\code{"weighted_sum"} collapses each directional grass, occupancy, and
+predator channel using \code{sum(value[d] / d)} (nearest cell first). The
+sums are not normalised and can exceed 1. Both modes sense only the four
+cardinal directions; \code{"weighted_sum"} preserves clade's energy, age,
+bias, and optional input slots, and does not reproduce the ancestor's
+full input ordering. Graded predator signals already include \code{1/(d+1)};
+weighted mode applies \code{1/d} to those existing signals.}
 \item{\code{n_genes}}{Integer. Number of genes for \code{"grn"} brain type
 (default 20L). Includes sensory input genes and action output genes.}
 \item{\code{transformer_history}}{Integer. \strong{Reserved placeholder} for a
@@ -1216,6 +1225,8 @@ specs <- default_specs()
 specs$brain_type   <- "bnn"
 specs$ploidy       <- 2L
 specs$n_agents_init <- 100L
+specs$sense_mode <- "weighted_sum"
+specs$input_radius <- 3L  # input width stays fixed as radius increases
 # run_alife(specs)   # requires Julia
 
 }

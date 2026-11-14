@@ -36,11 +36,11 @@ clade has a hard architectural boundary that shapes every task:
 - **R side** — `R/*.R`, `tests/testthat/`, `vignettes/`, package
   documentation, `_pkgdown.yml`. Owned by the AI integrator (Claude /
   Codex / etc.) by default.
-- **Julia side** — `inst/julia/src/`. Currently under parallel review
-  on Sergio's branch (`claude/v0.8-core`, PR #122) for the subtractive
-  v0.8-core reset. **Do not touch `inst/julia/src/` without
-  coordination with Sergio's track** unless the change is purely
-  additive and the user explicitly approves.
+- **Julia side**: `inst/julia/src/`. Owned by the AI integrator together
+  with the R side. Shinichi confirmed on 14 November 2026 that Sergio
+  is no longer on the project. PR #122 is historical reset scoping,
+  not an active ownership reservation. Check current branches and
+  file leases before editing the kernel.
 - **Boundary** — crossed exactly once per `run_alife()` call via
   `JuliaConnectoR`. Never per tick. This is a contract — don't
   introduce per-tick R↔Julia calls.
@@ -178,7 +178,7 @@ env  <- run_alife(specs)
 plot_run(get_run_data(env))
 ```
 
-Julia-side (only needed for kernel debugging — Sergio's territory):
+Julia-side (for kernel debugging and tests):
 
 ```bash
 cd inst/julia
@@ -273,7 +273,7 @@ design assumptions. Six roles are standing; the others from the kit
 | Name | Role | Primary questions for clade |
 | --- | --- | --- |
 | **Ada** | Orchestrator and integrator | What should happen next, and are R code, Julia code, docs, tests, vignettes, and git consistent? Default integrator for Track B (R-side) work. |
-| **Gauss** | Numerical and implementation reviewer | Is the kernel, optimizer, simulation, or numerical routine correct and stable? Sergio's natural role for Julia kernel review against MATLAB ancestor. |
+| **Gauss** | Numerical and implementation reviewer | Is the kernel, optimizer, simulation, or numerical routine correct and stable? Review Julia kernel changes against their mathematical and biological contracts. |
 | **Noether** | Mathematical consistency reviewer | Do source-paper equations, clade's parameter names, and the Julia implementation describe the same object? Especially relevant for paper-reproduction vignettes (Wolf 2007 trade-off, Trivers PD payoffs, Massol-Crochet β, etc.). |
 | **Fisher** | Inference and evaluation reviewer | Do simulations, metrics, multi-seed dashboards, and viability checks support the headline claim? Owns the ≥5-seed rule. |
 | **Pat** | Applied user tester | Can a new behavioural ecologist install clade, follow a vignette, interpret the output, and recover from errors without hidden context? |
@@ -333,15 +333,12 @@ Then read the latest check-log and after-task reports before editing.
 
 One agent acts as integrator for each task. Currently:
 
-- **Track A** (Sergio @pooherna): Julia kernel review, v0.8-core
-  subtractive reset. Owns `inst/julia/src/`.
-- **Track B** (Claude / Codex / AI): R-side function walk and
-  vignette deep-dive. Owns `R/`, `tests/`, `vignettes/`, `dev/audit/`,
-  `dev/dev-log/`, `_pkgdown.yml`, `NEWS.md`, `README.md`. Plan in
-  `~/.claude/plans/purring-honking-dove.md`.
+The AI integrator owns both R and Julia work. Split parallel tasks by
+explicit file ownership and use the current branch, lease and task plan
+as the coordination record. The former Sergio kernel track ended before
+14 November 2026; its open design questions now belong to the integrator.
 
-When handing work to another agent (or to the user, or back to
-Sergio), leave enough context in `dev/dev-log/check-log.md`, an
+When handing work to another agent or to the user, leave enough context in `dev/dev-log/check-log.md`, an
 after-task report, an issue, or a pull request for the next agent to
 continue without rediscovering the whole problem.
 

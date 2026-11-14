@@ -6,7 +6,8 @@ vector is consumed by brain.forward() each tick.
 
 ## Input vector layout
 
-The vector length depends on `input_radius` (r, default 1) and active modules.
+The vector length depends on `input_radius` (r, default 1), `sense_mode`, and
+active modules.
 
 Index  Content
 -----  -------
@@ -16,27 +17,38 @@ Index  Content
 (3+4r)–(2+8r) agent occupancy N/E/S/W at 1..r       (4r values)
 (3+8r) constant bias term = 1.0
 
-Base length = 1 + 8r + 2 = 3 + 8r  (r=1 → 11, r=2 → 19)
+In `sense_mode = "per_cell"` (default), base length = 3 + 8r
+(r=1 → 11, r=2 → 19). In `"weighted_sum"` mode, base length is always 11:
+four grass and four occupancy channels each collapse distances with
+`sum(value[d] / d)`, with distance 1 first. These sums are not normalised and
+can exceed 1. Both modes use cardinal directions only.
 
 ## Optional extensions (appended in order):
-+ n_predators_init > 0: predator distance N/E/S/W at 1..r (+4r)
++ n_predators_init > 0: predator distance N/E/S/W at 1..r (+4r per_cell,
+  +4 weighted_sum; with graded signals, each raw value is already
+  occupancy/(d+1), so weighted mode contributes occupancy/[d(d+1)])
 + parental_care = true: care_load / max_clutch_size, mean offspring energy (+2)
 + signal_dims > 0: own signal vector (+signal_dims)
 
-Total length = (3 + 8r) + 4r*(pred) + 2*(care) + signal_dims.
-This matches `_compute_n_inputs()` in Clade.jl.
+Predator channels add 4r in `per_cell` mode and 4 in `weighted_sum` mode;
+care and signal slots are appended unchanged. These layouts match
+`_compute_n_inputs()` in Clade.jl.
+The weighted-sum layout preserves clade's self-state, bias, and optional tail
+positions; it does not reproduce the MATLAB ancestor's complete input ordering.
 """
 
 """
     sense_agent(ag::Agent, env::Environment) -> Vector{Float32}
 
 Build the sensory input vector for `ag`. Reads the environment grid directly;
-no memory allocation beyond the output vector.
+per-cell mode allocates the output vector, while weighted-sum mode also builds
+an intermediate per-cell vector before collapsing directional channels.
 
 The sensing radius is controlled by `specs["input_radius"]` (default 1). Radius 1
-gives the standard 4-cell cardinal sensing (N/E/S/W). Radius 2 extends to 8
-cells along each cardinal axis (steps 1 and 2 in each direction), doubling the
-grass and occupancy slots to 8 each and the predator slots to 8.
+gives the standard 4-cell cardinal sensing (N/E/S/W). Radius 2 adds a second
+distance to each cardinal direction. In the default `per_cell` mode this
+doubles grass and occupancy slots; in `weighted_sum` mode the directional
+channels remain one scalar each, with farther cells weighted by `1 / distance`.
 """
 function sense_agent(ag::Agent, env::Environment)::Vector{Float32}
     specs    = env.specs
@@ -48,10 +60,20 @@ function sense_agent(ag::Agent, env::Environment)::Vector{Float32}
     mmax  = Float32(get(specs, "max_agents",  500.0))
     gmax  = Float32(get(specs, "grass_max",   5.0))
     r     = Int(get(specs, "input_radius", 1))
+    r >= 1 || throw(ArgumentError("input_radius must be positive"))
+    mode  = String(get(specs, "sense_mode", "per_cell"))
+    mode in ("per_cell", "weighted_sum") ||
+        throw(ArgumentError("sense_mode must be \"per_cell\" or \"weighted_sum\", got \"$mode\""))
+    per_cell = mode == "per_cell"
 
     x, y = Int(ag.x), Int(ag.y)
 
-    inp = Vector{Float32}(undef, n_inputs(ag.brain))
+    n_pred_channels = Int(get(specs, "n_predators_init", 0)) > 0 ? 4 : 0
+    n_care_channels = Bool(get(specs, "parental_care", false)) ? 2 : 0
+    n_signal_channels = length(ag.signal)
+    input_length = per_cell ? n_inputs(ag.brain) :
+        3 + 8r + n_pred_channels * r + n_care_channels + n_signal_channels
+    inp = Vector{Float32}(undef, input_length)
     pos = 1
 
     # Brain-size sensing multiplier (third brain_size_evolution effect).
@@ -97,8 +119,8 @@ function sense_agent(ag::Agent, env::Environment)::Vector{Float32}
     if Int(get(specs, "n_predators_init", 0)) > 0
         graded = Bool(get(specs, "predator_sense_graded", true))
         for d in 1:r
-            xN = mod1(x - d, rows);  xS = mod1(x + d, rows)
-            yE = mod1(y + d, cols);  yW = mod1(y - d, cols)
+            xN = wrap_or_clamp(x - d, rows, toroidal);  xS = wrap_or_clamp(x + d, rows, toroidal)
+            yE = wrap_or_clamp(y + d, cols, toroidal);  yW = wrap_or_clamp(y - d, cols, toroidal)
             inp[pos] = _pred_dist(env, xN, y, d, graded); pos += 1
             inp[pos] = _pred_dist(env, x,  yE, d, graded); pos += 1
             inp[pos] = _pred_dist(env, xS, y, d, graded); pos += 1
@@ -122,7 +144,45 @@ function sense_agent(ag::Agent, env::Environment)::Vector{Float32}
         inp[pos] = clamp(s, 0.0f0, 1.0f0);  pos += 1
     end
 
-    inp
+    per_cell && return inp
+
+    # Collapse each directional block independently. Raw per-cell values are
+    # first constructed exactly as in per_cell mode, then weighted nearest to
+    # farthest by 1/d. The self-state, bias, and optional tails keep their
+    # clade positions; this is not the MATLAB ancestor's full input ordering.
+    # The reduction follows alifeR's R/sense_env.R::dir_sense() and the MATLAB
+    # ancestor's alife_matlab/codebase/dirSense.m::weightedSum().
+    out = Vector{Float32}(undef, n_inputs(ag.brain))
+    out[1] = inp[1]
+    out[2] = inp[2]
+    out_pos = 3
+    raw_pos = 3
+    n_blocks = 2 + (n_pred_channels > 0 ? 1 : 0)
+    for block in 1:n_blocks
+        for direction in 0:3
+            total = 0.0f0
+            for d in 1:r
+                total += inp[raw_pos + 4 * (d - 1) + direction] / Float32(d)
+            end
+            out[out_pos + direction] = total
+        end
+        raw_pos += 4r
+        out_pos += 4
+        if block == 2
+            out[out_pos] = inp[3 + 8r] # Bias follows grass and occupancy.
+            out_pos += 1
+            raw_pos += 1 # Skip the raw bias before any predator block.
+        end
+    end
+    # In weighted mode raw_pos is immediately after the final directional
+    # block (or after occupancy when predators are absent), while the bias
+    # was copied separately above. Copy care and own-signal slots unchanged.
+    tail_length = n_care_channels + n_signal_channels
+    tail_start = 4 + 8r + n_pred_channels * r
+    if tail_length > 0
+        copyto!(out, out_pos, inp, tail_start, tail_length)
+    end
+    out
 end
 
 """

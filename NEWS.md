@@ -1,5 +1,13 @@
 # Development version
 
+- `sense_mode = "weighted_sum"` offers inverse-distance directional sensing
+  with a fixed brain input width. The default remains `"per_cell"` (#120).
+- `sense_env()` reads the exact final sensory vectors from new Julia runs,
+  including optional channels. These snapshots describe the final state;
+  they do not replay an earlier stochastic decision.
+- Predator sensing now respects bounded grids when `toroidal = FALSE`,
+  consistently with grass and agent sensing.
+
 - `get_run_data()` now exposes prey and predator action entropy separately,
   with the number of recorded decisions. No decisions are represented by
   `NaN`; blocked moves count as chosen actions (#164).
