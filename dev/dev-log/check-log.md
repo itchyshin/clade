@@ -994,3 +994,11 @@ assertion. Saved-spec compatibility fix is included from #203.
   with the same numerical/classification gates; refine draws only if needed.
 - Corrected tiny six-run two-tick output/analysis passes. Next: full combined
   Julia checks and six-run full-horizon corrected pilot, estimate<5 minutes.
+- Corrected pilot6 runs at1000 ticks:24.52 seconds,peak474480 KiB,exit0;
+  all6 viable, finalN114:131, late capacity ticks0. Policy heterogeneity
+  remeasured on fresh corrected brains. No legacy endpoint reuse.
+- Full600 corrected campaign launched on four isolated process shards,
+  disjoint25-seed blocks each;16 capped Julia threads total, single BLAS
+  thread/process. Same source b982e9739c1064224ca49f77ff56d06ec8e0c7c4.
+  Estimate30 minutes including precision reassay, before launch. Wrapper
+  checks combined keys and terminates its process groups on failure/overrun.
