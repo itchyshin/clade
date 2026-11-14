@@ -1037,3 +1037,25 @@ assertion. Saved-spec compatibility fix is included from #203.
   interval5% conclusion and percent versus percentage points checked.
   Packaged/raw-decompressed/script SHA256 checks all pass. PR206 body exact
   read-back passes. Scientific review receipt included; CI awaits final head.
+
+## 2026-11-14: Balanced equal-density policy mixture experiment
+
+- User approved equal-density mixtures with balanced single-policy controls.
+  Prior performance PR206 merged after all5 exact-head checks passed; merge
+  6fbf5e96c997a832e45eaa2d9676115688b3f53d main checks/coverage/site pass.
+- New branch codex/policy-mixture. Research-only Julia driver uses canonical
+  private initializer and passive observer; no kernel/public API changes.
+  Eight uniformly sampled corrected endpoint policies,48founders, sixcopies
+  perpolicy in mixture versus8complete monocultures. Same physical/RNG start.
+- Primary50ticks disables reproduction and enforces constantN48; energy70
+  and age50 preserve prior starting-energy controls. Secondary300ticks
+  includes reproduction/recombination and density feedback, reported separately.
+  Synthetic homozygous diploid genotypes preserve initial policy means.
+- Frozen protocol and estimator in dev/data/policy-mixture/plan.md. Independent
+  review approves balanced block contrast and100seed units, with demographic
+  scope qualification; primary50ticks chosen to guarantee positive worst-case
+  energy without raising initialenergy to150 for a100tick assay.
+- Initial test red: missing implementation file; full Julia suite after driver
+  implementation370assertions pass, including28new balanced/physical/null/
+  conservation/censoring assertions. Prior342 remain green. Estimate108-run
+  Totoro pilot<5minutes before starting; full estimate waits for measurement.
