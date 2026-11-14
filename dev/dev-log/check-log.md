@@ -1031,3 +1031,9 @@ assertion. Saved-spec compatibility fix is included from #203.
   rg 'legacy|corrected|same.*brain|PASS|5%' dev/data/performance-ploidy.
   Final evidence-only edits do not warrant repeating passed kernel checks;
   current-head CI is required before marking PR206 ready. No CRAN or release.
+- Final independent scientific review approved revised findings SHA256
+  9c5a0a619a4f496f7956e23d15feb851735a723fea9970efbd935e29f494d94a.
+  Corrected B terminology and balanced proposed mixture control. Whole-
+  interval5% conclusion and percent versus percentage points checked.
+  Packaged/raw-decompressed/script SHA256 checks all pass. PR206 body exact
+  read-back passes. Scientific review receipt included; CI awaits final head.
