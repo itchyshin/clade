@@ -2,6 +2,7 @@ a <- commandArgs(TRUE);out <- a[1];n <- as.integer(a[2]);stopifnot(!is.na(n),n>0
 source('R/analysis.R')
 read <- function(name) read.csv(file.path(out,paste0(name,'.csv')),stringsAsFactors=FALSE)
 r<-read('runs');w<-read('windows');c<-read('cohorts');d<-read('deaths');panels<-read('panels');policies<-read('policies')
+c$observed<-c$observed %in% c(TRUE,'true','1')
 key<-function(x) do.call(paste,c(x[c('ploidy','source_mutation','seed','mode','mono')],sep=':'))
 bkey<-function(x) do.call(paste,c(x[c('ploidy','source_mutation','seed')],sep=':'))
 expected<-expand.grid(ploidy=1:2,source_mutation=c(0,.05,.2),seed=20000+seq_len(n),mode=c('forage','demography'),mono=0:8)
@@ -16,7 +17,7 @@ stopifnot(all(r$panel_hash==panels$panel_hash[match(bkey(r),bkey(panels))]))
 r$viability<-NA_character_
 for(i in seq_len(nrow(r))) {
  k<-key(r[i,]);z<-w[wg[[k]],];z<-z[order(z$lo),];h<-if(r$mode[i]=='forage')50 else 300
- stopifnot(nrow(z)==h/50,identical(as.integer(z$lo),seq(1L,h,50L)),all(z$hi==z$lo+49),z$nstart[1]==48,
+ stopifnot(nrow(z)==h/50,all(z$lo==seq(1,h,50)),all(z$hi==z$lo+49),z$nstart[1]==48,
   all(z$nend==z$nstart+z$births-z$deaths),all(z$pre_exposure==z$post_exposure+z$nstart-z$nend),
   z$nend[nrow(z)]==r$final_agents[i],all(z$nstart[-1]==head(z$nend,-1)),
   sum(z$pre_exposure)==r$exposure[i],sum(z$births)==r$births[i],sum(z$deaths)==r$deaths[i],

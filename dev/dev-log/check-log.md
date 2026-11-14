@@ -1059,3 +1059,10 @@ assertion. Saved-spec compatibility fix is included from #203.
   implementation370assertions pass, including28new balanced/physical/null/
   conservation/censoring assertions. Prior342 remain green. Estimate108-run
   Totoro pilot<5minutes before starting; full estimate waits for measurement.
+- Pilot108runs on Totoro:28.10sec,535964KiB peak, exit0. All54foraging
+  worlds viable at exactN48. Secondary48viable/5weak/1crashed; preserve all
+  controls and expose full-nine viability sensitivity without retuning.
+- Analyzer pilot checks pass after fixing R integer/double identity and
+  lowercase Julia boolean parsing. Source dynamics unchanged. Full10800run
+  estimate20minutes, based on pilot×100/4≈11.7min plus margin; wrapper stops
+  own groups at1200sec. Resource cap16Julia threads plus1BLAS/worker.

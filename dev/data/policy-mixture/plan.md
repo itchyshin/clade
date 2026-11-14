@@ -80,3 +80,15 @@ negative malformed cases. Full relevant Julia suite precedes production.
 Independent design and final raw-data review, same-machine first-block replay,
 actual R viability_report, a standalone figure and an after-task report close
 this task. No public defaults, API or kernel phase ordering change is planned.
+
+## Pilot receipt and full-run estimate
+
+Pilot108runs completed in28.10seconds, peak535964KiB, exit0. All54primary
+foraging worlds are viable and retain48agents. Secondary demographic worlds:
+48viable,5weak,1crashed. No design retuning or dropped controls follows.
+Full-block viability sensitivity will therefore have explicit selected
+counts; all-block absolute/defined-rate results remain available.
+Analyzer corrected strict integer-versus-double comparison and lowercase
+Julia boolean parsing; all pilot raw/energy/cohort checks pass afterward.
+Full estimate20minutes before launch, bounded by wrapper deadline1200sec.
+Four isolated25-seed shards,16Julia threads maximum and4BLAS threads total.
