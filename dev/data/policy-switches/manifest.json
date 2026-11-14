@@ -1,0 +1,27 @@
+{
+  "source_commit": "2b6ea12bbbccf06f62e700edf5653eeb7c950cc6",
+  "source_archive_sha256": "bbe0e9d49afa8aec5a5f18c278d3f7bea68f52a6ef7663fef264722ad035548f",
+  "hooked_kernel_sha256": "a0a6ddc1de86db5884f3a05138cfc74e3ad7e97e6f6108b915409699fb81de05",
+  "files": {
+    "README.md": "1ed6edc6c0cf349377f74916af8f5439b6c87e7b80b7d4fdddd55e79be2e0740",
+    "analyze.R": "aeb2f34ce4647a4ead36afecbced03d4be09a1fb52ab073e7ae4a424116656ec",
+    "audit.py": "e483e6455632aa42343fb09e6bac650559672bd79d6e899e62c6e4ef55e5fa51",
+    "findings.md": "cf4b2c94287803b7a4198f17222c4b5722ab4dde5216a20fb5df1871973dbb0d",
+    "intervene.jl": "a8e23a29148da853a9bbe74892aa6611fc77236b0c4a86762366d344eb62f263",
+    "intervention-hook.patch": "478d84bd8053596dd1ce6c833d94b699ff2251836fedcac9eed7c71f336b38f4",
+    "plan.md": "984237ba60ef5db0787731550493fc811f0e4998e114b1d13247e35666868f9f",
+    "policy-summary.R": "9ed073a0a46528e8db28a2f6c4f56c167e8acc458942991481b443c757352680",
+    "results/analysis.log": "e7b4441e5f51666e5a00ce440ff809aed1436bddfa76b260ed5c921311dc6329",
+    "results/audit.txt": "0d7d8a9818b30d48140088602515cbe21af146d7a456219e1ab43d448490cc28",
+    "results/blocks.csv": "34df60a7df72c0b424956fcf1e52fc8499e5b4aad6ac1e6423498b9a6e64ce6d",
+    "results/policy-summary.csv": "26701db4578f1e212d027954f990f951422e1ac09c8c7e71a01431e7bf4f40b7",
+    "results/policy.log": "0c50fd3b131b549afb467275999e007a3cd7a8875a4b14dd58f2303175dd02b6",
+    "results/prior-blocks.csv.gz": "24205d45f54a6f57a81ed97fe6d500067c20c0a5673b8b4c7a3072287243bd3a",
+    "results/receipts/execution.json": "0f4e4009781702ef251952ab0622979d4b667238b2fb6bb97f8a9b27c7faa166",
+    "results/runs.csv.gz": "b04307eb1ce6f19ea2b9fd9186d36364216be9c6a15713f18a8a9ecd903cc5a7",
+    "results/summary.csv": "890b5474dbfa0b3a102dbe46705e1c393d5cbe2ac3fd1d08cf1a99cb53393084",
+    "results/viability.csv": "1eb080ff6167a779f627c8247737b16ebd7885a5381ef8e06ce00ad8aa5e2718",
+    "run_totoro.py": "bfa3ca19c46724970d5fbd476df4825e4d3ec4713037a1def85fbe5a5d4c9e8e",
+    "viability.R": "10bd637a8afd787f7ecce249be1fed317c70d513ad8d8bf4ed2ec4a56c1cb1e4"
+  }
+}
