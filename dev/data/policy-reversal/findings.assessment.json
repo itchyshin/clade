@@ -1,0 +1,36 @@
+{
+  "assessment_performed": true,
+  "draft_sha256": "1184afd40b38d4b0c2c6e4c5c1450e2ccb96b145d5192b73d2cf6215d88fcb14",
+  "draft_version": "v1",
+  "requested_mode": "independent",
+  "assessor_type": "self",
+  "reviewer": "Codex",
+  "method": "Post-draft self-review against raw trace, independent audits and matched intervention.",
+  "genre": "Simulation research record",
+  "coverage": "Whole exact draft",
+  "score": 2,
+  "style_status": "scored",
+  "score_reason": "Concrete mechanisms, estimates and limits are stated directly.",
+  "confidence": "moderate",
+  "confidence_reason": "Uncalibrated editorial self-review.",
+  "examples": [
+    {
+      "location": "Line 3",
+      "line": 3,
+      "quote": "The haploid mixture advantage does not reverse once and stay reversed. In the",
+      "cue": "The haploid mixture advantage",
+      "impact": "States the question or result concretely.",
+      "repair": "no change needed"
+    }
+  ],
+  "evidence_none_reason": null,
+  "science_gate": "pass",
+  "science_gate_reason": "Causal limits of frequency, density, readiness and intervention checked.",
+  "facts_gate": "pass",
+  "facts_gate_reason": "All prior-window replays, population ledgers, matched contrasts and checksums checked.",
+  "references_gate": "pass",
+  "references_gate_reason": "Local source and artifact identities checked.",
+  "date": "2026-11-14",
+  "calibration_status": "No held-out controls.",
+  "interpretation": "perceived_style_not_authorship"
+}

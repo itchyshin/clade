@@ -1,0 +1,8 @@
+{
+  "wall_seconds": 100.46589132491499,
+  "source_commit": "2b6ea12bbbccf06f62e700edf5653eeb7c950cc6",
+  "trace_sha256": "978db7892d47822ffafefbf04912d5b2203fe8338fb528821f4eab0a94801b2a",
+  "workers": 8,
+  "julia_threads": 4,
+  "blas_threads": 1
+}

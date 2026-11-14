@@ -1,0 +1,1 @@
+PASS: all 300 seed/interval changes exactly equal the independent birth-minus-death accounting and endpoint advantage differences.

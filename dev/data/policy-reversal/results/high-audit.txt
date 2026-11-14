@@ -1,0 +1,1 @@
+PASS: 18,000 high-regrowth windows, 144,000 policy rows, all group/policy ledgers, cap bounds and exact physical matching to original conditions.
