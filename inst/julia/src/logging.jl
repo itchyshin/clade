@@ -15,7 +15,8 @@ in R: a named dict of equal-length vectors, one entry per logged tick.
     _init_progress(specs, n_ticks) -> Dict{String, Vector}
 
 Pre-allocate all logged time-series vectors. Called once in
-`create_environment()`. All vectors are initialised to 0 (or 0.0).
+`create_environment()`. Counts and most values start at zero; behavioral
+entropies start at NaN until a tick is logged.
 
 The set of logged variables expands automatically when optional modules are
 enabled.
@@ -38,6 +39,10 @@ function _init_progress(specs::Dict{String,Any}, n_ticks::Int)::Dict{String,Vect
         "mean_body_size"    => copy(fz),
         "sd_body_size"      => copy(fz),
         "genetic_diversity" => copy(fz),
+        "behavioral_diversity" => fill(NaN, n_ticks),
+        "n_behavioral_agents" => copy(iz),
+        "predator_behavioral_diversity" => fill(NaN, n_ticks),
+        "n_behavioral_predators" => copy(iz),
         "n_species"         => copy(iz),
         "mean_cooperation_level" => copy(fz),
         "mean_immune_strength"   => copy(fz),
@@ -127,6 +132,33 @@ function _init_deaths()::Dict{String, Vector}
 end
 
 """
+    _behavioral_diversity(agents) -> (entropy, count)
+
+Shannon entropy in nats of living individuals' last chosen actions 1–5.
+Action 0 denotes no decision yet and is excluded. Chosen actions describe
+intent, including a movement blocked by an occupied cell. No eligible actions
+returns `(NaN, 0)`.
+"""
+function _behavioral_diversity(agents)
+    counts = zeros(Int, 5)
+    for ag in agents
+        if ag.alive && 1 <= ag.last_action <= 5
+            counts[ag.last_action] += 1
+        end
+    end
+    n = sum(counts)
+    n == 0 && return (NaN, 0)
+    entropy = 0.0
+    for count in counts
+        if count > 0
+            p = count / n
+            entropy -= p * log(p)
+        end
+    end
+    (entropy, n)
+end
+
+"""
     log_tick!(env::Environment)
 
 Write population statistics for the current tick into `env.progress`.
@@ -143,6 +175,9 @@ function log_tick!(env::Environment)
     p["t"][t]           = t
     p["n_agents"][t]    = n
     p["n_predators"][t] = length(env.predators)
+    p["behavioral_diversity"][t], p["n_behavioral_agents"][t] = _behavioral_diversity(ags)
+    p["predator_behavioral_diversity"][t], p["n_behavioral_predators"][t] =
+        _behavioral_diversity(env.predators)
 
     n == 0 && return   # no agents: skip (vectors remain 0)
 
@@ -347,8 +382,8 @@ end
 Estimate mean pairwise genome distance by sampling up to 50 random pairs.
 Returns 0 when fewer than 2 agents are alive.
 
-Full O(n^2) pairwise distance is too expensive for large populations; this
-Monte Carlo estimator with 50 pairs is accurate to ~5% for n > 50.
+Pairs are sampled uniformly with replacement from distinct individuals; the
+number of sampled pairs is capped at 50.
 """
 function _sample_genetic_diversity(agents::Vector{Agent}, rng)::Float64
     n = length(agents)
@@ -357,8 +392,8 @@ function _sample_genetic_diversity(agents::Vector{Agent}, rng)::Float64
     total   = 0.0
     for _ in 1:n_pairs
         i = rand(rng, 1:n)
-        j = rand(rng, 1:n)
-        i == j && continue
+        j = rand(rng, 1:(n - 1))
+        j >= i && (j += 1)
         total += Float64(genome_distance(agents[i].genome, agents[j].genome))
     end
     total / n_pairs

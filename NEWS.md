@@ -1,3 +1,14 @@
+# Development version
+
+- `get_run_data()` now exposes prey and predator action entropy separately,
+  with the number of recorded decisions. No decisions are represented by
+  `NaN`; blocked moves count as chosen actions (#164).
+- Genetic diversity now samples distinct individuals for every pair. The
+  former sampler skipped self-pairs but retained them in the denominator,
+  biasing estimates downwards. This correction changes random draws and
+  seeded trajectories; regenerate simulation results before comparing
+  diversity across versions.
+
 # clade 0.8.0 (development) — sex / mating-system subsystem + Rees-Baylis 2026 paper reproduction
 
 - `plot_run()` now shows grass biomass density alongside coverage when the
