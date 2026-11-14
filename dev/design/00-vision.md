@@ -225,7 +225,7 @@ note in `dev/dev-log/decisions.md`.
 | `default_specs()` | Returns the canonical 312-field spec list. Single source of truth for parameter names, defaults, and types. | `R/config.R` | `test-specs.R`, `test-config.R`, `test-spec-wiring.R` |
 | `run_alife()` / `run_clade()` | Primary entry point. R↔Julia boundary crossed once per call. | `R/run.R` | `test-integration.R` |
 | `batch_alife()` / `batch_seeds()` | Parallel batch runners. PSOCK cluster; one Julia per worker. | `R/run.R` | `test-integration.R` |
-| `get_run_data(env)$ticks` | Per-tick population statistics in long form. Stable column set. | `R/analysis.R` | `test-run-data.R` |
+| `get_run_data(env)$ticks` | Per-tick population statistics in long form. Includes action entropy in nats and eligible decision counts, separately for prey and predators; undefined entropy is NaN. | `R/analysis.R` | `test-run-data.R` |
 | `get_run_data(env)$deaths` | Per-death individual records. | `R/analysis.R` | `test-run-data.R` |
 | `get_run_data(env)$genomes` | Per-tick trait genomes (NULL unless `log_genomes = TRUE`). | `R/analysis.R` | `test-log-genomes.R` |
 | `viability_report(ticks, n_agents_init)` | Quality gate. Verdict ∈ {viable, weak, crashed}. | `R/analysis.R` | (Phase A item 6 will add a dedicated test) |

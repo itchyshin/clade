@@ -209,3 +209,20 @@ run boundary. R inspection reads those exact vectors. Older or manually
 built lists retain the legacy display fallback; weighted sensing requires
 a saved snapshot. Snapshots describe final state, not a historical decision
 or stochastic brain replay.
+
+## 2026-11-14: Action diversity and genetic pair sampling
+
+For #164, action diversity is H = -sum(p_a log(p_a)) in nats over the
+five brain output categories among living individuals with a recorded
+choice. Code 0 is excluded. Log prey and predators separately, each with
+its denominator; return NaN with no eligible choices. This describes
+chosen action diversity, including blocked movement, rather than executed
+movement or individual repeatability. No new spec flag is needed.
+
+Correct the genetic estimator to draw distinct individuals in every
+sampled pair. The old self-pair skip retained failed draws in the
+denominator and biased the estimate downwards. Zero or one individual
+continues to return zero by convention, not as a measured pairwise
+distance. The changed random draws affect seeded trajectories, since the
+logger shares the environment RNG. Existing datasets remain historical;
+new comparative claims require results generated with the corrected code.

@@ -14,6 +14,8 @@
 #'     `n_agents`, `n_births`, `n_deaths`, `n_starvations`,
 #'     `n_age_deaths`, `mean_energy`, `sd_energy`, `mean_age`, `sd_age`,
 #'     `mean_body_size`, `sd_body_size`, `genetic_diversity`, `n_species`,
+#'     `behavioral_diversity`, `n_behavioral_agents`,
+#'     `predator_behavioral_diversity`, `n_behavioral_predators`,
 #'     `grass_coverage` (share of cells with any grass), `grass_density`
 #'     (total grass as a share of `N * grass_max`; can exceed 1 only when
 #'     `fixed_patch_value > grass_max`). Module-specific columns are present as zeros
@@ -35,6 +37,16 @@
 #'     `inst/julia/src/logging.jl::_init_progress`; use
 #'     `colnames(get_run_data(env)$ticks)` to see every column for a
 #'     specific run.}
+#'   \item{Action diversity}{`behavioral_diversity` is Shannon entropy in nats
+#'     (`-sum(p * log(p))`) of living prey's last chosen actions: 1 to 4 are
+#'     north, east, south and west; 5 is stay. A blocked move still counts as
+#'     that chosen direction. Dead individuals and code 0 (no decision yet,
+#'     including newborns) are excluded. `n_behavioral_agents` is the number
+#'     included. The predator columns use the same definition separately
+#'     (predator action 5 is stay and attack). Entropy is 0 for one chosen
+#'     category and at most `log(5)`; it is `NaN` when no decisions are
+#'     available or the tick was not logged. This measures population
+#'     diversity of decisions, not individual behavioural repeatability.}
 #'   \item{`$deaths`}{A data frame with one row per agent death and columns:
 #'     `id`, `t`, `age`, `energy`, `cause`, `body_size`, `num_offspring`.}
 #'   \item{`$genomes`}{A long data frame with one row per (tick, agent) and
@@ -48,6 +60,8 @@
 #' env  <- run_alife(default_specs())
 #' data <- get_run_data(env)
 #' head(data$ticks)
+#' with(data$ticks, plot(t, behavioral_diversity, type = "l",
+#'                       ylab = "Action entropy (nats)"))
 #' hist(data$deaths$age, main = "Age at death")
 #' }
 #'

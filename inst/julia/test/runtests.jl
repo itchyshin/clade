@@ -206,7 +206,7 @@ end
     # Compare ALL non-recording returned states
     @test res_seed_off.t == res_seed_on.t
     @test res_seed_off.agents == res_seed_on.agents
-    @test res_seed_off.progress == res_seed_on.progress
+    @test isequal(res_seed_off.progress, res_seed_on.progress)
     @test res_seed_off.deaths == res_seed_on.deaths
     @test res_seed_off.genome_log == res_seed_on.genome_log
     @test res_seed_off.total_carrion == res_seed_on.total_carrion
@@ -250,7 +250,7 @@ end
     r1 = Dict{String,Any}("max_ticks" => 20, "n_agents_init" => 10,
                           "random_seed" => 11)
     r2 = copy(r1); r2["grass_growth_mode"] = "stochastic"
-    @test Clade.run_clade(r1).progress == Clade.run_clade(r2).progress
+    @test isequal(Clade.run_clade(r1).progress, Clade.run_clade(r2).progress)
 
     # 4. grass_density = sum(grass) / (N * gmax); grass_coverage unchanged.
     r3 = Dict{String,Any}("max_ticks" => 5, "n_agents_init" => 5,
@@ -407,3 +407,6 @@ end
 include("test_group_defense.jl")
 
 include("test_sense_mode.jl")
+
+include("test_behavioral_diversity.jl")
+include("test_genetic_diversity.jl")
