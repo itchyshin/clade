@@ -633,9 +633,11 @@ as described by Jablonka & Lamb (2005).
 
 - `life_history`:
 
-  Character. `"iteroparous"` (default) or `"semelparous"`. Semelparous
-  agents die immediately after reproducing. Reference: Stearns (1992)
-  *The Evolution of Life Histories*, Oxford UP.
+  Character. `"iteroparous"` (default) or `"semelparous"`. Iteroparous
+  agents may reproduce on successive eligible ticks. Semelparous agents
+  die at the next mortality phase after their focal reproductive episode
+  (on the following tick). Reference: Stearns (1992) *The Evolution of
+  Life Histories*, Oxford UP.
 
 - `max_age`:
 

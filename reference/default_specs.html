@@ -731,7 +731,9 @@ the pre-0.4.2 binary presence signal. No effect when
 
 <dl><dt><code>life_history</code></dt>
 <dd><p>Character. <code>"iteroparous"</code> (default) or
-<code>"semelparous"</code>. Semelparous agents die immediately after reproducing.
+<code>"semelparous"</code>. Iteroparous agents may reproduce on successive
+eligible ticks. Semelparous agents die at the next mortality phase
+after their focal reproductive episode (on the following tick).
 Reference: Stearns (1992) <em>The Evolution of Life Histories</em>, Oxford UP.</p></dd>
 
 <dt><code>max_age</code></dt>
