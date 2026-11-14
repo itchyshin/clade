@@ -1,0 +1,25 @@
+{
+  "source_commit": "2b6ea12bbbccf06f62e700edf5653eeb7c950cc6",
+  "source_archive_sha256": "bbe0e9d49afa8aec5a5f18c278d3f7bea68f52a6ef7663fef264722ad035548f",
+  "hooked_kernel_sha256": "a0a6ddc1de86db5884f3a05138cfc74e3ad7e97e6f6108b915409699fb81de05",
+  "files": {
+    "README.md": "053088ace02257d504358bba31c23a68a372e554edc06c23322b5148731c27c2",
+    "analyze.R": "f1208ca541b6b51aa3334cb86e63c0f66153519323a42b7b72dc222c0bb91d40",
+    "audit.py": "46ddc8ff03f0107d157290d643e2b1c5146cc6c6bdf5ef8c2386b9e3eefce7e1",
+    "findings.md": "c5a80f56adb63c8a3c9ad065bb1772e7eb1b1fcec1349302b21ebc3755d45bc5",
+    "intervene.jl": "65f7701dcfdaa1c9bdb4021797ac3bde7039ae7343d5d6530de61ca8b22bcbf0",
+    "intervention-hook.patch": "478d84bd8053596dd1ce6c833d94b699ff2251836fedcac9eed7c71f336b38f4",
+    "plan.md": "f3ec5544894d7f2706a9365bd74dd1f1d74ba004d7f099ee3380a2db3c2e3cd4",
+    "research-plan.md": "fae4dc8378295b424ba790c8f2454641a052c5f5501b7b36526b3d98e84a6556",
+    "results/analysis.log": "8d0c219f244976b7b14707c80321907839c66cab47ba14639084e7033097714c",
+    "results/audit.txt": "6aec537a9d6f40fed36e38b8e5e8c32864e1afd1bfff4d33f57c5b3e45e165ba",
+    "results/blocks.csv": "1b33e7c0dc5ec321255fa8c0a9574229cdd6d28e543559451f2ebc20d0db4d19",
+    "results/prior-runs.csv.gz": "b04307eb1ce6f19ea2b9fd9186d36364216be9c6a15713f18a8a9ecd903cc5a7",
+    "results/receipts/execution.json": "fabe12028d5ddadb86024e87f7c92e5b8be7c74c9421fea98e7502ab07703487",
+    "results/runs.csv.gz": "1ba51a538080b58ea41e57a1fc12c40c462095540470bd86f1ff522cec59c576",
+    "results/summary.csv": "9e65b940ef199ba30768387d8a4724b3acc8ef098b23f80af0fcce45166bd7e8",
+    "results/viability.csv": "1eb080ff6167a779f627c8247737b16ebd7885a5381ef8e06ce00ad8aa5e2718",
+    "run_totoro.py": "de4d119b93c636b192589269dc8413188a4c3aec6cf6c60739371548ce8d4004",
+    "viability.R": "10bd637a8afd787f7ecce249be1fed317c70d513ad8d8bf4ed2ec4a56c1cb1e4"
+  }
+}

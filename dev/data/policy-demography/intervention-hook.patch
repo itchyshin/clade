@@ -1,0 +1,7 @@
+--- a/inst/julia/src/Clade.jl
++++ b/inst/julia/src/Clade.jl
+@@ -349 +349 @@
+-function _run_clade(user_specs::AbstractDict, initialize; observe=nothing)
++function _run_clade(user_specs::AbstractDict, initialize; observe=nothing, intervene=nothing)
+@@ -483,0 +484 @@
++        intervene === nothing || intervene(env)
