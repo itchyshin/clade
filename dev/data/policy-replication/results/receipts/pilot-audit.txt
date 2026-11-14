@@ -1,0 +1,1 @@
+PASS: 5 source seeds, 180 runs, 3600 window ledgers, all physical/panel matches and all summary means independently reconstructed.
