@@ -1,0 +1,1 @@
+PASS: 6000 unique arm/checkpoint rows; matched physical hashes, exact policy assignments, prior trajectory, and all summary means independently reconstructed.

@@ -1188,3 +1188,7 @@ assertion. Saved-spec compatibility fix is included from #203.
 - Independent temporal accounting verifies all 300 seed/interval changes as
   birth-minus-death differences. All 50 remote kernel and prior-assay files
   match the local pinned source. Raw, packaged and analysis-script hashes pass.
+
+### 2026-11-14: policy-frequency intervention
+
+Branch `codex/policy-frequency-intervention`. Research-only matched tick-600 restoration, sham and natural arms on Totoro: 100 seeds, 300 runs, 36.02 s; no package kernel change. `Rscript dev/data/policy-frequency/analyze.R /tmp/clade-frequency/full` passed 6,000-row, physical-state, assignment and natural-replay checks; `python3 dev/data/policy-frequency/audit.py /tmp/clade-frequency/full` independently reconstructed 240 summary means. All 300 terminal `viability_report()` checks viable. Primary tick-1000 restored minus sham -1.56 (95% paired interval -3.14, 0.02). Pilot v2 reproduced 60 rows after extinction safeguard. Searched `frequency|density|age structure` in `dev/data/policy-reversal/findings.md` and `dev/data/policy-frequency/plan.md`. Full package checks not run: no package changes. See `dev/data/policy-frequency/findings.md` and after-task report; density and age were controlled at intervention only.
