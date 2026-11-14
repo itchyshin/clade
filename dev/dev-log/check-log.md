@@ -737,3 +737,15 @@ Independent review reproduced R validation rejecting saved spec lists that
 predate sense_mode. The added regression failed before the fix. Validation
 now accepts an absent field (Julia defaults it to per_cell), while explicit
 invalid modes still fail. No saved-spec migration is required.
+
+
+### Final campaign integration checks
+
+Integrated main f69b38c (#203). Preserved append-only histories while resolving
+check-log conflict; all Julia includes retained. Full Julia suite: 225 pass,
+exit 0. Portable R suite: exit 0, no fail/warn, 647 gated skips. Reproduced
+both exploratory models with the saved R script and data assertions. Trimmed
+trailing whitespace from captured output; numeric results unchanged.
+The source metric is RMS genome-weight distance, nonnegative without a fixed
+upper bound of one; removed the review script's unsupported upper-bound
+assertion. Saved-spec compatibility fix is included from #203.

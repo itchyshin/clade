@@ -29,7 +29,11 @@ and this report. No public R function or default changed in this phase.
 
 ## 5. Checks Run
 
-- Julia 1.10.0 integrated test runner: 166 assertions pass, exit 0.
+- Julia 1.10.0 runner: 166 assertions pass before sensing integration;
+  the final combined suite passes 225, exit 0.
+- Full portable R tier after integration: exit 0, no failures or warnings;
+  647 Julia-gated cases skipped. Earlier live R boundary checks cover the
+  new entropy and sensory workflows separately.
 - Timed Totoro pilot: one environment by five seeds, 10.32 seconds, valid output.
 - Full Totoro run: 100 environments by five seeds, 74.29 seconds,
   405500 KiB maximum RSS, exit 0. Four Julia threads, one BLAS thread.
@@ -100,8 +104,11 @@ other brain architectures or a published-prediction reproduction claim.
 ## Documentation, Review and Next Actions
 
 The data README and JSON give commands, source, resources and limitations.
-A separate read-only data audit checks the same invariants and evaluates the
-agreed exploratory two-stage model. Finish PR checks before merging and
+A separate read-only data audit agrees with these invariants. Both agreed
+exploratory two-stage models converge without warnings and are nonsingular.
+The conditional Gaussian model has a negative fitted minimum and asymmetric
+residuals. Source review confirmed RMS distance has no fixed upper bound
+of one, and the analysis script no longer asserts that unsupported bound. Finish PR checks before merging and
 send Bhavya a consolidated update after the issue sweep.
 
 Self-review of the technical report: perceived AI-like style 2/10,
