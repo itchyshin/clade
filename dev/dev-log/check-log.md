@@ -939,3 +939,17 @@ assertion. Saved-spec compatibility fix is included from #203.
 - Analysis initially rebuilt cohort string keys repeatedly; stopped only
   that analysis process, cached group indices and reran. No simulation or
   raw output was interrupted or replaced.
+
+### Critical reproduction qualification found during performance work
+
+- Source review and energy-budget discrepancy exposed reproduced=true
+  never being cleared. create_offspring! therefore permits only one focal
+  episode/lifetime even for iteroparous agents. Mate contributions are a
+  separate pathway. Independent review confirms the bug and recommends
+  clearing surviving flags after mortality, before reproduction.
+- Legacy600 results are source-bound diagnostics and cannot establish
+  intended iteroparous performance. Preserve them and failed precision
+  outputs. Do not refine/interpret legacy brains as corrected populations.
+- No full numerical refinement was launched; only six-population probe.
+  Next: focused fix/regressions, then corrected-source pilot and fresh
+  endpoint archives under the same exogenous controls.
