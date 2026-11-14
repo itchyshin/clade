@@ -621,3 +621,26 @@ important project state. Keep entries concise and concrete.
 - Not run: CI (pending push), Julia-enabled tests.
 - Next safest action: push, confirm `r-coverage` and all PR checks.
   Do not merge. Do not add a Codecov token.
+
+
+## 2026-11-14: Action entropy and distinct genetic pairs
+
+- Branch: codex/diversity-metrics, based on main d012fe0 (includes #200).
+- Goal: finish #164 and correct the genetic self-pair denominator bias
+  found during #185 review. R documentation and Core Contract updated.
+- Checks: Julia 1.10.0 `julia --project=inst/julia inst/julia/test/runtests.jl`
+  exit 0, 143 assertions pass. Focused R extractor/live five-seed and
+  no-predator tests: 41 pass, zero fail/warn/skip. `devtools::document()`
+  regenerated get_run_data.Rd. Full R portable tier with
+  CLADE_SKIP_JULIA_TESTS=true: exit 0, no fail/warn, 644 skips.
+- Tests of tests: old genetic sampler fails exact two-agent and all-pair
+  checks. Independent review requested guaranteed undefined entropy across
+  the connector; the added real no-predator test passes with is.nan().
+- Searches: `progress.*==|==.*progress` identified two whole-table equality
+  assertions needing isequal for NaNs; `behavioral_diversity|n_behavioral|
+  _sample_genetic_diversity` checked source/help/contract consistency.
+- Limit: no biological calibration or historical cache regeneration.
+  Genetic sampling changes RNG draws and seeded trajectories. Historical
+  #185 data must remain separate from results generated after this fix.
+- Report: after-task/2026-11-14-diversity-logging.md.
+- Next: settled green PR merge, then replay-safe #185 rerun.
