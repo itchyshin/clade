@@ -35,7 +35,8 @@ Final populations here average roughly two-thirds haploid.
 
 ## Diversity and population performance answer different questions
 
-In the low-cost world, mutation SD .20 produces higher diversity but lowers
+With fixed exploration and low movement cost, mutation SD .20 produces
+higher diversity but lowers
 mean final population size by approximately 3 to 6 agents relative to zero
 mutation, depending on founder spread. The paired intervals exclude zero.
 That does not establish a particular fitness mechanism, and higher D is
