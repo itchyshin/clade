@@ -1,0 +1,66 @@
+                          type              label         metric   n     mean
+              threshold_effect      sham 48 fixed population1000 100 -8.83875
+              threshold_effect     young 48 fixed population1000 100 -7.24125
+              threshold_effect       old 48 fixed population1000 100 -8.30500
+              threshold_effect      both 48 fixed population1000 100 -5.83625
+      gate_effect_on_threshold     young 48 fixed population1000 100  1.59750
+      gate_effect_on_threshold       old 48 fixed population1000 100  0.53375
+      gate_effect_on_threshold      both 48 fixed population1000 100  3.00250
+ gate_interaction_on_threshold           48 fixed population1000 100  0.87125
+              threshold_effect      sham 96 fixed population1000 100 -3.00250
+              threshold_effect     young 96 fixed population1000 100 -3.25625
+              threshold_effect       old 96 fixed population1000 100 -3.33625
+              threshold_effect      both 96 fixed population1000 100 -0.67500
+      gate_effect_on_threshold     young 96 fixed population1000 100 -0.25375
+      gate_effect_on_threshold       old 96 fixed population1000 100 -0.33375
+      gate_effect_on_threshold      both 96 fixed population1000 100  2.32750
+ gate_interaction_on_threshold           96 fixed population1000 100  2.91500
+              threshold_effect  sham 48 staggered population1000 100 -5.84125
+              threshold_effect young 48 staggered population1000 100 -6.39500
+              threshold_effect   old 48 staggered population1000 100 -9.14125
+              threshold_effect  both 48 staggered population1000 100 -5.92250
+      gate_effect_on_threshold young 48 staggered population1000 100 -0.55375
+      gate_effect_on_threshold   old 48 staggered population1000 100 -3.30000
+      gate_effect_on_threshold  both 48 staggered population1000 100 -0.08125
+ gate_interaction_on_threshold       48 staggered population1000 100  3.77250
+              threshold_effect  sham 96 staggered population1000 100 -2.37625
+              threshold_effect young 96 staggered population1000 100 -1.20250
+              threshold_effect   old 96 staggered population1000 100 -3.13750
+              threshold_effect  both 96 staggered population1000 100 -4.11125
+      gate_effect_on_threshold young 96 staggered population1000 100  1.17375
+      gate_effect_on_threshold   old 96 staggered population1000 100 -0.76125
+      gate_effect_on_threshold  both 96 staggered population1000 100 -1.73500
+ gate_interaction_on_threshold       96 staggered population1000 100 -2.14750
+        lower      upper bootstrap_lower bootstrap_upper
+ -11.33099603 -6.3465040     -11.2937500      -6.4211250
+  -9.23052831 -5.2519717      -9.2165000      -5.3311563
+ -10.53592789 -6.0740721     -10.6264063      -5.9895625
+  -7.71055733 -3.9619427      -7.6087500      -4.0562500
+  -1.21885071  4.4138507      -1.0892500       4.3821250
+  -2.36581809  3.4333181      -2.1640938       3.4888750
+   0.04760128  5.9573987      -0.0109375       5.9251562
+  -2.82312131  4.5656213      -2.5847813       4.5016250
+  -5.24685364 -0.7581464      -5.2525313      -0.8298125
+  -5.44306790 -1.0694321      -5.2714375      -1.1286875
+  -5.51280959 -1.1596904      -5.4425937      -1.2305625
+  -2.76365855  1.4136586      -2.7353125       1.4875312
+  -3.24283453  2.7353345      -3.1312813       2.7263437
+  -3.14280691  2.4753069      -2.9490937       2.4114375
+  -0.49371418  5.1487142      -0.4014375       5.2091250
+  -1.14106234  6.9710623      -1.1165000       6.8000625
+  -7.95867814 -3.7238219      -8.0263437      -3.8881875
+  -8.78383430 -4.0061657      -8.8013437      -4.0636250
+ -11.34384190 -6.9386581     -11.3389063      -7.0182188
+  -8.48263724 -3.3623628      -8.4100000      -3.4148750
+  -3.73030955  2.6228095      -3.5987813       2.6743750
+  -6.09269943 -0.5073006      -5.9941875      -0.6724375
+  -3.07295881  2.9104588      -2.8525938       2.8900937
+  -0.58744935  8.1324493      -0.6866875       8.2400000
+  -5.05746673  0.3049667      -5.0302188       0.1878437
+  -3.42513574  1.0201357      -3.2875312       1.0038437
+  -5.33474450 -0.9402555      -5.2996562      -0.9646563
+  -6.44893564 -1.7735644      -6.4876250      -1.7306563
+  -2.48595682  4.8334568      -2.5662500       4.8939375
+  -3.90637655  2.3838765      -3.7214687       2.2437812
+  -5.20653183  1.7365318      -4.9916563       1.5414062
+  -7.07512012  2.7801201      -7.1598125       2.4365000

@@ -1,0 +1,36 @@
+{
+  "assessment_performed": true,
+  "draft_sha256": "552d2563c6bf2528db4644cec6d1893486e676e2cf92f031f827dd8af2b7aafa",
+  "draft_version": "v1",
+  "requested_mode": "independent",
+  "assessor_type": "self",
+  "reviewer": "Codex",
+  "method": "Post-draft self-review against matched intervention outputs, pilot and independent audits.",
+  "genre": "Simulation research record",
+  "coverage": "Whole exact draft",
+  "score": 2,
+  "style_status": "scored",
+  "score_reason": "The estimand, results and scientific limits are concrete and direct.",
+  "confidence": "moderate",
+  "confidence_reason": "Uncalibrated editorial self-review.",
+  "examples": [
+    {
+      "location": "Line 5",
+      "line": 5,
+      "quote": "Test whether reducing young or old reproductive opportunities changes the food-dependent policy-mixture population pattern, using matched controls and new source seeds.",
+      "cue": "Test whether reducing young or old reproductive opportunitie",
+      "impact": "States the question or result directly.",
+      "repair": "no change needed"
+    }
+  ],
+  "evidence_none_reason": null,
+  "science_gate": "pass",
+  "science_gate_reason": "Matched interventions, estimands, uncertainty and limits checked.",
+  "facts_gate": "pass",
+  "facts_gate_reason": "Gate, viability and population ledgers and independent reconstructions checked.",
+  "references_gate": "pass",
+  "references_gate_reason": "Local scripts and source identities checked.",
+  "date": "2026-11-15",
+  "calibration_status": "No held-out controls.",
+  "interpretation": "perceived_style_not_authorship"
+}

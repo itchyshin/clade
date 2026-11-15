@@ -1,0 +1,13 @@
+sham viable 144 /144 extinct 0
+  young eligible 31761 blocked 0 ratio 0.0
+  old eligible 21716 blocked 0 ratio 0.0
+young viable 144 /144 extinct 0
+  young eligible 60070 blocked 30294 ratio 0.5043116364241718
+  old eligible 21925 blocked 0 ratio 0.0
+old viable 144 /144 extinct 0
+  young eligible 32070 blocked 0 ratio 0.0
+  old eligible 41273 blocked 20665 ratio 0.5006905240714269
+both viable 144 /144 extinct 0
+  young eligible 60395 blocked 30308 ratio 0.501829621657422
+  old eligible 41694 blocked 20853 ratio 0.5001439055979278
+PASS: 576 intervention runs and 11520 ledgers matched; gate accounting passed; prior no-op replay matched all 144 runs and 2880 windows.

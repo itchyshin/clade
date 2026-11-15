@@ -1,0 +1,15 @@
+--- a/inst/julia/src/Clade.jl	2026-11-15 05:56:07
++++ b/inst/julia/src/Clade.jl	2026-11-15 05:56:08
+@@ -349 +349 @@
+-function _run_clade(user_specs::AbstractDict, initialize; observe=nothing)
++function _run_clade(user_specs::AbstractDict, initialize; observe=nothing, repro_gate=nothing)
+@@ -472 +472 @@
+-        create_offspring!(env)
++        create_offspring!(env; repro_gate=repro_gate)
+--- a/inst/julia/src/reproduce.jl	2026-11-15 05:56:07
++++ b/inst/julia/src/reproduce.jl	2026-11-15 05:56:08
+@@ -32 +32 @@
+-function create_offspring!(env::Environment)
++function create_offspring!(env::Environment; repro_gate=nothing)
+@@ -72,0 +73 @@
++        repro_gate === nothing || repro_gate(ag, env) || continue

@@ -1,0 +1,12 @@
+{
+  "wall_seconds": 106.01213817764074,
+  "stage": "pilot",
+  "source_commit": "2b6ea12bbbccf06f62e700edf5653eeb7c950cc6",
+  "driver_sha256": "d8928958dcc872b221cdfea0e9732a87915522672fe551c72a17244d831c8bd7",
+  "assay_sha256": "289665bdbed26b5ee6cedf91f15ab59fc8ce757113c948fd25c819225b9096e5",
+  "kernel_sha256": "47696578b1e259a2f628fc1a8179beb877cd496dae40f3cbdbf78fc64997e684",
+  "reproduce_sha256": "4b3f9d5f58bad9df2995439b545a625cf96c5d36e11e1da08590bf0d92f7da68",
+  "workers": 5,
+  "julia_threads": 4,
+  "blas_threads": 1
+}

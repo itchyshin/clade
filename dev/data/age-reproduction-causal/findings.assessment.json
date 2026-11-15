@@ -1,0 +1,36 @@
+{
+  "assessment_performed": true,
+  "draft_sha256": "2f2f759da309bbd5865e06c43d6fdbceec85c1113d525aecd26d31d3008202a3",
+  "draft_version": "v1",
+  "requested_mode": "independent",
+  "assessor_type": "self",
+  "reviewer": "Codex",
+  "method": "Post-draft self-review against matched intervention outputs, pilot and independent audits.",
+  "genre": "Simulation research record",
+  "coverage": "Whole exact draft",
+  "score": 2,
+  "style_status": "scored",
+  "score_reason": "The estimand, results and scientific limits are concrete and direct.",
+  "confidence": "moderate",
+  "confidence_reason": "Uncalibrated editorial self-review.",
+  "examples": [
+    {
+      "location": "Line 3",
+      "line": 3,
+      "quote": "The specified interventions did not consistently remove the population pattern. In the primary 48-founder comparisons, halving eligible reproductive opportunities for parents under 50 or aged 150 and older generally produced uncertain changes in the food-dependent threshold effect. One estimate for older parents with staggered founder ages suggested a change in the opposite direction to removal of the pattern, but its interpretation is sensitive to multiple comparisons. These results do not establish that age-specific reproduction has no causal role: realized birth reductions were much smaller than the 50% opportunity blocks.",
+      "cue": "The specified interventions did not consistently remove the ",
+      "impact": "States the question or result directly.",
+      "repair": "no change needed"
+    }
+  ],
+  "evidence_none_reason": null,
+  "science_gate": "pass",
+  "science_gate_reason": "Matched interventions, estimands, uncertainty and limits checked.",
+  "facts_gate": "pass",
+  "facts_gate_reason": "Gate, viability and population ledgers and independent reconstructions checked.",
+  "references_gate": "pass",
+  "references_gate_reason": "Local scripts and source identities checked.",
+  "date": "2026-11-15",
+  "calibration_status": "No held-out controls.",
+  "interpretation": "perceived_style_not_authorship"
+}

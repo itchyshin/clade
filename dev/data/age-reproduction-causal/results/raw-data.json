@@ -1,0 +1,20 @@
+{
+  "files": [
+    {
+      "remote_path": "/home/snakagaw/sim-archive/clade/2026-11-15-age-reproduction-causal/full/windows.csv.gz",
+      "sha256": "2908848e5e3faed916284e8e1247de3e08574f7e5772c64cb0ec9f8e6f0b14e9"
+    },
+    {
+      "remote_path": "/home/snakagaw/sim-archive/clade/2026-11-15-age-reproduction-causal/full/runs.csv.gz",
+      "sha256": "3598b3601a7665ca5e069a4b8f163e44047fd62d379378c2c3d31bde3ec611bd"
+    },
+    {
+      "remote_path": "/home/snakagaw/sim-archive/clade/2026-11-15-age-reproduction-causal/full/combined/sources.csv",
+      "sha256": "5ae1cbb3ee36e17fc9ff585e5fe1b2aaa549d089e84e3fd9a3bd116723004f99"
+    }
+  ],
+  "source_state_manifest": "results/receipts/states.sha256",
+  "seed_blocks": 100,
+  "assay_runs": 57600,
+  "windows": 1152000
+}

@@ -1,0 +1,10 @@
+--- a/inst/julia/scripts/mixture_assay.jl	2026-11-15 05:57:05
++++ b/inst/julia/scripts/mixture_assay.jl	2026-11-15 05:57:05
+@@ -47 +47 @@
+-function trial(brains,p,seed,mode,mono;horizon=nothing,overrides=Dict{String,Any}())
++function trial(brains,p,seed,mode,mono;horizon=nothing,overrides=Dict{String,Any}(),repro_gate=nothing,extra_observe=nothing)
+@@ -87,0 +88 @@
++  extra_observe === nothing || extra_observe(phase,env)
+@@ -89 +90 @@
+- result=Clade._run_clade(s,init;observe=observe);env=environment[]
++ result=Clade._run_clade(s,init;observe=observe,repro_gate=repro_gate);env=environment[]

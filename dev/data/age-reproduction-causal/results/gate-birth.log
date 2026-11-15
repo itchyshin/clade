@@ -1,0 +1,14 @@
+  gate density threshold food_rate age_mode   group     metric   n   mean
+ young      48       120      0.05    fixed mixture birth_age1 100 -11.08
+ young      48       120      0.05    fixed mixture birth_age2 100   5.11
+ young      48       120      0.05    fixed mixture birth_age3 100   3.70
+ young      48       120      0.05    fixed mixture birth_age4 100   0.72
+   old      48       120      0.05    fixed mixture birth_age1 100   5.25
+   old      48       120      0.05    fixed mixture birth_age2 100   0.04
+       lower     upper
+ -15.5380079 -6.621992
+   2.1095350  8.110465
+   0.3821065  7.017894
+  -2.8037333  4.243733
+   2.0460281  8.453972
+  -2.5449371  2.624937

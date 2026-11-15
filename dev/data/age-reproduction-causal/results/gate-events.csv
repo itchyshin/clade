@@ -1,0 +1,5 @@
+gate,eligible_young,blocked_young,eligible_old,blocked_old
+sham,3502907,0,2155248,0
+young,6593465,3296306,2158178,0
+old,3550050,0,4099675,2051572
+both,6683716,3341990,4103548,2053653

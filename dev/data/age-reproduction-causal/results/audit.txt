@@ -1,0 +1,1 @@
+PASS: 100 source blocks, 57600 runs, 1152000 window ledgers, gate counts, all block contrasts and 640 factorial and 384 gate-birth means independently reconstructed.
