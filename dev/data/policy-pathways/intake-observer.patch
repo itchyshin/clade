@@ -1,0 +1,15 @@
+--- a/inst/julia/src/Clade.jl	2026-11-14 18:28:47
++++ b/inst/julia/src/Clade.jl	2026-11-14 18:28:47
+@@ -349 +349 @@
+-function _run_clade(user_specs::AbstractDict, initialize; observe=nothing)
++function _run_clade(user_specs::AbstractDict, initialize; observe=nothing, intake_observer=nothing)
+@@ -386 +386 @@
+-        tick_agents!(env)
++        tick_agents!(env; intake_observer=intake_observer)
+--- a/inst/julia/src/tick.jl	2026-11-14 18:28:47
++++ b/inst/julia/src/tick.jl	2026-11-14 18:28:47
+@@ -56 +56 @@
+-function tick_agents!(env::Environment)
++function tick_agents!(env::Environment; intake_observer=nothing)
+@@ -240,0 +241 @@
++            intake_observer === nothing || intake_observer(ag, bite)

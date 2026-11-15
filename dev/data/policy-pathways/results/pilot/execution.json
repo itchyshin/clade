@@ -1,0 +1,13 @@
+{
+  "wall_seconds": 90.015946067404,
+  "first_seed": 61001,
+  "seed_count": 1,
+  "source_commit": "2b6ea12bbbccf06f62e700edf5653eeb7c950cc6",
+  "driver_sha256": "751b8c081ca7b19f9a542b47c2a228eb92ed7e7f23ac8d8f09a5dd51b775bb97",
+  "assay_sha256": "fe6d8fbb7244f1fddfc11f055847eac4ec0721db4d004695455f9d9a70de2891",
+  "kernel_sha256": "1ccc7b3f4a0f81e5c7a255c880c89c2af7662b54d02ca180a33f93e2673fd135",
+  "tick_sha256": "ebff8178b3f04bc2ca5a89213900b7d38ca5174392c0857a1f88828ae5eecb35",
+  "workers": 1,
+  "julia_threads": 4,
+  "blas_threads": 1
+}

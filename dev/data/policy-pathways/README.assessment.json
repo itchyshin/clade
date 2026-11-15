@@ -1,0 +1,36 @@
+{
+  "assessment_performed": true,
+  "draft_sha256": "31c31a1ddcece0de764f8be28d9cba350b9b8b142f6a5abf2fe5d93a66ba407f",
+  "draft_version": "v1",
+  "requested_mode": "independent",
+  "assessor_type": "self",
+  "reviewer": "Codex",
+  "method": "Post-draft self-review against replayed simulations and independent audits.",
+  "genre": "Simulation research record",
+  "coverage": "Whole exact draft",
+  "score": 2,
+  "style_status": "scored",
+  "score_reason": "Concrete estimands, outcomes and limits are stated directly.",
+  "confidence": "moderate",
+  "confidence_reason": "Uncalibrated editorial self-review.",
+  "examples": [
+    {
+      "location": "Line 3",
+      "line": 3,
+      "quote": "See `plan.md` for the observational design and `findings.md` for results. The source commit is `2b6ea12bbbccf06f62e700edf5653eeb7c950cc6`. In an isolated source copy, apply `dev/data/policy-stability/assay-final.patch`, `dev/data/policy-stability/unique-source.patch`, `dev/data/policy-density-factorial/dynamic-density.patch` and `intake-observer.patch`, then copy `driver.jl` and `launch.py` to its root. Source states are the archived files from the preceding density factorial, identified by its SHA-256 manifest.",
+      "cue": "See `plan.md` for the observational design and `findings.md`",
+      "impact": "States the scope or result directly.",
+      "repair": "no change needed"
+    }
+  ],
+  "evidence_none_reason": null,
+  "science_gate": "pass",
+  "science_gate_reason": "Matched decomposition, exploratory comparisons, exposure and causal limits checked.",
+  "facts_gate": "pass",
+  "facts_gate_reason": "Prior replay, raw ledgers and independent reconstructions checked.",
+  "references_gate": "pass",
+  "references_gate_reason": "Local scripts and source identities checked.",
+  "date": "2026-11-14",
+  "calibration_status": "No held-out controls.",
+  "interpretation": "perceived_style_not_authorship"
+}
