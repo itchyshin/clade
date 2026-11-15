@@ -1,0 +1,36 @@
+{
+  "assessment_performed": true,
+  "draft_sha256": "3f7333acff9476c080be98cca003204b070f1254833a01412e0d7a9cf9b49ff8",
+  "draft_version": "v1",
+  "requested_mode": "independent",
+  "assessor_type": "self",
+  "reviewer": "Codex",
+  "method": "Post-draft self-review against the pilot plan, raw-event audit, and source-pinned summaries.",
+  "genre": "Simulation research record",
+  "coverage": "Whole exact draft",
+  "score": 3,
+  "style_status": "scored",
+  "score_reason": "Concrete design and limits are stated directly, although some technical density remains.",
+  "confidence": "moderate",
+  "confidence_reason": "Uncalibrated self-review, not independent validation.",
+  "examples": [
+    {
+      "location": "Line 5",
+      "line": 5,
+      "quote": "Restricting early reproductive opportunities led many individual parents to reproduce later. A complete block before age 50 removed all births in that age band, while total births fell much less. This demonstrates a compensating response to this intervention in these simulated worlds. It does not establish that naturally varying age-specific reproduction causes the earlier food-dependent population pattern.",
+      "cue": "Restricting early reproductive opportunities led many indivi",
+      "impact": "Provides task-specific context to the reader.",
+      "repair": "no change needed"
+    }
+  ],
+  "evidence_none_reason": null,
+  "science_gate": "pass",
+  "science_gate_reason": "Compared claims and limitations to the design and audited outcomes.",
+  "facts_gate": "pass",
+  "facts_gate_reason": "Checked reported counts, checks, source identities and computational receipts.",
+  "references_gate": "not_applicable",
+  "references_gate_reason": "No external literature citations.",
+  "date": "2026-11-15",
+  "calibration_status": "No held-out controls.",
+  "interpretation": "perceived_style_not_authorship"
+}

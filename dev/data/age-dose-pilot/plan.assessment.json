@@ -1,0 +1,36 @@
+{
+  "assessment_performed": true,
+  "draft_sha256": "11545f14485ba5a6bbb62e468c46d0f30649dd2209d8d1e4b6c66b64467e5d7d",
+  "draft_version": "v1",
+  "requested_mode": "independent",
+  "assessor_type": "self",
+  "reviewer": "Codex",
+  "method": "Post-draft self-review against the pilot plan, raw-event audit, and source-pinned summaries.",
+  "genre": "Simulation research record",
+  "coverage": "Whole exact draft",
+  "score": 3,
+  "style_status": "scored",
+  "score_reason": "Concrete design and limits are stated directly, although some technical density remains.",
+  "confidence": "moderate",
+  "confidence_reason": "Uncalibrated self-review, not independent validation.",
+  "examples": [
+    {
+      "location": "Line 3",
+      "line": 3,
+      "quote": "Question: does restricting reproductive opportunities of young parents produce a graded change in realized birth timing and energy, and can the same individuals reproduce after a blocked opportunity? This is an exploratory pilot, not a mediation estimate or a powered test of the population interaction.",
+      "cue": "Question: does restricting reproductive opportunities of you",
+      "impact": "Provides task-specific context to the reader.",
+      "repair": "no change needed"
+    }
+  ],
+  "evidence_none_reason": null,
+  "science_gate": "pass",
+  "science_gate_reason": "Compared claims and limitations to the design and audited outcomes.",
+  "facts_gate": "pass",
+  "facts_gate_reason": "Checked reported counts, checks, source identities and computational receipts.",
+  "references_gate": "not_applicable",
+  "references_gate_reason": "No external literature citations.",
+  "date": "2026-11-15",
+  "calibration_status": "No held-out controls.",
+  "interpretation": "perceived_style_not_authorship"
+}

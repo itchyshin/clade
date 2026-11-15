@@ -1,0 +1,36 @@
+{
+  "assessment_performed": true,
+  "draft_sha256": "89e780d5994d2775f97ec6049aad563dff5bc04053068b29ea4927940bc594bc",
+  "draft_version": "v1",
+  "requested_mode": "independent",
+  "assessor_type": "self",
+  "reviewer": "Codex",
+  "method": "Post-draft self-review against the pilot plan, raw-event audit, and source-pinned summaries.",
+  "genre": "Simulation research record",
+  "coverage": "Whole exact draft",
+  "score": 3,
+  "style_status": "scored",
+  "score_reason": "Concrete design and limits are stated directly, although some technical density remains.",
+  "confidence": "moderate",
+  "confidence_reason": "Uncalibrated self-review, not independent validation.",
+  "examples": [
+    {
+      "location": "Line 3",
+      "line": 3,
+      "quote": "See `plan.md` for the pilot design and `findings.md` for results and limits. The source is commit `2b6ea12bbbccf06f62e700edf5653eeb7c950cc6`. In an isolated source copy apply, in order, `dev/data/policy-stability/assay-final.patch`, `dev/data/policy-stability/unique-source.patch`, `dev/data/policy-density-factorial/dynamic-density.patch`, and the `repro-gate.patch` and `assay-observer.patch` in `dev/data/age-reproduction-causal/`. Copy this directory's `driver.jl` and `check-sources.jl` to the copy's root. The exact executed source hashes are recorded in `results/raw-data.json`.",
+      "cue": "See `plan.md` for the pilot design and `findings.md` for res",
+      "impact": "Provides task-specific context to the reader.",
+      "repair": "no change needed"
+    }
+  ],
+  "evidence_none_reason": null,
+  "science_gate": "pass",
+  "science_gate_reason": "Compared claims and limitations to the design and audited outcomes.",
+  "facts_gate": "pass",
+  "facts_gate_reason": "Checked reported counts, checks, source identities and computational receipts.",
+  "references_gate": "not_applicable",
+  "references_gate_reason": "No external literature citations.",
+  "date": "2026-11-15",
+  "calibration_status": "No held-out controls.",
+  "interpretation": "perceived_style_not_authorship"
+}

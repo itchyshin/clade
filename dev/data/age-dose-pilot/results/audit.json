@@ -1,0 +1,8 @@
+{
+  "source_blocks": 5,
+  "pilot_runs": 900,
+  "replay_runs": 36,
+  "events": 1609561,
+  "replay_matched_fields": 8,
+  "verified": "initial hashes, all gate decisions, births, deaths, survival censoring, population balance"
+}

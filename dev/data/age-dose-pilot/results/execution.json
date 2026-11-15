@@ -1,0 +1,14 @@
+{
+  "seconds": 116.0122132669203,
+  "workers": 6,
+  "julia_threads": 4,
+  "blas_threads": 1,
+  "pilot_seeds": [
+    81001,
+    81002,
+    81003,
+    81004,
+    81005
+  ],
+  "replay_seed": 71001
+}
