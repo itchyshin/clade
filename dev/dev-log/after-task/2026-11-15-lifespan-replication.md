@@ -50,4 +50,4 @@ Covers two thresholds, two food regimes, two founder-age schedules, 96 founders,
 
 ## Next Actions
 
-Share the synthesis with Bhavya on issue 182; hold further experiments unless requested.
+Bhavya received the synthesis in issue 182, comment 6895320689; the returned GitHub body matched the posted text exactly. Hold further experiments unless requested.
