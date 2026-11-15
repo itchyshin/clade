@@ -1,0 +1,36 @@
+{
+  "assessment_performed": true,
+  "draft_sha256": "eff412d5c873b03077b8c0e2fbacdac46fcabbd6e955d60b23e1263f1f4b248b",
+  "draft_version": "v1",
+  "requested_mode": "independent",
+  "assessor_type": "self",
+  "reviewer": "Codex",
+  "method": "Post-draft self-review against source-pinned findings, paired audits and recorded limitations.",
+  "genre": "Simulation research report",
+  "coverage": "Whole exact draft",
+  "score": 3,
+  "style_status": "scored",
+  "score_reason": "Specific methods and conclusions are direct, with some technical density.",
+  "confidence": "moderate",
+  "confidence_reason": "Uncalibrated self-review, not independent validation.",
+  "examples": [
+    {
+      "location": "Line 5",
+      "line": 5,
+      "quote": "The population interaction remained small and uncertain at a maximum assay lifespan of 400 ticks. It was evaluated in 100 source blocks matched to the earlier 300-tick study and 100 independent new source blocks, with 72 simulations in each block.",
+      "cue": "The population interaction remained small and uncertain at a",
+      "impact": "States the study-specific result and scope.",
+      "repair": "no change needed"
+    }
+  ],
+  "evidence_none_reason": null,
+  "science_gate": "pass",
+  "science_gate_reason": "Checked estimands, source-bound kernel qualifications, uncertainties and conclusions against study records.",
+  "facts_gate": "pass",
+  "facts_gate_reason": "Checked numbers, replay and stability counts against audits.",
+  "references_gate": "not_applicable",
+  "references_gate_reason": "No external literature citations.",
+  "date": "2026-11-15",
+  "calibration_status": "No held-out controls.",
+  "interpretation": "perceived_style_not_authorship"
+}

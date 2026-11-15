@@ -1,0 +1,36 @@
+{
+  "assessment_performed": true,
+  "draft_sha256": "f3bfd66ea73059895ff5ec4c884c84fc977f0089cf8a8d6c0d6a8fc87981c3aa",
+  "draft_version": "v1",
+  "requested_mode": "independent",
+  "assessor_type": "self",
+  "reviewer": "Codex",
+  "method": "Post-draft self-review against source-pinned findings, paired audits and recorded limitations.",
+  "genre": "Simulation research report",
+  "coverage": "Whole exact draft",
+  "score": 3,
+  "style_status": "scored",
+  "score_reason": "Specific methods and conclusions are direct, with some technical density.",
+  "confidence": "moderate",
+  "confidence_reason": "Uncalibrated self-review, not independent validation.",
+  "examples": [
+    {
+      "location": "Line 3",
+      "line": 3,
+      "quote": "Bhavya's 500-run sampled-environment study raised a useful question: does greater genetic variation produce more varied behaviour and better population performance? The follow-up work supports a more nuanced answer.",
+      "cue": "Bhavya's 500-run sampled-environment study raised a useful q",
+      "impact": "States the study-specific result and scope.",
+      "repair": "no change needed"
+    }
+  ],
+  "evidence_none_reason": null,
+  "science_gate": "pass",
+  "science_gate_reason": "Checked estimands, source-bound kernel qualifications, uncertainties and conclusions against study records.",
+  "facts_gate": "pass",
+  "facts_gate_reason": "Checked numbers, replay and stability counts against audits.",
+  "references_gate": "not_applicable",
+  "references_gate_reason": "No external literature citations.",
+  "date": "2026-11-15",
+  "calibration_status": "No held-out controls.",
+  "interpretation": "perceived_style_not_authorship"
+}

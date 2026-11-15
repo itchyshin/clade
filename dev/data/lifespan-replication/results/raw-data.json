@@ -1,0 +1,10 @@
+{
+  "host": "totoro",
+  "archive_root": "/home/snakagaw/sim-archive/clade/2026-11-15-lifespan-replication",
+  "full_raw_checksums": "raw.sha256",
+  "validation_raw_checksums": "validate/raw.sha256",
+  "summary_checksums": "summary.sha256",
+  "source_commit": "2b6ea12bbbccf06f62e700edf5653eeb7c950cc6",
+  "driver_sha256": "d46d9c9c50b6f006597911071efd1dcfd23d603e86793f31b2b10adfaa063077",
+  "age_band_replay": "Stopped at user request before any block completed; partial files are not analyzed."
+}

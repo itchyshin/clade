@@ -1,0 +1,36 @@
+{
+  "assessment_performed": true,
+  "draft_sha256": "ddcd9a2fbac49d9b7c6b0ff9902f3b6edcf11ba2242e0ad1815bc9aaca06059a",
+  "draft_version": "v1",
+  "requested_mode": "independent",
+  "assessor_type": "self",
+  "reviewer": "Codex",
+  "method": "Post-draft self-review against source-pinned findings, paired audits and recorded limitations.",
+  "genre": "Simulation research report",
+  "coverage": "Whole exact draft",
+  "score": 3,
+  "style_status": "scored",
+  "score_reason": "Specific methods and conclusions are direct, with some technical density.",
+  "confidence": "moderate",
+  "confidence_reason": "Uncalibrated self-review, not independent validation.",
+  "examples": [
+    {
+      "location": "Line 5",
+      "line": 5,
+      "quote": "Repeat the previous food-by-reproductive-threshold and age-specific birth comparison with assay maximum age 400 rather than 300 ticks. The 400 setting passed the earlier five-source candidate screen, where all 360 assays avoided sub-20 dips, ended viable and avoided the 700-agent cap. Before any main results, validate that same setting on five disjoint sources 86001\u201386005. The source training world remains at maximum age 200, threshold 80 and 100 founders. Assays use 96 founders, thresholds 80 and 120, original and limited food, fixed and staggered founder ages, and one mixture plus eight equally weighted single-policy controls. Mutation is disabled during assays. The changed lifespan applies identically to all assay treatments and directly affects survival, birth timing and crowding; it is not a pure intervention on population stability.",
+      "cue": "Repeat the previous food-by-reproductive-threshold and age-s",
+      "impact": "States the study-specific result and scope.",
+      "repair": "no change needed"
+    }
+  ],
+  "evidence_none_reason": null,
+  "science_gate": "pass",
+  "science_gate_reason": "Checked estimands, source-bound kernel qualifications, uncertainties and conclusions against study records.",
+  "facts_gate": "pass",
+  "facts_gate_reason": "Checked numbers, replay and stability counts against audits.",
+  "references_gate": "not_applicable",
+  "references_gate_reason": "No external literature citations.",
+  "date": "2026-11-15",
+  "calibration_status": "No held-out controls.",
+  "interpretation": "perceived_style_not_authorship"
+}
