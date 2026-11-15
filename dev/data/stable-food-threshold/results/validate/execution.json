@@ -1,0 +1,10 @@
+{
+  "stage": "validate",
+  "life": 300,
+  "seconds": 60.0082135302946,
+  "workers": 5,
+  "julia_threads": 4,
+  "blas_threads": 1,
+  "jobs": 5,
+  "driver_sha256": "d46d9c9c50b6f006597911071efd1dcfd23d603e86793f31b2b10adfaa063077"
+}

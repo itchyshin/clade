@@ -1,0 +1,36 @@
+{
+  "assessment_performed": true,
+  "draft_sha256": "71a509e445f70678c58f5d087383f09ab396cdb17423b70ff62728d8d59329b8",
+  "draft_version": "v1",
+  "requested_mode": "independent",
+  "assessor_type": "self",
+  "reviewer": "Codex",
+  "method": "Post-draft self-review against the preregistered design, pilot reconstructions and source-pinned final summaries.",
+  "genre": "Simulation research record",
+  "coverage": "Whole exact draft",
+  "score": 3,
+  "style_status": "scored",
+  "score_reason": "The outcomes and limitations are concrete, although the technical report is dense.",
+  "confidence": "moderate",
+  "confidence_reason": "Uncalibrated self-review, not independent validation.",
+  "examples": [
+    {
+      "location": "Line 5",
+      "line": 5,
+      "quote": "Test the previously observed food-by-reproductive-threshold interaction in a population setting with few transient bottlenecks, and record reproductive timing. Use the same source panel and initial physical state across matched assay treatments apart from the threshold trait itself, which is encoded in the genome. Verify a normalized fingerprint that removes only that trait. Source training remains the earlier 100-founder, threshold-80, max-age-200, haploid, mutation-.2 world with unique cells. In assays, cross thresholds 80 and 120, original food (initial grass .50, regrowth .05) and limited food (.25, .025), fixed founder age 50 and staggered founder ages 25\u201372, and one eight-policy mixture with eight equal single-policy controls. Each assay has 96 founders, 700 cap, 900 cells and zero mutation. Both food components change together. Every candidate applies the same maximum age in every assay arm; changing lifespan defines a new world, so differences from earlier studies cannot be attributed to stability alone.",
+      "cue": "Test the previously observed food-by-reproductive-threshold ",
+      "impact": "Gives specific study context and scope.",
+      "repair": "no change needed"
+    }
+  ],
+  "evidence_none_reason": null,
+  "science_gate": "pass",
+  "science_gate_reason": "Matched the estimands, selection rules, timing cohort, uncertainty and scope to the audited design.",
+  "facts_gate": "pass",
+  "facts_gate_reason": "Checked numerical claims against independent audits and regenerated seed summaries.",
+  "references_gate": "not_applicable",
+  "references_gate_reason": "No external literature citations.",
+  "date": "2026-11-15",
+  "calibration_status": "No held-out controls.",
+  "interpretation": "perceived_style_not_authorship"
+}

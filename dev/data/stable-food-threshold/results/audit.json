@@ -1,0 +1,71 @@
+{
+  "stage": "full",
+  "life": 300,
+  "source_blocks": 100,
+  "source_failed": 0,
+  "source_viable": 100,
+  "source_low": 0,
+  "source_cap_ticks": 0,
+  "cohorts": 844371,
+  "pilot_events": 0,
+  "thresholds": {
+    "80": {
+      "runs": 3600,
+      "viable": 3600,
+      "no_bottleneck": 3600,
+      "cap_ticks": 0,
+      "tick_total": 3600000,
+      "groups": {
+        "0.05-fixed": {
+          "runs": 900,
+          "viable": 900,
+          "no_bottleneck": 900
+        },
+        "0.05-staggered": {
+          "runs": 900,
+          "viable": 900,
+          "no_bottleneck": 900
+        },
+        "0.025-fixed": {
+          "runs": 900,
+          "viable": 900,
+          "no_bottleneck": 900
+        },
+        "0.025-staggered": {
+          "runs": 900,
+          "viable": 900,
+          "no_bottleneck": 900
+        }
+      }
+    },
+    "120": {
+      "runs": 3600,
+      "viable": 3598,
+      "no_bottleneck": 3523,
+      "cap_ticks": 0,
+      "tick_total": 3600000,
+      "groups": {
+        "0.05-fixed": {
+          "runs": 900,
+          "viable": 900,
+          "no_bottleneck": 900
+        },
+        "0.05-staggered": {
+          "runs": 900,
+          "viable": 900,
+          "no_bottleneck": 900
+        },
+        "0.025-fixed": {
+          "runs": 900,
+          "viable": 899,
+          "no_bottleneck": 836
+        },
+        "0.025-staggered": {
+          "runs": 900,
+          "viable": 899,
+          "no_bottleneck": 887
+        }
+      }
+    }
+  }
+}
