@@ -1,0 +1,36 @@
+{
+  "assessment_performed": true,
+  "draft_sha256": "fa13d73626ef1a67b5236ad14049ea9ce4f239cca3704f8de458d918d40e7e46",
+  "draft_version": "v1",
+  "requested_mode": "independent",
+  "assessor_type": "self",
+  "reviewer": "Codex",
+  "method": "Post-draft self-review against source-pinned study plan, competing-risk audit and regenerated summaries.",
+  "genre": "Simulation research record",
+  "coverage": "Whole exact draft",
+  "score": 3,
+  "style_status": "scored",
+  "score_reason": "The design, quantitative results and limits are specific, though the report is technically dense.",
+  "confidence": "moderate",
+  "confidence_reason": "Uncalibrated self-review; not independent validation.",
+  "examples": [
+    {
+      "location": "Line 5",
+      "line": 5,
+      "quote": "Does restricting young-parent reproductive opportunities delay the first subsequent birth, and does it change the population difference between a policy mixture and balanced single-policy controls? The previous dose pilot tracked only parents who had been blocked, omitted sham parents from that follow-up and used a setting with frequent bottlenecks. This study enters each individual at their first energy-, age- and cap-eligible opportunity while younger than 50, irrespective of that opportunity's gate decision, including sham. Track birth, death, energy and end of observation. Births on the entry tick have elapsed time zero. Because population histories diverge, the individuals entering a cohort under different doses are post-intervention populations; dose-specific timing contrasts are descriptive intervention outcomes, not individual-level counterfactual postponement or natural mediation estimates.",
+      "cue": "Does restricting young-parent reproductive opportunities del",
+      "impact": "Provides specific task context and scope.",
+      "repair": "no change needed"
+    }
+  ],
+  "evidence_none_reason": null,
+  "science_gate": "pass",
+  "science_gate_reason": "Checked estimands, experimental controls, censoring, uncertainties and scope against recorded methods and outputs.",
+  "facts_gate": "pass",
+  "facts_gate_reason": "Checked reported numbers against audits and regenerated summaries.",
+  "references_gate": "not_applicable",
+  "references_gate_reason": "No external literature citations.",
+  "date": "2026-11-15",
+  "calibration_status": "No held-out controls.",
+  "interpretation": "perceived_style_not_authorship"
+}

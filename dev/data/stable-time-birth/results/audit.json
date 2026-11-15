@@ -1,0 +1,38 @@
+{
+  "stage": "full",
+  "sources": 100,
+  "source_failed": 0,
+  "runs": 18000,
+  "endpoint_viable": 17930,
+  "no_bottleneck": 17954,
+  "assay_cap_ticks": 0,
+  "source_cap_ticks": 0,
+  "cohorts": 3668870,
+  "pilot_events": 0,
+  "replay_runs": 0,
+  "gate_0": {
+    "eligible": 1010633,
+    "blocked": 0,
+    "fraction": 0.0
+  },
+  "gate_25": {
+    "eligible": 1310443,
+    "blocked": 327289,
+    "fraction": 0.24975447234255896
+  },
+  "gate_50": {
+    "eligible": 1876489,
+    "blocked": 937111,
+    "fraction": 0.4993959463657927
+  },
+  "gate_75": {
+    "eligible": 3373894,
+    "blocked": 2527308,
+    "fraction": 0.7490774754630702
+  },
+  "gate_100": {
+    "eligible": 15174397,
+    "blocked": 15174397,
+    "fraction": 1.0
+  }
+}

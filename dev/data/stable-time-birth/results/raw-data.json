@@ -1,0 +1,13 @@
+{
+  "host": "totoro",
+  "full_directory": "/home/snakagaw/sim-archive/clade/2026-11-15-stable-time-birth/full",
+  "pilot_directory": "/home/snakagaw/sim-archive/clade/2026-11-15-stable-time-birth/pilot",
+  "raw_checksums": "raw.sha256 and pilot-raw.sha256",
+  "summary_checksums": "summary.sha256",
+  "source_commit": "2b6ea12bbbccf06f62e700edf5653eeb7c950cc6",
+  "driver_sha256": "0bfe2aafefaad50748c571a1fade5e7fab97269ae2bd472e19510ecb92d06c3d",
+  "kernel_clade_sha256": "47696578b1e259a2f628fc1a8179beb877cd496dae40f3cbdbf78fc64997e684",
+  "kernel_reproduce_sha256": "4b3f9d5f58bad9df2995439b545a625cf96c5d36e11e1da08590bf0d92f7da68",
+  "mixture_assay_sha256": "289665bdbed26b5ee6cedf91f15ab59fc8ce757113c948fd25c819225b9096e5",
+  "performance_assay_sha256": "f0bf718f06f5362bf4ea61ef76f412dfa0349f9b147bd4ac61fc0b9c7deadf24"
+}

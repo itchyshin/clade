@@ -1,0 +1,9 @@
+{
+  "stage": "full",
+  "seconds": 630.1480080769397,
+  "workers": 24,
+  "julia_threads": 4,
+  "blas_threads": 1,
+  "seed_count": 100,
+  "driver_sha256": "0bfe2aafefaad50748c571a1fade5e7fab97269ae2bd472e19510ecb92d06c3d"
+}

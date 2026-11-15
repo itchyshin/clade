@@ -1,0 +1,36 @@
+{
+  "assessment_performed": true,
+  "draft_sha256": "2defdfd1f42eb56489e674807a6ccd8353e31da5019f06d4b4417baa523df34a",
+  "draft_version": "v1",
+  "requested_mode": "independent",
+  "assessor_type": "self",
+  "reviewer": "Codex",
+  "method": "Post-draft self-review against source-pinned study plan, competing-risk audit and regenerated summaries.",
+  "genre": "Simulation research record",
+  "coverage": "Whole exact draft",
+  "score": 3,
+  "style_status": "scored",
+  "score_reason": "The design, quantitative results and limits are specific, though the report is technically dense.",
+  "confidence": "moderate",
+  "confidence_reason": "Uncalibrated self-review; not independent validation.",
+  "examples": [
+    {
+      "location": "Line 3",
+      "line": 3,
+      "quote": "The design and analysis are in `plan.md`; results and limits are in `findings.md`. The simulation kernel comes from commit `2b6ea12bbbccf06f62e700edf5653eeb7c950cc6` with the isolated patches listed in `dev/data/age-dose-pilot/README.md`. Copy `driver.jl` and `check-sources.jl` to that patched source root. The launcher and archived data paths are specific to Totoro.",
+      "cue": "The design and analysis are in `plan.md`; results and limits",
+      "impact": "Provides specific task context and scope.",
+      "repair": "no change needed"
+    }
+  ],
+  "evidence_none_reason": null,
+  "science_gate": "pass",
+  "science_gate_reason": "Checked estimands, experimental controls, censoring, uncertainties and scope against recorded methods and outputs.",
+  "facts_gate": "pass",
+  "facts_gate_reason": "Checked reported numbers against audits and regenerated summaries.",
+  "references_gate": "not_applicable",
+  "references_gate_reason": "No external literature citations.",
+  "date": "2026-11-15",
+  "calibration_status": "No held-out controls.",
+  "interpretation": "perceived_style_not_authorship"
+}
